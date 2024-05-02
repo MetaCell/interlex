@@ -14,6 +14,10 @@ const { gray200, white } = vars;
 
 const styles = {
     root: {
+        background: white,
+        position: 'sticky',
+        top: 0,
+        zIndex: 99,
         borderBottom: `0.0625rem solid ${gray200}`,
         px: '2rem',
         height: '4.125rem',
@@ -96,7 +100,7 @@ const UserNavMenu = [
     }
 ]
 
-const Header = ({isLoggedIn = true}) => {
+const Header = ({ isLoggedIn = false }) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
 
