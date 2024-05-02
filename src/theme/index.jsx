@@ -8,7 +8,8 @@ const {
     gray300,
     gray600,
     gray700,
-    success500
+    success500,
+    gray500
 } = vars
 
 const theme = createTheme({
@@ -35,6 +36,44 @@ const theme = createTheme({
                     font-variation-settings: "slnt" 0;
                 }
             `
+        },
+
+        MuiTabs: {
+            styleOverrides: {
+                flexContainer: {
+                    gap: '2.25rem'
+                },
+                scrollableY: {
+                    '& .MuiTabs-indicator': {
+                        right: 'auto',
+                        left: 0,
+                        background: brand600,
+                        borderRadius: '3.125rem'
+                    }
+                }
+            }
+        },
+
+        MuiTab: {
+            styleOverrides: {
+                root: {
+                    textTransform: 'none',
+                    padding: '0rem 0.75rem',
+                    fontSize: '1.125rem',
+                    fontWeight: 500,
+                    lineHeight: '155.556%',
+                    letterSpacing: 'normal',
+                    textAlign: 'left',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start',
+                    minHeight: '0.0625rem',
+                    color: gray500,
+
+                    '&.Mui-selected': {
+                        color: brand600,
+                    }
+                }
+            }
         },
 
         MuiTouchRipple: {
