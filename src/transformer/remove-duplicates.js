@@ -7,15 +7,15 @@
 module.exports = (inputSchema) => ({
   ...inputSchema,
   paths: Object.entries(inputSchema.paths).reduce(
-    (acc, [path, pathItem]) => (acc[`v{version}${path}`] === undefined ? {
+    (acc, [path, pathItem]) => ({
       ...acc,
       [`v{version}${path}`]: Object.entries(pathItem).reduce(
-        (pathItemAcc, [verb, operation]) => (pathItemAcc[verb] === undefined ? {
+        (pathItemAcc) => ({
           ...pathItemAcc,
-          [verb]: {
-            ...operation,
+          [pathItemAcc.verb]: {
+            ...pathItemAcc.operation,
             parameters: [
-              ...(operation.parameters || []),
+              ...(pathItemAcc.operation?.parameters || []),
               {
                 name: 'version',
                 in: 'path',
@@ -27,10 +27,10 @@ module.exports = (inputSchema) => ({
               },
             ],
           },
-        } : pathItemAcc),
+        }),
         {},
       ),
-    } : acc),
+    }),
     {},
   ),
 });
