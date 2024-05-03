@@ -32,24 +32,24 @@ type AwaitedInput<T> = PromiseLike<T> | T;
 
 
 export const getEndpointsOps = (
-    group: string | undefined | null,
-    operation: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    operation: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/Operations/${encodeURIComponent(String(group))}/ops/${encodeURIComponent(String(operation))}`,options
+      `/api/v1/Operations/${group}/ops/${operation}`,options
     );
   }
 
 
-export const getGetEndpointsOpsQueryKey = (group: string | undefined | null,
-    operation: string | undefined | null,) => {
+export const getGetEndpointsOpsQueryKey = (group: string,
+    operation: string,) => {
     return [`/api/v1/Operations/${group}/ops/${operation}`] as const;
     }
 
     
-export const getGetEndpointsOpsQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsOps>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    operation: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsOps>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetEndpointsOpsQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsOps>>, TError = AxiosError<unknown>>(group: string,
+    operation: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsOps>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -71,8 +71,8 @@ export type GetEndpointsOpsQueryResult = NonNullable<Awaited<ReturnType<typeof g
 export type GetEndpointsOpsQueryError = AxiosError<unknown>
 
 export const useGetEndpointsOps = <TData = Awaited<ReturnType<typeof getEndpointsOps>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    operation: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsOps>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    operation: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsOps>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -89,12 +89,12 @@ export const useGetEndpointsOps = <TData = Awaited<ReturnType<typeof getEndpoint
 
 
 export const postEndpointsOps = (
-    group: string | undefined | null,
-    operation: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    operation: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.post(
-      `/api/v1/Operations/${encodeURIComponent(String(group))}/ops/${encodeURIComponent(String(operation))}`,undefined,options
+      `/api/v1/Operations/${group}/ops/${operation}`,undefined,options
     );
   }
 
@@ -138,24 +138,24 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?? {};
     }
     
 export const getEndpointsPriv = (
-    group: string | undefined | null,
-    page: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    page: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/Privileged endpoints/${encodeURIComponent(String(group))}/priv/${encodeURIComponent(String(page))}`,options
+      `/api/v1/Privileged endpoints/${group}/priv/${page}`,options
     );
   }
 
 
-export const getGetEndpointsPrivQueryKey = (group: string | undefined | null,
-    page: string | undefined | null,) => {
+export const getGetEndpointsPrivQueryKey = (group: string,
+    page: string,) => {
     return [`/api/v1/Privileged endpoints/${group}/priv/${page}`] as const;
     }
 
     
-export const getGetEndpointsPrivQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsPriv>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    page: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsPriv>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetEndpointsPrivQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsPriv>>, TError = AxiosError<unknown>>(group: string,
+    page: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsPriv>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -177,8 +177,8 @@ export type GetEndpointsPrivQueryResult = NonNullable<Awaited<ReturnType<typeof 
 export type GetEndpointsPrivQueryError = AxiosError<unknown>
 
 export const useGetEndpointsPriv = <TData = Awaited<ReturnType<typeof getEndpointsPriv>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    page: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsPriv>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    page: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsPriv>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -195,12 +195,12 @@ export const useGetEndpointsPriv = <TData = Awaited<ReturnType<typeof getEndpoin
 
 
 export const postEndpointsPriv = (
-    group: string | undefined | null,
-    page: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    page: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.post(
-      `/api/v1/Privileged endpoints/${encodeURIComponent(String(group))}/priv/${encodeURIComponent(String(page))}`,undefined,options
+      `/api/v1/Privileged endpoints/${group}/priv/${page}`,undefined,options
     );
   }
 
@@ -244,21 +244,21 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?? {};
     }
     
 export const getEndpointsContributions = (
-    group: string | undefined | null, options?: AxiosRequestConfig
+    group: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/contributions/`,options
+      `/api/v1/${group}/contributions/`,options
     );
   }
 
 
-export const getGetEndpointsContributionsQueryKey = (group: string | undefined | null,) => {
+export const getGetEndpointsContributionsQueryKey = (group: string,) => {
     return [`/api/v1/${group}/contributions/`] as const;
     }
 
     
-export const getGetEndpointsContributionsQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsContributions>>, TError = AxiosError<unknown>>(group: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetEndpointsContributionsQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsContributions>>, TError = AxiosError<unknown>>(group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -280,7 +280,7 @@ export type GetEndpointsContributionsQueryResult = NonNullable<Awaited<ReturnTyp
 export type GetEndpointsContributionsQueryError = AxiosError<unknown>
 
 export const useGetEndpointsContributions = <TData = Awaited<ReturnType<typeof getEndpointsContributions>>, TError = AxiosError<unknown>>(
- group: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -297,21 +297,21 @@ export const useGetEndpointsContributions = <TData = Awaited<ReturnType<typeof g
 
 
 export const getEndpointsContributions = (
-    group: string | undefined | null, options?: AxiosRequestConfig
+    group: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/contributions/interlex`,options
+      `/api/v1/${group}/contributions/interlex`,options
     );
   }
 
 
-export const getGetEndpointsContributionsQueryKey = (group: string | undefined | null,) => {
+export const getGetEndpointsContributionsQueryKey = (group: string,) => {
     return [`/api/v1/${group}/contributions/interlex`] as const;
     }
 
     
-export const getGetEndpointsContributionsQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsContributions>>, TError = AxiosError<unknown>>(group: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetEndpointsContributionsQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsContributions>>, TError = AxiosError<unknown>>(group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -333,7 +333,7 @@ export type GetEndpointsContributionsQueryResult = NonNullable<Awaited<ReturnTyp
 export type GetEndpointsContributionsQueryError = AxiosError<unknown>
 
 export const useGetEndpointsContributions = <TData = Awaited<ReturnType<typeof getEndpointsContributions>>, TError = AxiosError<unknown>>(
- group: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -350,21 +350,21 @@ export const useGetEndpointsContributions = <TData = Awaited<ReturnType<typeof g
 
 
 export const getEndpointsCuries = (
-    group: string | undefined | null, options?: AxiosRequestConfig
+    group: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/curies/`,options
+      `/api/v1/${group}/curies/`,options
     );
   }
 
 
-export const getGetEndpointsCuriesQueryKey = (group: string | undefined | null,) => {
+export const getGetEndpointsCuriesQueryKey = (group: string,) => {
     return [`/api/v1/${group}/curies/`] as const;
     }
 
     
-export const getGetEndpointsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsCuries>>, TError = AxiosError<unknown>>(group: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetEndpointsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsCuries>>, TError = AxiosError<unknown>>(group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -386,7 +386,7 @@ export type GetEndpointsCuriesQueryResult = NonNullable<Awaited<ReturnType<typeo
 export type GetEndpointsCuriesQueryError = AxiosError<unknown>
 
 export const useGetEndpointsCuries = <TData = Awaited<ReturnType<typeof getEndpointsCuries>>, TError = AxiosError<unknown>>(
- group: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -403,11 +403,11 @@ export const useGetEndpointsCuries = <TData = Awaited<ReturnType<typeof getEndpo
 
 
 export const postEndpointsCuries = (
-    group: string | undefined | null, options?: AxiosRequestConfig
+    group: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.post(
-      `/api/v1/${encodeURIComponent(String(group))}/curies/`,undefined,options
+      `/api/v1/${group}/curies/`,undefined,options
     );
   }
 
@@ -451,24 +451,24 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?? {};
     }
     
 export const getEndpointsCuries = (
-    group: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    prefixIriCurie: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/curies/${encodeURIComponent(String(prefixIriCurie))}`,options
+      `/api/v1/${group}/curies/${prefixIriCurie}`,options
     );
   }
 
 
-export const getGetEndpointsCuriesQueryKey = (group: string | undefined | null,
-    prefixIriCurie: string | undefined | null,) => {
+export const getGetEndpointsCuriesQueryKey = (group: string,
+    prefixIriCurie: string,) => {
     return [`/api/v1/${group}/curies/${prefixIriCurie}`] as const;
     }
 
     
-export const getGetEndpointsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsCuries>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetEndpointsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsCuries>>, TError = AxiosError<unknown>>(group: string,
+    prefixIriCurie: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -490,8 +490,8 @@ export type GetEndpointsCuriesQueryResult = NonNullable<Awaited<ReturnType<typeo
 export type GetEndpointsCuriesQueryError = AxiosError<unknown>
 
 export const useGetEndpointsCuries = <TData = Awaited<ReturnType<typeof getEndpointsCuries>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    prefixIriCurie: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -508,24 +508,24 @@ export const useGetEndpointsCuries = <TData = Awaited<ReturnType<typeof getEndpo
 
 
 export const getDiffCuries = (
-    group: string | undefined | null,
-    otherGroupDiff: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroupDiff: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/diff/${encodeURIComponent(String(otherGroupDiff))}/curies/`,options
+      `/api/v1/${group}/diff/${otherGroupDiff}/curies/`,options
     );
   }
 
 
-export const getGetDiffCuriesQueryKey = (group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,) => {
+export const getGetDiffCuriesQueryKey = (group: string,
+    otherGroupDiff: string,) => {
     return [`/api/v1/${group}/diff/${otherGroupDiff}/curies/`] as const;
     }
 
     
-export const getGetDiffCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getDiffCuries>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroupDiff: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetDiffCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getDiffCuries>>, TError = AxiosError<unknown>>(group: string,
+    otherGroupDiff: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -547,8 +547,8 @@ export type GetDiffCuriesQueryResult = NonNullable<Awaited<ReturnType<typeof get
 export type GetDiffCuriesQueryError = AxiosError<unknown>
 
 export const useGetDiffCuries = <TData = Awaited<ReturnType<typeof getDiffCuries>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroupDiff: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroupDiff: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -565,27 +565,27 @@ export const useGetDiffCuries = <TData = Awaited<ReturnType<typeof getDiffCuries
 
 
 export const getDiffCuries = (
-    group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroupDiff: string,
+    prefixIriCurie: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/diff/${encodeURIComponent(String(otherGroupDiff))}/curies/${encodeURIComponent(String(prefixIriCurie))}`,options
+      `/api/v1/${group}/diff/${otherGroupDiff}/curies/${prefixIriCurie}`,options
     );
   }
 
 
-export const getGetDiffCuriesQueryKey = (group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    prefixIriCurie: string | undefined | null,) => {
+export const getGetDiffCuriesQueryKey = (group: string,
+    otherGroupDiff: string,
+    prefixIriCurie: string,) => {
     return [`/api/v1/${group}/diff/${otherGroupDiff}/curies/${prefixIriCurie}`] as const;
     }
 
     
-export const getGetDiffCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getDiffCuries>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetDiffCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getDiffCuries>>, TError = AxiosError<unknown>>(group: string,
+    otherGroupDiff: string,
+    prefixIriCurie: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -607,9 +607,9 @@ export type GetDiffCuriesQueryResult = NonNullable<Awaited<ReturnType<typeof get
 export type GetDiffCuriesQueryError = AxiosError<unknown>
 
 export const useGetDiffCuries = <TData = Awaited<ReturnType<typeof getDiffCuries>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroupDiff: string,
+    prefixIriCurie: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -626,27 +626,27 @@ export const useGetDiffCuries = <TData = Awaited<ReturnType<typeof getDiffCuries
 
 
 export const getDiffLexical = (
-    group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    label: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroupDiff: string,
+    label: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/diff/${encodeURIComponent(String(otherGroupDiff))}/lexical/${encodeURIComponent(String(label))}`,options
+      `/api/v1/${group}/diff/${otherGroupDiff}/lexical/${label}`,options
     );
   }
 
 
-export const getGetDiffLexicalQueryKey = (group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    label: string | undefined | null,) => {
+export const getGetDiffLexicalQueryKey = (group: string,
+    otherGroupDiff: string,
+    label: string,) => {
     return [`/api/v1/${group}/diff/${otherGroupDiff}/lexical/${label}`] as const;
     }
 
     
-export const getGetDiffLexicalQueryOptions = <TData = Awaited<ReturnType<typeof getDiffLexical>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    label: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffLexical>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetDiffLexicalQueryOptions = <TData = Awaited<ReturnType<typeof getDiffLexical>>, TError = AxiosError<unknown>>(group: string,
+    otherGroupDiff: string,
+    label: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffLexical>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -668,9 +668,9 @@ export type GetDiffLexicalQueryResult = NonNullable<Awaited<ReturnType<typeof ge
 export type GetDiffLexicalQueryError = AxiosError<unknown>
 
 export const useGetDiffLexical = <TData = Awaited<ReturnType<typeof getDiffLexical>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    label: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffLexical>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroupDiff: string,
+    label: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffLexical>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -690,24 +690,24 @@ export const useGetDiffLexical = <TData = Awaited<ReturnType<typeof getDiffLexic
  * @summary needed because ontologies appear under other routes
  */
 export const getDiffOntologiesContributions = (
-    group: string | undefined | null,
-    otherGroupDiff: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroupDiff: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/diff/${encodeURIComponent(String(otherGroupDiff))}/ontologies/contributions`,options
+      `/api/v1/${group}/diff/${otherGroupDiff}/ontologies/contributions`,options
     );
   }
 
 
-export const getGetDiffOntologiesContributionsQueryKey = (group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,) => {
+export const getGetDiffOntologiesContributionsQueryKey = (group: string,
+    otherGroupDiff: string,) => {
     return [`/api/v1/${group}/diff/${otherGroupDiff}/ontologies/contributions`] as const;
     }
 
     
-export const getGetDiffOntologiesContributionsQueryOptions = <TData = Awaited<ReturnType<typeof getDiffOntologiesContributions>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroupDiff: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetDiffOntologiesContributionsQueryOptions = <TData = Awaited<ReturnType<typeof getDiffOntologiesContributions>>, TError = AxiosError<unknown>>(group: string,
+    otherGroupDiff: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -732,8 +732,8 @@ export type GetDiffOntologiesContributionsQueryError = AxiosError<unknown>
  * @summary needed because ontologies appear under other routes
  */
 export const useGetDiffOntologiesContributions = <TData = Awaited<ReturnType<typeof getDiffOntologiesContributions>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroupDiff: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroupDiff: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -753,30 +753,30 @@ export const useGetDiffOntologiesContributions = <TData = Awaited<ReturnType<typ
  * @summary needed because ontologies appear under other routes
  */
 export const getDiffOntologiesUris = (
-    group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroupDiff: string,
+    ontPath: string,
+    filename: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/diff/${encodeURIComponent(String(otherGroupDiff))}/ontologies/uris/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}/`,options
+      `/api/v1/${group}/diff/${otherGroupDiff}/ontologies/uris/${ontPath}/${filename}/`,options
     );
   }
 
 
-export const getGetDiffOntologiesUrisQueryKey = (group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,) => {
+export const getGetDiffOntologiesUrisQueryKey = (group: string,
+    otherGroupDiff: string,
+    ontPath: string,
+    filename: string,) => {
     return [`/api/v1/${group}/diff/${otherGroupDiff}/ontologies/uris/${ontPath}/${filename}/`] as const;
     }
 
     
-export const getGetDiffOntologiesUrisQueryOptions = <TData = Awaited<ReturnType<typeof getDiffOntologiesUris>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetDiffOntologiesUrisQueryOptions = <TData = Awaited<ReturnType<typeof getDiffOntologiesUris>>, TError = AxiosError<unknown>>(group: string,
+    otherGroupDiff: string,
+    ontPath: string,
+    filename: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -801,10 +801,10 @@ export type GetDiffOntologiesUrisQueryError = AxiosError<unknown>
  * @summary needed because ontologies appear under other routes
  */
 export const useGetDiffOntologiesUris = <TData = Awaited<ReturnType<typeof getDiffOntologiesUris>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroupDiff: string,
+    ontPath: string,
+    filename: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -824,39 +824,39 @@ export const useGetDiffOntologiesUris = <TData = Awaited<ReturnType<typeof getDi
  * @summary needed because ontologies appear under other routes
  */
 export const getDiffOntologiesUrisVersion = (
-    group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroupDiff: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/diff/${encodeURIComponent(String(otherGroupDiff))}/ontologies/uris/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}/version/${encodeURIComponent(String(epochVerstrOnt))}/${encodeURIComponent(String(filenameTerminal))}.${encodeURIComponent(String(extension))}`,options
+      `/api/v1/${group}/diff/${otherGroupDiff}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`,options
     );
   }
 
 
-export const getGetDiffOntologiesUrisVersionQueryKey = (group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null,) => {
+export const getGetDiffOntologiesUrisVersionQueryKey = (group: string,
+    otherGroupDiff: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string,) => {
     return [`/api/v1/${group}/diff/${otherGroupDiff}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
     }
 
     
-export const getGetDiffOntologiesUrisVersionQueryOptions = <TData = Awaited<ReturnType<typeof getDiffOntologiesUrisVersion>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesUrisVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetDiffOntologiesUrisVersionQueryOptions = <TData = Awaited<ReturnType<typeof getDiffOntologiesUrisVersion>>, TError = AxiosError<unknown>>(group: string,
+    otherGroupDiff: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesUrisVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -881,13 +881,13 @@ export type GetDiffOntologiesUrisVersionQueryError = AxiosError<unknown>
  * @summary needed because ontologies appear under other routes
  */
 export const useGetDiffOntologiesUrisVersion = <TData = Awaited<ReturnType<typeof getDiffOntologiesUrisVersion>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesUrisVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroupDiff: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesUrisVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -907,30 +907,30 @@ export const useGetDiffOntologiesUrisVersion = <TData = Awaited<ReturnType<typeo
  * @summary the main ontologies endpoint
  */
 export const getDiffOntologies = (
-    group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroupDiff: string,
+    ontPath: string,
+    filename: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/diff/${encodeURIComponent(String(otherGroupDiff))}/ontologies/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}/`,options
+      `/api/v1/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}/`,options
     );
   }
 
 
-export const getGetDiffOntologiesQueryKey = (group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,) => {
+export const getGetDiffOntologiesQueryKey = (group: string,
+    otherGroupDiff: string,
+    ontPath: string,
+    filename: string,) => {
     return [`/api/v1/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}/`] as const;
     }
 
     
-export const getGetDiffOntologiesQueryOptions = <TData = Awaited<ReturnType<typeof getDiffOntologies>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologies>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetDiffOntologiesQueryOptions = <TData = Awaited<ReturnType<typeof getDiffOntologies>>, TError = AxiosError<unknown>>(group: string,
+    otherGroupDiff: string,
+    ontPath: string,
+    filename: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologies>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -955,10 +955,10 @@ export type GetDiffOntologiesQueryError = AxiosError<unknown>
  * @summary the main ontologies endpoint
  */
 export const useGetDiffOntologies = <TData = Awaited<ReturnType<typeof getDiffOntologies>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologies>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroupDiff: string,
+    ontPath: string,
+    filename: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologies>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -978,39 +978,39 @@ export const useGetDiffOntologies = <TData = Awaited<ReturnType<typeof getDiffOn
  * @summary needed because ontologies appear under other routes
  */
 export const getDiffOntologiesVersion = (
-    group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroupDiff: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/diff/${encodeURIComponent(String(otherGroupDiff))}/ontologies/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}/version/${encodeURIComponent(String(epochVerstrOnt))}/${encodeURIComponent(String(filenameTerminal))}.${encodeURIComponent(String(extension))}`,options
+      `/api/v1/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`,options
     );
   }
 
 
-export const getGetDiffOntologiesVersionQueryKey = (group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null,) => {
+export const getGetDiffOntologiesVersionQueryKey = (group: string,
+    otherGroupDiff: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string,) => {
     return [`/api/v1/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
     }
 
     
-export const getGetDiffOntologiesVersionQueryOptions = <TData = Awaited<ReturnType<typeof getDiffOntologiesVersion>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetDiffOntologiesVersionQueryOptions = <TData = Awaited<ReturnType<typeof getDiffOntologiesVersion>>, TError = AxiosError<unknown>>(group: string,
+    otherGroupDiff: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -1035,13 +1035,13 @@ export type GetDiffOntologiesVersionQueryError = AxiosError<unknown>
  * @summary needed because ontologies appear under other routes
  */
 export const useGetDiffOntologiesVersion = <TData = Awaited<ReturnType<typeof getDiffOntologiesVersion>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroupDiff: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -1058,30 +1058,30 @@ export const useGetDiffOntologiesVersion = <TData = Awaited<ReturnType<typeof ge
 
 
 export const getDiffOntologiesIlx = (
-    group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    fragPrefId: string | undefined | null,
-    extension: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroupDiff: string,
+    fragPrefId: string,
+    extension: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/diff/${encodeURIComponent(String(otherGroupDiff))}/ontologies/${encodeURIComponent(String(fragPrefId))}.${encodeURIComponent(String(extension))}`,options
+      `/api/v1/${group}/diff/${otherGroupDiff}/ontologies/${fragPrefId}.${extension}`,options
     );
   }
 
 
-export const getGetDiffOntologiesIlxQueryKey = (group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    fragPrefId: string | undefined | null,
-    extension: string | undefined | null,) => {
+export const getGetDiffOntologiesIlxQueryKey = (group: string,
+    otherGroupDiff: string,
+    fragPrefId: string,
+    extension: string,) => {
     return [`/api/v1/${group}/diff/${otherGroupDiff}/ontologies/${fragPrefId}.${extension}`] as const;
     }
 
     
-export const getGetDiffOntologiesIlxQueryOptions = <TData = Awaited<ReturnType<typeof getDiffOntologiesIlx>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    fragPrefId: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetDiffOntologiesIlxQueryOptions = <TData = Awaited<ReturnType<typeof getDiffOntologiesIlx>>, TError = AxiosError<unknown>>(group: string,
+    otherGroupDiff: string,
+    fragPrefId: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -1103,10 +1103,10 @@ export type GetDiffOntologiesIlxQueryResult = NonNullable<Awaited<ReturnType<typ
 export type GetDiffOntologiesIlxQueryError = AxiosError<unknown>
 
 export const useGetDiffOntologiesIlx = <TData = Awaited<ReturnType<typeof getDiffOntologiesIlx>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    fragPrefId: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroupDiff: string,
+    fragPrefId: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -1123,27 +1123,27 @@ export const useGetDiffOntologiesIlx = <TData = Awaited<ReturnType<typeof getDif
 
 
 export const getDiffReadable = (
-    group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    word: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroupDiff: string,
+    word: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/diff/${encodeURIComponent(String(otherGroupDiff))}/readable/${encodeURIComponent(String(word))}`,options
+      `/api/v1/${group}/diff/${otherGroupDiff}/readable/${word}`,options
     );
   }
 
 
-export const getGetDiffReadableQueryKey = (group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    word: string | undefined | null,) => {
+export const getGetDiffReadableQueryKey = (group: string,
+    otherGroupDiff: string,
+    word: string,) => {
     return [`/api/v1/${group}/diff/${otherGroupDiff}/readable/${word}`] as const;
     }
 
     
-export const getGetDiffReadableQueryOptions = <TData = Awaited<ReturnType<typeof getDiffReadable>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    word: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetDiffReadableQueryOptions = <TData = Awaited<ReturnType<typeof getDiffReadable>>, TError = AxiosError<unknown>>(group: string,
+    otherGroupDiff: string,
+    word: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -1165,9 +1165,9 @@ export type GetDiffReadableQueryResult = NonNullable<Awaited<ReturnType<typeof g
 export type GetDiffReadableQueryError = AxiosError<unknown>
 
 export const useGetDiffReadable = <TData = Awaited<ReturnType<typeof getDiffReadable>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    word: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroupDiff: string,
+    word: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -1184,27 +1184,27 @@ export const useGetDiffReadable = <TData = Awaited<ReturnType<typeof getDiffRead
 
 
 export const getDiffUris = (
-    group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    uriPath: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroupDiff: string,
+    uriPath: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/diff/${encodeURIComponent(String(otherGroupDiff))}/uris/${encodeURIComponent(String(uriPath))}`,options
+      `/api/v1/${group}/diff/${otherGroupDiff}/uris/${uriPath}`,options
     );
   }
 
 
-export const getGetDiffUrisQueryKey = (group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    uriPath: string | undefined | null,) => {
+export const getGetDiffUrisQueryKey = (group: string,
+    otherGroupDiff: string,
+    uriPath: string,) => {
     return [`/api/v1/${group}/diff/${otherGroupDiff}/uris/${uriPath}`] as const;
     }
 
     
-export const getGetDiffUrisQueryOptions = <TData = Awaited<ReturnType<typeof getDiffUris>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    uriPath: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetDiffUrisQueryOptions = <TData = Awaited<ReturnType<typeof getDiffUris>>, TError = AxiosError<unknown>>(group: string,
+    otherGroupDiff: string,
+    uriPath: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -1226,9 +1226,9 @@ export type GetDiffUrisQueryResult = NonNullable<Awaited<ReturnType<typeof getDi
 export type GetDiffUrisQueryError = AxiosError<unknown>
 
 export const useGetDiffUris = <TData = Awaited<ReturnType<typeof getDiffUris>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    uriPath: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroupDiff: string,
+    uriPath: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -1245,27 +1245,27 @@ export const useGetDiffUris = <TData = Awaited<ReturnType<typeof getDiffUris>>, 
 
 
 export const getDiffVersionsCuries = (
-    group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/diff/${encodeURIComponent(String(otherGroupDiff))}/versions/${encodeURIComponent(String(epochVerstrId))}/curies/`,options
+      `/api/v1/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies/`,options
     );
   }
 
 
-export const getGetDiffVersionsCuriesQueryKey = (group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null,) => {
+export const getGetDiffVersionsCuriesQueryKey = (group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,) => {
     return [`/api/v1/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies/`] as const;
     }
 
     
-export const getGetDiffVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetDiffVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError = AxiosError<unknown>>(group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -1287,9 +1287,9 @@ export type GetDiffVersionsCuriesQueryResult = NonNullable<Awaited<ReturnType<ty
 export type GetDiffVersionsCuriesQueryError = AxiosError<unknown>
 
 export const useGetDiffVersionsCuries = <TData = Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -1306,30 +1306,30 @@ export const useGetDiffVersionsCuries = <TData = Awaited<ReturnType<typeof getDi
 
 
 export const getDiffVersionsCuries = (
-    group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,
+    prefixIriCurie: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/diff/${encodeURIComponent(String(otherGroupDiff))}/versions/${encodeURIComponent(String(epochVerstrId))}/curies/${encodeURIComponent(String(prefixIriCurie))}`,options
+      `/api/v1/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies/${prefixIriCurie}`,options
     );
   }
 
 
-export const getGetDiffVersionsCuriesQueryKey = (group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    prefixIriCurie: string | undefined | null,) => {
+export const getGetDiffVersionsCuriesQueryKey = (group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,
+    prefixIriCurie: string,) => {
     return [`/api/v1/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies/${prefixIriCurie}`] as const;
     }
 
     
-export const getGetDiffVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetDiffVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError = AxiosError<unknown>>(group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,
+    prefixIriCurie: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -1351,10 +1351,10 @@ export type GetDiffVersionsCuriesQueryResult = NonNullable<Awaited<ReturnType<ty
 export type GetDiffVersionsCuriesQueryError = AxiosError<unknown>
 
 export const useGetDiffVersionsCuries = <TData = Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,
+    prefixIriCurie: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -1371,30 +1371,30 @@ export const useGetDiffVersionsCuries = <TData = Awaited<ReturnType<typeof getDi
 
 
 export const getDiffVersionsReadable = (
-    group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    word: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,
+    word: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/diff/${encodeURIComponent(String(otherGroupDiff))}/versions/${encodeURIComponent(String(epochVerstrId))}/readable/${encodeURIComponent(String(word))}`,options
+      `/api/v1/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/readable/${word}`,options
     );
   }
 
 
-export const getGetDiffVersionsReadableQueryKey = (group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    word: string | undefined | null,) => {
+export const getGetDiffVersionsReadableQueryKey = (group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,
+    word: string,) => {
     return [`/api/v1/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/readable/${word}`] as const;
     }
 
     
-export const getGetDiffVersionsReadableQueryOptions = <TData = Awaited<ReturnType<typeof getDiffVersionsReadable>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    word: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetDiffVersionsReadableQueryOptions = <TData = Awaited<ReturnType<typeof getDiffVersionsReadable>>, TError = AxiosError<unknown>>(group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,
+    word: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -1416,10 +1416,10 @@ export type GetDiffVersionsReadableQueryResult = NonNullable<Awaited<ReturnType<
 export type GetDiffVersionsReadableQueryError = AxiosError<unknown>
 
 export const useGetDiffVersionsReadable = <TData = Awaited<ReturnType<typeof getDiffVersionsReadable>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    word: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,
+    word: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -1436,30 +1436,30 @@ export const useGetDiffVersionsReadable = <TData = Awaited<ReturnType<typeof get
 
 
 export const getDiffVersionsUris = (
-    group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    uriPath: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,
+    uriPath: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/diff/${encodeURIComponent(String(otherGroupDiff))}/versions/${encodeURIComponent(String(epochVerstrId))}/uris/${encodeURIComponent(String(uriPath))}`,options
+      `/api/v1/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/uris/${uriPath}`,options
     );
   }
 
 
-export const getGetDiffVersionsUrisQueryKey = (group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    uriPath: string | undefined | null,) => {
+export const getGetDiffVersionsUrisQueryKey = (group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,
+    uriPath: string,) => {
     return [`/api/v1/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/uris/${uriPath}`] as const;
     }
 
     
-export const getGetDiffVersionsUrisQueryOptions = <TData = Awaited<ReturnType<typeof getDiffVersionsUris>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    uriPath: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetDiffVersionsUrisQueryOptions = <TData = Awaited<ReturnType<typeof getDiffVersionsUris>>, TError = AxiosError<unknown>>(group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,
+    uriPath: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -1481,10 +1481,10 @@ export type GetDiffVersionsUrisQueryResult = NonNullable<Awaited<ReturnType<type
 export type GetDiffVersionsUrisQueryError = AxiosError<unknown>
 
 export const useGetDiffVersionsUris = <TData = Awaited<ReturnType<typeof getDiffVersionsUris>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    uriPath: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,
+    uriPath: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -1501,30 +1501,30 @@ export const useGetDiffVersionsUris = <TData = Awaited<ReturnType<typeof getDiff
 
 
 export const getDiffVersionsIlx = (
-    group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    fragPrefId: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,
+    fragPrefId: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/diff/${encodeURIComponent(String(otherGroupDiff))}/versions/${encodeURIComponent(String(epochVerstrId))}/${encodeURIComponent(String(fragPrefId))}`,options
+      `/api/v1/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/${fragPrefId}`,options
     );
   }
 
 
-export const getGetDiffVersionsIlxQueryKey = (group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    fragPrefId: string | undefined | null,) => {
+export const getGetDiffVersionsIlxQueryKey = (group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,
+    fragPrefId: string,) => {
     return [`/api/v1/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/${fragPrefId}`] as const;
     }
 
     
-export const getGetDiffVersionsIlxQueryOptions = <TData = Awaited<ReturnType<typeof getDiffVersionsIlx>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    fragPrefId: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetDiffVersionsIlxQueryOptions = <TData = Awaited<ReturnType<typeof getDiffVersionsIlx>>, TError = AxiosError<unknown>>(group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,
+    fragPrefId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -1546,10 +1546,10 @@ export type GetDiffVersionsIlxQueryResult = NonNullable<Awaited<ReturnType<typeo
 export type GetDiffVersionsIlxQueryError = AxiosError<unknown>
 
 export const useGetDiffVersionsIlx = <TData = Awaited<ReturnType<typeof getDiffVersionsIlx>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    fragPrefId: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,
+    fragPrefId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -1566,27 +1566,27 @@ export const useGetDiffVersionsIlx = <TData = Awaited<ReturnType<typeof getDiffV
 
 
 export const getDiffIlx = (
-    group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    fragPrefId: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroupDiff: string,
+    fragPrefId: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/diff/${encodeURIComponent(String(otherGroupDiff))}/${encodeURIComponent(String(fragPrefId))}`,options
+      `/api/v1/${group}/diff/${otherGroupDiff}/${fragPrefId}`,options
     );
   }
 
 
-export const getGetDiffIlxQueryKey = (group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    fragPrefId: string | undefined | null,) => {
+export const getGetDiffIlxQueryKey = (group: string,
+    otherGroupDiff: string,
+    fragPrefId: string,) => {
     return [`/api/v1/${group}/diff/${otherGroupDiff}/${fragPrefId}`] as const;
     }
 
     
-export const getGetDiffIlxQueryOptions = <TData = Awaited<ReturnType<typeof getDiffIlx>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    fragPrefId: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetDiffIlxQueryOptions = <TData = Awaited<ReturnType<typeof getDiffIlx>>, TError = AxiosError<unknown>>(group: string,
+    otherGroupDiff: string,
+    fragPrefId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -1608,9 +1608,9 @@ export type GetDiffIlxQueryResult = NonNullable<Awaited<ReturnType<typeof getDif
 export type GetDiffIlxQueryError = AxiosError<unknown>
 
 export const useGetDiffIlx = <TData = Awaited<ReturnType<typeof getDiffIlx>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroupDiff: string | undefined | null,
-    fragPrefId: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroupDiff: string,
+    fragPrefId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -1627,21 +1627,21 @@ export const useGetDiffIlx = <TData = Awaited<ReturnType<typeof getDiffIlx>>, TE
 
 
 export const getEndpointsMapped = (
-    group: string | undefined | null, options?: AxiosRequestConfig
+    group: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/external/mapped`,options
+      `/api/v1/${group}/external/mapped`,options
     );
   }
 
 
-export const getGetEndpointsMappedQueryKey = (group: string | undefined | null,) => {
+export const getGetEndpointsMappedQueryKey = (group: string,) => {
     return [`/api/v1/${group}/external/mapped`] as const;
     }
 
     
-export const getGetEndpointsMappedQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsMapped>>, TError = AxiosError<unknown>>(group: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsMapped>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetEndpointsMappedQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsMapped>>, TError = AxiosError<unknown>>(group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsMapped>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -1663,7 +1663,7 @@ export type GetEndpointsMappedQueryResult = NonNullable<Awaited<ReturnType<typeo
 export type GetEndpointsMappedQueryError = AxiosError<unknown>
 
 export const useGetEndpointsMapped = <TData = Awaited<ReturnType<typeof getEndpointsMapped>>, TError = AxiosError<unknown>>(
- group: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsMapped>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsMapped>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -1680,11 +1680,11 @@ export const useGetEndpointsMapped = <TData = Awaited<ReturnType<typeof getEndpo
 
 
 export const postEndpointsMapped = (
-    group: string | undefined | null, options?: AxiosRequestConfig
+    group: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.post(
-      `/api/v1/${encodeURIComponent(String(group))}/external/mapped`,undefined,options
+      `/api/v1/${group}/external/mapped`,undefined,options
     );
   }
 
@@ -1728,24 +1728,24 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?? {};
     }
     
 export const getEndpointsLexical = (
-    group: string | undefined | null,
-    label: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    label: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/lexical/${encodeURIComponent(String(label))}`,options
+      `/api/v1/${group}/lexical/${label}`,options
     );
   }
 
 
-export const getGetEndpointsLexicalQueryKey = (group: string | undefined | null,
-    label: string | undefined | null,) => {
+export const getGetEndpointsLexicalQueryKey = (group: string,
+    label: string,) => {
     return [`/api/v1/${group}/lexical/${label}`] as const;
     }
 
     
-export const getGetEndpointsLexicalQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsLexical>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    label: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsLexical>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetEndpointsLexicalQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsLexical>>, TError = AxiosError<unknown>>(group: string,
+    label: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsLexical>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -1767,8 +1767,8 @@ export type GetEndpointsLexicalQueryResult = NonNullable<Awaited<ReturnType<type
 export type GetEndpointsLexicalQueryError = AxiosError<unknown>
 
 export const useGetEndpointsLexical = <TData = Awaited<ReturnType<typeof getEndpointsLexical>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    label: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsLexical>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    label: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsLexical>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -1788,21 +1788,21 @@ export const useGetEndpointsLexical = <TData = Awaited<ReturnType<typeof getEndp
  * @summary needed because ontologies appear under other routes
  */
 export const getOntologiesOntologiesContributions = (
-    group: string | undefined | null, options?: AxiosRequestConfig
+    group: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/ontologies/contributions`,options
+      `/api/v1/${group}/ontologies/contributions`,options
     );
   }
 
 
-export const getGetOntologiesOntologiesContributionsQueryKey = (group: string | undefined | null,) => {
+export const getGetOntologiesOntologiesContributionsQueryKey = (group: string,) => {
     return [`/api/v1/${group}/ontologies/contributions`] as const;
     }
 
     
-export const getGetOntologiesOntologiesContributionsQueryOptions = <TData = Awaited<ReturnType<typeof getOntologiesOntologiesContributions>>, TError = AxiosError<unknown>>(group: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOntologiesOntologiesContributionsQueryOptions = <TData = Awaited<ReturnType<typeof getOntologiesOntologiesContributions>>, TError = AxiosError<unknown>>(group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -1827,7 +1827,7 @@ export type GetOntologiesOntologiesContributionsQueryError = AxiosError<unknown>
  * @summary needed because ontologies appear under other routes
  */
 export const useGetOntologiesOntologiesContributions = <TData = Awaited<ReturnType<typeof getOntologiesOntologiesContributions>>, TError = AxiosError<unknown>>(
- group: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -1847,27 +1847,27 @@ export const useGetOntologiesOntologiesContributions = <TData = Awaited<ReturnTy
  * @summary needed because ontologies appear under other routes
  */
 export const getOntologiesOntologiesUris = (
-    group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    ontPath: string,
+    filename: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/ontologies/uris/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}/`,options
+      `/api/v1/${group}/ontologies/uris/${ontPath}/${filename}/`,options
     );
   }
 
 
-export const getGetOntologiesOntologiesUrisQueryKey = (group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,) => {
+export const getGetOntologiesOntologiesUrisQueryKey = (group: string,
+    ontPath: string,
+    filename: string,) => {
     return [`/api/v1/${group}/ontologies/uris/${ontPath}/${filename}/`] as const;
     }
 
     
-export const getGetOntologiesOntologiesUrisQueryOptions = <TData = Awaited<ReturnType<typeof getOntologiesOntologiesUris>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOntologiesOntologiesUrisQueryOptions = <TData = Awaited<ReturnType<typeof getOntologiesOntologiesUris>>, TError = AxiosError<unknown>>(group: string,
+    ontPath: string,
+    filename: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -1892,9 +1892,9 @@ export type GetOntologiesOntologiesUrisQueryError = AxiosError<unknown>
  * @summary needed because ontologies appear under other routes
  */
 export const useGetOntologiesOntologiesUris = <TData = Awaited<ReturnType<typeof getOntologiesOntologiesUris>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    ontPath: string,
+    filename: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -1914,14 +1914,14 @@ export const useGetOntologiesOntologiesUris = <TData = Awaited<ReturnType<typeof
  * @summary needed because ontologies appear under other routes
  */
 export const postOntologiesOntologiesUris = (
-    group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    extension: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    ontPath: string,
+    filename: string,
+    extension: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.post(
-      `/api/v1/${encodeURIComponent(String(group))}/ontologies/uris/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}.${encodeURIComponent(String(extension))}`,undefined,options
+      `/api/v1/${group}/ontologies/uris/${ontPath}/${filename}.${extension}`,undefined,options
     );
   }
 
@@ -1971,36 +1971,36 @@ export const usePostOntologiesOntologiesUris = <TError = AxiosError<unknown>,
  * @summary needed because ontologies appear under other routes
  */
 export const getOntologiesOntologiesUrisVersion = (
-    group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/ontologies/uris/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}/version/${encodeURIComponent(String(epochVerstrOnt))}/${encodeURIComponent(String(filenameTerminal))}.${encodeURIComponent(String(extension))}`,options
+      `/api/v1/${group}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`,options
     );
   }
 
 
-export const getGetOntologiesOntologiesUrisVersionQueryKey = (group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null,) => {
+export const getGetOntologiesOntologiesUrisVersionQueryKey = (group: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string,) => {
     return [`/api/v1/${group}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
     }
 
     
-export const getGetOntologiesOntologiesUrisVersionQueryOptions = <TData = Awaited<ReturnType<typeof getOntologiesOntologiesUrisVersion>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesUrisVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOntologiesOntologiesUrisVersionQueryOptions = <TData = Awaited<ReturnType<typeof getOntologiesOntologiesUrisVersion>>, TError = AxiosError<unknown>>(group: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesUrisVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -2025,12 +2025,12 @@ export type GetOntologiesOntologiesUrisVersionQueryError = AxiosError<unknown>
  * @summary needed because ontologies appear under other routes
  */
 export const useGetOntologiesOntologiesUrisVersion = <TData = Awaited<ReturnType<typeof getOntologiesOntologiesUrisVersion>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesUrisVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesUrisVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -2050,16 +2050,16 @@ export const useGetOntologiesOntologiesUrisVersion = <TData = Awaited<ReturnType
  * @summary needed because ontologies appear under other routes
  */
 export const postOntologiesOntologiesUrisVersion = (
-    group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.post(
-      `/api/v1/${encodeURIComponent(String(group))}/ontologies/uris/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}/version/${encodeURIComponent(String(epochVerstrOnt))}/${encodeURIComponent(String(filenameTerminal))}.${encodeURIComponent(String(extension))}`,undefined,options
+      `/api/v1/${group}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`,undefined,options
     );
   }
 
@@ -2109,27 +2109,27 @@ export const usePostOntologiesOntologiesUrisVersion = <TError = AxiosError<unkno
  * @summary the main ontologies endpoint
  */
 export const getOntologiesOntologies = (
-    group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    ontPath: string,
+    filename: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/ontologies/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}/`,options
+      `/api/v1/${group}/ontologies/${ontPath}/${filename}/`,options
     );
   }
 
 
-export const getGetOntologiesOntologiesQueryKey = (group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,) => {
+export const getGetOntologiesOntologiesQueryKey = (group: string,
+    ontPath: string,
+    filename: string,) => {
     return [`/api/v1/${group}/ontologies/${ontPath}/${filename}/`] as const;
     }
 
     
-export const getGetOntologiesOntologiesQueryOptions = <TData = Awaited<ReturnType<typeof getOntologiesOntologies>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologies>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOntologiesOntologiesQueryOptions = <TData = Awaited<ReturnType<typeof getOntologiesOntologies>>, TError = AxiosError<unknown>>(group: string,
+    ontPath: string,
+    filename: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologies>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -2154,9 +2154,9 @@ export type GetOntologiesOntologiesQueryError = AxiosError<unknown>
  * @summary the main ontologies endpoint
  */
 export const useGetOntologiesOntologies = <TData = Awaited<ReturnType<typeof getOntologiesOntologies>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologies>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    ontPath: string,
+    filename: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologies>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -2176,14 +2176,14 @@ export const useGetOntologiesOntologies = <TData = Awaited<ReturnType<typeof get
  * @summary the main ontologies endpoint
  */
 export const postOntologiesOntologies = (
-    group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    extension: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    ontPath: string,
+    filename: string,
+    extension: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.post(
-      `/api/v1/${encodeURIComponent(String(group))}/ontologies/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}.${encodeURIComponent(String(extension))}`,undefined,options
+      `/api/v1/${group}/ontologies/${ontPath}/${filename}.${extension}`,undefined,options
     );
   }
 
@@ -2233,36 +2233,36 @@ export const usePostOntologiesOntologies = <TError = AxiosError<unknown>,
  * @summary needed because ontologies appear under other routes
  */
 export const getOntologiesOntologiesVersion = (
-    group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/ontologies/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}/version/${encodeURIComponent(String(epochVerstrOnt))}/${encodeURIComponent(String(filenameTerminal))}.${encodeURIComponent(String(extension))}`,options
+      `/api/v1/${group}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`,options
     );
   }
 
 
-export const getGetOntologiesOntologiesVersionQueryKey = (group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null,) => {
+export const getGetOntologiesOntologiesVersionQueryKey = (group: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string,) => {
     return [`/api/v1/${group}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
     }
 
     
-export const getGetOntologiesOntologiesVersionQueryOptions = <TData = Awaited<ReturnType<typeof getOntologiesOntologiesVersion>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOntologiesOntologiesVersionQueryOptions = <TData = Awaited<ReturnType<typeof getOntologiesOntologiesVersion>>, TError = AxiosError<unknown>>(group: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -2287,12 +2287,12 @@ export type GetOntologiesOntologiesVersionQueryError = AxiosError<unknown>
  * @summary needed because ontologies appear under other routes
  */
 export const useGetOntologiesOntologiesVersion = <TData = Awaited<ReturnType<typeof getOntologiesOntologiesVersion>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -2309,27 +2309,27 @@ export const useGetOntologiesOntologiesVersion = <TData = Awaited<ReturnType<typ
 
 
 export const getOntologiesOntologiesIlx = (
-    group: string | undefined | null,
-    fragPrefId: string | undefined | null,
-    extension: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    fragPrefId: string,
+    extension: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/ontologies/${encodeURIComponent(String(fragPrefId))}.${encodeURIComponent(String(extension))}`,options
+      `/api/v1/${group}/ontologies/${fragPrefId}.${extension}`,options
     );
   }
 
 
-export const getGetOntologiesOntologiesIlxQueryKey = (group: string | undefined | null,
-    fragPrefId: string | undefined | null,
-    extension: string | undefined | null,) => {
+export const getGetOntologiesOntologiesIlxQueryKey = (group: string,
+    fragPrefId: string,
+    extension: string,) => {
     return [`/api/v1/${group}/ontologies/${fragPrefId}.${extension}`] as const;
     }
 
     
-export const getGetOntologiesOntologiesIlxQueryOptions = <TData = Awaited<ReturnType<typeof getOntologiesOntologiesIlx>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    fragPrefId: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOntologiesOntologiesIlxQueryOptions = <TData = Awaited<ReturnType<typeof getOntologiesOntologiesIlx>>, TError = AxiosError<unknown>>(group: string,
+    fragPrefId: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -2351,9 +2351,9 @@ export type GetOntologiesOntologiesIlxQueryResult = NonNullable<Awaited<ReturnTy
 export type GetOntologiesOntologiesIlxQueryError = AxiosError<unknown>
 
 export const useGetOntologiesOntologiesIlx = <TData = Awaited<ReturnType<typeof getOntologiesOntologiesIlx>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    fragPrefId: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    fragPrefId: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOntologiesOntologiesIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -2370,24 +2370,24 @@ export const useGetOntologiesOntologiesIlx = <TData = Awaited<ReturnType<typeof 
 
 
 export const getOwnCuries = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/curies/`,options
+      `/api/v1/${group}/own/${otherGroup}/curies/`,options
     );
   }
 
 
-export const getGetOwnCuriesQueryKey = (group: string | undefined | null,
-    otherGroup: string | undefined | null,) => {
+export const getGetOwnCuriesQueryKey = (group: string,
+    otherGroup: string,) => {
     return [`/api/v1/${group}/own/${otherGroup}/curies/`] as const;
     }
 
     
-export const getGetOwnCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getOwnCuries>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroup: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOwnCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getOwnCuries>>, TError = AxiosError<unknown>>(group: string,
+    otherGroup: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -2409,8 +2409,8 @@ export type GetOwnCuriesQueryResult = NonNullable<Awaited<ReturnType<typeof getO
 export type GetOwnCuriesQueryError = AxiosError<unknown>
 
 export const useGetOwnCuries = <TData = Awaited<ReturnType<typeof getOwnCuries>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroup: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroup: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -2427,12 +2427,12 @@ export const useGetOwnCuries = <TData = Awaited<ReturnType<typeof getOwnCuries>>
 
 
 export const postOwnCuries = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.post(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/curies/`,undefined,options
+      `/api/v1/${group}/own/${otherGroup}/curies/`,undefined,options
     );
   }
 
@@ -2476,27 +2476,27 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?? {};
     }
     
 export const getOwnCuries = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string,
+    prefixIriCurie: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/curies/${encodeURIComponent(String(prefixIriCurie))}`,options
+      `/api/v1/${group}/own/${otherGroup}/curies/${prefixIriCurie}`,options
     );
   }
 
 
-export const getGetOwnCuriesQueryKey = (group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    prefixIriCurie: string | undefined | null,) => {
+export const getGetOwnCuriesQueryKey = (group: string,
+    otherGroup: string,
+    prefixIriCurie: string,) => {
     return [`/api/v1/${group}/own/${otherGroup}/curies/${prefixIriCurie}`] as const;
     }
 
     
-export const getGetOwnCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getOwnCuries>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOwnCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getOwnCuries>>, TError = AxiosError<unknown>>(group: string,
+    otherGroup: string,
+    prefixIriCurie: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -2518,9 +2518,9 @@ export type GetOwnCuriesQueryResult = NonNullable<Awaited<ReturnType<typeof getO
 export type GetOwnCuriesQueryError = AxiosError<unknown>
 
 export const useGetOwnCuries = <TData = Awaited<ReturnType<typeof getOwnCuries>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroup: string,
+    prefixIriCurie: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -2540,24 +2540,24 @@ export const useGetOwnCuries = <TData = Awaited<ReturnType<typeof getOwnCuries>>
  * @summary needed because ontologies appear under other routes
  */
 export const getOwnOntologiesContributions = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/ontologies/contributions`,options
+      `/api/v1/${group}/own/${otherGroup}/ontologies/contributions`,options
     );
   }
 
 
-export const getGetOwnOntologiesContributionsQueryKey = (group: string | undefined | null,
-    otherGroup: string | undefined | null,) => {
+export const getGetOwnOntologiesContributionsQueryKey = (group: string,
+    otherGroup: string,) => {
     return [`/api/v1/${group}/own/${otherGroup}/ontologies/contributions`] as const;
     }
 
     
-export const getGetOwnOntologiesContributionsQueryOptions = <TData = Awaited<ReturnType<typeof getOwnOntologiesContributions>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroup: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOwnOntologiesContributionsQueryOptions = <TData = Awaited<ReturnType<typeof getOwnOntologiesContributions>>, TError = AxiosError<unknown>>(group: string,
+    otherGroup: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -2582,8 +2582,8 @@ export type GetOwnOntologiesContributionsQueryError = AxiosError<unknown>
  * @summary needed because ontologies appear under other routes
  */
 export const useGetOwnOntologiesContributions = <TData = Awaited<ReturnType<typeof getOwnOntologiesContributions>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroup: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroup: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -2603,30 +2603,30 @@ export const useGetOwnOntologiesContributions = <TData = Awaited<ReturnType<type
  * @summary needed because ontologies appear under other routes
  */
 export const getOwnOntologiesUris = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/ontologies/uris/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}/`,options
+      `/api/v1/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}/`,options
     );
   }
 
 
-export const getGetOwnOntologiesUrisQueryKey = (group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,) => {
+export const getGetOwnOntologiesUrisQueryKey = (group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string,) => {
     return [`/api/v1/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}/`] as const;
     }
 
     
-export const getGetOwnOntologiesUrisQueryOptions = <TData = Awaited<ReturnType<typeof getOwnOntologiesUris>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOwnOntologiesUrisQueryOptions = <TData = Awaited<ReturnType<typeof getOwnOntologiesUris>>, TError = AxiosError<unknown>>(group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -2651,10 +2651,10 @@ export type GetOwnOntologiesUrisQueryError = AxiosError<unknown>
  * @summary needed because ontologies appear under other routes
  */
 export const useGetOwnOntologiesUris = <TData = Awaited<ReturnType<typeof getOwnOntologiesUris>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -2674,15 +2674,15 @@ export const useGetOwnOntologiesUris = <TData = Awaited<ReturnType<typeof getOwn
  * @summary needed because ontologies appear under other routes
  */
 export const postOwnOntologiesUris = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    extension: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string,
+    extension: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.post(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/ontologies/uris/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}.${encodeURIComponent(String(extension))}`,undefined,options
+      `/api/v1/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}.${extension}`,undefined,options
     );
   }
 
@@ -2732,39 +2732,39 @@ export const usePostOwnOntologiesUris = <TError = AxiosError<unknown>,
  * @summary needed because ontologies appear under other routes
  */
 export const getOwnOntologiesUrisVersion = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/ontologies/uris/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}/version/${encodeURIComponent(String(epochVerstrOnt))}/${encodeURIComponent(String(filenameTerminal))}.${encodeURIComponent(String(extension))}`,options
+      `/api/v1/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`,options
     );
   }
 
 
-export const getGetOwnOntologiesUrisVersionQueryKey = (group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null,) => {
+export const getGetOwnOntologiesUrisVersionQueryKey = (group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string,) => {
     return [`/api/v1/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
     }
 
     
-export const getGetOwnOntologiesUrisVersionQueryOptions = <TData = Awaited<ReturnType<typeof getOwnOntologiesUrisVersion>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesUrisVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOwnOntologiesUrisVersionQueryOptions = <TData = Awaited<ReturnType<typeof getOwnOntologiesUrisVersion>>, TError = AxiosError<unknown>>(group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesUrisVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -2789,13 +2789,13 @@ export type GetOwnOntologiesUrisVersionQueryError = AxiosError<unknown>
  * @summary needed because ontologies appear under other routes
  */
 export const useGetOwnOntologiesUrisVersion = <TData = Awaited<ReturnType<typeof getOwnOntologiesUrisVersion>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesUrisVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesUrisVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -2815,17 +2815,17 @@ export const useGetOwnOntologiesUrisVersion = <TData = Awaited<ReturnType<typeof
  * @summary needed because ontologies appear under other routes
  */
 export const postOwnOntologiesUrisVersion = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.post(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/ontologies/uris/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}/version/${encodeURIComponent(String(epochVerstrOnt))}/${encodeURIComponent(String(filenameTerminal))}.${encodeURIComponent(String(extension))}`,undefined,options
+      `/api/v1/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`,undefined,options
     );
   }
 
@@ -2875,30 +2875,30 @@ export const usePostOwnOntologiesUrisVersion = <TError = AxiosError<unknown>,
  * @summary the main ontologies endpoint
  */
 export const getOwnOntologies = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/ontologies/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}/`,options
+      `/api/v1/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}/`,options
     );
   }
 
 
-export const getGetOwnOntologiesQueryKey = (group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,) => {
+export const getGetOwnOntologiesQueryKey = (group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string,) => {
     return [`/api/v1/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}/`] as const;
     }
 
     
-export const getGetOwnOntologiesQueryOptions = <TData = Awaited<ReturnType<typeof getOwnOntologies>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologies>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOwnOntologiesQueryOptions = <TData = Awaited<ReturnType<typeof getOwnOntologies>>, TError = AxiosError<unknown>>(group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologies>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -2923,10 +2923,10 @@ export type GetOwnOntologiesQueryError = AxiosError<unknown>
  * @summary the main ontologies endpoint
  */
 export const useGetOwnOntologies = <TData = Awaited<ReturnType<typeof getOwnOntologies>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologies>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologies>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -2946,15 +2946,15 @@ export const useGetOwnOntologies = <TData = Awaited<ReturnType<typeof getOwnOnto
  * @summary the main ontologies endpoint
  */
 export const postOwnOntologies = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    extension: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string,
+    extension: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.post(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/ontologies/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}.${encodeURIComponent(String(extension))}`,undefined,options
+      `/api/v1/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}.${extension}`,undefined,options
     );
   }
 
@@ -3004,39 +3004,39 @@ export const usePostOwnOntologies = <TError = AxiosError<unknown>,
  * @summary needed because ontologies appear under other routes
  */
 export const getOwnOntologiesVersion = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/ontologies/${encodeURIComponent(String(ontPath))}/${encodeURIComponent(String(filename))}/version/${encodeURIComponent(String(epochVerstrOnt))}/${encodeURIComponent(String(filenameTerminal))}.${encodeURIComponent(String(extension))}`,options
+      `/api/v1/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`,options
     );
   }
 
 
-export const getGetOwnOntologiesVersionQueryKey = (group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null,) => {
+export const getGetOwnOntologiesVersionQueryKey = (group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string,) => {
     return [`/api/v1/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
     }
 
     
-export const getGetOwnOntologiesVersionQueryOptions = <TData = Awaited<ReturnType<typeof getOwnOntologiesVersion>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOwnOntologiesVersionQueryOptions = <TData = Awaited<ReturnType<typeof getOwnOntologiesVersion>>, TError = AxiosError<unknown>>(group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -3061,13 +3061,13 @@ export type GetOwnOntologiesVersionQueryError = AxiosError<unknown>
  * @summary needed because ontologies appear under other routes
  */
 export const useGetOwnOntologiesVersion = <TData = Awaited<ReturnType<typeof getOwnOntologiesVersion>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    ontPath: string | undefined | null,
-    filename: string | undefined | null,
-    epochVerstrOnt: string | undefined | null,
-    filenameTerminal: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroup: string,
+    ontPath: string,
+    filename: string,
+    epochVerstrOnt: string,
+    filenameTerminal: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesVersion>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -3084,30 +3084,30 @@ export const useGetOwnOntologiesVersion = <TData = Awaited<ReturnType<typeof get
 
 
 export const getOwnOntologiesIlx = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    fragPrefId: string | undefined | null,
-    extension: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string,
+    fragPrefId: string,
+    extension: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/ontologies/${encodeURIComponent(String(fragPrefId))}.${encodeURIComponent(String(extension))}`,options
+      `/api/v1/${group}/own/${otherGroup}/ontologies/${fragPrefId}.${extension}`,options
     );
   }
 
 
-export const getGetOwnOntologiesIlxQueryKey = (group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    fragPrefId: string | undefined | null,
-    extension: string | undefined | null,) => {
+export const getGetOwnOntologiesIlxQueryKey = (group: string,
+    otherGroup: string,
+    fragPrefId: string,
+    extension: string,) => {
     return [`/api/v1/${group}/own/${otherGroup}/ontologies/${fragPrefId}.${extension}`] as const;
     }
 
     
-export const getGetOwnOntologiesIlxQueryOptions = <TData = Awaited<ReturnType<typeof getOwnOntologiesIlx>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    fragPrefId: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOwnOntologiesIlxQueryOptions = <TData = Awaited<ReturnType<typeof getOwnOntologiesIlx>>, TError = AxiosError<unknown>>(group: string,
+    otherGroup: string,
+    fragPrefId: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -3129,10 +3129,10 @@ export type GetOwnOntologiesIlxQueryResult = NonNullable<Awaited<ReturnType<type
 export type GetOwnOntologiesIlxQueryError = AxiosError<unknown>
 
 export const useGetOwnOntologiesIlx = <TData = Awaited<ReturnType<typeof getOwnOntologiesIlx>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    fragPrefId: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroup: string,
+    fragPrefId: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -3149,27 +3149,27 @@ export const useGetOwnOntologiesIlx = <TData = Awaited<ReturnType<typeof getOwnO
 
 
 export const getOwnUris = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    uriPath: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string,
+    uriPath: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/uris/${encodeURIComponent(String(uriPath))}`,options
+      `/api/v1/${group}/own/${otherGroup}/uris/${uriPath}`,options
     );
   }
 
 
-export const getGetOwnUrisQueryKey = (group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    uriPath: string | undefined | null,) => {
+export const getGetOwnUrisQueryKey = (group: string,
+    otherGroup: string,
+    uriPath: string,) => {
     return [`/api/v1/${group}/own/${otherGroup}/uris/${uriPath}`] as const;
     }
 
     
-export const getGetOwnUrisQueryOptions = <TData = Awaited<ReturnType<typeof getOwnUris>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    uriPath: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOwnUrisQueryOptions = <TData = Awaited<ReturnType<typeof getOwnUris>>, TError = AxiosError<unknown>>(group: string,
+    otherGroup: string,
+    uriPath: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -3191,9 +3191,9 @@ export type GetOwnUrisQueryResult = NonNullable<Awaited<ReturnType<typeof getOwn
 export type GetOwnUrisQueryError = AxiosError<unknown>
 
 export const useGetOwnUris = <TData = Awaited<ReturnType<typeof getOwnUris>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    uriPath: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroup: string,
+    uriPath: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -3210,27 +3210,27 @@ export const useGetOwnUris = <TData = Awaited<ReturnType<typeof getOwnUris>>, TE
 
 
 export const getOwnVersionsCuries = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string,
+    epochVerstrId: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/versions/${encodeURIComponent(String(epochVerstrId))}/curies/`,options
+      `/api/v1/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies/`,options
     );
   }
 
 
-export const getGetOwnVersionsCuriesQueryKey = (group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null,) => {
+export const getGetOwnVersionsCuriesQueryKey = (group: string,
+    otherGroup: string,
+    epochVerstrId: string,) => {
     return [`/api/v1/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies/`] as const;
     }
 
     
-export const getGetOwnVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOwnVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError = AxiosError<unknown>>(group: string,
+    otherGroup: string,
+    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -3252,9 +3252,9 @@ export type GetOwnVersionsCuriesQueryResult = NonNullable<Awaited<ReturnType<typ
 export type GetOwnVersionsCuriesQueryError = AxiosError<unknown>
 
 export const useGetOwnVersionsCuries = <TData = Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroup: string,
+    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -3271,30 +3271,30 @@ export const useGetOwnVersionsCuries = <TData = Awaited<ReturnType<typeof getOwn
 
 
 export const getOwnVersionsCuries = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string,
+    epochVerstrId: string,
+    prefixIriCurie: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/versions/${encodeURIComponent(String(epochVerstrId))}/curies/${encodeURIComponent(String(prefixIriCurie))}`,options
+      `/api/v1/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies/${prefixIriCurie}`,options
     );
   }
 
 
-export const getGetOwnVersionsCuriesQueryKey = (group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    prefixIriCurie: string | undefined | null,) => {
+export const getGetOwnVersionsCuriesQueryKey = (group: string,
+    otherGroup: string,
+    epochVerstrId: string,
+    prefixIriCurie: string,) => {
     return [`/api/v1/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies/${prefixIriCurie}`] as const;
     }
 
     
-export const getGetOwnVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOwnVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError = AxiosError<unknown>>(group: string,
+    otherGroup: string,
+    epochVerstrId: string,
+    prefixIriCurie: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -3316,10 +3316,10 @@ export type GetOwnVersionsCuriesQueryResult = NonNullable<Awaited<ReturnType<typ
 export type GetOwnVersionsCuriesQueryError = AxiosError<unknown>
 
 export const useGetOwnVersionsCuries = <TData = Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroup: string,
+    epochVerstrId: string,
+    prefixIriCurie: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -3336,30 +3336,30 @@ export const useGetOwnVersionsCuries = <TData = Awaited<ReturnType<typeof getOwn
 
 
 export const getOwnVersionsReadable = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    word: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string,
+    epochVerstrId: string,
+    word: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/versions/${encodeURIComponent(String(epochVerstrId))}/readable/${encodeURIComponent(String(word))}`,options
+      `/api/v1/${group}/own/${otherGroup}/versions/${epochVerstrId}/readable/${word}`,options
     );
   }
 
 
-export const getGetOwnVersionsReadableQueryKey = (group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    word: string | undefined | null,) => {
+export const getGetOwnVersionsReadableQueryKey = (group: string,
+    otherGroup: string,
+    epochVerstrId: string,
+    word: string,) => {
     return [`/api/v1/${group}/own/${otherGroup}/versions/${epochVerstrId}/readable/${word}`] as const;
     }
 
     
-export const getGetOwnVersionsReadableQueryOptions = <TData = Awaited<ReturnType<typeof getOwnVersionsReadable>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    word: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOwnVersionsReadableQueryOptions = <TData = Awaited<ReturnType<typeof getOwnVersionsReadable>>, TError = AxiosError<unknown>>(group: string,
+    otherGroup: string,
+    epochVerstrId: string,
+    word: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -3381,10 +3381,10 @@ export type GetOwnVersionsReadableQueryResult = NonNullable<Awaited<ReturnType<t
 export type GetOwnVersionsReadableQueryError = AxiosError<unknown>
 
 export const useGetOwnVersionsReadable = <TData = Awaited<ReturnType<typeof getOwnVersionsReadable>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    word: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroup: string,
+    epochVerstrId: string,
+    word: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -3401,30 +3401,30 @@ export const useGetOwnVersionsReadable = <TData = Awaited<ReturnType<typeof getO
 
 
 export const getOwnVersionsUris = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    uriPath: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string,
+    epochVerstrId: string,
+    uriPath: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/versions/${encodeURIComponent(String(epochVerstrId))}/uris/${encodeURIComponent(String(uriPath))}`,options
+      `/api/v1/${group}/own/${otherGroup}/versions/${epochVerstrId}/uris/${uriPath}`,options
     );
   }
 
 
-export const getGetOwnVersionsUrisQueryKey = (group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    uriPath: string | undefined | null,) => {
+export const getGetOwnVersionsUrisQueryKey = (group: string,
+    otherGroup: string,
+    epochVerstrId: string,
+    uriPath: string,) => {
     return [`/api/v1/${group}/own/${otherGroup}/versions/${epochVerstrId}/uris/${uriPath}`] as const;
     }
 
     
-export const getGetOwnVersionsUrisQueryOptions = <TData = Awaited<ReturnType<typeof getOwnVersionsUris>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    uriPath: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOwnVersionsUrisQueryOptions = <TData = Awaited<ReturnType<typeof getOwnVersionsUris>>, TError = AxiosError<unknown>>(group: string,
+    otherGroup: string,
+    epochVerstrId: string,
+    uriPath: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -3446,10 +3446,10 @@ export type GetOwnVersionsUrisQueryResult = NonNullable<Awaited<ReturnType<typeo
 export type GetOwnVersionsUrisQueryError = AxiosError<unknown>
 
 export const useGetOwnVersionsUris = <TData = Awaited<ReturnType<typeof getOwnVersionsUris>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    uriPath: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroup: string,
+    epochVerstrId: string,
+    uriPath: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -3466,30 +3466,30 @@ export const useGetOwnVersionsUris = <TData = Awaited<ReturnType<typeof getOwnVe
 
 
 export const getOwnVersionsIlx = (
-    group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    fragPrefId: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    otherGroup: string,
+    epochVerstrId: string,
+    fragPrefId: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/own/${encodeURIComponent(String(otherGroup))}/versions/${encodeURIComponent(String(epochVerstrId))}/${encodeURIComponent(String(fragPrefId))}`,options
+      `/api/v1/${group}/own/${otherGroup}/versions/${epochVerstrId}/${fragPrefId}`,options
     );
   }
 
 
-export const getGetOwnVersionsIlxQueryKey = (group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    fragPrefId: string | undefined | null,) => {
+export const getGetOwnVersionsIlxQueryKey = (group: string,
+    otherGroup: string,
+    epochVerstrId: string,
+    fragPrefId: string,) => {
     return [`/api/v1/${group}/own/${otherGroup}/versions/${epochVerstrId}/${fragPrefId}`] as const;
     }
 
     
-export const getGetOwnVersionsIlxQueryOptions = <TData = Awaited<ReturnType<typeof getOwnVersionsIlx>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    fragPrefId: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetOwnVersionsIlxQueryOptions = <TData = Awaited<ReturnType<typeof getOwnVersionsIlx>>, TError = AxiosError<unknown>>(group: string,
+    otherGroup: string,
+    epochVerstrId: string,
+    fragPrefId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -3511,10 +3511,10 @@ export type GetOwnVersionsIlxQueryResult = NonNullable<Awaited<ReturnType<typeof
 export type GetOwnVersionsIlxQueryError = AxiosError<unknown>
 
 export const useGetOwnVersionsIlx = <TData = Awaited<ReturnType<typeof getOwnVersionsIlx>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    otherGroup: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    fragPrefId: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    otherGroup: string,
+    epochVerstrId: string,
+    fragPrefId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -3536,24 +3536,24 @@ Show groups all uploads with the user who did it
  * @summary Return all the identities that an org/user has uploaded
  */
 export const getEndpointsProv = (
-    group: string | undefined | null,
-    identity: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    identity: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/prov/identities/${encodeURIComponent(String(identity))}`,options
+      `/api/v1/${group}/prov/identities/${identity}`,options
     );
   }
 
 
-export const getGetEndpointsProvQueryKey = (group: string | undefined | null,
-    identity: string | undefined | null,) => {
+export const getGetEndpointsProvQueryKey = (group: string,
+    identity: string,) => {
     return [`/api/v1/${group}/prov/identities/${identity}`] as const;
     }
 
     
-export const getGetEndpointsProvQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsProv>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    identity: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsProv>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetEndpointsProvQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsProv>>, TError = AxiosError<unknown>>(group: string,
+    identity: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsProv>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -3578,8 +3578,8 @@ export type GetEndpointsProvQueryError = AxiosError<unknown>
  * @summary Return all the identities that an org/user has uploaded
  */
 export const useGetEndpointsProv = <TData = Awaited<ReturnType<typeof getEndpointsProv>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    identity: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsProv>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    identity: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsProv>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -3596,24 +3596,24 @@ export const useGetEndpointsProv = <TData = Awaited<ReturnType<typeof getEndpoin
 
 
 export const getEndpointsReadable = (
-    group: string | undefined | null,
-    word: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    word: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/readable/${encodeURIComponent(String(word))}`,options
+      `/api/v1/${group}/readable/${word}`,options
     );
   }
 
 
-export const getGetEndpointsReadableQueryKey = (group: string | undefined | null,
-    word: string | undefined | null,) => {
+export const getGetEndpointsReadableQueryKey = (group: string,
+    word: string,) => {
     return [`/api/v1/${group}/readable/${word}`] as const;
     }
 
     
-export const getGetEndpointsReadableQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsReadable>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    word: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetEndpointsReadableQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsReadable>>, TError = AxiosError<unknown>>(group: string,
+    word: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -3635,8 +3635,8 @@ export type GetEndpointsReadableQueryResult = NonNullable<Awaited<ReturnType<typ
 export type GetEndpointsReadableQueryError = AxiosError<unknown>
 
 export const useGetEndpointsReadable = <TData = Awaited<ReturnType<typeof getEndpointsReadable>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    word: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    word: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -3653,12 +3653,12 @@ export const useGetEndpointsReadable = <TData = Awaited<ReturnType<typeof getEnd
 
 
 export const patchEndpointsReadable = (
-    group: string | undefined | null,
-    word: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    word: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.patch(
-      `/api/v1/${encodeURIComponent(String(group))}/readable/${encodeURIComponent(String(word))}`,undefined,options
+      `/api/v1/${group}/readable/${word}`,undefined,options
     );
   }
 
@@ -3705,11 +3705,11 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?? {};
  * @summary Expects files
  */
 export const postEndpointsUpload = (
-    group: string | undefined | null, options?: AxiosRequestConfig
+    group: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.post(
-      `/api/v1/${encodeURIComponent(String(group))}/upload`,undefined,options
+      `/api/v1/${group}/upload`,undefined,options
     );
   }
 
@@ -3756,24 +3756,24 @@ export const usePostEndpointsUpload = <TError = AxiosError<unknown>,
     }
     
 export const getEndpointsUris = (
-    group: string | undefined | null,
-    uriPath: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    uriPath: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/uris/${encodeURIComponent(String(uriPath))}`,options
+      `/api/v1/${group}/uris/${uriPath}`,options
     );
   }
 
 
-export const getGetEndpointsUrisQueryKey = (group: string | undefined | null,
-    uriPath: string | undefined | null,) => {
+export const getGetEndpointsUrisQueryKey = (group: string,
+    uriPath: string,) => {
     return [`/api/v1/${group}/uris/${uriPath}`] as const;
     }
 
     
-export const getGetEndpointsUrisQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsUris>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    uriPath: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetEndpointsUrisQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsUris>>, TError = AxiosError<unknown>>(group: string,
+    uriPath: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -3795,8 +3795,8 @@ export type GetEndpointsUrisQueryResult = NonNullable<Awaited<ReturnType<typeof 
 export type GetEndpointsUrisQueryError = AxiosError<unknown>
 
 export const useGetEndpointsUris = <TData = Awaited<ReturnType<typeof getEndpointsUris>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    uriPath: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    uriPath: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -3813,24 +3813,24 @@ export const useGetEndpointsUris = <TData = Awaited<ReturnType<typeof getEndpoin
 
 
 export const getVersionsCuries = (
-    group: string | undefined | null,
-    epochVerstrId: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    epochVerstrId: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/versions/${encodeURIComponent(String(epochVerstrId))}/curies/`,options
+      `/api/v1/${group}/versions/${epochVerstrId}/curies/`,options
     );
   }
 
 
-export const getGetVersionsCuriesQueryKey = (group: string | undefined | null,
-    epochVerstrId: string | undefined | null,) => {
+export const getGetVersionsCuriesQueryKey = (group: string,
+    epochVerstrId: string,) => {
     return [`/api/v1/${group}/versions/${epochVerstrId}/curies/`] as const;
     }
 
     
-export const getGetVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getVersionsCuries>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    epochVerstrId: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getVersionsCuries>>, TError = AxiosError<unknown>>(group: string,
+    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -3852,8 +3852,8 @@ export type GetVersionsCuriesQueryResult = NonNullable<Awaited<ReturnType<typeof
 export type GetVersionsCuriesQueryError = AxiosError<unknown>
 
 export const useGetVersionsCuries = <TData = Awaited<ReturnType<typeof getVersionsCuries>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    epochVerstrId: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -3870,27 +3870,27 @@ export const useGetVersionsCuries = <TData = Awaited<ReturnType<typeof getVersio
 
 
 export const getVersionsCuries = (
-    group: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    epochVerstrId: string,
+    prefixIriCurie: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/versions/${encodeURIComponent(String(epochVerstrId))}/curies/${encodeURIComponent(String(prefixIriCurie))}`,options
+      `/api/v1/${group}/versions/${epochVerstrId}/curies/${prefixIriCurie}`,options
     );
   }
 
 
-export const getGetVersionsCuriesQueryKey = (group: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    prefixIriCurie: string | undefined | null,) => {
+export const getGetVersionsCuriesQueryKey = (group: string,
+    epochVerstrId: string,
+    prefixIriCurie: string,) => {
     return [`/api/v1/${group}/versions/${epochVerstrId}/curies/${prefixIriCurie}`] as const;
     }
 
     
-export const getGetVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getVersionsCuries>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getVersionsCuries>>, TError = AxiosError<unknown>>(group: string,
+    epochVerstrId: string,
+    prefixIriCurie: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -3912,9 +3912,9 @@ export type GetVersionsCuriesQueryResult = NonNullable<Awaited<ReturnType<typeof
 export type GetVersionsCuriesQueryError = AxiosError<unknown>
 
 export const useGetVersionsCuries = <TData = Awaited<ReturnType<typeof getVersionsCuries>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    prefixIriCurie: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    epochVerstrId: string,
+    prefixIriCurie: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -3931,27 +3931,27 @@ export const useGetVersionsCuries = <TData = Awaited<ReturnType<typeof getVersio
 
 
 export const getVersionsReadable = (
-    group: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    word: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    epochVerstrId: string,
+    word: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/versions/${encodeURIComponent(String(epochVerstrId))}/readable/${encodeURIComponent(String(word))}`,options
+      `/api/v1/${group}/versions/${epochVerstrId}/readable/${word}`,options
     );
   }
 
 
-export const getGetVersionsReadableQueryKey = (group: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    word: string | undefined | null,) => {
+export const getGetVersionsReadableQueryKey = (group: string,
+    epochVerstrId: string,
+    word: string,) => {
     return [`/api/v1/${group}/versions/${epochVerstrId}/readable/${word}`] as const;
     }
 
     
-export const getGetVersionsReadableQueryOptions = <TData = Awaited<ReturnType<typeof getVersionsReadable>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    word: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetVersionsReadableQueryOptions = <TData = Awaited<ReturnType<typeof getVersionsReadable>>, TError = AxiosError<unknown>>(group: string,
+    epochVerstrId: string,
+    word: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -3973,9 +3973,9 @@ export type GetVersionsReadableQueryResult = NonNullable<Awaited<ReturnType<type
 export type GetVersionsReadableQueryError = AxiosError<unknown>
 
 export const useGetVersionsReadable = <TData = Awaited<ReturnType<typeof getVersionsReadable>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    word: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    epochVerstrId: string,
+    word: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsReadable>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -3992,27 +3992,27 @@ export const useGetVersionsReadable = <TData = Awaited<ReturnType<typeof getVers
 
 
 export const getVersionsUris = (
-    group: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    uriPath: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    epochVerstrId: string,
+    uriPath: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/versions/${encodeURIComponent(String(epochVerstrId))}/uris/${encodeURIComponent(String(uriPath))}`,options
+      `/api/v1/${group}/versions/${epochVerstrId}/uris/${uriPath}`,options
     );
   }
 
 
-export const getGetVersionsUrisQueryKey = (group: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    uriPath: string | undefined | null,) => {
+export const getGetVersionsUrisQueryKey = (group: string,
+    epochVerstrId: string,
+    uriPath: string,) => {
     return [`/api/v1/${group}/versions/${epochVerstrId}/uris/${uriPath}`] as const;
     }
 
     
-export const getGetVersionsUrisQueryOptions = <TData = Awaited<ReturnType<typeof getVersionsUris>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    uriPath: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetVersionsUrisQueryOptions = <TData = Awaited<ReturnType<typeof getVersionsUris>>, TError = AxiosError<unknown>>(group: string,
+    epochVerstrId: string,
+    uriPath: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -4034,9 +4034,9 @@ export type GetVersionsUrisQueryResult = NonNullable<Awaited<ReturnType<typeof g
 export type GetVersionsUrisQueryError = AxiosError<unknown>
 
 export const useGetVersionsUris = <TData = Awaited<ReturnType<typeof getVersionsUris>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    uriPath: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsUris>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    epochVerstrId: string,
+    uriPath: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsUris>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -4053,27 +4053,27 @@ export const useGetVersionsUris = <TData = Awaited<ReturnType<typeof getVersions
 
 
 export const getVersionsIlx = (
-    group: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    fragPrefId: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    epochVerstrId: string,
+    fragPrefId: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/versions/${encodeURIComponent(String(epochVerstrId))}/${encodeURIComponent(String(fragPrefId))}`,options
+      `/api/v1/${group}/versions/${epochVerstrId}/${fragPrefId}`,options
     );
   }
 
 
-export const getGetVersionsIlxQueryKey = (group: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    fragPrefId: string | undefined | null,) => {
+export const getGetVersionsIlxQueryKey = (group: string,
+    epochVerstrId: string,
+    fragPrefId: string,) => {
     return [`/api/v1/${group}/versions/${epochVerstrId}/${fragPrefId}`] as const;
     }
 
     
-export const getGetVersionsIlxQueryOptions = <TData = Awaited<ReturnType<typeof getVersionsIlx>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    fragPrefId: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetVersionsIlxQueryOptions = <TData = Awaited<ReturnType<typeof getVersionsIlx>>, TError = AxiosError<unknown>>(group: string,
+    epochVerstrId: string,
+    fragPrefId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -4095,9 +4095,9 @@ export type GetVersionsIlxQueryResult = NonNullable<Awaited<ReturnType<typeof ge
 export type GetVersionsIlxQueryError = AxiosError<unknown>
 
 export const useGetVersionsIlx = <TData = Awaited<ReturnType<typeof getVersionsIlx>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    epochVerstrId: string | undefined | null,
-    fragPrefId: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    epochVerstrId: string,
+    fragPrefId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -4114,24 +4114,24 @@ export const useGetVersionsIlx = <TData = Awaited<ReturnType<typeof getVersionsI
 
 
 export const getEndpointsIlx = (
-    group: string | undefined | null,
-    fragPrefId: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    fragPrefId: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/${encodeURIComponent(String(fragPrefId))}`,options
+      `/api/v1/${group}/${fragPrefId}`,options
     );
   }
 
 
-export const getGetEndpointsIlxQueryKey = (group: string | undefined | null,
-    fragPrefId: string | undefined | null,) => {
+export const getGetEndpointsIlxQueryKey = (group: string,
+    fragPrefId: string,) => {
     return [`/api/v1/${group}/${fragPrefId}`] as const;
     }
 
     
-export const getGetEndpointsIlxQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsIlx>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    fragPrefId: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetEndpointsIlxQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsIlx>>, TError = AxiosError<unknown>>(group: string,
+    fragPrefId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -4153,8 +4153,8 @@ export type GetEndpointsIlxQueryResult = NonNullable<Awaited<ReturnType<typeof g
 export type GetEndpointsIlxQueryError = AxiosError<unknown>
 
 export const useGetEndpointsIlx = <TData = Awaited<ReturnType<typeof getEndpointsIlx>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    fragPrefId: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    fragPrefId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsIlx>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
@@ -4171,12 +4171,12 @@ export const useGetEndpointsIlx = <TData = Awaited<ReturnType<typeof getEndpoint
 
 
 export const patchEndpointsIlx = (
-    group: string | undefined | null,
-    fragPrefId: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    fragPrefId: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.patch(
-      `/api/v1/${encodeURIComponent(String(group))}/${encodeURIComponent(String(fragPrefId))}`,undefined,options
+      `/api/v1/${group}/${fragPrefId}`,undefined,options
     );
   }
 
@@ -4220,27 +4220,27 @@ const {mutation: mutationOptions, axios: axiosOptions} = options ?? {};
     }
     
 export const getEndpointsIlxGet = (
-    group: string | undefined | null,
-    fragPrefId: string | undefined | null,
-    extension: string | undefined | null, options?: AxiosRequestConfig
+    group: string,
+    fragPrefId: string,
+    extension: string, options?: AxiosRequestConfig
  ): Promise<AxiosResponse<void>> => {
     
     return axios.get(
-      `/api/v1/${encodeURIComponent(String(group))}/${encodeURIComponent(String(fragPrefId))}.${encodeURIComponent(String(extension))}`,options
+      `/api/v1/${group}/${fragPrefId}.${extension}`,options
     );
   }
 
 
-export const getGetEndpointsIlxGetQueryKey = (group: string | undefined | null,
-    fragPrefId: string | undefined | null,
-    extension: string | undefined | null,) => {
+export const getGetEndpointsIlxGetQueryKey = (group: string,
+    fragPrefId: string,
+    extension: string,) => {
     return [`/api/v1/${group}/${fragPrefId}.${extension}`] as const;
     }
 
     
-export const getGetEndpointsIlxGetQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsIlxGet>>, TError = AxiosError<unknown>>(group: string | undefined | null,
-    fragPrefId: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsIlxGet>>, TError, TData>>, axios?: AxiosRequestConfig}
+export const getGetEndpointsIlxGetQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsIlxGet>>, TError = AxiosError<unknown>>(group: string,
+    fragPrefId: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsIlxGet>>, TError, TData>>, axios?: AxiosRequestConfig}
 ) => {
 
 const {query: queryOptions, axios: axiosOptions} = options ?? {};
@@ -4262,9 +4262,9 @@ export type GetEndpointsIlxGetQueryResult = NonNullable<Awaited<ReturnType<typeo
 export type GetEndpointsIlxGetQueryError = AxiosError<unknown>
 
 export const useGetEndpointsIlxGet = <TData = Awaited<ReturnType<typeof getEndpointsIlxGet>>, TError = AxiosError<unknown>>(
- group: string | undefined | null,
-    fragPrefId: string | undefined | null,
-    extension: string | undefined | null, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsIlxGet>>, TError, TData>>, axios?: AxiosRequestConfig}
+ group: string,
+    fragPrefId: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsIlxGet>>, TError, TData>>, axios?: AxiosRequestConfig}
 
   ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
