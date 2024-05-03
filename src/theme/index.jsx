@@ -9,7 +9,10 @@ const {
     gray600,
     gray700,
     success500,
-    gray500
+    gray500,
+    brand700,
+    gray50,
+    gray100
 } = vars
 
 const theme = createTheme({
@@ -103,7 +106,11 @@ const theme = createTheme({
                 containedPrimary: {
                     background: brand600,
                     '&:hover': {
-                        background: brand600
+                        background: brand700
+                    },
+                    '&:focus': {
+                        background: brand600,
+                        boxShadow: '0rem 0.0625rem 0.125rem 0rem rgba(16, 24, 40, 0.05), 0rem 0rem 0rem 0.25rem rgba(50, 129, 115, 0.24)'
                     }
                 },
                 outlinedPrimary: {
@@ -111,14 +118,23 @@ const theme = createTheme({
                     color: gray700,
                     background: white,
                     '&:hover': {
-                        background: white,
+                        background: gray50,
                         borderColor: gray300
+                    },
+                    '&:focus': {
+                        background: white,
+                        borderColor: gray300,
+                        boxShadow: "0rem 0.0625rem 0.125rem 0rem rgba(16, 24, 40, 0.05), 0rem 0rem 0rem 0.25rem rgba(152, 162, 179, 0.14)"
                     }
                 },
                 textPrimary: {
                     color: gray600,
                     background: white,
                     '&:hover': {
+                        background: gray100,
+                        color: gray700,
+                    },
+                    '&:focus': {
                         background: white,
                     }
                 }

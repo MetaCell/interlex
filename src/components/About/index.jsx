@@ -60,6 +60,7 @@ const style = {
         fontSize: '1.125rem',
         lineHeight: '155.556%',
         color: gray500,
+        minHeight: '12.5rem'
     },
 
     description: {
@@ -104,7 +105,7 @@ const About = () => {
     };
     return (
         <Box sx={{ padding: '8rem 0 6rem' }}>
-            <Container maxWidth="lg">
+            <Container maxWidth="xl">
                 <Box mb="10rem">
                     <Grid container spacing={0}>
                         <Grid item xs={2}>
@@ -121,7 +122,7 @@ const About = () => {
                         </Grid>
                         <Grid item xs={10}>
                             <TabPanel value={value} index={0}>
-                                <Grid container spacing={2}>
+                                <Grid container spacing={4}>
                                     <Grid item xs={9}>
                                         <Typography sx={{ ...style.headingSecondary, mb: '1.5rem' }}>
                                             Short What InterLex Offers - Getting Started
@@ -164,7 +165,7 @@ const About = () => {
                                 </Grid>
                             </TabPanel>
                             <TabPanel value={value} index={1}>
-                                <Grid container spacing={2}>
+                                <Grid container spacing={4}>
                                     <Grid item xs={9}>
                                         <Typography sx={{ ...style.headingSecondary, mb: '1.5rem' }}>
                                             Short What InterLex Offers - Getting Started
@@ -201,7 +202,7 @@ const About = () => {
                                 </Grid>
                             </TabPanel>
                             <TabPanel value={value} index={2}>
-                                <Grid container spacing={2}>
+                                <Grid container spacing={4}>
                                     <Grid item xs={9}>
                                         <Typography sx={{ ...style.headingSecondary, mb: '1.5rem' }}>
                                             Short What InterLex Offers - Getting Started

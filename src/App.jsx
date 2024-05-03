@@ -5,13 +5,14 @@ import Partners from './components/Partners'
 import Footer from './components/Footer'
 import About from './components/About'
 import Banner from './components/Banner'
+import BG from "./Icons/svg/background.svg"
 
 function App() {
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box>
+      <Box  sx={{backgroundImage: `url(${BG})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right top'}}>
         <Header />
         <Banner />
         <Partners />

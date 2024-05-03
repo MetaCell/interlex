@@ -129,9 +129,9 @@ const Header = ({ isLoggedIn = false }) => {
     return (
         <Box sx={styles.root}>
             <Box display='flex' gap='1.25rem'>
-                <IconButton onClick={handleClick} aria-describedby={id} className="outlined">
+                <Button sx={{ p: '0.625rem 0.5625rem', minWidth: '0.0625rem' }} onClick={handleClick} aria-describedby={id} variant='outlined'>
                     <NavIcon />
-                </IconButton>
+                </Button>
 
                 <Popover
                     sx={styles.popover}

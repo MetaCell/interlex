@@ -1,6 +1,6 @@
 import { Box, Container, Grid, Typography } from "@mui/material";
 import { vars } from "../../theme/variables";
-import MOCKUP from "../../assets/svg/screen-mockup.svg"
+import MOCKUP from "../../Icons/svg/screen-mockup.svg"
 
 const { brand800, brand600, brand700, gray900 } = vars;
 
@@ -37,7 +37,7 @@ const style = {
 const Banner = () => {
     return (
         <Box position='relative' height='calc(100vh - 4.125rem)'>
-            <Container sx={{ height: 1 }} maxWidth="lg">
+            <Container sx={{ height: 1 }} maxWidth="xl">
                 <Grid height={1} container spacing={0} alignItems='center'>
                     <Grid item xs={6}>
                         <Typography component='h1' sx={style.heading}>
