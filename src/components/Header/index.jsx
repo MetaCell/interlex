@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Avatar, Badge, Box, Button, Divider, IconButton, ListItemAvatar, Popover } from "@mui/material";
+import { Avatar, Badge, Box, Button, Divider, IconButton, ListItemAvatar, Popover, TextField, Autocomplete } from "@mui/material";
 import { vars } from "../../theme/variables";
 import { AddIcon, DocumentationIcon, LogoutIcon, NavIcon, OrganizationsIcon, ReleaseNotesIcon, TermActivityIcon, UserIcon } from '../../Icons';
 import Logo from '../../Icons/svg/interlex_logo.svg'
@@ -125,6 +125,42 @@ const Header = ({ isLoggedIn = false }) => {
 
     const openUser = Boolean(anchorElUser);
     const idUser = open ? 'simple-popover' : undefined;
+    const options = ['Nervous', 'Central Nervous System', 'Nervous', 'ELectric Nervous Sytem'];
+    const [searchTerm, setSearchTerm] = React.useState('');
+    const [openList, setOpenList] = React.useState(false);
+
+    const handleOpenList = () => {
+      setOpenList(true);
+    };
+  
+    const handleCloseList = () => {
+      setOpenList(false);
+    };
+  
+    const handleInputChange = (event, newInputValue) => {
+      setSearchTerm(newInputValue);
+    };
+  
+    const toggleList = () => {
+      setOpenList(!openList);
+    };
+  
+    React.useEffect(() => {
+      const handleKeyDown = (event) => {
+        if (event.ctrlKey && event.key === 'k') {
+          toggleList();
+        }
+        if (event.key === 'Escape') {
+          handleCloseList();
+        }
+      };
+  
+      document.addEventListener('keydown', handleKeyDown);
+  
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+      };
+    }, []);
 
     return (
         <Box sx={styles.root}>
@@ -163,6 +199,47 @@ const Header = ({ isLoggedIn = false }) => {
                 </Popover>
                 
                 <img src={Logo} alt="logo" />
+            </Box>
+
+            <Box sx={{width:'50rem'}}>
+                <Autocomplete
+                    options={options}
+                    open={openList}
+                    onOpen={handleOpenList}
+                    onClose={handleCloseList}
+                    renderInput={(params) => (
+                        <TextField
+                        {...params}
+                        label="Search"
+                        variant="outlined"
+                        InputProps={{
+                            ...params.InputProps,
+                            endAdornment: (
+                            <>
+                                {params.InputProps.endAdornment}
+                                <IconButton style={{ marginLeft: '8px' }} onClick={toggleList}>
+                                {openList ?  <NavIcon /> :  <LogoutIcon />}
+                                </IconButton>
+                            </>
+                            ),
+                        }}
+                        />
+                    )}
+                    onInputChange={handleInputChange}
+                    ListboxComponent={({ children }) => (
+                        <List>
+                        {options.length > 0 && (
+                            <>
+                            <ListItem>
+                                <span style={{ fontWeight: 'bold' }}>I am looking for:</span> {searchTerm}
+                            </ListItem>
+                            <Divider />
+                            </>
+                        )}
+                        {children}
+                        </List>
+                    )}
+                    />
             </Box>
 
             {!isLoggedIn ? (
