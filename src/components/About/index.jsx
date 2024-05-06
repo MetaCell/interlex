@@ -5,7 +5,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import React from "react";
 import TabsData from "../../static/AboutTabs.json";
-const { gray50, gray700, gray500 } = vars;
+const { gray50, gray700, gray500, brand700 } = vars;
 
 const style = {
     heading: {
@@ -26,6 +26,11 @@ const style = {
         padding: 0,
         '& li': {
             padding: 0,
+
+            '& p': {
+                fontWeight: 600,
+                color: brand700
+            },
 
             '&:not(:first-child)': {
                 marginTop: '1.5rem'

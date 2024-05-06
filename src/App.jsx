@@ -7,12 +7,13 @@ import About from './components/About'
 import Banner from './components/Banner'
 import BG from "./Icons/svg/background.svg"
 
-function App() {
+const style = {backgroundImage: `url(${BG})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right top'}
 
+function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box  sx={{backgroundImage: `url(${BG})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right top'}}>
+      <Box sx={window.location.pathname === "/" ? style : {}}>
         <Header />
         <Banner />
         <Partners />

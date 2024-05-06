@@ -154,7 +154,8 @@ const theme = createTheme({
                     padding: 0,
 
                     '& .MuiAutocomplete-option': {
-                        padding: '0.625rem 0.625rem 0.625rem 0.5rem',
+                        padding: '0 0.625rem 0 0.5rem',
+                        height: '2.625rem',
                         borderRadius: '0.375rem',
 
                         '&:not(:first-child)': {
