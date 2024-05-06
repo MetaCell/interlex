@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
-import { Avatar, Badge, Box, Button, Divider, IconButton, ListItemAvatar, Popover, TextField, Autocomplete } from "@mui/material";
+import { Avatar, Badge, Box, Button, Divider, IconButton, ListItemAvatar, Popover, TextField, Autocomplete, InputAdornment, Icon, Typography, Chip } from "@mui/material";
 import { vars } from "../../theme/variables";
-import { AddIcon, DocumentationIcon, LogoutIcon, NavIcon, OrganizationsIcon, ReleaseNotesIcon, TermActivityIcon, UserIcon } from '../../Icons';
+import { AddIcon, CloseIcon, DocumentationIcon, LogoutIcon, NavIcon, OrganizationsIcon, ReleaseNotesIcon, SearchIcon, TermActivityIcon, TermsIcon, UserIcon } from '../../Icons';
 import Logo from '../../Icons/svg/interlex_logo.svg'
 import React from "react";
 import List from '@mui/material/List';
@@ -10,7 +10,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 
-const { gray200, white } = vars;
+const { gray200, white, gray100, gray600, gray800, gray500 } = vars;
 
 const styles = {
     root: {
@@ -67,6 +67,10 @@ const styles = {
         borderRadius: '0.0625rem',
         height: '2.5rem',
         background: gray200
+    },
+
+    keyBoardInfo: {
+        borderRadius: '0.25rem', pointerEvents: 'none', background: gray100, color: gray600, fontSize: '0.875rem', lineHeight: '142.857%', p: '0.125rem 0.5rem'
     }
 }
 
@@ -125,7 +129,7 @@ const Header = ({ isLoggedIn = false }) => {
 
     const openUser = Boolean(anchorElUser);
     const idUser = open ? 'simple-popover' : undefined;
-    const options = ['Nervous', 'Central Nervous System', 'Nervous', 'ELectric Nervous Sytem'];
+    const options = ['Nervous', 'Central Nervous System', 'Nervous System', 'ELectric Nervous Sytem'];
     const [searchTerm, setSearchTerm] = React.useState('');
     const [openList, setOpenList] = React.useState(false);
 
@@ -164,7 +168,7 @@ const Header = ({ isLoggedIn = false }) => {
 
     return (
         <Box sx={styles.root}>
-            <Box display='flex' gap='1.25rem'>
+            <Box width={isLoggedIn ? '15.5625rem' : '23.875rem'} display='flex' gap='1.25rem'>
                 <Button sx={{ p: '0.625rem 0.5625rem', minWidth: '0.0625rem' }} onClick={handleClick} aria-describedby={id} variant='outlined'>
                     <NavIcon />
                 </Button>
@@ -201,44 +205,143 @@ const Header = ({ isLoggedIn = false }) => {
                 <img src={Logo} alt="logo" />
             </Box>
 
-            <Box sx={{width:'50rem'}}>
+            <Box sx={{width:'35%', maxWidth: '45.5rem'}}>
                 <Autocomplete
+                    sx={{ 
+                        '& .MuiOutlinedInput-root': {
+                            borderRadius: openList ? '0.5rem 0.5rem 0 0' : '0.5rem'
+                        }
+                     }}
                     options={options}
                     open={openList}
                     onOpen={handleOpenList}
                     onClose={handleCloseList}
+                    forcePopupIcon={false}
+                    renderOption={(props, option, state) => {
+                        const { selected } = state;
+                        return (
+                            <ListItem sx={{
+                                display: 'flex',
+                                gap: '0.5rem',
+                                alignItems: 'center',
+                            }} {...props}>
+                              <TermsIcon />
+                              <Typography variant='body1'>{option}</Typography>
+                              <Typography variant='body2'>Olivia Rhye</Typography>
+                              {selected ? <Chip label="Fork" variant='outlined' color='success' /> : <Chip label="Curated" variant='outlined' />}
+                            </ListItem>
+                        )
+                    }}
                     renderInput={(params) => (
                         <TextField
                         {...params}
-                        label="Search"
                         variant="outlined"
+                        placeholder="Find something..."
                         InputProps={{
                             ...params.InputProps,
+                            startAdornment: <InputAdornment position='start'><SearchIcon /></InputAdornment>,
                             endAdornment: (
-                            <>
-                                {params.InputProps.endAdornment}
-                                <IconButton style={{ marginLeft: '8px' }} onClick={toggleList}>
-                                {openList ?  <NavIcon /> :  <LogoutIcon />}
-                                </IconButton>
-                            </>
-                            ),
+                                <>
+                                    <InputAdornment position='end'>
+                                        {openList ? (
+                                            <Box display='flex' alignItems='center' gap='0.75rem'>
+                                                <IconButton sx={{ 
+                                                    p: 0, background: 'transparent',
+                                                    '&:hover': {
+                                                        background: 'transparent'
+                                                    }
+                                                }} onClick={toggleList}>
+                                                    <CloseIcon />
+                                                </IconButton>
+                                                <Box sx={styles.keyBoardInfo}>Esc</Box>
+                                            </Box>
+                                        ) : <Box sx={styles.keyBoardInfo}>Ctrl + K</Box>}
+                                    </InputAdornment>
+                                </>
+                            )
                         }}
                         />
                     )}
                     onInputChange={handleInputChange}
-                    ListboxComponent={({ children }) => (
-                        <List>
-                        {options.length > 0 && (
+                    ListboxComponent={(props) => {
+                        return (
                             <>
-                            <ListItem>
-                                <span style={{ fontWeight: 'bold' }}>I am looking for:</span> {searchTerm}
-                            </ListItem>
-                            <Divider />
+                                <Box p="0.875rem 0.5rem 0.5rem 0.5rem">
+                                    <List sx={{
+                                        '& .MuiTypography-body1': {
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            lineHeight: '142.857%',
+                                            color: gray800
+                                        },
+            
+                                        '& .MuiTypography-body2': {
+                                            fontSize: '0.875rem',
+                                            flex: 1,
+                                            fontWeight: 400,
+                                            lineHeight: '142.857%',
+                                            color: gray500
+                                        },
+                                    }} {...props}>
+                                        <ListItem className='MuiAutocomplete-option' sx={{
+                                            '&:hover': {
+                                                backgroundColor: 'transparent !important',
+                                                cursor: 'default'
+                                            }
+                                        }}>
+                                            <Typography variant='body1'>I’m looking for...</Typography>
+                                        </ListItem>
+                                        <ListItem className='MuiAutocomplete-option' sx={{
+                                            display: 'flex',
+                                            gap: '0.5rem',
+                                            alignItems: 'center',
+                                        }}>
+                                        <SearchIcon />
+                                        <Typography sx={{flex: 1}} variant='body1'>{searchTerm}</Typography>
+                                        <Button 
+                                            variant='text' 
+                                            sx={{
+                                                p: 0, height: 'auto', lineHeight: 1, background: 'transparent',
+                                                '&:hover': {
+                                                    backgroundColor: 'transparent'
+                                                }
+                                            }}
+                                        >Search all</Button>
+                                        </ListItem>
+                                    </List>
+                                </Box>
+                                <Divider sx={{borderColor: gray200}} />
+                                <Box p="0.875rem 0.5rem 0.5rem 0.5rem">
+                                    <List sx={{
+                                        '& .MuiTypography-body1': {
+                                            fontSize: '0.875rem',
+                                            fontWeight: 500,
+                                            lineHeight: '142.857%',
+                                            color: gray800
+                                        },
+            
+                                        '& .MuiTypography-body2': {
+                                            fontSize: '0.875rem',
+                                            flex: 1,
+                                            fontWeight: 400,
+                                            lineHeight: '142.857%',
+                                            color: gray500
+                                        },
+                                    }} {...props}>
+                                        <ListItem className='MuiAutocomplete-option' sx={{
+                                            '&:hover': {
+                                                backgroundColor: 'transparent !important',
+                                                cursor: 'default'
+                                            }
+                                        }}>
+                                            <Typography variant='body1'>Terms</Typography>
+                                        </ListItem>
+                                        {props.children}
+                                    </List>
+                                </Box>
                             </>
-                        )}
-                        {children}
-                        </List>
-                    )}
+                        )
+                    }}
                     />
             </Box>
 

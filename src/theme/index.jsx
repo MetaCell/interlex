@@ -12,7 +12,11 @@ const {
     gray500,
     brand700,
     gray50,
-    gray100
+    gray100,
+    gray200,
+    brand300,
+    brand25,
+    gray25
 } = vars
 
 const theme = createTheme({
@@ -83,6 +87,116 @@ const theme = createTheme({
             styleOverrides: {
                 ripple: {
                     display: 'none'
+                }
+            }
+        },
+
+        MuiOutlinedInput: {
+            styleOverrides: {
+                root: {
+                    '&:hover': {
+                        '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: gray200,
+                        }
+                    },
+                    '&.Mui-focused': {
+                        '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: gray200,
+                            borderWidth: '0.0625rem'
+                        }
+                    }
+                },
+                notchedOutline: {
+                    borderColor: gray200
+                }
+            }
+        },
+
+        MuiContainer: {
+            styleOverrides: {
+                maxWidthXl: {
+                    '@media screen and (min-width: 96rem)' : {
+                        maxWidth: '104.5rem'
+                    }
+                }
+            }
+        },
+
+        MuiChip: {
+            styleOverrides: {
+                root: {
+                    height: '1.375rem',
+                    padding: '0 0.375rem',
+                    fontSize: '0.75rem',
+                    borderRadius: '0.375rem',
+                    fontWeight: 500,
+                },
+                label: {
+                    padding: 0
+                },
+                outlined: {
+                    borderColor: gray300,
+                    color: gray700,
+                    boxShadow: '0rem 0.0625rem 0.125rem 0rem rgba(16, 24, 40, 0.05)'
+                },
+
+                colorSuccess: {
+                    borderColor: `${brand300} !important`,
+                    background: brand25,
+                    boxShadow: '0rem 0.0625rem 0.125rem 0rem rgba(16, 24, 40, 0.05) !important'
+                }
+            }
+        },
+
+        MuiAutocomplete: {
+            styleOverrides: {
+                listbox: {
+                    padding: 0,
+
+                    '& .MuiAutocomplete-option': {
+                        padding: '0.625rem 0.625rem 0.625rem 0.5rem',
+                        borderRadius: '0.375rem',
+
+                        '&:not(:first-child)': {
+                            marginTop: '0.375rem'
+                        },
+
+                        '&:hover': {
+                            backgroundColor: gray50
+                        },
+
+                        '&[aria-selected="true"]': {
+                            backgroundColor: gray50
+                        }
+                    }
+                },
+                paper: {
+                    boxShadow: 'none',
+                    borderRadius: '0 0 0.5rem 0.5rem',
+                    border: `0.0625rem solid ${gray200}`,
+                    borderTop: 'none'
+                },
+                root: {
+                    '& .MuiOutlinedInput-root': {
+                        padding: '0.5rem !important',
+                        height: '2.5rem',
+                        background: gray25,
+                        borderRadius: '0.5rem',
+                        '&.Mui-focused': {
+                            background: white,
+                        },
+                        '& .MuiAutocomplete-input': {
+                            padding: 0,
+                            color: gray700,
+                            fontSize: '0.875rem',
+                            fontWeight: 500,
+                            lineHeight: '142.857%',
+                            '&::placeholder': {
+                                opacity: 1,
+                                color: gray500,
+                            }
+                        }
+                    }
                 }
             }
         },
