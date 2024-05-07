@@ -9,11 +9,16 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Search from './Search';
 
-const { gray200, white } = vars;
+const { gray200, white, gray100, gray600 } = vars;
 
 const styles = {
     root: {
+        background: white,
+        position: 'sticky',
+        top: 0,
+        zIndex: 99,
         borderBottom: `0.0625rem solid ${gray200}`,
         px: '2rem',
         height: '4.125rem',
@@ -63,6 +68,10 @@ const styles = {
         borderRadius: '0.0625rem',
         height: '2.5rem',
         background: gray200
+    },
+
+    keyBoardInfo: {
+        borderRadius: '0.25rem', pointerEvents: 'none', background: gray100, color: gray600, fontSize: '0.875rem', lineHeight: '142.857%', p: '0.125rem 0.5rem'
     }
 }
 
@@ -96,7 +105,7 @@ const UserNavMenu = [
     }
 ]
 
-const Header = ({isLoggedIn = true}) => {
+const Header = ({ isLoggedIn = false }) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -122,12 +131,39 @@ const Header = ({isLoggedIn = true}) => {
     const openUser = Boolean(anchorElUser);
     const idUser = open ? 'simple-popover' : undefined;
 
+    const [openList, setOpenList] = React.useState(false);
+
+    const handleCloseList = () => {
+      setOpenList(false);
+    };
+  
+    const toggleList = () => {
+      setOpenList(!openList);
+    };
+  
+    React.useEffect(() => {
+      const handleKeyDown = (event) => {
+        if (event.ctrlKey && event.key === 'k') {
+          toggleList();
+        }
+        if (event.key === 'Escape') {
+          handleCloseList();
+        }
+      };
+  
+      document.addEventListener('keydown', handleKeyDown);
+  
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+      };
+    }, []);
+
     return (
         <Box sx={styles.root}>
-            <Box display='flex' gap='1.25rem'>
-                <IconButton onClick={handleClick} aria-describedby={id} className="outlined">
+            <Box width={isLoggedIn ? '15.5625rem' : '23.875rem'} display='flex' gap='1.25rem'>
+                <Button sx={{ p: '0.625rem 0.5625rem', minWidth: '0.0625rem' }} onClick={handleClick} aria-describedby={id} variant='outlined'>
                     <NavIcon />
-                </IconButton>
+                </Button>
 
                 <Popover
                     sx={styles.popover}
@@ -159,6 +195,10 @@ const Header = ({isLoggedIn = true}) => {
                 </Popover>
                 
                 <img src={Logo} alt="logo" />
+            </Box>
+
+            <Box sx={{width:'35%', maxWidth: '45.5rem'}}>
+                <Search />
             </Box>
 
             {!isLoggedIn ? (
