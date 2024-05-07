@@ -162,20 +162,6 @@ export const getPostEndpointsPrivMockHandler = () => {
 }
 
 export const getGetEndpointsContributionsMockHandler = () => {
-  return http.get('*/:group/contributions/', async () => {
-    await delay(1000);
-    return new HttpResponse(null,
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }
-    )
-  })
-}
-
-export const getGetEndpointsContributionsMockHandler = () => {
   return http.get('*/:group/contributions/interlex', async () => {
     await delay(1000);
     return new HttpResponse(null,
@@ -189,19 +175,6 @@ export const getGetEndpointsContributionsMockHandler = () => {
   })
 }
 
-export const getGetEndpointsCuriesMockHandler = () => {
-  return http.get('*/:group/curies/', async () => {
-    await delay(1000);
-    return new HttpResponse(null,
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }
-    )
-  })
-}
 
 export const getPostEndpointsCuriesMockHandler = () => {
   return http.post('*/:group/curies/', async () => {
@@ -219,20 +192,6 @@ export const getPostEndpointsCuriesMockHandler = () => {
 
 export const getGetEndpointsCuriesMockHandler = () => {
   return http.get('*/:group/curies/:prefixIriCurie', async () => {
-    await delay(1000);
-    return new HttpResponse(null,
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }
-    )
-  })
-}
-
-export const getGetDiffCuriesMockHandler = () => {
-  return http.get('*/:group/diff/:otherGroupDiff/curies/', async () => {
     await delay(1000);
     return new HttpResponse(null,
       {
@@ -373,20 +332,6 @@ export const getGetDiffReadableMockHandler = () => {
 
 export const getGetDiffUrisMockHandler = () => {
   return http.get('*/:group/diff/:otherGroupDiff/uris/:uriPath', async () => {
-    await delay(1000);
-    return new HttpResponse(null,
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }
-    )
-  })
-}
-
-export const getGetDiffVersionsCuriesMockHandler = () => {
-  return http.get('*/:group/diff/:otherGroupDiff/versions/:epochVerstrId/curies/', async () => {
     await delay(1000);
     return new HttpResponse(null,
       {
@@ -637,20 +582,6 @@ export const getGetOntologiesOntologiesIlxMockHandler = () => {
   })
 }
 
-export const getGetOwnCuriesMockHandler = () => {
-  return http.get('*/:group/own/:otherGroup/curies/', async () => {
-    await delay(1000);
-    return new HttpResponse(null,
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }
-    )
-  })
-}
-
 export const getPostOwnCuriesMockHandler = () => {
   return http.post('*/:group/own/:otherGroup/curies/', async () => {
     await delay(1000);
@@ -833,20 +764,6 @@ export const getGetOwnVersionsCuriesMockHandler = () => {
   })
 }
 
-export const getGetOwnVersionsCuriesMockHandler = () => {
-  return http.get('*/:group/own/:otherGroup/versions/:epochVerstrId/curies/:prefixIriCurie', async () => {
-    await delay(1000);
-    return new HttpResponse(null,
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }
-    )
-  })
-}
-
 export const getGetOwnVersionsReadableMockHandler = () => {
   return http.get('*/:group/own/:otherGroup/versions/:epochVerstrId/readable/:word', async () => {
     await delay(1000);
@@ -947,20 +864,6 @@ export const getPostEndpointsUploadMockHandler = () => {
 
 export const getGetEndpointsUrisMockHandler = () => {
   return http.get('*/:group/uris/:uriPath', async () => {
-    await delay(1000);
-    return new HttpResponse(null,
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }
-    )
-  })
-}
-
-export const getGetVersionsCuriesMockHandler = () => {
-  return http.get('*/:group/versions/:epochVerstrId/curies/', async () => {
     await delay(1000);
     return new HttpResponse(null,
       {

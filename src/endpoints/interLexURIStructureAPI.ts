@@ -252,60 +252,6 @@ export const getEndpointsContributions = (
     );
   }
 
-
-export const getGetEndpointsContributionsQueryKey = (group: string,) => {
-    return [`/api/v1/${group}/contributions/`] as const;
-    }
-
-    
-export const getGetEndpointsContributionsQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsContributions>>, TError = AxiosError<unknown>>(group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
-) => {
-
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetEndpointsContributionsQueryKey(group);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEndpointsContributions>>> = ({ signal }) => getEndpointsContributions(group, { signal, ...axiosOptions });
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(group), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEndpointsContributions>>, TError, TData> & { queryKey: QueryKey }
-}
-
-export type GetEndpointsContributionsQueryResult = NonNullable<Awaited<ReturnType<typeof getEndpointsContributions>>>
-export type GetEndpointsContributionsQueryError = AxiosError<unknown>
-
-export const useGetEndpointsContributions = <TData = Awaited<ReturnType<typeof getEndpointsContributions>>, TError = AxiosError<unknown>>(
- group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsContributions>>, TError, TData>>, axios?: AxiosRequestConfig}
-
-  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
-
-  const queryOptions = getGetEndpointsContributionsQueryOptions(group,options)
-
-  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
-
-
-export const getEndpointsContributions = (
-    group: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
-    
-    return axios.get(
-      `/api/v1/${group}/contributions/interlex`,options
-    );
-  }
-
-
 export const getGetEndpointsContributionsQueryKey = (group: string,) => {
     return [`/api/v1/${group}/contributions/interlex`] as const;
     }
@@ -345,62 +291,6 @@ export const useGetEndpointsContributions = <TData = Awaited<ReturnType<typeof g
 
   return query;
 }
-
-
-
-
-export const getEndpointsCuries = (
-    group: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
-    
-    return axios.get(
-      `/api/v1/${group}/curies/`,options
-    );
-  }
-
-
-export const getGetEndpointsCuriesQueryKey = (group: string,) => {
-    return [`/api/v1/${group}/curies/`] as const;
-    }
-
-    
-export const getGetEndpointsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getEndpointsCuries>>, TError = AxiosError<unknown>>(group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
-) => {
-
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetEndpointsCuriesQueryKey(group);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEndpointsCuries>>> = ({ signal }) => getEndpointsCuries(group, { signal, ...axiosOptions });
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(group), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEndpointsCuries>>, TError, TData> & { queryKey: QueryKey }
-}
-
-export type GetEndpointsCuriesQueryResult = NonNullable<Awaited<ReturnType<typeof getEndpointsCuries>>>
-export type GetEndpointsCuriesQueryError = AxiosError<unknown>
-
-export const useGetEndpointsCuries = <TData = Awaited<ReturnType<typeof getEndpointsCuries>>, TError = AxiosError<unknown>>(
- group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
-
-  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
-
-  const queryOptions = getGetEndpointsCuriesQueryOptions(group,options)
-
-  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
-
 
 export const postEndpointsCuries = (
     group: string, options?: AxiosRequestConfig
@@ -503,66 +393,6 @@ export const useGetEndpointsCuries = <TData = Awaited<ReturnType<typeof getEndpo
 
   return query;
 }
-
-
-
-
-export const getDiffCuries = (
-    group: string,
-    otherGroupDiff: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
-    
-    return axios.get(
-      `/api/v1/${group}/diff/${otherGroupDiff}/curies/`,options
-    );
-  }
-
-
-export const getGetDiffCuriesQueryKey = (group: string,
-    otherGroupDiff: string,) => {
-    return [`/api/v1/${group}/diff/${otherGroupDiff}/curies/`] as const;
-    }
-
-    
-export const getGetDiffCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getDiffCuries>>, TError = AxiosError<unknown>>(group: string,
-    otherGroupDiff: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
-) => {
-
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetDiffCuriesQueryKey(group,otherGroupDiff);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDiffCuries>>> = ({ signal }) => getDiffCuries(group,otherGroupDiff, { signal, ...axiosOptions });
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(group && otherGroupDiff), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDiffCuries>>, TError, TData> & { queryKey: QueryKey }
-}
-
-export type GetDiffCuriesQueryResult = NonNullable<Awaited<ReturnType<typeof getDiffCuries>>>
-export type GetDiffCuriesQueryError = AxiosError<unknown>
-
-export const useGetDiffCuries = <TData = Awaited<ReturnType<typeof getDiffCuries>>, TError = AxiosError<unknown>>(
- group: string,
-    otherGroupDiff: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
-
-  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
-
-  const queryOptions = getGetDiffCuriesQueryOptions(group,otherGroupDiff,options)
-
-  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
-
 
 export const getDiffCuries = (
     group: string,
@@ -1240,70 +1070,6 @@ export const useGetDiffUris = <TData = Awaited<ReturnType<typeof getDiffUris>>, 
 
   return query;
 }
-
-
-
-
-export const getDiffVersionsCuries = (
-    group: string,
-    otherGroupDiff: string,
-    epochVerstrId: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
-    
-    return axios.get(
-      `/api/v1/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies/`,options
-    );
-  }
-
-
-export const getGetDiffVersionsCuriesQueryKey = (group: string,
-    otherGroupDiff: string,
-    epochVerstrId: string,) => {
-    return [`/api/v1/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies/`] as const;
-    }
-
-    
-export const getGetDiffVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError = AxiosError<unknown>>(group: string,
-    otherGroupDiff: string,
-    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
-) => {
-
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetDiffVersionsCuriesQueryKey(group,otherGroupDiff,epochVerstrId);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDiffVersionsCuries>>> = ({ signal }) => getDiffVersionsCuries(group,otherGroupDiff,epochVerstrId, { signal, ...axiosOptions });
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(group && otherGroupDiff && epochVerstrId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError, TData> & { queryKey: QueryKey }
-}
-
-export type GetDiffVersionsCuriesQueryResult = NonNullable<Awaited<ReturnType<typeof getDiffVersionsCuries>>>
-export type GetDiffVersionsCuriesQueryError = AxiosError<unknown>
-
-export const useGetDiffVersionsCuries = <TData = Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError = AxiosError<unknown>>(
- group: string,
-    otherGroupDiff: string,
-    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
-
-  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
-
-  const queryOptions = getGetDiffVersionsCuriesQueryOptions(group,otherGroupDiff,epochVerstrId,options)
-
-  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
-
 
 export const getDiffVersionsCuries = (
     group: string,
@@ -2366,48 +2132,6 @@ export const useGetOntologiesOntologiesIlx = <TData = Awaited<ReturnType<typeof 
   return query;
 }
 
-
-
-
-export const getOwnCuries = (
-    group: string,
-    otherGroup: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
-    
-    return axios.get(
-      `/api/v1/${group}/own/${otherGroup}/curies/`,options
-    );
-  }
-
-
-export const getGetOwnCuriesQueryKey = (group: string,
-    otherGroup: string,) => {
-    return [`/api/v1/${group}/own/${otherGroup}/curies/`] as const;
-    }
-
-    
-export const getGetOwnCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getOwnCuries>>, TError = AxiosError<unknown>>(group: string,
-    otherGroup: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
-) => {
-
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetOwnCuriesQueryKey(group,otherGroup);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOwnCuries>>> = ({ signal }) => getOwnCuries(group,otherGroup, { signal, ...axiosOptions });
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(group && otherGroup), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOwnCuries>>, TError, TData> & { queryKey: QueryKey }
-}
-
-export type GetOwnCuriesQueryResult = NonNullable<Awaited<ReturnType<typeof getOwnCuries>>>
-export type GetOwnCuriesQueryError = AxiosError<unknown>
-
 export const useGetOwnCuries = <TData = Awaited<ReturnType<typeof getOwnCuries>>, TError = AxiosError<unknown>>(
  group: string,
     otherGroup: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
@@ -2516,24 +2240,6 @@ const {query: queryOptions, axios: axiosOptions} = options ?? {};
 
 export type GetOwnCuriesQueryResult = NonNullable<Awaited<ReturnType<typeof getOwnCuries>>>
 export type GetOwnCuriesQueryError = AxiosError<unknown>
-
-export const useGetOwnCuries = <TData = Awaited<ReturnType<typeof getOwnCuries>>, TError = AxiosError<unknown>>(
- group: string,
-    otherGroup: string,
-    prefixIriCurie: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
-
-  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
-
-  const queryOptions = getGetOwnCuriesQueryOptions(group,otherGroup,prefixIriCurie,options)
-
-  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
 
 
 /**
@@ -3206,70 +2912,6 @@ export const useGetOwnUris = <TData = Awaited<ReturnType<typeof getOwnUris>>, TE
   return query;
 }
 
-
-
-
-export const getOwnVersionsCuries = (
-    group: string,
-    otherGroup: string,
-    epochVerstrId: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
-    
-    return axios.get(
-      `/api/v1/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies/`,options
-    );
-  }
-
-
-export const getGetOwnVersionsCuriesQueryKey = (group: string,
-    otherGroup: string,
-    epochVerstrId: string,) => {
-    return [`/api/v1/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies/`] as const;
-    }
-
-    
-export const getGetOwnVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError = AxiosError<unknown>>(group: string,
-    otherGroup: string,
-    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
-) => {
-
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetOwnVersionsCuriesQueryKey(group,otherGroup,epochVerstrId);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOwnVersionsCuries>>> = ({ signal }) => getOwnVersionsCuries(group,otherGroup,epochVerstrId, { signal, ...axiosOptions });
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(group && otherGroup && epochVerstrId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError, TData> & { queryKey: QueryKey }
-}
-
-export type GetOwnVersionsCuriesQueryResult = NonNullable<Awaited<ReturnType<typeof getOwnVersionsCuries>>>
-export type GetOwnVersionsCuriesQueryError = AxiosError<unknown>
-
-export const useGetOwnVersionsCuries = <TData = Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError = AxiosError<unknown>>(
- group: string,
-    otherGroup: string,
-    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
-
-  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
-
-  const queryOptions = getGetOwnVersionsCuriesQueryOptions(group,otherGroup,epochVerstrId,options)
-
-  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
-
-
 export const getOwnVersionsCuries = (
     group: string,
     otherGroup: string,
@@ -3808,66 +3450,6 @@ export const useGetEndpointsUris = <TData = Awaited<ReturnType<typeof getEndpoin
 
   return query;
 }
-
-
-
-
-export const getVersionsCuries = (
-    group: string,
-    epochVerstrId: string, options?: AxiosRequestConfig
- ): Promise<AxiosResponse<void>> => {
-    
-    return axios.get(
-      `/api/v1/${group}/versions/${epochVerstrId}/curies/`,options
-    );
-  }
-
-
-export const getGetVersionsCuriesQueryKey = (group: string,
-    epochVerstrId: string,) => {
-    return [`/api/v1/${group}/versions/${epochVerstrId}/curies/`] as const;
-    }
-
-    
-export const getGetVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getVersionsCuries>>, TError = AxiosError<unknown>>(group: string,
-    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
-) => {
-
-const {query: queryOptions, axios: axiosOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetVersionsCuriesQueryKey(group,epochVerstrId);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getVersionsCuries>>> = ({ signal }) => getVersionsCuries(group,epochVerstrId, { signal, ...axiosOptions });
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(group && epochVerstrId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getVersionsCuries>>, TError, TData> & { queryKey: QueryKey }
-}
-
-export type GetVersionsCuriesQueryResult = NonNullable<Awaited<ReturnType<typeof getVersionsCuries>>>
-export type GetVersionsCuriesQueryError = AxiosError<unknown>
-
-export const useGetVersionsCuries = <TData = Awaited<ReturnType<typeof getVersionsCuries>>, TError = AxiosError<unknown>>(
- group: string,
-    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsCuries>>, TError, TData>>, axios?: AxiosRequestConfig}
-
-  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
-
-  const queryOptions = getGetVersionsCuriesQueryOptions(group,epochVerstrId,options)
-
-  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
-
 
 export const getVersionsCuries = (
     group: string,
