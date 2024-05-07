@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import { Avatar, Badge, Box, Button, Divider, IconButton, ListItemAvatar, Popover } from "@mui/material";
 import { vars } from "../../theme/variables";
-import { AddIcon, DocumentationIcon, LogoutIcon, NavIcon, OrganizationsIcon, ReleaseNotesIcon, TermActivityIcon, UserIcon } from '../../icons';
-import Logo from '../../icons/svg/interlex_logo.svg'
+import { AddIcon, DocumentationIcon, LogoutIcon, NavIcon, OrganizationsIcon, ReleaseNotesIcon, TermActivityIcon, UserIcon } from '../../Icons';
+import Logo from '../../Icons/svg/interlex_logo.svg'
 import React from "react";
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';

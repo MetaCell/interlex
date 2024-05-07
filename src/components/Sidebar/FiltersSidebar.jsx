@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, IconButton, Tooltip, FormGroup, FormLabel, FormControl, Button } from '@mui/material';
 import Checkbox from '../common/CustomCheckbox';
-import { CollapseIcon, HelpOutlinedIcon } from '../../icons';
+import { CollapseIcon, HelpOutlinedIcon } from '../../Icons';
 import { vars } from '../../theme/variables';
 
 const { gray200, gray600, gray800, brand700, brand800 } = vars;
