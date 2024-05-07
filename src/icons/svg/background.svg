@@ -1,0 +1,62 @@
+<svg width="1481" height="1425" viewBox="0 0 1481 1425" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_224_27927)">
+<mask id="mask0_224_27927" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="-43" y="46" width="1537" height="778">
+<rect x="-43" y="46" width="1537" height="778" fill="url(#paint0_radial_224_27927)"/>
+</mask>
+<g mask="url(#mask0_224_27927)">
+<g clip-path="url(#clip1_224_27927)">
+<g clip-path="url(#clip2_224_27927)">
+<line x1="80.5" y1="-15" x2="80.5" y2="1425" stroke="#BDC2C1"/>
+<line x1="160.5" y1="-15" x2="160.5" y2="1425" stroke="#BDC2C1"/>
+<line x1="240.5" y1="-15" x2="240.5" y2="1425" stroke="#BDC2C1"/>
+<line x1="320.5" y1="-15" x2="320.5" y2="1425" stroke="#BDC2C1"/>
+<line x1="400.5" y1="-15" x2="400.5" y2="1425" stroke="#BDC2C1"/>
+<line x1="480.5" y1="-15" x2="480.5" y2="1425" stroke="#BDC2C1"/>
+<line x1="560.5" y1="-15" x2="560.5" y2="1425" stroke="#BDC2C1"/>
+<line x1="640.5" y1="-15" x2="640.5" y2="1425" stroke="#BDC2C1"/>
+<line x1="720.5" y1="-15" x2="720.5" y2="1425" stroke="#BDC2C1"/>
+<line x1="800.5" y1="-15" x2="800.5" y2="1425" stroke="#BDC2C1"/>
+<line x1="880.5" y1="-15" x2="880.5" y2="1425" stroke="#BDC2C1"/>
+<line x1="960.5" y1="-15" x2="960.5" y2="1425" stroke="#BDC2C1"/>
+<line x1="1040.5" y1="-15" x2="1040.5" y2="1425" stroke="#BDC2C1"/>
+<line x1="1120.5" y1="-15" x2="1120.5" y2="1425" stroke="#BDC2C1"/>
+<line x1="1200.5" y1="-15" x2="1200.5" y2="1425" stroke="#BDC2C1"/>
+<line x1="1280.5" y1="-15" x2="1280.5" y2="1425" stroke="#BDC2C1"/>
+<line x1="1360.5" y1="-15" x2="1360.5" y2="1425" stroke="#BDC2C1"/>
+<line x1="1440.5" y1="-15" x2="1440.5" y2="1425" stroke="#BDC2C1"/>
+</g>
+<g clip-path="url(#clip3_224_27927)">
+<line y1="64.5" x2="1920" y2="64.5" stroke="#BDC2C1"/>
+<line y1="144.5" x2="1920" y2="144.5" stroke="#BDC2C1"/>
+<line y1="224.5" x2="1920" y2="224.5" stroke="#BDC2C1"/>
+<line y1="304.5" x2="1920" y2="304.5" stroke="#BDC2C1"/>
+<line y1="384.5" x2="1920" y2="384.5" stroke="#BDC2C1"/>
+<line y1="464.5" x2="1920" y2="464.5" stroke="#BDC2C1"/>
+<line y1="544.5" x2="1920" y2="544.5" stroke="#BDC2C1"/>
+<line y1="624.5" x2="1920" y2="624.5" stroke="#BDC2C1"/>
+<line y1="704.5" x2="1920" y2="704.5" stroke="#BDC2C1"/>
+<line y1="784.5" x2="1920" y2="784.5" stroke="#BDC2C1"/>
+</g>
+</g>
+</g>
+</g>
+<defs>
+<radialGradient id="paint0_radial_224_27927" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1356 557.5) rotate(-141.093) scale(849.437 2300.02)">
+<stop stop-opacity="0.61"/>
+<stop offset="0.377207" stop-opacity="0.441374"/>
+<stop offset="0.916874" stop-opacity="0"/>
+</radialGradient>
+<clipPath id="clip0_224_27927">
+<rect width="1920" height="1440" fill="white" transform="translate(0 -15)"/>
+</clipPath>
+<clipPath id="clip1_224_27927">
+<rect width="1920" height="1440" fill="white" transform="translate(0 -15)"/>
+</clipPath>
+<clipPath id="clip2_224_27927">
+<rect width="1920" height="1440" fill="white" transform="translate(0 -15)"/>
+</clipPath>
+<clipPath id="clip3_224_27927">
+<rect width="1920" height="1440" fill="white" transform="translate(0 -15)"/>
+</clipPath>
+</defs>
+</svg>

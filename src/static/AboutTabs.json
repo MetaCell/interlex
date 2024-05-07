@@ -1,0 +1,41 @@
+{
+  "tabs": [
+    {
+      "heading": "For Researchers",
+      "content": {
+        "heading": "Short What InterLex Offers - Getting Started",
+        "text": "The InterLex project - a core component of SciCrunch and supported by projects such as the Neuroscience Information Framework project (NIF), the NIDDK Information Network (dkNET), and the Open Data Commons for Spinal Cord Injury - is a dynamic lexicon of biomedical terms. Unlike an encyclopedia, a lexicon provides the meaning of a term, and not all there is to know about it. InterLex is being constructed to help improve the way that biomedical scientists communicate about their data, so that information systems like NIF and dkNET can find data more easily and provide more powerful means of integrating that data across distributed resources.",
+        "links": [
+          { "label": "Personal dashboard", "url": "/" },
+          { "label": "Organization dashboard", "url": "/" },
+          { "label": "Tutorials", "url": "/" },
+          { "label": "Use cases documentation", "url": "/" }
+        ]
+      }
+    },
+    {
+      "heading": "For Curators",
+      "content": {
+        "heading": "Short What InterLex Offers - Getting Started",
+        "text": "One of the big roadblocks to data integration in the biomedical sciences is the inconsistent use of terminology in databases and other resources such as the literature. When we use the same terms to mean different things, we cannot easily ask questions that span across multiple resources. For example, if three databases have information about what genes are expressed in cortex, but they all use different definitions of cerebral cortex, then it is hard to compare them. InterLex allows for the association of data values (i.e. the value of a field or text within a field) to terminologies enabling the crowdsourcing of data-terminology mappings.",
+        "links": [
+          { "label": "Personal dashboard", "url": "/" },
+          { "label": "Organization dashboard", "url": "/" },
+          { "label": "Organization terms", "url": "/" }
+        ]
+      }
+    },
+    {
+      "heading": "For Developers",
+      "content": {
+        "heading": "Short What InterLex Offers - Getting Started",
+        "text": "InterLex was built on the foundation of NeuroLex (see Larson and Martone 2013 Neurolex: An online framework for neuroscience knowledge. Frontiers in Neuroinformatics, 7:18) and contains all of the existing NeuroLex terms. The initial entries in NeuroLex were built from the NIFSTD ontologies. NIFSTD currently has about 60,000 concepts (includes both classes and synonyms) that span gross anatomy, cells, subcellular structures, diseases, functions and techniques. InterLex models terms using primitives of the Web Ontology Language (OWL) and can export directly to a variety of standard ontology formats.",
+        "links": [
+          { "label": "Personal dashboard", "url": "/" },
+          { "label": "Organization dashboard", "url": "/" },
+          { "label": "API documentation", "url": "/" }
+        ]
+      }
+    }
+  ]
+}
