@@ -1,0 +1,80 @@
+openapi: '3.0.0'
+info:
+  version: 1.0.0
+  title: Swagger Mock Missing Endpoints
+  license:
+    name: MIT
+servers:
+  - url: http://interlex.swagger.io/v1
+paths:
+  /search_term/{term}:
+    get:
+      summary: List all matching terms
+      operationId: get_match_terms
+      tags:
+        - terms
+      parameters:
+        - name: term
+          in: path
+          required: true
+          description: The id of the pet to retrieve
+          schema:
+            type: string
+        - name: testId
+          in: path
+          required: true
+          description: The id of the pet to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A paged array of terms
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Terms'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Term:
+      type: object
+      required:
+        - prefixes
+        - triples
+      properties:
+        '@id':
+          type: string
+          format: iri-reference
+        prefixes:
+          type: object
+        triples:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+    Terms:
+      type: array
+      items:
+        $ref: '#/components/schemas/Term'
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
