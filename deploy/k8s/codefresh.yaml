@@ -1,0 +1,34 @@
+version: "1.0"
+stages:
+  - "clone"
+  - "build"
+  - "deploy"
+steps:
+  clone:
+    stage: "clone"
+    title: "Cloning interlex"
+    type: "git-clone"
+    repo: "metacell/interlex"
+    revision: "${{CF_BRANCH}}"
+  build:
+    stage: "build"
+    title: "Building interlex"
+    type: "build"
+    image_name: "interlex"
+    tag: "${{CF_SHORT_REVISION}}"
+    dockerfile: Dockerfile
+    working_directory: ./interlex
+    buildkit: true    
+    registry: "${{CODEFRESH_REGISTRY}}"
+  deploy:
+    stage: "deploy"
+    title: "Deploying interlex"
+    image: codefresh/cf-deploy-kubernetes
+    tag: latest
+    working_directory: ./interlex/deploy/k8s
+    commands:
+      - /cf-deploy-kubernetes interlex.yaml
+      - /cf-deploy-kubernetes ingress.yaml
+    environment:
+      - KUBECONTEXT=${{CLUSTER_NAME}}
+      - KUBERNETES_NAMESPACE=${{NAMESPACE}}

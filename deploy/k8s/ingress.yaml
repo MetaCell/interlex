@@ -1,0 +1,39 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer 
+metadata:
+  name: 'letsencrypt-interlex'
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: filippo@metacell.us
+    privateKeySecretRef:
+      name: letsencrypt-interlex
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/issuer: letsencrypt-interlex
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: 'true'
+  name: interlex-nginx-ingress
+spec:
+  rules:
+  - host: "{{DOMAIN}}"
+    http:
+      paths:
+      - backend:
+          service:
+            name: interlex
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - "{{DOMAIN}}"
+    secretName: interlex-tls
