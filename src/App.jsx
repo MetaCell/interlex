@@ -1,4 +1,5 @@
 import { Box, CssBaseline, ThemeProvider } from '@mui/material'
+import * as api from './endpoints/interLexURIStructureAPI.msw';
 import theme from './theme'
 import Header from './components/Header'
 import FiltersSidebar from './components/Sidebar/FiltersSidebar'
