@@ -1,4 +1,4 @@
-ARG NODE_PARENT=node:16-alpine
+ARG NODE_PARENT=node:18-alpine
 
 FROM  ${NODE_PARENT} as frontend
 
