@@ -23,6 +23,10 @@ const theme = createTheme({
     typography: {
         allVariants: {
             fontFamily: primaryFont
+        },
+        h5: {
+            color: gray600,
+            fontWeight: 600
         }
     },
 
@@ -42,6 +46,20 @@ const theme = createTheme({
                     font-style: normal;
                     font-variation-settings: "slnt" 0;
                     overflow: hidden;
+                }
+                *::-webkit-scrollbar {
+                    width: 1rem;
+                }
+                  
+                *::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                  
+                *::-webkit-scrollbar-thumb {
+                    background-color: ${gray200};
+                    border-radius: 0.5rem;
+                    background-clip: content-box;
+                    border: 0.25rem solid transparent;
                 }
             `
         },

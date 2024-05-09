@@ -2,6 +2,7 @@ import { Box, CssBaseline, ThemeProvider } from '@mui/material'
 import theme from './theme'
 import Header from './components/Header'
 import FiltersSidebar from './components/Sidebar/FiltersSidebar'
+import SearchResultsBox from './components/SearchResults'
 import Partners from './components/Partners'
 import Footer from './components/Footer'
 import About from './components/About'
@@ -21,11 +22,13 @@ function App() {
         <About />
         <Footer />
       </Box>
-      <Box sx={{ height: 'calc(100vh - 4rem)'}}>
+      <Box sx={{display: 'flex', height: 'calc(100vh - 4rem)'}}>
           <FiltersSidebar />
+          <SearchResultsBox searchTerm={"neuron"}/>
       </Box>
     </ThemeProvider>
   )
 }
 
-export default App
+export default App;
+
