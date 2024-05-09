@@ -21,6 +21,6 @@ RUN cat /etc/nginx/conf.d/default.conf
 
 COPY --from=frontend /app/default.conf  /etc/nginx/conf.d/default.conf
 
-COPY --from=frontend /app/build /usr/share/nginx/html/
+COPY --from=frontend /app/dist /usr/share/nginx/html/
 
 EXPOSE 80
