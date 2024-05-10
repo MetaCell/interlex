@@ -92,9 +92,25 @@ const ListView = ({ searchResults }) => {
                         }
                     }}
                 >
-                    <Grid container spacing={3}>
+                    <Grid container spacing={3}
+                        sx={{
+                            position: 'relative',
+                            '&:hover': {
+                                '&:before': {
+                                    position: 'absolute',
+                                    top: 30,
+                                    left: 0,
+                                    content: '""',
+                                    height: '1.5rem',
+                                    borderRadius: '3px',
+                                    width: '2px',
+                                    background: brand600
+                                }
+                            }
+                        }}
+                    >
                         <Grid item lg={12} xs={12}>
-                            <TitleSection searchResult={searchResult}/>
+                            <TitleSection searchResult={searchResult} />
                         </Grid>
                         <Grid item lg={12} xs={12}>
                             <Description description={searchResult.description} />
