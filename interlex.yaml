@@ -7,6 +7,30 @@ info:
 servers:
   - url: http://interlex.swagger.io/v1
 paths:
+  /get_terms:
+    get:
+      summary: Get all terms
+      operationId: get_terms
+      tags:
+        - terms
+      responses:
+        '200':
+          description: A paged array of terms
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Terms'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /search_term/{term}:
     get:
       summary: List all matching terms

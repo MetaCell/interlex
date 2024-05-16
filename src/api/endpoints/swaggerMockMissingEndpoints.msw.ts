@@ -5,6 +5,9 @@
  * OpenAPI spec version: 1.0.0
  */
 import {
+  faker
+} from '@faker-js/faker'
+import {
   HttpResponse,
   delay,
   http
@@ -12,6 +15,8 @@ import {
 import type {
   Terms
 } from '../model'
+
+export const getGetTermsResponseMock = (overrideResponse: any = {}): Terms => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({'@id': faker.helpers.arrayElement([faker.word.sample(), undefined]), prefixes: {}, triples: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.word.sample())))), ...overrideResponse})))
 
 export const getGetMatchTermsResponseMock = () => ((() => ({
                 prefixes: {
@@ -102,6 +107,20 @@ export const getGetMatchTermsResponseMock = () => ((() => ({
               }))())
 
 
+export const getGetTermsMockHandler = (overrideResponse?: Terms) => {
+  return http.get('*/get_terms', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetTermsResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
 export const getGetMatchTermsMockHandler = (overrideResponse?: Terms) => {
   return http.get('*/search_term/:term', async () => {
     await delay(1000);
@@ -116,5 +135,5 @@ export const getGetMatchTermsMockHandler = (overrideResponse?: Terms) => {
   })
 }
 export const getSwaggerMockMissingEndpointsMock = () => [
-  getGetMatchTermsMockHandler()
-]
+  getGetTermsMockHandler(),
+  getGetMatchTermsMockHandler()]
