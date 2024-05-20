@@ -13,10 +13,78 @@ import {
   http
 } from 'msw'
 import type {
+  Organizations,
   Terms
 } from '../model'
 
-export const getGetTermsResponseMock = (overrideResponse: any = {}): Terms => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({'@id': faker.helpers.arrayElement([faker.word.sample(), undefined]), prefixes: {}, triples: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.word.sample())))), ...overrideResponse})))
+export const getLoginResponseMock = () => ((() => ({
+                userID: "Sample UserID",
+                userName: "testUser",
+                statusCode: 200,
+                message: "",
+                description: "",
+                redirect_url: "",
+              }))())
+
+export const getLogoutResponseMock = () => ((() => ({
+                userID: "Sample UserID",
+                userName: "testUser",
+                statusCode: 200,
+                message: "",
+                description: "",
+                redirect_url: "",
+              }))())
+
+export const getGetOrganizationResponseMock = () => ((() => ({
+                name: "Organization",
+                creationDate: "01/01/2000",
+                statusCode: 200,
+                message: "",
+                description: "",
+                redirect_url: "",
+              }))())
+
+export const getNewOrganizationResponseMock = () => ((() => ({
+                name: "New Organization",
+                creationDate: "01/01/2000",
+                statusCode: 200,
+                message: "",
+                description: "",
+                redirect_url: "",
+              }))())
+
+export const getGetOrganizationsResponseMock = () => ((() => [
+                {
+                  name: "Organization",
+                  creationDate: "01/01/2000",
+                  statusCode: 200,
+                  message: "",
+                  description: "",
+                  redirect_url: "",
+                },
+                {
+                  name: "Organization 2",
+                  creationDate: "01/02/2000",
+                  statusCode: 200,
+                  message: "",
+                  description: "",
+                  redirect_url: "",
+                },
+                {
+                  name: "Organization 3",
+                  creationDate: "01/03/2000",
+                  statusCode: 200,
+                  message: "",
+                  description: "",
+                  redirect_url: "",
+                },
+              ])())
+
+export const getGetSearchResultsResponseMock = (overrideResponse: any = {}): Terms => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({description: faker.word.sample(), id: faker.word.sample(), name: faker.word.sample(), prefixes: {}, triples: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.word.sample())))), ...overrideResponse})))
+
+export const getGetHierarchyResultsResponseMock = (overrideResponse: any = {}): Terms => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({description: faker.word.sample(), id: faker.word.sample(), name: faker.word.sample(), prefixes: {}, triples: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.word.sample())))), ...overrideResponse})))
+
+export const getGetTermsResponseMock = (overrideResponse: any = {}): Terms => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({description: faker.word.sample(), id: faker.word.sample(), name: faker.word.sample(), prefixes: {}, triples: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.word.sample())))), ...overrideResponse})))
 
 export const getGetMatchTermsResponseMock = () => ((() => ({
                 prefixes: {
@@ -107,6 +175,118 @@ export const getGetMatchTermsResponseMock = () => ((() => ({
               }))())
 
 
+export const getLoginMockHandler = (overrideResponse?: void) => {
+  return http.post('*/operations/login', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getLoginResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getLogoutMockHandler = (overrideResponse?: void) => {
+  return http.post('*/operations/logout', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getLogoutResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getRegisterMockHandler = () => {
+  return http.post('*/operations/register', async () => {
+    await delay(1000);
+    return new HttpResponse(null,
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getGetOrganizationMockHandler = (overrideResponse?: unknown) => {
+  return http.get('*/operations/organization', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetOrganizationResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getNewOrganizationMockHandler = (overrideResponse?: unknown) => {
+  return http.post('*/operations/organization', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getNewOrganizationResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getGetOrganizationsMockHandler = (overrideResponse?: Organizations) => {
+  return http.get('*/operations/organizations', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetOrganizationsResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getGetSearchResultsMockHandler = (overrideResponse?: Terms) => {
+  return http.get('*/:group/search/:string', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetSearchResultsResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getGetHierarchyResultsMockHandler = (overrideResponse?: Terms) => {
+  return http.get('*/:group/query/transitive/:property/:start?depth', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetHierarchyResultsResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
 export const getGetTermsMockHandler = (overrideResponse?: Terms) => {
   return http.get('*/get_terms', async () => {
     await delay(1000);
@@ -134,6 +314,29 @@ export const getGetMatchTermsMockHandler = (overrideResponse?: Terms) => {
     )
   })
 }
+
+export const getGetPingMockHandler = () => {
+  return http.get('*/ping', async () => {
+    await delay(1000);
+    return new HttpResponse(null,
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
 export const getSwaggerMockMissingEndpointsMock = () => [
+  getLoginMockHandler(),
+  getLogoutMockHandler(),
+  getRegisterMockHandler(),
+  getGetOrganizationMockHandler(),
+  getNewOrganizationMockHandler(),
+  getGetOrganizationsMockHandler(),
+  getGetSearchResultsMockHandler(),
+  getGetHierarchyResultsMockHandler(),
   getGetTermsMockHandler(),
-  getGetMatchTermsMockHandler()]
+  getGetMatchTermsMockHandler(),
+  getGetPingMockHandler()]

@@ -22,13 +22,13 @@ paths:
           schema:
             $ref: "#/definitions/Credentials"
       responses:
-        '200':
+        200:
           description: login successful
           schema:
             $ref: "#/definitions/LoginToken"
-        '401':
+        401:
           description: invalid password
-        '404':
+        404:
           description: user not found
   /operations/logout:
     post:
@@ -39,9 +39,9 @@ paths:
       x-swagger-router-controller: src.server.auth
       operationId: logout
       responses:
-        '200':
+        200:
           description: logout successful
-        '403':
+        403:
           description: user was not logged in
       security:
         - AuthToken: []
@@ -60,11 +60,11 @@ paths:
           schema:
             $ref: "#/definitions/Registration"
       responses:
-        '200':
+        200:
           description: registration successful
           schema:
             $ref: "#/definitions/LoginToken"
-        '409':
+        409:
           description: username or email taken
           schema:
             type: string
@@ -128,7 +128,7 @@ paths:
       tags:
         - API
       responses:
-        '200':
+        200:
           description: A paged array of organizations
           headers:
             x-next:
@@ -151,8 +151,21 @@ paths:
       operationId: get_search_results
       tags:
         - API
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: The group base to search
+          schema:
+            type: string
+        - name: string
+          in: path
+          required: true
+          description: The string to search
+          schema:
+            type: string
       responses:
-        '200':
+        200:
           description: A paged array of results
           headers:
             x-next:
@@ -175,8 +188,27 @@ paths:
       operationId: get_hierarchy_results
       tags:
         - API
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: group
+          schema:
+            type: string
+        - name: property
+          in: path
+          required: true
+          description: property
+          schema:
+            type: string
+        - name: start
+          in: path
+          required: true
+          description: start
+          schema:
+            type: string
       responses:
-        '200':
+        200:
           description: A paged array of results
           headers:
             x-next:
@@ -200,7 +232,7 @@ paths:
       tags:
         - API
       responses:
-        '200':
+        200:
           description: A paged array of terms
           headers:
             x-next:
@@ -217,7 +249,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /search_term/{term}: #TEST
+  /search_term/{term}: 
     get:
       summary: List all matching terms
       operationId: get_match_terms
@@ -227,17 +259,17 @@ paths:
         - name: term
           in: path
           required: true
-          description: The id of the pet to retrieve
+          description: The id of the term to retrieve
           schema:
             type: string
         - name: testId
           in: path
           required: true
-          description: The id of the pet to retrieve
+          description: The id of the term to retrieve
           schema:
             type: string
       responses:
-        '200':
+        200:
           description: A paged array of terms
           headers:
             x-next:
@@ -257,9 +289,9 @@ paths:
   /ping:
     get:
       summary: Checks if the server is running
-      security: []   # No security
+      security: []  
       responses:
-        '200':
+        200:
           description: Server is up and running
         default:
           description: Something is wrong

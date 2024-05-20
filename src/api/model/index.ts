@@ -7,7 +7,15 @@
 
 export * from './error';
 export * from './maskErrorResponse';
+export * from './ontologies';
+export * from './ontology';
+export * from './organization';
+export * from './organizations';
 export * from './parseErrorResponse';
+export * from './review';
+export * from './reviews';
 export * from './term';
 export * from './termPrefixes';
 export * from './terms';
+export * from './user';
+export * from './userNameItem';

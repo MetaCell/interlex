@@ -42,6 +42,7 @@ module.exports = {
       mode: "split",
       target: "./src/api/endpoints",
       schemas: "./src/api/model",
+      baseUrl: 'http://localhost:3200/',
       mock: true,
       override: {
         mutator: {
@@ -49,18 +50,6 @@ module.exports = {
           name: 'customInstance',
         },
         operations: {
-          new_user: {
-            mock: {
-              data: () => ({
-                userID: "Sample UserID",
-                userName: "testUser",
-                statusCode: 200,
-                message: "",
-                description: "",
-                redirect_url: "",
-              }),
-            },
-          },
           login: {
             mock: {
               data: () => ({

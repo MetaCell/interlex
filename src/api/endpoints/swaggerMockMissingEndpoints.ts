@@ -5,6 +5,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
+  Organizations,
   Terms
 } from '../model'
 import { customInstance } from '../mutator/custom-client';
@@ -12,13 +13,115 @@ import { customInstance } from '../mutator/custom-client';
 
 
   /**
+ * @summary Log in to OpenAPI space
+ */
+export const login = (
+    
+ ) => {
+      return customInstance<void>(
+      {url: `http://localhost:3200/operations/login`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Log out from OpenAPI space
+ */
+export const logout = (
+    
+ ) => {
+      return customInstance<void>(
+      {url: `http://localhost:3200/operations/logout`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Register to OpenAPI space
+ */
+export const register = (
+    
+ ) => {
+      return customInstance<void>(
+      {url: `http://localhost:3200/operations/register`, method: 'POST'
+    },
+      );
+    }
+  
+/**
+ * @summary Used to retrieve a specific organization.
+ */
+export const getOrganization = (
+    getOrganizationBody: unknown,
+ ) => {
+      return customInstance<unknown>(
+      {url: `http://localhost:3200/operations/organization`, method: 'GET',
+      headers: {'Content-Type': 'application/json', }
+    },
+      );
+    }
+  
+/**
+ * @summary Used to save a new organization.
+ */
+export const newOrganization = (
+    newOrganizationBody: unknown,
+ ) => {
+      return customInstance<unknown>(
+      {url: `http://localhost:3200/operations/organization`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: newOrganizationBody
+    },
+      );
+    }
+  
+/**
+ * @summary Get all organizations
+ */
+export const getOrganizations = (
+    
+ ) => {
+      return customInstance<Organizations>(
+      {url: `http://localhost:3200/operations/organizations`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Generic search
+ */
+export const getSearchResults = (
+    group: string | undefined | null,
+    string: string | undefined | null,
+ ) => {
+      return customInstance<Terms>(
+      {url: `http://localhost:3200/${group}/search/${string}`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Retrieve hierarchy results
+ */
+export const getHierarchyResults = (
+    group: string | undefined | null,
+    property: string | undefined | null,
+    start: string | undefined | null,
+ ) => {
+      return customInstance<Terms>(
+      {url: `http://localhost:3200/${group}/query/transitive/${property}/${start}?depth`, method: 'GET'
+    },
+      );
+    }
+  
+/**
  * @summary Get all terms
  */
 export const getTerms = (
     
  ) => {
       return customInstance<Terms>(
-      {url: `/get_terms`, method: 'GET'
+      {url: `http://localhost:3200/get_terms`, method: 'GET'
     },
       );
     }
@@ -30,7 +133,19 @@ export const getMatchTerms = (
     term: string | undefined | null,
  ) => {
       return customInstance<Terms>(
-      {url: `/search_term/${term}`, method: 'GET'
+      {url: `http://localhost:3200/search_term/${term}`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary Checks if the server is running
+ */
+export const getPing = (
+    
+ ) => {
+      return customInstance<void>(
+      {url: `http://localhost:3200/ping`, method: 'GET'
     },
       );
     }
@@ -40,5 +155,14 @@ type AwaitedInput<T> = PromiseLike<T> | T;
 
     type Awaited<O> = O extends AwaitedInput<infer T> ? T : never;
 
+export type LoginResult = NonNullable<Awaited<ReturnType<typeof login>>>
+export type LogoutResult = NonNullable<Awaited<ReturnType<typeof logout>>>
+export type RegisterResult = NonNullable<Awaited<ReturnType<typeof register>>>
+export type GetOrganizationResult = NonNullable<Awaited<ReturnType<typeof getOrganization>>>
+export type NewOrganizationResult = NonNullable<Awaited<ReturnType<typeof newOrganization>>>
+export type GetOrganizationsResult = NonNullable<Awaited<ReturnType<typeof getOrganizations>>>
+export type GetSearchResultsResult = NonNullable<Awaited<ReturnType<typeof getSearchResults>>>
+export type GetHierarchyResultsResult = NonNullable<Awaited<ReturnType<typeof getHierarchyResults>>>
 export type GetTermsResult = NonNullable<Awaited<ReturnType<typeof getTerms>>>
 export type GetMatchTermsResult = NonNullable<Awaited<ReturnType<typeof getMatchTerms>>>
+export type GetPingResult = NonNullable<Awaited<ReturnType<typeof getPing>>>
