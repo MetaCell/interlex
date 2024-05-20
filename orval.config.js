@@ -61,7 +61,7 @@ module.exports = {
               }),
             },
           },
-          user_login: {
+          login: {
             mock: {
               data: () => ({
                 userID: "Sample UserID",
@@ -73,7 +73,7 @@ module.exports = {
               }),
             },
           },
-          user_logout: {
+          logout: {
             mock: {
               data: () => ({
                 userID: "Sample UserID",
@@ -109,7 +109,7 @@ module.exports = {
               }),
             },
           },
-          get_all_organizations: {
+          get_organizations: {
             mock: {
               data: () => [
                 {

@@ -7,12 +7,198 @@ info:
 servers:
   - url: http://interlex.swagger.io/v1
 paths:
-  /get_terms:
+  /operations/login:
+    post:
+      tags:
+        - Auth
+      summary: Log in to OpenAPI space
+      description: ''
+      x-swagger-router-controller: src.server.auth
+      operationId: login
+      parameters:
+        - name: body
+          in: body
+          description: the user credentials
+          schema:
+            $ref: "#/definitions/Credentials"
+      responses:
+        '200':
+          description: login successful
+          schema:
+            $ref: "#/definitions/LoginToken"
+        '401':
+          description: invalid password
+        '404':
+          description: user not found
+  /operations/logout:
+    post:
+      tags:
+        - Auth
+      summary: Log out from OpenAPI space
+      description: ''
+      x-swagger-router-controller: src.server.auth
+      operationId: logout
+      responses:
+        '200':
+          description: logout successful
+        '403':
+          description: user was not logged in
+      security:
+        - AuthToken: []
+  /operations/register:
+    post:
+      tags:
+        - Auth
+      summary: Register to OpenAPI space
+      description: ''
+      x-swagger-router-controller: src.server.auth
+      operationId: register
+      parameters:
+        - name: body
+          in: body
+          description: registration details
+          schema:
+            $ref: "#/definitions/Registration"
+      responses:
+        '200':
+          description: registration successful
+          schema:
+            $ref: "#/definitions/LoginToken"
+        '409':
+          description: username or email taken
+          schema:
+            type: string
+            description: defines which field is already in use
+            enum:
+              - EMAIL
+              - USERNAME
+  /operations/organization:
+    get:
+      summary: Used to retrieve a specific organization.
+      operationId: get_organization
+      requestBody:
+        description: The organization to save.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: #/components/schemas/Organization
+              x-body-name: organization
+      responses:
+        200:
+          description: The organization data were saved.
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/Organization
+        400:
+          description: Bad Request, bad input parameter for Organization POST request.
+        403:
+          description: The request cannot be fullfilled due to the permission of your account.
+      tags:
+        - API
+    post:
+      summary: Used to save a new organization.
+      operationId: new_organization
+      requestBody:
+        description: The organization to save.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: #/components/schemas/Organization
+              x-body-name: organization
+      responses:
+        200:
+          description: The Organization data were saved.
+          content:
+            application/json:
+              schema:
+                $ref: #/components/schemas/Organization
+        400:
+          description: Bad Request, bad input parameter for Organization POST request.
+        403:
+          description: The request cannot be fullfilled due to the permission of your account.
+      tags:
+        - API
+  /operations/organizations:
+    get:
+      summary: Get all organizations
+      operationId: get_organizations
+      tags:
+        - API
+      responses:
+        '200':
+          description: A paged array of organizations
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organizations'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /{group}/search/{string}:
+    get:
+      summary: Generic search
+      operationId: get_search_results
+      tags:
+        - API
+      responses:
+        '200':
+          description: A paged array of results
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Terms'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /{group}/query/transitive/{property}/{start}?depth:
+    get:
+      summary: Retrieve hierarchy results
+      operationId: get_hierarchy_results
+      tags:
+        - API
+      responses:
+        '200':
+          description: A paged array of results
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Terms'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /get_terms: #TEST
     get:
       summary: Get all terms
       operationId: get_terms
       tags:
-        - terms
+        - API
       responses:
         '200':
           description: A paged array of terms
@@ -31,12 +217,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /search_term/{term}:
+  /search_term/{term}: #TEST
     get:
       summary: List all matching terms
       operationId: get_match_terms
       tags:
-        - terms
+        - API
       parameters:
         - name: term
           in: path
@@ -68,17 +254,71 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /ping:
+    get:
+      summary: Checks if the server is running
+      security: []   # No security
+      responses:
+        '200':
+          description: Server is up and running
+        default:
+          description: Something is wrong
+securityDefinitions:
+  AuthToken:
+    type: apiKey
+    name: Authorization
+    in: header
+definitions:
+  Credentials:
+    type: object
+    required:
+      - username
+      - password
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+  Registration:
+    allOf:
+      - $ref: "#/definitions/Credentials"
+      - type: object
+        required:
+          - email
+        properties:
+          email:
+            type: string
+  LoginToken:
+    type: object
+    properties:
+      token:
+        description: The authentication token sent from the server after a successful login
+        type: string
+      username:
+        type: string
 components:
   schemas:
     Term:
       type: object
       required:
+        - id
+        - name
+        - description
         - prefixes
         - triples
       properties:
-        '@id':
+        id:
+          description: Unique identifier
           type: string
-          format: iri-reference
+          x-unique: true
+          x-primary-key: true
+          example: 'be4f75a711974bbc8f92fdd24e778542'
+        name:
+          type: string
+          example : rdfs:label 
+        description:
+          type: string
+          example : rdfs:comment
         prefixes:
           type: object
         triples:
@@ -91,6 +331,210 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Term'
+    Ontology:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - version_info
+        - url
+        - imports
+      properties:
+        id:
+          description: Unique identifier
+          type: string
+          x-unique: true
+          x-primary-key: true
+          example: 'be4f75a711974bbc8f92fdd24e778542'
+        name:
+          type: string
+          example : rdfs:label 
+        description:
+          type: string
+          example : rdfs:comment
+        version_info:
+          type: string
+          example : owl:versionInfo
+        url:
+          type: string
+          format: uri
+          example : http://ontology.neuinfo.org/NIF/ttl/unused/NIF-Neuron-Bridge.ttl
+        imports:
+          type: array
+          example : owl:imports
+          items:
+            type: array
+            items:
+              type: string
+              format: uri
+    Ontologies:
+      type: array
+      items:
+        $ref: '#/components/schemas/Ontology'
+    User:
+      type: object
+      required:
+        - id
+        - name
+        - role
+        - creation_date
+        - email
+        - actions
+        - term_variants
+        - merge_reviews
+        - organizations
+      properties:
+        id:
+          description: Unique identifier
+          type: string
+          x-unique: true
+          x-primary-key: true
+          example: 'be4f75a711974bbc8f92fdd24e778542'
+        identifier:
+          description: ORCID ID
+          type: string
+          x-unique: true
+          example: 'JD10101987'
+        active:
+          description: active user or not
+          type: boolean
+          example: true
+        role:
+          description: User Role
+          type: string
+          example: 'curator'
+        email:
+          description: Email
+          type: string
+          example: 'curator@interlex.ucsd.edu'
+        actions:
+          description: Total Actions
+          type: string
+          example: '96'
+        name:
+          description: Object that specify given and family name
+          type: array
+          items:
+            type: object
+            properties:
+              given:
+                description: given name
+                type: string
+                example: 'John'
+              family:
+                description: family name
+                type: string
+                example: 'Doe'
+        creation_date:
+          description: Date User was created
+          type: string
+          format: 'date-time'
+        last_login:
+          description: Date User was last login
+          type: string
+          format: 'date-time'
+        term_variants: 
+          type: array,
+          items:
+            $ref: '#/components/schemas/Terms'
+          description: My Term Variants
+        merge_reviews: 
+          type: array,
+          items:
+            $ref: '#/components/schemas/Reviews'
+          description: My Merge Reviews
+        organizations: 
+          type: array,
+          items:
+            $ref: '#/components/schemas/Organizations'
+          description: My Organizations
+    Organization:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - creation_date
+        - author
+        - url
+      properties:
+        id:
+          description: Unique identifier
+          type: string
+          x-unique: true
+          x-primary-key: true
+          example: 'be4f75a711974bbc8f92fdd24e778542'
+        name:
+          type: string
+          example : Test Organization
+        description : 
+          type: string
+          description: Description of Organization
+        creation_date:
+          description: Date organization was created
+          type: string
+          format: 'date-time'
+        author :
+            type: string
+            format: uri
+            description: author
+        reviewAspect: 
+          type: string
+          description: review aspect
+        url:
+          type: string
+          format: uri
+          description: Organization uri       
+        legalName: 
+          type: string
+          description: legal name
+        terms: 
+          type: array
+          items:
+            $ref: '#/components/schemas/Terms'
+          description: Terms
+        ontologies: 
+          type: array
+          items:
+            $ref: '#/components/schemas/Ontology'
+          description: Ontology
+    Organizations:
+      type: array
+      items:
+        $ref: '#/components/schemas/Organization'
+    Review:
+      type: object
+      required:
+        - name
+        - description
+        - id
+        - status
+        - updated
+      properties:
+        id:
+          description: Unique identifier
+          type: string
+          x-unique: true
+          x-primary-key: true
+          example: 'be4f75a711974bbc8f92fdd24e778542'
+        name:
+          type: string
+          example : rdfs:label 
+        description:
+          type: string
+          example : rdfs:comment
+        status:
+          type: string
+          example : Rejected
+        updated:
+          description: Date review was updated
+          type: string
+          format: 'date-time'
+    Reviews:
+      type: array
+      items:
+        $ref: '#/components/schemas/Review'
     Error:
       type: object
       required:
