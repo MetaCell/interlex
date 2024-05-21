@@ -5,6 +5,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
+  Organization,
   Organizations,
   Terms
 } from '../model'
@@ -52,9 +53,9 @@ export const register = (
  * @summary Used to retrieve a specific organization.
  */
 export const getOrganization = (
-    getOrganizationBody: unknown,
+    organization: Organization,
  ) => {
-      return customInstance<unknown>(
+      return customInstance<Organization>(
       {url: `http://localhost:3200/operations/organization`, method: 'GET',
       headers: {'Content-Type': 'application/json', }
     },
@@ -65,12 +66,12 @@ export const getOrganization = (
  * @summary Used to save a new organization.
  */
 export const newOrganization = (
-    newOrganizationBody: unknown,
+    organization: Organization,
  ) => {
-      return customInstance<unknown>(
+      return customInstance<Organization>(
       {url: `http://localhost:3200/operations/organization`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: newOrganizationBody
+      data: organization
     },
       );
     }
@@ -91,8 +92,8 @@ export const getOrganizations = (
  * @summary Generic search
  */
 export const getSearchResults = (
-    group: string | undefined | null,
-    string: string | undefined | null,
+    group: string,
+    string: string,
  ) => {
       return customInstance<Terms>(
       {url: `http://localhost:3200/${group}/search/${string}`, method: 'GET'
@@ -104,9 +105,9 @@ export const getSearchResults = (
  * @summary Retrieve hierarchy results
  */
 export const getHierarchyResults = (
-    group: string | undefined | null,
-    property: string | undefined | null,
-    start: string | undefined | null,
+    group: string,
+    property: string,
+    start: string,
  ) => {
       return customInstance<Terms>(
       {url: `http://localhost:3200/${group}/query/transitive/${property}/${start}?depth`, method: 'GET'
@@ -115,22 +116,10 @@ export const getHierarchyResults = (
     }
   
 /**
- * @summary Get all terms
- */
-export const getTerms = (
-    
- ) => {
-      return customInstance<Terms>(
-      {url: `http://localhost:3200/get_terms`, method: 'GET'
-    },
-      );
-    }
-  
-/**
  * @summary List all matching terms
  */
 export const getMatchTerms = (
-    term: string | undefined | null,
+    term: string,
  ) => {
       return customInstance<Terms>(
       {url: `http://localhost:3200/search_term/${term}`, method: 'GET'
@@ -163,6 +152,5 @@ export type NewOrganizationResult = NonNullable<Awaited<ReturnType<typeof newOrg
 export type GetOrganizationsResult = NonNullable<Awaited<ReturnType<typeof getOrganizations>>>
 export type GetSearchResultsResult = NonNullable<Awaited<ReturnType<typeof getSearchResults>>>
 export type GetHierarchyResultsResult = NonNullable<Awaited<ReturnType<typeof getHierarchyResults>>>
-export type GetTermsResult = NonNullable<Awaited<ReturnType<typeof getTerms>>>
 export type GetMatchTermsResult = NonNullable<Awaited<ReturnType<typeof getMatchTerms>>>
 export type GetPingResult = NonNullable<Awaited<ReturnType<typeof getPing>>>

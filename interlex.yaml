@@ -82,7 +82,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: #/components/schemas/Organization
+              $ref: '#/components/schemas/Organization'
               x-body-name: organization
       responses:
         200:
@@ -90,7 +90,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: #/components/schemas/Organization
+                $ref: '#/components/schemas/Organization'
         400:
           description: Bad Request, bad input parameter for Organization POST request.
         403:
@@ -106,7 +106,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: #/components/schemas/Organization
+              $ref: '#/components/schemas/Organization'
               x-body-name: organization
       responses:
         200:
@@ -114,7 +114,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: #/components/schemas/Organization
+                $ref: "#/definitions/Organization"
         400:
           description: Bad Request, bad input parameter for Organization POST request.
         403:
@@ -225,30 +225,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /get_terms: #TEST
-    get:
-      summary: Get all terms
-      operationId: get_terms
-      tags:
-        - API
-      responses:
-        200:
-          description: A paged array of terms
-          headers:
-            x-next:
-              description: A link to the next page of responses
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Terms'
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
   /search_term/{term}: 
     get:
       summary: List all matching terms
@@ -257,12 +233,6 @@ paths:
         - API
       parameters:
         - name: term
-          in: path
-          required: true
-          description: The id of the term to retrieve
-          schema:
-            type: string
-        - name: testId
           in: path
           required: true
           description: The id of the term to retrieve
@@ -320,6 +290,20 @@ definitions:
         properties:
           email:
             type: string
+          username:
+            type: string
+          status:
+            type: string
+  Organization:
+    type: object
+    properties:
+      token:
+        description: The authentication token sent from the server after a successful login
+        type: string
+      name:
+        type: string
+      status:
+        type: string
   LoginToken:
     type: object
     properties:
@@ -327,6 +311,8 @@ definitions:
         description: The authentication token sent from the server after a successful login
         type: string
       username:
+        type: string
+      status:
         type: string
 components:
   schemas:
@@ -344,7 +330,7 @@ components:
           type: string
           x-unique: true
           x-primary-key: true
-          example: 'be4f75a711974bbc8f92fdd24e778542'
+          example: 'ilx_0101431'
         name:
           type: string
           example : rdfs:label 

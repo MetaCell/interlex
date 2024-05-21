@@ -806,6 +806,7 @@ export type GetDiffOntologiesIlxResult = NonNullable<Awaited<ReturnType<typeof g
 export type GetDiffReadableResult = NonNullable<Awaited<ReturnType<typeof getDiffReadable>>>
 export type GetDiffUrisResult = NonNullable<Awaited<ReturnType<typeof getDiffUris>>>
 export type GetDiffVersionsCuriesResult = NonNullable<Awaited<ReturnType<typeof getDiffVersionsCuries>>>
+export type GetDiffVersionsCuriesResult = NonNullable<Awaited<ReturnType<typeof getDiffVersionsCuries>>>
 export type GetDiffVersionsReadableResult = NonNullable<Awaited<ReturnType<typeof getDiffVersionsReadable>>>
 export type GetDiffVersionsUrisResult = NonNullable<Awaited<ReturnType<typeof getDiffVersionsUris>>>
 export type GetDiffVersionsIlxResult = NonNullable<Awaited<ReturnType<typeof getDiffVersionsIlx>>>
