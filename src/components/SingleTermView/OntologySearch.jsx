@@ -100,6 +100,8 @@ const OntologySearch = () => {
           popper: {
             sx: {
               width: '21.75rem !important',
+              backgroundColor: 'white',
+              
             },
             ref: popperRef
           },
