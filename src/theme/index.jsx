@@ -149,6 +149,13 @@ const theme = createTheme({
                     fontSize: '0.75rem',
                     borderRadius: '0.375rem',
                     fontWeight: 500,
+                    '&.IDchip-outlined': {
+                        padding: '0.125rem 0.5rem',
+                        borderRadius: '1rem',
+                        border: `1.5px solid ${gray600}`,
+                        background: 'transparent',
+                        color: gray700
+                    }
                 },
                 label: {
                     padding: 0
@@ -335,6 +342,22 @@ const theme = createTheme({
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         width: '12.5rem'
+                    }
+                }
+            }
+        },
+
+        MuiButtonGroup: {
+            styleOverrides: {
+                outlined: {
+                    borderRadius: '0.5rem',
+                    boxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)',
+                    '& .MuiButton-root:focus': {
+                        boxShadow: 'none',
+                        background: gray50
+                    },
+                    '& .MuiButtonGroup-firstButton:hover': {
+                        borderRightColor: 'transparent'
                     }
                 }
             }

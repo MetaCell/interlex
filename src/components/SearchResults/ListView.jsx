@@ -40,7 +40,7 @@ const TitleSection = ({ searchResult }) => {
 const Description = ({ description }) => {
     return (
         <Typography variant='body2' sx={{ color: gray500 }}>
-            {description}
+            {description === '' ? '-' : description}
         </Typography>
     );
 };
@@ -64,9 +64,11 @@ const InfoSection = ({ searchResult }) => {
             }}
         >
             {infoItems.map(({ label, value }) => (
-                <Stack key={label} direction="column" gap={0.5} alignItems="start">
+                <Stack key={label} direction="column" gap={1} alignItems="start">
                     <Typography variant='body1' sx={{ color: gray700, fontWeight: 500 }}>{label}</Typography>
-                    <Typography variant='body2' sx={{ color: gray500 }}>{value}</Typography>
+                    {label === 'ID' ?
+                        <Chip label={value} className='IDchip-outlined'/> : <Typography variant='body2' sx={{ color: gray500 }}>{value}</Typography>
+                    }
                 </Stack>
             ))}
         </Box>
@@ -87,19 +89,19 @@ const ListView = ({ searchResults }) => {
                         position: 'relative',
                         '&:hover': {
                             '& .MuiTypography-h6': { color: brand600 },
-                            '& .MuiChip-root': { background: brand50, borderColor: brand200, color: brand700 },
+                            '& .MuiChip-outlined': { background: brand50, borderColor: brand200, color: brand700 },
                             '& .MuiIconButton-root': { opacity: 1, visibility: 'visible' },
                         }
                     }}
                 >
-                    <Grid container spacing={3}
+                    <Grid container
                         sx={{
                             position: 'relative',
                             '&:hover': {
                                 '&:before': {
                                     position: 'absolute',
-                                    top: 30,
-                                    left: 0,
+                                    top: 8,
+                                    left: -22,
                                     content: '""',
                                     height: '1.5rem',
                                     borderRadius: '3px',
@@ -112,10 +114,10 @@ const ListView = ({ searchResults }) => {
                         <Grid item lg={12} xs={12}>
                             <TitleSection searchResult={searchResult} />
                         </Grid>
-                        <Grid item lg={12} xs={12}>
+                        <Grid item lg={12} xs={12} mt={2}>
                             <Description description={searchResult.description} />
                         </Grid>
-                        <Grid item lg={12} xs={12} sm={12}>
+                        <Grid item lg={12} xs={12} sm={12} mt={3}>
                             <InfoSection searchResult={searchResult} />
                         </Grid>
                     </Grid>

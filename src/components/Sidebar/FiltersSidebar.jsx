@@ -1,16 +1,16 @@
 import React from 'react';
 import { Box, Typography, IconButton, Tooltip, FormGroup, FormLabel, FormControl, Button } from '@mui/material';
 import Checkbox from '../common/CustomCheckbox';
-import { CollapseIcon, HelpOutlinedIcon } from '../../Icons';
+import { CollapseIcon, HelpOutlinedIcon, ExpandIcon } from '../../Icons';
 import { vars } from '../../theme/variables';
 
 const { gray200, gray600, gray800, brand700, brand800 } = vars;
 
-export default function FiltersSidebar() {
+export default function FiltersSidebar({filterOptions}) {
     const [open, setOpen] = React.useState(true);
     const [expandedFilters, setExpandedFilters] = React.useState({});
     const [filterValues, setFilterValues] = React.useState(
-        initialFilterOptions.reduce((acc, option) => {
+        filterOptions.reduce((acc, option) => {
             acc[option.category] = option.values.map(value => ({
                 title: value.title,
                 count: value.count,
@@ -39,6 +39,7 @@ export default function FiltersSidebar() {
         });
     };
 
+    
     return (
         <Box
             sx={{
@@ -67,13 +68,13 @@ export default function FiltersSidebar() {
             ) : (
                 <Box>
                     <IconButton onClick={() => setOpen(!open)} sx={{ border: `1px solid ${gray200}` }}>
-                        <CollapseIcon />
+                        <ExpandIcon />
                     </IconButton>
                 </Box>
             )}
             {open && (
                 <Box width={1} display="flex" flexDirection="column" alignItems="center" gap={3}>
-                    {initialFilterOptions.map((filterOption) => {
+                    {filterOptions.map((filterOption) => {
                         const isExpanded = expandedFilters[filterOption.category] || false;
                         const displayedValues = isExpanded ? filterValues[filterOption.category] : filterValues[filterOption.category].slice(0, 10);
 
@@ -83,7 +84,7 @@ export default function FiltersSidebar() {
                                     <FormLabel component="legend">{filterOption.category}</FormLabel>
                                     {filterOption?.categoryInfo && (
                                         <Tooltip title={filterOption?.categoryInfo}>
-                                            <IconButton sx={{ p: 0 }}>
+                                            <IconButton sx={{ p: 0, color: '#979B9A' }}>
                                                 <HelpOutlinedIcon />
                                             </IconButton>
                                         </Tooltip>
@@ -105,7 +106,7 @@ export default function FiltersSidebar() {
                                     {filterOption.values.length > 10 && (
                                         <Button
                                             variant="text"
-                                            sx={{ width: '5rem', height: '1.25rem', p: 0, color: brand700, '&:hover': { color: brand800 } }}
+                                            sx={{ width: '5rem', height: '1.25rem', p: 0, color: brand700, '&:hover': { color: brand800, background: 'transparent' } }}
                                             onClick={() => handleToggleExpand(filterOption.category)}
                                         >
                                             {isExpanded ? 'Show less' : 'Show more'}
@@ -120,157 +121,3 @@ export default function FiltersSidebar() {
         </Box>
     );
 }
-
-const initialFilterOptions = [
-    {
-        category: 'Type',
-        values: [
-            {
-                title: 'Term',
-                count: '',
-                isChecked: false,
-            },
-            {
-                title: 'Predicate',
-                count: '',
-                isChecked: false,
-            },
-            {
-                title: 'Ontology',
-                count: '',
-                isChecked: false,
-            },
-        ],
-    },
-    {
-        category: 'Superclass',
-        categoryInfo: 'Superclass',
-        values: [
-            {
-                title: 'regional part of brain',
-                count: '65',
-                isChecked: false,
-            },
-            {
-                title: 'neuron',
-                count: '79',
-                isChecked: false,
-            },
-            {
-                title: 'molecular entity',
-                count: '122',
-                isChecked: false,
-            },
-            {
-                title: 'diagnostic interview schedule for children version 2.3: anxiety disorders',
-                count: '123',
-                isChecked: false,
-            },
-            {
-                title: 'white substance (ta98)',
-                count: '123',
-                isChecked: false,
-            },
-            {
-                title: 'grey substance (ta98)',
-                count: '794',
-                isChecked: false,
-            },
-            {
-                title: 'sulcus',
-                count: '102',
-                isChecked: false,
-            },
-            {
-                title: 'cell layer',
-                count: '709',
-                isChecked: false,
-            },
-            {
-                title: 'side effects',
-                count: '334',
-                isChecked: false,
-            },
-            {
-                title: 'diagnostic interview scheduled for childer version 4.0: anxiety disorders',
-                count: '102',
-                isChecked: false,
-            },
-            {
-                title: 'regional part brain',
-                count: '65',
-                isChecked: false,
-            },
-            {
-                title: 'neuronA1',
-                count: '79',
-                isChecked: false,
-            },
-        ],
-    },
-    {
-        category: 'Ancestor',
-        values: [
-            {
-                title: 'regional part of brain',
-                count: '65',
-                isChecked: false,
-            },
-            {
-                title: 'neuron',
-                count: '79',
-                isChecked: false,
-            },
-            {
-                title: 'molecular entity',
-                count: '122',
-                isChecked: false,
-            },
-            {
-                title: 'diagnostic interview schedule for children version 2.3: anxiety disorders',
-                count: '123',
-                isChecked: false,
-            },
-            {
-                title: 'white substance (ta98)',
-                count: '123',
-                isChecked: false,
-            },
-            {
-                title: 'grey substance (ta98)',
-                count: '794',
-                isChecked: false,
-            },
-            {
-                title: 'sulcus',
-                count: '102',
-                isChecked: false,
-            },
-            {
-                title: 'cell layer',
-                count: '709',
-                isChecked: false,
-            },
-            {
-                title: 'side effects',
-                count: '334',
-                isChecked: false,
-            },
-            {
-                title: 'diagnostic interview scheduled for childer version 4.0: anxiety disorders',
-                count: '102',
-                isChecked: false,
-            },
-            {
-                title: 'Term',
-                count: '',
-                isChecked: false,
-            },
-            {
-                title: 'Predicate',
-                count: '',
-                isChecked: false,
-            },
-        ],
-    },
-];

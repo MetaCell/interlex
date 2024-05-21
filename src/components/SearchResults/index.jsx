@@ -19,7 +19,7 @@ const mockSearchResults = [
     },
     {
         title: 'Nervous system',
-        description: 'The nervous system is an organ system containing predominantly neuron and glial cells. In bilaterally symmetrical organism, it is arranged in a network of tree-like structures connected to a central body.In all animals the nervous system probably differentiates from the embryonic ectodermal layer (Swanson, 2014).The main functions of the nervous system are to regulate and control body functions, and to receive sensory input, process this information, and generate behavior."The term was introduced by Monro in 1873.',
+        description: '',
         preferredId: 'UBERON:0001016',
         id: 'ILX:0107422',
         type: 'term',
@@ -51,12 +51,17 @@ const CustomButton = ({ view, listView, onClick, icon }) => (
     <Button
         sx={{
             background: listView === view ? gray50 : 'transparent',
+            padding: '0.5rem 0.75rem',
+            border: `1px solid ${gray300}`,
+            '&.Mui-disabled': {
+                border: `1px solid ${gray300}` 
+            },
             '& svg path': {
                 fill: listView !== view ? gray300 : 'currentColor'
             }
         }}
         disabled={view === 'table' && true}
-        // onClick={onClick}
+        onClick={onClick}
     >
         {icon}
     </Button>
@@ -88,7 +93,7 @@ const SearchResultsBox = ({ searchTerm }) => {
                                     IconComponent={KeyboardArrowDownIcon}
                                     sx={{
                                         color: gray700,
-                                        borderRadius: '0.5rem',
+                                        borderRadius: '0.5rem !important',
                                         fontSize: '0.875rem',
                                         fontWeight: 600,
                                         '& .MuiOutlinedInput-input': {
@@ -99,7 +104,8 @@ const SearchResultsBox = ({ searchTerm }) => {
                                         },
                                         '& .MuiSvgIcon-root': {
                                             color: gray700,
-                                            fontSize: '1.25rem'
+                                            fontSize: '1.25rem',
+                                            right: '0.875rem !important'
                                         }
                                     }}
                                 >
@@ -110,17 +116,7 @@ const SearchResultsBox = ({ searchTerm }) => {
                             </FormControl>
                         </Stack>
                         <Divider orientation="vertical" flexItem sx={{ borderColor: gray200 }} />
-                        <ButtonGroup
-                            variant="outlined"
-                            aria-label="View mode"
-                            sx={{
-                                borderRadius: '0.5rem',
-                                '& .MuiButton-root:focus': {
-                                    boxShadow: 'none',
-                                    background: gray50
-                                }
-                            }}
-                        >
+                        <ButtonGroup variant="outlined" aria-label="View mode">
                             <CustomButton
                                 view="list"
                                 listView={listView}
