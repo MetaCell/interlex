@@ -17,7 +17,8 @@ const CopyLinkComponent = ({ url }) => {
           },
           '&:hover': {
             background: 'transparent',
-          }
+          },
+          padding: 0
         }}>
           <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
           <Tooltip title="Copy to clipboard">

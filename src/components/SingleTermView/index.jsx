@@ -7,6 +7,7 @@ import OntologySearch from "./OntologySearch";
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import CopyLinkComponent from "./CopyLinkComponent";
+import BasicTabs from "./CustomTabs";
 
 const {brand700, gray600} = vars
 
@@ -45,8 +46,21 @@ const SingleTermView = () => {
             <Button type='string' color='secondary' startIcon={<ForkRightIcon />}>Create fork</Button>
           </Stack>
         </Grid>
-        <CopyLinkComponent url='http://uri.interlex.org/base/ilx_0101901' />
+        <Grid item xs={12} mt='.56rem'>
+          <CopyLinkComponent url='http://uri.interlex.org/base/ilx_0101901' />
+        </Grid>
+        <Grid item xs={12} mt='2rem'>
+          <BasicTabs />
+        </Grid>
       </Grid>
+    </Stack>
+    <Stack sx={{
+      overflow:'scroll',
+      height: '62vh'
+    }}>
+      <Box p='2.5rem 5rem'>
+        Synonyms
+      </Box>
     </Stack>
   </Box>
 }
