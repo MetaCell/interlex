@@ -16,7 +16,11 @@ const {
     gray200,
     brand300,
     brand25,
-    gray25
+    gray25,
+    warning200,
+    warning50,
+    warning700,
+    warning500
 } = vars
 
 const theme = createTheme({
@@ -130,6 +134,30 @@ const theme = createTheme({
                     fontSize: '0.75rem',
                     borderRadius: '0.375rem',
                     fontWeight: 500,
+                    
+                    '&.status': {
+                        padding: '0.125rem 0.5rem 0.125rem 0.375rem',
+                        height: '1.5rem',
+                        gap: '.25rem',
+                        borderRadius: '1rem',
+                        fontSize: '0.75rem',
+                        
+                        '& .MuiChip-icon': {
+                            margin: 0,
+                            width: '.5rem',
+                            height: '.5rem'
+                        }
+                    },
+                    
+                    '&.not-merged': {
+                        border: `1px solid ${warning200}`,
+                        background: warning50,
+                        color: warning700,
+                        
+                        '& .MuiChip-icon': {
+                            color: warning500
+                        }
+                    }
                 },
                 label: {
                     padding: 0
@@ -144,7 +172,9 @@ const theme = createTheme({
                     borderColor: `${brand300} !important`,
                     background: brand25,
                     boxShadow: '0rem 0.0625rem 0.125rem 0rem rgba(16, 24, 40, 0.05) !important'
-                }
+                },
+                
+               
             }
         },
 
@@ -252,6 +282,10 @@ const theme = createTheme({
                     '&:focus': {
                         background: white,
                     }
+                },
+                textSecondary: {
+                    color: brand700,
+                    padding: '0.625rem 0.875rem',
                 }
             }
         },
@@ -286,7 +320,21 @@ const theme = createTheme({
                     }
                 }
             }
-        }
+        },
+        MuiSvgIcon: {
+            styleOverrides: {
+                fontSizeSmall: {
+                    fontSize: "1rem",
+                    width: "1rem",
+                    height: "1rem",
+                },
+                fontSizeMedium: {
+                    fontSize: "1.25rem",
+                    width: '1.25rem',
+                    height: '1.25rem'
+                },
+            },
+        },
     }
 });
 

@@ -7,6 +7,7 @@ import Footer from './components/Footer'
 import About from './components/About'
 import Banner from './components/Banner'
 import BG from "./Icons/svg/background.svg"
+import SingleTermView from "./components/SingleTermView";
 
 const style = {backgroundImage: `url(${BG})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right top'}
 
@@ -16,11 +17,13 @@ function App() {
       <CssBaseline />
       <Box sx={window.location.pathname === "/" ? style : {}}>
         <Header />
-        <Banner />
-        <Partners />
-        <About />
-        <Footer />
+        {/*<Banner />*/}
+        {/*<Partners />*/}
+        {/*<About />*/}
+        {/*<Footer />*/}
       </Box>
+      <SingleTermView />
+      
     </ThemeProvider>
   )
 }
