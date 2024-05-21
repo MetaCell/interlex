@@ -1,7 +1,7 @@
 import { createTheme } from "@mui/material/styles";
 import { vars } from "./variables";
 
-const { 
+const {
     primaryFont,
     white,
     brand600,
@@ -27,6 +27,10 @@ const theme = createTheme({
     typography: {
         allVariants: {
             fontFamily: primaryFont
+        },
+        h5: {
+            color: gray600,
+            fontWeight: 600
         }
     },
 
@@ -45,6 +49,21 @@ const theme = createTheme({
                     font-weight: 400;
                     font-style: normal;
                     font-variation-settings: "slnt" 0;
+                    overflow: hidden;
+                }
+                *::-webkit-scrollbar {
+                    width: 1rem;
+                }
+                
+                *::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                
+                *::-webkit-scrollbar-thumb {
+                    background-color: ${gray200};
+                    border-radius: 0.5rem;
+                    background-clip: content-box;
+                    border: 0.25rem solid transparent;
                 }
             `
         },
@@ -157,6 +176,13 @@ const theme = createTheme({
                         '& .MuiChip-icon': {
                             color: warning500
                         }
+                    },
+                    '&.IDchip-outlined': {
+                        padding: '0.125rem 0.5rem',
+                        borderRadius: '1rem',
+                        border: `1.5px solid ${gray600}`,
+                        background: 'transparent',
+                        color: gray700
                     }
                 },
                 label: {
@@ -297,7 +323,7 @@ const theme = createTheme({
                     borderRadius: '50%',
                     bottom: '0.3125rem',
                     right: '0.3125rem',
-                    height: '0.625rem' ,
+                    height: '0.625rem',
                 },
                 colorSuccess: {
                     background: success500
@@ -321,20 +347,55 @@ const theme = createTheme({
                 }
             }
         },
-        MuiSvgIcon: {
+
+        MuiFormControl: {
             styleOverrides: {
-                fontSizeSmall: {
-                    fontSize: "1rem",
-                    width: "1rem",
-                    height: "1rem",
-                },
-                fontSizeMedium: {
-                    fontSize: "1.25rem",
-                    width: '1.25rem',
-                    height: '1.25rem'
-                },
-            },
+                root: {
+                    '& .MuiFormLabel-root': {
+                        lineHeight: '1.25rem',
+                        color: gray600,
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        '&.Mui-focused': {
+                            color: gray600
+                        }
+                    },
+                    '& .MuiFormControlLabel-root': {
+                        margin: 0,
+                        gap: '0.5rem',
+                        '& .MuiCheckbox-root': {
+                            padding: 0
+                        }
+                    },
+                    '& .MuiFormControlLabel-label': {
+                        color: gray700,
+                        fontWeight: 500,
+                        fontSize: '0.875rem',
+                        lineHeight: '1.25rem',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        width: '12.5rem'
+                    }
+                }
+            }
         },
+
+        MuiButtonGroup: {
+            styleOverrides: {
+                outlined: {
+                    borderRadius: '0.5rem',
+                    boxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)',
+                    '& .MuiButton-root:focus': {
+                        boxShadow: 'none',
+                        background: gray50
+                    },
+                    '& .MuiButtonGroup-firstButton:hover': {
+                        borderRightColor: 'transparent'
+                    }
+                }
+            }
+        }
     }
 });
 
