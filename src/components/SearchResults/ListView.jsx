@@ -4,14 +4,17 @@ import CustomButton from '../common/CustomButton';
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { vars } from '../../theme/variables';
+import { useNavigate } from "react-router-dom";
 
 const { gray200, gray500, gray700, brand50, brand200, brand600, brand700, error50, error300, error700 } = vars;
 
 
 const TitleSection = ({ searchResult }) => {
-    const handleClick = () => {
-        console.log("search result: ", searchResult)
-    };
+  const navigate = useNavigate();
+  
+  const handleClick = () => {
+    navigate('/single-term');
+  };
 
     return (
         <Box display="flex" justifyContent="space-between" alignItems="center">

@@ -1,35 +1,40 @@
-import { Box, CssBaseline, ThemeProvider } from '@mui/material'
+import { Box, CssBaseline, ThemeProvider } from '@mui/material';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import * as api from './endpoints/interLexURIStructureAPI.msw';
-import theme from './theme'
-import Header from './components/Header'
-import FiltersSidebar from './components/Sidebar/FiltersSidebar'
-import SearchResultsBox from './components/SearchResults'
-import Partners from './components/Partners'
-import Footer from './components/Footer'
-import About from './components/About'
-import Banner from './components/Banner'
+import theme from './theme';
+import Header from './components/Header';
+import FiltersSidebar from './components/Sidebar/FiltersSidebar';
+import SearchResultsBox from './components/SearchResults';
+import Footer from './components/Footer';
+import SingleTermView from './components/SingleTermView';
+import Banner from "./components/Banner";
+import Partners from "./components/Partners";
+import About from "./components/About";
 import BG from "./Icons/svg/background.svg"
-import SingleTermView from "./components/SingleTermView";
 
 const style = {backgroundImage: `url(${BG})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right top'}
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box sx={window.location.pathname === "/" ? style : {}}>
-        <Header />
-        <Banner />
-        <Partners />
-        <About />
-        <Footer />
-      </Box>
-      <Box sx={{display: 'flex', height: 'calc(100vh - 4rem)'}}>
-          <FiltersSidebar filterOptions={initialFilterOptions}/>
-          <SearchResultsBox searchTerm={"neuron"}/>
-      </Box>
-      <SingleTermView />
-      
+        <CssBaseline />
+        <Router>
+            <Header />
+            
+            <Routes>
+                <Route path="/" element={<Box sx={style}>
+                    <Banner />
+                    <Partners />
+                    <About />
+                </Box>} />
+                <Route path="/search" element={<>
+                    <FiltersSidebar filterOptions={initialFilterOptions} />
+                    <SearchResultsBox searchTerm={"neuron"} />
+                </>} />
+                <Route path="/single-term" element={<SingleTermView />} />
+            </Routes>
+            <Footer />
+        </Router>
     </ThemeProvider>
   )
 }

@@ -4,6 +4,7 @@ import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
 import React from "react";
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import {useNavigate} from "react-router-dom";
 
 const { gray200, gray100, gray600, gray800, gray500 } = vars;
 
@@ -17,6 +18,7 @@ const Search = () => {
     const options = ['Nervous', 'Central Nervous System', 'Nervous System', 'ELectric Nervous Sytem'];
     const [searchTerm, setSearchTerm] = React.useState('');
     const [openList, setOpenList] = React.useState(false);
+    const navigate = useNavigate();
 
     const handleOpenList = () => {
       setOpenList(true);
@@ -38,9 +40,11 @@ const Search = () => {
       const handleKeyDown = (event) => {
         if (event.ctrlKey && event.key === 'k') {
           toggleList();
+          navigate('/search')
         }
         if (event.key === 'Escape') {
           handleCloseList();
+          navigate('/search')
         }
       };
   
