@@ -20,7 +20,8 @@ const {
     warning200,
     warning50,
     warning700,
-    warning500
+    warning500,
+    brand50
 } = vars
 
 const theme = createTheme({
@@ -312,6 +313,10 @@ const theme = createTheme({
                 textSecondary: {
                     color: brand700,
                     padding: '0.625rem 0.875rem',
+                    
+                    '&:hover': {
+                        background: brand50
+                    }
                 }
             }
         },
@@ -395,7 +400,22 @@ const theme = createTheme({
                     }
                 }
             }
-        }
+        },
+        
+        MuiSvgIcon: {
+            styleOverrides: {
+                fontSizeSmall: {
+                    width: '1rem',
+                    height: '1rem',
+                    fontSize: '1rem',
+                },
+                fontSizeMedium: {
+                    width: '1.25rem',
+                    height: '1.25rem',
+                    fontSize: '1.25rem',
+                }
+            }
+        },
     }
 });
 

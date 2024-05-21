@@ -6,6 +6,7 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import OntologySearch from "./OntologySearch";
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
+import CopyLinkComponent from "./CopyLinkComponent";
 
 const {brand700, gray600} = vars
 
@@ -44,6 +45,7 @@ const SingleTermView = () => {
             <Button type='string' color='secondary' startIcon={<ForkRightIcon />}>Create fork</Button>
           </Stack>
         </Grid>
+        <CopyLinkComponent url='http://uri.interlex.org/base/ilx_0101901' />
       </Grid>
     </Stack>
   </Box>
