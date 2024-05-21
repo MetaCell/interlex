@@ -1,38 +1,52 @@
 import React from 'react';
-import { Box, Typography, Grid, Stack, Chip, IconButton } from '@mui/material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import CustomMenu from './CustomMenu';
+import { Box, Typography, Grid, Stack, Chip } from '@mui/material';
+import CustomButton from '../common/CustomButton';
+import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { vars } from '../../theme/variables';
 
-const { gray50, gray200, gray300, gray500, gray600, gray700, brand50, brand200, brand600, brand700 } = vars;
+const { gray200, gray500, gray700, brand50, brand200, brand600, brand700, error50, error300, error700 } = vars;
 
 
 const TitleSection = ({ searchResult }) => {
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
+    const handleClick = () => {
+        console.log("search result: ", searchResult)
     };
 
-    const open = Boolean(anchorEl);
     return (
         <Box display="flex" justifyContent="space-between" alignItems="center">
             <Stack direction="row" alignItems="center" gap={1.5}>
                 <Typography variant='h6' sx={{ color: gray700 }}>{searchResult.title}</Typography>
                 <Chip label="Curated" variant="outlined" />
             </Stack>
-            <IconButton
-                sx={{
-                    opacity: open ? 1 : 0,
-                    visibility: open ? 'visible' : 'hidden',
-                    transition: 'opacity 0.3s ease-in-out',
-                    border: `1px solid ${gray300}`,
-                    '&:hover': { background: gray50 }
-                }}
-                onClick={handleClick}
-            >
-                <MoreVertIcon fontSize='small' sx={{ color: gray600 }} />
-            </IconButton>
-            <CustomMenu open={open} anchorEl={anchorEl} setAnchorEl={setAnchorEl} />
+            {searchResult.ontologyIsActive ? (
+                <CustomButton
+                    sx={{
+                        opacity: 0,
+                        visibility: 'hidden',
+                        transition: 'opacity 0.3s ease-in-out',
+                        border: `1px solid ${error300}`,
+                        color: error700,
+                        '&:hover': {background: error50}
+                    }}
+                    onClick={handleClick}
+                >
+                    <DeleteOutlinedIcon fontSize="small" sx={{ marginRight: '0.375rem' }} />
+                    Remove from active ontology
+                </CustomButton>
+            ) : (
+                <CustomButton
+                    sx={{
+                        opacity: 0,
+                        visibility: 'hidden',
+                        transition: 'opacity 0.3s ease-in-out'
+                    }}
+                    onClick={handleClick}
+                >
+                    <CreateNewFolderOutlinedIcon fontSize="small" sx={{ marginRight: '0.375rem' }} />
+                    Add term to active ontology
+                </CustomButton>
+            )}
         </Box>
     );
 };
@@ -67,7 +81,7 @@ const InfoSection = ({ searchResult }) => {
                 <Stack key={label} direction="column" gap={1} alignItems="start">
                     <Typography variant='body1' sx={{ color: gray700, fontWeight: 500 }}>{label}</Typography>
                     {label === 'ID' ?
-                        <Chip label={value} className='IDchip-outlined'/> : <Typography variant='body2' sx={{ color: gray500 }}>{value}</Typography>
+                        <Chip label={value} className='IDchip-outlined' /> : <Typography variant='body2' sx={{ color: gray500 }}>{value}</Typography>
                     }
                 </Stack>
             ))}
@@ -90,7 +104,7 @@ const ListView = ({ searchResults }) => {
                         '&:hover': {
                             '& .MuiTypography-h6': { color: brand600 },
                             '& .MuiChip-outlined': { background: brand50, borderColor: brand200, color: brand700 },
-                            '& .MuiIconButton-root': { opacity: 1, visibility: 'visible' },
+                            '& .MuiIconButton-root': { opacity: 1, visibility: 'visible' }
                         }
                     }}
                 >

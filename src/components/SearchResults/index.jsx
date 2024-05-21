@@ -15,7 +15,8 @@ const mockSearchResults = [
         id: 'ILX:0107422',
         type: 'term',
         score: '225.73792',
-        organization: 'Interlex'
+        organization: 'Interlex',
+        ontologyIsActive: false
     },
     {
         title: 'Nervous system',
@@ -24,7 +25,8 @@ const mockSearchResults = [
         id: 'ILX:0107422',
         type: 'term',
         score: '225.73792',
-        organization: 'Interlex'
+        organization: 'Interlex',
+        ontologyIsActive: true
     },
     {
         title: 'Nervous system',
@@ -33,7 +35,8 @@ const mockSearchResults = [
         id: 'ILX:0107422',
         type: 'term',
         score: '225.73792',
-        organization: 'Interlex'
+        organization: 'Interlex',
+        ontologyIsActive: false
     },
     {
         title: 'Nervous system',
@@ -42,7 +45,8 @@ const mockSearchResults = [
         id: 'ILX:0107422',
         type: 'term',
         score: '225.73792',
-        organization: 'Interlex'
+        organization: 'Interlex',
+        ontologyIsActive: false
     },
 
 ]
@@ -78,10 +82,10 @@ const SearchResultsBox = ({ searchTerm }) => {
     return (
         <Box width={1} height={1} flex={1} display="flex" flexDirection="column" px={4} py={3} gap={3} sx={{ overflowY: 'auto' }}>
             <Grid container justifyContent={{ lg: 'space-between', xs: 'flex-end', md: 'flex-end' }} alignItems="center">
-                <Grid item xs={12} lg={8} sm={6}>
+                <Grid item xs={12} lg={6} sm={6}>
                     <Typography variant="h5">{mockSearchResults.length} results for "{searchTerm}" search</Typography>
                 </Grid>
-                <Grid item xs={12} lg={4} sm={6}>
+                <Grid item xs={12} lg={6} sm={6}>
                     <Box display="flex" alignItems="center" gap={2} justifyContent="end">
                         <Stack direction="row" alignItems="center" gap={1}>
                             <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Show on page:</Typography>
@@ -131,11 +135,14 @@ const SearchResultsBox = ({ searchTerm }) => {
                                 icon={<TableChartIcon />}
                             />
                         </ButtonGroup>
+                        <Stack direction="row" alignItems="center" gap={1}>
+                            <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Active Ontology:</Typography>
+                        </Stack>
                     </Box>
                 </Grid>
             </Grid>
             {listView === 'list' ? (
-                <ListView searchResults={mockSearchResults} />
+                <ListView searchResults={mockSearchResults}/>
             ) : (
                 <p>table</p>
             )}
