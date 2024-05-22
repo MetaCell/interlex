@@ -1,5 +1,7 @@
 import { Box, Button, Divider, IconButton, TextField, Autocomplete, InputAdornment, Typography, Chip } from "@mui/material";
 import { vars } from "../../theme/variables";
+import { useEffect, useState } from 'react';
+import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
 import React from "react";
 import List from '@mui/material/List';
@@ -14,12 +16,24 @@ const styles = {
     }
 }
 
+const useMockApi = () => mockApi;
+
 const Search = () => {
     const options = ['Nervous', 'Central Nervous System', 'Nervous System', 'ELectric Nervous Sytem'];
     const [searchTerm, setSearchTerm] = React.useState('');
     const [openList, setOpenList] = React.useState(false);
     const navigate = useNavigate();
 
+    const {  getMatchTerms } = useMockApi();
+
+    const [terms, setTerms] = useState(undefined);
+
+    useEffect(() => {
+        setTimeout(() => {
+            getMatchTerms("ilx_0101431").then(setTerms);
+        }, 1000);
+    }, []);
+    
     const handleOpenList = () => {
       setOpenList(true);
     };
@@ -35,7 +49,7 @@ const Search = () => {
     const toggleList = () => {
       setOpenList(!openList);
     };
-  
+
     React.useEffect(() => {
       const handleKeyDown = (event) => {
         if (event.ctrlKey && event.key === 'k') {
@@ -62,7 +76,7 @@ const Search = () => {
                   borderRadius: openList ? '0.5rem 0.5rem 0 0' : '0.5rem'
               }
             }}
-          options={options}
+          options={terms ? terms?.map( term => term.name ) : options}
           open={openList}
           onOpen={handleOpenList}
           onClose={handleCloseList}
