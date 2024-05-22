@@ -115,6 +115,62 @@ const SingleTermView = () => {
           </Stack>
         </Grid>
       </Grid>
+      <Grid container p='2.5rem 5rem'>
+        <Grid item xs={12}>
+          <Stack spacing='.75rem'>
+            <Typography color={gray800} fontWeight={500}>Description</Typography>
+            <Typography  fontSize='.875rem' color={gray500}>The central nervous system (CNS) is the part of the nervous system which includes the brain, spinal cord, and nerve cell layer of the retina. </Typography>
+            <Typography  fontSize='.875rem' color={gray500}>In animals with bilateral symmetry, it is a topographic division that is a condensation of the nervous system in the longitudinal plane, lying on or near the median plane. For invertebrates the longitudinal division consists of one or more nerve cords, whereas for vertebrates it consists of a single, hollow, and dorsal cerebrospinal axis.In adult Echinoderms, which are radially symmetrical, a presumptive CNS is formed by a circular cord with associated radial cords.  </Typography>
+            <Typography  fontSize='.875rem' color={gray500}>However, there is no ganglion that could be considered as brain in invertebrate When a CNS is present, its obligate companion topographic division is a peripheral nervous system. </Typography>
+          </Stack>
+        </Grid>
+      </Grid>
+      <Grid container p='2.5rem 5rem'>
+        <Grid item xs={12} lg={4} mb='.75rem'>
+          <Stack spacing='.75rem'>
+            <Typography color={gray800} fontWeight={500}>Type</Typography>
+            <Typography fontSize='.875rem' color={gray500}>term</Typography>
+          </Stack>
+        </Grid>
+        <Grid item xs={12} lg={4} mb='.75rem'>
+          <Stack spacing='.75rem'>
+            <Typography color={gray800} fontWeight={500}>Version</Typography>
+            <Typography fontSize='.875rem' color={gray500}>17</Typography>
+          </Stack>
+        </Grid>
+        <Grid item xs={12} lg={4} mb='.75rem'>
+          <Stack spacing='.75rem'>
+            <Typography color={gray800} fontWeight={500}>OWL equivalent</Typography>
+            <Typography fontSize='.875rem' color={gray500}>owl:Class</Typography>
+          </Stack>
+        </Grid>
+        <Grid item xs={12} lg={4} mb='.75rem'>
+          <Stack spacing='.75rem'>
+            <Typography color={gray800} fontWeight={500}>Originally submitted by</Typography>
+            <Typography fontSize='.875rem' color={gray500}>NeuroLex</Typography>
+          </Stack>
+        </Grid>
+        <Grid item xs={12} lg={4} mb='.75rem'>
+          <Stack spacing='.75rem'>
+            <Typography color={gray800} fontWeight={500}>Last modified by</Typography>
+            <Typography fontSize='.875rem' color={gray500}>NeuroLex</Typography>
+          </Stack>
+        </Grid>
+        <Grid item xs={12} lg={4} mb='.75rem'>
+          <Stack spacing='.75rem'>
+            <Typography color={gray800} fontWeight={500}>Last modify timestamp</Typography>
+            <Typography fontSize='.875rem' color={gray500}>2020-06-23 21:46</Typography>
+          </Stack>
+        </Grid>
+      </Grid>
+      <Box p='5rem 5rem 2.5rem 5rem'>
+        <Divider />
+        <Grid container pt='2.75rem'>
+          <Grid item sx={12} lg={4}>
+            Hierarchy
+          </Grid>
+        </Grid>
+      </Box>
     </Stack>
   </Box>
 }

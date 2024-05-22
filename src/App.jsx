@@ -6,6 +6,7 @@ import FiltersSidebar from './components/Sidebar/FiltersSidebar';
 import SearchResultsBox from './components/SearchResults';
 import SingleTermView from './components/SingleTermView';
 import HomePage from "./components/HomePage";
+import Footer from "./components/Footer";
 
 function App() {
     return (
@@ -30,7 +31,7 @@ function App() {
                           <Route path="/single-term" element={<SingleTermView />} />
                       </Routes>
                   </Box>
-                  {/*<Footer />*/}
+                  <Footer />
               </Box>
           </Router>
       </ThemeProvider>
