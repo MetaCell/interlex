@@ -1,5 +1,4 @@
 import { Box, CssBaseline, ThemeProvider } from '@mui/material'
-import * as api from './endpoints/interLexURIStructureAPI.msw';
 import theme from './theme'
 import Header from './components/Header'
 import FiltersSidebar from './components/Sidebar/FiltersSidebar'
@@ -11,6 +10,7 @@ import Banner from './components/Banner'
 import BG from "./Icons/svg/background.svg"
 
 const style = {backgroundImage: `url(${BG})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right top'}
+
 
 function App() {
   return (

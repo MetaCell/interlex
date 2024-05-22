@@ -17,6 +17,8 @@ export const getGetOntologiesOntologiesResponseMock = () => ((() => ({
               }))())
 
 export const getGetEndpointsIlxResponseMock = () => ((() => ({
+                name : "ilx_0101431",
+                description : "ilx_0101431",
                 prefixes: {
                   owl: "http://www.w3.org/2002/07/owl#",
                   rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -174,7 +176,6 @@ export const getGetEndpointsContributionsMockHandler = () => {
     )
   })
 }
-
 
 export const getPostEndpointsCuriesMockHandler = () => {
   return http.post('*/:group/curies/', async () => {
@@ -751,7 +752,7 @@ export const getGetOwnUrisMockHandler = () => {
 }
 
 export const getGetOwnVersionsCuriesMockHandler = () => {
-  return http.get('*/:group/own/:otherGroup/versions/:epochVerstrId/curies/', async () => {
+  return http.get('*/:group/own/:otherGroup/versions/:epochVerstrId/curies/:prefixIriCurie', async () => {
     await delay(1000);
     return new HttpResponse(null,
       {
@@ -960,10 +961,10 @@ export const getPatchEndpointsIlxMockHandler = () => {
   })
 }
 
-export const getGetEndpointsIlxGetMockHandler = () => {
+export const getGetEndpointsIlxGetMockHandler = (overrideResponse?: void) => {
   return http.get('*/:group/:fragPrefId.:extension', async () => {
     await delay(1000);
-    return new HttpResponse(null,
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetEndpointsIlxResponseMock()),
       {
         status: 200,
         headers: {
@@ -1042,5 +1043,4 @@ export const getInterLexURIStructureAPIMock = () => [
   getGetVersionsIlxMockHandler(),
   getGetEndpointsIlxMockHandler(),
   getPatchEndpointsIlxMockHandler(),
-  getGetEndpointsIlxGetMockHandler()
-]
+  getGetEndpointsIlxGetMockHandler()]

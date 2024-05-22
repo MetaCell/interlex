@@ -648,6 +648,11 @@
   resolved "https://registry.yarnpkg.com/@exodus/schemasafe/-/schemasafe-1.3.0.tgz#731656abe21e8e769a7f70a4d833e6312fe59b7f"
   integrity sha512-5Aap/GaRupgNx/feGBwLLTVv8OQFfv3pq2lPRzPg9R+IOBnDgghTGW7l7EuVXOvg5cc/xSAlRW8rBrjIC3Nvqw==
 
+"@faker-js/faker@^8.4.1":
+  version "8.4.1"
+  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-8.4.1.tgz#5d5e8aee8fce48f5e189bf730ebd1f758f491451"
+  integrity sha512-XQ3cU+Q8Uqmrbf2e0cIC/QN43sTBSC8KF12u29Mb47tWrt2hAgBXSgpZMj4Ao8Uk0iJcU99QsOCaIL8934obCg==
+
 "@floating-ui/core@^1.0.0":
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/@floating-ui/core/-/core-1.6.1.tgz#a4e6fef1b069cda533cbc7a4998c083a37f37573"
@@ -1315,10 +1320,22 @@
     "@stoplight/yaml-ast-parser" "0.0.50"
     tslib "^2.2.0"
 
+"@tanstack/match-sorter-utils@^8.15.1":
+  version "8.15.1"
+  resolved "https://registry.yarnpkg.com/@tanstack/match-sorter-utils/-/match-sorter-utils-8.15.1.tgz#715e028ff43cf79ece10bd5a757047a1016c3bba"
+  integrity sha512-PnVV3d2poenUM31ZbZi/yXkBu3J7kd5k2u51CGwwNojag451AjTH9N6n41yjXz2fpLeewleyLBmNS6+HcGDlXw==
+  dependencies:
+    remove-accents "0.5.0"
+
 "@tanstack/query-core@5.32.1":
   version "5.32.1"
   resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.32.1.tgz#742b0293bcefd91b2a4d6bd7543e710ab666ac94"
   integrity sha512-mCWa1wdGb1jiny4+qYegbSeadcFj+Nq65KFSs4A1DRveoIq7SrTwUhqu7hrB6d54cQH5x59DfJvxusn3w1Cj/g==
+
+"@tanstack/query-core@5.36.1":
+  version "5.36.1"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.36.1.tgz#ae46f935c4752812a56c6815305061a3da82e7b8"
+  integrity sha512-BteWYEPUcucEu3NBcDAgKuI4U25R9aPrHSP6YSf2NvaD2pSlIQTdqOfLRsxH9WdRYg7k0Uom35Uacb6nvbIMJg==
 
 "@tanstack/react-query@^5.32.1":
   version "5.32.1"
@@ -1326,6 +1343,16 @@
   integrity sha512-+nXLMB0JK0XwTJ+lQt49DPNLrbSppni9N5W5yMR085yW3YaRKRUFhfVTER3TvQd1UycHpoGPFnt1gHiijXERAg==
   dependencies:
     "@tanstack/query-core" "5.32.1"
+
+"@tanstack/vue-query@^5.32.1":
+  version "5.37.1"
+  resolved "https://registry.yarnpkg.com/@tanstack/vue-query/-/vue-query-5.37.1.tgz#077c87723af3a5b53f5050d887f4af1e4e7b606f"
+  integrity sha512-KlE1BlvoPw3cjxf/Hpk/m46ClIXAAdii7lqyMnO0sr0Yka2SPReHOIivy30Z0n3N1eSGaO98CEQ9uHLwI/CDcg==
+  dependencies:
+    "@tanstack/match-sorter-utils" "^8.15.1"
+    "@tanstack/query-core" "5.36.1"
+    "@vue/devtools-api" "^6.5.1"
+    vue-demi "^0.14.7"
 
 "@types/babel__core@^7.20.5":
   version "7.20.5"
@@ -1458,6 +1485,11 @@
     "@babel/plugin-transform-react-jsx-source" "^7.23.3"
     "@types/babel__core" "^7.20.5"
     react-refresh "^0.14.0"
+
+"@vue/devtools-api@^6.5.1":
+  version "6.6.1"
+  resolved "https://registry.yarnpkg.com/@vue/devtools-api/-/devtools-api-6.6.1.tgz#7c14346383751d9f6ad4bea0963245b30220ef83"
+  integrity sha512-LgPscpE3Vs0x96PzSSB4IGVSZXZBZHpfxs+ZA1d+VEPwHdOXowy/Y2CsvCAIFrf+ssVU1pD1jidj505EpUnfbA==
 
 abort-controller@^3.0.0:
   version "3.0.0"
@@ -3695,6 +3727,11 @@ regexp.prototype.flags@^1.5.2:
     es-errors "^1.3.0"
     set-function-name "^2.0.1"
 
+remove-accents@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/remove-accents/-/remove-accents-0.5.0.tgz#77991f37ba212afba162e375b627631315bed687"
+  integrity sha512-8g3/Otx1eJaVD12e31UbJj1YzdtVvzH85HV7t+9MJYk/u3XmkOUJ5Ys9wQrf9PCPK8+xn4ymzqYCiZl6QWKn+A==
+
 require-directory@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/require-directory/-/require-directory-2.1.1.tgz#8c64ad5fd30dab1c976e2344ffe7f792a6a6df42"
@@ -4224,6 +4261,11 @@ vite@^5.2.0:
     rollup "^4.13.0"
   optionalDependencies:
     fsevents "~2.3.3"
+
+vue-demi@^0.14.7:
+  version "0.14.7"
+  resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.14.7.tgz#8317536b3ef74c5b09f268f7782e70194567d8f2"
+  integrity sha512-EOG8KXDQNwkJILkx/gPcoL/7vH+hORoBaKgGe+6W7VFMvCYJfmF2dGbvgDroVnI8LU7/kTu8mbjRZGBU1z9NTA==
 
 webidl-conversions@^3.0.0:
   version "3.0.1"
