@@ -1,4 +1,4 @@
-import {Box, Button, Chip, Divider, Grid, Stack, Typography} from "@mui/material";
+import {Box, Button, Chip, Divider, FormControl, Grid, MenuItem, Select, Stack, Typography} from "@mui/material";
 import CustomBreadcrumbs from "./CustomBreadcrumbs";
 import ForkRightIcon from '@mui/icons-material/ForkRight';
 import {vars} from "../../theme/variables";
@@ -8,9 +8,13 @@ import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutl
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import CopyLinkComponent from "./CopyLinkComponent";
 import BasicTabs from "./CustomTabs";
-const {brand700, gray600, gray800, gray500} = vars
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import React from "react";
+import {RestartAlt, TargetCross} from "../../Icons";
+const {brand700, gray600, gray800, gray500, gray700, gray300} = vars
 
 const SingleTermView = () => {
+  const [type, setType] = React.useState('Children');
   
   const synonyms = [
     {title: 'CNS', description: 'abbrev'},
@@ -167,7 +171,49 @@ const SingleTermView = () => {
         <Divider />
         <Grid container pt='2.75rem'>
           <Grid item sx={12} lg={4}>
-            Hierarchy
+            <Stack>
+              <Box display='flex' alignItems='center' justifyContent='space-between'>
+                <Typography color={gray800} fontWeight={500}>Hierarchy</Typography>
+                <Stack direction="row" alignItems="center" spacing={'.75rem'}>
+                  <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Type:</Typography>
+                  <FormControl sx={{ minWidth: 75 }}>
+                    <Select
+                      value={type}
+                      onChange={(v) => setType(v)}
+                      displayEmpty
+                      IconComponent={KeyboardArrowDownIcon}
+                      sx={{
+                        color: gray700,
+                        borderRadius: '0.5rem !important',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        '& .MuiOutlinedInput-input': {
+                          padding: '0.625rem 0.875rem'
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: gray300
+                        },
+                        '& .MuiSvgIcon-root': {
+                          color: gray700,
+                          fontSize: '1.25rem',
+                          right: '0.875rem !important'
+                        }
+                      }}
+                    >
+                      <MenuItem value={'Children'}>Children</MenuItem>
+                      <MenuItem value={'Superclasses'}>Superclasses</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <Divider orientation="vertical" flexItem />
+                  <Button sx={{ p: '0.625rem 0.5625rem', minWidth: '0.0625rem' }} variant='outlined'>
+                    <RestartAlt />
+                  </Button>
+                  <Button sx={{ p: '0.625rem 0.5625rem', minWidth: '0.0625rem' }} variant='outlined'>
+                    <TargetCross />
+                  </Button>
+                </Stack>
+              </Box>
+            </Stack>
           </Grid>
         </Grid>
       </Box>

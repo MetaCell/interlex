@@ -23,7 +23,7 @@ function App() {
                       <Routes>
                           <Route path="/" element={<HomePage />} />
                           <Route path="/search" element={
-                              <Box sx={{ display: 'flex', height: 'calc(100vh - 4rem)' }}>
+                              <Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}>
                                   <FiltersSidebar filterOptions={initialFilterOptions} />
                                   <SearchResultsBox searchTerm={"neuron"} />
                               </Box>
