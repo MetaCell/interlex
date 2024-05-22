@@ -84,7 +84,7 @@ const InfoSection = ({ searchResult }) => {
                 <Stack key={label} direction="column" gap={1} alignItems="start">
                     <Typography variant='body1' sx={{ color: gray700, fontWeight: 500 }}>{label}</Typography>
                     {label === 'ID' ?
-                        <Chip label={value} className='IDchip-outlined' /> : <Typography variant='body2' sx={{ color: gray500 }}>{value}</Typography>
+                        <Chip label={value} className='rounded IDchip-outlined' /> : <Typography variant='body2' sx={{ color: gray500 }}>{value}</Typography>
                     }
                 </Stack>
             ))}

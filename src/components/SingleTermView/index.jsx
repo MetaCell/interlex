@@ -8,10 +8,26 @@ import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutl
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import CopyLinkComponent from "./CopyLinkComponent";
 import BasicTabs from "./CustomTabs";
-
-const {brand700, gray600} = vars
+const {brand700, gray600, gray800, gray500} = vars
 
 const SingleTermView = () => {
+  
+  const synonyms = [
+    {title: 'CNS', description: 'abbrev'},
+    {title: 'Myencephalon', description: ''},
+    {title: 'Cerebrospinal axis', description: 'fma:synonym'},
+    {title: 'Cerebrospinal axis', description: 'fma:synonym'},
+    {title: 'Central nervous system', description: 'fma:synonym'},
+    {title: 'systema nervosum centrale', description: 'oboInOwl:hasExactSynonym'},
+    {title: 'neuraxis', description: 'oboInOwl:hasRelatedSynonym'},
+  ]
+  
+  const existingIDs = [
+    'UBERON:0001017',
+    'FMA:55675',
+    'ILX:0101901',
+    'BIRNLEX:1099',
+  ]
   
   return <Box>
     <Stack p='1.5rem 5rem 0rem 5rem'>
@@ -21,7 +37,7 @@ const SingleTermView = () => {
             <CustomBreadcrumbs />
             <ForkRightIcon fontSize='medium' htmlColor={brand700} />
             <Typography color={brand700} fontSize='0.875rem' fontWeight={600}>fork1</Typography>
-            <Chip icon={<FiberManualRecordIcon />} label="Not merged" variant='outlined' className='status not-merged' />
+            <Chip icon={<FiberManualRecordIcon />} label="Not merged" variant='outlined' className='rounded not-merged' />
           </Stack>
         </Grid>
         <Grid item xs={12} lg={6} display='flex' justifyContent='end'>
@@ -58,9 +74,47 @@ const SingleTermView = () => {
       overflow:'scroll',
       height: '62vh'
     }}>
-      <Box p='2.5rem 5rem'>
-        Synonyms
-      </Box>
+      <Grid container p='2.5rem 5rem'>
+        <Grid item xs={12} lg={6}>
+          <Stack spacing='.75rem'>
+            <Typography color={gray800} fontWeight={500}>Synonyms</Typography>
+            <Box display='flex' flexWrap='wrap' gap='.5rem'>
+              {
+                synonyms.map(synonym =>
+                  <Chip
+                    className='rounded synonyms'
+                    variant='outlined'
+                    key={synonym.title}
+                    label={<span>{synonym.title} <span>{synonym.description}</span></span>} />
+                )
+              }
+            </Box>
+          </Stack>
+        </Grid>
+        <Grid item xs={12} lg={2}>
+          <Stack spacing='.75rem'>
+            <Typography color={gray800} fontWeight={500}>Preferred ID</Typography>
+            <Typography fontSize='.875rem' color={gray500}>UBERON:0000955</Typography>
+          </Stack>
+        </Grid>
+        <Grid item xs={12} lg={4}>
+          <Stack spacing='.75rem'>
+            <Typography color={gray800} fontWeight={500}>Existing IDs</Typography>
+            <Box display='flex' flexWrap='wrap' gap='.5rem'>
+              {
+                existingIDs.map(id =>
+                  <Chip
+                    className='rounded IDchip-outlined'
+                    variant='outlined'
+                    key={id}
+                    label={id}
+                  />
+                )
+              }
+            </Box>
+          </Stack>
+        </Grid>
+      </Grid>
     </Stack>
   </Box>
 }
