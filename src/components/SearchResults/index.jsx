@@ -80,7 +80,7 @@ const SearchResultsBox = ({ searchTerm }) => {
     };
 
     return (
-        <Box width={1} height={1} flex={1} display="flex" flexDirection="column" px={4} py={3} gap={3} sx={{ overflowY: 'auto' }}>
+        <Box width={1} flex={1} display="flex" flexDirection="column" px={4} py={3} gap={3} sx={{ overflowY: 'auto' }}>
             <Grid container justifyContent={{ lg: 'space-between', xs: 'flex-end', md: 'flex-end' }} alignItems="center">
                 <Grid item xs={12} lg={6} sm={6}>
                     <Typography variant="h5">{mockSearchResults.length} results for {searchTerm} search</Typography>
@@ -122,16 +122,9 @@ const SearchResultsBox = ({ searchTerm }) => {
                         <Divider orientation="vertical" flexItem sx={{ borderColor: gray200 }} />
                         <ButtonGroup variant="outlined" aria-label="View mode">
                             <CustomButton
-                                view="list"
-                                listView={listView}
-                                onClick={() => setListView('list')}
                                 icon={<ListIcon />}
                             />
                             <CustomButton
-                                view="table"
-                                listView={listView}
-                                disabled
-                                onClick={() => setListView('table')}
                                 icon={<TableChartIcon />}
                             />
                         </ButtonGroup>
