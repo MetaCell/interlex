@@ -34,7 +34,7 @@ const TitleSection = ({ searchResult }) => {
                     }}
                     onClick={handleClick}
                 >
-                    <DeleteOutlinedIcon fontSize="small" sx={{ marginRight: '0.375rem' }} />
+                    <DeleteOutlinedIcon fontSize="medium" />
                     Remove from active ontology
                 </CustomButton>
             ) : (
@@ -46,7 +46,7 @@ const TitleSection = ({ searchResult }) => {
                     }}
                     onClick={handleClick}
                 >
-                    <CreateNewFolderOutlinedIcon fontSize="small" sx={{ marginRight: '0.375rem' }} />
+                    <CreateNewFolderOutlinedIcon fontSize="medium" />
                     Add term to active ontology
                 </CustomButton>
             )}

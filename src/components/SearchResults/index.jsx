@@ -3,6 +3,7 @@ import { Box, Typography, Grid, ButtonGroup, Button, Stack, FormControl, Select,
 import { TableChartIcon, ListIcon } from '../../Icons';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ListView from './ListView';
+import OntologySearch from '../SingleTermView/OntologySearch';
 import { vars } from '../../theme/variables';
 
 const { gray50, gray200, gray300, gray600, gray700 } = vars;
@@ -51,7 +52,7 @@ const mockSearchResults = [
 
 ]
 
-const CustomButton = ({ view, listView, onClick, icon }) => (
+const CustomViewButton = ({ view, listView, onClick, icon }) => (
     <Button
         sx={{
             background: listView === view ? gray50 : 'transparent',
@@ -119,17 +120,25 @@ const SearchResultsBox = ({ searchTerm }) => {
                                 </Select>
                             </FormControl>
                         </Stack>
-                        <Divider orientation="vertical" flexItem sx={{ borderColor: gray200 }} />
                         <ButtonGroup variant="outlined" aria-label="View mode">
-                            <CustomButton
+                            <CustomViewButton
+                                view="list"
+                                listView={listView}
+                                onClick={() => setListView('list')}
                                 icon={<ListIcon />}
                             />
-                            <CustomButton
+                            <CustomViewButton
+                                view="table"
+                                listView={listView}
+                                disabled
+                                onClick={() => setListView('table')}
                                 icon={<TableChartIcon />}
                             />
                         </ButtonGroup>
+                        <Divider orientation="vertical" flexItem sx={{ borderColor: gray200 }} />
                         <Stack direction="row" alignItems="center" gap={1}>
                             <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Active Ontology:</Typography>
+                            <OntologySearch/>
                         </Stack>
                     </Box>
                 </Grid>

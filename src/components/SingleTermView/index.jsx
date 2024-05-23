@@ -21,15 +21,22 @@ import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import CopyLinkComponent from "../common/CopyLinkComponent";
 import BasicTabs from "./CustomTabs";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import CustomButton from "../common/CustomButton";
+import CustomMenu from "./CustomMenu";
+import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
+import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import React from "react";
 import {ListIcon, RestartAlt, TableChartIcon, TargetCross} from "../../Icons";
 import SingleSearch from "./SingleSearch";
 import CustomizedTreeView from "../common/CustomizedTreeView";
-import CustomButton from "../common/CustomButton";
 
 const { brand700, gray600, gray800, gray500, gray700, gray300 } = vars;
 const SingleTermView = () => {
   const [type, setType] = React.useState('Children');
+  const [open, setOpen] = React.useState(false);
+  const actionRef = React.useRef(null);
+  const anchorRef = React.useRef(null);
   
   const synonyms = [
     { title: 'CNS', description: 'abbrev' },
@@ -77,7 +84,7 @@ const SingleTermView = () => {
           </Grid>
         </Grid>
         <Grid container mt="1.75rem">
-          <Grid item xs={12} lg={6}>
+          <Grid item xs={12} lg={4}>
             <Stack direction="row" spacing=".75rem" alignItems="center">
               <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
                 Central nervous system
@@ -85,8 +92,9 @@ const SingleTermView = () => {
               <Chip label="Fork" variant="outlined" />
             </Stack>
           </Grid>
-          <Grid item xs={12} lg={6} display="flex" justifyContent="end">
-            <Stack direction="row" spacing="1rem" alignItems="center">
+         
+          <Grid display="flex" justifyContent='end' mt=".56rem" item xs={12} lg={8}>
+            <Stack direction="row" spacing=".2rem" alignItems="center">
               <Button type="string" color="secondary" startIcon={<ModeEditOutlineOutlinedIcon />}>
                 Edit term
               </Button>
@@ -97,9 +105,41 @@ const SingleTermView = () => {
               <Button type="string" color="secondary" startIcon={<ForkRightIcon />}>
                 Create fork
               </Button>
+              <ButtonGroup
+                variant="outlined"
+                ref={anchorRef}
+                sx={{
+                  boxShadow: open && "0px 0px 0px 4px rgba(50, 129, 115, 0.24)"
+                }}
+              >
+                <Button display="flex" alignItems="center">
+                  <CreateNewFolderOutlinedIcon fontSize="medium" />
+                  Add term to active ontology
+                </Button>
+                <Button
+                  aria-controls={open ? 'split-button-ontology-menu' : undefined}
+                  aria-expanded={open ? 'true' : undefined}
+                  aria-label="select ontology action"
+                  aria-haspopup="ontology-menu"
+                  onMouseDown={() => {
+                    actionRef.current = () => setOpen(!open);
+                  }}
+                  onKeyDown={() => {
+                    actionRef.current = () => setOpen(!open);
+                  }}
+                  onClick={() => {
+                    actionRef.current?.();
+                  }}
+                >
+                  {open ? <KeyboardArrowUpIcon fontSize="medium" /> : <KeyboardArrowDownIcon fontSize="medium" />}
+                </Button>
+              </ButtonGroup>
+              <CustomMenu open={open} anchorRef={anchorRef} setOpen={setOpen} />
+              <CustomButton onClick={() => console.log("Download button clicked!")}><DownloadOutlinedIcon fontSize="medium" />Download as</CustomButton>
+            
             </Stack>
           </Grid>
-          <Grid item xs={12} mt=".56rem">
+          <Grid item xs={6}>
             <CopyLinkComponent url="http://uri.interlex.org/base/ilx_0101901" />
           </Grid>
           <Grid item xs={12} mt="2rem">
