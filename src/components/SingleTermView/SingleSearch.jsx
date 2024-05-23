@@ -26,8 +26,6 @@ const SingleSearch = () => {
     setSearchTerm(event.target.value);
   };
   
-  const getOptionLabel = (option) => `${option.label} @${option.handler}`;
-console.log(getOptionLabel)
   return (
     <div ref={autocompleteRef}>
       <Autocomplete

@@ -40,16 +40,11 @@ function a11yProps(index) {
   };
 }
 
-export default function BasicTabs() {
-  const [value, setValue] = React.useState(0);
-  
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
+const BasicTabs = ({tabs, tabValue, handleChange}) => {
   
   return (
       <Box sx={{ width: 'fit-content', borderBottom: 1, borderColor: gray200 }}>
-        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" sx={{
+        <Tabs value={tabValue} onChange={handleChange} aria-label="basic tabs example" sx={{
           minHeight: '2.25rem',
           '& .MuiTabs-flexContainer': {
             gap: '.75rem'
@@ -69,11 +64,12 @@ export default function BasicTabs() {
             backgroundColor: brand600
           }
         }}>
-          <Tab label="Overview" {...a11yProps(0)} />
-          <Tab label="Variants" {...a11yProps(1)} />
-          <Tab label="Version history" {...a11yProps(2)} />
-          <Tab label="Discussions" {...a11yProps(3)} />
+          {
+            tabs.map((tab, i) => <Tab key={i} label="Overview" {...a11yProps(i)} />)
+          }
         </Tabs>
       </Box>
   );
 }
+
+export default BasicTabs
