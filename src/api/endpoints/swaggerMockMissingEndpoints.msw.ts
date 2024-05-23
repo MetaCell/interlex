@@ -1,188 +1,42 @@
-module.exports = {
-  uri: {
-    input: {
-      target: "https://uri.olympiangods.org/docs/swagger.json",
-      validation: false,
-    },
-    output: {
-      mode: "split",
-      target: "./src/api/endpoints",
-      schemas: "./src/api/model",
-      baseUrl: 'https://uri.olympiangods.org/',
-      mock: true,
-      override: {
-        mutator: {
-          path: './src/api/mutator/custom-client.ts',
-          name: 'customInstance',
-        },
-        operations: {
-          /** TODO : Endpoint returns a 500, it's being reused by multiple endpoints.
-           * In our use case, we need this operation to ADD Ontologies with or
-           * without paths.
-           * */
-          get_ontologies_ontologies: {
-            mock: {
-              data: () => ({
-                status_code: 200,
-                message: "",
-              }),
-            },
-          },
-          // Override existing endpoint, return mock data for fragment ID ilx_0101431
-          get_endpoints_ilx: {
-            mock: {
-              data: () => ({
-                name : "ilx_0101431",
-                description : "ilx_0101431",
-                prefixes: {
-                  owl: "http://www.w3.org/2002/07/owl#",
-                  rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-                  rdfs: "http://www.w3.org/2000/01/rdf-schema#",
-                  xsd: "http://www.w3.org/2001/XMLSchema#",
-                  xml: "http://www.w3.org/XML/1998/namespace",
-                  "": "file:///ERROR/EMPTY/PREFIX/BANNED/",
-                },
-                triples: [
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/base/readable/synonym>",
-                    "suprasegmental levels of nervous system",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/base/readable/synonym>",
-                    "synganglion",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/base/readable/synonym>",
-                    "suprasegmental structures",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/tgbugs/uris/readable/hasExistingId>",
-                    "<http://uri.neuinfo.org/nif/nifstd/birnlex_796>",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/base/ilx_0112784>",
-                    "<http://uri.interlex.org/base/ilx_0102661>",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/base/ilx_0112796>",
-                    "<http://uri.interlex.org/base/ilx_0101901>",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://purl.obolibrary.org/obo/IAO_0000115>",
-                    "The part of the central nervous system contained within the cranium, comprising the forebrain, midbrain, hindbrain, and metencephalon. It is derived from the anterior part of the embryonic neural tube (or the encephalon). Does not include retina. (CUMBO)The rostral topographic division of the cerebrospinal axis, while the caudal division is the spinal cord. The usual criterion for distinguishing the two divisions in the adult is that the vertebrate brain lies within the skull whereas the spinal cord lies within the spinal (vertebral) column, although this is a difficult problem. (Swanson, 2014)",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/tgbugs/uris/readable/hasExistingId>",
-                    "<http://purl.org/sig/ont/fma/fma50801>",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/base/readable/synonym>",
-                    "the brain",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/base/ilx_0112785>",
-                    "<http://uri.interlex.org/base/ilx_0101999>",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "rdfs:subClassOf",
-                    "<http://uri.interlex.org/base/ilx_0108124>",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/base/readable/synonym>",
-                    "Encephalon",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "rdfs:label",
-                    "Brain",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/tgbugs/uris/readable/hasExistingId>",
-                    "<http://purl.obolibrary.org/obo/UBERON_0000955>",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "rdf:type",
-                    "owl:Class",
-                  ],
-                ],
-              }),
-            },
-          },
-        },
-        allParamsOptional: true,
-        urlEncodeParameters: true,
-      },
-    },
-  },
-  interlex: {
-    input: {
-      target: "./interlex.yaml",
-    },
-    output: {
-      mode: "split",
-      target: "./src/api/endpoints",
-      schemas: "./src/api/model",
-      baseUrl: 'http://localhost:3200/',
-      mock: true,
-      override: {
-        mutator: {
-          path: './src/api/mutator/custom-client.ts',
-          name: 'customInstance',
-        },
-        operations: {
-          login: {
-            mock: {
-              data: () => ({
+/**
+ * Generated by orval v6.28.2 🍺
+ * Do not edit manually.
+ * Swagger Mock Missing Endpoints
+ * OpenAPI spec version: 1.0.0
+ */
+import {
+  faker
+} from '@faker-js/faker'
+import {
+  HttpResponse,
+  delay,
+  http
+} from 'msw'
+import type {
+  Organization,
+  Organizations,
+  Terms
+} from '../model'
+
+export const getLoginResponseMock = () => ((() => ({
                 status: 200,
                 token: "",
                 username: ""
-              }),
-            },
-          },
-          logout: {
-            mock: {
-              data: () => ({
+              }))())
+
+export const getLogoutResponseMock = () => ((() => ({
                 status: 200,
                 token: "",
                 username: ""
-              }),
-            },
-          },
-          register: {
-            mock: {
-              data: () => ({
+              }))())
+
+export const getRegisterResponseMock = () => ((() => ({
                 status: 200,
                 token: "",
                 username: ""
-              }),
-            },
-          },
-          new_organization: {
-            mock: {
-              data: () => ({
-                status: 200,
-                token: "",
-                name: ""
-              }),
-            },
-          },
-          get_organization: {
-            mock: {
-              data: () => ({
+              }))())
+
+export const getGetOrganizationResponseMock = () => ((() => ({
                 name: "SPARC Anatomical Working Group",
                 description : "The Stimulating Peripheral Activity to Relieve Conditions (SPARC) effort is the result of National Institutes of Health’s (NIH) drive to map out the neural circuitry responsible for visceral control in higher vertebrates. The SPARC Anatomy Working Group (SAWG) is responsible for the integrity of anatomical knowledge in SPARC. In particular, it provides the relevant guidance and expertise about: Defining and naming anatomical terms, Maintaining ontologies of anatomical knowledge, Compiling and curating computable knowledge about multiscale routes pathways",
                 creation_date: "01/01/2000",
@@ -327,12 +181,15 @@ module.exports = {
                   ]
                 }]
                 
-              }),
-            },
-          },
-          get_organizations: {
-            mock: {
-              data: () => [
+              }))())
+
+export const getNewOrganizationResponseMock = () => ((() => ({
+                status: 200,
+                token: "",
+                name: ""
+              }))())
+
+export const getGetOrganizationsResponseMock = () => ((() => [
                 {
                   name: "SPARC Anatomical Working Group",
                   description : "The Stimulating Peripheral Activity to Relieve Conditions (SPARC) effort is the result of National Institutes of Health’s (NIH) drive to map out the neural circuitry responsible for visceral control in higher vertebrates. The SPARC Anatomy Working Group (SAWG) is responsible for the integrity of anatomical knowledge in SPARC. In particular, it provides the relevant guidance and expertise about: Defining and naming anatomical terms, Maintaining ontologies of anatomical knowledge, Compiling and curating computable knowledge about multiscale routes pathways",
@@ -769,13 +626,13 @@ module.exports = {
                     ]
                   }]
                 }
-              ],
-            },
-          },
-          // Search for specific 'term' and get all results
-          get_match_terms: {
-            mock: {
-              data: () => [{
+              ])())
+
+export const getGetSearchResultsResponseMock = (overrideResponse: any = {}): Terms => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({description: faker.word.sample(), id: faker.word.sample(), name: faker.word.sample(), prefixes: {}, triples: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.word.sample())))), ...overrideResponse})))
+
+export const getGetHierarchyResultsResponseMock = (overrideResponse: any = {}): Terms => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({description: faker.word.sample(), id: faker.word.sample(), name: faker.word.sample(), prefixes: {}, triples: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.word.sample())))), ...overrideResponse})))
+
+export const getGetMatchTermsResponseMock = () => ((() => [{
                 name : "Brain",
                 description : "The part of the central nervous system contained within the cranium, comprising the forebrain, midbrain, hindbrain, and metencephalon.",
                 id : "ilx_0101431",
@@ -989,112 +846,156 @@ module.exports = {
                     "<http://uri.interlex.org/base/ilx_0109835>"
                   ]
                 ]
-              }],
-            },
-          },
-        },
-        /** TODO : New endpoint missing to retrieve hierarchy (relationships)
-         * Suggestion, return array of objects, with indexes determining hierarchies.
-         * */
-        get_hierarchy: {
-          mock: {
-            data: () => [],
-          },
-        },
-        // TODO : Existing endpoint but missing operation, edits exising fragments
-        add_fragment: {
-          mock: {
-            data: () => ({
-              status_code: 200,
-              message: "",
-            }),
-          },
-        },
-        // TODO : Missing endpoint and missing operation. Different than add_fragment?
-        add_term: {
-          mock: {
-            data: () => ({
-              status_code: 200,
-              message: "",
-            }),
-          },
-        },
-        /** TODO : Missing endpoint and operation.
-         * Use case, edit multiple terms at once.
-         * */
-        bulk_edit_terms: {
-          mock: {
-            data: () => ({
-              status_code: 200,
-              message: "",
-            }),
-          },
-        },
-        /** TODO : Missing endpoint and operation.
-         * Use case, download all ontologies.
-         * */
-        get_all_ontologies: {
-          mock: {
-            data: () => [{
-              name : "Test Ontology 1",
-              description : "This file imports all the bridging modules that are relating NIF-Cell with other NIF  modules",
-              id: "nif-neuron-bridge-test1",
-              version_info: "0.1; May 9th, 2012",
-              url : "http://ontology.neuinfo.org/NIF/ttl/unused/NIF-Neuron-Bridge.ttl"
-            },{
-              name : "Test Ontology 2",
-              description : "This file imports all the bridging modules that are relating NIF-Cell with other NIF  modules",
-              id: "nif-neuron-bridge-test2",
-              version_info: "0.1; May 9th, 2012",
-              url : "http://ontology.neuinfo.org/NIF/ttl/unused/NIF-Neuron-Bridge.ttl"
-            },{
-              name : "Test Ontology 3",
-              description : "This file imports all the bridging modules that are relating NIF-Cell with other NIF  modules",
-              id: "nif-neuron-bridge-test3",
-              version_info: "0.1; May 9th, 2012",
-              url : "http://ontology.neuinfo.org/NIF/ttl/unused/NIF-Neuron-Bridge.ttl"
-            },{
-              name : "Test Ontology 4",
-              description : "This file imports all the bridging modules that are relating NIF-Cell with other NIF  modules",
-              id: "nif-neuron-bridge-test4",
-              version_info: "0.1; May 9th, 2012",
-              url : "http://ontology.neuinfo.org/NIF/ttl/unused/NIF-Neuron-Bridge.ttl"
-            },{
-              name : "Test Ontology 5",
-              description : "This file imports all the bridging modules that are relating NIF-Cell with other NIF  modules",
-              id: "nif-neuron-bridge-test5",
-              version_info: "0.1; May 9th, 2012",
-              url : "http://ontology.neuinfo.org/NIF/ttl/unused/NIF-Neuron-Bridge.ttl"
-            }],
-          },
-        },
-        /** TODO : Missing endpoint and operation.
-         * Use case, download all ontologies matching a single term
-         * */
-        get_all_ontologies_matching_term: {
-          mock: {
-            data: () => [{
-              name : "Matching Ontology 1 : NIF-Neuron-Bridge.owl",
-              description : "This file imports all the bridging modules that are relating NIF-Cell with other NIF  modules",
-              id: "nif-neuron-bridge-1",
-              version_info: "0.1; May 9th, 2012",
-              url : "http://ontology.neuinfo.org/NIF/ttl/unused/NIF-Neuron-Bridge.ttl"
-            },{
-              name : "Matching Ontology 2 : NIF-Neuron-Bridge.owl",
-              description : "This file imports all the bridging modules that are relating NIF-Cell with other NIF  modules",
-              id: "nif-neuron-bridge-2",
-              version_info: "0.1; May 9th, 2012",
-              url : "http://ontology.neuinfo.org/NIF/ttl/unused/NIF-Neuron-Bridge.ttl"
-            },{
-              name : "Matching Ontology 3 : NIF-Neuron-Bridge.owl",
-              description : "This file imports all the bridging modules that are relating NIF-Cell with other NIF  modules",
-              id: "nif-neuron-bridge-3",
-              version_info: "0.1; May 9th, 2012",
-              url : "http://ontology.neuinfo.org/NIF/ttl/unused/NIF-Neuron-Bridge.ttl"
-            }],
-          },
-        },
+              }])())
+
+
+export const getLoginMockHandler = (overrideResponse?: void) => {
+  return http.post('*/operations/login', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getLoginResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
       }
-    },
-  },
-};
+    )
+  })
+}
+
+export const getLogoutMockHandler = (overrideResponse?: void) => {
+  return http.post('*/operations/logout', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getLogoutResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getRegisterMockHandler = (overrideResponse?: void) => {
+  return http.post('*/operations/register', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getRegisterResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getGetOrganizationMockHandler = (overrideResponse?: Organization) => {
+  return http.get('*/operations/organization', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetOrganizationResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getNewOrganizationMockHandler = (overrideResponse?: Organization) => {
+  return http.post('*/operations/organization', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getNewOrganizationResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getGetOrganizationsMockHandler = (overrideResponse?: Organizations) => {
+  return http.get('*/operations/organizations', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetOrganizationsResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getGetSearchResultsMockHandler = (overrideResponse?: Terms) => {
+  return http.get('*/:group/search/:string', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetSearchResultsResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getGetHierarchyResultsMockHandler = (overrideResponse?: Terms) => {
+  return http.get('*/:group/query/transitive/:property/:start?depth', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetHierarchyResultsResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getGetMatchTermsMockHandler = (overrideResponse?: Terms) => {
+  return http.get('*/search_term/:term', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetMatchTermsResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getGetPingMockHandler = () => {
+  return http.get('*/ping', async () => {
+    await delay(1000);
+    return new HttpResponse(null,
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+export const getSwaggerMockMissingEndpointsMock = () => [
+  getLoginMockHandler(),
+  getLogoutMockHandler(),
+  getRegisterMockHandler(),
+  getGetOrganizationMockHandler(),
+  getNewOrganizationMockHandler(),
+  getGetOrganizationsMockHandler(),
+  getGetSearchResultsMockHandler(),
+  getGetHierarchyResultsMockHandler(),
+  getGetMatchTermsMockHandler(),
+  getGetPingMockHandler()]

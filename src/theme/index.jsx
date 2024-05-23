@@ -155,7 +155,7 @@ const theme = createTheme({
                     borderRadius: '0.375rem',
                     fontWeight: 500,
                     
-                    '&.status': {
+                    '&.rounded': {
                         padding: '0.125rem 0.5rem 0.125rem 0.375rem',
                         height: '1.5rem',
                         gap: '.25rem',
@@ -180,10 +180,26 @@ const theme = createTheme({
                     },
                     '&.IDchip-outlined': {
                         padding: '0.125rem 0.5rem',
-                        borderRadius: '1rem',
                         border: `1.5px solid ${gray600}`,
                         background: 'transparent',
                         color: gray700
+                    },
+                    
+                    
+                    '&.synonyms': {
+                        background: gray50,
+                        color: gray700,
+                        borderColor: gray200,
+                        padding: '0.125rem 0.625rem',
+                        
+                        '& span': {
+                            '& span': {
+                                '& span': {
+                                    color: gray500,
+                                    fontWeight: 400
+                                }
+                            }
+                        }
                     }
                 },
                 label: {

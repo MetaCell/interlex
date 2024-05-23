@@ -20,6 +20,7 @@
     "react-router-dom": "^6.23.1"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@tanstack/react-query": "^5.32.1",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
@@ -32,5 +33,10 @@
     "msw": "^2.2.14",
     "orval": "^6.28.2",
     "vite": "^5.2.0"
+  },
+  "msw": {
+    "workerDirectory": [
+      "./public"
+    ]
   }
 }
