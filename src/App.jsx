@@ -1,5 +1,5 @@
 import { Box, CssBaseline, ThemeProvider } from '@mui/material';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import theme from './theme';
 import Header from './components/Header';
 import FiltersSidebar from './components/Sidebar/FiltersSidebar';
@@ -8,31 +8,42 @@ import SingleTermView from './components/SingleTermView';
 import HomePage from "./components/HomePage";
 import Footer from "./components/Footer";
 
+function MainContent() {
+    const location = useLocation();
+    
+    // Determine whether to show the footer based on the current route
+    const showFooter = location.pathname !== '/';
+    
+    return (
+      <Box sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100vh'
+      }}>
+          <Header />
+          <Box sx={{ flex: 1 }}>
+              <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/search/:searchTerm" element={
+                      <Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}>
+                          <FiltersSidebar filterOptions={initialFilterOptions} />
+                          <SearchResultsBox />
+                      </Box>
+                  } />
+                  <Route path="/view/:term" element={<SingleTermView />} />
+              </Routes>
+          </Box>
+          {showFooter && <Footer />}
+      </Box>
+    );
+}
+
 function App() {
     return (
       <ThemeProvider theme={theme}>
           <CssBaseline />
           <Router>
-              <Box sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  minHeight: '100vh'
-              }}>
-                  <Header />
-                  <Box sx={{ flex: 1 }}>
-                      <Routes>
-                          <Route path="/" element={<HomePage />} />
-                          <Route path="/search" element={
-                              <Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}>
-                                  <FiltersSidebar filterOptions={initialFilterOptions} />
-                                  <SearchResultsBox searchTerm={"neuron"} />
-                              </Box>
-                          } />
-                          <Route path="/single-term" element={<SingleTermView />} />
-                      </Routes>
-                  </Box>
-                  <Footer />
-              </Box>
+              <MainContent />
           </Router>
       </ThemeProvider>
     );

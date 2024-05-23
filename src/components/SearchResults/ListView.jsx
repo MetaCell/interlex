@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Typography, Grid, Stack, Chip } from '@mui/material';
 import CustomButton from '../common/CustomButton';
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
@@ -12,8 +11,8 @@ const { gray200, gray500, gray700, brand50, brand200, brand600, brand700, error5
 const TitleSection = ({ searchResult }) => {
   const navigate = useNavigate();
   
-  const handleClick = () => {
-    navigate('/single-term');
+  const handleClick = (e, term) => {
+    navigate(`/view/${term}`);
   };
 
     return (
@@ -32,7 +31,6 @@ const TitleSection = ({ searchResult }) => {
                         color: error700,
                         '&:hover': {background: error50}
                     }}
-                    onClick={handleClick}
                 >
                     <DeleteOutlinedIcon fontSize="medium" />
                     Remove from active ontology
@@ -44,7 +42,7 @@ const TitleSection = ({ searchResult }) => {
                         visibility: 'hidden',
                         transition: 'opacity 0.3s ease-in-out'
                     }}
-                    onClick={handleClick}
+                    onClick={(e) => handleClick(e, searchResult.title)}
                 >
                     <CreateNewFolderOutlinedIcon fontSize="medium" />
                     Add term to active ontology

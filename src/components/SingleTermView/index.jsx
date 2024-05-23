@@ -17,14 +17,18 @@ import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutl
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import CopyLinkComponent from "../common/CopyLinkComponent";
 import BasicTabs from "../common/CustomTabs";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import CustomButton from "../common/CustomButton";
 import CustomMenu from "./CustomMenu";
-import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
-import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import React from "react";
 import OverView from "./OverView/OverView";
+import {
+  CreateNewFolderOutlined,
+  DownloadOutlined,
+  KeyboardArrowUp,
+  KeyboardArrowDown,
+  List,
+  AccountTreeOutlined
+} from "@mui/icons-material";
 
 const { brand700, gray600 } = vars;
 const SingleTermView = () => {
@@ -94,7 +98,7 @@ const SingleTermView = () => {
                 }}
               >
                 <Button display="flex" alignItems="center">
-                  <CreateNewFolderOutlinedIcon fontSize="medium" />
+                  <CreateNewFolderOutlined fontSize="medium" />
                   Add term to active ontology
                 </Button>
                 <Button
@@ -112,19 +116,27 @@ const SingleTermView = () => {
                     actionRef.current?.();
                   }}
                 >
-                  {open ? <KeyboardArrowUpIcon fontSize="medium" /> : <KeyboardArrowDownIcon fontSize="medium" />}
+                  {open ? <KeyboardArrowUp fontSize="medium" /> : <KeyboardArrowDown fontSize="medium" />}
                 </Button>
               </ButtonGroup>
               <CustomMenu open={open} anchorRef={anchorRef} setOpen={setOpen} />
-              <CustomButton onClick={() => console.log("Download button clicked!")}><DownloadOutlinedIcon fontSize="medium" />Download as</CustomButton>
+              <CustomButton onClick={() => console.log("Download button clicked!")}><DownloadOutlined fontSize="medium" />Download as</CustomButton>
             
             </Stack>
           </Grid>
           <Grid item xs={6}>
             <CopyLinkComponent url="http://uri.interlex.org/base/ilx_0101901" />
           </Grid>
-          <Grid item xs={12} mt="2rem">
+          <Grid item xs={12} mt="2rem" display='flex' alignItems='center' justifyContent='space-between'>
             <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["Overview", "Variants", "Version history", "Discussions"]} />
+            <ButtonGroup variant="outlined" aria-label="Basic button group">
+              <Button>
+                <List />
+              </Button>
+              <Button>
+                <AccountTreeOutlined />
+              </Button>
+            </ButtonGroup>
           </Grid>
         </Grid>
       </Stack>

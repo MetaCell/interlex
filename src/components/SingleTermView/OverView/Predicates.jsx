@@ -1,9 +1,10 @@
-import {Box, ButtonGroup, FormControl, MenuItem, Select, Typography} from "@mui/material";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import CustomButton from "../../common/CustomButton";
-import {ListIcon, TableChartIcon} from "../../../Icons";
-import {vars} from "../../../theme/variables";
 import React from "react";
+import {Box, Button, ButtonGroup, FormControl, MenuItem, Select, Typography} from "@mui/material";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import {vars} from "../../../theme/variables";
+import ExpandIcon from '@mui/icons-material/Expand';
+import RemoveIcon from '@mui/icons-material/Remove';
+
 const { gray600, gray800, gray500, gray700, gray300 } = vars;
 
 const Predicates = () => {
@@ -11,7 +12,7 @@ const Predicates = () => {
   
   return <Box display='flex' alignItems='center' justifyContent='space-between'>
     <Typography color={gray800} fontWeight={500}>Predicates</Typography>
-    <Box>
+    <Box display='flex' alignItems='center' gap='.75rem'>
       <FormControl sx={{ minWidth: 75 }}>
         <Select
           value={type}
@@ -40,13 +41,13 @@ const Predicates = () => {
           <MenuItem value={'Superclasses'}>Superclasses</MenuItem>
         </Select>
       </FormControl>
-      <ButtonGroup variant="outlined" aria-label="View mode">
-        <CustomButton
-          icon={<ListIcon />}
-        />
-        <CustomButton
-          icon={<TableChartIcon />}
-        />
+      <ButtonGroup variant="outlined" aria-label="Basic button group">
+        <Button>
+         <ExpandIcon />
+        </Button>
+        <Button>
+          <RemoveIcon />
+        </Button>
       </ButtonGroup>
     </Box>
   

@@ -17,7 +17,6 @@ const styles = {
 }
 
 const useMockApi = () => mockApi;
-
 const Search = () => {
     const options = ['Nervous', 'Central Nervous System', 'Nervous System', 'ELectric Nervous Sytem'];
     const [searchTerm, setSearchTerm] = React.useState('');
@@ -44,6 +43,7 @@ const Search = () => {
   
     const handleInputChange = (event, newInputValue) => {
       setSearchTerm(newInputValue);
+      navigate(`/search/${newInputValue}`)
     };
   
     const toggleList = () => {
@@ -54,11 +54,9 @@ const Search = () => {
       const handleKeyDown = (event) => {
         if (event.ctrlKey && event.key === 'k') {
           toggleList();
-          navigate('/search')
         }
         if (event.key === 'Escape') {
           handleCloseList();
-          navigate('/search')
         }
       };
   

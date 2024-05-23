@@ -1,4 +1,5 @@
 import React from 'react';
+import {useParams} from 'react-router-dom';
 import { Box, Typography, Grid, ButtonGroup, Button, Stack, FormControl, Select, MenuItem, Divider } from '@mui/material';
 import { TableChartIcon, ListIcon } from '../../Icons';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -7,7 +8,6 @@ import OntologySearch from '../SingleTermView/OntologySearch';
 import { vars } from '../../theme/variables';
 
 const { gray50, gray200, gray300, gray600, gray700 } = vars;
-
 const mockSearchResults = [
     {
         title: 'Nervous system',
@@ -72,10 +72,11 @@ const CustomViewButton = ({ view, listView, onClick, icon }) => (
     </Button>
 );
 
-const SearchResultsBox = ({ searchTerm }) => {
+const SearchResultsBox = () => {
     const [numberOfVisiblePages, setNumberOfVisiblePages] = React.useState(20);
     const [listView, setListView] = React.useState('list');
-
+    const { searchTerm } = useParams();
+    
     const handleNumberOfPagesChange = (event) => {
         setNumberOfVisiblePages(event.target.value);
     };
