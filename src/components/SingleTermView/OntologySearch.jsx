@@ -12,7 +12,7 @@ import {
 import { vars } from "../../theme/variables";
 import ListItem from '@mui/material/ListItem';
 import FolderSharedOutlinedIcon from '@mui/icons-material/FolderSharedOutlined';
-import CustomizedRadio from "./CustomizedRadio";
+import CustomizedRadio from "../common/CustomizedRadio";
 
 const { brand600, gray50 } = vars;
 
