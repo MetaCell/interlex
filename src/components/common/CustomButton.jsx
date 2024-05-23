@@ -14,6 +14,7 @@ const CustomButton = ({sx = {}, onClick, children}) => {
                 fontSize: '0.875rem',
                 fontWeight: 600,
                 color: gray700,
+                gap: '0.375rem',
                 '&:hover': { background: gray50 },
                 ...sx
             }}

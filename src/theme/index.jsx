@@ -391,6 +391,9 @@ const theme = createTheme({
                 outlined: {
                     borderRadius: '0.5rem',
                     boxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)',
+                    '& .MuiButton-root': {
+                        padding: '0.625rem 0.875rem'
+                    },
                     '& .MuiButton-root:focus': {
                         boxShadow: 'none',
                         background: gray50
