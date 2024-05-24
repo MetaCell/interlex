@@ -79,12 +79,9 @@ const SingleTermView = () => {
           </Grid>
          
           <Grid display="flex" justifyContent='end' mt=".56rem" item xs={12} lg={8}>
-            <Stack direction="row" spacing=".2rem" alignItems="center">
+            <Stack direction="row" spacing="1rem" alignItems="center">
               <Button type="string" color="secondary" startIcon={<ModeEditOutlineOutlinedIcon />}>
                 Edit term
-              </Button>
-              <Button type="string" color="secondary" startIcon={<RateReviewOutlinedIcon />}>
-                Request to merge changes to curated
               </Button>
               <Divider orientation="vertical" flexItem />
               <Button type="string" color="secondary" startIcon={<ForkRightIcon />}>

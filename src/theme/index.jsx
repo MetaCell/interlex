@@ -436,6 +436,49 @@ const theme = createTheme({
                 }
             }
         },
+        MuiAccordion: {
+            styleOverrides: {
+                root: {
+                    boxShadow: 'none',
+                    "&:before":{
+                        display: 'none'
+                    },
+                    '& .MuiAccordionSummary-root':{
+                        paddingLeft: 0,
+                        gap: '.5rem',
+                        flexDirection: 'row-reverse',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        
+                        '& .MuiTypography-root': {
+                            fontSize: '0.875rem',
+                            color: gray600,
+                            fontWeight: 500,
+                        },
+                        '& .MuiSvgIcon-root': {
+                            color: gray600,
+                        },
+                        '& .MuiAccordionSummary-expandIconWrapper':{
+                            '& .MuiSvgIcon-root': {
+                                color: gray500,
+                            },
+                        },
+                        '& .MuiAccordionSummary-content':{
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            '& .MuiButtonGroup-root': {
+                                '& .MuiButtonBase-root': {
+                                '& .MuiSvgIcon-root': {
+                                    color: 'initial',
+                                    }
+                                }
+                            }
+                        },
+                        
+                    },
+                },
+            }
+        },
     }
 });
 
