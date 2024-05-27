@@ -2,13 +2,17 @@ import { styled } from '@mui/material/styles';
 import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
 import { TreeItem, treeItemClasses } from '@mui/x-tree-view/TreeItem';
 import {vars} from "../../theme/variables";
+import ExpandLessOutlinedIcon from '@mui/icons-material/ExpandLessOutlined';
+import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
+import {Box, Chip} from "@mui/material";
+import React from "react";
 
-const {gray500, gray300} = vars
+const {gray500, brand200, brand50} = vars
 
 const ITEMS = [
   {
     id: '1',
-    label: 'Main',
+    label: 'Central nervous system',
     children: [
       { id: '2', label: 'Hello' },
       {
@@ -60,10 +64,24 @@ const ITEMS = [
   },
 ];
 
-const StyledTreeItem = styled((props) => (
+const StyledTreeItem = styled((props) =>  (
   <TreeItem
     {...props}
-    label={props.label}
+    label={<Box display='flex' alignItems='center' gap='.5rem'>
+      <span>{props.label}</span>
+      {
+        props.itemId === '1' &&  <Chip
+          className="rounded"
+          variant="outlined"
+          label={'Current Item'}
+          sx={{
+            borderColor: brand200,
+            backgroundColor: brand50
+          }}
+          
+        />
+      }
+    </Box>}
   />
 ))(() => ({
   color: gray500,
@@ -72,22 +90,10 @@ const StyledTreeItem = styled((props) => (
     [`& .${treeItemClasses.label}`]: {
       fontSize: '0.875rem',
       fontWeight: 400,
-      
-      // '&:before': {
-      //   content: '""',
-      //   height: '100%',
-      //   width: '0.125rem',
-      //   background: gray300,
-      //   position: 'absolute',
-      //   left: '-1.8rem',
-      //   top: '0',
-      // },
     },
   },
   [`& .${treeItemClasses.groupTransition}`]: {
-    marginLeft: 17,
-    paddingLeft: 18,
-    borderLeft: `1px solid ${gray300}`,
+    marginLeft: 14,
   },
 }));
 
@@ -96,8 +102,12 @@ const CustomizedTreeView = () => {
     <RichTreeView
       aria-label="customized"
       defaultExpandedItems={['1']}
-      slots={{ item: StyledTreeItem }}
       items={ITEMS}
+      slots={{
+        item: StyledTreeItem,
+        expandIcon: ChevronRightOutlinedIcon,
+        collapseIcon: ExpandLessOutlinedIcon
+      }}
     />
   );
 }

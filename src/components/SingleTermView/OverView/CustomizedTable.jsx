@@ -1,10 +1,10 @@
-import { Box, IconButton, Typography } from "@mui/material";
-import  { useRef, useState } from "react";
+import {Box, Divider, IconButton, Stack, Tooltip, Typography} from "@mui/material";
+import React, { useRef, useState } from "react";
 import TableRow from "./TableRow";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import {vars} from "../../../theme/variables";
-
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 const {gray100, gray50, gray600, gray500, brand600} = vars
 
 export const tableStyles = {
@@ -233,6 +233,25 @@ const CustomizedTable = () => {
         {tableContent.map((row, index) =>
           <TableRow key={row.id} data={row} index={index} onDragStart={dragStart} onDragEnter={dragEnter} onDragEnd={dragEnd} />)
         }
+      </Box>
+      <Box sx={tableStyles.root}
+      >
+        <Box sx={{paddingLeft: '0 !important'}}>
+          <IconButton>
+            <AddOutlinedIcon />
+          </IconButton>
+        </Box>
+        <Box>
+        
+        </Box>
+        <Box>
+          <IconButton>
+            <AddOutlinedIcon />
+          </IconButton>
+        </Box>
+        <Box>
+        
+        </Box>
       </Box>
     </Box>
   );

@@ -65,7 +65,7 @@ const Predicates = () => {
         </ButtonGroup>
       </Box>
     </Box>
-    <Accordion disableGutters elevation={0} square>
+    <Accordion disableGutters elevation={0} square defaultExpanded>
       <AccordionSummary
         expandIcon={<ExpandMoreIcon fontSize='medium' />}
         aria-controls="panel1-content"

@@ -21,7 +21,8 @@ const {
     warning50,
     warning700,
     warning500,
-    brand50
+    brand50,
+    gray400
 } = vars
 
 const theme = createTheme({
@@ -68,7 +69,41 @@ const theme = createTheme({
                 }
             `
         },
-
+        MuiRichTreeView: {
+            styleOverrides: {
+                backgroundColor: 'red',
+                root: {
+                    '& .MuiTreeItem-root': {
+                        position: 'relative',
+                        '&:before': {
+                            position: 'absolute',
+                            left: '-10px',
+                            top: '0px',
+                            borderLeft: `1px solid ${gray400}`,
+                            borderBottom: `1px solid ${gray400}`,
+                            content: '""',
+                            width: '.5rem',
+                            height: '1em',
+                            borderBottomLeftRadius: "50%"
+                        },
+                        '&:after': {
+                            position: 'absolute',
+                            left: '-10px',
+                            bottom: '0px',
+                            borderLeft: `1px solid ${gray400}`,
+                            content: '""',
+                            width: '.5rem',
+                            height: '100%'
+                        },
+                        '&:last-of-type': {
+                            '&:after': {
+                                display: 'none'
+                            }
+                        }
+                    }
+                }
+            }
+        },
         MuiTabs: {
             styleOverrides: {
                 flexContainer: {
