@@ -1,5 +1,5 @@
-import {Box, Divider, IconButton, Stack, Tooltip, Typography} from "@mui/material";
-import React, { useRef, useState } from "react";
+import {Box,  IconButton, Typography} from "@mui/material";
+import { useRef, useState } from "react";
 import TableRow from "./TableRow";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
@@ -7,7 +7,34 @@ import {vars} from "../../../theme/variables";
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 const {gray100, gray50, gray600, gray500, brand600} = vars
 
-export const tableStyles = {
+const initialTableContent = [
+  {
+    "id": "1",
+    "Subject": "Central nervous system 1",
+    "Predicates": "is part of",
+    "Objects": "Central nervous system 2",
+  },
+  {
+    "id": "2",
+    "Subject": "Peripheral nervous system 2",
+    "Predicates": "is part of",
+    "Objects": "Central nervous system 4",
+  },
+  {
+    "id": "3",
+    "Subject": "Autonomic nervous system 3",
+    "Predicates": "is part of",
+    "Objects": "Central nervous system 7",
+  },
+  {
+    "id": "4",
+    "Subject": "Somatic nervous system 4",
+    "Predicates": "is part of",
+    "Objects": "Central nervous system 3",
+  }
+]
+
+const tableStyles = {
   head: {
     display: 'flex',
     p: '0.75rem 0 0.5rem',
@@ -104,32 +131,7 @@ export const tableStyles = {
 
 const CustomizedTable = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  const [tableContent, setTableContent] = useState([
-    {
-      "id": "1",
-      "Subject": "Central nervous system 1",
-      "Predicates": "is part of",
-      "Objects": "Central nervous system 2",
-    },
-    {
-      "id": "2",
-      "Subject": "Peripheral nervous system 2",
-      "Predicates": "is part of",
-      "Objects": "Central nervous system 4",
-    },
-    {
-      "id": "3",
-      "Subject": "Autonomic nervous system 3",
-      "Predicates": "is part of",
-      "Objects": "Central nervous system 7",
-    },
-    {
-      "id": "4",
-      "Subject": "Somatic nervous system 4",
-      "Predicates": "is part of",
-      "Objects": "Central nervous system 3",
-    }
-  ]);
+  const [tableContent, setTableContent] = useState(initialTableContent);
   
   const [tableHeader, setTableHeader] = useState( [
     { key: 'Subject', label: 'Subject', allowSort: true, direction: 'desc' },
@@ -142,7 +144,7 @@ const CustomizedTable = () => {
   const sourceRow = useRef();
   
   const move = (arr, fromIndex, toIndex) => {
-    var element = arr[fromIndex];
+    let element = arr[fromIndex];
     arr.splice(fromIndex, 1);
     arr.splice(toIndex, 0, element);
     return arr;
@@ -241,17 +243,13 @@ const CustomizedTable = () => {
             <AddOutlinedIcon />
           </IconButton>
         </Box>
-        <Box>
-        
-        </Box>
+        <Box />
         <Box>
           <IconButton>
             <AddOutlinedIcon />
           </IconButton>
         </Box>
-        <Box>
-        
-        </Box>
+        <Box />
       </Box>
     </Box>
   );
