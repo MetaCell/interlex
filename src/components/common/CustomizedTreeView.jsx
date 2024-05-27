@@ -1,16 +1,9 @@
-import * as React from 'react';
-import { styled, alpha } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
 import { TreeItem, treeItemClasses } from '@mui/x-tree-view/TreeItem';
 import {vars} from "../../theme/variables";
-import {Box, Typography} from "@mui/material";
 
 const {gray500, gray300} = vars
-const SvgIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="9" height="34" viewBox="0 0 9 34" fill="none" className='dd'>
-    <path d="M1 0L1 14C1 18.4183 4.58172 22 9 22V22" stroke="#BDC2C1"/>
-  </svg>
-);
 
 const ITEMS = [
   {
@@ -72,13 +65,23 @@ const StyledTreeItem = styled((props) => (
     {...props}
     label={props.label}
   />
-))(({ theme }) => ({
+))(() => ({
   color: gray500,
 
   [`& .${treeItemClasses.content}`]: {
     [`& .${treeItemClasses.label}`]: {
       fontSize: '0.875rem',
       fontWeight: 400,
+      
+      // '&:before': {
+      //   content: '""',
+      //   height: '100%',
+      //   width: '0.125rem',
+      //   background: gray300,
+      //   position: 'absolute',
+      //   left: '-1.8rem',
+      //   top: '0',
+      // },
     },
   },
   [`& .${treeItemClasses.groupTransition}`]: {

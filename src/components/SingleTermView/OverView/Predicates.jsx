@@ -17,6 +17,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CallMadeIcon from '@mui/icons-material/CallMade';
 import {SchemaOutlined, TableChartOutlined} from "@mui/icons-material";
+import CustomizedTable from "./CustomizedTable";
 const { gray600, gray800, gray500, gray700, gray300 } = vars;
 
 const Predicates = () => {
@@ -90,8 +91,7 @@ const Predicates = () => {
         </Stack>
       </AccordionSummary>
       <AccordionDetails>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-        malesuada lacus ex, sit amet blandit leo lobortis eget.
+        <CustomizedTable />
       </AccordionDetails>
     </Accordion>
   </Box>
