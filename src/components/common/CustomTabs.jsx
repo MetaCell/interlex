@@ -65,7 +65,7 @@ const BasicTabs = ({tabs, tabValue, handleChange}) => {
           }
         }}>
           {
-            tabs.map((tab, i) => <Tab key={i} label="Overview" {...a11yProps(i)} />)
+            tabs.map((tab, i) => <Tab key={i} label={tab} {...a11yProps(i)} />)
           }
         </Tabs>
       </Box>
