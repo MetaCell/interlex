@@ -233,7 +233,7 @@ const CustomizedTable = () => {
       </Box>
       <Box sx={tableStyles.body}>
         {tableContent.map((row, index) =>
-          <TableRow key={row.id} data={row} index={index} onDragStart={dragStart} onDragEnter={dragEnter} onDragEnd={dragEnd} />)
+          <TableRow key={row.id} tableStyles={tableStyles} data={row} index={index} onDragStart={dragStart} onDragEnter={dragEnter} onDragEnd={dragEnd} />)
         }
       </Box>
       <Box sx={tableStyles.root}

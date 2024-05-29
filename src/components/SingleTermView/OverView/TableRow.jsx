@@ -1,11 +1,10 @@
 import {Box, Divider, IconButton, Stack, Tooltip, Typography} from "@mui/material";
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import {tableStyles} from './CustomizedTable';
 import {useState} from "react";
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
-const TableRow = ({data, onDragStart, onDragEnter, onDragEnd, index}) => {
+const TableRow = ({tableStyles, data, onDragStart, onDragEnter, onDragEnd, index}) => {
   const {id, Subject, Predicates, Objects} = data;
   const [isHovered, setIsHovered] = useState(false);
   
