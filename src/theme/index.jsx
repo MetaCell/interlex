@@ -8,12 +8,16 @@ const {
     gray300,
     gray600,
     gray700,
+    success50,
+    success200,
     success500,
+    success700,
     gray500,
     brand700,
     gray50,
     gray100,
     gray200,
+    gray800,
     brand300,
     brand25,
     gray25,
@@ -21,7 +25,10 @@ const {
     warning50,
     warning700,
     warning500,
-    brand50
+    brand50,
+    error50,
+    error200,
+    error700
 } = vars
 
 const theme = createTheme({
@@ -210,14 +217,48 @@ const theme = createTheme({
                     color: gray700,
                     boxShadow: '0rem 0.0625rem 0.125rem 0rem rgba(16, 24, 40, 0.05)'
                 },
-
                 colorSuccess: {
-                    borderColor: `${brand300} !important`,
-                    background: brand25,
-                    boxShadow: '0rem 0.0625rem 0.125rem 0rem rgba(16, 24, 40, 0.05) !important'
+                    padding: '0.13rem 0.5rem',
+                    display: 'flex',
+                    gap: '0.25rem',
+                    borderRadius: '1rem',
+                    border: `1px solid ${success200}`,
+                    background: success50,
+                    color: success700,
+                    '& .MuiSvgIcon-root': {
+                        margin: 0,
+                        width: '0.75rem',
+                        height: '0.75rem'
+                    }
                 },
-                
-               
+                colorError: {
+                    padding: '0.13rem 0.5rem',
+                    display: 'flex',
+                    gap: '0.25rem',
+                    borderRadius: '1rem',
+                    border: `1px solid ${error200}`,
+                    background: error50,
+                    color: error700,
+                    '& .MuiSvgIcon-root': {
+                        margin: 0,
+                        width: '0.75rem',
+                        height: '0.75rem'
+                    }
+                },
+                colorDefault: {
+                    padding: '0.13rem 0.5rem',
+                    display: 'flex',
+                    gap: '0.25rem',
+                    borderRadius: '1rem',
+                    border: `1px solid ${gray200}`,
+                    background: gray50,
+                    color: gray700,
+                    '& .MuiSvgIcon-root': {
+                        margin: 0,
+                        width: '0.75rem',
+                        height: '0.75rem'
+                    }
+                }
             }
         },
 
@@ -479,6 +520,58 @@ const theme = createTheme({
                 },
             }
         },
+        MuiPagination: {
+            styleOverrides: {
+                root: {
+                    padding: '1rem',
+                    display: 'flex',
+                    '& .MuiPaginationItem-root': {
+                        color: gray600,
+                        fontWeight: 500,
+                        lineHeight: '1.25rem',
+                        padding: '0.5rem',
+                        border: '0.5rem',
+                        gap: '0.375rem',
+                        minWidth: '2.5rem',
+                        minHeight: '2.5rem',
+                        '&.Mui-selected, &.Mui-selected:hover': {
+                            color: gray800,
+                            background: gray50
+                        },
+                        '&:hover': {
+                            color: gray800,
+                            background: gray50
+                        }
+                    },
+                    '& .MuiPagination-ul': {
+                        flexWrap: 'nowrap',
+                        width: '100%',
+                        '& li': {
+                          '&:first-child': {
+                            flexBasis: '100%',
+                            display: 'flex',
+                            justifyContent: 'flex-start',
+                            alignItems: 'center',
+                            '& .MuiPaginationItem-root': {
+                                fontWeight: 600, 
+                                '&:hover': { background: 'transparent' }
+                            }
+                          },
+                          '&:last-child': {
+                            justifyContent: 'flex-end',
+                            alignItems: 'center',
+                            flexBasis: '100%',
+                            display: 'flex',
+                            '& .MuiPaginationItem-root': {
+                                fontWeight: 600,
+                                '&:hover': { background: 'transparent' }
+                            }
+                          }
+                        }
+                      }         
+                }
+            }
+        }
     }
 });
 
