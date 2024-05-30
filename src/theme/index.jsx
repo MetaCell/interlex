@@ -181,7 +181,7 @@ const theme = createTheme({
         MuiContainer: {
             styleOverrides: {
                 maxWidthXl: {
-                    '@media screen and (min-width: 96rem)' : {
+                    '@media screen and (min-width: 96rem)': {
                         maxWidth: '104.5rem'
                     }
                 }
@@ -196,44 +196,51 @@ const theme = createTheme({
                     fontSize: '0.75rem',
                     borderRadius: '0.375rem',
                     fontWeight: 500,
-                    
+
                     '&.rounded': {
                         padding: '0.125rem 0.5rem 0.125rem 0.375rem',
                         height: '1.5rem',
                         gap: '.25rem',
                         borderRadius: '1rem',
                         fontSize: '0.75rem',
-                        
+
                         '& .MuiChip-icon': {
                             margin: 0,
                             width: '.5rem',
                             height: '.5rem'
                         }
                     },
-                    
+
                     '&.not-merged': {
                         border: `1px solid ${warning200}`,
                         background: warning50,
                         color: warning700,
-                        
+
                         '& .MuiChip-icon': {
                             color: warning500
                         }
                     },
+
+                    '&.green-glow-chip': {
+                        borderRadius: '0.375rem',
+                        background: brand25,
+                        border: `1px solid ${brand300}`
+                    },
+
                     '&.IDchip-outlined': {
                         padding: '0.125rem 0.5rem',
                         border: `1.5px solid ${gray600}`,
                         background: 'transparent',
                         color: gray700
                     },
-                    
-                    
+
+
                     '&.synonyms': {
                         background: gray50,
                         color: gray700,
                         borderColor: gray200,
                         padding: '0.125rem 0.625rem',
-                        
+
                         '& span': {
                             '& span': {
                                 '& span': {
@@ -405,7 +412,7 @@ const theme = createTheme({
                 textSecondary: {
                     color: brand700,
                     padding: '0.625rem 0.875rem',
-                    
+
                     '&:hover': {
                         background: brand50
                     }
@@ -483,7 +490,7 @@ const theme = createTheme({
                 outlined: {
                     borderRadius: '0.5rem',
                     boxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)',
-                    
+
                     '& .MuiButton-root': {
                         padding: '0.625rem 0.875rem'
                     },
@@ -497,7 +504,7 @@ const theme = createTheme({
                 }
             }
         },
-        
+
         MuiSvgIcon: {
             styleOverrides: {
                 fontSizeSmall: {
@@ -516,16 +523,16 @@ const theme = createTheme({
             styleOverrides: {
                 root: {
                     boxShadow: 'none',
-                    "&:before":{
+                    "&:before": {
                         display: 'none'
                     },
-                    '& .MuiAccordionSummary-root':{
+                    '& .MuiAccordionSummary-root': {
                         paddingLeft: 0,
                         gap: '.5rem',
                         flexDirection: 'row-reverse',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        
+
                         '& .MuiTypography-root': {
                             fontSize: '0.875rem',
                             color: gray600,
@@ -534,25 +541,66 @@ const theme = createTheme({
                         '& .MuiSvgIcon-root': {
                             color: gray600,
                         },
-                        '& .MuiAccordionSummary-expandIconWrapper':{
+                        '& .MuiAccordionSummary-expandIconWrapper': {
                             '& .MuiSvgIcon-root': {
                                 color: gray500,
                             },
                         },
-                        '& .MuiAccordionSummary-content':{
+                        '& .MuiAccordionSummary-content': {
                             alignItems: 'center',
                             justifyContent: 'space-between',
                             '& .MuiButtonGroup-root': {
                                 '& .MuiButtonBase-root': {
-                                '& .MuiSvgIcon-root': {
-                                    color: 'initial',
+                                    '& .MuiSvgIcon-root': {
+                                        color: 'initial',
                                     }
                                 }
                             }
                         },
-                        
+
                     },
                 },
+            }
+        },
+        MuiTable: {
+            styleOverrides: {
+                root: {
+                    '& .MuiTableHead-root': {
+                        '& .MuiTableCell-root': {
+                            padding: '0.75rem 1.5rem !important',
+                            background: gray50,
+                            lineHeight: '1.25rem',
+                            height: '2.75rem'
+                        },
+                        '& .MuiTableSortLabel-root': {
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            fontSize: '0.75rem',
+                            color: gray600,
+                            '&.Mui-active': {
+                                color: gray600
+                            },
+                            '& .MuiSvgIcon-root': {
+                                width: '1rem',
+                                height: '1rem',
+                                fill: gray600,
+                                opacity: 1
+                            },
+                            '&:hover': {
+                                color: gray700,
+                                '& .MuiSvgIcon-root': {
+                                    fill: gray700,
+                                    opacity: 1
+                                }
+                            }
+                        }
+                    },
+                    '& .MuiTableCell-root': {
+                        padding: '1rem 1.5rem',
+                        height: '4.5rem',
+                        borderBottom: `1px solid ${gray200}`
+                    }
+                }
             }
         },
         MuiPagination: {
@@ -582,28 +630,28 @@ const theme = createTheme({
                         flexWrap: 'nowrap',
                         width: '100%',
                         '& li': {
-                          '&:first-child': {
-                            flexBasis: '100%',
-                            display: 'flex',
-                            justifyContent: 'flex-start',
-                            alignItems: 'center',
-                            '& .MuiPaginationItem-root': {
-                                fontWeight: 600, 
-                                '&:hover': { background: 'transparent' }
+                            '&:first-child': {
+                                flexBasis: '100%',
+                                display: 'flex',
+                                justifyContent: 'flex-start',
+                                alignItems: 'center',
+                                '& .MuiPaginationItem-root': {
+                                    fontWeight: 600,
+                                    '&:hover': { background: 'transparent' }
+                                }
+                            },
+                            '&:last-child': {
+                                justifyContent: 'flex-end',
+                                alignItems: 'center',
+                                flexBasis: '100%',
+                                display: 'flex',
+                                '& .MuiPaginationItem-root': {
+                                    fontWeight: 600,
+                                    '&:hover': { background: 'transparent' }
+                                }
                             }
-                          },
-                          '&:last-child': {
-                            justifyContent: 'flex-end',
-                            alignItems: 'center',
-                            flexBasis: '100%',
-                            display: 'flex',
-                            '& .MuiPaginationItem-root': {
-                                fontWeight: 600,
-                                '&:hover': { background: 'transparent' }
-                            }
-                          }
                         }
-                      }         
+                    }
                 }
             }
         }

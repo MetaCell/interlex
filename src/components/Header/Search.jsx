@@ -102,7 +102,7 @@ const Search = () => {
                     <TermsIcon />
                     <Typography variant='body1'>{option}</Typography>
                     <Typography variant='body2'>Olivia Rhye</Typography>
-                    {selected ? <Chip label="Fork" variant='outlined' color='success' /> : <Chip label="Curated" variant='outlined' />}
+                    {selected ? <Chip label="Fork" variant='outlined' className="green-glow-chip" /> : <Chip label="Curated" variant='outlined' />}
                       <Button
                           variant='text'
                           sx={{
