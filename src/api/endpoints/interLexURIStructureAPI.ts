@@ -5,7 +5,7 @@
  * Resolution, update, and compare for ontologies and ontology identifiers.
  * OpenAPI spec version: 0.0.1
  */
-import { customInstance } from '../mutator/customClient';
+import { customInstance } from './../../mutator/customClient';
 
 
 

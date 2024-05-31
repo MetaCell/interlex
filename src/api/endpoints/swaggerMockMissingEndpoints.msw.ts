@@ -16,7 +16,7 @@ import type {
   Organization,
   Organizations,
   Terms
-} from '../model/backend'
+} from '../../model/backend'
 
 export const getLoginResponseMock = () => ((() => ({
                 status: 200,

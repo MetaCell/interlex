@@ -7,12 +7,12 @@ module.exports = {
     output: {
       mode: "split",
       target: "./src/api/endpoints",
-      schemas: "./src/api/model/backend",
+      schemas: "./src/model/backend",
       baseUrl: 'https://uri.olympiangods.org/',
       mock: true,
       override: {
         mutator: {
-          path: './src/api/mutator/customClient.ts',
+          path: './src/mutator/customClient.ts',
           name: 'customInstance',
         },
         operations: {
@@ -134,12 +134,12 @@ module.exports = {
     output: {
       mode: "split",
       target: "./src/api/endpoints",
-      schemas: "./src/api/model/backend",
+      schemas: "./src/model/backend",
       baseUrl: 'http://localhost:3200/',
       mock: true,
       override: {
         mutator: {
-          path: './src/api/mutator/customClient.ts',
+          path: './src/mutator/customClient.ts',
           name: 'customInstance',
         },
         operations: {

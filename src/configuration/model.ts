@@ -1,4 +1,4 @@
-export const keys = {
+export const termKeys = {
     id : "id",
     label : "label",
     description : "description",
@@ -15,47 +15,47 @@ export const keys = {
     submittedBy : "submittedBy"
 }
 
-export const predicates = {
+export const termPredicates = {
     "<http://uri.interlex.org/base/readable/synonym>" : {
-        key : keys.synonym,
+        key : termKeys.synonym,
     },
     "<http://uri.interlex.org/tgbugs/uris/readable/hasExistingId>" : {
-        key : keys.existingID,
+        key : termKeys.existingID,
     },
     "<http://purl.obolibrary.org/obo/IAO_0000115>" : {
-        key : keys.description,
+        key : termKeys.description,
     },
     "rdfs:label" : {
-        key : keys.label,
+        key : termKeys.label,
     },
     "rdf:type" : {
-        key : keys.type,
+        key : termKeys.type,
     },
     "id" : {
-        key : keys.id,
+        key : termKeys.id,
     },
     "score" : {
-        key : keys.score,
+        key : termKeys.score,
     },
     "version" : {
-        key : keys.version,
+        key : termKeys.version,
     },
     "owlEquivalent" : {
-        key : keys.owlEquivalent,
+        key : termKeys.owlEquivalent,
     },
     "lastModify" : {
-        key : keys.lastModify,
+        key : termKeys.lastModify,
     },
     "lastModifyBy" : {
-        key : keys.lastModifyBy,
+        key : termKeys.lastModifyBy,
     },
     "predicates" : {
-        key : keys.predicates,
+        key : termKeys.predicates,
     },
     "hierarchy" : {
-        key : keys.hierarchy,
+        key : termKeys.hierarchy,
     },
     "submittedBy" : {
-        key : keys.submittedBy,
+        key : termKeys.submittedBy,
     }
 }

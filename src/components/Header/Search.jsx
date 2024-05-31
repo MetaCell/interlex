@@ -6,7 +6,7 @@ import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
 import React from "react";
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import { termParser } from "../../api/parsers/termParser";
+import { termParser } from "../../parsers/termParser";
 
 const { gray200, gray100, gray600, gray800, gray500 } = vars;
 
