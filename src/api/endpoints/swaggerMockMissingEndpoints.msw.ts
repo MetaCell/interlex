@@ -133,6 +133,36 @@ export const getGetOrganizationResponseMock = () => ((() => ({
                       "rdf:type",
                       "owl:Class",
                     ],
+                    [
+                      "<http://uri.interlex.org/base/ilx_0101431>",
+                      "score",
+                      "216.32",
+                    ],
+                    [
+                      "<http://uri.interlex.org/base/ilx_0101431>",
+                      "version",
+                      "18",
+                    ],
+                    [
+                      "<http://uri.interlex.org/base/ilx_0101431>",
+                      "owlEquivalent",
+                      "owl:Class",
+                    ],
+                    [
+                      "<http://uri.interlex.org/base/ilx_0101431>",
+                      "lastModify",
+                      "2022-04-30",
+                    ],
+                    [
+                      "<http://uri.interlex.org/base/ilx_0101431>",
+                      "lastModifyBy",
+                      "Neurolex",
+                    ],
+                    [
+                      "<http://uri.interlex.org/base/ilx_0101431>",
+                      "submittedBy",
+                      "First User",
+                    ]
                   ],
                 },
                 {
@@ -705,6 +735,36 @@ export const getGetMatchTermsResponseMock = () => ((() => [{
                     "rdf:type",
                     "owl:Class",
                   ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "score",
+                    "216.32",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "version",
+                    "18",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "owlEquivalent",
+                    "owl:Class",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModify",
+                    "2022-04-30",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModifyBy",
+                    "Neurolex",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "submittedBy",
+                    "First User",
+                  ]
                 ]
               },
               {
@@ -782,6 +842,36 @@ export const getGetMatchTermsResponseMock = () => ((() => [{
                     "<http://uri.interlex.org/base/ilx_0105177>",
                     "<http://uri.interlex.org/base/readable/synonym>",
                     "Preoptico-hypothalamic area"
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "score",
+                    "216.32",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "version",
+                    "18",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "owlEquivalent",
+                    "owl:Class",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModify",
+                    "2022-04-30",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModifyBy",
+                    "Neurolex",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "submittedBy",
+                    "First User",
                   ]
                 ]
               },
@@ -875,6 +965,36 @@ export const getGetMatchTermsResponseMock = () => ((() => [{
                     "<http://uri.interlex.org/base/ilx_0103217>",
                     "<http://uri.interlex.org/base/readable/synonym>",
                     "Interbrain"
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "score",
+                    "216.32",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "version",
+                    "18",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "owlEquivalent",
+                    "owl:Class",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModify",
+                    "2022-04-30",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModifyBy",
+                    "Neurolex",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "submittedBy",
+                    "First User",
                   ]
                 ]
               },
@@ -953,6 +1073,36 @@ export const getGetMatchTermsResponseMock = () => ((() => [{
                     "<http://uri.interlex.org/base/ilx_0109019>",
                     "<http://uri.interlex.org/tgbugs/uris/readable/hasExistingId>",
                     "<http://uri.neuinfo.org/nif/nifstd/birnlex_733>"
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "score",
+                    "216.32",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "version",
+                    "18",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "owlEquivalent",
+                    "owl:Class",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModify",
+                    "2022-04-30",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModifyBy",
+                    "Neurolex",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "submittedBy",
+                    "First User",
                   ]
                 ]
               },
@@ -1036,6 +1186,36 @@ export const getGetMatchTermsResponseMock = () => ((() => [{
                     "<http://uri.interlex.org/base/ilx_0102003>",
                     "<http://uri.interlex.org/base/readable/synonym>",
                     "hemisphere"
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "score",
+                    "216.32",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "version",
+                    "18",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "owlEquivalent",
+                    "owl:Class",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModify",
+                    "2022-04-30",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModifyBy",
+                    "Neurolex",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "submittedBy",
+                    "First User",
                   ]
                 ]
               },
@@ -1229,6 +1409,36 @@ export const getGetMatchTermsResponseMock = () => ((() => [{
                     "<http://uri.interlex.org/base/ilx_0108544>",
                     "<http://uri.interlex.org/tgbugs/uris/readable/hasExistingId>",
                     "<http://purl.obolibrary.org/obo/UBERON_0003217>"
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "score",
+                    "216.32",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "version",
+                    "18",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "owlEquivalent",
+                    "owl:Class",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModify",
+                    "2022-04-30",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModifyBy",
+                    "Neurolex",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "submittedBy",
+                    "First User",
                   ]
                 ]
               },
@@ -1297,6 +1507,36 @@ export const getGetMatchTermsResponseMock = () => ((() => [{
                     "<http://uri.interlex.org/base/ilx_0726868>",
                     "rdfs:label",
                     "dorsal thalamus"
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "score",
+                    "216.32",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "version",
+                    "18",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "owlEquivalent",
+                    "owl:Class",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModify",
+                    "2022-04-30",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModifyBy",
+                    "Neurolex",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "submittedBy",
+                    "First User",
                   ]
                 ]
               },
@@ -1385,6 +1625,36 @@ export const getGetMatchTermsResponseMock = () => ((() => [{
                     "<http://uri.interlex.org/base/ilx_0111657>",
                     "<http://uri.interlex.org/base/readable/synonym>",
                     "Th"
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "score",
+                    "216.32",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "version",
+                    "18",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "owlEquivalent",
+                    "owl:Class",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModify",
+                    "2022-04-30",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModifyBy",
+                    "Neurolex",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "submittedBy",
+                    "First User",
                   ]
                 ]
               },
@@ -1443,6 +1713,36 @@ export const getGetMatchTermsResponseMock = () => ((() => [{
                     "<http://uri.interlex.org/base/ilx_0100741>",
                     "rdf:type",
                     "owl:Class"
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "score",
+                    "216.32",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "version",
+                    "18",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "owlEquivalent",
+                    "owl:Class",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModify",
+                    "2022-04-30",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModifyBy",
+                    "Neurolex",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "submittedBy",
+                    "First User",
                   ]
                 ]
               },
@@ -1536,6 +1836,36 @@ export const getGetMatchTermsResponseMock = () => ((() => [{
                     "<http://uri.interlex.org/base/ilx_0106736>",
                     "<http://uri.interlex.org/base/readable/synonym>",
                     "medulla oblonzata"
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "score",
+                    "216.32",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "version",
+                    "18",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "owlEquivalent",
+                    "owl:Class",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModify",
+                    "2022-04-30",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModifyBy",
+                    "Neurolex",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "submittedBy",
+                    "First User",
                   ]
                 ]
               },
@@ -1579,6 +1909,36 @@ export const getGetMatchTermsResponseMock = () => ((() => [{
                     "<http://uri.interlex.org/base/ilx_0789705>",
                     "rdf:type",
                     "owl:Class"
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "score",
+                    "216.32",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "version",
+                    "18",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "owlEquivalent",
+                    "owl:Class",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModify",
+                    "2022-04-30",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModifyBy",
+                    "Neurolex",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "submittedBy",
+                    "First User",
                   ]
                 ]
               },
@@ -1607,6 +1967,36 @@ export const getGetMatchTermsResponseMock = () => ((() => [{
                     "<http://uri.interlex.org/base/ilx_0738400>",
                     "rdf:type",
                     "owl:ObjectProperty"
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "score",
+                    "216.32",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "version",
+                    "18",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "owlEquivalent",
+                    "owl:Class",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModify",
+                    "2022-04-30",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModifyBy",
+                    "Neurolex",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "submittedBy",
+                    "First User",
                   ]
                 ]
               },
@@ -1655,6 +2045,36 @@ export const getGetMatchTermsResponseMock = () => ((() => [{
                     "<http://uri.interlex.org/base/ilx_0101999>",
                     "rdfs:subClassOf",
                     "<http://uri.interlex.org/base/ilx_0109835>"
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "score",
+                    "216.32",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "version",
+                    "18",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "owlEquivalent",
+                    "owl:Class",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModify",
+                    "2022-04-30",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModifyBy",
+                    "Neurolex",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "submittedBy",
+                    "First User",
                   ]
                 ]
               }, 
@@ -1733,6 +2153,41 @@ export const getGetMatchTermsResponseMock = () => ((() => [{
                     "<http://uri.interlex.org/base/ilx_0101499>",
                     "<http://uri.interlex.org/base/readable/synonym>",
                     "Amfebutamone"
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "score",
+                    "216.32",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "version",
+                    "18",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "owlEquivalent",
+                    "owl:Class",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModify",
+                    "2022-04-30",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "lastModifyBy",
+                    "Neurolex",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "submittedBy",
+                    "First User",
+                  ],
+                  [
+                    "<http://uri.interlex.org/base/ilx_0101431>",
+                    "hierarchy",
+                    "Test Hierarchy",
                   ]
                 ]
               }])())
