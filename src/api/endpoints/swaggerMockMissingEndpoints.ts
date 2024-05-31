@@ -8,8 +8,8 @@ import type {
   Organization,
   Organizations,
   Terms
-} from '../model'
-import { customInstance } from '../mutator/custom-client';
+} from '../model/backend'
+import { customInstance } from '../mutator/customClient';
 
 
 
