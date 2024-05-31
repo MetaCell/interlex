@@ -21,6 +21,7 @@ import CustomButton from "../common/CustomButton";
 import CustomMenu from "./CustomMenu";
 import React from "react";
 import OverView from "./OverView/OverView";
+import HistoryPanel from "./History/HistoryPanel";
 import {
   CreateNewFolderOutlined,
   DownloadOutlined,
@@ -145,7 +146,7 @@ const SingleTermView = () => {
           tabValue === 1 &&  <Box>Variants</Box>
         }
         {
-          tabValue === 2 &&  <Box>history</Box>
+          tabValue === 2 &&  <HistoryPanel/>
         }
         {
           tabValue === 3 &&  <Box>dissscussion</Box>

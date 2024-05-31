@@ -514,6 +514,19 @@ const theme = createTheme({
                 },
             }
         },
+        
+        MuiAvatar: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: gray100, 
+                    border: '0.5px solid rgba(0, 0, 0, 0.08)', 
+                    fontSize: '0.75rem', 
+                    fontWeight: 600, 
+                    color: gray600, 
+                    textTransform: 'uppercase'
+                }
+            }
+        }
     }
 });
 
