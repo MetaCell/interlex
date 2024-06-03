@@ -18,21 +18,19 @@ function MainContent() {
       <Box sx={{
           display: 'flex',
           flexDirection: 'column',
-          minHeight: '100vh'
+          height: '100vh'
       }}>
           <Header />
-          <Box sx={{ flex: 1 }}>
-              <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/search/:searchTerm" element={
-                      <Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}>
-                          <FiltersSidebar filterOptions={initialFilterOptions} />
-                          <SearchResultsBox />
-                      </Box>
-                  } />
-                  <Route path="/view/:term" element={<SingleTermView />} />
-              </Routes>
-          </Box>
+          <Routes>
+              <Route path="/" element={ <Box sx={{ flex: 1 }}><HomePage /></Box>} />
+              <Route path="/search/:searchTerm" element={
+                  <Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}>
+                      <FiltersSidebar filterOptions={initialFilterOptions} />
+                      <SearchResultsBox />
+                  </Box>
+              } />
+              <Route path="/view/:term" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><SingleTermView /></Box>} />
+          </Routes>
           {showFooter && <Footer />}
       </Box>
     );

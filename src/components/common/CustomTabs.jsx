@@ -1,4 +1,3 @@
-import * as React from 'react';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -65,7 +64,7 @@ const BasicTabs = ({tabs, tabValue, handleChange}) => {
           }
         }}>
           {
-            tabs.map((tab, i) => <Tab key={i} label="Overview" {...a11yProps(i)} />)
+            tabs.map((tab, i) => <Tab key={i} label={tab} {...a11yProps(i)} />)
           }
         </Tabs>
       </Box>
