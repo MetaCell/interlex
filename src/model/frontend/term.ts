@@ -1,6 +1,8 @@
 export interface Term {
   /** Unique identifier */
   id: string;
+  preferredId:string;
+  organization:string;
   label: string;
   description: string;
   synonyms: string[];

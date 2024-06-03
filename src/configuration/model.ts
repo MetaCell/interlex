@@ -1,5 +1,7 @@
 export const termKeys = {
     id : "id",
+    preferredId : "preferredId",
+    organization : "organization",
     label : "label",
     description : "description",
     synonym : "synonym",
@@ -57,5 +59,11 @@ export const termPredicates = {
     },
     "submittedBy" : {
         key : termKeys.submittedBy,
+    },
+    "preferredId" : {
+        key : termKeys.preferredId,
+    },
+    "organization" : {
+        key : termKeys.organization,
     }
 }

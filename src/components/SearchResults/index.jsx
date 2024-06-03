@@ -4,6 +4,8 @@ import { TableChartIcon, ListIcon } from '../../Icons';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ListView from './ListView';
 import { vars } from '../../theme/variables';
+import { termParser } from "../../parsers/termParser";
+import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 
 const { gray50, gray200, gray300, gray600, gray700 } = vars;
 
@@ -71,13 +73,29 @@ const CustomButton = ({ view, listView, onClick, icon }) => (
     </Button>
 );
 
+const useMockApi = () => mockApi;
+const ILX = "ilx_";
+
 const SearchResultsBox = ({ searchTerm }) => {
     const [numberOfVisiblePages, setNumberOfVisiblePages] = React.useState(20);
     const [listView, setListView] = React.useState('list');
 
+    const {  getMatchTerms } = useMockApi();
+
+    const [terms, setTerms] = React.useState([]);
+
     const handleNumberOfPagesChange = (event) => {
         setNumberOfVisiblePages(event.target.value);
     };
+
+    React.useEffect( () => {
+        // Call endpoint to retrieve terms that match search word
+        getMatchTerms(searchTerm).then(data => { 
+            const parsedData = termParser(data, searchTerm)
+            console.log("Parsed retrieved data : ", parsedData)
+            setTerms(parsedData)
+        });
+    }, [])
 
     return (
         <Box width={1} height={1} flex={1} display="flex" flexDirection="column" px={4} py={3} gap={3} sx={{ overflowY: 'auto' }}>
@@ -142,7 +160,7 @@ const SearchResultsBox = ({ searchTerm }) => {
                 </Grid>
             </Grid>
             {listView === 'list' ? (
-                <ListView searchResults={mockSearchResults}/>
+                <ListView searchResults={terms}/>
             ) : (
                 <p>table</p>
             )}
