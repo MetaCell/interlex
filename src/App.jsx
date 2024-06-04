@@ -7,6 +7,7 @@ import SearchResultsBox from './components/SearchResults';
 import SingleTermView from './components/SingleTermView';
 import HomePage from "./components/HomePage";
 import Footer from "./components/Footer";
+import Organizations from "./components/organizations";
 
 function MainContent() {
     const location = useLocation();
@@ -31,6 +32,7 @@ function MainContent() {
                       </Box>
                   } />
                   <Route path="/view/:term" element={<SingleTermView />} />
+                  <Route path="/organizations" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><Organizations /></Box>} />
               </Routes>
           </Box>
           {showFooter && <Footer />}
