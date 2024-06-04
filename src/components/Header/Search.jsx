@@ -17,10 +17,9 @@ const styles = {
 }
 
 const useMockApi = () => mockApi;
-const ILX = "ilx_";
 
 const Search = () => {
-    const [searchTerm, setSearchTerm] = React.useState(ILX);
+    const [searchTerm, setSearchTerm] = React.useState("");
     const [openList, setOpenList] = React.useState(false);
 
     const {  getMatchTerms } = useMockApi();
@@ -36,7 +35,7 @@ const Search = () => {
     };
   
     const handleInputChange = (event, newInputValue) => {
-      setSearchTerm(newInputValue != "" ? newInputValue : ILX);
+      setSearchTerm(newInputValue);
     };
   
     const toggleList = () => {
@@ -50,16 +49,7 @@ const Search = () => {
         if (event.key === 'Escape') {
           handleCloseList();
         }
-        if (event.key === 'Enter') {
-            // Call endpoint to retrieve terms that match search word
-            getMatchTerms(searchTerm).then(data => { 
-                const parsedData = termParser(data, searchTerm)
-                console.log("Parsed retrieved data : ", parsedData)
-                setTerms(parsedData)
-                handleOpenList()
-            });
-        }
-      }, [searchTerm]);
+      }, []);
 
     useEffect(() => {
       document.addEventListener('keydown', handleKeyDown);
@@ -68,6 +58,18 @@ const Search = () => {
         document.removeEventListener('keydown', handleKeyDown);
       };
     }, [handleKeyDown]);
+
+    useEffect( () => {
+        // Call endpoint to retrieve terms that match search word
+        setTimeout( () => {
+            searchTerm?.length > 0 && getMatchTerms(searchTerm).then(data => { 
+                const parsedData = termParser(data, searchTerm)
+                console.log("Parsed retrieved data : ", parsedData)
+                setTerms(parsedData)
+                handleOpenList()
+            });
+        }, 750);
+    }, [searchTerm])
 
     return (
       <Autocomplete

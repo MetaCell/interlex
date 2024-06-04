@@ -11,7 +11,8 @@ import { termKeys, termPredicates } from "../configuration/model";
  */
 const getTerm = (data) => {
     let term : Term = {} as Term
-
+    let idMatch = data.triples?.[0]?.[0]?.match(/\<(.*)\>/)?.pop()?.split("/");
+    let id = idMatch[idMatch.length - 1];
     // Extract triplets if predicate is in model 
     data.triples?.forEach( triple => {
         const predicate = termPredicates[triple[1]]?.key;
@@ -27,7 +28,7 @@ const getTerm = (data) => {
         } 
     })
 
-    term[termKeys.id] = data.id;
+    term[termKeys.id] = id;
 
     return term;
 }
@@ -38,8 +39,8 @@ const indexRange = (arr, start, end) => {
 }
 
 /** Format terms and return array between two indeces */
-const formatTerms = (terms, start, end) => {
-    return indexRange(terms?.filter( t => t !== undefined ), start, end)
+const formatTerms = (terms, searchTerm, start, end) => {
+    return indexRange(terms?.filter( t => t !== undefined && t.label?.toLowerCase().includes(searchTerm.toLowerCase())), start, end)
 }
 
 /**
@@ -52,15 +53,12 @@ const formatTerms = (terms, start, end) => {
  */
 export const termParser = (data, searchTerm, start, end) => {
     const terms : Terms = data?.map( term => {
-        //TODO : remove 'if statement' check once mock server is replace will real feed
-        if ( term?.id?.includes(searchTerm) ) {
-            return getTerm(term)
-        }
+        return getTerm(term)
     })
 
     // We are receiving an unknown amout of terms from server, we need to control
     // how much to send back based on request made (start,end)
-    return formatTerms(terms, start, end);
+    return formatTerms(terms,searchTerm, start, end);
 };
 
 export default termParser;
