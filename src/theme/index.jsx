@@ -67,6 +67,10 @@ const theme = createTheme({
                     background-clip: content-box;
                     border: 0.25rem solid transparent;
                 }
+
+                code span {
+                    font-family: 'Roboto Mono', monospace;
+                }
             `
         },
         MuiRichTreeView: {
