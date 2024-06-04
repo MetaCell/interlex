@@ -577,6 +577,7 @@ const theme = createTheme({
                             justifyContent: 'space-between',
                             fontSize: '0.75rem',
                             color: gray600,
+                            fontWeight: 500,
                             '&.Mui-active': {
                                 color: gray600
                             },
@@ -598,7 +599,11 @@ const theme = createTheme({
                     '& .MuiTableCell-root': {
                         padding: '1rem 1.5rem',
                         height: '4.5rem',
-                        borderBottom: `1px solid ${gray200}`
+                        borderBottom: `1px solid ${gray200}`,
+                        fontWeight: 500,
+                        '&:hover': {
+                            backgroundColor: gray50
+                        }
                     }
                 }
             }
