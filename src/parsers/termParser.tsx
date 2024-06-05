@@ -11,24 +11,32 @@ import { termKeys, termPredicates } from "../configuration/model";
  */
 const getTerm = (data) => {
     let term : Term = {} as Term
-    let idMatch = data.triples?.[0]?.[0]?.match(/\<(.*)\>/)?.pop()?.split("/");
-    let id = idMatch[idMatch.length - 1];
     // Extract triplets if predicate is in model 
-    data.triples?.forEach( triple => {
-        const predicate = termPredicates[triple[1]]?.key;
-        // parse synonym, existing ID or hierarchy
-        if ( predicate === termKeys.synonym || predicate === termKeys.existingID || predicate === termKeys.hierarchy) {
-            let match = triple[2].match(/\<(.*)\>/)?.pop();
-            if ( match == undefined ) {
-                match = triple[2]
-            }
-            term[termPredicates[triple[1]].key] = term[termPredicates[triple[1]].key] ? [...term[termPredicates[triple[1]].key], match] : [match]
-        } else if ( termPredicates[triple[1]] ) {
-            term[termPredicates[triple[1]].key] = triple[2]
-        } 
-    })
+    data?.["@graph"]?.forEach( object => {
+        const keys = Object.keys(object);
+        keys.forEach( key => {
+            const predicate = key;
+            if ( termPredicates[predicate] ) {
+                let value = object[key];
+                let dataToStore = value;
+                if ( value?.["@id"] ) {
+                    dataToStore = value?.["@id"] 
+                } 
 
-    term[termKeys.id] = id;
+                if ( Array.isArray(value) ) {
+                    dataToStore = [];
+                    value?.forEach( v => {
+                        if ( v?.["@id"] ) {
+                            dataToStore = [...dataToStore, v?.["@id"]]
+                        }
+                    })
+                }
+                if ( term[termPredicates[predicate]?.key] === undefined ) {
+                    term[termPredicates[predicate]?.key] = dataToStore
+                }
+            }
+        }) 
+    })
 
     return term;
 }
