@@ -19,8 +19,22 @@ import CallMadeIcon from '@mui/icons-material/CallMade';
 import {SchemaOutlined, TableChartOutlined} from "@mui/icons-material";
 import CustomizedTable from "./CustomizedTable";
 import CustomIconTabs from "../../common/CustomIconTabs";
+import PredicatesAccordion from "./PredicatesAccordion";
 const { gray600, gray800, gray500, gray700, gray300 } = vars;
 
+const accordionData = [
+  {
+    title: "Is part of 1",
+    count: 7,
+    tableData: [{ /* table data for the first accordion */ }]
+  },
+  {
+    title: "Is part of 2",
+    count: 5,
+    tableData: [{ /* table data for the second accordion */ }]
+  },
+  // add more objects for additional accordions
+];
 const Predicates = () => {
   const [type, setType] = React.useState('Children');
   const [tabValue, setTabValue] = React.useState(0)
@@ -62,45 +76,9 @@ const Predicates = () => {
           </Select>
         </FormControl>
         <CustomIconTabs tabs={[<ExpandIcon />, <RemoveIcon />]} value={tabValue} handleChange={onTabsChanged} />
-        {/*<ButtonGroup variant="outlined" aria-label="Basic button group">*/}
-        {/*  <Button>*/}
-        {/*    <ExpandIcon />*/}
-        {/*  </Button>*/}
-        {/*  <Button>*/}
-        {/*    <RemoveIcon />*/}
-        {/*  </Button>*/}
-        {/*</ButtonGroup>*/}
       </Box>
     </Box>
-    <Accordion disableGutters elevation={0} square defaultExpanded>
-      <AccordionSummary
-        expandIcon={<ExpandMoreIcon fontSize='medium' />}
-        aria-controls="panel1-content"
-        id="panel1-header"
-      >
-        <Stack direction='row' spacing='.25rem'>
-          <Typography>
-            Is part of
-          </Typography>
-          <CallMadeIcon fontSize='medium'  />
-        </Stack>
-        <Stack direction='row' alignItems='center' spacing='.75rem'>
-          <Typography color={gray600} fontSize='.875rem'>Number of this type: 7</Typography>
-          <Divider orientation="vertical" flexItem />
-          <ButtonGroup variant="outlined" aria-label="Basic button group" tabIndex={1}>
-            <Button tabIndex={0}>
-              <TableChartOutlined />
-            </Button>
-            <Button tabIndex={1}>
-              <SchemaOutlined />
-            </Button>
-          </ButtonGroup>
-        </Stack>
-      </AccordionSummary>
-      <AccordionDetails>
-        <CustomizedTable />
-      </AccordionDetails>
-    </Accordion>
+    <PredicatesAccordion data={accordionData} />
   </Box>
   
 }
