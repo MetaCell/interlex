@@ -48,9 +48,7 @@ const CustomizedDialog = ({children, title, open, handleClose, HeaderRightSideCo
            {title}
          </Typography>
        </Box>
-        {
-          HeaderRightSideContent && <HeaderRightSideContent />
-        }
+        {HeaderRightSideContent}
       </Box>
       <DialogContent dividers>
         {children}

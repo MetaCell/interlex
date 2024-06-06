@@ -6,6 +6,8 @@ import Button from "@mui/material/Button";
 import PlaylistAddOutlinedIcon from "@mui/icons-material/PlaylistAddOutlined";
 import * as React from "react";
 import {vars} from "../../../theme/variables";
+import AddPredicateDialog from "./AddPredicateDialog";
+import {useState} from "react";
 
 const {gray600, gray700, gray300} = vars
 
@@ -15,7 +17,7 @@ const types = [
   'Has Dbx ref',
   'Has exact synonym'
 ]
-const HeaderRightSideContent = () => {
+const HeaderRightSideContent = ({handleOpenAddPredicate}) => {
   const [type, setType] = React.useState('Is part of');
   
   const handleChangeType = (e) => {
@@ -60,18 +62,36 @@ const HeaderRightSideContent = () => {
       <Divider orientation="vertical" flexItem sx={{
         m: '0 1rem'
       }} />
-      <Button startIcon={<PlaylistAddOutlinedIcon />} sx={{ p: '0.625rem 0.5625rem', minWidth: '0.0625rem' }} variant='text' color='secondary'>
+      <Button
+        onClick={handleOpenAddPredicate}
+        startIcon={<PlaylistAddOutlinedIcon />}
+        sx={{ p: '0.625rem 0.5625rem', minWidth: '0.0625rem' }}
+        variant='text'
+        color='secondary'
+      >
         Add new predicate(s)
       </Button>
     </Box>
   )
 }
-const viewDiagramDialog = ({open, handleClose}) => {
+const ViewDiagramDialog = ({open, handleClose}) => {
+  const [openAddPredicate, setOpenAddPredicate] = useState(false)
+  
+ const handleCloseAddPredicate = () => {
+    setOpenAddPredicate(false)
+  }
+ const handleOpenAddPredicate = () => {
+    setOpenAddPredicate(true)
+  }
   return (
-    <CustomizedDialog title='View predicate' open={open} handleClose={handleClose} HeaderRightSideContent={HeaderRightSideContent}>
-      Diagram
-    </CustomizedDialog>
+    <>
+      <CustomizedDialog title='View predicate' open={open} handleClose={handleClose} HeaderRightSideContent={<HeaderRightSideContent handleOpenAddPredicate={handleOpenAddPredicate} />}>
+        Diagram
+      </CustomizedDialog>
+      <AddPredicateDialog open={openAddPredicate} handleClose={handleCloseAddPredicate} />
+    </>
+    
   )
 }
 
-export default viewDiagramDialog
+export default ViewDiagramDialog
