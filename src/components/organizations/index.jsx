@@ -62,7 +62,7 @@ const organizationsList = [
 const Organizations = () => {
   return(
     <Box p='2.25rem 5rem' flexGrow={1} overflow='auto'>
-      <Typography fontSize='1.5rem' color={gray700} fontWeight={600} mb='1.5rem'>7 Organizations</Typography>
+      <Typography fontSize='1.5rem' color={gray700} fontWeight={600} mb='1.5rem'>{organizationsList.length} Organizations</Typography>
       <List sx={{
         width: '100%',
         padding: 0,
