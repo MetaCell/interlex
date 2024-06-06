@@ -1,11 +1,20 @@
-import {Box,  IconButton, Typography} from "@mui/material";
-import { useRef, useState } from "react";
+import { Box, IconButton, Typography } from "@mui/material";
+import {useEffect, useRef, useState} from "react";
 import TableRow from "./TableRow";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import {vars} from "../../../theme/variables";
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-const {gray100, gray50, gray600, gray500, brand600} = vars
+import { vars } from "../../../theme/variables";
+import SingleSearch from "../SingleSearch";
+
+const { gray100, gray50, gray600, gray500, brand600 } = vars;
+
+const types = [
+  'Is part of',
+  'Related to',
+  'Has Dbx ref',
+  'Has exact synonym'
+]
 
 const initialTableContent = [
   {
@@ -32,7 +41,7 @@ const initialTableContent = [
     "Predicates": "is part of",
     "Objects": "Central nervous system 3",
   }
-]
+];
 
 const tableStyles = {
   head: {
@@ -113,7 +122,7 @@ const tableStyles = {
           borderRadius: '0.1875rem'
         },
       },
-    
+      
       '& > .MuiBox-root': {
         width: '20rem',
         gap: '0.5rem',
@@ -132,13 +141,16 @@ const tableStyles = {
 const CustomizedTable = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [tableContent, setTableContent] = useState(initialTableContent);
-  
-  const [tableHeader, setTableHeader] = useState( [
+  const [tableHeader, setTableHeader] = useState([
     { key: 'Subject', label: 'Subject', allowSort: true, direction: 'desc' },
     { key: 'Predicates', label: 'Predicates', allowSort: false },
     { key: 'Objects', label: 'Objects', allowSort: true, direction: 'desc' },
     { key: '', label: '' }
-  ])
+  ]);
+  
+  const [showSelect, setShowSelect] = useState(false);
+  const [subject, setSubject] = useState('');
+  const [object, setObject] = useState('');
   
   const targetRow = useRef();
   const sourceRow = useRef();
@@ -183,14 +195,14 @@ const CustomizedTable = () => {
     }
     setSortConfig({ key, direction });
     
-    // Update the sorting direction in the tableHeader array
     const updatedHeader = tableHeader.map((item) => {
       if (item.key === key) {
         return { ...item, direction };
       }
       return item;
     });
-    setTableHeader(updatedHeader)
+    setTableHeader(updatedHeader);
+    
     setTableContent((prevContent) => {
       const sortedContent = [...prevContent];
       sortedContent.sort((a, b) => {
@@ -210,6 +222,41 @@ const CustomizedTable = () => {
     return <ArrowDownwardIcon fontSize="small" style={{ opacity: 0.3 }} />;
   };
   
+  const handleAddClick = () => {
+    setShowSelect(true);
+  };
+  const updateTableContent = (newSubject, newObject) => {
+    const newId = tableContent.length + 1;
+    const newRow = {
+      id: newId.toString(),
+      Subject: newSubject,
+      Predicates: 'is part of',
+      Objects: newObject
+    };
+    
+    setTableContent([...tableContent, newRow]);
+    setShowSelect(false);
+    setSubject('');
+    setObject('');
+  };
+  const handleSelectChange = (e, type) => {
+    if (type === 'subject') {
+      setSubject(e);
+    }
+    if (type === 'object') {
+      setObject(e);
+    }
+
+    if (subject && object) {
+      updateTableContent(type === 'subject' ? e.label : subject, type === 'object' ? e.label : object);
+    }
+  };
+  
+  useEffect(() => {
+    if (subject && object) {
+      updateTableContent(subject, object);
+    }
+  }, [subject, object])
   return (
     <Box pb={1.5}>
       <Box sx={tableStyles.head}>
@@ -236,20 +283,28 @@ const CustomizedTable = () => {
           <TableRow key={row.id} tableStyles={tableStyles} data={row} index={index} onDragStart={dragStart} onDragEnter={dragEnter} onDragEnd={dragEnd} />)
         }
       </Box>
-      <Box sx={tableStyles.root}
-      >
-        <Box sx={{paddingLeft: '0 !important'}}>
-          <IconButton>
-            <AddOutlinedIcon />
-          </IconButton>
-        </Box>
-        <Box />
-        <Box>
-          <IconButton>
-            <AddOutlinedIcon />
-          </IconButton>
-        </Box>
-        <Box />
+    
+      <Box sx={tableStyles.root}>
+        {!showSelect ? (
+          <Box sx={{ paddingLeft: '0 !important' }}>
+            <IconButton onClick={handleAddClick}>
+              <AddOutlinedIcon />
+            </IconButton>
+          </Box>
+        ) : (
+          <>
+            <>
+              <Box sx={{paddingLeft: '0 !important', width: '100%'}}>
+                <SingleSearch selectedValue={subject} onChange={(e) => handleSelectChange(e, 'subject')} startAdornment={false} options={types} />
+              </Box>
+              <Box />
+              <Box sx={{ width: '100%'}}>
+                <SingleSearch selectedValue={object} onChange={(e) => handleSelectChange(e, 'object')} startAdornment={false} options={types} />
+              </Box>
+              <Box />
+            </>
+          </>
+        )}
       </Box>
     </Box>
   );

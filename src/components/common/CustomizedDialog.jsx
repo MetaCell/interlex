@@ -1,15 +1,12 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Typography from '@mui/material/Typography';
-import {Box, Divider, FormControl, MenuItem, Select, Slide} from "@mui/material";
+import {Box, Divider, Slide} from "@mui/material";
 import {vars} from "../../theme/variables";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import PlaylistAddOutlinedIcon from '@mui/icons-material/PlaylistAddOutlined';
-const {gray600, gray700, gray300} = vars
+const {gray600} = vars
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;

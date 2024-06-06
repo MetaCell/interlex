@@ -14,7 +14,6 @@ import CallMadeIcon from '@mui/icons-material/CallMade';
 import {FullscreenOutlined, SchemaOutlined, TableChartOutlined} from "@mui/icons-material";
 import CustomizedTable from "./CustomizedTable";
 import CustomIconTabs from "../../common/CustomIconTabs";
-import CustomizedDialog from "../../common/CustomizedDialog";
 import ViewDiagramDialog from "./ViewDiagramDialog";
 
 const { gray600 } = vars;
