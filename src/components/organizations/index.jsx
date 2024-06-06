@@ -1,4 +1,4 @@
-import {Box, Typography} from "@mui/material";
+import {Box, Typography, Button} from "@mui/material";
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
@@ -11,8 +11,8 @@ import SPARC from '../../Icons/svg/SPARC.svg';
 import RRID from '../../Icons/svg/RRID.svg';
 import {vars} from "../../theme/variables";
 import Link from "@mui/material/Link";
-
-const {gray700, gray500, gray200} = vars
+import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
+const {gray700, gray500, gray200, brand600} = vars
 
 const organizationsList = [
   {
@@ -59,6 +59,7 @@ const organizationsList = [
     link: 'https://sparc.science/help/59wrnT6knb7KuGPJeNgT8k'
   }
 ]
+
 const Organizations = () => {
   return(
     <Box p='2.25rem 5rem' flexGrow={1} overflow='auto'>
@@ -72,7 +73,37 @@ const Organizations = () => {
           alignItems: 'flex-start',
           padding: '1.5rem',
           gap: '1rem',
-          borderBottom: `1px solid ${gray200}`
+          borderBottom: `1px solid ${gray200}`,
+          position: 'relative',
+          
+          '&:hover': {
+            cursor: 'pointer',
+            '& .join-button': {
+            display: 'inline-flex',
+            },
+            '& .MuiListItemText-root': {
+              position: 'relative',
+              '&::before': {
+                display: 'block',
+                width: '0.125rem',
+                height: '1.5rem',
+                backgroundColor: brand600,
+                content: "''",
+                position: 'absolute',
+                left: '-1.5rem',
+                top: '2px'
+              },
+            },
+          
+            '& .MuiListItemText-primary': {
+              '& .MuiTypography-root': {
+                '&:not(.MuiLink-root)': {
+                  color: brand600
+                }
+              }
+            }
+          }
+          
         },
         '& .MuiListItemText-root': {
           margin: 0,
@@ -105,23 +136,34 @@ const Organizations = () => {
       }}>
         {
           organizationsList.map((organization, index) => <ListItem key={index}>
-            <img src={organization.logo} alt="openDataCommons" />
+            <Box display='flex' alignItems='center' justifyContent='space-between' width={1}>
+              <img src={organization.logo} alt={organization.logo} />
+              <Button
+                variant="outlined"
+                className="join-button"
+                startIcon={<PersonAddOutlinedIcon />}
+                sx={{
+                  display: 'none',
+                }}
+              >
+                Join organization
+              </Button>
+            </Box>
+            
             <ListItemText primary={
               <Box display='flex' alignItems='center' justifyContent='space-between'>
                 <Typography component='span'>{organization.title}</Typography>
                 <Link href={organization.link} display='flex'>
                   {organization.link}
                 </Link>
-              
               </Box>
             } secondary={organization.description} />
+           
           </ListItem>)
         }
-       
-       
       </List>
     </Box>
   )
 }
 
-export default Organizations
+export default Organizations;
