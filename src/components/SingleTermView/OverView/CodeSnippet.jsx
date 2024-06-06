@@ -1,28 +1,57 @@
 import React from 'react';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
-import javascript from 'react-syntax-highlighter/dist/esm/languages/hljs/javascript';
-import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { prism, vs, darcula } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Import additional styles
+import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
+import turtle from 'react-syntax-highlighter/dist/esm/languages/prism/turtle';
+import markup from 'react-syntax-highlighter/dist/esm/languages/prism/markup'; // General language support, e.g., XML
+import { solarizedlight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { vars } from '../../../theme/variables';
 
-SyntaxHighlighter.registerLanguage('javascript', javascript);
+const { gray25, gray200, gray500, gray600 } = vars;
+
+// Register the languages
+SyntaxHighlighter.registerLanguage('json', json);
+SyntaxHighlighter.registerLanguage('turtle', turtle);
+SyntaxHighlighter.registerLanguage('markup', markup);
+
 const customStyle = {
     fontSize: '1rem',
-    borderRadius: '0.75rem',
     backgroundColor: '#fff',
-    padding: 0,
-    border: `1px solid #DADDDC`
+    fontWeight: 500,
+    borderRadius: '0.75rem',
+    border: `1px solid ${gray200}`,
+    padding: 0
 };
 
+// Define different styles for each language
+const styles = {
+    json: vs,
+    turtle: solarizedlight,
+    xml: prism, // Use prism for xml and owl
+    owl: prism,
+    default: prism
+};
 
-const CodeSnippet = ({ code }) => {
+const CodeSnippet = ({ code, language }) => {
     return (
         <div>
             <SyntaxHighlighter
-                language="javascript"
-                style={docco}
-                showLineNumbers
+                language={language}
                 customStyle={customStyle}
-                lineProps={{ style: { wordBreak: 'break-all', whiteSpace: 'pre-wrap' } }}
-                // wrapLines={true}
+                style={styles[language] || styles.default}
+                showLineNumbers
+                lineNumberStyle={{
+                    fontWeight: 700,
+                    textAlign: 'left',
+                    color: gray500,
+                    borderRight: `1px solid ${gray200}`,
+                    background: gray25,
+                    width: '4.875rem',
+                    paddingBottom: '0.125rem',
+                    paddingRight: '1.5rem',
+                    paddingLeft: '1.5rem',
+                    marginRight: '1.5rem'
+                }}
             >
                 {code}
             </SyntaxHighlighter>

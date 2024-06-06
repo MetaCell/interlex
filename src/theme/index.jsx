@@ -71,6 +71,16 @@ const theme = createTheme({
                 code span {
                     font-family: 'Roboto Mono', monospace;
                 }
+
+                code span:first-child {
+                    padding-top: 1.5rem;
+                    border-top-left-radius: 0.75rem;
+                }
+
+                code span:last-child {
+                    padding-bottom: 1.5rem !important;
+                    border-bottom-left-radius: 0.75rem;
+                }
             `
         },
         MuiRichTreeView: {

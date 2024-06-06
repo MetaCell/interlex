@@ -29,6 +29,7 @@ import {
   List,
   AccountTreeOutlined
 } from "@mui/icons-material";
+import { CodeIcon } from "../../Icons";
 
 const { brand700, gray600 } = vars;
 const SingleTermView = () => {
@@ -36,6 +37,7 @@ const SingleTermView = () => {
   const actionRef = React.useRef(null);
   const anchorRef = React.useRef(null);
   const [tabValue, setTabValue] = React.useState(0);
+  const [isCodeViewVisible, setIsCodeViewVisible] = React.useState(false);
   
   const handleChangeTabs = (event, newValue) => {
     setTabValue(newValue);
@@ -127,11 +129,11 @@ const SingleTermView = () => {
           <Grid item xs={12} mt="2rem" display='flex' alignItems='center' justifyContent='space-between'>
             <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["Overview", "Variants", "Version history", "Discussions"]} />
             <ButtonGroup variant="outlined" aria-label="Basic button group">
-              <Button>
+              <Button onClick={() => setIsCodeViewVisible(false)}>
                 <List />
               </Button>
-              <Button>
-                <AccountTreeOutlined />
+              <Button onClick={() => setIsCodeViewVisible(true)}>
+                {isCodeViewVisible ? <CodeIcon /> : <AccountTreeOutlined />}
               </Button>
             </ButtonGroup>
           </Grid>
@@ -139,7 +141,7 @@ const SingleTermView = () => {
       </Stack>
       <Box flexGrow={1} overflow="auto" p="2.5rem 5rem">
         {
-          tabValue === 0 &&  <OverView />
+          tabValue === 0 &&  <OverView isCodeViewVisible={isCodeViewVisible}/>
         }
         {
           tabValue === 1 &&  <Box>Variants</Box>
