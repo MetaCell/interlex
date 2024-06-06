@@ -18,10 +18,16 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CallMadeIcon from '@mui/icons-material/CallMade';
 import {SchemaOutlined, TableChartOutlined} from "@mui/icons-material";
 import CustomizedTable from "./CustomizedTable";
+import CustomIconTabs from "../../common/CustomIconTabs";
 const { gray600, gray800, gray500, gray700, gray300 } = vars;
 
 const Predicates = () => {
   const [type, setType] = React.useState('Children');
+  const [tabValue, setTabValue] = React.useState(0)
+  
+  const onTabsChanged = (event, newValue) => {
+    setTabValue(newValue)
+  }
   
   return <Box display='flex' flexDirection='column' gap='.75rem'>
     <Box display='flex' alignItems='center' justifyContent='space-between'>
@@ -55,14 +61,15 @@ const Predicates = () => {
             <MenuItem value={'Superclasses'}>Superclasses</MenuItem>
           </Select>
         </FormControl>
-        <ButtonGroup variant="outlined" aria-label="Basic button group">
-          <Button>
-            <ExpandIcon />
-          </Button>
-          <Button>
-            <RemoveIcon />
-          </Button>
-        </ButtonGroup>
+        <CustomIconTabs tabs={[<ExpandIcon />, <RemoveIcon />]} value={tabValue} handleChange={onTabsChanged} />
+        {/*<ButtonGroup variant="outlined" aria-label="Basic button group">*/}
+        {/*  <Button>*/}
+        {/*    <ExpandIcon />*/}
+        {/*  </Button>*/}
+        {/*  <Button>*/}
+        {/*    <RemoveIcon />*/}
+        {/*  </Button>*/}
+        {/*</ButtonGroup>*/}
       </Box>
     </Box>
     <Accordion disableGutters elevation={0} square defaultExpanded>
@@ -80,11 +87,11 @@ const Predicates = () => {
         <Stack direction='row' alignItems='center' spacing='.75rem'>
           <Typography color={gray600} fontSize='.875rem'>Number of this type: 7</Typography>
           <Divider orientation="vertical" flexItem />
-          <ButtonGroup variant="outlined" aria-label="Basic button group">
-            <Button>
+          <ButtonGroup variant="outlined" aria-label="Basic button group" tabIndex={1}>
+            <Button tabIndex={0}>
               <TableChartOutlined />
             </Button>
-            <Button>
+            <Button tabIndex={1}>
               <SchemaOutlined />
             </Button>
           </ButtonGroup>
