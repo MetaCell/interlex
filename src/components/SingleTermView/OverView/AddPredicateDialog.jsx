@@ -6,32 +6,44 @@ import Button from "@mui/material/Button";
 import PlaylistAddOutlinedIcon from "@mui/icons-material/PlaylistAddOutlined";
 import * as React from "react";
 import {vars} from "../../../theme/variables";
+import AddPredicateStatusDialog from "./AddPredicateStatusDialog";
+import {useState} from "react";
 
 const {gray600, gray700, gray300} = vars
 
-const types = [
-  'Is part of',
-  'Related to',
-  'Has Dbx ref',
-  'Has exact synonym'
-]
-const HeaderRightSideContent = ({handleClose}) => {
+const HeaderRightSideContent = ({handleClose, handleOpenAddPredicateStatusDialog}) => {
   return (
     <Box display='flex' alignItems='center' gap='.75rem'>
       <Button  variant='outlined' onClick={handleClose}>
         Cancel
       </Button>
-      <Button startIcon={<PlaylistAddOutlinedIcon />} variant='contained' color='primary' onClick={handleClose}>
+      <Button startIcon={<PlaylistAddOutlinedIcon />} variant='contained' color='primary' onClick={handleOpenAddPredicateStatusDialog}>
         Add new predicate(s)
       </Button>
     </Box>
   )
 }
 const AddPredicateDialog = ({open, handleClose}) => {
+  const [openAddPredicateStatusDialog, setOpenAddPredicateStatusDialog] = useState(false)
+  const handleCloseAddPredicateStatusDialog = () => {
+    setOpenAddPredicateStatusDialog(false)
+  }
+  
+  const handleOpenAddPredicateStatusDialog = () => {
+    setOpenAddPredicateStatusDialog(true)
+  }
   return (
-    <CustomizedDialog title='Add new predicate(s)' open={open} handleClose={handleClose} HeaderRightSideContent={<HeaderRightSideContent handleClose={handleClose} />}>
-      inputs
-    </CustomizedDialog>
+    <>
+      <CustomizedDialog
+        title='Add new predicate(s)'
+        open={open} handleClose={handleClose}
+        HeaderRightSideContent={
+        <HeaderRightSideContent handleClose={handleClose} handleOpenAddPredicateStatusDialog={handleOpenAddPredicateStatusDialog} />
+      }>
+        inputs
+      </CustomizedDialog>
+      <AddPredicateStatusDialog open={openAddPredicateStatusDialog} handleClose={handleCloseAddPredicateStatusDialog} handleCloseAddpredicate={handleClose} />
+    </>
   )
 }
 
