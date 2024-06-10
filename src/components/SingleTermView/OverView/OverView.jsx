@@ -9,7 +9,9 @@ import Details from "./Details";
 
 const OverView = () => {
   return (
-    <>
+    <Box p="2.5rem 5rem" sx={{
+      overflow: 'auto',
+    }}>
      <Details />
       <Box p='5rem 0'>
         <Divider />
@@ -22,7 +24,7 @@ const OverView = () => {
           </Grid>
         </Grid>
       </Box>
-    </>
+    </Box>
   
   )}
 
