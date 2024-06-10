@@ -7,6 +7,7 @@ import SearchResultsBox from './components/SearchResults';
 import SingleTermView from './components/SingleTermView';
 import HomePage from "./components/HomePage";
 import Footer from "./components/Footer";
+import { GlobalDataProvider } from './contexts/DataContext'
 
 function MainContent() {
     const location = useLocation();
@@ -37,14 +38,16 @@ function MainContent() {
 }
 
 function App() {
-    return (
-      <ThemeProvider theme={theme}>
-          <CssBaseline />
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <GlobalDataProvider>
           <Router>
               <MainContent />
           </Router>
-      </ThemeProvider>
-    );
+      </GlobalDataProvider>
+    </ThemeProvider>
+  )
 }
 
 export default App;
