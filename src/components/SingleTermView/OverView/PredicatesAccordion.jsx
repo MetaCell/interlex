@@ -58,7 +58,13 @@ const PredicatesAccordion = ({ data }) => {
               </Typography>
               <Divider orientation="vertical" flexItem />
               <CustomIconTabs
-                tabs={[<TableChartOutlined />, <SchemaOutlined />]}
+                tabs={[{
+                  icon: <TableChartOutlined />,
+                  value: 0
+                },{
+                  icon: <SchemaOutlined />,
+                  value: 1
+                }]}
                 value={tabValues[index]}
                 handleChange={onTabsChanged(index)}
               />

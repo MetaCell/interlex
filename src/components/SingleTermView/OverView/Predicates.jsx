@@ -1,26 +1,18 @@
 import React from "react";
 import {
-  Accordion, AccordionDetails,
-  AccordionSummary,
   Box,
-  Button,
-  ButtonGroup, Divider,
   FormControl,
   MenuItem,
-  Select, Stack,
+  Select,
   Typography
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {vars} from "../../../theme/variables";
 import ExpandIcon from '@mui/icons-material/Expand';
 import RemoveIcon from '@mui/icons-material/Remove';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import CallMadeIcon from '@mui/icons-material/CallMade';
-import {SchemaOutlined, TableChartOutlined} from "@mui/icons-material";
-import CustomizedTable from "./CustomizedTable";
 import CustomIconTabs from "../../common/CustomIconTabs";
 import PredicatesAccordion from "./PredicatesAccordion";
-const { gray600, gray800, gray500, gray700, gray300 } = vars;
+const { gray800, gray700, gray300 } = vars;
 
 const accordionData = [
   {
@@ -75,7 +67,14 @@ const Predicates = () => {
             <MenuItem value={'Superclasses'}>Superclasses</MenuItem>
           </Select>
         </FormControl>
-        <CustomIconTabs tabs={[<ExpandIcon />, <RemoveIcon />]} value={tabValue} handleChange={onTabsChanged} />
+        <CustomIconTabs
+          tabs={[{
+            icon: <ExpandIcon />,
+            value: 0
+          },{
+            icon: <RemoveIcon />,
+            value: 1
+        }]} value={tabValue} handleChange={onTabsChanged} />
       </Box>
     </Box>
     <PredicatesAccordion data={accordionData} />
