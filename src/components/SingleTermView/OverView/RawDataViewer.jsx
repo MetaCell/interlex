@@ -57,7 +57,7 @@ const RawDataViewer = ({ dataId, dataFormat }) => {
     // const language = dataFormat === 'Turtle' ? 'python' : dataFormat.toLowerCase();
 
     return (
-        <div>
+        <div style={{ maxWidth: '81.25rem' }}>
             {formattedData ? (
                 <SyntaxHighlighter
                     // language={language}
