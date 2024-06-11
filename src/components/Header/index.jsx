@@ -10,6 +10,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Search from './Search';
+import {useNavigate} from "react-router-dom";
 import { useContext } from "react";
 import { GlobalDataContext } from "./../../contexts/DataContext";
 
@@ -80,19 +81,23 @@ const styles = {
 const NavMenu = [
     {
         label: 'Organizations',
-        icon: <OrganizationsIcon />
+        icon: <OrganizationsIcon />,
+        href: '/organizations'
     },
     {
         label: 'Term activity',
-        icon: <TermActivityIcon />
+        icon: <TermActivityIcon />,
+        href: '#'
     },
     {
         label: 'Documentation',
-        icon: <DocumentationIcon />
+        icon: <DocumentationIcon />,
+        href: '#'
     },
     {
         label: 'Release notes',
-        icon: <ReleaseNotesIcon />
+        icon: <ReleaseNotesIcon />,
+        href: '#'
     }
 ]
 
@@ -115,6 +120,7 @@ const Header = ({ isLoggedIn = false }) => {
     const handleSetUserData = (user, organization) => {
         setUserData(user, organization);
     };
+    const navigate = useNavigate();
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -147,6 +153,10 @@ const Header = ({ isLoggedIn = false }) => {
     const toggleList = () => {
       setOpenList(!openList);
     };
+    
+    const handleMenuClick = (e, menu) => {
+        navigate(menu.href)
+    }
   
     React.useEffect(() => {
         // TODO : Move to login page and remove this proof of concept call
@@ -197,7 +207,7 @@ const Header = ({ isLoggedIn = false }) => {
                     <List>
                         {NavMenu.map((menu, index) => (
                             <ListItem key={index} disablePadding>
-                                <ListItemButton>
+                                <ListItemButton onClick={(e) => handleMenuClick(e, menu)}>
                                     <ListItemIcon>
                                         {menu.icon}
                                     </ListItemIcon>

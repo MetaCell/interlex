@@ -1,0 +1,25 @@
+{
+  "synonyms": [
+    { "title": "CNS", "description": "abbrev" },
+    { "title": "Myencephalon", "description": "" },
+    { "title": "Cerebrospinal axis", "description": "fma:synonym" },
+    { "title": "Cerebrospinal axis", "description": "fma:synonym" },
+    { "title": "Central nervous system", "description": "fma:synonym" },
+    { "title": "systema nervosum centrale", "description": "oboInOwl:hasExactSynonym" },
+    { "title": "neuraxis", "description": "oboInOwl:hasRelatedSynonym" }
+  ],
+  "existingIDs": [
+    "UBERON:0001017",
+    "FMA:55675",
+    "ILX:0101901",
+    "BIRNLEX:1099"
+  ],
+  "preferredID": "UBERON:0000955",
+  "description": "The central nervous system (CNS) is the part of the nervous system which includes the brain, spinal cord, and nerve cell layer of the retina. In animals with bilateral symmetry, it is a topographic division that is a condensation of the nervous system in the longitudinal plane, lying on or near the median plane. For invertebrates the longitudinal division consists of one or more nerve cords, whereas for vertebrates it consists of a single, hollow, and dorsal cerebrospinal axis. In adult Echinoderms, which are radially symmetrical, a presumptive CNS is formed by a circular cord with associated radial cords. However, there is no ganglion that could be considered as brain in invertebrate When a CNS is present, its obligate companion topographic division is a peripheral nervous system.",
+  "type": "term",
+  "version": "17",
+  "owlEquivalent": "owl:Class",
+  "submittedBy": "NeuroLex",
+  "lastModifiedBy": "NeuroLex",
+  "lastModifyTimestamp": "2020-06-23 21:46"
+}

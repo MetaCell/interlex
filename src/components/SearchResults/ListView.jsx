@@ -1,17 +1,19 @@
-import React from 'react';
 import { Box, Typography, Grid, Stack, Chip } from '@mui/material';
 import CustomButton from '../common/CustomButton';
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { vars } from '../../theme/variables';
+import { useNavigate } from "react-router-dom";
 
 const { gray200, gray500, gray700, brand50, brand200, brand600, brand700, error50, error300, error700 } = vars;
 
 
 const TitleSection = ({ searchResult }) => {
-    const handleClick = () => {
-        console.log("search result: ", searchResult)
-    };
+  const navigate = useNavigate();
+  
+  const handleClick = (e, term) => {
+    navigate(`/view/${term}`);
+  };
 
     return (
         <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -29,9 +31,8 @@ const TitleSection = ({ searchResult }) => {
                         color: error700,
                         '&:hover': {background: error50}
                     }}
-                    onClick={handleClick}
                 >
-                    <DeleteOutlinedIcon fontSize="small" sx={{ marginRight: '0.375rem' }} />
+                    <DeleteOutlinedIcon fontSize="medium" />
                     Remove from active ontology
                 </CustomButton>
             ) : (
@@ -41,9 +42,9 @@ const TitleSection = ({ searchResult }) => {
                         visibility: 'hidden',
                         transition: 'opacity 0.3s ease-in-out'
                     }}
-                    onClick={handleClick}
+                    onClick={(e) => handleClick(e, searchResult.title)}
                 >
-                    <CreateNewFolderOutlinedIcon fontSize="small" sx={{ marginRight: '0.375rem' }} />
+                    <CreateNewFolderOutlinedIcon fontSize="medium" />
                     Add term to active ontology
                 </CustomButton>
             )}
@@ -81,7 +82,7 @@ const InfoSection = ({ searchResult }) => {
                 <Stack key={label} direction="column" gap={1} alignItems="start">
                     <Typography variant='body1' sx={{ color: gray700, fontWeight: 500 }}>{label}</Typography>
                     {label === 'ID' ?
-                        <Chip label={value} className='IDchip-outlined' /> : <Typography variant='body2' sx={{ color: gray500 }}>{value}</Typography>
+                        <Chip label={value} className='rounded IDchip-outlined' /> : <Typography variant='body2' sx={{ color: gray500 }}>{value}</Typography>
                     }
                 </Stack>
             ))}

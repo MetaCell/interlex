@@ -62,7 +62,6 @@ export default function FiltersSidebar({filterOptions}) {
     return (
         <Box
             sx={{
-                height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 borderRight: `1px solid ${gray200}`,
