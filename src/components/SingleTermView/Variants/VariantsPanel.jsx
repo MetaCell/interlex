@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Box} from '@mui/material';
+import { Box } from '@mui/material';
 import VariantsTable from './VariantsTable';
 
 const rows = [
@@ -72,8 +72,10 @@ const headCells = [
 
 const VariantsPanel = () => {
     return (
-        <Box width={1}>
-            <VariantsTable rows={rows} headCells={headCells}/>
+        <Box flexGrow={1} p="2.5rem 5rem" sx={{
+            overflow: 'auto',
+        }}>
+            <VariantsTable rows={rows} headCells={headCells} />
         </Box>
     )
 }

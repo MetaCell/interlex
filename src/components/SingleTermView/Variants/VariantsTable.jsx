@@ -48,7 +48,8 @@ const paperStyle = {
     width: '100%',
     border: `1px solid ${gray200}`,
     boxShadow: '0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)',
-    borderRadius: '0.75rem'
+    borderRadius: '0.75rem',
+    maxWidth: '81.25rem'
 };
 
 const tableCellWidthStyle = {
