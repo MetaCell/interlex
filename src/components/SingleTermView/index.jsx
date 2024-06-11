@@ -16,7 +16,6 @@ import { vars } from "../../theme/variables";
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import OntologySearch from "./OntologySearch";
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
-import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import CopyLinkComponent from "../common/CopyLinkComponent";
 import BasicTabs from "../common/CustomTabs";
 import CustomButton from "../common/CustomButton";
@@ -33,6 +32,7 @@ import {
 } from "@mui/icons-material";
 import CustomIconTabs from "../common/CustomIconTabs";
 import DataVisualizerDropdown from "./DataVisualizerDropdown";
+import Discussion from "./Discussion";
 import { CodeIcon } from "../../Icons";
 
 const { gray50, gray200, brand700, gray600 } = vars;
@@ -81,8 +81,8 @@ const SingleTermView = () => {
   }
 
   return (
-    <Box display="flex" flexDirection="column" maxHeight="86vh">
-      <Stack p="1.5rem 5rem 0rem 5rem">
+    <Box display="flex" flexDirection="column">
+      <Box p="1.5rem 5rem 0rem 5rem">
         <Grid container>
           <Grid item xs={12} lg={6}>
             <Stack direction="row" spacing=".75rem">
@@ -117,7 +117,6 @@ const SingleTermView = () => {
               <Chip label="Fork" variant="outlined" />
             </Stack>
           </Grid>
-
           <Grid display="flex" justifyContent='end' mt=".56rem" item xs={12} lg={8}>
             <Stack direction="row" spacing="1rem" alignItems="center">
               <Button type="string" color="secondary" startIcon={<ModeEditOutlineOutlinedIcon />}>
@@ -190,21 +189,19 @@ const SingleTermView = () => {
             )}
           </Grid>
         </Grid>
-      </Stack>
-      <Box flexGrow={1} overflow="auto" p="2.5rem 5rem">
-        {
-          tabValue === 0 && <OverView isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat}/>
-        }
-        {
-          tabValue === 1 && <Box>Variants</Box>
-        }
-        {
-          tabValue === 2 && <Box>history</Box>
-        }
-        {
-          tabValue === 3 && <Box>dissscussion</Box>
-        }
       </Box>
+      {
+        tabValue === 0 &&  <OverView isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat}/>
+      }
+      {
+        tabValue === 1 &&  <Box>Variants</Box>
+      }
+      {
+        tabValue === 2 &&  <Box>history</Box>
+      }
+      {
+        tabValue === 3 &&  <Discussion />
+      }
     </Box>
   )
 }
