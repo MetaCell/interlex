@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import {
   Box,
-  Chip,
+  Chip, CircularProgress,
   Grid,
   Stack,
   Typography
@@ -30,7 +30,9 @@ const Details = ({ term }) => {
   const memoData = useMemo(() => data, [data]);
   
   if (loading) {
-    return <div>Loading...</div>;
+    return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <CircularProgress />
+    </Box>
   }
   
   if (!memoData) {
