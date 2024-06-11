@@ -7,6 +7,7 @@ import React from "react";
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import { termParser } from "../../parsers/termParser";
+import {useNavigate} from "react-router-dom";
 
 const { gray200, gray100, gray600, gray800, gray500 } = vars;
 
@@ -17,10 +18,10 @@ const styles = {
 }
 
 const useMockApi = () => mockApi;
-
 const Search = () => {
     const [searchTerm, setSearchTerm] = React.useState("");
     const [openList, setOpenList] = React.useState(false);
+    const navigate = useNavigate();
 
     const {  getMatchTerms } = useMockApi();
 
@@ -36,6 +37,7 @@ const Search = () => {
   
     const handleInputChange = (event, newInputValue) => {
       setSearchTerm(newInputValue);
+      navigate(`/search/${newInputValue}`)
     };
   
     const toggleList = () => {

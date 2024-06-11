@@ -5,7 +5,6 @@ import Divider from '@mui/material/Divider';
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import ForkRightOutlinedIcon from '@mui/icons-material/ForkRightOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import { Popover } from '@mui/material';
 import { vars } from '../../theme/variables';
 
 const { gray100, gray200, gray600, error700 } = vars;
@@ -14,6 +13,8 @@ const menuStyles = {
     paper: {
         border: `1px solid ${gray200}`,
         borderRadius: '0.5rem',
+        boxShadow: '0px 12px 16px -4px rgba(16, 24, 40, 0.08), 0px 4px 6px -2px rgba(16, 24, 40, 0.03)',
+        marginTop: '0.188rem'
     },
     list: {
         paddingY: 0.5,
@@ -41,15 +42,13 @@ const menuStyles = {
     },
 };
 
-const CustomMenu = ({ open, anchorEl, setAnchorEl }) => {
-    const handleClose = () => setAnchorEl(null);
-
+const CustomMenu = ({ open, anchorRef, setOpen }) => {
     return (
         <Menu
             id="customized-menu"
-            anchorEl={anchorEl}
             open={open}
-            onClose={handleClose}
+            onClose={() => setOpen(false)} 
+            anchorEl={anchorRef.current}
             keepMounted
             elevation={0}
             anchorOrigin={{
@@ -65,16 +64,16 @@ const CustomMenu = ({ open, anchorEl, setAnchorEl }) => {
                 '& .MuiList-root': menuStyles.list,
             }}
         >
-            <MenuItem onClick={handleClose} sx={menuStyles.menuItem}>
+            <MenuItem onClick={() => setOpen(false)} sx={menuStyles.menuItem}>
                 <CreateNewFolderOutlinedIcon fontSize="small" />
                 Add term to active ontology
             </MenuItem>
-            <MenuItem onClick={handleClose} sx={menuStyles.menuItem}>
+            <MenuItem onClick={() => setOpen(false)} sx={menuStyles.menuItem}>
                 <ForkRightOutlinedIcon fontSize="small" />
                 Create fork
             </MenuItem>
             <Divider sx={menuStyles.divider} />
-            <MenuItem onClick={handleClose} sx={{ ...menuStyles.menuItem, ...menuStyles.dangerMenuItem }}>
+            <MenuItem onClick={() => setOpen(false)} sx={{ ...menuStyles.menuItem, ...menuStyles.dangerMenuItem }}>
                 <DeleteOutlineOutlinedIcon fontSize="small" sx={{ color: error700 }} />
                 Remove from active ontology
             </MenuItem>
