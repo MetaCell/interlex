@@ -10,6 +10,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Search from './Search';
+import {useNavigate} from "react-router-dom";
 
 const { gray200, white, gray100, gray600 } = vars;
 
@@ -108,7 +109,8 @@ const UserNavMenu = [
 const Header = ({ isLoggedIn = false }) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
-
+    
+    const navigate = useNavigate();
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -140,6 +142,10 @@ const Header = ({ isLoggedIn = false }) => {
     const toggleList = () => {
       setOpenList(!openList);
     };
+    
+    const handleLogoClick = () => {
+        navigate('/')
+    }
   
     React.useEffect(() => {
       const handleKeyDown = (event) => {
@@ -194,7 +200,7 @@ const Header = ({ isLoggedIn = false }) => {
                     </List>
                 </Popover>
                 
-                <img src={Logo} alt="logo" />
+                <img src={Logo} alt="logo" onClick={handleLogoClick} style={{cursor: 'pointer'}} />
             </Box>
 
             <Box sx={{width:'35%', maxWidth: '45.5rem'}}>
