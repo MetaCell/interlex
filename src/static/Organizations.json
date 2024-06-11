@@ -6,7 +6,7 @@
     "link": "https://odc-tbi.org"
   },
   {
-    "logo": "path/to/drugDesign.svg",
+    "logo": "../../Icons/svg/drugDesign.svg",
     "title": "Drug Design Data Resource",
     "description": "An open resource to advance computer-aided drug discovery through the interchange of high quality protein-ligand datasets, workflows and community-wide blind data challenges",
     "link": "https://drugdesigndata.org"
