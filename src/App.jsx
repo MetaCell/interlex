@@ -7,6 +7,7 @@ import SearchResultsBox from './components/SearchResults';
 import SingleTermView from './components/SingleTermView';
 import HomePage from "./components/HomePage";
 import Footer from "./components/Footer";
+import Organizations from "./components/organizations";
 import { GlobalDataProvider } from './contexts/DataContext'
 
 function MainContent() {
@@ -19,7 +20,7 @@ function MainContent() {
       <Box sx={{
           display: 'flex',
           flexDirection: 'column',
-          height: '100vh'
+          minHeight: '100vh'
       }}>
           <Header />
           <Routes>
@@ -31,6 +32,7 @@ function MainContent() {
                   </Box>
               } />
               <Route path="/view/:term" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><SingleTermView /></Box>} />
+              <Route path="/organizations" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><Organizations /></Box>} />
           </Routes>
           {showFooter && <Footer />}
       </Box>
