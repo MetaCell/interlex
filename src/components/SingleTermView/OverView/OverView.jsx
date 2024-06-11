@@ -6,13 +6,15 @@ import {
 import Hierarchy from "./Hierarchy";
 import Predicates from "./Predicates";
 import Details from "./Details";
+import {useParams} from "react-router-dom";
 
 const OverView = () => {
+  const { term } = useParams();
   return (
     <Box p="2.5rem 5rem" sx={{
       overflow: 'auto',
     }}>
-     <Details />
+     <Details term={term} />
       <Box p='5rem 0'>
         <Divider />
         <Grid container pt='5.25rem' spacing='2.75rem'>
