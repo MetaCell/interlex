@@ -48,7 +48,7 @@ const indexRange = (arr, start, end) => {
 
 /** Format terms and return array between two indeces */
 const formatTerms = (terms, searchTerm, start, end) => {
-    return indexRange(terms?.filter( t => t !== undefined && t.label?.toLowerCase().includes(searchTerm.toLowerCase())), start, end)
+    return indexRange(terms?.filter( t => t !== undefined && t.label?.toLowerCase().includes(searchTerm?.toLowerCase())), start, end)
 }
 
 /**
