@@ -361,6 +361,53 @@ const theme = createTheme({
                     }
                 }
             }
+        },
+
+        MuiTable: {
+            styleOverrides: {
+                root: {
+                    '& .MuiTableHead-root': {
+                        '& .MuiTableCell-root': {
+                            padding: '0.75rem 1.5rem !important',
+                            background: gray50,
+                            lineHeight: '1.25rem',
+                            height: '2.75rem'
+                        },
+                        '& .MuiTableSortLabel-root': {
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            fontSize: '0.75rem',
+                            color: gray600,
+                            fontWeight: 500,
+                            '&.Mui-active': {
+                                color: gray600
+                            },
+                            '& .MuiSvgIcon-root': {
+                                width: '1rem',
+                                height: '1rem',
+                                fill: gray600,
+                                opacity: 1
+                            },
+                            '&:hover': {
+                                color: gray700,
+                                '& .MuiSvgIcon-root': {
+                                    fill: gray700,
+                                    opacity: 1
+                                }
+                            }
+                        }
+                    },
+                    '& .MuiTableCell-root': {
+                        padding: '1rem 1.5rem',
+                        height: '4.5rem',
+                        borderBottom: `1px solid ${gray200}`,
+                        fontWeight: 500,
+                        '&:hover': {
+                            backgroundColor: gray50
+                        }
+                    }
+                }
+            }
         }
     }
 });
