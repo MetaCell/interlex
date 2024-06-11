@@ -55,7 +55,7 @@ const HeaderRightSideContent = ({handleOpenAddPredicate}) => {
           }}
         >
           {
-            types.map((type, i) => <MenuItem value={type}>{type}</MenuItem>)
+            types.map((type) => <MenuItem value={type}>{type}</MenuItem>)
           }
         </Select>
       </FormControl>
@@ -74,7 +74,7 @@ const HeaderRightSideContent = ({handleOpenAddPredicate}) => {
     </Box>
   )
 }
-const ViewDiagramDialog = ({open, handleClose}) => {
+const ViewDiagramDialog = ({open, handleClose, image}) => {
   const [openAddPredicate, setOpenAddPredicate] = useState(false)
   
  const handleCloseAddPredicate = () => {
@@ -88,7 +88,7 @@ const ViewDiagramDialog = ({open, handleClose}) => {
       <CustomizedDialog title='View predicate' open={open} handleClose={handleClose} HeaderRightSideContent={<HeaderRightSideContent handleOpenAddPredicate={handleOpenAddPredicate} />}>
         Diagram
       </CustomizedDialog>
-      <AddPredicateDialog open={openAddPredicate} handleClose={handleCloseAddPredicate} />
+      <AddPredicateDialog open={openAddPredicate} handleClose={handleCloseAddPredicate} image={image} />
     </>
     
   )

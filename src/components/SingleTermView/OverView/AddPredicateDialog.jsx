@@ -1,10 +1,9 @@
 import CustomizedDialog from "../../common/CustomizedDialog";
-import {Box, Grid, IconButton, Button} from "@mui/material";
+import {Box, Grid, Button} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import PlaylistAddOutlinedIcon from "@mui/icons-material/PlaylistAddOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import * as React from "react";
 import {vars} from "../../../theme/variables";
 import AddPredicateStatusDialog from "./AddPredicateStatusDialog";
 import {useState} from "react";
@@ -26,7 +25,7 @@ const HeaderRightSideContent = ({handleClose, handleOpenAddPredicateStatusDialog
   );
 };
 
-const AddPredicateDialog = ({open, handleClose}) => {
+const AddPredicateDialog = ({open, handleClose, image}) => {
   const [openAddPredicateStatusDialog, setOpenAddPredicateStatusDialog] = useState(false);
   const [predicates, setPredicates] = useState([{ subject: '', object: '' }]);
   
@@ -116,6 +115,7 @@ const AddPredicateDialog = ({open, handleClose}) => {
         open={openAddPredicateStatusDialog}
         handleClose={handleCloseAddPredicateStatusDialog}
         handleCloseAddpredicate={handleClose}
+        image={image}
       />
     </>
   );

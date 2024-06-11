@@ -21,7 +21,8 @@ const { gray600 } = vars;
 const PredicatesAccordion = ({ data }) => {
   const [tabValues, setTabValues] = useState(data.map(() => 0));
   const [openViewDiagram, setOpenViewDiagram] = React.useState(false);
-  
+  const imgStyle = { width: '100%' }; // Customize your image style
+  const imgPath = '/success.png'; // Set your image path
   const onTabsChanged = (index) => (event, newValue) => {
     event.preventDefault();
     event.stopPropagation();
@@ -36,6 +37,9 @@ const PredicatesAccordion = ({ data }) => {
     setOpenViewDiagram(false);
   };
   
+  const image = new Image();
+  image.onload = () => <img style={imgStyle} src={imgPath} alt="preview" />
+  image.src = imgPath;
   
   return (
     <>
@@ -91,7 +95,7 @@ const PredicatesAccordion = ({ data }) => {
         </Accordion>
       ))}
       
-      <ViewDiagramDialog open={openViewDiagram} handleClose={handleCloseViewDiagram} />
+      <ViewDiagramDialog open={openViewDiagram} handleClose={handleCloseViewDiagram} image={image} />
     </>
   );
 };
