@@ -6,7 +6,7 @@ const { gray200 } = vars;
 
 const Footer = () => {
     return (
-        <Box sx={{borderTop: `0.0625rem solid ${gray200}`, py: 1}}>
+        <Box sx={{width: '100%', height: '3.25rem', backgroundColor: 'white', borderTop: `0.0625rem solid ${gray200}`, py: 1, position: 'fixed', bottom: 0}}>
             <Container maxWidth="xl" sx={{display: 'flex', justifyContent:'space-between', alignItems: 'center'}}>
                 <Box display='flex' gap='0.875rem' alignItems='end'>
                     <img src={LOGO} alt="" />

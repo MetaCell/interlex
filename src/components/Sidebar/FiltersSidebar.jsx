@@ -1,6 +1,8 @@
 import React from 'react';
 import { Box, Typography, IconButton, Tooltip, FormGroup, FormLabel, FormControl, Button } from '@mui/material';
 import Checkbox from '../common/CustomCheckbox';
+import { useContext } from "react";
+import { GlobalDataContext } from "./../../contexts/DataContext";
 import { CollapseIcon, HelpOutlinedIcon, ExpandIcon } from '../../Icons';
 import { vars } from '../../theme/variables';
 
@@ -8,6 +10,8 @@ const { gray200, gray600, gray800, brand700, brand800 } = vars;
 
 export default function FiltersSidebar({filterOptions}) {
     const [open, setOpen] = React.useState(true);
+    // Filters stored in context
+    const { searchTypeFilter, setTypeFiltersData } = useContext(GlobalDataContext);
     const [expandedFilters, setExpandedFilters] = React.useState({});
     const [filterValues, setFilterValues] = React.useState(
         filterOptions.reduce((acc, option) => {
@@ -19,6 +23,12 @@ export default function FiltersSidebar({filterOptions}) {
             return acc;
         }, {})
     );
+
+
+    // Store filters changes in context
+    const handleSaveFilters = (values) => {
+        setTypeFiltersData(values);
+    };
 
     const handleToggleExpand = (category) => {
         setExpandedFilters((prev) => ({
@@ -39,11 +49,19 @@ export default function FiltersSidebar({filterOptions}) {
         });
     };
 
-    
+    // Respond to filters changes in context
+    React.useEffect( () => {
+        console.log("Filters stored ", searchTypeFilter)
+    }, [searchTypeFilter])
+
+    // Save filters in context when they change
+    React.useEffect( () => {
+        handleSaveFilters(filterValues)
+    }, filterValues)
+
     return (
         <Box
             sx={{
-                height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 borderRight: `1px solid ${gray200}`,

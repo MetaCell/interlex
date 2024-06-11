@@ -11,6 +11,9 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Search from './Search';
 import CurieEditorDialog from './CurieEditorDialog';
+import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { GlobalDataContext } from "./../../contexts/DataContext";
 
 const { gray200, white, gray100, gray600 } = vars;
 
@@ -83,19 +86,23 @@ const styles = {
 const NavMenu = [
     {
         label: 'Organizations',
-        icon: <OrganizationsIcon />
+        icon: <OrganizationsIcon />,
+        href: '/organizations'
     },
     {
         label: 'Term activity',
-        icon: <TermActivityIcon />
+        icon: <TermActivityIcon />,
+        href: '#'
     },
     {
         label: 'Documentation',
-        icon: <DocumentationIcon />
+        icon: <DocumentationIcon />,
+        href: '#'
     },
     {
         label: 'Release notes',
-        icon: <ReleaseNotesIcon />
+        icon: <ReleaseNotesIcon />,
+        href: '#'
     }
 ]
 
@@ -122,6 +129,12 @@ const Header = ({ isLoggedIn = false }) => {
     const handleCloseCurieEditor = () => {
         setOpenCurieEditor(false);
     };
+    const { user, setUserData } = useContext(GlobalDataContext);
+
+    const handleSetUserData = (user, organization) => {
+        setUserData(user, organization);
+    };
+    const navigate = useNavigate();
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -155,7 +168,14 @@ const Header = ({ isLoggedIn = false }) => {
         setOpenList(!openList);
     };
 
+    const handleMenuClick = (e, menu) => {
+        navigate(menu.href)
+    }
+
     React.useEffect(() => {
+        // TODO : Move to login page and remove this proof of concept call
+        handleSetUserData("Interlex User", "Interlex");
+
         const handleKeyDown = (event) => {
             if (event.ctrlKey && event.key === 'k') {
                 toggleList();
@@ -171,6 +191,10 @@ const Header = ({ isLoggedIn = false }) => {
             document.removeEventListener('keydown', handleKeyDown);
         };
     }, []);
+
+    React.useEffect(() => {
+        console.log("Stored user in context ", user)
+    }, [user])
 
     return (
         <Box sx={styles.root}>
@@ -197,7 +221,7 @@ const Header = ({ isLoggedIn = false }) => {
                     <List>
                         {NavMenu.map((menu, index) => (
                             <ListItem key={index} disablePadding>
-                                <ListItemButton>
+                                <ListItemButton onClick={(e) => handleMenuClick(e, menu)}>
                                     <ListItemIcon>
                                         {menu.icon}
                                     </ListItemIcon>
@@ -205,7 +229,7 @@ const Header = ({ isLoggedIn = false }) => {
                                 </ListItemButton>
                             </ListItem>
                         ))}
-                        <Divider sx={{mt: 0.5, mb: 0.5, color: gray200}}/>
+                        <Divider sx={{ mt: 0.5, mb: 0.5, color: gray200 }} />
                         <ListItem disablePadding onClick={handleClickCurieEditor}>
                             <ListItemButton>
                                 <ListItemIcon>
@@ -214,7 +238,7 @@ const Header = ({ isLoggedIn = false }) => {
                                 <ListItemText primary={'Curie Editor'} />
                             </ListItemButton>
                         </ListItem>
-                        <CurieEditorDialog open={openCurieEditor} handleClose={handleCloseCurieEditor}/>
+                        <CurieEditorDialog open={openCurieEditor} handleClose={handleCloseCurieEditor} />
                     </List>
                 </Popover>
 

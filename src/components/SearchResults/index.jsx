@@ -1,12 +1,13 @@
 import React from 'react';
+import {useParams} from 'react-router-dom';
 import { Box, Typography, Grid, ButtonGroup, Button, Stack, FormControl, Select, MenuItem, Divider } from '@mui/material';
 import { TableChartIcon, ListIcon } from '../../Icons';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ListView from './ListView';
+import OntologySearch from '../SingleTermView/OntologySearch';
 import { vars } from '../../theme/variables';
 
 const { gray50, gray200, gray300, gray600, gray700 } = vars;
-
 const mockSearchResults = [
     {
         title: 'Nervous system',
@@ -19,7 +20,7 @@ const mockSearchResults = [
         ontologyIsActive: false
     },
     {
-        title: 'Nervous system',
+        title: 'Nervous Mice',
         description: '',
         preferredId: 'UBERON:0001016',
         id: 'ILX:0107422',
@@ -29,7 +30,7 @@ const mockSearchResults = [
         ontologyIsActive: true
     },
     {
-        title: 'Nervous system',
+        title: 'Enteric Nervous System',
         description: 'The nervous system is an organ system containing predominantly neuron and glial cells. In bilaterally symmetrical organism, it is arranged in a network of tree-like structures connected to a central body.In all animals the nervous system probably differentiates from the embryonic ectodermal layer (Swanson, 2014).The main functions of the nervous system are to regulate and control body functions, and to receive sensory input, process this information, and generate behavior."The term was introduced by Monro in 1873.',
         preferredId: 'UBERON:0001016',
         id: 'ILX:0107422',
@@ -39,7 +40,7 @@ const mockSearchResults = [
         ontologyIsActive: false
     },
     {
-        title: 'Nervous system',
+        title: 'Central nervous system',
         description: 'The nervous system is an organ system containing predominantly neuron and glial cells. In bilaterally symmetrical organism, it is arranged in a network of tree-like structures connected to a central body.In all animals the nervous system probably differentiates from the embryonic ectodermal layer (Swanson, 2014).The main functions of the nervous system are to regulate and control body functions, and to receive sensory input, process this information, and generate behavior."The term was introduced by Monro in 1873.',
         preferredId: 'UBERON:0001016',
         id: 'ILX:0107422',
@@ -51,7 +52,7 @@ const mockSearchResults = [
 
 ]
 
-const CustomButton = ({ view, listView, onClick, icon }) => (
+const CustomViewButton = ({ view, listView, onClick, icon }) => (
     <Button
         sx={{
             background: listView === view ? gray50 : 'transparent',
@@ -71,19 +72,20 @@ const CustomButton = ({ view, listView, onClick, icon }) => (
     </Button>
 );
 
-const SearchResultsBox = ({ searchTerm }) => {
+const SearchResultsBox = () => {
     const [numberOfVisiblePages, setNumberOfVisiblePages] = React.useState(20);
     const [listView, setListView] = React.useState('list');
-
+    const { searchTerm } = useParams();
+    
     const handleNumberOfPagesChange = (event) => {
         setNumberOfVisiblePages(event.target.value);
     };
 
     return (
-        <Box width={1} height={1} flex={1} display="flex" flexDirection="column" px={4} py={3} gap={3} sx={{ overflowY: 'auto' }}>
+        <Box width={1} flex={1} display="flex" flexDirection="column" px={4} py={3} gap={3} sx={{ overflowY: 'auto' }}>
             <Grid container justifyContent={{ lg: 'space-between', xs: 'flex-end', md: 'flex-end' }} alignItems="center">
                 <Grid item xs={12} lg={6} sm={6}>
-                    <Typography variant="h5">{mockSearchResults.length} results for "{searchTerm}" search</Typography>
+                    <Typography variant="h5">{mockSearchResults.length} results for {searchTerm} search</Typography>
                 </Grid>
                 <Grid item xs={12} lg={6} sm={6}>
                     <Box display="flex" alignItems="center" gap={2} justifyContent="end">
@@ -119,15 +121,14 @@ const SearchResultsBox = ({ searchTerm }) => {
                                 </Select>
                             </FormControl>
                         </Stack>
-                        <Divider orientation="vertical" flexItem sx={{ borderColor: gray200 }} />
                         <ButtonGroup variant="outlined" aria-label="View mode">
-                            <CustomButton
+                            <CustomViewButton
                                 view="list"
                                 listView={listView}
                                 onClick={() => setListView('list')}
                                 icon={<ListIcon />}
                             />
-                            <CustomButton
+                            <CustomViewButton
                                 view="table"
                                 listView={listView}
                                 disabled
@@ -135,8 +136,10 @@ const SearchResultsBox = ({ searchTerm }) => {
                                 icon={<TableChartIcon />}
                             />
                         </ButtonGroup>
+                        <Divider orientation="vertical" flexItem sx={{ borderColor: gray200 }} />
                         <Stack direction="row" alignItems="center" gap={1}>
                             <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Active Ontology:</Typography>
+                            <OntologySearch/>
                         </Stack>
                     </Box>
                 </Grid>
