@@ -13,8 +13,10 @@ const historyEntries = [
 ];
 
 const HistoryPanel = () => (
-    <Box width={1} sx={{ maxWidth: '50rem' }}>
-        <List disablePadding>
+    <Box p="2.5rem 5rem" sx={{
+        overflow: 'auto',
+      }}>
+        <List disablePadding width={1} sx={{ maxWidth: '50rem' }}>
             {historyEntries.map((entry, index) => (
                 <Box key={`${entry.author}_${index}`} sx={{
                     paddingLeft: '1rem',
