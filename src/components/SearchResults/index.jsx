@@ -20,7 +20,7 @@ const mockSearchResults = [
         ontologyIsActive: false
     },
     {
-        title: 'Nervous system',
+        title: 'Nervous Mice',
         description: '',
         preferredId: 'UBERON:0001016',
         id: 'ILX:0107422',
@@ -30,7 +30,7 @@ const mockSearchResults = [
         ontologyIsActive: true
     },
     {
-        title: 'Nervous system',
+        title: 'Enteric Nervous System',
         description: 'The nervous system is an organ system containing predominantly neuron and glial cells. In bilaterally symmetrical organism, it is arranged in a network of tree-like structures connected to a central body.In all animals the nervous system probably differentiates from the embryonic ectodermal layer (Swanson, 2014).The main functions of the nervous system are to regulate and control body functions, and to receive sensory input, process this information, and generate behavior."The term was introduced by Monro in 1873.',
         preferredId: 'UBERON:0001016',
         id: 'ILX:0107422',
@@ -40,7 +40,7 @@ const mockSearchResults = [
         ontologyIsActive: false
     },
     {
-        title: 'Nervous system',
+        title: 'Central nervous system',
         description: 'The nervous system is an organ system containing predominantly neuron and glial cells. In bilaterally symmetrical organism, it is arranged in a network of tree-like structures connected to a central body.In all animals the nervous system probably differentiates from the embryonic ectodermal layer (Swanson, 2014).The main functions of the nervous system are to regulate and control body functions, and to receive sensory input, process this information, and generate behavior."The term was introduced by Monro in 1873.',
         preferredId: 'UBERON:0001016',
         id: 'ILX:0107422',
