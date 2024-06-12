@@ -7,10 +7,8 @@
 import type { TermPrefixes } from './termPrefixes';
 
 export interface Term {
-  description: string;
   /** Unique identifier */
   id: string;
-  name: string;
   prefixes: TermPrefixes;
   triples: string[][];
 }
