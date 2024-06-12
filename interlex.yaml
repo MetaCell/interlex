@@ -230,7 +230,7 @@ paths:
       summary: List all matching terms
       operationId: get_match_terms
       tags:
-        - API
+        - term
       parameters:
         - name: term
           in: path
@@ -320,23 +320,13 @@ components:
       type: object
       required:
         - id
-        - name
-        - description
         - prefixes
         - triples
       properties:
         id:
           description: Unique identifier
           type: string
-          x-unique: true
-          x-primary-key: true
           example: 'ilx_0101431'
-        name:
-          type: string
-          example : rdfs:label 
-        description:
-          type: string
-          example : rdfs:comment
         prefixes:
           type: object
         triples:
