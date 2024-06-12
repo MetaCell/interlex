@@ -1,38 +1,27 @@
 const data = {
     type: "node",
-    name: "boss",
-    value: 0,
+    name: "Nervous System",
+    value: 10,
     children: [
       {
         type: "node",
-        name: "Team Dataviz",
-        value: 0,
+        name: "Central Nervous System",
+        value: 10,
         children: [
-          { type: "leaf", name: "Mark", value: 90 },
-          { type: "leaf", name: "Robert", value: 12 },
-          { type: "leaf", name: "Emily", value: 34 },
-          { type: "leaf", name: "Marion", value: 53 },
+          {
+            type: "node",
+            name: "Is Part Of",
+            value: 10,
+            children: [
+              { type: "leaf", name: "Extrensic Neuron", value: 90 },
+              { type: "leaf", name: "Nerve Tract", value: 12 },
+              { type: "leaf", name: "Nucleus of CNS", value: 34 },
+              { type: "leaf", name: "Pdf Neuron of abdominal neuromere", value: 53 },
+              { type: "leaf", name: "SP1 Neuron", value: 12 },
+            ],
+          }
         ],
-      },
-      {
-        type: "node",
-        name: "Team DevOps",
-        value: 0,
-        children: [
-          { type: "leaf", name: "Nicolas", value: 98 },
-          { type: "leaf", name: "Malki", value: 22 },
-          { type: "leaf", name: "Djé", value: 12 },
-        ],
-      },
-      {
-        type: "node",
-        name: "Team Sales",
-        value: 0,
-        children: [
-          { type: "leaf", name: "Mélanie", value: 45 },
-          { type: "leaf", name: "Einstein", value: 76 },
-        ],
-      },
+      }
     ],
   };
 

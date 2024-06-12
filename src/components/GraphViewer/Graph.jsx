@@ -2,6 +2,7 @@ import { useMemo, useEffect, useState } from "react";
 import data from "./GraphStructure";
 import * as d3 from "d3";
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
+import { termParser } from "../../parsers/termParser";
 
 const MARGIN = { top: 60, right: 60, bottom: 60, left: 60 };
 const useMockApi = () => mockApi;
@@ -15,9 +16,13 @@ const Graph = ({ width, height }) => {
   const [terms, setTerms] = useState(undefined);
 
   useEffect(() => {
-      setTimeout(() => {
-          getMatchTerms("ilx_0101431").then(setTerms);
-      }, 1000);
+    setTimeout( () => {
+        getMatchTerms("ilx_0101431").then(data => { 
+            const parsedData = termParser(data, "brain")
+            console.log("Parsed retrieved data : ", parsedData)
+            setTerms(parsedData)
+        });
+    }, 750);
   }, []);
   
   const hierarchy = useMemo(() => {
@@ -33,20 +38,15 @@ const Graph = ({ width, height }) => {
   const allNodes = dendrogram.descendants().map((node) => {
     return (
       <g key={node.id}>
-        <circle
-          cx={node.y}
-          cy={node.x}
-          r={5}
-          stroke="transparent"
-          fill={"#69b3a2"}
-        />
-        {!node.children && (
+        {(
           <text
-            x={node.y + 15}
-            y={node.x}
+            x={boundsWidth - (node.y + 30)}
+            y={node.x - 15}
             fontSize={12}
             textAnchor="left"
             alignmentBaseline="middle"
+            stroke="black"
+            fill="darkOrange"
           >
             {node.data.name}
           </text>
@@ -66,9 +66,10 @@ const Graph = ({ width, height }) => {
         key={node.id}
         fill="none"
         stroke="grey"
+        markerStart='url(#arrow)'
         d={horizontalLinkGenerator({
-          source: [node.parent.y, node.parent.x],
-          target: [node.y, node.x],
+          source: [boundsWidth - node.parent.y + 30, node.parent.x - 15],
+          target: [boundsWidth - node.y + 30, node.x - 15],
         })}
       />
     );
