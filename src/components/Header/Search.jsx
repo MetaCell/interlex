@@ -46,7 +46,13 @@ const Search = () => {
     setSearchTerm("");
     setSelectedValue(newInputValue?.label);
     handleCloseList();
-    navigate(`/search/${newInputValue?.label}`);
+    navigate(`/view/${newInputValue?.label}`);
+  };
+  
+  const handleClickSearchTerm = () => {
+    setSelectedValue(searchTerm);
+    handleCloseList();
+    navigate(`/search/${searchTerm}`);
   };
   
   const toggleList = () => {
@@ -198,7 +204,9 @@ const Search = () => {
                 }}>
                   <Typography variant='body1'>I’m looking for...</Typography>
                 </ListItem>
-                <ListItem className='MuiAutocomplete-option' sx={{
+                <ListItem className='MuiAutocomplete-option'
+                  onClick={handleClickSearchTerm}
+                  sx={{
                   display: 'flex',
                   gap: '0.5rem',
                   alignItems: 'center',
