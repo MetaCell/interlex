@@ -22,6 +22,7 @@ import CustomButton from "../common/CustomButton";
 import CustomMenu from "./CustomMenu";
 import React from "react";
 import OverView from "./OverView/OverView";
+import VariantsPanel from "./Variants/VariantsPanel";
 import {
   CreateNewFolderOutlined,
   DownloadOutlined,
@@ -194,7 +195,7 @@ const SingleTermView = () => {
         tabValue === 0 &&  <OverView isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat}/>
       }
       {
-        tabValue === 1 &&  <Box>Variants</Box>
+        tabValue === 1 &&  <VariantsPanel/>
       }
       {
         tabValue === 2 &&  <Box>history</Box>

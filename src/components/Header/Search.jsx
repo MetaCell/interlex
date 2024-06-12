@@ -6,6 +6,7 @@ import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
 import React from "react";
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import { termParser } from "../../parsers/termParser";
 import {useNavigate} from "react-router-dom";
 
 const { gray200, gray100, gray600, gray800, gray500 } = vars;
@@ -18,20 +19,13 @@ const styles = {
 
 const useMockApi = () => mockApi;
 const Search = () => {
-    const options = ['Nervous', 'Central Nervous System', 'Nervous System', 'ELectric Nervous Sytem'];
-    const [searchTerm, setSearchTerm] = React.useState('');
+    const [searchTerm, setSearchTerm] = React.useState("");
     const [openList, setOpenList] = React.useState(false);
     const navigate = useNavigate();
 
     const {  getMatchTerms } = useMockApi();
 
-    const [terms, setTerms] = useState(undefined);
-
-    useEffect(() => {
-        setTimeout(() => {
-            getMatchTerms("ilx_0101431").then(setTerms);
-        }, 1000);
-    }, []);
+    const [terms, setTerms] = useState([]);
     
     const handleOpenList = () => {
       setOpenList(true);
@@ -50,22 +44,34 @@ const Search = () => {
       setOpenList(!openList);
     };
 
-    React.useEffect(() => {
-      const handleKeyDown = (event) => {
+    const handleKeyDown = React.useCallback( event => {
         if (event.ctrlKey && event.key === 'k') {
           toggleList();
         }
         if (event.key === 'Escape') {
           handleCloseList();
         }
-      };
-  
+      }, []);
+
+    useEffect(() => {
       document.addEventListener('keydown', handleKeyDown);
   
       return () => {
         document.removeEventListener('keydown', handleKeyDown);
       };
-    }, []);
+    }, [handleKeyDown]);
+
+    useEffect( () => {
+        // Call endpoint to retrieve terms that match search word
+        setTimeout( () => {
+            searchTerm?.length > 0 && getMatchTerms(searchTerm).then(data => { 
+                const parsedData = termParser(data, searchTerm)
+                console.log("Parsed retrieved data : ", parsedData)
+                setTerms(parsedData)
+                handleOpenList()
+            });
+        }, 750);
+    }, [searchTerm])
 
     return (
       <Autocomplete
@@ -74,7 +80,8 @@ const Search = () => {
                   borderRadius: openList ? '0.5rem 0.5rem 0 0' : '0.5rem'
               }
             }}
-          options={terms ? terms?.map( term => term.name ) : options}
+          options={terms}
+          filterOptions={ options  => options }
           open={openList}
           onOpen={handleOpenList}
           onClose={handleCloseList}
@@ -100,8 +107,8 @@ const Search = () => {
                       },
                   }} {...props}>
                     <TermsIcon />
-                    <Typography variant='body1'>{option}</Typography>
-                    <Typography variant='body2'>Olivia Rhye</Typography>
+                    <Typography variant='body1'>{option?.label}</Typography>
+                    <Typography variant='body2'>{option?.submittedBy}</Typography>
                     {selected ? <Chip label="Fork" variant='outlined' color='success' /> : <Chip label="Curated" variant='outlined' />}
                       <Button
                           variant='text'

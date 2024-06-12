@@ -148,6 +148,17 @@ export const CodeIcon = () => (
     </svg>
 )
 
+export const ArrowOutwardIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M7.91667 3.75V5.41667H13.4083L3.75 15.075L4.925 16.25L14.5833 6.59167V12.0833H16.25V3.75H7.91667Z" fill="#515252"/>
+    </svg>
+)
+
+export const DownloadIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M15.8337 7.91675H12.5003V2.91675H7.50033V7.91675H4.16699L10.0003 13.7501L15.8337 7.91675ZM9.16699 9.58342V4.58341H10.8337V9.58342H11.8087L10.0003 11.3917L8.19199 9.58342H9.16699ZM4.16699 15.4167H15.8337V17.0834H4.16699V15.4167Z" fill="#515252"/>
+    </svg>
+) 
 export const SendComment = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
     <path d="M2.925 5.025L9.18333 7.70833L2.91667 6.875L2.925 5.025ZM9.175 12.2917L2.91667 14.975V13.125L9.175 12.2917ZM1.25833 2.5L1.25 8.33333L13.75 10L1.25 11.6667L1.25833 17.5L18.75 10L1.25833 2.5Z" fill="#313534"/>

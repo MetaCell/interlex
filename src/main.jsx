@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import './index.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
-import { AuthProvider } from './api/mutator/auth.context';
+import { AuthProvider } from './mutator/auth.context';
 import worker from './mock'
 const queryClient = new QueryClient();
 import * as serviceWorker from './serviceWorker';
