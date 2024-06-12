@@ -77,9 +77,10 @@ const CustomViewButton = ({ view, listView, onClick, icon }) => (
 const useMockApi = () => mockApi;
 const ILX = "ilx_";
 
-const SearchResultsBox = ({ searchTerm }) => {
+const SearchResultsBox = () => {
     const [numberOfVisiblePages, setNumberOfVisiblePages] = React.useState(20);
     const [listView, setListView] = React.useState('list');
+    const { searchTerm } = useParams();
 
     const {  getMatchTerms } = useMockApi();
 
@@ -91,12 +92,11 @@ const SearchResultsBox = ({ searchTerm }) => {
 
     React.useEffect( () => {
         // Call endpoint to retrieve terms that match search word
-        getMatchTerms(searchTerm).then(data => { 
+        getMatchTerms(searchTerm).then(data => {
             const parsedData = termParser(data, searchTerm)
-            console.log("Parsed retrieved data : ", parsedData)
             setTerms(parsedData)
         });
-    }, [])
+    }, [searchTerm])
 
     return (
         <Box width={1} flex={1} display="flex" flexDirection="column" px={4} py={3} gap={3} sx={{ overflowY: 'auto' }}>

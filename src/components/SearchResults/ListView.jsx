@@ -3,7 +3,7 @@ import CustomButton from '../common/CustomButton';
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { vars } from '../../theme/variables';
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 
 const { gray200, gray500, gray700, brand50, brand200, brand600, brand700, error50, error300, error700 } = vars;
 
@@ -42,7 +42,7 @@ const TitleSection = ({ searchResult }) => {
                         visibility: 'hidden',
                         transition: 'opacity 0.3s ease-in-out'
                     }}
-                    onClick={(e) => handleClick(e, searchResult.title)}
+                    onClick={(e) => handleClick(e, searchResult.label)}
                 >
                     <CreateNewFolderOutlinedIcon fontSize="medium" />
                     Add term to active ontology

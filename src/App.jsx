@@ -32,7 +32,7 @@ function MainContent() {
                       <SearchResultsBox />
                   </Box>
               } />
-              <Route path="/view/:term" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><SingleTermView /></Box>} />
+              <Route path="/view/:searchTerm" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><SingleTermView /></Box>} />
               <Route path="/organizations" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><Organizations /></Box>} />
           </Routes>
           {showFooter && <Footer />}
