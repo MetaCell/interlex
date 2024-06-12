@@ -18,7 +18,7 @@ const TitleSection = ({ searchResult }) => {
     return (
         <Box display="flex" justifyContent="space-between" alignItems="center">
             <Stack direction="row" alignItems="center" gap={1.5}>
-                <Typography variant='h6' sx={{ color: gray700 }}>{searchResult.title}</Typography>
+                <Typography variant='h6' sx={{ color: gray700 }}>{searchResult.label}</Typography>
                 <Chip label="Curated" variant="outlined" />
             </Stack>
             {searchResult.ontologyIsActive ? (
@@ -97,7 +97,7 @@ const ListView = ({ searchResults }) => {
         <Box>
             {searchResults.map((searchResult, index) => (
                 <Box
-                    key={`${searchResult.title}_${index}`}
+                    key={`${searchResult.label}_${index}`}
                     sx={{
                         borderBottom: `1px solid ${gray200}`,
                         p: 3,
