@@ -8,7 +8,7 @@ import { getComparator, stableSort } from "../../utils";
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 
-const rows = [
+const initialRows = [
     { id: 1, prefix: 'curiesILX', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' },
     { id: 2, prefix: 'iLX', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' },
     { id: 3, prefix: 'iLX', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' },
@@ -43,6 +43,7 @@ const HeaderRightSideContent = () => {
 
 const CurieEditorDialog = ({ open, handleClose }) => {
     const [tabValue, setTabValue] = React.useState(0);
+    const [rows, setRows] = React.useState(initialRows);
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('prefix');
 
@@ -50,10 +51,27 @@ const CurieEditorDialog = ({ open, handleClose }) => {
         setTabValue(newValue);
     };
 
+    const addRow = () => {
+        const newRow = {
+            id: rows.length + 1,
+            prefix: '',
+            namespace: ''
+        };
+        setRows([...rows, newRow]);
+    };
+
+    const deleteRow = (rowId) => {
+        const newRows = rows.filter(row => row.id !== rowId);
+        setRows(newRows)
+    };
+
     const sortedRows = React.useMemo(
         () => stableSort(rows, getComparator(order, orderBy)),
-        [order, orderBy]
+        [rows, order, orderBy]
     );
+    console.log("rows: ", rows)
+    console.log("sortedRows: ", sortedRows)
+    
 
     return (
         <CustomizedDialog title='Curie editor' open={open} handleClose={handleClose} HeaderRightSideContent={HeaderRightSideContent}>
@@ -68,7 +86,7 @@ const CurieEditorDialog = ({ open, handleClose }) => {
                                         <TableCell align="left" sx={{ minWidth: '600px', color: '#515252', fontWeight: 400 }}>{row.prefix}</TableCell>
                                         <TableCell align="left" sx={{ minWidth: '600px', color: '#515252', fontWeight: 400 }}>{row.namespace}</TableCell>
                                         <TableCell>
-                                            <IconButton sx={{ background: 'transparent', '&:hover': { backgroundColor: '#E4E7E7' } }}>
+                                            <IconButton sx={{ background: 'transparent', '&:hover': { backgroundColor: '#E4E7E7' } }} onClick={() => deleteRow(row.id)}>
                                                 <DeleteOutlineOutlinedIcon fontSize="small" />
                                             </IconButton>
                                         </TableCell>
@@ -76,7 +94,7 @@ const CurieEditorDialog = ({ open, handleClose }) => {
                                 );
                             })}
                             <TableRow>
-                                <TableCell align="left" sx={{ borderBottom: 'none !important' }}>
+                                <TableCell align="left" sx={{ borderBottom: 'none !important' }} onClick={addRow}>
                                     <IconButton sx={{ padding: '10px', border: '1px solid #BDC2C1' }}>
                                         <AddOutlinedIcon fontSize="small" sx={{ fill: '#313534' }} />
                                     </IconButton>

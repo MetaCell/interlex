@@ -9,10 +9,26 @@ export const descendingComparator = (a, b, orderBy) => {
 }
 
 export const getComparator = (order, orderBy) => {
-    return order === 'desc'
-        ? (a, b) => descendingComparator(a, b, orderBy)
-        : (a, b) => -descendingComparator(a, b, orderBy);
-}
+    return (a, b) => {
+        const aValue = a[orderBy];
+        const bValue = b[orderBy];
+
+        if (aValue === '' && bValue === '') {
+            return 0;
+        } else if (aValue === '') {
+            return 1;
+        } else if (bValue === '') {
+            return -1;
+        } else {
+            if (order === 'desc') {
+                return bValue < aValue ? -1 : 1;
+            } else {
+                return aValue < bValue ? -1 : 1;
+            }
+        }
+    };
+};
+
 
 // stableSort brings sort stability to non-modern browsers
 export const stableSort = (array, comparator) => {
