@@ -37,12 +37,19 @@ const Search = () => {
   
     const handleInputChange = (event, newInputValue) => {
       setSearchTerm(newInputValue);
-      navigate(`/search/${newInputValue}`)
     };
   
     const toggleList = () => {
       setOpenList(!openList);
     };
+
+    const goTo = (option) => {
+        let id = option?.target?.id;
+        if ( id === "" ){
+            id = searchTerm
+        }
+        navigate(`/search/${id}`)
+    }
 
     const handleKeyDown = React.useCallback( event => {
         if (event.ctrlKey && event.key === 'k') {
@@ -112,6 +119,8 @@ const Search = () => {
                     {selected ? <Chip label="Fork" variant='outlined' color='success' /> : <Chip label="Curated" variant='outlined' />}
                       <Button
                           variant='text'
+                          id={option?.label}
+                          onClick={(option) => goTo(option)}
                           sx={{
                               p: 0, height: 'auto', lineHeight: 1, background: 'transparent',
                               '&:hover': {
@@ -189,7 +198,8 @@ const Search = () => {
                               }}>
                               <SearchIcon />
                               <Typography sx={{flex: 1}} variant='body1'>{searchTerm}</Typography>
-                              <Button 
+                              <Button
+                                  onClick={(option) => goTo(option)}
                                   variant='text' 
                                   sx={{
                                       p: 0, height: 'auto', lineHeight: 1, background: 'transparent',
