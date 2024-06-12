@@ -1,9 +1,10 @@
-import { Box, Typography, Grid, Stack, Chip } from '@mui/material';
+import {Box, Typography, Grid, Stack, Chip, CircularProgress} from '@mui/material';
 import CustomButton from '../common/CustomButton';
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { vars } from '../../theme/variables';
 import {useNavigate} from "react-router-dom";
+import React from "react";
 
 const { gray200, gray500, gray700, brand50, brand200, brand600, brand700, error50, error300, error700 } = vars;
 
@@ -91,8 +92,13 @@ const InfoSection = ({ searchResult }) => {
 };
 
 
-const ListView = ({ searchResults }) => {
-
+const ListView = ({ searchResults, loading }) => {
+  
+  if (loading) {
+    return <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%'}}>
+      <CircularProgress/>
+    </Box>
+  }
     return (
         <Box>
             {searchResults.map((searchResult, index) => (

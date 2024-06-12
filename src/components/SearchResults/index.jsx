@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {useParams} from 'react-router-dom';
 import { Box, Typography, Grid, ButtonGroup, Button, Stack, FormControl, Select, MenuItem, Divider } from '@mui/material';
 import { TableChartIcon, ListIcon } from '../../Icons';
@@ -80,6 +80,7 @@ const ILX = "ilx_";
 const SearchResultsBox = () => {
     const [numberOfVisiblePages, setNumberOfVisiblePages] = React.useState(20);
     const [listView, setListView] = React.useState('list');
+    const [loading, setLoading] = useState(false)
     const { searchTerm } = useParams();
 
     const {  getMatchTerms } = useMockApi();
@@ -92,9 +93,14 @@ const SearchResultsBox = () => {
 
     React.useEffect( () => {
         // Call endpoint to retrieve terms that match search word
+        setLoading(true)
         getMatchTerms(searchTerm).then(data => {
             const parsedData = termParser(data, searchTerm)
             setTerms(parsedData)
+            setLoading(false)
+        }).catch(error => {
+            console.log(error)
+            setLoading(false)
         });
     }, [searchTerm])
 
@@ -156,13 +162,13 @@ const SearchResultsBox = () => {
                         <Divider orientation="vertical" flexItem sx={{ borderColor: gray200 }} />
                         <Stack direction="row" alignItems="center" gap={1}>
                             <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Active Ontology:</Typography>
-                            <OntologySearch/>
+                            <OntologySearch />
                         </Stack>
                     </Box>
                 </Grid>
             </Grid>
             {listView === 'list' ? (
-                <ListView searchResults={terms}/>
+                <ListView searchResults={terms} loading={loading}/>
             ) : (
                 <p>table</p>
             )}
