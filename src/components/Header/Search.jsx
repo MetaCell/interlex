@@ -134,6 +134,7 @@ const Search = () => {
             {selected ? <Chip label="Fork" variant='outlined' color='success' /> : <Chip label="Curated" variant='outlined' />}
             <Button
               variant='text'
+              id={option?.label}
               sx={{
                 p: 0, height: 'auto', lineHeight: 1, background: 'transparent',
                 '&:hover': {
