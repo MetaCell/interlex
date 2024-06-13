@@ -10,50 +10,6 @@ import { termParser } from "../../parsers/termParser";
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 
 const { gray50, gray200, gray300, gray600, gray700 } = vars;
-const mockSearchResults = [
-    {
-        title: 'Nervous system',
-        description: 'The nervous system is an organ system containing predominantly neuron and glial cells. In bilaterally symmetrical organism, it is arranged in a network of tree-like structures connected to a central body.In all animals the nervous system probably differentiates from the embryonic ectodermal layer (Swanson, 2014).The main functions of the nervous system are to regulate and control body functions, and to receive sensory input, process this information, and generate behavior."The term was introduced by Monro in 1873.',
-        preferredId: 'UBERON:0001016',
-        id: 'ILX:0107422',
-        type: 'term',
-        score: '225.73792',
-        organization: 'Interlex',
-        ontologyIsActive: false
-    },
-    {
-        title: 'Nervous Mice',
-        description: '',
-        preferredId: 'UBERON:0001016',
-        id: 'ILX:0107422',
-        type: 'term',
-        score: '225.73792',
-        organization: 'Interlex',
-        ontologyIsActive: true
-    },
-    {
-        title: 'Enteric Nervous System',
-        description: 'The nervous system is an organ system containing predominantly neuron and glial cells. In bilaterally symmetrical organism, it is arranged in a network of tree-like structures connected to a central body.In all animals the nervous system probably differentiates from the embryonic ectodermal layer (Swanson, 2014).The main functions of the nervous system are to regulate and control body functions, and to receive sensory input, process this information, and generate behavior."The term was introduced by Monro in 1873.',
-        preferredId: 'UBERON:0001016',
-        id: 'ILX:0107422',
-        type: 'term',
-        score: '225.73792',
-        organization: 'Interlex',
-        ontologyIsActive: false
-    },
-    {
-        title: 'Central nervous system',
-        description: 'The nervous system is an organ system containing predominantly neuron and glial cells. In bilaterally symmetrical organism, it is arranged in a network of tree-like structures connected to a central body.In all animals the nervous system probably differentiates from the embryonic ectodermal layer (Swanson, 2014).The main functions of the nervous system are to regulate and control body functions, and to receive sensory input, process this information, and generate behavior."The term was introduced by Monro in 1873.',
-        preferredId: 'UBERON:0001016',
-        id: 'ILX:0107422',
-        type: 'term',
-        score: '225.73792',
-        organization: 'Interlex',
-        ontologyIsActive: false
-    },
-
-]
-
 const CustomViewButton = ({ view, listView, onClick, icon }) => (
     <Button
         sx={{
@@ -75,7 +31,6 @@ const CustomViewButton = ({ view, listView, onClick, icon }) => (
 );
 
 const useMockApi = () => mockApi;
-const ILX = "ilx_";
 
 const SearchResultsBox = () => {
     const [numberOfVisiblePages, setNumberOfVisiblePages] = React.useState(20);
