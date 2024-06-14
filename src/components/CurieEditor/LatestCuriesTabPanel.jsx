@@ -9,23 +9,10 @@ import { vars } from "../../theme/variables";
 const { gray600, brand500, gray100, gray300, gray700 } = vars;
 
 const initialRows = [
-    { id: 1, prefix: 'curiesTL', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' },
-    { id: 2, prefix: 'curiesILX', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' },
-    { id: 3, prefix: 'curiesILXM', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' },
-    { id: 4, prefix: 'MSTLKY', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' },
-    { id: 5, prefix: 'PHOTON', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' },
-    { id: 6, prefix: 'UBERON', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' },
-    { id: 7, prefix: 'UBERONSECOND', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' },
-    { id: 8, prefix: 'UBERONTHIRD', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' },
-    { id: 9, prefix: 'CURIEM', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' },
-    { id: 10, prefix: 'curieCURIE', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' },
-    { id: 11, prefix: 'ILXONE', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' }
-];
-
-const headCells = [
-    { id: 'prefix', label: 'Prefix' },
-    { id: 'namespace', label: 'Namespace' },
-    { id: 'delete-button', label: '' }
+    { id: 1, prefix: 'curiesILX', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' },
+    { id: 2, prefix: 'ILX', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' },
+    { id: 3, prefix: 'ILXm', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' },
+    { id: 4, prefix: 'MSTL', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' }
 ];
 
 const fieldStyle = {
@@ -46,7 +33,7 @@ const tableCellStyle = {
     fontWeight: 400
 }
 
-const LatestCuriesTabPanel = () => {
+const LatestCuriesTabPanel = ({ editMode, headCells }) => {
     const [rows, setRows] = React.useState(initialRows);
     const [rowIndex, setRowIndex] = React.useState(-1);
     const [columnIndex, setColumnIndex] = React.useState(-1);
@@ -90,10 +77,10 @@ const LatestCuriesTabPanel = () => {
                             <TableCell
                                 align="left"
                                 onClick={() => { setRowIndex(index); setColumnIndex(0); }}
-                                sx={{ border: rowIndex === index && columnIndex === 0 ? `2px solid ${brand500} !important` : 'inherit', ...tableCellStyle }}
+                                sx={{ border: rowIndex === index && columnIndex === 0 && editMode ? `2px solid ${brand500} !important` : 'inherit', ...tableCellStyle }}
                             >
                                 {
-                                    rowIndex === index && columnIndex === 0 ?
+                                    rowIndex === index && columnIndex === 0 && editMode ?
                                         <TextField
                                             placeholder={row.prefix}
                                             defaultValue={row.prefix}
@@ -110,10 +97,10 @@ const LatestCuriesTabPanel = () => {
                             <TableCell
                                 align="left"
                                 onClick={() => { setRowIndex(index); setColumnIndex(1); }}
-                                sx={{ border: rowIndex === index && columnIndex === 1 ? `2px solid ${brand500} !important` : 'inherit', ...tableCellStyle }}
+                                sx={{ border: rowIndex === index && columnIndex === 1 && editMode ? `2px solid ${brand500} !important` : 'inherit', ...tableCellStyle }}
                             >
                                 {
-                                    rowIndex === index && columnIndex === 1 && row.namespace === '' ?
+                                    rowIndex === index && columnIndex === 1 && row.namespace === '' && editMode ?
                                         <TextField
                                             placeholder={row.namespace}
                                             defaultValue={row.namespace}
@@ -127,21 +114,25 @@ const LatestCuriesTabPanel = () => {
                                         /> : row.namespace
                                 }
                             </TableCell>
-                            <TableCell>
-                                <IconButton sx={{ background: 'transparent', '&:hover': { backgroundColor: gray100 } }} onClick={() => deleteRow(row.id)}>
-                                    <DeleteOutlineOutlinedIcon fontSize="small" />
-                                </IconButton>
-                            </TableCell>
+                            {editMode && (
+                                <TableCell>
+                                    <IconButton sx={{ background: 'transparent', '&:hover': { backgroundColor: gray100 } }} onClick={() => deleteRow(row.id)}>
+                                        <DeleteOutlineOutlinedIcon fontSize="small" />
+                                    </IconButton>
+                                </TableCell>
+                            )}
                         </TableRow>
                     );
                 })}
-                <TableRow>
-                    <TableCell align="left" sx={{ borderBottom: 'none !important' }} onClick={addRow}>
-                        <IconButton sx={{ padding: '0.625rem', border: `1px solid ${gray300}` }}>
-                            <AddOutlinedIcon fontSize="small" sx={{ fill: gray700 }} />
-                        </IconButton>
-                    </TableCell>
-                </TableRow>
+                {editMode && (
+                    <TableRow>
+                        <TableCell align="left" sx={{ borderBottom: 'none !important' }} onClick={addRow}>
+                            <IconButton sx={{ padding: '0.625rem', border: `1px solid ${gray300}` }}>
+                                <AddOutlinedIcon fontSize="small" sx={{ fill: gray700 }} />
+                            </IconButton>
+                        </TableCell>
+                    </TableRow>
+                )}
             </CustomTable>
         </ClickAwayListener>
     )

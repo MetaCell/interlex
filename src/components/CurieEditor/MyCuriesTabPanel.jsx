@@ -15,12 +15,6 @@ const initialRows = [
     { id: 4, prefix: 'MSTL', namespace: 'http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/' }
 ];
 
-const headCells = [
-    { id: 'prefix', label: 'Prefix' },
-    { id: 'namespace', label: 'Namespace' },
-    { id: 'delete-button', label: '' }
-];
-
 const fieldStyle = {
     '& .MuiOutlinedInput-root': {
         fontWeight: 500,
@@ -39,7 +33,7 @@ const tableCellStyle = {
     fontWeight: 400
 }
 
-const MyCuriesTabPanel = () => {
+const MyCuriesTabPanel = ({ editMode, headCells }) => {
     const [rows, setRows] = React.useState(initialRows);
     const [rowIndex, setRowIndex] = React.useState(-1);
     const [columnIndex, setColumnIndex] = React.useState(-1);
@@ -83,10 +77,10 @@ const MyCuriesTabPanel = () => {
                             <TableCell
                                 align="left"
                                 onClick={() => { setRowIndex(index); setColumnIndex(0); }}
-                                sx={{ border: rowIndex === index && columnIndex === 0 ? `2px solid ${brand500} !important` : 'inherit', ...tableCellStyle }}
+                                sx={{ border: rowIndex === index && columnIndex === 0 && editMode ? `2px solid ${brand500} !important` : 'inherit', ...tableCellStyle }}
                             >
                                 {
-                                    rowIndex === index && columnIndex === 0 ?
+                                    rowIndex === index && columnIndex === 0 && editMode ?
                                         <TextField
                                             placeholder={row.prefix}
                                             defaultValue={row.prefix}
@@ -103,10 +97,10 @@ const MyCuriesTabPanel = () => {
                             <TableCell
                                 align="left"
                                 onClick={() => { setRowIndex(index); setColumnIndex(1); }}
-                                sx={{ border: rowIndex === index && columnIndex === 1 ? `2px solid ${brand500} !important` : 'inherit', ...tableCellStyle }}
+                                sx={{ border: rowIndex === index && columnIndex === 1 && editMode ? `2px solid ${brand500} !important` : 'inherit', ...tableCellStyle }}
                             >
                                 {
-                                    rowIndex === index && columnIndex === 1 && row.namespace === '' ?
+                                    rowIndex === index && columnIndex === 1 && row.namespace === '' && editMode ?
                                         <TextField
                                             placeholder={row.namespace}
                                             defaultValue={row.namespace}
@@ -120,21 +114,25 @@ const MyCuriesTabPanel = () => {
                                         /> : row.namespace
                                 }
                             </TableCell>
-                            <TableCell>
-                                <IconButton sx={{ background: 'transparent', '&:hover': { backgroundColor: gray100 } }} onClick={() => deleteRow(row.id)}>
-                                    <DeleteOutlineOutlinedIcon fontSize="small" />
-                                </IconButton>
-                            </TableCell>
+                            {editMode && (
+                                <TableCell>
+                                    <IconButton sx={{ background: 'transparent', '&:hover': { backgroundColor: gray100 } }} onClick={() => deleteRow(row.id)}>
+                                        <DeleteOutlineOutlinedIcon fontSize="small" />
+                                    </IconButton>
+                                </TableCell>
+                            )}
                         </TableRow>
                     );
                 })}
-                <TableRow>
-                    <TableCell align="left" sx={{ borderBottom: 'none !important' }} onClick={addRow}>
-                        <IconButton sx={{ padding: '0.625rem', border: `1px solid ${gray300}` }}>
-                            <AddOutlinedIcon fontSize="small" sx={{ fill: gray700 }} />
-                        </IconButton>
-                    </TableCell>
-                </TableRow>
+                {editMode && (
+                    <TableRow>
+                        <TableCell align="left" sx={{ borderBottom: 'none !important' }} onClick={addRow}>
+                            <IconButton sx={{ padding: '0.625rem', border: `1px solid ${gray300}` }}>
+                                <AddOutlinedIcon fontSize="small" sx={{ fill: gray700 }} />
+                            </IconButton>
+                        </TableCell>
+                    </TableRow>
+                )}
             </CustomTable>
         </ClickAwayListener>
     )

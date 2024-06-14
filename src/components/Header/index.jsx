@@ -10,7 +10,6 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Search from './Search';
-import CurieEditorDialog from '../CurieEditor/CurieEditorDialog';
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { GlobalDataContext } from "./../../contexts/DataContext";
@@ -120,15 +119,6 @@ const UserNavMenu = [
 const Header = ({ isLoggedIn = false }) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
-    const [openCurieEditor, setOpenCurieEditor] = React.useState(false);
-
-    const handleClickCurieEditor = () => {
-        setOpenCurieEditor(true);
-    };
-
-    const handleCloseCurieEditor = () => {
-        setOpenCurieEditor(false);
-    };
     const { user, setUserData } = useContext(GlobalDataContext);
 
     const handleSetUserData = (user, organization) => {
@@ -150,6 +140,10 @@ const Header = ({ isLoggedIn = false }) => {
 
     const handleUserClose = () => {
         setAnchorElUser(null);
+    };
+
+    const handleClickCurieEditor = () => {
+        navigate('curie-editor')
     };
 
     const open = Boolean(anchorEl);
@@ -238,7 +232,6 @@ const Header = ({ isLoggedIn = false }) => {
                                 <ListItemText primary={'Curie Editor'} />
                             </ListItemButton>
                         </ListItem>
-                        <CurieEditorDialog open={openCurieEditor} handleClose={handleCloseCurieEditor} />
                     </List>
                 </Popover>
 
