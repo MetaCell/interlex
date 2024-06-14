@@ -3,7 +3,7 @@ import CustomButton from '../common/CustomButton';
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { vars } from '../../theme/variables';
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import React from "react";
 
 const { gray200, gray500, gray700, brand50, brand200, brand600, brand700, error50, error300, error700 } = vars;
@@ -13,7 +13,7 @@ const TitleSection = ({ searchResult }) => {
   const navigate = useNavigate();
   
   const handleClick = (e, term) => {
-    navigate(`/view/${term}`);
+    navigate(`/view?searchTerm=${term}`);
   };
 
     return (
@@ -93,6 +93,12 @@ const InfoSection = ({ searchResult }) => {
 
 
 const ListView = ({ searchResults, loading }) => {
+  const navigate = useNavigate();
+
+  const handleClick = (searchResult) => {
+    navigate(`/view?searchTerm=${searchResult?.label}`);
+  };
+  
   
   if (loading) {
     return <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%'}}>
@@ -104,7 +110,9 @@ const ListView = ({ searchResults, loading }) => {
             {searchResults.map((searchResult, index) => (
                 <Box
                     key={`${searchResult.label}_${index}`}
+                    onClick={() => handleClick(searchResult)}
                     sx={{
+                      cursor: 'pointer',
                         borderBottom: `1px solid ${gray200}`,
                         p: 3,
                         position: 'relative',

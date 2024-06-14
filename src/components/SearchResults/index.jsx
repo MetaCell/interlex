@@ -1,5 +1,4 @@
-import React, {useState} from 'react';
-import {useParams} from 'react-router-dom';
+import React, {useEffect, useRef, useState} from 'react';
 import { Box, Typography, Grid, ButtonGroup, Button, Stack, FormControl, Select, MenuItem, Divider } from '@mui/material';
 import { TableChartIcon, ListIcon } from '../../Icons';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -8,6 +7,8 @@ import OntologySearch from '../SingleTermView/OntologySearch';
 import { vars } from '../../theme/variables';
 import { termParser } from "../../parsers/termParser";
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
+import {useQuery} from "../../helpers";
+import { debounce } from 'lodash';
 
 const { gray50, gray200, gray300, gray600, gray700 } = vars;
 const CustomViewButton = ({ view, listView, onClick, icon }) => (
@@ -29,15 +30,14 @@ const CustomViewButton = ({ view, listView, onClick, icon }) => (
         {icon}
     </Button>
 );
-
 const useMockApi = () => mockApi;
 
 const SearchResultsBox = () => {
     const [numberOfVisiblePages, setNumberOfVisiblePages] = React.useState(20);
     const [listView, setListView] = React.useState('list');
     const [loading, setLoading] = useState(false)
-    const { searchTerm } = useParams();
-
+    const query = useQuery();
+    const searchTerm = query.get('searchTerm');
     const {  getMatchTerms } = useMockApi();
 
     const [terms, setTerms] = React.useState([]);
@@ -45,21 +45,27 @@ const SearchResultsBox = () => {
     const handleNumberOfPagesChange = (event) => {
         setNumberOfVisiblePages(event.target.value);
     };
-
-    React.useEffect( () => {
-        // Call endpoint to retrieve terms that match search word
-        setLoading(true)
-        getMatchTerms(searchTerm).then(data => {
-            const parsedData = termParser(data, searchTerm)
-            setTerms(parsedData)
-            setLoading(false)
-        }).catch(error => {
-            console.log(error)
-            setLoading(false)
+  
+  const fetchTerms = useRef(
+    debounce((searchTerm) => {
+      setLoading(true);
+      getMatchTerms(searchTerm)
+        .then((data) => {
+          const parsedData = termParser(data, searchTerm);
+          setTerms(parsedData);
+          setLoading(false);
+        })
+        .catch((error) => {
+          setLoading(false);
         });
-    }, [searchTerm])
-
-    return (
+    }, 500)
+  ).current;
+  
+  useEffect(() => {
+    fetchTerms(searchTerm);
+  }, [searchTerm, fetchTerms]);
+  
+  return (
         <Box width={1} flex={1} display="flex" flexDirection="column" px={4} py={3} gap={3} sx={{ overflowY: 'auto' }}>
             <Grid container justifyContent={{ lg: 'space-between', xs: 'flex-end', md: 'flex-end' }} alignItems="center">
                 <Grid item xs={12} lg={6} sm={6}>
