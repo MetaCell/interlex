@@ -1,4 +1,3 @@
-import * as React from 'react';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -41,7 +40,9 @@ function a11yProps(index) {
   };
 }
 
-const CustomIconTabs = ({tabs, handleChange, value}) => {
+const CustomIconTabs = (props) => {
+  
+  const {tabs, handleChange, value} = props;
 
   return (
     <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" sx={{
@@ -71,11 +72,11 @@ const CustomIconTabs = ({tabs, handleChange, value}) => {
           backgroundColor: gray50,
           color: gray800,
         }
-      }
-      
+      },
+        ...props.sx
     }}>
       {
-        tabs.map((tab, i) => <Tab icon={tab} key={i} {...a11yProps(i)} />)
+        tabs.map((tab, i) => <Tab icon={tab.icon} value={tab.value} key={i} {...a11yProps(i)} />)
       }
     </Tabs>
   );
