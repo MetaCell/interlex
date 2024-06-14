@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { Box, Typography, CircularProgress, Divider, Grid, Stack, FormControl, Select, MenuItem } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Typography, Divider, Grid, Stack, FormControl, Select, MenuItem } from "@mui/material";
 import CustomButton from "../common/CustomButton";
 import BasicTabs from "../common/CustomTabs";
 import CurieEditorDialog from "./CurieEditorDialog";
-import MyCuriesTabPanel from "./MyCuriesTabPanel";
-import CuratedCuriesTabPanel from "./CuratedCuriesTabPanel";
-import LatestCuriesTabPanel from "./LatestCuriesTabPanel";
+import CuriesTabPanel from "./CuriesTabPanel";
 import { EditNoteIcon } from "../../Icons";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { vars } from "../../theme/variables";
@@ -18,12 +16,15 @@ const headCells = [
 ];
 
 const CurieEditor = () => {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [curieAmount, setCurieAmount] = useState(0);
     const [numberOfVisiblePages, setNumberOfVisiblePages] = React.useState(5);
     const [openCurieEditor, setOpenCurieEditor] = React.useState(false);
     const [pageOptions, setPageOptions] = useState([5, 10, 15]);
     const [tabValue, setTabValue] = React.useState(0);
+
+    const handleCurieAmountChange = (value) => {
+        setCurieAmount(value)
+    }
 
     const handleClickCurieEditor = () => {
         setOpenCurieEditor(true);
@@ -41,23 +42,12 @@ const CurieEditor = () => {
         setNumberOfVisiblePages(event.target.value);
     };
 
-
-    if (loading) {
-        return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1 }}>
-            <CircularProgress />
-        </Box>
-    }
-
-    if (error) {
-        return <div>error</div>;
-    }
-
     return (
         <Box p='1.5rem 2.5rem' flexGrow={1} overflow='auto'>
             <Grid container>
                 <Grid item xs={12} lg={4}>
                     <Typography fontSize='1.5rem' color={gray600} fontWeight={600}>
-                        5 curies
+                        {curieAmount} curies
                     </Typography>
                 </Grid>
                 <Grid item display="flex" justifyContent='end' xs={12} lg={8}>
@@ -103,15 +93,15 @@ const CurieEditor = () => {
             </Grid>
             <Grid container mt={3}>
                 <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["My curies", "Curated", "Latest"]} />
-                <Box flexGrow={1} overflow="auto" p="2.5rem 0.5rem">
+                <Box flexGrow={1} overflow="auto" p="2.5rem 0.5rem" width={1}>
                     {
-                        tabValue === 0 && <MyCuriesTabPanel headCells={headCells} />
+                        tabValue === 0 && <CuriesTabPanel curieValue={"base"} headCells={headCells} onCurieAmountChange={handleCurieAmountChange} />
                     }
                     {
-                        tabValue === 1 && <CuratedCuriesTabPanel headCells={headCells} />
+                        tabValue === 1 && <CuriesTabPanel curieValue={"curated"} headCells={headCells} onCurieAmountChange={handleCurieAmountChange} />
                     }
                     {
-                        tabValue === 2 && <LatestCuriesTabPanel headCells={headCells} />
+                        tabValue === 2 && <CuriesTabPanel curieValue={"latest"} headCells={headCells} onCurieAmountChange={handleCurieAmountChange} />
                     }
                 </Box>
             </Grid>

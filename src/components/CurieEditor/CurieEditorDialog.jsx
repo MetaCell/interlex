@@ -3,12 +3,8 @@ import { Box, Button } from "@mui/material";
 import CustomizedDialog from "../common/CustomizedDialog";
 import { EditNoteIcon } from "../../Icons";
 import BasicTabs from "../common/CustomTabs";
-import MyCuriesTabPanel from "./MyCuriesTabPanel";
-import CuratedCuriesTabPanel from "./CuratedCuriesTabPanel";
-import LatestCuriesTabPanel from "./LatestCuriesTabPanel";
-import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
+import CuriesTabPanel from "./CuriesTabPanel";
 
-const useMockApi = () => mockApi;
 
 const headCells = [
     { id: 'prefix', label: 'Prefix' },
@@ -30,34 +26,25 @@ const HeaderRightSideContent = () => {
 }
 
 const CurieEditorDialog = ({ open, handleClose }) => {
-    const { getCuries } = useMockApi();
     const [tabValue, setTabValue] = React.useState(0);
-    const [rows, setRows] = React.useState([]);
 
     const handleChangeTabs = (event, newValue) => {
         setTabValue(newValue);
     };
 
-    // React.useEffect( () => {
-    //     getCuries("base").then(data => { 
-    //         const parsedData = curieParser(data)
-    //         console.log("Parsed retrieved curies : ", parsedData)
-    //     });
-    // }, [])
-
     return (
         <CustomizedDialog title='Curie editor' open={open} handleClose={handleClose} HeaderRightSideContent={HeaderRightSideContent}>
             <Box sx={{ padding: '12px 20px' }}>
                 <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["My curies", "Curated", "Latest"]} />
-                <Box flexGrow={1} overflow="auto" p="2.5rem 0.5rem">
+                <Box flexGrow={1} overflow="auto" p="2.5rem 0.5rem" width={1}>
                     {
-                        tabValue === 0 && <MyCuriesTabPanel editMode headCells={headCells} />
+                        tabValue === 0 && <CuriesTabPanel curieValue={"base"} editMode headCells={headCells} />
                     }
                     {
-                        tabValue === 1 && <CuratedCuriesTabPanel editMode headCells={headCells} />
+                        tabValue === 1 && <CuriesTabPanel curieValue={"curated"} editMode headCells={headCells} />
                     }
                     {
-                        tabValue === 2 && <LatestCuriesTabPanel editMode headCells={headCells} />
+                        tabValue === 2 && <CuriesTabPanel curieValue={"latest"} editMode headCells={headCells} />
                     }
                 </Box>
             </Box>
