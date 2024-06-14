@@ -3,12 +3,12 @@ import { vars } from "../../theme/variables";
 import { useEffect, useState, useCallback } from 'react';
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
-import React from "react";
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import { termParser } from "../../parsers/termParser";
-import { useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { debounce } from 'lodash';
+import { useQuery } from "../../helpers";
 
 const { gray200, gray100, gray600, gray800, gray500 } = vars;
 
@@ -21,9 +21,11 @@ const styles = {
 const useMockApi = () => mockApi;
 
 const Search = () => {
-  const [searchTerm, setSearchTerm] = React.useState( "");
-  const [openList, setOpenList] = React.useState(false);
-  const [selectedValue, setSelectedValue] = React.useState(null);
+  const query = useQuery();
+  const storedSearchTerm = query.get('searchTerm');
+  const [searchTerm, setSearchTerm] = useState(storedSearchTerm || "");
+  const [openList, setOpenList] = useState(false);
+  const [selectedValue, setSelectedValue] = useState(null);
   const navigate = useNavigate();
   
   const { getMatchTerms } = useMockApi();
@@ -46,20 +48,26 @@ const Search = () => {
     setSearchTerm("");
     setSelectedValue(newInputValue?.label);
     handleCloseList();
-    navigate(`/view/${newInputValue?.label}`);
+    navigate(`/view?searchTerm=${newInputValue?.label}`);
   };
   
   const handleClickSearchTerm = () => {
     setSelectedValue(searchTerm);
     handleCloseList();
-    navigate(`/search/${searchTerm}`);
+    navigate(`/search?searchTerm=${searchTerm}`);
   };
   
   const toggleList = () => {
     setOpenList(!openList);
   };
   
-  const handleKeyDown = useCallback( event => {
+  const onInputFocus = (event) => {
+    if (event.target.value) {
+      fetchTerms(event.target.value)
+    }
+  }
+  
+  const handleKeyDown = useCallback(event => {
     if (event.ctrlKey && event.key === 'k') {
       toggleList();
     }
@@ -77,21 +85,17 @@ const Search = () => {
   }, [handleKeyDown]);
   
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
-    if (searchTerm) {
-      const data = await getMatchTerms(searchTerm);
-      const parsedData = termParser(data, searchTerm);
-      setTerms(parsedData);
-      handleOpenList();
-    } else {
-      setTerms([]);
-    }
+    const data = await getMatchTerms(searchTerm);
+    const parsedData = termParser(data, searchTerm);
+    setTerms(parsedData);
+    handleOpenList();
   }, 500), [getMatchTerms]);
   
   useEffect(() => {
-    if (searchTerm) {
+    if (storedSearchTerm !== searchTerm) {
       fetchTerms(searchTerm);
     }
-  }, [searchTerm, fetchTerms]);
+  }, [searchTerm, fetchTerms, storedSearchTerm]);
   
   
   return (
@@ -103,10 +107,11 @@ const Search = () => {
       }}
       options={terms}
       onChange={onSelectTerm}
-      filterOptions={ options  => options }
+      filterOptions={options => options}
       open={openList}
       onOpen={handleOpenList}
       onClose={handleCloseList}
+      onFocus={onInputFocus}
       forcePopupIcon={false}
       renderOption={(props, option, state) => {
         const { selected } = state;
@@ -180,7 +185,7 @@ const Search = () => {
       ListboxComponent={(props) => {
         return (
           <>
-            { searchTerm && ( <><Box p="0.875rem 0.5rem 0.5rem 0.5rem">
+            {searchTerm && (<><Box p="0.875rem 0.5rem 0.5rem 0.5rem">
               <List sx={{
                 '& .MuiTypography-body1': {
                   fontSize: '0.875rem',
