@@ -2,9 +2,11 @@
 
 This template provides instructions on how to use the API.
 
+- [API - Search for Terms](https://github.com/MetaCell/interlex/tree/feature/ILEX-31/src/api##searching-for-terms)
+- [API - Get Curies](https://github.com/MetaCell/interlex/tree/feature/ILEX-31/src/api#retrieving-curies)
 
-- Search 
-Sample Code 
+### Searching for Terms
+- Sample Code 
 ```
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 
@@ -27,7 +29,7 @@ const Test = () => {
 };
 ```
 
-Sample Search Return
+- Sample Search Return
 ```
 [
     {
@@ -80,8 +82,8 @@ Sample Search Return
 ]
 ```
 
-- Get Curies
-
+### Retrieving Curies
+- Sample Code
 ```
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 
@@ -101,7 +103,7 @@ const Test = () => {
 };
 ```
 
-Sample Return
+- Sample Return
 ```
 [
     {
