@@ -21,13 +21,12 @@ const styles = {
 const useMockApi = () => mockApi;
 
 const Search = () => {
-  const query = useQuery();
-  const storedSearchTerm = query.get('searchTerm');
-  const [searchTerm, setSearchTerm] = useState(storedSearchTerm || "");
+  const [searchTerm, setSearchTerm] = useState( "");
   const [openList, setOpenList] = useState(false);
   const [selectedValue, setSelectedValue] = useState(null);
   const navigate = useNavigate();
-  
+  const query = useQuery();
+  const storedSearchTerm = query.get('searchTerm');
   const { getMatchTerms } = useMockApi();
   
   const [terms, setTerms] = useState([]);
@@ -53,12 +52,8 @@ const Search = () => {
   
   const handleClickSearchTerm = () => {
     setSelectedValue(searchTerm);
-    handleCloseList();
     navigate(`/search?searchTerm=${searchTerm}`);
-  };
-  
-  const toggleList = () => {
-    setOpenList(!openList);
+    handleCloseList();
   };
   
   const onInputFocus = (event) => {
@@ -69,12 +64,12 @@ const Search = () => {
   
   const handleKeyDown = useCallback(event => {
     if (event.ctrlKey && event.key === 'k') {
-      toggleList();
+      setOpenList(true);
     }
     if (event.key === 'Escape') {
       handleCloseList();
     }
-  }, [toggleList]);
+  }, []);
   
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -88,7 +83,6 @@ const Search = () => {
     const data = await getMatchTerms(searchTerm);
     const parsedData = termParser(data, searchTerm);
     setTerms(parsedData);
-    handleOpenList();
   }, 500), [getMatchTerms]);
   
   useEffect(() => {
@@ -96,6 +90,13 @@ const Search = () => {
       fetchTerms(searchTerm);
     }
   }, [searchTerm, fetchTerms, storedSearchTerm]);
+  
+  
+  useEffect(() => {
+    if (storedSearchTerm !== searchTerm) {
+      setSearchTerm(storedSearchTerm);
+    }
+  }, [storedSearchTerm]);
   
   
   return (
@@ -170,7 +171,7 @@ const Search = () => {
                         '&:hover': {
                           background: 'transparent'
                         }
-                      }} onClick={toggleList}>
+                      }} onClick={() => setOpenList(true)}>
                         <CloseIcon />
                       </IconButton>
                       <Box sx={styles.keyBoardInfo}>Esc</Box>
