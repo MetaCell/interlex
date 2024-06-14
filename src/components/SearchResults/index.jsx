@@ -7,6 +7,7 @@ import OntologySearch from '../SingleTermView/OntologySearch';
 import { vars } from '../../theme/variables';
 import { termParser } from "../../parsers/termParser";
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
+import curieParser from '../../parsers/curieParser';
 import {useQuery} from "../../helpers";
 import { debounce } from 'lodash';
 
