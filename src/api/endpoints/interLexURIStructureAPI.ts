@@ -58,6 +58,15 @@ export const getEndpointsContributions = (
       );
     }
   
+export const getEndpointsCuries = (
+    group: string,
+ ) => {
+      return customInstance<void>(
+      {url: `https://uri.olympiangods.org/${group}/curies/`, method: 'GET'
+    },
+      );
+    }
+  
 export const postEndpointsCuries = (
     group: string,
  ) => {
@@ -66,16 +75,7 @@ export const postEndpointsCuries = (
     },
       );
     }
-  
-export const getEndpointsCuries = (
-    group: string,
-    prefixIriCurie: string,
- ) => {
-      return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/curies/${prefixIriCurie}`, method: 'GET'
-    },
-      );
-    }
+
   
 export const getDiffCuries = (
     group: string,
@@ -805,7 +805,6 @@ export type GetDiffOntologiesVersionResult = NonNullable<Awaited<ReturnType<type
 export type GetDiffOntologiesIlxResult = NonNullable<Awaited<ReturnType<typeof getDiffOntologiesIlx>>>
 export type GetDiffReadableResult = NonNullable<Awaited<ReturnType<typeof getDiffReadable>>>
 export type GetDiffUrisResult = NonNullable<Awaited<ReturnType<typeof getDiffUris>>>
-export type GetDiffVersionsCuriesResult = NonNullable<Awaited<ReturnType<typeof getDiffVersionsCuries>>>
 export type GetDiffVersionsCuriesResult = NonNullable<Awaited<ReturnType<typeof getDiffVersionsCuries>>>
 export type GetDiffVersionsReadableResult = NonNullable<Awaited<ReturnType<typeof getDiffVersionsReadable>>>
 export type GetDiffVersionsUrisResult = NonNullable<Awaited<ReturnType<typeof getDiffVersionsUris>>>

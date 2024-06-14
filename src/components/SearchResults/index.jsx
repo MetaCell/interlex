@@ -1,5 +1,4 @@
-import React from 'react';
-import {useParams} from 'react-router-dom';
+import React, {useEffect, useRef, useState} from 'react';
 import { Box, Typography, Grid, ButtonGroup, Button, Stack, FormControl, Select, MenuItem, Divider } from '@mui/material';
 import { TableChartIcon, ListIcon } from '../../Icons';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -8,52 +7,11 @@ import OntologySearch from '../SingleTermView/OntologySearch';
 import { vars } from '../../theme/variables';
 import { termParser } from "../../parsers/termParser";
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
+import curieParser from '../../parsers/curieParser';
+import {useQuery} from "../../helpers";
+import { debounce } from 'lodash';
 
 const { gray50, gray200, gray300, gray600, gray700 } = vars;
-const mockSearchResults = [
-    {
-        title: 'Nervous system',
-        description: 'The nervous system is an organ system containing predominantly neuron and glial cells. In bilaterally symmetrical organism, it is arranged in a network of tree-like structures connected to a central body.In all animals the nervous system probably differentiates from the embryonic ectodermal layer (Swanson, 2014).The main functions of the nervous system are to regulate and control body functions, and to receive sensory input, process this information, and generate behavior."The term was introduced by Monro in 1873.',
-        preferredId: 'UBERON:0001016',
-        id: 'ILX:0107422',
-        type: 'term',
-        score: '225.73792',
-        organization: 'Interlex',
-        ontologyIsActive: false
-    },
-    {
-        title: 'Nervous Mice',
-        description: '',
-        preferredId: 'UBERON:0001016',
-        id: 'ILX:0107422',
-        type: 'term',
-        score: '225.73792',
-        organization: 'Interlex',
-        ontologyIsActive: true
-    },
-    {
-        title: 'Enteric Nervous System',
-        description: 'The nervous system is an organ system containing predominantly neuron and glial cells. In bilaterally symmetrical organism, it is arranged in a network of tree-like structures connected to a central body.In all animals the nervous system probably differentiates from the embryonic ectodermal layer (Swanson, 2014).The main functions of the nervous system are to regulate and control body functions, and to receive sensory input, process this information, and generate behavior."The term was introduced by Monro in 1873.',
-        preferredId: 'UBERON:0001016',
-        id: 'ILX:0107422',
-        type: 'term',
-        score: '225.73792',
-        organization: 'Interlex',
-        ontologyIsActive: false
-    },
-    {
-        title: 'Central nervous system',
-        description: 'The nervous system is an organ system containing predominantly neuron and glial cells. In bilaterally symmetrical organism, it is arranged in a network of tree-like structures connected to a central body.In all animals the nervous system probably differentiates from the embryonic ectodermal layer (Swanson, 2014).The main functions of the nervous system are to regulate and control body functions, and to receive sensory input, process this information, and generate behavior."The term was introduced by Monro in 1873.',
-        preferredId: 'UBERON:0001016',
-        id: 'ILX:0107422',
-        type: 'term',
-        score: '225.73792',
-        organization: 'Interlex',
-        ontologyIsActive: false
-    },
-
-]
-
 const CustomViewButton = ({ view, listView, onClick, icon }) => (
     <Button
         sx={{
@@ -73,13 +31,14 @@ const CustomViewButton = ({ view, listView, onClick, icon }) => (
         {icon}
     </Button>
 );
-
 const useMockApi = () => mockApi;
 
 const SearchResultsBox = () => {
     const [numberOfVisiblePages, setNumberOfVisiblePages] = React.useState(20);
     const [listView, setListView] = React.useState('list');
-    const { searchTerm } = useParams();
+    const [loading, setLoading] = useState(false)
+    const query = useQuery();
+    const searchTerm = query.get('searchTerm');
     const {  getMatchTerms } = useMockApi();
 
     const [terms, setTerms] = React.useState([]);
@@ -87,21 +46,31 @@ const SearchResultsBox = () => {
     const handleNumberOfPagesChange = (event) => {
         setNumberOfVisiblePages(event.target.value);
     };
-
-    React.useEffect( () => {
-        // Call endpoint to retrieve terms that match search word
-        getMatchTerms(searchTerm).then(data => { 
-            const parsedData = termParser(data, searchTerm)
-            console.log("Parsed retrieved data : ", parsedData)
-            setTerms(parsedData)
+  
+  const fetchTerms = useRef(
+    debounce((searchTerm) => {
+      setLoading(true);
+      getMatchTerms(searchTerm)
+        .then((data) => {
+          const parsedData = termParser(data, searchTerm);
+          setTerms(parsedData);
+          setLoading(false);
+        })
+        .catch((error) => {
+          setLoading(false);
         });
-    }, [searchTerm])
-
-    return (
+    }, 500)
+  ).current;
+  
+  useEffect(() => {
+    fetchTerms(searchTerm);
+  }, [searchTerm, fetchTerms]);
+  
+  return (
         <Box width={1} flex={1} display="flex" flexDirection="column" px={4} py={3} gap={3} sx={{ overflowY: 'auto' }}>
             <Grid container justifyContent={{ lg: 'space-between', xs: 'flex-end', md: 'flex-end' }} alignItems="center">
                 <Grid item xs={12} lg={6} sm={6}>
-                    <Typography variant="h5">{mockSearchResults.length} results for {searchTerm} search</Typography>
+                    <Typography variant="h5">{terms?.length} results for {searchTerm} search</Typography>
                 </Grid>
                 <Grid item xs={12} lg={6} sm={6}>
                     <Box display="flex" alignItems="center" gap={2} justifyContent="end">
@@ -155,13 +124,13 @@ const SearchResultsBox = () => {
                         <Divider orientation="vertical" flexItem sx={{ borderColor: gray200 }} />
                         <Stack direction="row" alignItems="center" gap={1}>
                             <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Active Ontology:</Typography>
-                            <OntologySearch/>
+                            <OntologySearch />
                         </Stack>
                     </Box>
                 </Grid>
             </Grid>
             {listView === 'list' ? (
-                <ListView searchResults={terms}/>
+                <ListView searchResults={terms} loading={loading}/>
             ) : (
                 <p>table</p>
             )}

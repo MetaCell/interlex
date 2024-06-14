@@ -49,12 +49,6 @@ const paperStyle = {
     border: `1px solid ${gray200}`,
     boxShadow: '0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)',
     borderRadius: '0.75rem',
-    maxWidth: '81.25rem'
-};
-
-const tableCellWidthStyle = {
-    minWidth: '11rem',
-    maxWidth: '43.75rem'
 };
 
 const descriptionTextStyle = {
@@ -62,8 +56,7 @@ const descriptionTextStyle = {
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
-    maxWidth: '43.75rem',
-    ...tableCellWidthStyle
+    maxWidth: '30rem',
 };
 
 const iconButtonStyle = {
@@ -128,10 +121,10 @@ const VariantsTable = ({ rows, headCells }) => {
                             {displayedRows.map((row) => {
                                 return (
                                     <TableRow tabIndex={-1} key={row.id}>
-                                        <TableCell align="left" sx={{ color: gray700, ...tableCellWidthStyle }}>{row.organization}</TableCell>
-                                        <TableCell align="left" sx={descriptionTextStyle}>{row.description}</TableCell>
-                                        <TableCell align="left" sx={tableCellWidthStyle}><Chip color='default' sx={{ maxWidth: '8.125rem' }} label={row.timestamp} /></TableCell>
-                                        <TableCell align="left" sx={tableCellWidthStyle}>
+                                        <TableCell sx={{ color: gray700}}>{row.organization}</TableCell>
+                                        <TableCell sx={descriptionTextStyle}>{row.description}</TableCell>
+                                        <TableCell><Chip color='default' sx={{ maxWidth: '8.125rem' }} label={row.timestamp} /></TableCell>
+                                        <TableCell>
                                             <Chip
                                                 color={getChipColor(row.status)}
                                                 icon={getChipIcon(row.status)}
@@ -139,15 +132,15 @@ const VariantsTable = ({ rows, headCells }) => {
                                                 sx={{ maxWidth: '5rem' }}
                                             />
                                         </TableCell>
-                                        <TableCell align="left" sx={tableCellWidthStyle}>
+                                        <TableCell>
                                             <Typography variant='body2' sx={{ color: gray900 }}>{row.originated_user}</Typography>
                                             <Typography variant='body2' sx={{ color: gray600 }}>{row.originated_user_email}</Typography>
                                         </TableCell>
-                                        <TableCell align="left" sx={tableCellWidthStyle}>
+                                        <TableCell>
                                             <Typography variant='body2' sx={{ color: gray900 }}>{row.editing_user}</Typography>
                                             <Typography variant='body2' sx={{ color: gray600 }}>{row.editing_user_email}</Typography>
                                         </TableCell>
-                                        <TableCell align='left'>
+                                        <TableCell>
                                             <Box display="flex" gap={0.5} justifyContent="flex-end">
                                                 <IconButton sx={iconButtonStyle} onClick={() => console.log("Import")}><DownloadIcon /></IconButton>
                                                 <IconButton sx={iconButtonStyle} onClick={() => console.log("Go")}>
