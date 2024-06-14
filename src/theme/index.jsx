@@ -74,6 +74,15 @@ const theme = createTheme({
                     background-clip: content-box;
                     border: 0.25rem solid transparent;
                 }
+
+                code span {
+                    font-family: 'Roboto Mono', monospace;
+                }
+
+                code span:first-child {
+                    padding-top: 1.5rem;
+                    border-top-left-radius: 0.75rem;
+                }
             `
         },
         MuiRichTreeView: {
@@ -562,6 +571,52 @@ const theme = createTheme({
                 },
             }
         },
+
+        MuiMenu: {
+            styleOverrides: {
+                root: {
+                    borderRadius: '0.5rem',
+                    boxShadow: '0px 12px 16px -4px rgba(16, 24, 40, 0.08), 0px 4px 6px -2px rgba(16, 24, 40, 0.03)',
+                    border: `1px solid ${gray200}`,
+                    '& .MuiList-root': {
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1px',
+                        padding: '0.25rem 0.375rem',
+                    },
+                    '& .MuiMenuItem-root': {
+                        padding: '0.563rem 0.625rem',
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        color: '#3B403F',
+                        borderRadius: '0.375rem',
+                        '&:hover': {
+                            background: gray50,
+                        },
+                        '&.Mui-selected': {
+                            backgroundColor: gray50,
+                            '&:hover': {
+                                backgroundColor: gray50,
+                            },
+                        },
+                    },
+                }
+            }
+        },
+        
+        MuiAvatar: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: gray100, 
+                    border: '0.5px solid rgba(0, 0, 0, 0.08)', 
+                    fontSize: '0.75rem', 
+                    fontWeight: 600, 
+                    color: gray600, 
+                    textTransform: 'uppercase'
+                }
+            }
+        },
+        
         MuiTable: {
             styleOverrides: {
                 root: {
