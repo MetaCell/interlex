@@ -2,7 +2,7 @@
 
 This template provides instructions on how to use the API.
 
-- [API - Search for Terms](https://github.com/MetaCell/interlex/tree/feature/ILEX-31/src/api##searching-for-terms)
+- [API - Search for Terms](https://github.com/MetaCell/interlex/tree/feature/ILEX-31/src/api#searching-for-terms)
 - [API - Get Curies](https://github.com/MetaCell/interlex/tree/feature/ILEX-31/src/api#retrieving-curies)
 
 ### Searching for Terms
