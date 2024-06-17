@@ -3,6 +3,7 @@ import {
     Box, Table, TableBody, TableContainer, Paper
 } from '@mui/material';
 import CustomTableHead from './CustomTableHead';
+import CustomPagination from './CustomPagination';
 import { vars } from '../../theme/variables';
 
 const { gray200 } = vars;
@@ -16,7 +17,8 @@ const paperStyle = {
 
 
 const CustomTable = (props) => {
-    const {order, orderBy, setOrder, setOrderBy, headCells, children} = props;
+    const {rows, order, orderBy, setOrder, setOrderBy, 
+        headCells, rowsPerPage, page, handlePageChange, children} = props;
 
     const handleRequestSort = (event, property) => {
         setOrder(order === 'asc' ? 'desc' : 'asc')
@@ -39,6 +41,7 @@ const CustomTable = (props) => {
                         </TableBody>
                     </Table>
                 </TableContainer>
+                {rowsPerPage !== undefined && <CustomPagination rowCount={rows.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handlePageChange} />}
             </Paper>
         </Box>
     );

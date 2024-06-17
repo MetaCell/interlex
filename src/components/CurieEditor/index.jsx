@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Typography, Divider, Grid, Stack, FormControl, Select, MenuItem } from "@mui/material";
 import CustomButton from "../common/CustomButton";
 import BasicTabs from "../common/CustomTabs";
@@ -15,12 +15,41 @@ const headCells = [
     { id: 'namespace', label: 'Namespace' }
 ];
 
+const generatePageOptions = (curieAmount) => {
+    if (curieAmount <= 5) {
+        return [curieAmount];
+    }
+    const options = [];
+    if (curieAmount % 5 === 0) {
+        for (let i = 5; i <= curieAmount; i += 5) {
+            options.push(i);
+        }
+    } else if (curieAmount % 3 === 0) {
+        for (let i = 3; i <= curieAmount; i += 3) {
+            options.push(i);
+        }
+    } else if (curieAmount % 2 === 0) {
+        for (let i = 2; i <= curieAmount; i += 2) {
+            options.push(i);
+        }
+    } else {
+        options.push(curieAmount);
+    }
+    return options;
+}
+
 const CurieEditor = () => {
     const [curieAmount, setCurieAmount] = useState(0);
-    const [numberOfVisiblePages, setNumberOfVisiblePages] = React.useState(5);
+    const [numberOfVisibleCuries, setNumberOfVisibleCuries] = React.useState(0);
     const [openCurieEditor, setOpenCurieEditor] = React.useState(false);
-    const [pageOptions, setPageOptions] = useState([5, 10, 15]);
+    const [pageOptions, setPageOptions] = useState([]);
     const [tabValue, setTabValue] = React.useState(0);
+
+    useEffect(() => {
+        const options = generatePageOptions(curieAmount);
+        setPageOptions(options);
+        setNumberOfVisibleCuries(options[0]);
+    }, [curieAmount]);
 
     const handleCurieAmountChange = (value) => {
         setCurieAmount(value)
@@ -38,8 +67,8 @@ const CurieEditor = () => {
         setTabValue(newValue);
     };
 
-    const handleNumberOfPagesChange = (event) => {
-        setNumberOfVisiblePages(event.target.value);
+    const handleNumberOfVisibleCuriesChange = (event) => {
+        setNumberOfVisibleCuries(event.target.value);
     };
 
     return (
@@ -55,8 +84,8 @@ const CurieEditor = () => {
                         <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Show on page:</Typography>
                         <FormControl sx={{ minWidth: 75 }}>
                             <Select
-                                value={numberOfVisiblePages}
-                                onChange={handleNumberOfPagesChange}
+                                value={numberOfVisibleCuries}
+                                onChange={handleNumberOfVisibleCuriesChange}
                                 displayEmpty
                                 IconComponent={KeyboardArrowDownIcon}
                                 sx={{
@@ -95,13 +124,13 @@ const CurieEditor = () => {
                 <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["My curies", "Curated", "Latest"]} />
                 <Box flexGrow={1} overflow="auto" p="2.5rem 0.5rem" width={1}>
                     {
-                        tabValue === 0 && <CuriesTabPanel curieValue={"base"} headCells={headCells} onCurieAmountChange={handleCurieAmountChange} />
+                        tabValue === 0 && <CuriesTabPanel curieValue={"base"} headCells={headCells} numberOfVisibleCuries={numberOfVisibleCuries} onCurieAmountChange={handleCurieAmountChange} />
                     }
                     {
-                        tabValue === 1 && <CuriesTabPanel curieValue={"curated"} headCells={headCells} onCurieAmountChange={handleCurieAmountChange} />
+                        tabValue === 1 && <CuriesTabPanel curieValue={"curated"} headCells={headCells} numberOfVisibleCuries={numberOfVisibleCuries} onCurieAmountChange={handleCurieAmountChange} />
                     }
                     {
-                        tabValue === 2 && <CuriesTabPanel curieValue={"latest"} headCells={headCells} onCurieAmountChange={handleCurieAmountChange} />
+                        tabValue === 2 && <CuriesTabPanel curieValue={"latest"} headCells={headCells} numberOfVisibleCuries={numberOfVisibleCuries} onCurieAmountChange={handleCurieAmountChange} />
                     }
                 </Box>
             </Grid>

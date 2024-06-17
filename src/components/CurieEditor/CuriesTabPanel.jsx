@@ -32,7 +32,7 @@ const tableCellStyle = {
 const useMockApi = () => mockApi;
 
 const CuriesTabPanel = (props) => {
-    const { curieValue, editMode, headCells, onCurieAmountChange } = props;
+    const { curieValue, editMode, headCells, numberOfVisibleCuries, onCurieAmountChange } = props;
     const { getCuries } = useMockApi();
     const [rows, setRows] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
@@ -41,6 +41,7 @@ const CuriesTabPanel = (props) => {
     const [columnIndex, setColumnIndex] = React.useState(-1);
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('prefix');
+    const [page, setPage] = React.useState(1);
 
     const addRow = () => {
         const newRow = {
@@ -51,19 +52,37 @@ const CuriesTabPanel = (props) => {
         setRows([...rows, newRow]);
     };
 
-    const deleteRow = (rowId) => {
-        const newRows = rows.filter(row => row.id !== rowId);
+    const deleteRow = (rowPrefix, rowNamespace) => {
+        const newRows = rows.filter(row => row.prefix !== rowPrefix && row.namespace !== rowNamespace);
         setRows(newRows)
     };
 
-    const handleTextFieldChange = (rowInd, colName, value) => {
-        rows[rowInd][colName] = value;
+    const handleTextFieldChange = (e, rowIndex, columnName) => {
+        const { value } = e.target;
+        const updatedRows = sortedRows.map((row, index) => {
+            if (index === rowIndex) {
+                return { ...row, [columnName]: value };
+            }
+            return row;
+        });
+        setRows(updatedRows);
     };
 
-    const sortedRows = React.useMemo(
-        () => stableSort(rows, getComparator(order, orderBy)),
-        [rows, order, orderBy]
-    );
+    const sortedRows = React.useMemo(() => {
+        const sorted = stableSort(rows, getComparator(order, orderBy));
+
+        if (numberOfVisibleCuries !== undefined) {
+            const startIndex = (page - 1) * numberOfVisibleCuries;
+            const endIndex = startIndex + numberOfVisibleCuries;
+            return sorted.slice(startIndex, endIndex);
+        }
+
+        return sorted;
+    }, [rows, order, orderBy, page, numberOfVisibleCuries]);
+
+    const handlePageChange = (event, value) => {
+        setPage(value);
+    };
 
     React.useEffect(() => {
         setLoading(true)
@@ -97,7 +116,16 @@ const CuriesTabPanel = (props) => {
             {loading ? <Box display="flex" alignItems="center" justifyContent="center" p={12} width={1}>
                 <CircularProgress />
             </Box> : (
-                <CustomTable order={order} orderBy={orderBy} setOrder={setOrder} setOrderBy={setOrderBy} headCells={headCells}>
+                <CustomTable
+                    rows={rows}
+                    order={order}
+                    orderBy={orderBy}
+                    setOrder={setOrder}
+                    setOrderBy={setOrderBy}
+                    headCells={headCells}
+                    rowsPerPage={numberOfVisibleCuries}
+                    handlePageChange={handlePageChange}
+                >
                     {sortedRows.map((row, index) => {
                         return (
                             <TableRow tabIndex={-1} key={row.id}>
@@ -111,7 +139,7 @@ const CuriesTabPanel = (props) => {
                                             <TextField
                                                 placeholder={row.prefix}
                                                 defaultValue={row.prefix}
-                                                onChange={(event) => handleTextFieldChange(index, "prefix", event.target.value)}
+                                                onChange={(e) => handleTextFieldChange(e, index, "prefix")}
                                                 sx={fieldStyle}
                                                 onKeyDown={(e) => {
                                                     if (e.key === "Enter") {
@@ -127,11 +155,11 @@ const CuriesTabPanel = (props) => {
                                     sx={{ border: rowIndex === index && columnIndex === 1 && editMode ? `2px solid ${brand500} !important` : 'inherit', ...tableCellStyle }}
                                 >
                                     {
-                                        rowIndex === index && columnIndex === 1 && row.namespace === '' && editMode ?
+                                        rowIndex === index && columnIndex === 1 && editMode ?
                                             <TextField
                                                 placeholder={row.namespace}
                                                 defaultValue={row.namespace}
-                                                onChange={(event) => handleTextFieldChange(index, "namespace", event.target.value)}
+                                                onChange={(e) => handleTextFieldChange(e, index, "namespace")}
                                                 sx={fieldStyle}
                                                 onKeyDown={(e) => {
                                                     if (e.key === "Enter") {
@@ -143,7 +171,7 @@ const CuriesTabPanel = (props) => {
                                 </TableCell>
                                 {editMode && (
                                     <TableCell>
-                                        <IconButton sx={{ background: 'transparent', '&:hover': { backgroundColor: gray100 } }} onClick={() => deleteRow(row.id)}>
+                                        <IconButton sx={{ background: 'transparent', '&:hover': { backgroundColor: gray100 } }} onClick={() => deleteRow(row.prefix, row.namespace)}>
                                             <DeleteOutlineOutlinedIcon fontSize="small" />
                                         </IconButton>
                                     </TableCell>
