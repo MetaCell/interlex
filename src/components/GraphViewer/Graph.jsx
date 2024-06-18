@@ -15,18 +15,39 @@ const Graph = ({ width, height }) => {
 
   const [terms, setTerms] = useState(undefined);
 
+  // Three function that change the tooltip when user hover / move / leave a cell
+  const mouseover = (d) => {
+    d3.select("#tooltip")
+      .html( (c) => { 
+        return "The exact value of<br>this tooltip is: " + d.currentTarget.id
+      }).style("opacity", 1).style("left", (d.pageX) + "px").style("top", (d.pageY) + "px")
+  }
+  const mousemove = (event,d) => {
+    d3.select("#tooltip")
+      .html( (c) => { 
+        return "The exact value of<br>this tooltip is: " + event.currentTarget.id
+      }).style("opacity", 1).style("left", (event.pageX) + "px").style("top", (event.pageY) + "px")
+    
+  }
+  const mouseleave = (d) => {
+    d3.select("#tooltip").style("opacity", 0)
+  }
+
   useEffect(() => {
+    // attach mouse listeners
+    d3.selectAll(".node--leaf-g")
+                .on("mousemove", mousemove)
+    d3.selectAll(".node--g")
+                .on("mouseleave", mouseleave)
     setTimeout( () => {
         getMatchTerms("ilx_0101431").then(data => { 
             const parsedData = termParser(data, "brain")
-            console.log("Parsed retrieved data : ", parsedData)
             setTerms(parsedData)
         });
     }, 750);
   }, []);
   
   const hierarchy = useMemo(() => {
-    console.log("Terms ", terms)
     return d3.hierarchy(data).sum((d) => d.value);
   }, [terms]);
 
@@ -34,57 +55,90 @@ const Graph = ({ width, height }) => {
     const dendrogramGenerator = d3.cluster().size([boundsHeight, boundsWidth]);
     return dendrogramGenerator(hierarchy);
   }, [hierarchy, width, height]);
-
+  const xMargin = 4
+  const yMargin = 2
   const allNodes = dendrogram.descendants().map((node) => {
     return (
-      <g key={node.id}>
+      <g key={node.id} >
+        <g>
+          <rect
+            x={boundsWidth - (node.y)}
+            y={node.x - 5}
+            width={100}
+            height={20}
+            fill="white"
+            className="node--g"
+          >
+            {node.data.name}
+          </rect>
+          </g>
         {(
           <text
-            x={boundsWidth - (node.y + 30)}
-            y={node.x - 15}
+            x={boundsWidth - (node.y) }
+            y={node.x }
+            id={node.data.name}
+            width={100}
+            height={20}
+            className="node--leaf-g" 
             fontSize={12}
             textAnchor="left"
             alignmentBaseline="middle"
-            stroke="black"
-            fill="darkOrange"
+            fill="grey"
+            target="_blank"
+            href="google.com"
+            textDecoration="underline"
           >
-            {node.data.name}
+            {node.data.name.substring(0, 15) + '...'}
           </text>
         )}
       </g>
     );
   });
 
-  const horizontalLinkGenerator = d3.linkHorizontal();
-
   const allEdges = dendrogram.descendants().map((node) => {
     if (!node.parent) {
       return;
     }
+
+    const line = d3
+    .line()
+    .x(d => d[0])
+    .y(d => d[1])
+    .curve(d3.curveBundle.beta(1));
+
+    const start = [boundsWidth - node.parent.y, node.parent.x]
+    const end = [boundsWidth - node.y, node.x]
+    const radius = 5;
+    
+    const points = [
+      start,
+      [start[0], end[1] - radius],
+      [start[0] + radius, end[1]],
+      end
+    ];
+    
     return (
       <path
         key={node.id}
         fill="none"
         stroke="grey"
         markerStart='url(#arrow)'
-        d={horizontalLinkGenerator({
-          source: [boundsWidth - node.parent.y + 30, node.parent.x - 15],
-          target: [boundsWidth - node.y + 30, node.x - 15],
-        })}
+        d={line(points)}
       />
     );
   });
 
   return (
-    <div>
-      <svg width={width} height={height}>
+    <div id="div_template" >
+      <div id="tooltip" style={{position: "fixed", width: "200px",height: "200px"}}></div>
+      <svg width={width} height={height} >
         <g
           width={boundsWidth}
           height={boundsHeight}
           transform={`translate(${[MARGIN.left, MARGIN.top].join(",")})`}
         >
-          {allNodes}
           {allEdges}
+          {allNodes}
         </g>
       </svg>
     </div>

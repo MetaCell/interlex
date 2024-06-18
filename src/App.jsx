@@ -8,7 +8,6 @@ import SearchResultsBox from './components/SearchResults';
 import SingleTermView from './components/SingleTermView';
 import HomePage from "./components/HomePage";
 import Footer from "./components/Footer";
-import Graph from "./components/GraphViewer/Graph"
 import Organizations from "./components/organizations";
 import { GlobalDataProvider } from './contexts/DataContext'
 
@@ -35,7 +34,6 @@ function MainContent() {
               } />
               <Route path="/view/:term" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><SingleTermView /></Box>} />
               <Route path="/organizations" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><Organizations /></Box>} />
-              <Route path="/predicates" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><Graph width={1200} height={600} /></Box>} />
           </Routes>
           {showFooter && <Footer />}
       </Box>
