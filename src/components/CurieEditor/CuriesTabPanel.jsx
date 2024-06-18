@@ -32,9 +32,8 @@ const tableCellStyle = {
 const useMockApi = () => mockApi;
 
 const CuriesTabPanel = (props) => {
-    const { curieValue, editMode, headCells, numberOfVisibleCuries, onCurieAmountChange } = props;
+    const { rows, setRows, curieValue, editMode, headCells, numberOfVisibleCuries, onCurieAmountChange } = props;
     const { getCuries } = useMockApi();
-    const [rows, setRows] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
     const [rowIndex, setRowIndex] = React.useState(-1);
@@ -53,6 +52,7 @@ const CuriesTabPanel = (props) => {
     };
 
     const deleteRow = (rowPrefix, rowNamespace) => {
+        console.log("here we connect DELETE method")
         const newRows = rows.filter(row => row.prefix !== rowPrefix && row.namespace !== rowNamespace);
         setRows(newRows)
     };
@@ -65,6 +65,7 @@ const CuriesTabPanel = (props) => {
             }
             return row;
         });
+        console.log("here we connect UPDATE method")
         setRows(updatedRows);
     };
 
@@ -139,6 +140,7 @@ const CuriesTabPanel = (props) => {
                                             <TextField
                                                 placeholder={row.prefix}
                                                 defaultValue={row.prefix}
+                                                fullWidth
                                                 onChange={(e) => handleTextFieldChange(e, index, "prefix")}
                                                 sx={fieldStyle}
                                                 onKeyDown={(e) => {
@@ -159,6 +161,7 @@ const CuriesTabPanel = (props) => {
                                             <TextField
                                                 placeholder={row.namespace}
                                                 defaultValue={row.namespace}
+                                                fullWidth
                                                 onChange={(e) => handleTextFieldChange(e, index, "namespace")}
                                                 sx={fieldStyle}
                                                 onKeyDown={(e) => {

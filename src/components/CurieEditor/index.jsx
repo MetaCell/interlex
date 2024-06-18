@@ -44,6 +44,11 @@ const CurieEditor = () => {
     const [openCurieEditor, setOpenCurieEditor] = React.useState(false);
     const [pageOptions, setPageOptions] = useState([]);
     const [tabValue, setTabValue] = React.useState(0);
+    const [myCuries, setMyCuries] = React.useState([]);
+    const [curatedCuries, setCuratedCuries] = React.useState([]);
+    const [latestCuries, setLatestCuries] = React.useState([]);
+    const imgStyle = { width: '100%' }; // Customize your image style
+    const imgPath = '/success.png'; // Set your image path
 
     useEffect(() => {
         const options = generatePageOptions(curieAmount);
@@ -71,70 +76,76 @@ const CurieEditor = () => {
         setNumberOfVisibleCuries(event.target.value);
     };
 
+    const image = new Image();
+    image.onload = () => <img style={imgStyle} src={imgPath} alt="preview" />
+    image.src = imgPath;
+
     return (
-        <Box p='1.5rem 2.5rem' flexGrow={1} overflow='auto'>
-            <Grid container>
-                <Grid item xs={12} lg={4}>
-                    <Typography fontSize='1.5rem' color={gray600} fontWeight={600}>
-                        {curieAmount} curies
-                    </Typography>
-                </Grid>
-                <Grid item display="flex" justifyContent='end' xs={12} lg={8}>
-                    <Stack direction="row" alignItems="center" gap={1}>
-                        <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Show on page:</Typography>
-                        <FormControl sx={{ minWidth: 75 }}>
-                            <Select
-                                value={numberOfVisibleCuries}
-                                onChange={handleNumberOfVisibleCuriesChange}
-                                displayEmpty
-                                IconComponent={KeyboardArrowDownIcon}
-                                sx={{
-                                    color: gray700,
-                                    borderRadius: '0.5rem !important',
-                                    fontSize: '0.875rem',
-                                    fontWeight: 600,
-                                    '& .MuiOutlinedInput-input': {
-                                        padding: '0.625rem 0.875rem'
-                                    },
-                                    '& .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: gray300
-                                    },
-                                    '& .MuiSvgIcon-root': {
+        <>
+            <Box p='1.5rem 2.5rem' flexGrow={1} overflow='auto'>
+                <Grid container>
+                    <Grid item xs={12} lg={4}>
+                        <Typography fontSize='1.5rem' color={gray600} fontWeight={600}>
+                            {curieAmount} curies
+                        </Typography>
+                    </Grid>
+                    <Grid item display="flex" justifyContent='end' xs={12} lg={8}>
+                        <Stack direction="row" alignItems="center" gap={1}>
+                            <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Show on page:</Typography>
+                            <FormControl sx={{ minWidth: 75 }}>
+                                <Select
+                                    value={numberOfVisibleCuries}
+                                    onChange={handleNumberOfVisibleCuriesChange}
+                                    displayEmpty
+                                    IconComponent={KeyboardArrowDownIcon}
+                                    sx={{
                                         color: gray700,
-                                        fontSize: '1.25rem',
-                                        right: '0.875rem !important'
-                                    }
-                                }}
-                            >
-                                {pageOptions.map(option => (
-                                    <MenuItem key={option} value={option}>{option}</MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Stack>
-                    <Divider sx={{ border: `1px solid ${gray200}`, mx: '1rem' }} />
-                    <CustomButton onClick={handleClickCurieEditor}>
-                        <EditNoteIcon sx={{ fill: gray700 }} />
-                        Edit curies
-                    </CustomButton>
-                    <CurieEditorDialog open={openCurieEditor} handleClose={handleCloseCurieEditor} />
+                                        borderRadius: '0.5rem !important',
+                                        fontSize: '0.875rem',
+                                        fontWeight: 600,
+                                        '& .MuiOutlinedInput-input': {
+                                            padding: '0.625rem 0.875rem'
+                                        },
+                                        '& .MuiOutlinedInput-notchedOutline': {
+                                            borderColor: gray300
+                                        },
+                                        '& .MuiSvgIcon-root': {
+                                            color: gray700,
+                                            fontSize: '1.25rem',
+                                            right: '0.875rem !important'
+                                        }
+                                    }}
+                                >
+                                    {pageOptions.map(option => (
+                                        <MenuItem key={option} value={option}>{option}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Stack>
+                        <Divider sx={{ border: `1px solid ${gray200}`, mx: '1rem' }} />
+                        <CustomButton onClick={handleClickCurieEditor}>
+                            <EditNoteIcon sx={{ fill: gray700 }} />
+                            Edit curies
+                        </CustomButton>
+                    </Grid>
                 </Grid>
-            </Grid>
-            <Grid container mt={3}>
-                <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["My curies", "Curated", "Latest"]} />
-                <Box flexGrow={1} overflow="auto" p="2.5rem 0.5rem" width={1}>
-                    {
-                        tabValue === 0 && <CuriesTabPanel curieValue={"base"} headCells={headCells} numberOfVisibleCuries={numberOfVisibleCuries} onCurieAmountChange={handleCurieAmountChange} />
-                    }
-                    {
-                        tabValue === 1 && <CuriesTabPanel curieValue={"curated"} headCells={headCells} numberOfVisibleCuries={numberOfVisibleCuries} onCurieAmountChange={handleCurieAmountChange} />
-                    }
-                    {
-                        tabValue === 2 && <CuriesTabPanel curieValue={"latest"} headCells={headCells} numberOfVisibleCuries={numberOfVisibleCuries} onCurieAmountChange={handleCurieAmountChange} />
-                    }
-                </Box>
-            </Grid>
-        </Box>
+                <Grid container mt={3}>
+                    <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["My curies", "Curated", "Latest"]} />
+                    <Box flexGrow={1} overflow="auto" p="2.5rem 0.5rem" width={1}>
+                        {
+                            tabValue === 0 && <CuriesTabPanel rows={myCuries} setRows={setMyCuries} curieValue={"base"} headCells={headCells} numberOfVisibleCuries={numberOfVisibleCuries} onCurieAmountChange={handleCurieAmountChange} />
+                        }
+                        {
+                            tabValue === 1 && <CuriesTabPanel rows={curatedCuries} setRows={setCuratedCuries} curieValue={"curated"} headCells={headCells} numberOfVisibleCuries={numberOfVisibleCuries} onCurieAmountChange={handleCurieAmountChange} />
+                        }
+                        {
+                            tabValue === 2 && <CuriesTabPanel rows={latestCuries} setRows={setLatestCuries} curieValue={"latest"} headCells={headCells} numberOfVisibleCuries={numberOfVisibleCuries} onCurieAmountChange={handleCurieAmountChange} />
+                        }
+                    </Box>
+                </Grid>
+            </Box>
+            <CurieEditorDialog open={openCurieEditor} handleClose={handleCloseCurieEditor} image={image} />
+        </>
     );
 }
 
