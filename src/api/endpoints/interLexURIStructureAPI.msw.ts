@@ -11,14 +11,18 @@ import {
   http
 } from 'msw'
 
+export const getGetEndpointsCuriesResponseMock = () => ((() => ({
+                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+                "owl": "http://www.w3.org/2002/07/owl#"
+              }))())
+
 export const getGetOntologiesOntologiesResponseMock = () => ((() => ({
                 status_code: 200,
                 message: "",
               }))())
 
 export const getGetEndpointsIlxResponseMock = () => ((() => ({
-                name : "ilx_0101431",
-                description : "ilx_0101431",
                 prefixes: {
                   owl: "http://www.w3.org/2002/07/owl#",
                   rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -177,10 +181,24 @@ export const getGetEndpointsContributionsMockHandler = () => {
   })
 }
 
-export const getPostEndpointsCuriesMockHandler = () => {
+export const getGetEndpointsCuriesMockHandler = (overrideResponse?: void) => {
+  return http.get('*/:group/curies/', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetEndpointsCuriesResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getPostEndpointsCuriesMockHandler = (overrideResponse?: []) => {
   return http.post('*/:group/curies/', async () => {
     await delay(1000);
-    return new HttpResponse(null,
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetEndpointsCuriesResponseMock()),
       {
         status: 200,
         headers: {
@@ -190,21 +208,6 @@ export const getPostEndpointsCuriesMockHandler = () => {
     )
   })
 }
-
-export const getGetEndpointsCuriesMockHandler = () => {
-  return http.get('*/:group/curies/:prefixIriCurie', async () => {
-    await delay(1000);
-    return new HttpResponse(null,
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }
-    )
-  })
-}
-
 export const getGetDiffCuriesMockHandler = () => {
   return http.get('*/:group/diff/:otherGroupDiff/curies/:prefixIriCurie', async () => {
     await delay(1000);
@@ -947,10 +950,10 @@ export const getGetEndpointsIlxMockHandler = (overrideResponse?: void) => {
   })
 }
 
-export const getPatchEndpointsIlxMockHandler = () => {
+export const getPatchEndpointsIlxMockHandler = (overrideResponse?: void) => {
   return http.patch('*/:group/:fragPrefId', async () => {
     await delay(1000);
-    return new HttpResponse(null,
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetEndpointsIlxResponseMock()),
       {
         status: 200,
         headers: {
@@ -983,7 +986,6 @@ export const getInterLexURIStructureAPIMock = () => [
   getGetEndpointsContributionsMockHandler(),
   getGetEndpointsCuriesMockHandler(),
   getPostEndpointsCuriesMockHandler(),
-  getGetEndpointsCuriesMockHandler(),
   getGetDiffCuriesMockHandler(),
   getGetDiffCuriesMockHandler(),
   getGetDiffLexicalMockHandler(),
