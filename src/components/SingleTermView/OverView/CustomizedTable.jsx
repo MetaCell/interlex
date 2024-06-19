@@ -16,33 +16,6 @@ const types = [
   'Has exact synonym'
 ]
 
-const initialTableContent = [
-  {
-    "id": "1",
-    "Subject": "Central nervous system 1",
-    "Predicates": "is part of",
-    "Objects": "Central nervous system 2",
-  },
-  {
-    "id": "2",
-    "Subject": "Peripheral nervous system 2",
-    "Predicates": "is part of",
-    "Objects": "Central nervous system 4",
-  },
-  {
-    "id": "3",
-    "Subject": "Autonomic nervous system 3",
-    "Predicates": "is part of",
-    "Objects": "Central nervous system 7",
-  },
-  {
-    "id": "4",
-    "Subject": "Somatic nervous system 4",
-    "Predicates": "is part of",
-    "Objects": "Central nervous system 3",
-  }
-];
-
 const tableStyles = {
   head: {
     display: 'flex',
@@ -138,9 +111,9 @@ const tableStyles = {
   }
 };
 
-const CustomizedTable = () => {
+const CustomizedTable = ({data}) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  const [tableContent, setTableContent] = useState(initialTableContent);
+  const [tableContent, setTableContent] = useState(data?.tableData);
   const [tableHeader, setTableHeader] = useState([
     { key: 'Subject', label: 'Subject', allowSort: true, direction: 'desc' },
     { key: 'Predicates', label: 'Predicates', allowSort: false },
@@ -161,7 +134,7 @@ const CustomizedTable = () => {
     arr.splice(toIndex, 0, element);
     return arr;
   };
-  
+
   const dragStart = (id, index) => {
     sourceRow.current = { id, index };
   };

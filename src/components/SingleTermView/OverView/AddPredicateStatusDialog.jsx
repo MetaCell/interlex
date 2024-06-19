@@ -20,7 +20,7 @@ const HeaderRightSideContent = ({ handleClose, handleCloseAddpredicate }) => {
   );
 };
 
-const AddPredicateStatusDialog = ({ open, handleClose, handleCloseAddpredicate, image }) => {
+const AddPredicateStatusDialog = ({ open, handleClose, handleCloseAddpredicate, image, storedSearchTerm }) => {
   return (
     <CustomizedDialog
       title='Add new predicate(s)'
@@ -50,7 +50,7 @@ const AddPredicateStatusDialog = ({ open, handleClose, handleCloseAddpredicate, 
           transform: 'translate(-50%, -10%)',
         }}>
           <Typography mt='1.25rem' mb='.75rem' color={gray900} fontSize='1.25rem' fontWeight={600}>Predicate(s) successfully added</Typography>
-          <Typography mb='2rem'  color={gray600} fontSize='1rem'>Your term “Central nervous system” has new predicate(s).</Typography>
+          <Typography mb='2rem'  color={gray600} fontSize='1rem'>Your term “{storedSearchTerm}” has new predicate(s).</Typography>
           <Box display='flex' gap='1rem'>
             <Button type='text'>Undo</Button>
             <Button

@@ -1,0 +1,62 @@
+[
+  {
+    "title": "Is part of",
+    "count": 7,
+    "tableData": [
+      {
+        "id": "1",
+        "Subject": "Central nervous system 1",
+        "Predicates": "is part of",
+        "Objects": "Central nervous system 2"
+      },
+      {
+        "id": "2",
+        "Subject": "Peripheral nervous system 2",
+        "Predicates": "is part of",
+        "Objects": "Central nervous system 4"
+      },
+      {
+        "id": "3",
+        "Subject": "Autonomic nervous system 3",
+        "Predicates": "is part of",
+        "Objects": "Central nervous system 7"
+      },
+      {
+        "id": "4",
+        "Subject": "Somatic nervous system 4",
+        "Predicates": "is part of",
+        "Objects": "Central nervous system 3"
+      }
+    ]
+  },
+  {
+    "title": "Related to",
+    "count": 5,
+    "tableData": [
+      {
+        "id": "1",
+        "Subject": "Central nervous system 1",
+        "Predicates": "is part of",
+        "Objects": "Central nervous system 2"
+      },
+      {
+        "id": "2",
+        "Subject": "Peripheral nervous system 2",
+        "Predicates": "is part of",
+        "Objects": "Central nervous system 4"
+      },
+      {
+        "id": "3",
+        "Subject": "Autonomic nervous system 3",
+        "Predicates": "is part of",
+        "Objects": "Central nervous system 7"
+      },
+      {
+        "id": "4",
+        "Subject": "Somatic nervous system 4",
+        "Predicates": "is part of",
+        "Objects": "Central nervous system 3"
+      }
+    ]
+  }
+]

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {
   Box,
   FormControl,
@@ -12,28 +12,34 @@ import ExpandIcon from '@mui/icons-material/Expand';
 import RemoveIcon from '@mui/icons-material/Remove';
 import CustomIconTabs from "../../common/CustomIconTabs";
 import PredicatesAccordion from "./PredicatesAccordion";
-const { gray800, gray700, gray300 } = vars;
+import predicates from '../../../static/predicates.json';
 
-const accordionData = [
-  {
-    title: "Is part of 1",
-    count: 7,
-    tableData: [{ /* table data for the first accordion */ }]
-  },
-  {
-    title: "Is part of 2",
-    count: 5,
-    tableData: [{ /* table data for the second accordion */ }]
-  },
-  // add more objects for additional accordions
-];
+const { gray800, gray700, gray300 } = vars;
+const URL = ""
+
 const Predicates = () => {
   const [type, setType] = React.useState('Children');
   const [tabValue, setTabValue] = React.useState(0)
-  
+  const [data, setData] = React.useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null);
   const onTabsChanged = (event, newValue) => {
     setTabValue(newValue)
   }
+  
+  useEffect(() => {
+    setLoading(true)
+    fetch(URL)
+      .then((response) => response.json())
+      .then((jsonData) => {
+        setData(jsonData);
+        setLoading(false)
+      })
+      .catch((error) => {
+        setError(error)
+        setLoading(false)
+      });
+  }, []);
   
   return <Box display='flex' flexDirection='column' gap='.75rem'>
     <Box display='flex' alignItems='center' justifyContent='space-between'>
@@ -77,7 +83,7 @@ const Predicates = () => {
         }]} value={tabValue} handleChange={onTabsChanged} />
       </Box>
     </Box>
-    <PredicatesAccordion data={accordionData} />
+    <PredicatesAccordion data={predicates} />
   </Box>
   
 }

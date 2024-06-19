@@ -21,8 +21,9 @@ const { gray600 } = vars;
 const PredicatesAccordion = ({ data }) => {
   const [tabValues, setTabValues] = useState(data.map(() => 0));
   const [openViewDiagram, setOpenViewDiagram] = React.useState(false);
-  const imgStyle = { width: '100%' }; // Customize your image style
-  const imgPath = '/success.png'; // Set your image path
+  const [selectedItem, setSelectedItem] = useState(null)
+  const imgStyle = { width: '100%' };
+  const imgPath = '/success.png';
   const onTabsChanged = (index) => (event, newValue) => {
     event.preventDefault();
     event.stopPropagation();
@@ -30,7 +31,8 @@ const PredicatesAccordion = ({ data }) => {
     newTabValues[index] = newValue;
     setTabValues(newTabValues);
   };
-  const handleClickViewDiagram = () => {
+  const handleClickViewDiagram = (e, item) => {
+    setSelectedItem(item)
     setOpenViewDiagram(true);
   };
   const handleCloseViewDiagram = () => {
@@ -76,12 +78,12 @@ const PredicatesAccordion = ({ data }) => {
           </AccordionSummary>
           <AccordionDetails>
             {tabValues[index] === 0 ? (
-              <CustomizedTable />
+              <CustomizedTable data={item} />
             ) : (
               <Box display='flex' flexDirection='column'>
                 <Button
                   variant='outlined'
-                  onClick={handleClickViewDiagram}
+                  onClick={(e) => handleClickViewDiagram(e, item)}
                   disableRipple
                   sx={{
                   minWidth:'auto',
@@ -95,7 +97,13 @@ const PredicatesAccordion = ({ data }) => {
         </Accordion>
       ))}
       
-      <ViewDiagramDialog open={openViewDiagram} handleClose={handleCloseViewDiagram} image={image} />
+      <ViewDiagramDialog
+        open={openViewDiagram}
+        handleClose={handleCloseViewDiagram}
+        image={image}
+        selectedItem={selectedItem}
+        predicates={data}
+      />
     </>
   );
 };

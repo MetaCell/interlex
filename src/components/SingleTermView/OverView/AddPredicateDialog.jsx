@@ -9,6 +9,7 @@ import AddPredicateStatusDialog from "./AddPredicateStatusDialog";
 import {useState} from "react";
 import CustomizedInput from "../../common/CustomizedInput";
 import PredicateGroupInput from "./PredicateGroupInput";
+import {useQuery} from "../../../helpers";
 
 const {gray800} = vars;
 
@@ -28,7 +29,8 @@ const HeaderRightSideContent = ({handleClose, handleOpenAddPredicateStatusDialog
 const AddPredicateDialog = ({open, handleClose, image}) => {
   const [openAddPredicateStatusDialog, setOpenAddPredicateStatusDialog] = useState(false);
   const [predicates, setPredicates] = useState([{ subject: '', object: '' }]);
-  
+  const query = useQuery();
+  const storedSearchTerm = query.get('searchTerm');
   const handleCloseAddPredicateStatusDialog = () => {
     setOpenAddPredicateStatusDialog(false);
   };
@@ -67,7 +69,7 @@ const AddPredicateDialog = ({open, handleClose, image}) => {
       >
         <Box padding={'2.25rem 3.25rem 2.5rem 3.25rem'}>
           <Typography color={gray800} fontSize='1.125rem' fontWeight={600} mb='2.75rem'>
-            Add predicate(s) to Central Nervous System
+            Add predicate(s) to {storedSearchTerm}
           </Typography>
           {predicates.map((predicate, index) => (
             <Grid container spacing='2.75rem' mb='2rem' key={index} alignItems='end'>
@@ -116,6 +118,7 @@ const AddPredicateDialog = ({open, handleClose, image}) => {
         handleClose={handleCloseAddPredicateStatusDialog}
         handleCloseAddpredicate={handleClose}
         image={image}
+        storedSearchTerm={storedSearchTerm}
       />
     </>
   );
