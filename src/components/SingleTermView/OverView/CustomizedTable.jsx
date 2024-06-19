@@ -252,7 +252,7 @@ const CustomizedTable = ({data}) => {
       fetchTerms(objectSearchTerm, 'object');
     }
   }, [objectSearchTerm, fetchTerms]);
-  console.log(terms)
+
   return (
     <Box pb={1.5}>
       <Box sx={tableStyles.head}>
