@@ -5,11 +5,12 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
+  Curies,
   Organization,
   Organizations,
   Terms
-} from '../model'
-import { customInstance } from '../mutator/custom-client';
+} from '../../model/backend'
+import { customInstance } from '../../mutator/customClient';
 
 
 
@@ -128,6 +129,18 @@ export const getMatchTerms = (
     }
   
 /**
+ * @summary List all curies for group
+ */
+export const getCuries = (
+    group: string,
+ ) => {
+      return customInstance<Curies>(
+      {url: `http://localhost:3200/get_curies/${group}`, method: 'GET'
+    },
+      );
+    }
+  
+/**
  * @summary Checks if the server is running
  */
 export const getPing = (
@@ -153,4 +166,5 @@ export type GetOrganizationsResult = NonNullable<Awaited<ReturnType<typeof getOr
 export type GetSearchResultsResult = NonNullable<Awaited<ReturnType<typeof getSearchResults>>>
 export type GetHierarchyResultsResult = NonNullable<Awaited<ReturnType<typeof getHierarchyResults>>>
 export type GetMatchTermsResult = NonNullable<Awaited<ReturnType<typeof getMatchTerms>>>
+export type GetCuriesResult = NonNullable<Awaited<ReturnType<typeof getCuries>>>
 export type GetPingResult = NonNullable<Awaited<ReturnType<typeof getPing>>>

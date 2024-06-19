@@ -1,7 +1,7 @@
 {
   "name": "interlex",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "commonjs",
   "scripts": {
     "dev": "vite",
@@ -13,12 +13,15 @@
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
-    "@mui/icons-material": "^5.15.18",
+    "@mui/icons-material": "^5.15.19",
+    "@mui/lab": "^5.0.0-alpha.170",
     "@mui/material": "^5.15.15",
     "@mui/x-tree-view": "^7.5.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.23.1"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.23.1",
+    "react-rte": "^0.16.5",
+    "react-syntax-highlighter": "^15.5.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",

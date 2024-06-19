@@ -1,32 +1,43 @@
+import React, { useEffect, useState, useMemo } from "react";
+import axios from "axios";
 import {
   Box,
-  Chip,
+  Chip, CircularProgress,
   Grid,
   Stack,
   Typography
 } from "@mui/material";
 import { vars } from "../../../theme/variables";
-import React from "react";
 
 const { gray800, gray500 } = vars;
-const Details = () => {
-  const synonyms = [
-    { title: 'CNS', description: 'abbrev' },
-    { title: 'Myencephalon', description: '' },
-    { title: 'Cerebrospinal axis', description: 'fma:synonym' },
-    { title: 'Cerebrospinal axis', description: 'fma:synonym' },
-    { title: 'Central nervous system', description: 'fma:synonym' },
-    { title: 'systema nervosum centrale', description: 'oboInOwl:hasExactSynonym' },
-    { title: 'neuraxis', description: 'oboInOwl:hasRelatedSynonym' },
-  ];
+
+const URL = "https://raw.githubusercontent.com/MetaCell/interlex/feature/ILEX-11/src/static/Details.json"
+const Details = ({ term }) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
   
-  const existingIDs = [
-    'UBERON:0001017',
-    'FMA:55675',
-    'ILX:0101901',
-    'BIRNLEX:1099',
-  ];
+  useEffect(() => {
+    setLoading(true)
+    fetch(URL)
+      .then((response) => response.json())
+      .then((jsonData) => {
+        setData(jsonData);
+        setLoading(false)
+      })
+      .catch((error) => console.error("Error fetching data:", error));
+  }, [term]);
   
+  const memoData = useMemo(() => data, [data]);
+  
+  if (loading) {
+    return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <CircularProgress />
+    </Box>
+  }
+  
+  if (!memoData) {
+    return <div>No data available</div>;
+  }
   return (
     <>
       <Grid container>
@@ -36,15 +47,15 @@ const Details = () => {
               Synonyms
             </Typography>
             <Box display="flex" flexWrap="wrap" gap=".5rem">
-              {synonyms.map((synonym) => (
+              {memoData?.synonyms?.map((synonym) => (
                 <Chip
                   className="rounded synonyms"
                   variant="outlined"
                   key={synonym.title}
                   label={
                     <span>
-                        {synonym.title} <span>{synonym.description}</span>
-                      </span>
+                      {synonym.title} <span>{synonym.description}</span>
+                    </span>
                   }
                 />
               ))}
@@ -57,7 +68,7 @@ const Details = () => {
               Preferred ID
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              UBERON:0000955
+              {memoData?.preferredID}
             </Typography>
           </Stack>
         </Grid>
@@ -67,7 +78,7 @@ const Details = () => {
               Existing IDs
             </Typography>
             <Box display="flex" flexWrap="wrap" gap=".5rem">
-              {existingIDs.map((id) => (
+              {memoData?.existingIDs?.map((id) => (
                 <Chip className="rounded IDchip-outlined" variant="outlined" key={id} label={id} />
               ))}
             </Box>
@@ -81,19 +92,7 @@ const Details = () => {
               Description
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              The central nervous system (CNS) is the part of the nervous system which includes the brain, spinal cord,
-              and nerve cell layer of the retina.
-            </Typography>
-            <Typography fontSize=".875rem" color={gray500}>
-              In animals with bilateral symmetry, it is a topographic division that is a condensation of the nervous
-              system in the longitudinal plane, lying on or near the median plane. For invertebrates the longitudinal
-              division consists of one or more nerve cords, whereas for vertebrates it consists of a single, hollow,
-              and dorsal cerebrospinal axis. In adult Echinoderms, which are radially symmetrical, a presumptive CNS
-              is formed by a circular cord with associated radial cords.
-            </Typography>
-            <Typography fontSize=".875rem" color={gray500}>
-              However, there is no ganglion that could be considered as brain in invertebrate When a CNS is present,
-              its obligate companion topographic division is a peripheral nervous system.
+              {memoData?.description}
             </Typography>
           </Stack>
         </Grid>
@@ -105,7 +104,7 @@ const Details = () => {
               Type
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              term
+              {memoData?.type}
             </Typography>
           </Stack>
         </Grid>
@@ -115,7 +114,7 @@ const Details = () => {
               Version
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              17
+              {memoData?.version}
             </Typography>
           </Stack>
         </Grid>
@@ -125,7 +124,7 @@ const Details = () => {
               OWL equivalent
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              owl:Class
+              {memoData?.owlEquivalent}
             </Typography>
           </Stack>
         </Grid>
@@ -134,24 +133,34 @@ const Details = () => {
             <Typography color={gray800} fontWeight={500}>
               Originally submitted by
             </Typography>
-            <Typography fontSize='.875rem' color={gray500}>NeuroLex</Typography>
+            <Typography fontSize=".875rem" color={gray500}>
+              {memoData?.submittedBy}
+            </Typography>
           </Stack>
         </Grid>
-        <Grid item xs={12} lg={4} mb='.75rem'>
-          <Stack spacing='.75rem'>
-            <Typography color={gray800} fontWeight={500}>Last modified by</Typography>
-            <Typography fontSize='.875rem' color={gray500}>NeuroLex</Typography>
+        <Grid item xs={12} lg={4} mb=".75rem">
+          <Stack spacing=".75rem">
+            <Typography color={gray800} fontWeight={500}>
+              Last modified by
+            </Typography>
+            <Typography fontSize=".875rem" color={gray500}>
+              {memoData?.lastModifiedBy}
+            </Typography>
           </Stack>
         </Grid>
-        <Grid item xs={12} lg={4} mb='.75rem'>
-          <Stack spacing='.75rem'>
-            <Typography color={gray800} fontWeight={500}>Last modify timestamp</Typography>
-            <Typography fontSize='.875rem' color={gray500}>2020-06-23 21:46</Typography>
+        <Grid item xs={12} lg={4} mb=".75rem">
+          <Stack spacing=".75rem">
+            <Typography color={gray800} fontWeight={500}>
+              Last modify timestamp
+            </Typography>
+            <Typography fontSize=".875rem" color={gray500}>
+              {memoData?.lastModifyTimestamp}
+            </Typography>
           </Stack>
         </Grid>
       </Grid>
     </>
-  
-  )}
+  );
+}
 
-export default Details
+export default Details;

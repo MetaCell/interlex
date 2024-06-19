@@ -6,7 +6,9 @@ import {
   Divider,
   Grid,
   Stack,
-  Typography
+  Typography,
+  Menu,
+  MenuItem
 } from "@mui/material";
 import CustomBreadcrumbs from "../common/CustomBreadcrumbs";
 import ForkRightIcon from '@mui/icons-material/ForkRight';
@@ -14,13 +16,14 @@ import { vars } from "../../theme/variables";
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import OntologySearch from "./OntologySearch";
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
-import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import CopyLinkComponent from "../common/CopyLinkComponent";
 import BasicTabs from "../common/CustomTabs";
 import CustomButton from "../common/CustomButton";
 import CustomMenu from "./CustomMenu";
 import React from "react";
 import OverView from "./OverView/OverView";
+import HistoryPanel from "./History/HistoryPanel";
+import VariantsPanel from "./Variants/VariantsPanel";
 import {
   CreateNewFolderOutlined,
   DownloadOutlined,
@@ -29,20 +32,59 @@ import {
   List,
   AccountTreeOutlined
 } from "@mui/icons-material";
+import CustomIconTabs from "../common/CustomIconTabs";
+import DataVisualizerDropdown from "./DataVisualizerDropdown";
+import Discussion from "./Discussion";
+import { CodeIcon } from "../../Icons";
 
-const { brand700, gray600 } = vars;
+const { gray50, gray200, brand700, gray600 } = vars;
+
+const dataFormats = ['JSON-LD', 'Turtle', 'N3', 'OWL', 'CSV']
+
 const SingleTermView = () => {
   const [open, setOpen] = React.useState(false);
   const actionRef = React.useRef(null);
   const anchorRef = React.useRef(null);
+  const [dataFormatAnchorEl, setDataFormatAnchorEl] = React.useState(null);
   const [tabValue, setTabValue] = React.useState(0);
-  
+  const [isCodeViewVisible, setIsCodeViewVisible] = React.useState(false);
+  const [iconTabValue, setIconTabValue] = React.useState(0);
+  const [selectedDataFormat, setSelectedDataFormat] = React.useState('Turtle');
+
+  const openDataFormatMenu = Boolean(dataFormatAnchorEl);
+  const handleClickDataFormatMenu = (event) => {
+    setDataFormatAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseDataFormatMenu = () => {
+    setDataFormatAnchorEl(null);
+  };
+
+  const handleDataFormatMenuItemClick = (value) => {
+    setSelectedDataFormat(value);
+    setDataFormatAnchorEl(null);
+  };
+
+  const handleIconTabValueChange = (event, newValue) => {
+    setIconTabValue(newValue);
+    if (newValue === 1) {
+      setIsCodeViewVisible(true)
+    } else {
+      setIsCodeViewVisible(false)
+    }
+  };
+
   const handleChangeTabs = (event, newValue) => {
     setTabValue(newValue);
   };
+
+  const CodeOrTreeIcon = () => {
+    return isCodeViewVisible ? <CodeIcon /> : <AccountTreeOutlined />
+  }
+
   return (
-    <Box display="flex" flexDirection="column" maxHeight="86vh">
-      <Stack p="1.5rem 5rem 0rem 5rem">
+    <Box display="flex" flexDirection="column">
+      <Box p="1.5rem 5rem 0rem 5rem">
         <Grid container>
           <Grid item xs={12} lg={6}>
             <Stack direction="row" spacing=".75rem">
@@ -77,7 +119,6 @@ const SingleTermView = () => {
               <Chip label="Fork" variant="outlined" />
             </Stack>
           </Grid>
-         
           <Grid display="flex" justifyContent='end' mt=".56rem" item xs={12} lg={8}>
             <Stack direction="row" spacing="1rem" alignItems="center">
               <Button type="string" color="secondary" startIcon={<ModeEditOutlineOutlinedIcon />}>
@@ -117,8 +158,16 @@ const SingleTermView = () => {
                 </Button>
               </ButtonGroup>
               <CustomMenu open={open} anchorRef={anchorRef} setOpen={setOpen} />
-              <CustomButton onClick={() => console.log("Download button clicked!")}><DownloadOutlined fontSize="medium" />Download as</CustomButton>
-            
+              <CustomButton onClick={handleClickDataFormatMenu}><DownloadOutlined fontSize="medium" />Download as</CustomButton>
+              <Menu
+                anchorEl={dataFormatAnchorEl}
+                open={openDataFormatMenu}
+                onClose={handleCloseDataFormatMenu}
+              >
+                {dataFormats.map(dataFormat => (
+                  <MenuItem key={dataFormat} onClick={() => handleDataFormatMenuItemClick(dataFormat)}>{dataFormat}</MenuItem>
+                ))}
+              </Menu>
             </Stack>
           </Grid>
           <Grid item xs={6}>
@@ -126,32 +175,37 @@ const SingleTermView = () => {
           </Grid>
           <Grid item xs={12} mt="2rem" display='flex' alignItems='center' justifyContent='space-between'>
             <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["Overview", "Variants", "Version history", "Discussions"]} />
-            <ButtonGroup variant="outlined" aria-label="Basic button group">
-              <Button>
-                <List />
-              </Button>
-              <Button>
-                <AccountTreeOutlined />
-              </Button>
-            </ButtonGroup>
+            {tabValue === 0 && (
+              <Box display="flex">
+                {isCodeViewVisible && (<>
+                  <Stack direction="row" spacing=".5rem" alignItems="center">
+                    <Typography color={gray600} fontSize=".875rem" lineHeight="1.25rem">
+                      Format to visualize:
+                    </Typography>
+                    <DataVisualizerDropdown selectedValue={selectedDataFormat} setSelectedValue={setSelectedDataFormat} menuItems={dataFormats}/>
+                  </Stack>
+                  <Divider sx={{ ml: '0.625rem', mr: '0.625rem', border: `1px solid ${gray200}` }} /></>)
+                }
+                <CustomIconTabs tabs={[<List />, <CodeOrTreeIcon />]} value={iconTabValue} handleChange={handleIconTabValueChange}></CustomIconTabs>
+              </Box>
+            )}
           </Grid>
         </Grid>
-      </Stack>
-      <Box flexGrow={1} overflow="auto" p="2.5rem 5rem">
-        {
-          tabValue === 0 &&  <OverView />
-        }
-        {
-          tabValue === 1 &&  <Box>Variants</Box>
-        }
-        {
-          tabValue === 2 &&  <Box>history</Box>
-        }
-        {
-          tabValue === 3 &&  <Box>dissscussion</Box>
-        }
       </Box>
+      {
+        tabValue === 0 &&  <OverView isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat}/>
+      }
+      {
+        tabValue === 1 &&  <VariantsPanel/>
+      }
+      {
+        tabValue === 2 &&  <HistoryPanel/>
+      }
+      {
+        tabValue === 3 &&  <Discussion />
+      }
     </Box>
-  )}
+  )
+}
 
 export default SingleTermView

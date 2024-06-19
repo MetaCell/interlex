@@ -11,6 +11,8 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Search from './Search';
 import {useNavigate} from "react-router-dom";
+import { useContext } from "react";
+import { GlobalDataContext } from "./../../contexts/DataContext";
 
 const { gray200, white, gray100, gray600 } = vars;
 
@@ -79,19 +81,23 @@ const styles = {
 const NavMenu = [
     {
         label: 'Organizations',
-        icon: <OrganizationsIcon />
+        icon: <OrganizationsIcon />,
+        href: '/organizations'
     },
     {
         label: 'Term activity',
-        icon: <TermActivityIcon />
+        icon: <TermActivityIcon />,
+        href: '#'
     },
     {
         label: 'Documentation',
-        icon: <DocumentationIcon />
+        icon: <DocumentationIcon />,
+        href: '#'
     },
     {
         label: 'Release notes',
-        icon: <ReleaseNotesIcon />
+        icon: <ReleaseNotesIcon />,
+        href: '#'
     }
 ]
 
@@ -109,8 +115,13 @@ const UserNavMenu = [
 const Header = ({ isLoggedIn = false }) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
-    
+    const { user, setUserData } = useContext(GlobalDataContext);
+
+    const handleSetUserData = (user, organization) => {
+        setUserData(user, organization);
+    };
     const navigate = useNavigate();
+
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -143,12 +154,19 @@ const Header = ({ isLoggedIn = false }) => {
       setOpenList(!openList);
     };
     
+    const handleMenuClick = (e, menu) => {
+        navigate(menu.href)
+    }
+    
     const handleLogoClick = () => {
         navigate('/')
     }
   
     React.useEffect(() => {
-      const handleKeyDown = (event) => {
+        // TODO : Move to login page and remove this proof of concept call
+        handleSetUserData("Interlex User", "Interlex");
+      
+        const handleKeyDown = (event) => {
         if (event.ctrlKey && event.key === 'k') {
           toggleList();
         }
@@ -163,6 +181,10 @@ const Header = ({ isLoggedIn = false }) => {
         document.removeEventListener('keydown', handleKeyDown);
       };
     }, []);
+
+    React.useEffect( () => {
+        console.log("Stored user in context ", user)
+    }, [user])
 
     return (
         <Box sx={styles.root}>
@@ -189,7 +211,7 @@ const Header = ({ isLoggedIn = false }) => {
                     <List>
                         {NavMenu.map((menu, index) => (
                             <ListItem key={index} disablePadding>
-                                <ListItemButton>
+                                <ListItemButton onClick={(e) => handleMenuClick(e, menu)}>
                                     <ListItemIcon>
                                         {menu.icon}
                                     </ListItemIcon>
@@ -199,8 +221,9 @@ const Header = ({ isLoggedIn = false }) => {
                         ))}
                     </List>
                 </Popover>
-                
-                <img src={Logo} alt="logo" onClick={handleLogoClick} style={{cursor: 'pointer'}} />
+                <a href="/" style={{cursor: 'pointer'}}>
+                    <img src={Logo} alt="Interlex"/>
+                </a>
             </Box>
 
             <Box sx={{width:'35%', maxWidth: '45.5rem'}}>

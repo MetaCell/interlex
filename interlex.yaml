@@ -230,7 +230,7 @@ paths:
       summary: List all matching terms
       operationId: get_match_terms
       tags:
-        - API
+        - term
       parameters:
         - name: term
           in: path
@@ -250,6 +250,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Terms'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /get_curies/{group}: 
+    get:
+      summary: List all curies for group
+      operationId: get_curies
+      tags:
+        - group
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: The id of the group to retrieve
+          schema:
+            type: string
+      responses:
+        200:
+          description: A paged array of terms
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Curies'
         default:
           description: unexpected error
           content:
@@ -320,23 +351,13 @@ components:
       type: object
       required:
         - id
-        - name
-        - description
         - prefixes
         - triples
       properties:
         id:
           description: Unique identifier
           type: string
-          x-unique: true
-          x-primary-key: true
           example: 'ilx_0101431'
-        name:
-          type: string
-          example : rdfs:label 
-        description:
-          type: string
-          example : rdfs:comment
         prefixes:
           type: object
         triples:
@@ -349,6 +370,12 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Term'
+    Curie:
+      type: object
+    Curies:
+      type: array
+      items:
+        $ref: '#/components/schemas/Curie'
     Ontology:
       type: object
       required:
