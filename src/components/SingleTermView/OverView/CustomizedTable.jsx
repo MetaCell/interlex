@@ -1,20 +1,16 @@
 import { Box, IconButton, Typography } from "@mui/material";
-import {useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import TableRow from "./TableRow";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { vars } from "../../../theme/variables";
 import SingleSearch from "../SingleSearch";
+import { debounce } from 'lodash';
+import * as mockApi from "../../../api/endpoints/swaggerMockMissingEndpoints";
+import termParser from "../../../parsers/termParser";
 
 const { gray100, gray50, gray600, gray500, brand600 } = vars;
-
-const types = [
-  'Is part of',
-  'Related to',
-  'Has Dbx ref',
-  'Has exact synonym'
-]
 
 const tableStyles = {
   head: {
@@ -110,6 +106,7 @@ const tableStyles = {
     },
   }
 };
+const useMockApi = () => mockApi;
 
 const CustomizedTable = ({data}) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -120,14 +117,17 @@ const CustomizedTable = ({data}) => {
     { key: 'Objects', label: 'Objects', allowSort: true, direction: 'desc' },
     { key: '', label: '' }
   ]);
+  const { getMatchTerms } = useMockApi();
   
   const [showSelect, setShowSelect] = useState(false);
   const [subject, setSubject] = useState('');
   const [object, setObject] = useState('');
+  const [terms, setTerms] = useState([]);
+  const [subjectSearchTerm, setSubjectSearchTerm] = useState('');
+  const [objectSearchTerm, setObjectSearchTerm] = useState('');
   
   const targetRow = useRef();
   const sourceRow = useRef();
-  
   const move = (arr, fromIndex, toIndex) => {
     let element = arr[fromIndex];
     arr.splice(fromIndex, 1);
@@ -198,12 +198,13 @@ const CustomizedTable = ({data}) => {
   const handleAddClick = () => {
     setShowSelect(true);
   };
+  
   const updateTableContent = (newSubject, newObject) => {
     const newId = tableContent.length + 1;
     const newRow = {
       id: newId.toString(),
       Subject: newSubject,
-      Predicates: 'is part of',
+      Predicates: data?.title,
       Objects: newObject
     };
     
@@ -211,15 +212,17 @@ const CustomizedTable = ({data}) => {
     setShowSelect(false);
     setSubject('');
     setObject('');
+    setSubjectSearchTerm('');
+    setObjectSearchTerm('');
   };
   const handleSelectChange = (e, type) => {
     if (type === 'subject') {
-      setSubject(e);
+      setSubject(e.label);
     }
     if (type === 'object') {
-      setObject(e);
+      setObject(e.label);
     }
-
+    setTerms([])
     if (subject && object) {
       updateTableContent(type === 'subject' ? e.label : subject, type === 'object' ? e.label : object);
     }
@@ -230,6 +233,26 @@ const CustomizedTable = ({data}) => {
       updateTableContent(subject, object);
     }
   }, [subject, object])
+  
+  
+  const fetchTerms = useCallback(debounce(async (searchTerm) => {
+    const data = await getMatchTerms(searchTerm);
+    const parsedData = termParser(data, searchTerm);
+    setTerms(parsedData);
+  }, 500), [getMatchTerms]);
+  
+  useEffect(() => {
+    if (subjectSearchTerm) {
+      fetchTerms(subjectSearchTerm, 'subject');
+    }
+  }, [subjectSearchTerm, fetchTerms]);
+  
+  useEffect(() => {
+    if (objectSearchTerm) {
+      fetchTerms(objectSearchTerm, 'object');
+    }
+  }, [objectSearchTerm, fetchTerms]);
+  console.log(terms)
   return (
     <Box pb={1.5}>
       <Box sx={tableStyles.head}>
@@ -268,11 +291,25 @@ const CustomizedTable = ({data}) => {
           <>
             <>
               <Box sx={{paddingLeft: '0 !important', width: '100%'}}>
-                <SingleSearch selectedValue={subject} onChange={(e) => handleSelectChange(e, 'subject')} startAdornment={false} options={types} />
+                <SingleSearch
+                  selectedValue={subject}
+                  onChange={(e) => handleSelectChange(e, 'subject')}
+                  startAdornment={false}
+                  options={terms}
+                  searchTerm={subjectSearchTerm}
+                  setSearchTerm={setSubjectSearchTerm}
+                />
               </Box>
               <Box />
               <Box sx={{ width: '100%'}}>
-                <SingleSearch selectedValue={object} onChange={(e) => handleSelectChange(e, 'object')} startAdornment={false} options={types} />
+                <SingleSearch
+                  selectedValue={object}
+                  onChange={(e) => handleSelectChange(e, 'object')}
+                  startAdornment={false}
+                  options={terms}
+                  searchTerm={objectSearchTerm}
+                  setSearchTerm={setObjectSearchTerm}
+                />
               </Box>
               <Box />
             </>

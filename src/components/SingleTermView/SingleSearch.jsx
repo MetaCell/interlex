@@ -9,8 +9,7 @@ import {SearchIcon} from "../../Icons";
 import ListItem from "@mui/material/ListItem";
 
 const { brand300, gray50, gray200, gray900, gray600 } = vars;
-const SingleSearch = ({onChange, selectedValue, options, startAdornment = true}) => {
-  const [searchTerm, setSearchTerm] = React.useState('');
+const SingleSearch = ({onChange, selectedValue, options, startAdornment = true, searchTerm, setSearchTerm}) => {
   const autocompleteRef = useRef(null);
   const handleInputChange = (event) => {
     setSearchTerm(event.target.value);
