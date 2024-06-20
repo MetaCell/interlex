@@ -31,7 +31,7 @@ const CustomTable = (props) => {
                 <TableContainer sx={{ borderRadius: '0.75rem' }}>
                     <Table aria-labelledby="tableTitle">
                         <CustomTableHead
-                            numSelected={selected.length}
+                            numSelected={selected?.length}
                             order={order}
                             orderBy={orderBy}
                             onSelectAllClick={handleSelectAllClick}
