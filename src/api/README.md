@@ -2,11 +2,11 @@
 
 This template provides instructions on how to use the API.
 
-- [API - Search for Terms](https://github.com/MetaCell/interlex/tree/feature/ILEX-31/src/api#searching-for-terms)
-- [API - Get Curies](https://github.com/MetaCell/interlex/tree/feature/ILEX-31/src/api#retrieving-curies)
-- [API - Get Single Term](https://github.com/MetaCell/interlex/tree/feature/ILEX-31/src/api#retrieving-single-term)
-- [API - Get Variants](https://github.com/MetaCell/interlex/tree/feature/ILEX-31/src/api#retrieving-variants)
-- [API - Get Versions](https://github.com/MetaCell/interlex/tree/feature/ILEX-31/src/api#retrieving-versions)
+- [API - Search for Terms](https://github.com/MetaCell/interlex/tree/feature/ILEX-22/src/api#searching-for-terms)
+- [API - Get Curies](https://github.com/MetaCell/interlex/tree/feature/ILEX-22/src/api#retrieving-curies)
+- [API - Get Single Term](https://github.com/MetaCell/interlex/tree/feature/ILEX-22/src/api#retrieving-single-term)
+- [API - Get Variants](https://github.com/MetaCell/interlex/tree/feature/ILEX-22/src/api#retrieving-variants)
+- [API - Get Versions](https://github.com/MetaCell/interlex/tree/feature/ILEX-22/src/api#retrieving-versions)
 
 
 ### Searching for Terms
