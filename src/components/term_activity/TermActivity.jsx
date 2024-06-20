@@ -3,6 +3,9 @@ import { Box, Typography, CircularProgress, Grid, MenuItem, Select, Stack, FormC
 import CustomTable from "../common/CustomTable";
 import Checkbox from "../common/CustomCheckbox";
 import { getComparator, stableSort } from "../../utils";
+import { parseISO, format } from 'date-fns';
+import * as mockApi from '../../api/endpoints/swaggerMockMissingEndpoints';
+import { termParser } from '../../parsers/termParser'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { vars } from "../../theme/variables";
 const { gray700, gray600, gray300 } = vars;
@@ -32,8 +35,18 @@ const getChipColor = (type) => ({
     'New term': 'primary'
 }[type]);
 
+const formatDateString = (dateString) => {
+    const simplifiedString = dateString.split(',')[0] + 'Z';
+    const date = parseISO(simplifiedString);
+    
+    return format(date, 'dd MMM hh:mm a');
+  };
+
+const useMockApi = () => mockApi;
+
 
 const TermActivity = () => {
+    const { getMatchTerms } = useMockApi();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [rows, setRows] = React.useState([]);
@@ -96,38 +109,12 @@ const TermActivity = () => {
 
     useEffect(() => {
         setLoading(true)
-        const initialRows = [
-            {
-                id: 1, label: 'Central nervous system', organization: 'My organization 1', type: 'Approved',
-                description: 'The central nervous system (CNS) is the part of the nervous system which includes the brain, spinal cord, and nerve cell layer of the retina. In animals with bilateral symmetry, it is a topographic division that is a condensation of the nervous system in the longitudinal plane, lying on or near the median plane.For invertebrates the longitudinal division consists of one or more nerve cords, whereas for vertebrates it consists of a single, hollow, and dorsal cerebrospinal axis.In adult Echinoderms, which are radially symmetrical, a presumptive CNS is formed by a circular cord with associated radial cords. However, there is no ganglion that could be considered as brain in invertebrate When a CNS is present, its obligate companion topographic division is a peripheral nervous system.',
-                timestamp: '24 Mar 12:08 AM'
-            },
-            { id: 2, label: 'Central nervous system', organization: 'My organization 1', type: 'Edit', description: 'lorem ipsum', timestamp: '24 Mar 12:08 AM' },
-            { id: 3, label: 'Central nervous system', organization: 'My organization 1', type: 'Rejected', description: 'lorem ipsum', timestamp: '24 Mar 12:08 AM' },
-            { id: 4, label: 'Central nervous system', organization: 'My organization 1', type: 'New term', description: 'lorem ipsum', timestamp: '24 Mar 12:08 AM' },
-            { id: 5, label: 'Central nervous system', organization: 'My organization 1', type: 'Imported', description: 'lorem ipsum', timestamp: '24 Mar 12:08 AM' },
-            {
-                id: 6, label: 'Central ystem', organization: 'My organization 1', type: 'Approved',
-                description: 'The central nervous system (CNS) is the part of the nervous system which includes the brain, spinal cord, and nerve cell layer of the retina. In animals with bilateral symmetry, it is a topographic division that is a condensation of the nervous system in the longitudinal plane, lying on or near the median plane.For invertebrates the longitudinal division consists of one or more nerve cords, whereas for vertebrates it consists of a single, hollow, and dorsal cerebrospinal axis.In adult Echinoderms, which are radially symmetrical, a presumptive CNS is formed by a circular cord with associated radial cords. However, there is no ganglion that could be considered as brain in invertebrate When a CNS is present, its obligate companion topographic division is a peripheral nervous system.',
-                timestamp: '24 Mar 12:08 AM'
-            },
-            { id: 7, label: 'Central ners system', organization: 'My organization 1', type: 'Edit', description: 'lorem ipsum', timestamp: '24 Mar 12:08 AM' },
-            { id: 8, label: 'Central nm', organization: 'My organization 1', type: 'Rejected', description: 'lorem ipsum', timestamp: '24 Mar 12:08 AM' },
-            { id: 9, label: 'Central nerv', organization: 'My organization 1', type: 'New term', description: 'lorem ipsum', timestamp: '24 Mar 12:08 AM' },
-            { id: 10, label: 'Central n', organization: 'My organization 1', type: 'Imported', description: 'lorem ipsum', timestamp: '24 Mar 12:08 AM' },
-        ];
-        // fetch(URL)
-        //     .then((response) => response.json())
-        //     .then((jsonData) => {
-        //         setRows(jsonData);
-        //         setLoading(false)
-        //     })
-        //     .catch((error) => {
-        //         setError(error)
-        //         setLoading(false)
-        //     });
-        setRows(initialRows)
-        setLoading(false)
+        getMatchTerms("b").then(data => { 
+            const parsedData = termParser(data, 'brain')
+            console.log("Parsed retrieved data : ", parsedData)
+            setRows(parsedData)
+            setLoading(false)
+        });
     }, []);
 
     useEffect(() => {
@@ -244,7 +231,7 @@ const TermActivity = () => {
                                     </TableCell>
                                     <TableCell align="left" sx={descriptionTextStyle}>{row.description}</TableCell>
                                     <TableCell align="left">
-                                        <Chip color='default' label={row.timestamp} />
+                                        <Chip color='default' label={formatDateString(row.versionInfo)} />
                                     </TableCell>
                                 </TableRow>
                             );
