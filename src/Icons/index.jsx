@@ -174,7 +174,7 @@ export const MergeForkHistoryIcon = () => (
 
 export const MergeHistoryIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="34" viewBox="0 0 25 34" fill="none">
-        <path d="M24 33C24 19.3097 20.5 18.5 13.5 18.5" stroke="#515252" stroke-width="2" stroke-linecap="round"/>
+        <path d="M24 33C24 19.3097 20.5 18.5 13.5 18.5" stroke="#515252" strokeWidth="2" strokeLinecap="round"/>
         <path d="M7 33C7 33.5523 7.44772 34 8 34C8.55228 34 9 33.5523 9 33H7ZM8.7071 0.292885C8.31657 -0.0976347 7.6834 -0.0976274 7.29289 0.292901L0.928997 6.65694C0.538477 7.04746 0.538485 7.68063 0.929013 8.07115C1.31954 8.46167 1.95271 8.46166 2.34323 8.07113L8.00002 2.41421L13.6569 8.071C14.0475 8.46152 14.6806 8.46152 15.0711 8.07099C15.4617 7.68046 15.4617 7.04729 15.0711 6.65677L8.7071 0.292885ZM9 33C9 4.4302 9.00037 32.9987 9 0.999989L7 1.00001C7.00037 33.0013 7 4.42694 7 33H9Z" fill="#515252"/>
     </svg>
 )
@@ -231,7 +231,7 @@ export const AddedSuccessfully = () => (
 
 export const BackgroundPattern = () => (
   <svg width="480" height="480" viewBox="0 0 480 480" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <mask id="mask0_4079_28171" type="alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="480" height="480">
+    <mask id="mask0_4079_28171" type='alpha' maskUnits="userSpaceOnUse" x="0" y="0" width="480" height="480">
       <rect width="480" height="480" fill="url(#paint0_radial_4079_28171)"/>
     </mask>
     <g mask="url(#mask0_4079_28171)">
@@ -277,3 +277,4 @@ export const BackgroundPattern = () => (
     </defs>
   </svg>
 )
+

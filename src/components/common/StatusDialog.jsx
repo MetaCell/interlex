@@ -4,6 +4,7 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import { vars } from "../../theme/variables";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import {BackgroundPattern} from "../../Icons";
 
 const { gray600, gray900 } = vars;
 
@@ -29,20 +30,18 @@ const StatusDialog = ({ title, message, subMessage, addButtonTitle, open, handle
             HeaderRightSideContent={<HeaderRightSideContent handleClose={handleClose} handleCloseandAdd={handleCloseandAdd} />}
         >
             <Box display='flex' flexDirection='column' justifyContent='center' alignItems='center' height='100%' position='relative'>
-                <img
-                    src={image.src}
-                    alt='background'
-                    style={{
-                        width: '30rem',
-                        height: '30rem',
-                        objectFit: 'cover',
-                        position: 'absolute',
-                        top: '40%',
-                        left: '50%',
-                        transform: 'translate(-50%, -60%)',
-                        zIndex: 1
-                    }}
-                />
+              <Box sx={{
+                width: '30rem',
+                height: '30rem',
+                objectFit: 'cover',
+                position: 'absolute',
+                top: '40%',
+                left: '50%',
+                transform: 'translate(-50%, -60%)',
+                zIndex: 1
+              }}>
+                <BackgroundPattern />
+              </Box>
                 <Box display='flex' flexDirection='column' justifyContent='center' alignItems='center' zIndex={2} padding='2rem' sx={{
                     position: 'absolute',
                     top: '40%',

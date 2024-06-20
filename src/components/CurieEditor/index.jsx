@@ -47,8 +47,8 @@ const CurieEditor = () => {
     const [myCuries, setMyCuries] = React.useState([]);
     const [curatedCuries, setCuratedCuries] = React.useState([]);
     const [latestCuries, setLatestCuries] = React.useState([]);
-    const imgStyle = { width: '100%' }; // Customize your image style
-    const imgPath = '/success.png'; // Set your image path
+    const imgStyle = { width: '100%' };
+    const imgPath = '/success.png'; 
 
     useEffect(() => {
         const options = generatePageOptions(curieAmount);
