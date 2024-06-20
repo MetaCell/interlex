@@ -18,7 +18,7 @@ const paperStyle = {
 
 const CustomTable = (props) => {
     const {rows, order, orderBy, setOrder, setOrderBy, 
-        headCells, rowsPerPage, page, handlePageChange, children} = props;
+        headCells, isCheckboxPresent, selected, handleSelectAllClick, rowsPerPage, page, handlePageChange, children} = props;
 
     const handleRequestSort = (event, property) => {
         setOrder(order === 'asc' ? 'desc' : 'asc')
@@ -31,10 +31,14 @@ const CustomTable = (props) => {
                 <TableContainer sx={{ borderRadius: '0.75rem' }}>
                     <Table aria-labelledby="tableTitle">
                         <CustomTableHead
+                            numSelected={selected.length}
                             order={order}
                             orderBy={orderBy}
+                            onSelectAllClick={handleSelectAllClick}
                             onRequestSort={handleRequestSort}
                             headCells={headCells}
+                            rowCount={rows.length}
+                            isCheckboxPresent={isCheckboxPresent}
                         />
                         <TableBody>
                             {children}

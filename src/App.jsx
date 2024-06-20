@@ -10,6 +10,7 @@ import HomePage from "./components/HomePage";
 import Footer from "./components/Footer";
 import Organizations from "./components/organizations";
 import CurieEditor from "./components/CurieEditor";
+import TermActivity from "./components/term_activity/TermActivity";
 import { GlobalDataProvider } from './contexts/DataContext'
 
 function MainContent() {
@@ -36,6 +37,7 @@ function MainContent() {
               <Route path="/view" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><SingleTermView /></Box>} />
               <Route path="/organizations" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><Organizations /></Box>} />
               <Route path="/curie-editor" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><CurieEditor /></Box>} />
+              <Route path="/term-activity" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><TermActivity /></Box>} />
           </Routes>
           {showFooter && <Footer />}
       </Box>

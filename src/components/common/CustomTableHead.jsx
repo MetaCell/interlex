@@ -1,9 +1,11 @@
 import PropTypes from 'prop-types';
 import { TableHead, TableSortLabel, TableRow, TableCell } from '@mui/material';
+import Checkbox from './CustomCheckbox';
 
 
 export default function CustomTableHead(props) {
-    const { order, orderBy, onRequestSort, headCells } = props;
+    const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, headCells, isCheckboxPresent } = props;
+
     const createSortHandler = (property) => (event) => {
         onRequestSort(event, property);
     };
@@ -11,6 +13,18 @@ export default function CustomTableHead(props) {
     return (
         <TableHead>
             <TableRow>
+                {isCheckboxPresent && (
+                    <TableCell>
+                        <Checkbox
+                            indeterminate={numSelected > 0 && numSelected < rowCount}
+                            checked={rowCount > 0 && numSelected === rowCount}
+                            onChange={onSelectAllClick}
+                            inputProps={{
+                                'aria-label': 'select all term items',
+                            }}
+                        />
+                    </TableCell>
+                )}
                 {headCells.map((headCell) => (
                     <TableCell
                         key={headCell.id}
