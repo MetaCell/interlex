@@ -217,8 +217,9 @@ const Header = ({ isLoggedIn = false }) => {
                         ))}
                     </List>
                 </Popover>
-                
-                <img src={Logo} alt="logo" />
+                <a href="/" style={{cursor: 'pointer'}}>
+                    <img src={Logo} alt="Interlex"/>
+                </a>
             </Box>
 
             <Box sx={{width:'35%', maxWidth: '45.5rem'}}>

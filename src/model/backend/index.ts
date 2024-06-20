@@ -5,7 +5,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
+export * from './curie';
+export * from './curies';
 export * from './error';
+export * from './getEndpointsCuries200';
+export * from './getEndpointsCuriesDefault';
 export * from './maskErrorResponse';
 export * from './ontologies';
 export * from './ontology';

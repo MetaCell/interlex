@@ -72,9 +72,7 @@ const headCells = [
 
 const VariantsPanel = () => {
     return (
-        <Box flexGrow={1} p="2.5rem 5rem" sx={{
-            overflow: 'auto',
-        }}>
+        <Box flexGrow={1} p="2.5rem 5rem" overflow='auto'>
             <VariantsTable rows={rows} headCells={headCells} />
         </Box>
     )

@@ -7,10 +7,11 @@ import Hierarchy from "./Hierarchy";
 import Predicates from "./Predicates";
 import Details from "./Details";
 import RawDataViewer from "./RawDataViewer";
-import { useParams } from "react-router-dom";
+import {useQuery} from "../../../helpers";
 
 const OverView = ({ isCodeViewVisible, selectedDataFormat }) => {
-  const { term } = useParams();
+  const query = useQuery();
+  const searchTerm = query.get('searchTerm');
 
   return (
     <Box p="2.5rem 5rem" sx={{
@@ -18,7 +19,7 @@ const OverView = ({ isCodeViewVisible, selectedDataFormat }) => {
     }}>
       {isCodeViewVisible ? <RawDataViewer dataId={"ilx_0101901"} dataFormat={selectedDataFormat} /> :
         <>
-          <Details term={term} />
+          <Details term={searchTerm} />
           <Box p='5rem 0'>
             <Divider />
             <Grid container pt='5.25rem' spacing='2.75rem'>

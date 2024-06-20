@@ -13,6 +13,7 @@ import {
   http
 } from 'msw'
 import type {
+  Curies,
   Organization,
   Organizations,
   Terms
@@ -1482,6 +1483,12 @@ export const getGetMatchTermsResponseMock = () => ((() => [
               } 
               ])())
 
+export const getGetCuriesResponseMock = () => ((() => [{
+                rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                rdfs: "http://www.w3.org/2000/01/rdf-schema#",
+                owl: "http://www.w3.org/2002/07/owl#"
+              }])())
+
 
 export const getLoginMockHandler = (overrideResponse?: void) => {
   return http.post('*/operations/login', async () => {
@@ -1609,6 +1616,20 @@ export const getGetMatchTermsMockHandler = (overrideResponse?: Terms) => {
   })
 }
 
+export const getGetCuriesMockHandler = (overrideResponse?: Curies) => {
+  return http.get('*/get_curies/:group', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetCuriesResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
 export const getGetPingMockHandler = () => {
   return http.get('*/ping', async () => {
     await delay(1000);
@@ -1632,4 +1653,5 @@ export const getSwaggerMockMissingEndpointsMock = () => [
   getGetSearchResultsMockHandler(),
   getGetHierarchyResultsMockHandler(),
   getGetMatchTermsMockHandler(),
+  getGetCuriesMockHandler(),
   getGetPingMockHandler()]

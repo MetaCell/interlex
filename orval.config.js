@@ -28,11 +28,19 @@ module.exports = {
               }),
             },
           },
+          get_endpoints_curies_ : {
+            mock: {
+              data : () => ({
+                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+                "owl": "http://www.w3.org/2002/07/owl#"
+              })
+            }
+          },
           // Override existing endpoint, return mock data for fragment ID ilx_0101431
           get_endpoints_ilx: {
             mock: {
               data: () => ({
-                id : "ilx_0101431",
                 prefixes: {
                   owl: "http://www.w3.org/2002/07/owl#",
                   rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -178,6 +186,15 @@ module.exports = {
                 name: ""
               }),
             },
+          },
+          get_curies : {
+            mock: {
+              data : () => [{
+                rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                rdfs: "http://www.w3.org/2000/01/rdf-schema#",
+                owl: "http://www.w3.org/2002/07/owl#"
+              }]
+            }
           },
           get_organization: {
             mock: {

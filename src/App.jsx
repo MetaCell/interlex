@@ -27,13 +27,13 @@ function MainContent() {
           <Header />
           <Routes>
               <Route path="/" element={ <Box sx={{ flex: 1 }}><HomePage /></Box>} />
-              <Route path="/search/:searchTerm" element={
+              <Route path="/search" element={
                   <Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}>
                       <FiltersSidebar filterOptions={initialFilterOptions} />
                       <SearchResultsBox />
                   </Box>
               } />
-              <Route path="/view/:term" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><SingleTermView /></Box>} />
+              <Route path="/view" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><SingleTermView /></Box>} />
               <Route path="/organizations" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><Organizations /></Box>} />
               <Route path="/term-activity" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><TermActivity /></Box>} />
           </Routes>
