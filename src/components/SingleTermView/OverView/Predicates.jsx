@@ -1,13 +1,9 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {
-  Accordion, AccordionDetails,
-  AccordionSummary,
   Box,
-  Button,
-  ButtonGroup, Divider,
   FormControl,
   MenuItem,
-  Select, Stack,
+  Select,
   Typography
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -15,23 +11,41 @@ import {vars} from "../../../theme/variables";
 import ExpandIcon from '@mui/icons-material/Expand';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import CallMadeIcon from '@mui/icons-material/CallMade';
-import {SchemaOutlined, TableChartOutlined} from "@mui/icons-material";
-import CustomizedTable from "./CustomizedTable";
 
-const { gray600, gray800, gray500, gray700, gray300 } = vars;
+import CustomIconTabs from "../../common/CustomIconTabs";
+import PredicatesAccordion from "./PredicatesAccordion";
+import predicates from '../../../static/predicates.json';
+import * as mockApi from './../../../api/endpoints/interLexURIStructureAPI';
+import { termParser } from './../../../parsers/termParser'
+
+const useMockApi = () => mockApi;
+
+const { gray800, gray700, gray300 } = vars;
+const URL = ""
 
 const Predicates = ({ term }) => {
   
   const [predicates, setPredicates] = React.useState([]);
   const [type, setType] = React.useState('Children');
+  const [tabValue, setTabValue] = React.useState(0)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null);
+
+  const { getEndpointsIlx } = useMockApi();
+
+  const onTabsChanged = (event, newValue) => {
+    setTabValue(newValue)
+  }
 
   React.useEffect(() => {
-    console.log("Predicates : ", term.predicates)
-    setPredicates(predicates);
+    getEndpointsIlx("base",term).then( dat => { 
+      const parsedData = termParser(dat);
+      console.log("Predicates ", parsedData[0]?.predicates)
+      setPredicates(parsedData[0]?.predicates)
+      setLoading(false)
+    })
   }, [term]);
-  
-  
+
   return <Box display='flex' flexDirection='column' gap='.75rem'>
     <Box display='flex' alignItems='center' justifyContent='space-between'>
       <Typography color={gray800} fontWeight={500}>Predicates</Typography>
@@ -64,45 +78,17 @@ const Predicates = ({ term }) => {
             <MenuItem value={'Superclasses'}>Superclasses</MenuItem>
           </Select>
         </FormControl>
-        <ButtonGroup variant="outlined" aria-label="Basic button group">
-          <Button>
-            <ExpandIcon />
-          </Button>
-          <Button>
-            <RemoveIcon />
-          </Button>
-        </ButtonGroup>
+        <CustomIconTabs
+          tabs={[{
+            icon: <ExpandIcon />,
+            value: 0
+          },{
+            icon: <RemoveIcon />,
+            value: 1
+        }]} value={tabValue} handleChange={onTabsChanged} />
       </Box>
     </Box>
-    <Accordion disableGutters elevation={0} square defaultExpanded>
-      <AccordionSummary
-        expandIcon={<ExpandMoreIcon fontSize='medium' />}
-        aria-controls="panel1-content"
-        id="panel1-header"
-      >
-        <Stack direction='row' spacing='.25rem'>
-          <Typography>
-            Is part of
-          </Typography>
-          <CallMadeIcon fontSize='medium'  />
-        </Stack>
-        <Stack direction='row' alignItems='center' spacing='.75rem'>
-          <Typography color={gray600} fontSize='.875rem'>Number of this type: 7</Typography>
-          <Divider orientation="vertical" flexItem />
-          <ButtonGroup variant="outlined" aria-label="Basic button group">
-            <Button>
-              <TableChartOutlined />
-            </Button>
-            <Button>
-              <SchemaOutlined />
-            </Button>
-          </ButtonGroup>
-        </Stack>
-      </AccordionSummary>
-      <AccordionDetails>
-        <CustomizedTable />
-      </AccordionDetails>
-    </Accordion>
+    <PredicatesAccordion data={predicates} />
   </Box>
   
 }

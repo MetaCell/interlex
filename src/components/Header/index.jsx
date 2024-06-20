@@ -87,7 +87,7 @@ const NavMenu = [
     {
         label: 'Term activity',
         icon: <TermActivityIcon />,
-        href: '#'
+        href: '/term-activity'
     },
     {
         label: 'Documentation',
@@ -156,6 +156,10 @@ const Header = ({ isLoggedIn = false }) => {
     
     const handleMenuClick = (e, menu) => {
         navigate(menu.href)
+    }
+    
+    const handleLogoClick = () => {
+        navigate('/')
     }
   
     React.useEffect(() => {

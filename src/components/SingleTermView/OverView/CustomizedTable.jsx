@@ -1,38 +1,16 @@
-import {Box,  IconButton, Typography} from "@mui/material";
-import { useRef, useState } from "react";
+import { Box, IconButton, Typography } from "@mui/material";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import TableRow from "./TableRow";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import {vars} from "../../../theme/variables";
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-const {gray100, gray50, gray600, gray500, brand600} = vars
+import { vars } from "../../../theme/variables";
+import SingleSearch from "../SingleSearch";
+import { debounce } from 'lodash';
+import * as mockApi from "../../../api/endpoints/swaggerMockMissingEndpoints";
+import termParser from "../../../parsers/termParser";
 
-const initialTableContent = [
-  {
-    "id": "1",
-    "Subject": "Central nervous system 1",
-    "Predicates": "is part of",
-    "Objects": "Central nervous system 2",
-  },
-  {
-    "id": "2",
-    "Subject": "Peripheral nervous system 2",
-    "Predicates": "is part of",
-    "Objects": "Central nervous system 4",
-  },
-  {
-    "id": "3",
-    "Subject": "Autonomic nervous system 3",
-    "Predicates": "is part of",
-    "Objects": "Central nervous system 7",
-  },
-  {
-    "id": "4",
-    "Subject": "Somatic nervous system 4",
-    "Predicates": "is part of",
-    "Objects": "Central nervous system 3",
-  }
-]
+const { gray100, gray50, gray600, gray500, brand600 } = vars;
 
 const tableStyles = {
   head: {
@@ -113,7 +91,7 @@ const tableStyles = {
           borderRadius: '0.1875rem'
         },
       },
-    
+      
       '& > .MuiBox-root': {
         width: '20rem',
         gap: '0.5rem',
@@ -128,28 +106,35 @@ const tableStyles = {
     },
   }
 };
+const useMockApi = () => mockApi;
 
-const CustomizedTable = () => {
+const CustomizedTable = ({data}) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  const [tableContent, setTableContent] = useState(initialTableContent);
-  
-  const [tableHeader, setTableHeader] = useState( [
+  const [tableContent, setTableContent] = useState(data?.tableData);
+  const [tableHeader, setTableHeader] = useState([
     { key: 'Subject', label: 'Subject', allowSort: true, direction: 'desc' },
     { key: 'Predicates', label: 'Predicates', allowSort: false },
     { key: 'Objects', label: 'Objects', allowSort: true, direction: 'desc' },
     { key: '', label: '' }
-  ])
+  ]);
+  const { getMatchTerms } = useMockApi();
+  
+  const [showSelect, setShowSelect] = useState(false);
+  const [subject, setSubject] = useState('');
+  const [object, setObject] = useState('');
+  const [terms, setTerms] = useState([]);
+  const [subjectSearchTerm, setSubjectSearchTerm] = useState('');
+  const [objectSearchTerm, setObjectSearchTerm] = useState('');
   
   const targetRow = useRef();
   const sourceRow = useRef();
-  
   const move = (arr, fromIndex, toIndex) => {
     let element = arr[fromIndex];
     arr.splice(fromIndex, 1);
     arr.splice(toIndex, 0, element);
     return arr;
   };
-  
+
   const dragStart = (id, index) => {
     sourceRow.current = { id, index };
   };
@@ -183,14 +168,14 @@ const CustomizedTable = () => {
     }
     setSortConfig({ key, direction });
     
-    // Update the sorting direction in the tableHeader array
     const updatedHeader = tableHeader.map((item) => {
       if (item.key === key) {
         return { ...item, direction };
       }
       return item;
     });
-    setTableHeader(updatedHeader)
+    setTableHeader(updatedHeader);
+    
     setTableContent((prevContent) => {
       const sortedContent = [...prevContent];
       sortedContent.sort((a, b) => {
@@ -210,6 +195,64 @@ const CustomizedTable = () => {
     return <ArrowDownwardIcon fontSize="small" style={{ opacity: 0.3 }} />;
   };
   
+  const handleAddClick = () => {
+    setShowSelect(true);
+  };
+  
+  const updateTableContent = (newSubject, newObject) => {
+    const newId = tableContent.length + 1;
+    const newRow = {
+      id: newId.toString(),
+      Subject: newSubject,
+      Predicates: data?.title,
+      Objects: newObject
+    };
+    
+    setTableContent([...tableContent, newRow]);
+    setShowSelect(false);
+    setSubject('');
+    setObject('');
+    setSubjectSearchTerm('');
+    setObjectSearchTerm('');
+  };
+  const handleSelectChange = (e, type) => {
+    if (type === 'subject') {
+      setSubject(e.label);
+    }
+    if (type === 'object') {
+      setObject(e.label);
+    }
+    setTerms([])
+    if (subject && object) {
+      updateTableContent(type === 'subject' ? e.label : subject, type === 'object' ? e.label : object);
+    }
+  };
+  
+  useEffect(() => {
+    if (subject && object) {
+      updateTableContent(subject, object);
+    }
+  }, [subject, object])
+  
+  
+  const fetchTerms = useCallback(debounce(async (searchTerm) => {
+    const data = await getMatchTerms(searchTerm);
+    const parsedData = termParser(data, searchTerm);
+    setTerms(parsedData);
+  }, 500), [getMatchTerms]);
+  
+  useEffect(() => {
+    if (subjectSearchTerm) {
+      fetchTerms(subjectSearchTerm, 'subject');
+    }
+  }, [subjectSearchTerm, fetchTerms]);
+  
+  useEffect(() => {
+    if (objectSearchTerm) {
+      fetchTerms(objectSearchTerm, 'object');
+    }
+  }, [objectSearchTerm, fetchTerms]);
+
   return (
     <Box pb={1.5}>
       <Box sx={tableStyles.head}>
@@ -236,20 +279,42 @@ const CustomizedTable = () => {
           <TableRow key={row.id} tableStyles={tableStyles} data={row} index={index} onDragStart={dragStart} onDragEnter={dragEnter} onDragEnd={dragEnd} />)
         }
       </Box>
-      <Box sx={tableStyles.root}
-      >
-        <Box sx={{paddingLeft: '0 !important'}}>
-          <IconButton>
-            <AddOutlinedIcon />
-          </IconButton>
-        </Box>
-        <Box />
-        <Box>
-          <IconButton>
-            <AddOutlinedIcon />
-          </IconButton>
-        </Box>
-        <Box />
+    
+      <Box sx={tableStyles.root}>
+        {!showSelect ? (
+          <Box sx={{ paddingLeft: '0 !important' }}>
+            <IconButton onClick={handleAddClick}>
+              <AddOutlinedIcon />
+            </IconButton>
+          </Box>
+        ) : (
+          <>
+            <>
+              <Box sx={{paddingLeft: '0 !important', width: '100%'}}>
+                <SingleSearch
+                  selectedValue={subject}
+                  onChange={(e) => handleSelectChange(e, 'subject')}
+                  startAdornment={false}
+                  options={terms}
+                  searchTerm={subjectSearchTerm}
+                  setSearchTerm={setSubjectSearchTerm}
+                />
+              </Box>
+              <Box />
+              <Box sx={{ width: '100%'}}>
+                <SingleSearch
+                  selectedValue={object}
+                  onChange={(e) => handleSelectChange(e, 'object')}
+                  startAdornment={false}
+                  options={terms}
+                  searchTerm={objectSearchTerm}
+                  setSearchTerm={setObjectSearchTerm}
+                />
+              </Box>
+              <Box />
+            </>
+          </>
+        )}
       </Box>
     </Box>
   );
