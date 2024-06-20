@@ -7,6 +7,7 @@ This template provides instructions on how to use the API.
 - [API - Get Single Term](https://github.com/MetaCell/interlex/tree/feature/ILEX-22/src/api#retrieving-single-term)
 - [API - Get Variants](https://github.com/MetaCell/interlex/tree/feature/ILEX-22/src/api#retrieving-variants)
 - [API - Get Versions](https://github.com/MetaCell/interlex/tree/feature/ILEX-22/src/api#retrieving-versions)
+- [API - Get Raw Data](https://github.com/MetaCell/interlex/tree/feature/ILEX-22/src/api#retrieving-raw-data)
 
 
 ### Searching for Terms
@@ -89,7 +90,7 @@ const Test = () => {
 ### Retrieving Single Term
 - Sample Code
 ```
-import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
+import * as mockApi from './../../api/endpoints/interLexURIStructureAPI';
 import { termParser } from 'src/parsers/termParser'
 
 const useMockApi = () => mockApi;
@@ -130,6 +131,8 @@ const Test = () => {
             "http://purl.org/sig/ont/fma/fma50801",
             "http://purl.obolibrary.org/obo/UBERON_0000955"
         ],
+        "organization": "My Organization",
+        "status": "Approved",
         "label": "Brain",
         "subClassOf": "http://uri.interlex.org/base/ilx_0108124",
         "predicates": {
@@ -140,7 +143,7 @@ const Test = () => {
                     },
                     "predicate": "http://uri.interlex.org/base/readable/synonym",
                     "object": {
-                        "id": "Encephalon"
+                        "value": "Encephalon"
                     }
                 },
                 {
@@ -149,7 +152,7 @@ const Test = () => {
                     },
                     "predicate": "http://uri.interlex.org/base/readable/synonym",
                     "object": {
-                        "id": "synganglion"
+                        "value": "synganglion"
                     }
                 },
                 {
@@ -158,7 +161,7 @@ const Test = () => {
                     },
                     "predicate": "http://uri.interlex.org/base/readable/synonym",
                     "object": {
-                        "id": "the brain"
+                        "value": "the brain"
                     }
                 },
                 {
@@ -167,7 +170,7 @@ const Test = () => {
                     },
                     "predicate": "http://uri.interlex.org/base/readable/synonym",
                     "object": {
-                        "id": "suprasegmental levels of nervous system"
+                        "value": "suprasegmental levels of nervous system"
                     }
                 },
                 {
@@ -176,7 +179,7 @@ const Test = () => {
                     },
                     "predicate": "http://uri.interlex.org/base/readable/synonym",
                     "object": {
-                        "id": "suprasegmental structures"
+                        "value": "suprasegmental structures"
                     }
                 }
             ],
@@ -187,7 +190,7 @@ const Test = () => {
                     },
                     "predicate": "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId",
                     "object": {
-                        "id": "http://uri.neuinfo.org/nif/nifstd/birnlex_796"
+                        "value": "http://uri.neuinfo.org/nif/nifstd/birnlex_796"
                     }
                 },
                 {
@@ -196,7 +199,7 @@ const Test = () => {
                     },
                     "predicate": "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId",
                     "object": {
-                        "id": "http://purl.org/sig/ont/fma/fma50801"
+                        "value": "http://purl.org/sig/ont/fma/fma50801"
                     }
                 },
                 {
@@ -205,18 +208,19 @@ const Test = () => {
                     },
                     "predicate": "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId",
                     "object": {
-                        "id": "http://purl.obolibrary.org/obo/UBERON_0000955"
+                        "value": "http://purl.obolibrary.org/obo/UBERON_0000955"
                     }
                 }
             ],
             "rdfs:subClassOf": [
                 {
                     "subject": {
-                        "id": "http://uri.interlex.org/base/ilx_0101431",
-                        "label": "Brain"
+                        "id": "http://uri.interlex.org/base/ilx_0101431"
                     },
                     "predicate": "rdfs:subClassOf",
-                    "object": "http://uri.interlex.org/base/ilx_0108124"
+                    "object": {
+                        "value": "http://uri.interlex.org/base/ilx_0108124"
+                    }
                 }
             ]
         }
@@ -379,4 +383,102 @@ const Test = () => {
         "lastModifyBy": "2024-06-05T18:29:28,829272Z"
     }
 ]
+```
+
+### Retrieving Raw Data
+- Sample Code
+```
+import * as mockApi from './../../api/endpoints/interLexURIStructureAPI';
+
+const useMockApi = () => mockApi;
+
+const Test = () => {
+    const { getEndpointsIlxGet } = useMockApi();
+
+    React.useEffect( () => {
+        getEndpointsIlxGet("base", "ILX_....", "json").then(data => { 
+            console.log("Raw Data : ", data)
+        });
+    }, [])
+
+    render ();
+};
+```
+
+- Sample Return
+```
+{
+  "@context": {
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "http://uri.interlex.org/base/ilx_0101431",
+      "http://uri.interlex.org/tgbugs/uris/readable/hasIlxId": {
+        "@id": "http://uri.interlex.org/base/ilx_0101431"
+      },
+      "http://uri.interlex.org/tgbugs/uris/readable/hasIlxPreferredId": {
+        "@id": "http://uri.interlex.org/base/ilx_0101431"
+      },
+      "http://uri.interlex.org/tgbugs/uris/readable/owlEquivalent": "owlEquivalent",
+      "http://uri.interlex.org/tgbugs/uris/readable/lastModify": "lastModify",
+      "http://uri.interlex.org/tgbugs/uris/readable/lastModifyBy": "lastModifyBy",
+      "http://uri.interlex.org/tgbugs/uris/readable/submittedBy": "submittedBy"
+    },
+    {
+      "@id": "http://uri.interlex.org/base/ontologies/ilx_0101431",
+      "@type": "owl:Ontology",
+      "http://purl.obolibrary.org/obo/IAO_0000136": {
+        "@id": "http://uri.interlex.org/base/ilx_0101431"
+      },
+      "owl:versionIRI": {
+        "@id": "http://uri.interlex.org/base/ontologies/ilx_0101431/version/1717611398/ilx_0101431"
+      },
+      "owl:versionInfo": "2024-06-05T18:16:38,089335Z",
+      "rdfs:comment": "InterLex single term result for base/ilx_0101431 at 2024-06-05T18:16:38,089335Z"
+    },
+    {
+      "@id": "http://purl.obolibrary.org/obo/UBERON_0000955",
+      "@type": "owl:Class",
+      "http://purl.obolibrary.org/obo/IAO_0000115": "The part of the central nervous system contained within the cranium, comprising the forebrain, midbrain, hindbrain, and metencephalon. It is derived from the anterior part of the embryonic neural tube (or the encephalon). Does not include retina. (CUMBO)The rostral topographic division of the cerebrospinal axis, while the caudal division is the spinal cord. The usual criterion for distinguishing the two divisions in the adult is that the vertebrate brain lies within the skull whereas the spinal cord lies within the spinal (vertebral) column, although this is a difficult problem. (Swanson, 2014)",
+      "http://uri.interlex.org/base/ilx_0112784": {
+        "@id": "http://uri.interlex.org/base/ilx_0102661"
+      },
+      "http://uri.interlex.org/base/ilx_0112785": {
+        "@id": "http://uri.interlex.org/base/ilx_0101999"
+      },
+      "http://uri.interlex.org/base/ilx_0112796": {
+        "@id": "http://uri.interlex.org/base/ilx_0101901"
+      },
+      "http://uri.interlex.org/base/readable/synonym": [
+        "Encephalon",
+        "synganglion",
+        "the brain",
+        "suprasegmental levels of nervous system",
+        "suprasegmental structures"
+      ],
+      "http://uri.interlex.org/tgbugs/uris/readable/MISSING_ILX_ID": true,
+      "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId": [
+        {
+          "@id": "http://uri.neuinfo.org/nif/nifstd/birnlex_796"
+        },
+        {
+          "@id": "http://purl.org/sig/ont/fma/fma50801"
+        },
+        {
+          "@id": "http://purl.obolibrary.org/obo/UBERON_0000955"
+        }
+      ],
+      "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization",
+      "http://uri.interlex.org/tgbugs/uris/readable/status": "Approved",
+      "rdfs:label": "Brain",
+      "rdfs:subClassOf": {
+        "@id": "http://uri.interlex.org/base/ilx_0108124"
+      }
+    }
+  ]
+}
 ```
