@@ -8,6 +8,10 @@ import {
   Typography
 } from "@mui/material";
 import { vars } from "../../../theme/variables";
+import * as mockApi from './../../../api/endpoints/interLexURIStructureAPI';
+import { termParser } from './../../../parsers/termParser'
+
+const useMockApi = () => mockApi;
 
 const { gray800, gray500 } = vars;
 
@@ -15,16 +19,15 @@ const URL = "https://raw.githubusercontent.com/MetaCell/interlex/feature/ILEX-11
 const Details = ({ term }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { getEndpointsIlx } = useMockApi();
   
   useEffect(() => {
-    setLoading(true)
-    fetch(URL)
-      .then((response) => response.json())
-      .then((jsonData) => {
-        setData(jsonData);
-        setLoading(false)
-      })
-      .catch((error) => console.error("Error fetching data:", error));
+    getEndpointsIlx("base",term).then( dat => { 
+      const parsedData = termParser(dat);
+      console.log("term parsed ", parsedData)
+      setData(parsedData[0])
+      setLoading(false)
+    })
   }, [term]);
   
   const memoData = useMemo(() => data, [data]);

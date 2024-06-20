@@ -11,104 +11,168 @@ import {
   http
 } from 'msw'
 
-export const getGetEndpointsCuriesResponseMock = () => ((() => ({
-                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-                "owl": "http://www.w3.org/2002/07/owl#"
-              }))())
+export const getGetEndpointsCuriesResponseMock = () => ((() => {
+  return [{
+    rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    rdfs: "http://www.w3.org/2000/01/rdf-schema#",
+    owl: "http://www.w3.org/2002/07/owl#"
+  }];
+})())
 
 export const getGetOntologiesOntologiesResponseMock = () => ((() => ({
                 status_code: 200,
-                message: "",
+                message: ""
               }))())
 
-export const getGetEndpointsIlxResponseMock = () => ((() => ({
-                prefixes: {
-                  owl: "http://www.w3.org/2002/07/owl#",
-                  rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-                  rdfs: "http://www.w3.org/2000/01/rdf-schema#",
-                  xsd: "http://www.w3.org/2001/XMLSchema#",
-                  xml: "http://www.w3.org/XML/1998/namespace",
-                  "": "file:///ERROR/EMPTY/PREFIX/BANNED/",
-                },
-                triples: [
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/base/readable/synonym>",
-                    "suprasegmental levels of nervous system",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/base/readable/synonym>",
-                    "synganglion",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/base/readable/synonym>",
-                    "suprasegmental structures",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/tgbugs/uris/readable/hasExistingId>",
-                    "<http://uri.neuinfo.org/nif/nifstd/birnlex_796>",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/base/ilx_0112784>",
-                    "<http://uri.interlex.org/base/ilx_0102661>",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/base/ilx_0112796>",
-                    "<http://uri.interlex.org/base/ilx_0101901>",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://purl.obolibrary.org/obo/IAO_0000115>",
-                    "The part of the central nervous system contained within the cranium, comprising the forebrain, midbrain, hindbrain, and metencephalon. It is derived from the anterior part of the embryonic neural tube (or the encephalon). Does not include retina. (CUMBO)The rostral topographic division of the cerebrospinal axis, while the caudal division is the spinal cord. The usual criterion for distinguishing the two divisions in the adult is that the vertebrate brain lies within the skull whereas the spinal cord lies within the spinal (vertebral) column, although this is a difficult problem. (Swanson, 2014)",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/tgbugs/uris/readable/hasExistingId>",
-                    "<http://purl.org/sig/ont/fma/fma50801>",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/base/readable/synonym>",
-                    "the brain",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/base/ilx_0112785>",
-                    "<http://uri.interlex.org/base/ilx_0101999>",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "rdfs:subClassOf",
-                    "<http://uri.interlex.org/base/ilx_0108124>",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/base/readable/synonym>",
-                    "Encephalon",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "rdfs:label",
-                    "Brain",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "<http://uri.interlex.org/tgbugs/uris/readable/hasExistingId>",
-                    "<http://purl.obolibrary.org/obo/UBERON_0000955>",
-                  ],
-                  [
-                    "<http://uri.interlex.org/base/ilx_0101431>",
-                    "rdf:type",
-                    "owl:Class",
-                  ],
-                ],
-              }))())
+export const getGetEndpointsIlxResponseMock = () => ((() => {
+  return {
+    "@context": {
+      "owl": "http://www.w3.org/2002/07/owl#",
+      "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+      "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+      "xsd": "http://www.w3.org/2001/XMLSchema#"
+    },
+    "@graph": [
+      {
+        "@id": "http://uri.interlex.org/base/ilx_0101431",
+        "http://uri.interlex.org/tgbugs/uris/readable/hasIlxId": {
+          "@id": "http://uri.interlex.org/base/ilx_0101431"
+        },
+        "http://uri.interlex.org/tgbugs/uris/readable/hasIlxPreferredId": {
+          "@id": "http://uri.interlex.org/base/ilx_0101431"
+        },
+        "http://uri.interlex.org/tgbugs/uris/readable/owlEquivalent": "owlEquivalent",
+        "http://uri.interlex.org/tgbugs/uris/readable/lastModify": "lastModify",
+        "http://uri.interlex.org/tgbugs/uris/readable/lastModifyBy": "lastModifyBy",
+        "http://uri.interlex.org/tgbugs/uris/readable/submittedBy": "submittedBy"
+      },
+      {
+        "@id": "http://uri.interlex.org/base/ontologies/ilx_0101431",
+        "@type": "owl:Ontology",
+        "http://purl.obolibrary.org/obo/IAO_0000136": {
+          "@id": "http://uri.interlex.org/base/ilx_0101431"
+        },
+        "owl:versionIRI": {
+          "@id": "http://uri.interlex.org/base/ontologies/ilx_0101431/version/1717611398/ilx_0101431"
+        },
+        "owl:versionInfo": "2024-06-05T18:16:38,089335Z",
+        "rdfs:comment": "InterLex single term result for base/ilx_0101431 at 2024-06-05T18:16:38,089335Z"
+      },
+      {
+        "@id": "http://purl.obolibrary.org/obo/UBERON_0000955",
+        "@type": "owl:Class",
+        "http://purl.obolibrary.org/obo/IAO_0000115": "The part of the central nervous system contained within the cranium, comprising the forebrain, midbrain, hindbrain, and metencephalon. It is derived from the anterior part of the embryonic neural tube (or the encephalon). Does not include retina. (CUMBO)The rostral topographic division of the cerebrospinal axis, while the caudal division is the spinal cord. The usual criterion for distinguishing the two divisions in the adult is that the vertebrate brain lies within the skull whereas the spinal cord lies within the spinal (vertebral) column, although this is a difficult problem. (Swanson, 2014)",
+        "http://uri.interlex.org/base/ilx_0112784": {
+          "@id": "http://uri.interlex.org/base/ilx_0102661"
+        },
+        "http://uri.interlex.org/base/ilx_0112785": {
+          "@id": "http://uri.interlex.org/base/ilx_0101999"
+        },
+        "http://uri.interlex.org/base/ilx_0112796": {
+          "@id": "http://uri.interlex.org/base/ilx_0101901"
+        },
+        "http://uri.interlex.org/base/readable/synonym": [
+          "Encephalon",
+          "synganglion",
+          "the brain",
+          "suprasegmental levels of nervous system",
+          "suprasegmental structures"
+        ],
+        "http://uri.interlex.org/tgbugs/uris/readable/MISSING_ILX_ID": true,
+        "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId": [
+          {
+            "@id": "http://uri.neuinfo.org/nif/nifstd/birnlex_796"
+          },
+          {
+            "@id": "http://purl.org/sig/ont/fma/fma50801"
+          },
+          {
+            "@id": "http://purl.obolibrary.org/obo/UBERON_0000955"
+          }
+        ],
+        "rdfs:label": "Brain",
+        "rdfs:subClassOf": {
+          "@id": "http://uri.interlex.org/base/ilx_0108124"
+        }
+      }
+    ]
+  };
+})())
+
+export const getGetEndpointsIlxGetResponseMock = () => ((() => {
+  return {
+    "@context": {
+      "owl": "http://www.w3.org/2002/07/owl#",
+      "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+      "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+      "xsd": "http://www.w3.org/2001/XMLSchema#"
+    },
+    "@graph": [
+      {
+        "@id": "http://uri.interlex.org/base/ilx_0101431",
+        "http://uri.interlex.org/tgbugs/uris/readable/hasIlxId": {
+          "@id": "http://uri.interlex.org/base/ilx_0101431"
+        },
+        "http://uri.interlex.org/tgbugs/uris/readable/hasIlxPreferredId": {
+          "@id": "http://uri.interlex.org/base/ilx_0101431"
+        },
+        "http://uri.interlex.org/tgbugs/uris/readable/owlEquivalent": "owlEquivalent",
+        "http://uri.interlex.org/tgbugs/uris/readable/lastModify": "lastModify",
+        "http://uri.interlex.org/tgbugs/uris/readable/lastModifyBy": "lastModifyBy",
+        "http://uri.interlex.org/tgbugs/uris/readable/submittedBy": "submittedBy"
+      },
+      {
+        "@id": "http://uri.interlex.org/base/ontologies/ilx_0101431",
+        "@type": "owl:Ontology",
+        "http://purl.obolibrary.org/obo/IAO_0000136": {
+          "@id": "http://uri.interlex.org/base/ilx_0101431"
+        },
+        "owl:versionIRI": {
+          "@id": "http://uri.interlex.org/base/ontologies/ilx_0101431/version/1717611398/ilx_0101431"
+        },
+        "owl:versionInfo": "2024-06-05T18:16:38,089335Z",
+        "rdfs:comment": "InterLex single term result for base/ilx_0101431 at 2024-06-05T18:16:38,089335Z"
+      },
+      {
+        "@id": "http://purl.obolibrary.org/obo/UBERON_0000955",
+        "@type": "owl:Class",
+        "http://purl.obolibrary.org/obo/IAO_0000115": "The part of the central nervous system contained within the cranium, comprising the forebrain, midbrain, hindbrain, and metencephalon. It is derived from the anterior part of the embryonic neural tube (or the encephalon). Does not include retina. (CUMBO)The rostral topographic division of the cerebrospinal axis, while the caudal division is the spinal cord. The usual criterion for distinguishing the two divisions in the adult is that the vertebrate brain lies within the skull whereas the spinal cord lies within the spinal (vertebral) column, although this is a difficult problem. (Swanson, 2014)",
+        "http://uri.interlex.org/base/ilx_0112784": {
+          "@id": "http://uri.interlex.org/base/ilx_0102661"
+        },
+        "http://uri.interlex.org/base/ilx_0112785": {
+          "@id": "http://uri.interlex.org/base/ilx_0101999"
+        },
+        "http://uri.interlex.org/base/ilx_0112796": {
+          "@id": "http://uri.interlex.org/base/ilx_0101901"
+        },
+        "http://uri.interlex.org/base/readable/synonym": [
+          "Encephalon",
+          "synganglion",
+          "the brain",
+          "suprasegmental levels of nervous system",
+          "suprasegmental structures"
+        ],
+        "http://uri.interlex.org/tgbugs/uris/readable/MISSING_ILX_ID": true,
+        "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId": [
+          {
+            "@id": "http://uri.neuinfo.org/nif/nifstd/birnlex_796"
+          },
+          {
+            "@id": "http://purl.org/sig/ont/fma/fma50801"
+          },
+          {
+            "@id": "http://purl.obolibrary.org/obo/UBERON_0000955"
+          }
+        ],
+        "rdfs:label": "Brain",
+        "rdfs:subClassOf": {
+          "@id": "http://uri.interlex.org/base/ilx_0108124"
+        }
+      }
+    ]
+  };
+})())
 
 
 export const getGetEndpointsOpsMockHandler = () => {
@@ -195,10 +259,10 @@ export const getGetEndpointsCuriesMockHandler = (overrideResponse?: void) => {
   })
 }
 
-export const getPostEndpointsCuriesMockHandler = (overrideResponse?: []) => {
+export const getPostEndpointsCuriesMockHandler = () => {
   return http.post('*/:group/curies/', async () => {
     await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetEndpointsCuriesResponseMock()),
+    return new HttpResponse(null,
       {
         status: 200,
         headers: {
@@ -349,7 +413,7 @@ export const getGetDiffUrisMockHandler = () => {
 }
 
 export const getGetDiffVersionsCuriesMockHandler = () => {
-  return http.get('*/:group/diff/:otherGroupDiff/versions/:epochVerstrId/curies/:prefixIriCurie', async () => {
+  return http.get('*/:group/diff/:otherGroupDiff/versions/:epochVerstrId/curies/', async () => {
     await delay(1000);
     return new HttpResponse(null,
       {
@@ -950,10 +1014,10 @@ export const getGetEndpointsIlxMockHandler = (overrideResponse?: void) => {
   })
 }
 
-export const getPatchEndpointsIlxMockHandler = (overrideResponse?: void) => {
+export const getPatchEndpointsIlxMockHandler = () => {
   return http.patch('*/:group/:fragPrefId', async () => {
     await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetEndpointsIlxResponseMock()),
+    return new HttpResponse(null,
       {
         status: 200,
         headers: {
@@ -967,7 +1031,7 @@ export const getPatchEndpointsIlxMockHandler = (overrideResponse?: void) => {
 export const getGetEndpointsIlxGetMockHandler = (overrideResponse?: void) => {
   return http.get('*/:group/:fragPrefId.:extension', async () => {
     await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetEndpointsIlxResponseMock()),
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetEndpointsIlxGetResponseMock()),
       {
         status: 200,
         headers: {
@@ -986,6 +1050,7 @@ export const getInterLexURIStructureAPIMock = () => [
   getGetEndpointsContributionsMockHandler(),
   getGetEndpointsCuriesMockHandler(),
   getPostEndpointsCuriesMockHandler(),
+  getGetEndpointsCuriesMockHandler(),
   getGetDiffCuriesMockHandler(),
   getGetDiffCuriesMockHandler(),
   getGetDiffLexicalMockHandler(),

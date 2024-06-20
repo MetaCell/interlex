@@ -1,6 +1,5 @@
-import { Term } from "./../model/frontend/term";
-import { Terms } from "./../model/frontend/terms";
-import { termKeys, termPredicates } from "../configuration/model";
+import { Term, Terms } from "./../model/frontend/terms";
+import { termKeys, termPrefixes } from "../configuration/model";
 
 /**
  * Takes in raw term data object from server and formats it into Term object 
@@ -11,12 +10,13 @@ import { termKeys, termPredicates } from "../configuration/model";
  */
 const getTerm = (data) => {
     let term : Term = {} as Term
+    let predicates = {};
     // Extract triplets if predicate is in model 
     data?.["@graph"]?.forEach( object => {
         const keys = Object.keys(object);
         keys.forEach( key => {
             const predicate = key;
-            if ( termPredicates[predicate] ) {
+            if ( termPrefixes[predicate] ) {
                 let value = object[key];
                 let dataToStore = value;
                 if ( value?.["@id"] ) {
@@ -28,15 +28,39 @@ const getTerm = (data) => {
                     value?.forEach( v => {
                         if ( v?.["@id"] ) {
                             dataToStore = [...dataToStore, v?.["@id"]]
+                        } else {
+                            dataToStore = [...dataToStore, v]
                         }
                     })
                 }
-                if ( term[termPredicates[predicate]?.key] === undefined ) {
-                    term[termPredicates[predicate]?.key] = dataToStore
+                if ( term[termPrefixes[predicate]?.key] === undefined ) {
+                    term[termPrefixes[predicate]?.key] = dataToStore
+                }
+
+                if ( termPrefixes[predicate]?.isPredicate ) {
+                    if ( Array.isArray(dataToStore) ){
+                        dataToStore?.forEach( pred => {
+                            let newPredicate = {
+                                subject : { id : term.id },
+                                predicate: predicate,
+                                object : { value : pred }
+                            }
+                            predicates[predicate] ? predicates[predicate].push(newPredicate) : predicates[predicate] = [newPredicate]
+                        })
+                    } else {
+                        let newPredicate = {
+                            subject : { id : term.id },
+                            predicate: predicate,
+                            object : { value : dataToStore }
+                        }
+                        predicates[predicate] ? predicates[predicate].push(newPredicate) : predicates[predicate] = [newPredicate]
+                    }
                 }
             }
         }) 
     })
+
+    term.predicates = predicates;
 
     return term;
 }
@@ -68,9 +92,14 @@ const formatTerms = (terms, searchTerm, start, end) => {
  * @returns - Array of Terms, it's size depends on passed indexes ( end - start )
  */
 export const termParser = (data, searchTerm, start, end) => {
-    const terms : Terms = data?.map( term => {
-        return getTerm(term)
-    })
+    let terms : Terms;
+    if ( Array.isArray(data) ){
+        terms  = data?.map( term => {
+            return getTerm(term)
+        })
+    } else {
+        terms = [getTerm(data)]
+    }
 
     // We are receiving an unknown amout of terms from server, we need to control
     // how much to send back based on request made (start,end)

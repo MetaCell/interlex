@@ -287,6 +287,154 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /{group}/variants/{term}: 
+    get:
+      summary: List all variants for a term
+      operationId: get_variants
+      tags:
+        - term
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: The group of the term to retrieve
+          schema:
+            type: string
+        - name: term
+          in: path
+          required: true
+          description: The id of the term to retrieve
+          schema:
+            type: string
+      responses:
+        200:
+          description: A paged array of variants
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Variants'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /{group}/versions/{term}: 
+    get:
+      summary: List all versions for a term
+      operationId: get_versions
+      tags:
+        - term
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: The group of the term to retrieve
+          schema:
+            type: string
+        - name: term
+          in: path
+          required: true
+          description: The id of the term to retrieve
+          schema:
+            type: string
+      responses:
+        200:
+          description: A paged array of versions
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Versions'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /{group}/discussions/{term}: 
+    get:
+      summary: List all discussions for a term
+      operationId: get_discussions
+      tags:
+        - term
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: The group of the term to retrieve
+          schema:
+            type: string
+        - name: term
+          in: path
+          required: true
+          description: The id of the term to retrieve
+          schema:
+            type: string
+      responses:
+        200:
+          description: A paged array of discussions
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discussions'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /{group}/hierarchies/{term}: 
+    get:
+      summary: List all hierarchies for a term
+      operationId: get_hierarchies
+      tags:
+        - term
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: The group of the term to retrieve
+          schema:
+            type: string
+        - name: term
+          in: path
+          required: true
+          description: The id of the term to retrieve
+          schema:
+            type: string
+      responses:
+        200:
+          description: A paged array of hierachies
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hierarchies'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /ping:
     get:
       summary: Checks if the server is running
@@ -376,6 +524,30 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Curie'
+    Variant:
+      type: object
+    Variants:
+      type: array
+      items:
+        $ref: '#/components/schemas/Variant'
+    Version:
+      type: object
+    Versions:
+      type: array
+      items:
+        $ref: '#/components/schemas/Version'
+    Discussion:
+      type: object
+    Discussions:
+      type: array
+      items:
+        $ref: '#/components/schemas/Discussion'
+    Hierarchy:
+      type: object
+    Hierarchies:
+      type: array
+      items:
+        $ref: '#/components/schemas/Hierarchies'
     Ontology:
       type: object
       required:

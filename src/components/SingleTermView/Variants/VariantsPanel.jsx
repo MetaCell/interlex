@@ -1,6 +1,10 @@
 import * as React from 'react';
 import { Box } from '@mui/material';
 import VariantsTable from './VariantsTable';
+import * as mockApi from './../../../api/endpoints/swaggerMockMissingEndpoints';
+import { variantsParser } from './../../../parsers/variantsParser'
+
+const useMockApi = () => mockApi;
 
 const rows = [
     {
@@ -71,6 +75,18 @@ const headCells = [
 ];
 
 const VariantsPanel = () => {
+    const { getVariants } = useMockApi();
+  
+    const [variants, setVariants] = React.useState([]);
+    
+    React.useEffect(() => {
+        getVariants("base","ILX_").then( data => {
+            const parsedData = variantsParser(data);
+            setVariants(parsedData);
+            console.log("Variants : ", parsedData)
+        })
+    }, []);
+
     return (
         <Box flexGrow={1} p="2.5rem 5rem" overflow='auto'>
             <VariantsTable rows={rows} headCells={headCells} />

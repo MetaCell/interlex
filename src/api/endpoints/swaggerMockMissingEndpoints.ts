@@ -6,11 +6,15 @@
  */
 import type {
   Curies,
+  Discussions,
+  Hierarchies,
   Organization,
   Organizations,
-  Terms
+  Terms,
+  Variants,
+  Versions
 } from '../../model/backend'
-import { customInstance } from '../../mutator/customClient';
+import { customInstance } from '../../../mock/mutator/customClient';
 
 
 
@@ -141,6 +145,58 @@ export const getCuries = (
     }
   
 /**
+ * @summary List all variants for a term
+ */
+export const getVariants = (
+    group: string,
+    term: string,
+ ) => {
+      return customInstance<Variants>(
+      {url: `http://localhost:3200/${group}/variants/${term}`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary List all versions for a term
+ */
+export const getVersions = (
+    group: string,
+    term: string,
+ ) => {
+      return customInstance<Versions>(
+      {url: `http://localhost:3200/${group}/versions/${term}`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary List all discussions for a term
+ */
+export const getDiscussions = (
+    group: string,
+    term: string,
+ ) => {
+      return customInstance<Discussions>(
+      {url: `http://localhost:3200/${group}/discussions/${term}`, method: 'GET'
+    },
+      );
+    }
+  
+/**
+ * @summary List all hierarchies for a term
+ */
+export const getHierarchies = (
+    group: string,
+    term: string,
+ ) => {
+      return customInstance<Hierarchies>(
+      {url: `http://localhost:3200/${group}/hierarchies/${term}`, method: 'GET'
+    },
+      );
+    }
+  
+/**
  * @summary Checks if the server is running
  */
 export const getPing = (
@@ -167,4 +223,8 @@ export type GetSearchResultsResult = NonNullable<Awaited<ReturnType<typeof getSe
 export type GetHierarchyResultsResult = NonNullable<Awaited<ReturnType<typeof getHierarchyResults>>>
 export type GetMatchTermsResult = NonNullable<Awaited<ReturnType<typeof getMatchTerms>>>
 export type GetCuriesResult = NonNullable<Awaited<ReturnType<typeof getCuries>>>
+export type GetVariantsResult = NonNullable<Awaited<ReturnType<typeof getVariants>>>
+export type GetVersionsResult = NonNullable<Awaited<ReturnType<typeof getVersions>>>
+export type GetDiscussionsResult = NonNullable<Awaited<ReturnType<typeof getDiscussions>>>
+export type GetHierarchiesResult = NonNullable<Awaited<ReturnType<typeof getHierarchies>>>
 export type GetPingResult = NonNullable<Awaited<ReturnType<typeof getPing>>>

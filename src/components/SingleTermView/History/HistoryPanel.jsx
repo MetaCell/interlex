@@ -2,6 +2,10 @@ import React from "react";
 import { Box, List } from "@mui/material";
 import HistoryItem from "./HistoryItem";
 import { vars } from "../../../theme/variables";
+import * as mockApi from './../../../api/endpoints/swaggerMockMissingEndpoints';
+import { versionsParser } from './../../../parsers/versionsParser'
+
+const useMockApi = () => mockApi;
 
 const { gray50 } = vars;
 
@@ -12,8 +16,20 @@ const historyEntries = [
     { author: "Phoenix Baker", action: "request", date: "Friday 2:05pm" },
 ];
 
-const HistoryPanel = () => (
-    <Box p="2.5rem 5rem" sx={{
+const HistoryPanel = () => {
+    const { getVersions } = useMockApi();
+  
+    const [versions, setVersions] = React.useState([]);
+    
+    React.useEffect(() => {
+        getVersions("base", "ILX_....").then( data => {
+            const parsedData = versionsParser(data);
+            setVersions(parsedData);
+            console.log("Versions :  ", parsedData)
+        })
+    }, []);
+
+    return <Box p="2.5rem 5rem" sx={{
         overflow: 'auto',
       }}>
         <List disablePadding width={1} sx={{ maxWidth: '50rem' }}>
@@ -33,6 +49,6 @@ const HistoryPanel = () => (
             ))}
         </List>
     </Box>
-);
+};
 
 export default HistoryPanel;

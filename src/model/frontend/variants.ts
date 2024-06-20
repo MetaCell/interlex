@@ -1,18 +1,17 @@
-export interface Term {
+export interface Variant {
   /** Unique identifier */
   id: string;
   preferredId:string;
   organization:string;
   label: string;
   description: string;
-  synonyms: string[];
   type: string;
-  score : string;
   version : string;
-  owlEquivalent : string;
-  lastModifyBy : string;
   lastModify : string;
-  submittedBy : string;
-  hierarchy : string[];
   existingID : string[];
+  status : string;
+  originatingUser : object;
+  editingUser : object;
 }
+
+export type Variants = Variant[];

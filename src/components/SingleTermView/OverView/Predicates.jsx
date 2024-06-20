@@ -18,10 +18,19 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CallMadeIcon from '@mui/icons-material/CallMade';
 import {SchemaOutlined, TableChartOutlined} from "@mui/icons-material";
 import CustomizedTable from "./CustomizedTable";
+
 const { gray600, gray800, gray500, gray700, gray300 } = vars;
 
-const Predicates = () => {
+const Predicates = ({ term }) => {
+  
+  const [predicates, setPredicates] = React.useState([]);
   const [type, setType] = React.useState('Children');
+
+  React.useEffect(() => {
+    console.log("Predicates : ", term.predicates)
+    setPredicates(predicates);
+  }, [term]);
+  
   
   return <Box display='flex' flexDirection='column' gap='.75rem'>
     <Box display='flex' alignItems='center' justifyContent='space-between'>
