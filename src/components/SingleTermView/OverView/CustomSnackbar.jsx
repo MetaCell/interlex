@@ -36,13 +36,10 @@ const CustomSnackbar = ({ open, handleClose, onUndoDelete }) => {
                 <IconButton sx={{ p: '0.625rem', border: `1px solid ${gray200}`, borderRadius: '0.5rem' }}>
                     <ErrorOutlinedIcon />
                 </IconButton>
-                <Stack direction="column">
+                <Stack direction="column" alignItems="flex-start">
                     <Typography variant="body2" sx={{ fontWeight: 600, color: gray900 }}>You’ve removed “SP1 neuron”</Typography>
                     <Typography variant="body2" sx={{ color: gray600, mt: 0.5 }}>from Central nervous system relationship “is part of”.</Typography>
-                    <Stack direction="row" mt={1.5} spacing={1.5}>
-                        <Button variant="text" sx={{ color: gray600, ...snackbarStyles.snackbarButtonStyle }} onClick={onUndoDelete}>Undo</Button>
-                        <Button variant="text" sx={{ color: brand700, ...snackbarStyles.snackbarButtonStyle }}>Confirm</Button>
-                    </Stack>
+                    <Button variant="text" sx={{ color: gray600, mt: 1.5, ...snackbarStyles.snackbarButtonStyle }} onClick={onUndoDelete}>Undo</Button>
                 </Stack>
                 <IconButton onClick={handleClose}>
                     <CloseIcon fontSize="medium" />
