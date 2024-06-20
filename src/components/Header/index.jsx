@@ -166,6 +166,11 @@ const Header = ({ isLoggedIn = false }) => {
         navigate(menu.href)
     }
 
+    
+    const handleLogoClick = () => {
+        navigate('/')
+    }
+  
     React.useEffect(() => {
         // TODO : Move to login page and remove this proof of concept call
         handleSetUserData("Interlex User", "Interlex");
