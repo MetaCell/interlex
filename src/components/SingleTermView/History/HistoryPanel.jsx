@@ -25,7 +25,6 @@ const HistoryPanel = () => {
         getVersions("base", "ILX_....").then( data => {
             const parsedData = versionsParser(data);
             setVersions(parsedData);
-            console.log("Versions :  ", parsedData)
         })
     }, []);
 

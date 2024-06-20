@@ -83,7 +83,6 @@ const VariantsPanel = () => {
         getVariants("base","ILX_").then( data => {
             const parsedData = variantsParser(data);
             setVariants(parsedData);
-            console.log("Variants : ", parsedData)
         })
     }, []);
 

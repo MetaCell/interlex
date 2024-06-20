@@ -24,7 +24,6 @@ const Details = ({ term }) => {
   useEffect(() => {
     getEndpointsIlx("base",term).then( dat => { 
       const parsedData = termParser(dat);
-      console.log("term parsed ", parsedData)
       setData(parsedData[0])
       setLoading(false)
     })
