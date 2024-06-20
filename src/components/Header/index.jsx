@@ -104,7 +104,8 @@ const NavMenu = [
 const UserNavMenu = [
     {
         label: 'My dashboard',
-        icon: <UserIcon />
+        icon: <UserIcon />,
+        href: '/dashboard'
     },
     {
         label: 'Log out',
@@ -112,7 +113,7 @@ const UserNavMenu = [
     }
 ]
 
-const Header = ({ isLoggedIn = false }) => {
+const Header = ({ isLoggedIn = true }) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
     const { user, setUserData } = useContext(GlobalDataContext);
@@ -325,7 +326,7 @@ const Header = ({ isLoggedIn = false }) => {
                             </ListItem>
                             {UserNavMenu.map((menu, index) => (
                                 <ListItem key={index} disablePadding>
-                                    <ListItemButton>
+                                    <ListItemButton onClick={(e) => handleMenuClick(e, menu)}>
                                         <ListItemIcon>
                                             {menu.icon}
                                         </ListItemIcon>
