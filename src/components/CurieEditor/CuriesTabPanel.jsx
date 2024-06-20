@@ -53,8 +53,9 @@ const CuriesTabPanel = (props) => {
 
     const deleteRow = (rowPrefix, rowNamespace) => {
         console.log("here we connect DELETE method")
-        const newRows = rows.filter(row => row.prefix !== rowPrefix && row.namespace !== rowNamespace);
+        const newRows = sortedRows.filter(row => row.prefix !== rowPrefix && row.namespace !== rowNamespace);
         setRows(newRows)
+        setRowIndex(-1)
     };
 
     const handleTextFieldChange = (e, rowIndex, columnName) => {
@@ -111,6 +112,8 @@ const CuriesTabPanel = (props) => {
     if (error) {
         return <div>error</div>;
     }
+
+    console.log("rows: ", rows)
 
     return (
         <ClickAwayListener onClickAway={() => handleExit()}>
