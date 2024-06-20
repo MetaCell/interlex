@@ -16,8 +16,19 @@ import SingleSearch from "../SingleSearch";
 import CustomizedTreeView from "../../common/CustomizedTreeView";
 
 const { gray600, gray800, gray700, gray300 } = vars;
+const options = [
+  { label: 'Oliver Hansen', handler: 'Oliver'},
+  { label: 'April Tucker', handler: 'April'},
+  { label: 'Van Henry', handler: 'Van'},
+  { label: 'Omar Alexander', handler: 'Omar'}
+];
 const Hierarchy = () => {
   const [type, setType] = React.useState('Children');
+  const [selectedValue, setSelectedValue] = React.useState(null);
+  
+  const handleSelectChange = (event, value) => {
+    setSelectedValue(value);
+  }
 
   return (
     <Box display='flex' flexDirection='column' gap='1rem'>
@@ -62,7 +73,7 @@ const Hierarchy = () => {
           </Button>
         </Stack>
       </Box>
-      <SingleSearch />
+      <SingleSearch onChange={handleSelectChange} selectedValue={selectedValue} options={options} />
       <CustomizedTreeView />
       <Typography color={gray600} fontSize='.875rem'>Total number of first generation children: 3</Typography>
     </Box>
