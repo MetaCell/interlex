@@ -11,23 +11,32 @@ import {
   Typography
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import {vars} from "../../../theme/variables";
+import { vars } from "../../../theme/variables";
 import ExpandIcon from '@mui/icons-material/Expand';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CallMadeIcon from '@mui/icons-material/CallMade';
-import {SchemaOutlined, TableChartOutlined} from "@mui/icons-material";
+import { SchemaOutlined, TableChartOutlined } from "@mui/icons-material";
 import CustomizedTable from "./CustomizedTable";
 const { gray600, gray800, gray500, gray700, gray300 } = vars;
 
 const Predicates = () => {
   const [type, setType] = React.useState('Children');
-  
+  const [allExpanded, setAllExpanded] = React.useState(true);
+
+  const collapse = () => {
+    setAllExpanded(false);
+  }
+
+  const expand = () => {
+    setAllExpanded(true);
+  }
+
   return <Box display='flex' flexDirection='column' gap='.75rem'>
     <Box display='flex' alignItems='center' justifyContent='space-between'>
       <Typography color={gray800} fontWeight={500}>Predicates</Typography>
       <Box display='flex' alignItems='center' gap='.75rem'>
-        <FormControl sx={{ minWidth: 75 }}>
+        {/* <FormControl sx={{ minWidth: 75 }}>
           <Select
             value={type}
             onChange={(v) => setType(v)}
@@ -54,18 +63,18 @@ const Predicates = () => {
             <MenuItem value={'Children'}>Show Sections</MenuItem>
             <MenuItem value={'Superclasses'}>Superclasses</MenuItem>
           </Select>
-        </FormControl>
+        </FormControl> */}
         <ButtonGroup variant="outlined" aria-label="Basic button group">
-          <Button>
+          <Button onClick={expand}>
             <ExpandIcon />
           </Button>
-          <Button>
+          <Button onClick={collapse}>
             <RemoveIcon />
           </Button>
         </ButtonGroup>
       </Box>
     </Box>
-    <Accordion disableGutters elevation={0} square defaultExpanded>
+    <Accordion expanded={allExpanded} disableGutters elevation={0} square>
       <AccordionSummary
         expandIcon={<ExpandMoreIcon fontSize='medium' />}
         aria-controls="panel1-content"
@@ -75,7 +84,7 @@ const Predicates = () => {
           <Typography>
             Is part of
           </Typography>
-          <CallMadeIcon fontSize='medium'  />
+          <CallMadeIcon fontSize='medium' />
         </Stack>
         <Stack direction='row' alignItems='center' spacing='.75rem'>
           <Typography color={gray600} fontSize='.875rem'>Number of this type: 7</Typography>
@@ -95,7 +104,7 @@ const Predicates = () => {
       </AccordionDetails>
     </Accordion>
   </Box>
-  
+
 }
 
 export default Predicates
