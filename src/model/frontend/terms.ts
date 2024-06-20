@@ -6,7 +6,8 @@ export interface Term {
     label: string;
     description: string;
     synonyms: string[];
-    type: string;
+    status: string;
+    type : string;
     score : string;
     version : string;
     owlEquivalent : string;

@@ -90,6 +90,8 @@ export const getGetEndpointsIlxResponseMock = () => ((() => {
             "@id": "http://purl.obolibrary.org/obo/UBERON_0000955"
           }
         ],
+        "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization",
+        "http://uri.interlex.org/tgbugs/uris/readable/status": "Approved",
         "rdfs:label": "Brain",
         "rdfs:subClassOf": {
           "@id": "http://uri.interlex.org/base/ilx_0108124"
@@ -165,6 +167,8 @@ export const getGetEndpointsIlxGetResponseMock = () => ((() => {
             "@id": "http://purl.obolibrary.org/obo/UBERON_0000955"
           }
         ],
+        "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization",
+        "http://uri.interlex.org/tgbugs/uris/readable/status": "Approved",
         "rdfs:label": "Brain",
         "rdfs:subClassOf": {
           "@id": "http://uri.interlex.org/base/ilx_0108124"

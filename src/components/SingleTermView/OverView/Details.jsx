@@ -50,14 +50,14 @@ const Details = ({ term }) => {
               Synonyms
             </Typography>
             <Box display="flex" flexWrap="wrap" gap=".5rem">
-              {memoData?.synonyms?.map((synonym) => (
+              {memoData?.synonym?.map((synonym) => (
                 <Chip
                   className="rounded synonyms"
                   variant="outlined"
-                  key={synonym.title}
+                  key={synonym}
                   label={
                     <span>
-                      {synonym.title} <span>{synonym.description}</span>
+                      {synonym} <span>{synonym}</span>
                     </span>
                   }
                 />
@@ -71,7 +71,7 @@ const Details = ({ term }) => {
               Preferred ID
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {memoData?.preferredID}
+              {memoData?.hasIlxPreferredId}
             </Typography>
           </Stack>
         </Grid>
@@ -81,7 +81,7 @@ const Details = ({ term }) => {
               Existing IDs
             </Typography>
             <Box display="flex" flexWrap="wrap" gap=".5rem">
-              {memoData?.existingIDs?.map((id) => (
+              {memoData?.existingID?.map((id) => (
                 <Chip className="rounded IDchip-outlined" variant="outlined" key={id} label={id} />
               ))}
             </Box>
@@ -117,7 +117,7 @@ const Details = ({ term }) => {
               Version
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {memoData?.version}
+              {memoData?.versionInfo}
             </Typography>
           </Stack>
         </Grid>

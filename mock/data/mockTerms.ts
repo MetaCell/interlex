@@ -63,6 +63,8 @@ export const mockTerm = () => { return {
           "@id": "http://purl.obolibrary.org/obo/UBERON_0000955"
         }
       ],
+      "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization",
+      "http://uri.interlex.org/tgbugs/uris/readable/status": "Approved",
       "rdfs:label": "Brain",
       "rdfs:subClassOf": {
         "@id": "http://uri.interlex.org/base/ilx_0108124"
@@ -138,6 +140,8 @@ export const mockTerms = () => [
               "@id": "http://purl.obolibrary.org/obo/UBERON_0000955"
             }
           ],
+          "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization",
+          "http://uri.interlex.org/tgbugs/uris/readable/status": "Approved",
           "rdfs:label": "Brain",
           "rdfs:subClassOf": {
             "@id": "http://uri.interlex.org/base/ilx_0108124"
@@ -204,6 +208,8 @@ export const mockTerms = () => [
               "@id": "http://purl.obolibrary.org/obo/UBERON_0001898"
             }
           ],
+          "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization 2",
+          "http://uri.interlex.org/tgbugs/uris/readable/status": "Edit",
           "rdfs:label": "Hypothalamus",
           "rdfs:subClassOf": {
             "@id": "http://uri.interlex.org/base/ilx_0109835"
@@ -266,6 +272,8 @@ export const mockTerms = () => [
               "@id": "http://uri.neuinfo.org/nif/nifstd/birnlex_1503"
             }
           ],
+          "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization",
+          "http://uri.interlex.org/tgbugs/uris/readable/status": "Approved",
           "rdfs:label": "Diencephalon",
           "rdfs:subClassOf": {
             "@id": "http://uri.interlex.org/base/ilx_0109835"
@@ -343,6 +351,8 @@ export const mockTerms = () => [
               "@id": "http://uri.neuinfo.org/nif/nifstd/birnlex_733"
             }
           ],
+          "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization",
+          "http://uri.interlex.org/tgbugs/uris/readable/status": "Approved",
           "rdfs:label": "Pons",
           "rdfs:subClassOf": {
             "@id": "http://uri.interlex.org/base/ilx_0109835"
@@ -383,6 +393,8 @@ export const mockTerms = () => [
               "@id": "http://purl.obolibrary.org/obo/UBERON_0001869"
             }
           ],
+          "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization",
+          "http://uri.interlex.org/tgbugs/uris/readable/status": "Approved",
           "rdfs:label": "Cerebrum",
           "rdfs:subClassOf": {
             "@id": "http://uri.interlex.org/base/ilx_0109835"
@@ -472,6 +484,8 @@ export const mockTerms = () => [
               "@id": "http://uri.neuinfo.org/nif/nifstd/birnlex_941"
             }
           ],
+          "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization",
+          "http://uri.interlex.org/tgbugs/uris/readable/status": "Approved",
           "rdfs:label": "Pars nervosa of hypophysis",
           "rdfs:subClassOf": {
             "@id": "http://uri.interlex.org/base/ilx_0109835"
@@ -549,6 +563,8 @@ export const mockTerms = () => [
               "@id": "http://purl.obolibrary.org/obo/UBERON_0004703"
             }
           ],
+          "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization 3",
+          "http://uri.interlex.org/tgbugs/uris/readable/status": "Edit",
           "rdfs:label": "dorsal thalamus"
         },
         {
@@ -625,6 +641,8 @@ export const mockTerms = () => [
               "@id": "http://uri.neuinfo.org/nif/nifstd/birnlex_954"
             }
           ],
+          "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization",
+          "http://uri.interlex.org/tgbugs/uris/readable/status": "Approved",
           "rdfs:label": "Thalamus",
           "rdfs:subClassOf": {
             "@id": "http://uri.interlex.org/base/ilx_0109835"
@@ -676,6 +694,8 @@ export const mockTerms = () => [
               "@id": "http://uri.neuinfo.org/nif/nifstd/nlx_144456"
             }
           ],
+          "http://uri.interlex.org/tgbugs/uris/readable/organization": "Interlex Lab",
+          "http://uri.interlex.org/tgbugs/uris/readable/status": "Imported",
           "rdfs:label": "Anterior pretectal nucleus",
           "rdfs:subClassOf": {
             "@id": "http://uri.interlex.org/base/ilx_0109835"
@@ -754,6 +774,8 @@ export const mockTerms = () => [
               "@id": "http://uri.neuinfo.org/nif/nifstd/birnlex_957"
             }
           ],
+          "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization 2",
+          "http://uri.interlex.org/tgbugs/uris/readable/status": "New Term",
           "rdfs:label": "Medulla oblongata",
           "rdfs:subClassOf": {
             "@id": "http://uri.interlex.org/base/ilx_0109835"
@@ -781,6 +803,8 @@ export const mockTerms = () => [
           "owl:versionInfo": "2024-06-05T18:33:04,971876Z",
           "rdfs:comment": "InterLex single term result for base/ilx_0789705 at 2024-06-05T18:33:04,971876Z",
           "rdfs:label": "Right vagus nerve",
+          "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization",
+          "http://uri.interlex.org/tgbugs/uris/readable/status": "Approved",
           "http://uri.interlex.org/tgbugs/uris/readable/owlEquivalent": "owlEquivalent",
           "http://uri.interlex.org/tgbugs/uris/readable/lastModify": "lastModify",
           "http://uri.interlex.org/tgbugs/uris/readable/lastModifyBy": "lastModifyBy",
@@ -826,6 +850,8 @@ export const mockTerms = () => [
           "http://purl.obolibrary.org/obo/IAO_0000115": "A relationship that binds a term to the required entities for the purposes required by SPARC, e.g., returning a term in response to a query for all relevant organ parts when it is not specified in the core ontology.  We view this as a temporary and practical solution.  At some points, all such terms will be contributed back to the core ontologies for proper engineering.",
           "http://uri.interlex.org/tgbugs/uris/readable/MISSING_ILX_ID": true,
           "rdfs:label": "includeForSPARC",
+          "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization 2",
+          "http://uri.interlex.org/tgbugs/uris/readable/status": "Edit",
           "owl:versionInfo": "2024-06-05T18:33:20,330454Z",
           "http://uri.interlex.org/tgbugs/uris/readable/owlEquivalent": "owlEquivalent",
           "http://uri.interlex.org/tgbugs/uris/readable/lastModify": "lastModify",
@@ -874,6 +900,8 @@ export const mockTerms = () => [
           "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId": {
             "@id": "http://uri.neuinfo.org/nif/nifstd/nlx_158477"
           },
+          "http://uri.interlex.org/tgbugs/uris/readable/organization": "Interlex Lab",
+          "http://uri.interlex.org/tgbugs/uris/readable/status": "Approved",
           "rdfs:label": "Cerebrospinal axis",
           "rdfs:subClassOf": {
             "@id": "http://uri.interlex.org/base/ilx_0109835"

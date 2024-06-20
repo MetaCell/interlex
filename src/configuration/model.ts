@@ -10,6 +10,7 @@ export const termKeys = {
     hasIlxId : "hasIlxId",
     hasIlxPreferredId : "hasIlxPreferredId",
     type : "type",
+    status : "status",
     score : "score",
     version : "version",
     owlEquivalent : "owlEquivalent",
@@ -50,6 +51,9 @@ export const termPrefixes = {
         key : termKeys.subClassOf,
         isPredicate : true
     },
+    "http://uri.interlex.org/tgbugs/uris/readable/status" : {
+        key : termKeys.status,
+    },
     "@type" : {
         key : termKeys.type,
     },
@@ -86,7 +90,7 @@ export const termPrefixes = {
     "preferredId" : {
         key : termKeys.preferredId,
     },
-    "rdfs:Organization" : {
+    "http://uri.interlex.org/tgbugs/uris/readable/organization" : {
         key : termKeys.organization,
     }
 }
