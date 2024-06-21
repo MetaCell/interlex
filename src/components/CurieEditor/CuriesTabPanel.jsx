@@ -44,7 +44,6 @@ const CuriesTabPanel = (props) => {
 
     const addRow = () => {
         const newRow = {
-            id: rows.length + 1,
             prefix: '',
             namespace: ''
         };
@@ -131,7 +130,7 @@ const CuriesTabPanel = (props) => {
                 >
                     {sortedRows.map((row, index) => {
                         return (
-                            <TableRow tabIndex={-1} key={row.id}>
+                            <TableRow tabIndex={-1} key={`${row.prefix}_${row.namespace}`}>
                                 <TableCell
                                     align="left"
                                     onClick={() => { setRowIndex(index); setColumnIndex(0); }}
