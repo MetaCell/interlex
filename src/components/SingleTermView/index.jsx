@@ -36,8 +36,11 @@ import CustomIconTabs from "../common/CustomIconTabs";
 import DataVisualizerDropdown from "./DataVisualizerDropdown";
 import Discussion from "./Discussion";
 import { CodeIcon } from "../../Icons";
+import {useQuery} from "../../helpers";
+import ExpandIcon from "@mui/icons-material/Expand";
+import RemoveIcon from "@mui/icons-material/Remove";
 
-const { gray50, gray200, brand700, gray600 } = vars;
+const { gray200, brand700, gray600 } = vars;
 
 const dataFormats = ['JSON-LD', 'Turtle', 'N3', 'OWL', 'CSV']
 
@@ -50,7 +53,8 @@ const SingleTermView = () => {
   const [isCodeViewVisible, setIsCodeViewVisible] = React.useState(false);
   const [iconTabValue, setIconTabValue] = React.useState(0);
   const [selectedDataFormat, setSelectedDataFormat] = React.useState('Turtle');
-
+  const query = useQuery();
+  const searchTerm = query.get('searchTerm');
   const openDataFormatMenu = Boolean(dataFormatAnchorEl);
   const handleClickDataFormatMenu = (event) => {
     setDataFormatAnchorEl(event.currentTarget);
@@ -114,7 +118,7 @@ const SingleTermView = () => {
           <Grid item xs={12} lg={4}>
             <Stack direction="row" spacing=".75rem" alignItems="center">
               <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
-                Central nervous system
+                {searchTerm}
               </Typography>
               <Chip label="Fork" variant="outlined" />
             </Stack>
@@ -186,7 +190,17 @@ const SingleTermView = () => {
                   </Stack>
                   <Divider sx={{ ml: '0.625rem', mr: '0.625rem', border: `1px solid ${gray200}` }} /></>)
                 }
-                <CustomIconTabs tabs={[<List />, <CodeOrTreeIcon />]} value={iconTabValue} handleChange={handleIconTabValueChange}></CustomIconTabs>
+                <CustomIconTabs
+                  tabs={[{
+                    icon: <List />,
+                    value: 0
+                  },{
+                    icon: <CodeOrTreeIcon />,
+                    value: 1
+                  }]}
+                  value={iconTabValue}
+                  handleChange={handleIconTabValueChange}>
+                </CustomIconTabs>
               </Box>
             )}
           </Grid>

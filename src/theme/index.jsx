@@ -29,7 +29,8 @@ const {
     error50,
     error200,
     error700,
-    gray400
+    gray400,
+    brand200
 } = vars
 
 const theme = createTheme({
@@ -268,6 +269,24 @@ const theme = createTheme({
                     color: gray700,
                     boxShadow: '0rem 0.0625rem 0.125rem 0rem rgba(16, 24, 40, 0.05)'
                 },
+                colorPrimary: {
+                    padding: '0.13rem 0.5rem',
+                    display: 'flex',
+                    gap: '0.25rem',
+                    borderRadius: '1rem',
+                    border: `1px solid ${brand200}`,
+                    background: brand50,
+                    color: brand700,
+                },
+                colorSecondary: {
+                    padding: '0.13rem 0.5rem',
+                    display: 'flex',
+                    gap: '0.25rem',
+                    borderRadius: '1rem',
+                    border: `1px solid #B9E6FE`,
+                    background: '#F0F9FF',
+                    color: '#026AA2'
+                },
                 colorSuccess: {
                     padding: '0.13rem 0.5rem',
                     display: 'flex',
@@ -295,6 +314,15 @@ const theme = createTheme({
                         width: '0.75rem',
                         height: '0.75rem'
                     }
+                },
+                colorWarning: {
+                    padding: '0.13rem 0.5rem',
+                    display: 'flex',
+                    gap: '0.25rem',
+                    borderRadius: '1rem',
+                    border: `1px solid ${warning200}`,
+                    background: warning50,
+                    color: warning700,
                 },
                 colorDefault: {
                     padding: '0.13rem 0.5rem',
