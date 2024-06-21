@@ -51,13 +51,21 @@ const getTerm = (data) => {
                         let newPredicate = {
                             subject : { id : term.id },
                             predicate: predicate,
-                            object : { value : dataToStore }
+                            object : { id : dataToStore }
                         }
                         predicates[predicate] ? predicates[predicate].push(newPredicate) : predicates[predicate] = [newPredicate]
                     }
                 }
             }
         }) 
+    })
+
+    // Add Subject ID and Label from Term to each predicate.
+    Object.keys(predicates)?.forEach( key => {
+        predicates[key]?.forEach( pred => {
+            pred.subject.id = term.id;
+            pred.subject.label = term.label;
+        })
     })
 
     term.predicates = predicates;
