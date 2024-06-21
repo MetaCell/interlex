@@ -7,9 +7,9 @@ import curieParser from '../../parsers/curieParser';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { vars } from "../../theme/variables";
+import debounce from 'lodash/debounce';
 
 const { gray600, brand500, gray100, gray300, gray700 } = vars;
-
 
 const fieldStyle = {
     '& .MuiOutlinedInput-root': {
@@ -41,6 +41,7 @@ const CuriesTabPanel = (props) => {
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('prefix');
     const [page, setPage] = React.useState(1);
+    const [sortTriggered, setSortTriggered] = React.useState(false);
 
     const addRow = () => {
         const newRow = {
@@ -52,34 +53,43 @@ const CuriesTabPanel = (props) => {
 
     const deleteRow = (rowPrefix, rowNamespace) => {
         console.log("here we connect DELETE method")
-        const newRows = sortedRows.filter(row => row.prefix !== rowPrefix && row.namespace !== rowNamespace);
+        const newRows = rows.filter(row => row.prefix !== rowPrefix && row.namespace !== rowNamespace);
         setRows(newRows)
         setRowIndex(-1)
     };
 
+    const debouncedUpdateRows = React.useMemo(
+        () => debounce((updatedRows) => {
+            setRows(updatedRows);
+            handleExit();
+            console.log("here we connect UPDATE method")
+        }, 500),
+        []
+    );
+
     const handleTextFieldChange = (e, rowIndex, columnName) => {
         const { value } = e.target;
-        const updatedRows = sortedRows.map((row, index) => {
+        const updatedRows = rows.map((row, index) => {
             if (index === rowIndex) {
                 return { ...row, [columnName]: value };
             }
             return row;
         });
-        console.log("here we connect UPDATE method")
-        setRows(updatedRows);
+        debouncedUpdateRows(updatedRows);
     };
 
     const sortedRows = React.useMemo(() => {
-        const sorted = stableSort(rows, getComparator(order, orderBy));
-
-        if (numberOfVisibleCuries !== undefined) {
-            const startIndex = (page - 1) * numberOfVisibleCuries;
-            const endIndex = startIndex + numberOfVisibleCuries;
-            return sorted.slice(startIndex, endIndex);
+        if (sortTriggered) {
+            const sorted = stableSort(rows, getComparator(order, orderBy));
+            if (numberOfVisibleCuries !== undefined) {
+                const startIndex = (page - 1) * numberOfVisibleCuries;
+                const endIndex = startIndex + numberOfVisibleCuries;
+                return sorted.slice(startIndex, endIndex);
+            }
+            return sorted;
         }
-
-        return sorted;
-    }, [rows, order, orderBy, page, numberOfVisibleCuries]);
+        return rows;
+    }, [rows, order, orderBy, page, numberOfVisibleCuries, sortTriggered]);
 
     const handlePageChange = (event, value) => {
         setPage(value);
@@ -108,10 +118,14 @@ const CuriesTabPanel = (props) => {
         setColumnIndex(-1);
     }
 
+    const handleSort = (dir) => {
+        setSortTriggered(true);
+        setOrder(dir);
+    }
+
     if (error) {
         return <div>error</div>;
     }
-
 
     return (
         <ClickAwayListener onClickAway={() => handleExit()}>
@@ -122,7 +136,7 @@ const CuriesTabPanel = (props) => {
                     rows={rows}
                     order={order}
                     orderBy={orderBy}
-                    setOrder={setOrder}
+                    setOrder={handleSort}
                     setOrderBy={setOrderBy}
                     headCells={headCells}
                     rowsPerPage={numberOfVisibleCuries}
@@ -197,4 +211,5 @@ const CuriesTabPanel = (props) => {
         </ClickAwayListener>
     )
 }
+
 export default CuriesTabPanel;
