@@ -65,7 +65,7 @@ module.exports = {
       mode: "split",
       target: "./src/api/endpoints",
       schemas: "./src/model/backend",
-      baseUrl: 'http://localhost:3200/',
+      baseUrl: 'https://uri.olympiangods.org',
       mock: true,
       override: {
         mutator: {

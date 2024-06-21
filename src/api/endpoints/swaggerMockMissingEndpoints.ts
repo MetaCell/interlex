@@ -25,7 +25,7 @@ export const login = (
     
  ) => {
       return customInstance<void>(
-      {url: `http://localhost:3200/operations/login`, method: 'POST'
+      {url: `https://uri.olympiangods.org/operations/login`, method: 'POST'
     },
       );
     }
@@ -37,7 +37,7 @@ export const logout = (
     
  ) => {
       return customInstance<void>(
-      {url: `http://localhost:3200/operations/logout`, method: 'POST'
+      {url: `https://uri.olympiangods.org/operations/logout`, method: 'POST'
     },
       );
     }
@@ -49,7 +49,7 @@ export const register = (
     
  ) => {
       return customInstance<void>(
-      {url: `http://localhost:3200/operations/register`, method: 'POST'
+      {url: `https://uri.olympiangods.org/operations/register`, method: 'POST'
     },
       );
     }
@@ -61,7 +61,7 @@ export const getOrganization = (
     organization: Organization,
  ) => {
       return customInstance<Organization>(
-      {url: `http://localhost:3200/operations/organization`, method: 'GET',
+      {url: `https://uri.olympiangods.org/operations/organization`, method: 'GET',
       headers: {'Content-Type': 'application/json', }
     },
       );
@@ -74,7 +74,7 @@ export const newOrganization = (
     organization: Organization,
  ) => {
       return customInstance<Organization>(
-      {url: `http://localhost:3200/operations/organization`, method: 'POST',
+      {url: `https://uri.olympiangods.org/operations/organization`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: organization
     },
@@ -88,7 +88,7 @@ export const getOrganizations = (
     
  ) => {
       return customInstance<Organizations>(
-      {url: `http://localhost:3200/operations/organizations`, method: 'GET'
+      {url: `https://uri.olympiangods.org/operations/organizations`, method: 'GET'
     },
       );
     }
@@ -101,7 +101,7 @@ export const getSearchResults = (
     string: string,
  ) => {
       return customInstance<Terms>(
-      {url: `http://localhost:3200/${group}/search/${string}`, method: 'GET'
+      {url: `https://uri.olympiangods.org/${group}/search/${string}`, method: 'GET'
     },
       );
     }
@@ -115,7 +115,7 @@ export const getHierarchyResults = (
     start: string,
  ) => {
       return customInstance<Terms>(
-      {url: `http://localhost:3200/${group}/query/transitive/${property}/${start}?depth`, method: 'GET'
+      {url: `https://uri.olympiangods.org/${group}/query/transitive/${property}/${start}?depth`, method: 'GET'
     },
       );
     }
@@ -127,7 +127,7 @@ export const getMatchTerms = (
     term: string,
  ) => {
       return customInstance<Terms>(
-      {url: `http://localhost:3200/search_term/${term}`, method: 'GET'
+      {url: `https://uri.olympiangods.org/search_term/${term}`, method: 'GET'
     },
       );
     }
@@ -139,7 +139,7 @@ export const getCuries = (
     group: string,
  ) => {
       return customInstance<Curies>(
-      {url: `http://localhost:3200/get_curies/${group}`, method: 'GET'
+      {url: `https://uri.olympiangods.org/get_curies/${group}`, method: 'GET'
     },
       );
     }
@@ -152,7 +152,7 @@ export const getVariants = (
     term: string,
  ) => {
       return customInstance<Variants>(
-      {url: `http://localhost:3200/${group}/variants/${term}`, method: 'GET'
+      {url: `https://uri.olympiangods.org/${group}/variants/${term}`, method: 'GET'
     },
       );
     }
@@ -165,7 +165,7 @@ export const getVersions = (
     term: string,
  ) => {
       return customInstance<Versions>(
-      {url: `http://localhost:3200/${group}/versions/${term}`, method: 'GET'
+      {url: `https://uri.olympiangods.org/${group}/versions/${term}`, method: 'GET'
     },
       );
     }
@@ -178,7 +178,7 @@ export const getDiscussions = (
     term: string,
  ) => {
       return customInstance<Discussions>(
-      {url: `http://localhost:3200/${group}/discussions/${term}`, method: 'GET'
+      {url: `https://uri.olympiangods.org/${group}/discussions/${term}`, method: 'GET'
     },
       );
     }
@@ -191,7 +191,7 @@ export const getHierarchies = (
     term: string,
  ) => {
       return customInstance<Hierarchies>(
-      {url: `http://localhost:3200/${group}/hierarchies/${term}`, method: 'GET'
+      {url: `https://uri.olympiangods.org/${group}/hierarchies/${term}`, method: 'GET'
     },
       );
     }
@@ -203,7 +203,7 @@ export const getPing = (
     
  ) => {
       return customInstance<void>(
-      {url: `http://localhost:3200/ping`, method: 'GET'
+      {url: `https://uri.olympiangods.org/ping`, method: 'GET'
     },
       );
     }
