@@ -113,7 +113,6 @@ const CuriesTabPanel = (props) => {
         return <div>error</div>;
     }
 
-    console.log("rows: ", rows)
 
     return (
         <ClickAwayListener onClickAway={() => handleExit()}>
