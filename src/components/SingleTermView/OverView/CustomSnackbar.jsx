@@ -24,7 +24,7 @@ const snackbarStyles = {
     }
 };
 
-const CustomSnackbar = ({ open, handleClose, onUndoDelete }) => {
+const CustomSnackbar = ({ open, handleClose, onUndoDelete, data }) => {
     return (
         <Snackbar
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
@@ -37,8 +37,8 @@ const CustomSnackbar = ({ open, handleClose, onUndoDelete }) => {
                     <ErrorOutlinedIcon />
                 </IconButton>
                 <Stack direction="column" alignItems="flex-start">
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: gray900 }}>You’ve removed “SP1 neuron”</Typography>
-                    <Typography variant="body2" sx={{ color: gray600, mt: 0.5 }}>from Central nervous system relationship “is part of”.</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: gray900 }}>You’ve removed “{data.Subject}”</Typography>
+                    <Typography variant="body2" sx={{ color: gray600, mt: 0.5 }}>from {data.Objects} relationship “{data.Predicates}”.</Typography>
                     <Button variant="text" sx={{ color: gray600, mt: 1.5, ...snackbarStyles.snackbarButtonStyle }} onClick={onUndoDelete}>Undo</Button>
                 </Stack>
                 <IconButton onClick={handleClose}>

@@ -11,17 +11,18 @@ import {
 import { vars } from "../../../theme/variables";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CallMadeIcon from '@mui/icons-material/CallMade';
-import {FullscreenOutlined, SchemaOutlined, TableChartOutlined} from "@mui/icons-material";
+import { FullscreenOutlined, SchemaOutlined, TableChartOutlined } from "@mui/icons-material";
 import CustomizedTable from "./CustomizedTable";
 import CustomIconTabs from "../../common/CustomIconTabs";
 import ViewDiagramDialog from "./ViewDiagramDialog";
 
 const { gray600 } = vars;
 
-const PredicatesAccordion = ({ data }) => {
+const PredicatesAccordion = ({ data, expandedTabValue }) => {
   const [tabValues, setTabValues] = useState(data.map(() => 0));
   const [openViewDiagram, setOpenViewDiagram] = React.useState(false);
   const [selectedItem, setSelectedItem] = useState(null)
+  const [expandedItems, setExpandedItems] = useState(data.map(() => false));
   const imgStyle = { width: '100%' };
   const imgPath = '/success.png';
   const onTabsChanged = (index) => (event, newValue) => {
@@ -38,15 +39,29 @@ const PredicatesAccordion = ({ data }) => {
   const handleCloseViewDiagram = () => {
     setOpenViewDiagram(false);
   };
-  
+
+  const handleAccordionChange = (index) => (event, isExpanded) => {
+    const newExpandedItems = [...expandedItems];
+    newExpandedItems[index] = isExpanded;
+    setExpandedItems(newExpandedItems);
+  };
+
+  React.useEffect(() => {
+    if (expandedTabValue) {
+      setExpandedItems(data.map(() => true));
+    } else {
+      setExpandedItems(data.map(() => false));
+    }
+  }, [expandedTabValue, data])
+
   const image = new Image();
   image.onload = () => <img style={imgStyle} src={imgPath} alt="preview" />
   image.src = imgPath;
-  
+
   return (
     <>
       {data.map((item, index) => (
-        <Accordion key={index} disableGutters elevation={0} square defaultExpanded>
+        <Accordion key={index} disableGutters elevation={0} expanded={expandedItems[index]} onChange={handleAccordionChange(index)} square>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon fontSize='medium' />}
             aria-controls={`panel${index + 1}-content`}
@@ -67,7 +82,7 @@ const PredicatesAccordion = ({ data }) => {
                 tabs={[{
                   icon: <TableChartOutlined />,
                   value: 0
-                },{
+                }, {
                   icon: <SchemaOutlined />,
                   value: 1
                 }]}
@@ -86,17 +101,17 @@ const PredicatesAccordion = ({ data }) => {
                   onClick={(e) => handleClickViewDiagram(e, item)}
                   disableRipple
                   sx={{
-                  minWidth:'auto',
-                  alignSelf: 'flex-end'
-                }}>
-                  <FullscreenOutlined  />
+                    minWidth: 'auto',
+                    alignSelf: 'flex-end'
+                  }}>
+                  <FullscreenOutlined />
                 </Button>
               </Box>
             )}
           </AccordionDetails>
         </Accordion>
       ))}
-      
+
       <ViewDiagramDialog
         open={openViewDiagram}
         handleClose={handleCloseViewDiagram}

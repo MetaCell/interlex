@@ -57,7 +57,7 @@ const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, inde
             <IconButton onClick={() => onRowIndexChange(index)}>
               <ModeEditOutlineOutlinedIcon fontSize='small' />
             </IconButton>
-            <IconButton onClick={() => onDeleteClick(index)}>
+            <IconButton onClick={() => onDeleteClick(data)}>
               <DeleteOutlineOutlinedIcon fontSize='small' />
             </IconButton>
             <Divider orientation="vertical" flexItem />
