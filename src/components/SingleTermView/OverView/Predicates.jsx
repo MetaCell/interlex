@@ -40,8 +40,8 @@ const Predicates = ({ term }) => {
   React.useEffect(() => {
     getEndpointsIlx("base",term).then( dat => { 
       const parsedData = termParser(dat);
-      console.log("Predicates ", parsedData[0]?.predicates)
-      setPredicates(parsedData[0]?.predicates)
+      console.log("Predicates ", parsedData?.results[0]?.predicates)
+      setPredicates(parsedData?.results[0]?.predicates)
       setLoading(false)
     })
   }, [term]);

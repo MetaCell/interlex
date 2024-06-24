@@ -1,5 +1,6 @@
 import { Term, Terms } from "./../model/frontend/terms";
 import { termKeys, termPrefixes } from "../configuration/model";
+import { defaultTermFiltersSections } from "../configuration/filters";
 
 /**
  * Takes in raw term data object from server and formats it into Term object 
@@ -83,12 +84,37 @@ const formatTerms = (terms, searchTerm, start, end) => {
     return indexRange(terms?.filter( t => {
         const label = t.label?.toLowerCase();
         const search = searchTerm?.toLowerCase()
-        if ( t !== undefined && ( label.includes(search) || search == undefined) ) { 
+        if ( t !== undefined && ( label?.includes(search) || search == undefined) ) { 
             return true;
         }
 
         return false;
     }), start, end);
+}
+
+const getFilters = ( terms ) => {
+    let filters = {};
+    const filtersKeys = Object.keys(defaultTermFiltersSections);
+    filtersKeys?.forEach( key => {
+        filters[key] = {};
+    })
+
+    terms.forEach( term => {
+        filtersKeys?.forEach( key => {
+            if ( term[termPrefixes[defaultTermFiltersSections[key]]?.key] != undefined ) {
+                const label = term[termPrefixes[defaultTermFiltersSections[key]]?.key];
+                const id = term.id;
+                let newFilter = { [label] :{
+                    "label" : label,
+                    "ids" : filters[key]?.[label] ? filters[key]?.[label]?.ids.concat(id) : [id]
+                }}
+                filters[key] = { ...filters[key], ...newFilter }
+            }
+        })
+        
+    })
+
+    return filters;
 }
 
 /**
@@ -111,7 +137,12 @@ export const termParser = (data, searchTerm, start, end) => {
 
     // We are receiving an unknown amout of terms from server, we need to control
     // how much to send back based on request made (start,end)
-    return formatTerms(terms,searchTerm, start, end);
+    const results = formatTerms(terms,searchTerm, start, end);
+    const filters = getFilters(results);
+    return {
+        filters : filters,
+        results : results
+    }
 };
 
 export default termParser;

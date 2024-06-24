@@ -2702,7 +2702,9 @@ export const getGetHierarchyResultsMockHandler = (overrideResponse?: Terms) => {
 
 export const getGetMatchTermsMockHandler = (overrideResponse?: Terms) => {
   return http.get('*/search_term/:term', async () => {
+    console.log("getGetMatchTermsMockHandler " , overrideResponse)
     await delay(1000);
+    console.log("getGetMatchTermsMockHandler " , overrideResponse)
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetMatchTermsResponseMock()),
       {
         status: 200,

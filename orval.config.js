@@ -65,8 +65,8 @@ module.exports = {
       mode: "split",
       target: "./src/api/endpoints",
       schemas: "./src/model/backend",
-      baseUrl: 'https://uri.olympiangods.org',
       mock: true,
+      baseUrl : "http://127.0.0.1:8080/",
       override: {
         mutator: {
           path: './mock/mutator/customClient.ts',

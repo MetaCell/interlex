@@ -107,7 +107,7 @@ const ListView = ({ searchResults, loading }) => {
   }
     return (
         <Box>
-            {searchResults.map((searchResult, index) => (
+            {searchResults?.map((searchResult, index) => (
                 <Box
                     key={`${searchResult.label}_${index}`}
                     onClick={() => handleClick(searchResult)}

@@ -40,7 +40,7 @@ const SearchResultsBox = () => {
     const searchTerm = query.get('searchTerm');
     const {  getMatchTerms } = useMockApi();
 
-    const [terms, setTerms] = React.useState([]);
+    const [terms, setTerms] = React.useState({});
 
     const handleNumberOfPagesChange = (event) => {
         setNumberOfVisiblePages(event.target.value);
@@ -69,7 +69,7 @@ const SearchResultsBox = () => {
         <Box width={1} flex={1} display="flex" flexDirection="column" px={4} py={3} gap={3} sx={{ overflowY: 'auto' }}>
             <Grid container justifyContent={{ lg: 'space-between', xs: 'flex-end', md: 'flex-end' }} alignItems="center">
                 <Grid item xs={12} lg={6} sm={6}>
-                    <Typography variant="h5">{terms?.length} results for {searchTerm} search</Typography>
+                    <Typography variant="h5">{terms?.results?.length} results for {searchTerm} search</Typography>
                 </Grid>
                 <Grid item xs={12} lg={6} sm={6}>
                     <Box display="flex" alignItems="center" gap={2} justifyContent="end">
@@ -129,7 +129,7 @@ const SearchResultsBox = () => {
                 </Grid>
             </Grid>
             {listView === 'list' ? (
-                <ListView searchResults={terms} loading={loading}/>
+                <ListView searchResults={terms?.results} loading={loading}/>
             ) : (
                 <p>table</p>
             )}

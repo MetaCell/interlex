@@ -50,7 +50,7 @@ const formatVariants = (variants, searchVariant, start, end) => {
     return indexRange(variants?.filter( t => {
         const label = t.label?.toLowerCase();
         const search = searchVariant?.toLowerCase()
-        if ( t !== undefined && ( label.includes(search) || search == undefined) ) { 
+        if ( t !== undefined && ( label?.includes(search) || search == undefined) ) { 
             return true;
         }
 
