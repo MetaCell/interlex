@@ -1,7 +1,7 @@
 import {Box, Button} from "@mui/material";
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
-import CustomizedDialog from "../common/CustomizedDialog";
 import {useState} from "react";
+import EditBulkTermsDialog from "./EditBulkTermsDialog";
 
 const Dashboard = () => {
   const [openEditBulkTerms, setOpenEditBulkTerms] = useState(false)
@@ -17,11 +17,7 @@ const Dashboard = () => {
       <Button type="string" color="secondary" startIcon={<ModeEditOutlineOutlinedIcon />} onClick={handleOpenEditBulkTerms}>
         Edit bulk terms
       </Button>
-      <CustomizedDialog
-        title='Edit bulk terms - Conditional search for term selection'
-        open={openEditBulkTerms}
-        handleClose={handleCloseEditBulkTerms}
-      />
+      <EditBulkTermsDialog handleClose={handleCloseEditBulkTerms} open={openEditBulkTerms} />
     </Box>
   )
 }

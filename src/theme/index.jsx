@@ -714,6 +714,38 @@ const theme = createTheme({
                     }
                 }
             }
+        },
+        MuiMobileStepper: {
+            styleOverrides: {
+               dot: {
+                   width: '.5rem',
+                   height: '.5rem',
+                   backgroundColor: gray200
+               },
+                dotActive: {
+                   backgroundColor: brand700
+                }
+            }
+        },
+        MuiDataGrid: {
+            styleOverrides: {
+               root: {
+                   borderColor: gray200,
+                   borderRadius: '.75rem',
+                   boxShadow: '0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)',
+                   
+                   '& .MuiDataGrid-columnHeaderRow': {
+                       backgroundColor: 'red',
+                   }
+               },
+                columnHeaders: {
+                    width: '100% !important',
+                    '& [role="row"]': {
+                        backgroundColor: `${gray200} !important`,
+                        border: '0 !important'
+                    }
+                },
+            }
         }
     }
 });
