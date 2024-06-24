@@ -36,4 +36,3 @@ const CustomPagination = ({ rowCount, rowsPerPage, page, onPageChange }) => {
 }
 
 export default CustomPagination;
-

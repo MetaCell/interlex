@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { Avatar, Badge, Box, Button, Divider, IconButton, ListItemAvatar, Popover } from "@mui/material";
 import { vars } from "../../theme/variables";
-import { AddIcon, DocumentationIcon, LogoutIcon, NavIcon, OrganizationsIcon, ReleaseNotesIcon, TermActivityIcon, UserIcon } from '../../Icons';
+import { AddIcon, DocumentationIcon, LogoutIcon, NavIcon, OrganizationsIcon, ReleaseNotesIcon, TermActivityIcon, UserIcon, SortIcon } from '../../Icons';
 import Logo from '../../Icons/svg/interlex_logo.svg'
 import React from "react";
 import List from '@mui/material/List';
@@ -10,7 +10,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Search from './Search';
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { GlobalDataContext } from "./../../contexts/DataContext";
 
@@ -37,7 +37,7 @@ const styles = {
             border: `0.0625rem solid ${gray200}`,
             borderRadius: '0.5rem',
             marginTop: '0.5rem',
-            padding: '0.3125rem 0.375rem'
+            minWidth: '15rem'
         },
 
         '& .MuiListItemIcon-root': {
@@ -46,7 +46,11 @@ const styles = {
         },
 
         '& .MuiList-root': {
-            padding: 0
+            paddingY: '0.25rem'
+        },
+
+        '& .MuiListItem-root': {
+            padding: '0.063rem 0.375rem'
         },
 
         '& .MuiListItemText-root': {
@@ -138,6 +142,10 @@ const Header = ({ isLoggedIn = false }) => {
         setAnchorElUser(null);
     };
 
+    const handleClickCurieEditor = () => {
+        navigate('curie-editor')
+    };
+
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
 
@@ -147,16 +155,17 @@ const Header = ({ isLoggedIn = false }) => {
     const [openList, setOpenList] = React.useState(false);
 
     const handleCloseList = () => {
-      setOpenList(false);
+        setOpenList(false);
     };
-  
+
     const toggleList = () => {
-      setOpenList(!openList);
+        setOpenList(!openList);
     };
-    
+
     const handleMenuClick = (e, menu) => {
         navigate(menu.href)
     }
+
     
     const handleLogoClick = () => {
         navigate('/')
@@ -165,24 +174,24 @@ const Header = ({ isLoggedIn = false }) => {
     React.useEffect(() => {
         // TODO : Move to login page and remove this proof of concept call
         handleSetUserData("Interlex User", "Interlex");
-      
+
         const handleKeyDown = (event) => {
-        if (event.ctrlKey && event.key === 'k') {
-          toggleList();
-        }
-        if (event.key === 'Escape') {
-          handleCloseList();
-        }
-      };
-  
-      document.addEventListener('keydown', handleKeyDown);
-  
-      return () => {
-        document.removeEventListener('keydown', handleKeyDown);
-      };
+            if (event.ctrlKey && event.key === 'k') {
+                toggleList();
+            }
+            if (event.key === 'Escape') {
+                handleCloseList();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
     }, []);
 
-    React.useEffect( () => {
+    React.useEffect(() => {
         console.log("Stored user in context ", user)
     }, [user])
 
@@ -219,6 +228,15 @@ const Header = ({ isLoggedIn = false }) => {
                                 </ListItemButton>
                             </ListItem>
                         ))}
+                        <Divider sx={{ mt: 0.5, mb: 0.5, color: gray200 }} />
+                        <ListItem disablePadding onClick={handleClickCurieEditor}>
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    <SortIcon />
+                                </ListItemIcon>
+                                <ListItemText primary={'Curie Editor'} />
+                            </ListItemButton>
+                        </ListItem>
                     </List>
                 </Popover>
                 <a href="/" style={{cursor: 'pointer'}}>
@@ -226,7 +244,7 @@ const Header = ({ isLoggedIn = false }) => {
                 </a>
             </Box>
 
-            <Box sx={{width:'35%', maxWidth: '45.5rem'}}>
+            <Box sx={{ width: '35%', maxWidth: '45.5rem' }}>
                 <Search />
             </Box>
 
@@ -256,9 +274,9 @@ const Header = ({ isLoggedIn = false }) => {
                             boxShadow: '0 0 0 0.25rem rgba(152, 162, 179, 0.14)'
                         }
                     }}
-                    onClick={handleUserClick} aria-describedby={idUser}
+                        onClick={handleUserClick} aria-describedby={idUser}
                     >
-                        <Avatar sx={{border: '0.0469rem solid rgba(0,0,0,0.08)', width: '2.5rem', height: '2.5rem'}} src="https://mui.com/static/images/avatar/1.jpg" />
+                        <Avatar sx={{ border: '0.0469rem solid rgba(0,0,0,0.08)', width: '2.5rem', height: '2.5rem' }} src="https://mui.com/static/images/avatar/1.jpg" />
                     </IconButton>
                     <Popover
                         sx={{
@@ -307,15 +325,15 @@ const Header = ({ isLoggedIn = false }) => {
                                 },
                             }}>
                                 <ListItemAvatar>
-                                    <Badge 
-                                        variant="dot" 
+                                    <Badge
+                                        variant="dot"
                                         color="success"
                                         anchorOrigin={{
                                             vertical: 'bottom',
                                             horizontal: 'right',
                                         }}
                                     >
-                                        <Avatar sx={{border: '0.0469rem solid rgba(0,0,0,0.08)', width: '2.5rem', height: '2.5rem'}} src="https://mui.com/static/images/avatar/1.jpg" />
+                                        <Avatar sx={{ border: '0.0469rem solid rgba(0,0,0,0.08)', width: '2.5rem', height: '2.5rem' }} src="https://mui.com/static/images/avatar/1.jpg" />
                                     </Badge>
                                 </ListItemAvatar>
                                 <ListItemText

@@ -1,3 +1,4 @@
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -54,6 +55,7 @@ const BasicTabs = ({tabs, tabValue, handleChange}) => {
             fontWeight: '600',
             color: gray500,
             textAlign: 'center',
+            alignItems: 'center',
             
             '&.Mui-selected': {
               color: brand700
