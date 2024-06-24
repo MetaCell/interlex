@@ -34,7 +34,12 @@ const Test = () => {
 };
 ```
 
-- Sample Search Return
+- Sample Search Return. 
+
+@ filters - These are the specific filters found for the returned Term results. Organized by Sections.
+          - @label - Property inside filter object, this is what we can use for labeling the filter.
+          - @ids - Array of Term Id's from the results that have this filter label.
+@ results - These are the Term results found to math the search term.
 ```
 {
     "filters": {
