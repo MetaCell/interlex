@@ -15,6 +15,7 @@ import { FullscreenOutlined, SchemaOutlined, TableChartOutlined } from "@mui/ico
 import CustomizedTable from "./CustomizedTable";
 import CustomIconTabs from "../../common/CustomIconTabs";
 import ViewDiagramDialog from "./ViewDiagramDialog";
+import { useQuery } from "../../../helpers";
 
 const { gray600 } = vars;
 
@@ -23,6 +24,9 @@ const PredicatesAccordion = ({ data, expandedTabValue }) => {
   const [openViewDiagram, setOpenViewDiagram] = React.useState(false);
   const [selectedItem, setSelectedItem] = useState(null)
   const [expandedItems, setExpandedItems] = useState(data.map(() => false));
+  const query = useQuery();
+  const term = query.get('searchTerm');
+
   const imgStyle = { width: '100%' };
   const imgPath = '/success.png';
   const onTabsChanged = (index) => (event, newValue) => {
@@ -93,7 +97,7 @@ const PredicatesAccordion = ({ data, expandedTabValue }) => {
           </AccordionSummary>
           <AccordionDetails>
             {tabValues[index] === 0 ? (
-              <CustomizedTable data={item} predicates={data} />
+              <CustomizedTable data={item} predicates={data} term={term}/>
             ) : (
               <Box display='flex' flexDirection='column'>
                 <Button

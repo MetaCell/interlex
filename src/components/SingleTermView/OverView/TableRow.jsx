@@ -17,19 +17,9 @@ const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, inde
       onMouseLeave={() => setIsHovered(false)}
     >
       <Box sx={{ paddingLeft: '0 !important' }}>
-        {rowIndex === index ? (
-          <TextField
-            value={Subject}
-            name="Subject"
-            onChange={(e) => onInputChange(e, index)}
-            placeholder="Enter URL or term name"
-            sx={tableStyles.input}
-          />
-        ) : (
-          <Typography>
-            {Subject}
-          </Typography>
-        )}
+        <Typography>
+          {Subject}
+        </Typography>
       </Box>
       <Box>
         <Typography>

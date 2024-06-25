@@ -11,7 +11,7 @@ import * as mockApi from "../../../api/endpoints/swaggerMockMissingEndpoints";
 import termParser from "../../../parsers/termParser";
 import CustomSnackbar from "./CustomSnackbar";
 
-const { gray100, gray50, gray600, gray500, brand600, brand50, brand700 } = vars;
+const { gray100, gray50, gray600, gray500, brand600, brand50, brand700, gray700 } = vars;
 
 const tableStyles = {
   head: {
@@ -63,7 +63,7 @@ const tableStyles = {
       },
     },
     '& .MuiTypography-root': {
-      color: gray600,
+      color: gray700,
       fontSize: '0.875rem',
       fontWeight: 400,
       lineHeight: '1.25rem',
@@ -107,6 +107,7 @@ const tableStyles = {
     },
   },
   inputParentBox: {
+    width: '100%',
     borderRadius: '0.5rem',
     background: '#F0F2F2',
     '&:before': {
@@ -152,11 +153,11 @@ const tableStyles = {
 };
 const useMockApi = () => mockApi;
 
-const CustomizedTable = ({ data }) => {
+const CustomizedTable = ({ data, term }) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [tableContent, setTableContent] = useState(data?.tableData);
   const [tableHeader, setTableHeader] = useState([
-    { key: 'Subject', label: 'Subject', allowSort: true, direction: 'desc' },
+    { key: 'Subject', label: 'Subject', allowSort: false, direction: 'desc' },
     { key: 'Predicates', label: 'Predicates', allowSort: false },
     { key: 'Objects', label: 'Objects', allowSort: true, direction: 'desc' },
     { key: '', label: '' }
@@ -270,13 +271,6 @@ const CustomizedTable = ({ data }) => {
     });
   };
 
-  const handleConfirm = (index) => {
-    setTableContent((prev) => [
-      ...prev,
-      { ...tableContent[index], id: `${prev.length + 1}` },
-    ])
-  };
-
   const updateTableContent = (newSubject, newObject) => {
     const newId = tableContent.length + 1;
     const newRow = {
@@ -331,7 +325,7 @@ const CustomizedTable = ({ data }) => {
       fetchTerms(objectSearchTerm, 'object');
     }
   }, [objectSearchTerm, fetchTerms]);
-  
+
 
   return (
     <>
@@ -374,52 +368,44 @@ const CustomizedTable = ({ data }) => {
           )}
         </Box>
 
-        <Box sx={tableStyles.root}>
-          {!showSelect ? (
+        {!showSelect ? (
+          <Box sx={tableStyles.root}>
             <Box sx={{ paddingLeft: '0 !important' }}>
               <IconButton onClick={handleAddClick}>
                 <AddOutlinedIcon />
               </IconButton>
             </Box>
-          ) : (
-            <>
-              <>
-                <Box sx={{ paddingLeft: '0 !important', width: '100%' }}>
-                  <SingleSearch
-                    selectedValue={subject}
-                    onChange={(e) => handleSelectChange(e, 'subject')}
-                    startAdornment={false}
-                    options={terms}
-                    searchTerm={subjectSearchTerm}
-                    setSearchTerm={setSubjectSearchTerm}
-                  />
-                </Box>
-                <Box />
-                <Box sx={{ width: '100%' }}>
-                  <SingleSearch
-                    selectedValue={object}
-                    onChange={(e) => handleSelectChange(e, 'object')}
-                    startAdornment={false}
-                    options={terms}
-                    searchTerm={objectSearchTerm}
-                    setSearchTerm={setObjectSearchTerm}
-                  />
-                </Box>
-                <Box justifyContent="flex-end">
-                  <Button
-                    variant="text"
-                    onClick={() => handleConfirm(tableContent.length + 1)}
-                    sx={tableStyles.confirmButton}
-                  >
-                    Confirm
-                  </Button>
-                </Box>
-              </>
-            </>
-          )}
-        </Box>
+          </Box>
+        ) : (
+          <Box sx={{ ...tableStyles.root, ...tableStyles.inputParentBox }}>
+            <Box sx={{ paddingLeft: '0 !important', width: '100%' }}>
+              <Typography>{term}</Typography>
+            </Box>
+            <Box>
+              <Typography>{data.title.toLowerCase()}</Typography>
+            </Box>
+            <Box sx={{ width: '100%' }}>
+              <TextField
+                value={object}
+                name="Objects"
+                onChange={(e) => setObject(e.target.value)}
+                placeholder="Enter URL or term name"
+                sx={tableStyles.input}
+              />
+            </Box>
+            <Box justifyContent="flex-end">
+              <Button
+                variant="text"
+                onClick={() => updateTableContent(term, object)}
+                sx={tableStyles.confirmButton}
+              >
+                Confirm
+              </Button>
+            </Box>
+          </Box>
+        )}
       </Box>
-      <CustomSnackbar open={snackbarOpen} handleClose={handleSnackbarClose} onUndoDelete={handleUndoDelete} data={deletedObj}/>
+      <CustomSnackbar open={snackbarOpen} handleClose={handleSnackbarClose} onUndoDelete={handleUndoDelete} data={deletedObj} />
     </>
   );
 };
