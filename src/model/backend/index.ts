@@ -5,6 +5,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
+export * from './addToDiscussion200';
 export * from './curie';
 export * from './curies';
 export * from './discussion';
@@ -25,7 +26,7 @@ export * from './predicates';
 export * from './review';
 export * from './reviews';
 export * from './term';
-export * from './termPrefixes';
+export * from './termPredicates';
 export * from './terms';
 export * from './user';
 export * from './userNameItem';

@@ -1,5 +1,4 @@
 export interface Term {
-    /** Unique identifier */
     id: string;
     preferredId:string;
     organization:string;

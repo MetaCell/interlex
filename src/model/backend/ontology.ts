@@ -5,12 +5,4 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface Ontology {
-  description: string;
-  /** Unique identifier */
-  id: string;
-  imports: string[][];
-  name: string;
-  url: string;
-  version_info: string;
-}
+export interface Ontology { [key: string]: any }

@@ -5,9 +5,12 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
+  AddToDiscussion200,
   Curies,
+  Discussion,
   Discussions,
   Hierarchies,
+  Ontologies,
   Organization,
   Organizations,
   Terms,
@@ -15,7 +18,10 @@ import type {
   Versions
 } from '../../model/backend'
 import { customInstance } from '../../../mock/mutator/customClient';
+import type { BodyType } from '../../../mock/mutator/customClient';
 
+
+type SecondParameter<T extends (...args: any) => any> = Parameters<T>[1];
 
 
   /**
@@ -23,11 +29,11 @@ import { customInstance } from '../../../mock/mutator/customClient';
  */
 export const login = (
     
- ) => {
+ options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<void>(
-      {url: `/operations/login`, method: 'POST'
+      {url: `http://127.0.0.1:8080/operations/login`, method: 'POST'
     },
-      );
+      options);
     }
   
 /**
@@ -35,11 +41,11 @@ export const login = (
  */
 export const logout = (
     
- ) => {
+ options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<void>(
-      {url: `/operations/logout`, method: 'POST'
+      {url: `http://127.0.0.1:8080/operations/logout`, method: 'POST'
     },
-      );
+      options);
     }
   
 /**
@@ -47,38 +53,39 @@ export const logout = (
  */
 export const register = (
     
- ) => {
+ options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<void>(
-      {url: `/operations/register`, method: 'POST'
+      {url: `http://127.0.0.1:8080/operations/signup`, method: 'POST'
     },
-      );
+      options);
     }
   
 /**
  * @summary Used to retrieve a specific organization.
  */
 export const getOrganization = (
-    organization: Organization,
- ) => {
+    id: string,
+    organization: BodyType<Organization>,
+ options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<Organization>(
-      {url: `/operations/organization`, method: 'GET',
+      {url: `http://127.0.0.1:8080/operations/getOrganization/${id}`, method: 'GET',
       headers: {'Content-Type': 'application/json', }
     },
-      );
+      options);
     }
   
 /**
  * @summary Used to save a new organization.
  */
 export const newOrganization = (
-    organization: Organization,
- ) => {
+    organization: BodyType<Organization>,
+ options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<Organization>(
-      {url: `/operations/organization`, method: 'POST',
+      {url: `http://127.0.0.1:8080/operations/newOrganization`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: organization
     },
-      );
+      options);
     }
   
 /**
@@ -86,24 +93,11 @@ export const newOrganization = (
  */
 export const getOrganizations = (
     
- ) => {
+ options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<Organizations>(
-      {url: `/operations/organizations`, method: 'GET'
+      {url: `http://127.0.0.1:8080/operations/getOrganizations`, method: 'GET'
     },
-      );
-    }
-  
-/**
- * @summary Generic search
- */
-export const getSearchResults = (
-    group: string,
-    string: string,
- ) => {
-      return customInstance<Terms>(
-      {url: `/${group}/search/${string}`, method: 'GET'
-    },
-      );
+      options);
     }
   
 /**
@@ -113,23 +107,24 @@ export const getHierarchyResults = (
     group: string,
     property: string,
     start: string,
- ) => {
-      return customInstance<Terms>(
-      {url: `/${group}/query/transitive/${property}/${start}?depth`, method: 'GET'
+ options?: SecondParameter<typeof customInstance>,) => {
+      return customInstance<Hierarchies>(
+      {url: `http://127.0.0.1:8080/${group}/query/transitive/${property}/${start}?depth`, method: 'GET'
     },
-      );
+      options);
     }
   
 /**
  * @summary List all matching terms
  */
 export const getMatchTerms = (
+    group: string,
     term: string,
- ) => {
+ options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<Terms>(
-      {url: `/search_term/${term}`, method: 'GET'
+      {url: `http://127.0.0.1:8080/${group}/search/${term}`, method: 'GET'
     },
-      );
+      options);
     }
   
 /**
@@ -137,11 +132,11 @@ export const getMatchTerms = (
  */
 export const getCuries = (
     group: string,
- ) => {
+ options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<Curies>(
-      {url: `/get_curies/${group}`, method: 'GET'
+      {url: `http://127.0.0.1:8080/${group}/curies`, method: 'GET'
     },
-      );
+      options);
     }
   
 /**
@@ -150,11 +145,11 @@ export const getCuries = (
 export const getVariants = (
     group: string,
     term: string,
- ) => {
+ options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<Variants>(
-      {url: `/${group}/variants/${term}`, method: 'GET'
+      {url: `http://127.0.0.1:8080/${group}/variants/${term}`, method: 'GET'
     },
-      );
+      options);
     }
   
 /**
@@ -163,11 +158,36 @@ export const getVariants = (
 export const getVersions = (
     group: string,
     term: string,
- ) => {
+ options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<Versions>(
-      {url: `/${group}/versions/${term}`, method: 'GET'
+      {url: `http://127.0.0.1:8080/${group}/versions/${term}`, method: 'GET'
     },
-      );
+      options);
+    }
+  
+/**
+ * @summary List all ontologies
+ */
+export const getOntologies = (
+    group: string,
+ options?: SecondParameter<typeof customInstance>,) => {
+      return customInstance<Ontologies>(
+      {url: `http://127.0.0.1:8080/${group}/ontologies`, method: 'GET'
+    },
+      options);
+    }
+  
+/**
+ * @summary List all ontologies
+ */
+export const getTermOntologies = (
+    group: string,
+    term: string,
+ options?: SecondParameter<typeof customInstance>,) => {
+      return customInstance<Ontologies>(
+      {url: `http://127.0.0.1:8080/${group}/ontologies/${term}`, method: 'GET'
+    },
+      options);
     }
   
 /**
@@ -176,24 +196,27 @@ export const getVersions = (
 export const getDiscussions = (
     group: string,
     term: string,
- ) => {
+ options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<Discussions>(
-      {url: `/${group}/discussions/${term}`, method: 'GET'
+      {url: `http://127.0.0.1:8080/${group}/discussions/${term}`, method: 'GET'
     },
-      );
+      options);
     }
   
 /**
- * @summary List all hierarchies for a term
+ * @summary Used to save a new discussion.
  */
-export const getHierarchies = (
+export const addToDiscussion = (
     group: string,
     term: string,
- ) => {
-      return customInstance<Hierarchies>(
-      {url: `/${group}/hierarchies/${term}`, method: 'GET'
+    discussion: BodyType<Discussion>,
+ options?: SecondParameter<typeof customInstance>,) => {
+      return customInstance<AddToDiscussion200>(
+      {url: `http://127.0.0.1:8080/${group}/add_discussions/${term}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: discussion
     },
-      );
+      options);
     }
   
 /**
@@ -201,11 +224,11 @@ export const getHierarchies = (
  */
 export const getPing = (
     
- ) => {
+ options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<void>(
-      {url: `/ping`, method: 'GET'
+      {url: `http://127.0.0.1:8080/ping`, method: 'GET'
     },
-      );
+      options);
     }
   
 
@@ -219,12 +242,13 @@ export type RegisterResult = NonNullable<Awaited<ReturnType<typeof register>>>
 export type GetOrganizationResult = NonNullable<Awaited<ReturnType<typeof getOrganization>>>
 export type NewOrganizationResult = NonNullable<Awaited<ReturnType<typeof newOrganization>>>
 export type GetOrganizationsResult = NonNullable<Awaited<ReturnType<typeof getOrganizations>>>
-export type GetSearchResultsResult = NonNullable<Awaited<ReturnType<typeof getSearchResults>>>
 export type GetHierarchyResultsResult = NonNullable<Awaited<ReturnType<typeof getHierarchyResults>>>
 export type GetMatchTermsResult = NonNullable<Awaited<ReturnType<typeof getMatchTerms>>>
 export type GetCuriesResult = NonNullable<Awaited<ReturnType<typeof getCuries>>>
 export type GetVariantsResult = NonNullable<Awaited<ReturnType<typeof getVariants>>>
 export type GetVersionsResult = NonNullable<Awaited<ReturnType<typeof getVersions>>>
+export type GetOntologiesResult = NonNullable<Awaited<ReturnType<typeof getOntologies>>>
+export type GetTermOntologiesResult = NonNullable<Awaited<ReturnType<typeof getTermOntologies>>>
 export type GetDiscussionsResult = NonNullable<Awaited<ReturnType<typeof getDiscussions>>>
-export type GetHierarchiesResult = NonNullable<Awaited<ReturnType<typeof getHierarchies>>>
+export type AddToDiscussionResult = NonNullable<Awaited<ReturnType<typeof addToDiscussion>>>
 export type GetPingResult = NonNullable<Awaited<ReturnType<typeof getPing>>>

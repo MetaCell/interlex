@@ -1,5 +1,5 @@
 import { Term, Terms } from "./../model/frontend/terms";
-import { termKeys, termPrefixes } from "../configuration/model";
+import { termKeys, termPredicates } from "../configuration/model";
 import { defaultTermFiltersSections } from "../configuration/filters";
 
 /**
@@ -17,7 +17,7 @@ const getTerm = (data) => {
         const keys = Object.keys(object);
         keys.forEach( key => {
             const predicate = key;
-            if ( termPrefixes[predicate] ) {
+            if ( termPredicates[predicate] ) {
                 let value = object[key];
                 let dataToStore = value;
                 if ( value?.["@id"] ) {
@@ -34,28 +34,26 @@ const getTerm = (data) => {
                         }
                     })
                 }
-                if ( term[termPrefixes[predicate]?.key] === undefined ) {
-                    term[termPrefixes[predicate]?.key] = dataToStore
+                if ( term[termPredicates[predicate]?.key] === undefined ) {
+                    term[termPredicates[predicate]?.key] = dataToStore
                 }
 
-                if ( termPrefixes[predicate]?.isPredicate ) {
-                    if ( Array.isArray(dataToStore) ){
-                        dataToStore?.forEach( pred => {
-                            let newPredicate = {
-                                subject : { id : term.id },
-                                predicate: predicate,
-                                object : { value : pred }
-                            }
-                            predicates[predicate] ? predicates[predicate].push(newPredicate) : predicates[predicate] = [newPredicate]
-                        })
-                    } else {
+                if ( Array.isArray(dataToStore) ){
+                    dataToStore?.forEach( pred => {
                         let newPredicate = {
                             subject : { id : term.id },
                             predicate: predicate,
-                            object : { id : dataToStore }
+                            object : { value : pred }
                         }
                         predicates[predicate] ? predicates[predicate].push(newPredicate) : predicates[predicate] = [newPredicate]
+                    })
+                } else {
+                    let newPredicate = {
+                        subject : { id : term.id },
+                        predicate: predicate,
+                        object : { id : dataToStore }
                     }
+                    predicates[predicate] ? predicates[predicate].push(newPredicate) : predicates[predicate] = [newPredicate]
                 }
             }
         }) 
@@ -101,8 +99,8 @@ const getFilters = ( terms ) => {
 
     terms.forEach( term => {
         filtersKeys?.forEach( key => {
-            if ( term[termPrefixes[defaultTermFiltersSections[key]]?.key] != undefined ) {
-                const label = term[termPrefixes[defaultTermFiltersSections[key]]?.key];
+            if ( term[termPredicates[defaultTermFiltersSections[key]]?.key] != undefined ) {
+                const label = term[termPredicates[defaultTermFiltersSections[key]]?.key];
                 const id = term.id;
                 let newFilter = { [label] :{
                     "label" : label,
