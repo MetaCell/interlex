@@ -19,7 +19,7 @@ import ViewDiagramDialog from "./ViewDiagramDialog";
 const { gray600 } = vars;
 
 const PredicatesAccordion = ({ data }) => {
-  const [tabValues, setTabValues] = useState(data.map(() => 0));
+  const [tabValues, setTabValues] = useState('');
   const [openViewDiagram, setOpenViewDiagram] = React.useState(false);
   const [selectedItem, setSelectedItem] = useState(null)
   const imgStyle = { width: '100%' };
@@ -42,10 +42,12 @@ const PredicatesAccordion = ({ data }) => {
   const image = new Image();
   image.onload = () => <img style={imgStyle} src={imgPath} alt="preview" />
   image.src = imgPath;
-  
+
+  const keys = Object.keys(data);
+  console.log("Predicates ", data);
   return (
     <>
-      {data.map((item, index) => (
+      {keys.map((key, index) => (
         <Accordion key={index} disableGutters elevation={0} square defaultExpanded>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon fontSize='medium' />}
@@ -54,13 +56,13 @@ const PredicatesAccordion = ({ data }) => {
           >
             <Stack direction='row' spacing='.25rem'>
               <Typography>
-                {item.title}
+                {data[key].title}
               </Typography>
               <CallMadeIcon fontSize='medium' />
             </Stack>
             <Stack direction='row' alignItems='center' spacing='.75rem'>
               <Typography color={gray600} fontSize='.875rem'>
-                Number of this type: {item.count}
+                Number of this type: {data[key]?.count}
               </Typography>
               <Divider orientation="vertical" flexItem />
               <CustomIconTabs
@@ -78,12 +80,12 @@ const PredicatesAccordion = ({ data }) => {
           </AccordionSummary>
           <AccordionDetails>
             {tabValues[index] === 0 ? (
-              <CustomizedTable data={item} predicates={data} />
+              <CustomizedTable data={data[key]} predicates={data[key]} />
             ) : (
               <Box display='flex' flexDirection='column'>
                 <Button
                   variant='outlined'
-                  onClick={(e) => handleClickViewDiagram(e, item)}
+                  onClick={(e) => handleClickViewDiagram(e, data[key])}
                   disableRipple
                   sx={{
                   minWidth:'auto',

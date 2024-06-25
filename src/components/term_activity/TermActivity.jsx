@@ -109,10 +109,9 @@ const TermActivity = () => {
 
     useEffect(() => {
         setLoading(true)
-        getMatchTerms("b").then(data => { 
+        getMatchTerms("").then(data => { 
             const parsedData = termParser(data, 'brain')
-            console.log("Parsed retrieved data : ", parsedData)
-            setRows(parsedData)
+            setRows(parsedData?.results)
             setLoading(false)
         });
     }, []);

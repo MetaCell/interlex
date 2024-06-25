@@ -4,5 +4,6 @@
  * Swagger Mock Missing Endpoints
  * OpenAPI spec version: 1.0.0
  */
+import type { Variant } from './variant';
 
-export type termPredicates = { [key: string]: any };
+export type Variants = Variant[];

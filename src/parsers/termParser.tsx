@@ -1,6 +1,6 @@
-import { Term } from "./../model/frontend/term";
-import { Terms } from "./../model/frontend/terms";
+import { Term, Terms } from "./../model/frontend/terms";
 import { termKeys, termPredicates } from "../configuration/model";
+import { defaultTermFiltersSections } from "../configuration/filters";
 
 /**
  * Takes in raw term data object from server and formats it into Term object 
@@ -11,6 +11,7 @@ import { termKeys, termPredicates } from "../configuration/model";
  */
 const getTerm = (data) => {
     let term : Term = {} as Term
+    let predicates = {};
     // Extract triplets if predicate is in model 
     data?.["@graph"]?.forEach( object => {
         const keys = Object.keys(object);
@@ -28,15 +29,45 @@ const getTerm = (data) => {
                     value?.forEach( v => {
                         if ( v?.["@id"] ) {
                             dataToStore = [...dataToStore, v?.["@id"]]
+                        } else {
+                            dataToStore = [...dataToStore, v]
                         }
                     })
                 }
                 if ( term[termPredicates[predicate]?.key] === undefined ) {
                     term[termPredicates[predicate]?.key] = dataToStore
                 }
+
+                if ( Array.isArray(dataToStore) ){
+                    dataToStore?.forEach( pred => {
+                        let newPredicate = {
+                            subject : { id : term.id },
+                            predicate: predicate,
+                            object : { value : pred }
+                        }
+                        predicates[predicate] ? predicates[predicate].push(newPredicate) : predicates[predicate] = [newPredicate]
+                    })
+                } else {
+                    let newPredicate = {
+                        subject : { id : term.id },
+                        predicate: predicate,
+                        object : { id : dataToStore }
+                    }
+                    predicates[predicate] ? predicates[predicate].push(newPredicate) : predicates[predicate] = [newPredicate]
+                }
             }
         }) 
     })
+
+    // Add Subject ID and Label from Term to each predicate.
+    Object.keys(predicates)?.forEach( key => {
+        predicates[key]?.forEach( pred => {
+            pred.subject.id = term.id;
+            pred.subject.label = term.label;
+        })
+    })
+
+    term.predicates = predicates;
 
     return term;
 }
@@ -51,12 +82,37 @@ const formatTerms = (terms, searchTerm, start, end) => {
     return indexRange(terms?.filter( t => {
         const label = t.label?.toLowerCase();
         const search = searchTerm?.toLowerCase()
-        if ( t !== undefined && ( label.includes(search) || search == undefined) ) { 
+        if ( t !== undefined && ( label?.includes(search) || search == undefined) ) { 
             return true;
         }
 
         return false;
     }), start, end);
+}
+
+const getFilters = ( terms ) => {
+    let filters = {};
+    const filtersKeys = Object.keys(defaultTermFiltersSections);
+    filtersKeys?.forEach( key => {
+        filters[key] = {};
+    })
+
+    terms.forEach( term => {
+        filtersKeys?.forEach( key => {
+            if ( term[termPredicates[defaultTermFiltersSections[key]]?.key] != undefined ) {
+                const label = term[termPredicates[defaultTermFiltersSections[key]]?.key];
+                const id = term.id;
+                let newFilter = { [label] :{
+                    "label" : label,
+                    "ids" : filters[key]?.[label] ? filters[key]?.[label]?.ids.concat(id) : [id]
+                }}
+                filters[key] = { ...filters[key], ...newFilter }
+            }
+        })
+        
+    })
+
+    return filters;
 }
 
 /**
@@ -68,13 +124,23 @@ const formatTerms = (terms, searchTerm, start, end) => {
  * @returns - Array of Terms, it's size depends on passed indexes ( end - start )
  */
 export const termParser = (data, searchTerm, start, end) => {
-    const terms : Terms = data?.map( term => {
-        return getTerm(term)
-    })
+    let terms : Terms;
+    if ( Array.isArray(data) ){
+        terms  = data?.map( term => {
+            return getTerm(term)
+        })
+    } else {
+        terms = [getTerm(data)]
+    }
 
     // We are receiving an unknown amout of terms from server, we need to control
     // how much to send back based on request made (start,end)
-    return formatTerms(terms,searchTerm, start, end);
+    const results = formatTerms(terms,searchTerm, start, end);
+    const filters = getFilters(results);
+    return {
+        filters : filters,
+        results : results
+    }
 };
 
 export default termParser;

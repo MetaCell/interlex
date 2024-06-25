@@ -8,6 +8,10 @@ import {
   Typography
 } from "@mui/material";
 import { vars } from "../../../theme/variables";
+import * as mockApi from './../../../api/endpoints/interLexURIStructureAPI';
+import { termParser } from './../../../parsers/termParser'
+
+const useMockApi = () => mockApi;
 
 const { gray800, gray500 } = vars;
 
@@ -15,16 +19,14 @@ const URL = "https://raw.githubusercontent.com/MetaCell/interlex/feature/ILEX-11
 const Details = ({ term }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { getEndpointsIlx } = useMockApi();
   
   useEffect(() => {
-    setLoading(true)
-    fetch(URL)
-      .then((response) => response.json())
-      .then((jsonData) => {
-        setData(jsonData);
-        setLoading(false)
-      })
-      .catch((error) => console.error("Error fetching data:", error));
+    getEndpointsIlx("base",term).then( dat => { 
+      const parsedData = termParser(dat);
+      setData(parsedData?.results[0])
+      setLoading(false)
+    })
   }, [term]);
   
   const memoData = useMemo(() => data, [data]);
@@ -47,14 +49,14 @@ const Details = ({ term }) => {
               Synonyms
             </Typography>
             <Box display="flex" flexWrap="wrap" gap=".5rem">
-              {memoData?.synonyms?.map((synonym) => (
+              {memoData?.synonym?.map((synonym) => (
                 <Chip
                   className="rounded synonyms"
                   variant="outlined"
-                  key={synonym.title}
+                  key={synonym}
                   label={
                     <span>
-                      {synonym.title} <span>{synonym.description}</span>
+                      {synonym} <span>{synonym}</span>
                     </span>
                   }
                 />
@@ -68,7 +70,7 @@ const Details = ({ term }) => {
               Preferred ID
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {memoData?.preferredID}
+              {memoData?.hasIlxPreferredId}
             </Typography>
           </Stack>
         </Grid>
@@ -78,7 +80,7 @@ const Details = ({ term }) => {
               Existing IDs
             </Typography>
             <Box display="flex" flexWrap="wrap" gap=".5rem">
-              {memoData?.existingIDs?.map((id) => (
+              {memoData?.existingID?.map((id) => (
                 <Chip className="rounded IDchip-outlined" variant="outlined" key={id} label={id} />
               ))}
             </Box>
@@ -114,7 +116,7 @@ const Details = ({ term }) => {
               Version
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {memoData?.version}
+              {memoData?.versionInfo}
             </Typography>
           </Stack>
         </Grid>

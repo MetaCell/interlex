@@ -1,5 +1,4 @@
-import { Curie } from "./../model/frontend/curie";
-import { Curies } from "./../model/frontend/curies";
+import { Curie, Curies } from "./../model/frontend/curies";
 
 /**
  * Takes in raw term data object from server and formats it into Term object 

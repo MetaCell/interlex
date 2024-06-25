@@ -82,7 +82,7 @@ const Search = () => {
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await getMatchTerms(searchTerm);
     const parsedData = termParser(data, searchTerm);
-    setTerms(parsedData);
+    setTerms(parsedData?.results);
   }, 500), [getMatchTerms]);
   
   useEffect(() => {

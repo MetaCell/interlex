@@ -4,5 +4,6 @@
  * Swagger Mock Missing Endpoints
  * OpenAPI spec version: 1.0.0
  */
+import type { Discussion } from './discussion';
 
-export type termPredicates = { [key: string]: any };
+export type Discussions = Discussion[];

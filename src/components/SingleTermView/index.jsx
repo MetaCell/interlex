@@ -52,7 +52,7 @@ const SingleTermView = () => {
   const [tabValue, setTabValue] = React.useState(0);
   const [isCodeViewVisible, setIsCodeViewVisible] = React.useState(false);
   const [iconTabValue, setIconTabValue] = React.useState(0);
-  const [selectedDataFormat, setSelectedDataFormat] = React.useState('Turtle');
+  const [selectedDataFormat, setSelectedDataFormat] = React.useState('json');
   const query = useQuery();
   const searchTerm = query.get('searchTerm');
   const openDataFormatMenu = Boolean(dataFormatAnchorEl);

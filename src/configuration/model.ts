@@ -10,6 +10,7 @@ export const termKeys = {
     hasIlxId : "hasIlxId",
     hasIlxPreferredId : "hasIlxPreferredId",
     type : "type",
+    status : "status",
     score : "score",
     version : "version",
     owlEquivalent : "owlEquivalent",
@@ -30,10 +31,10 @@ export const termPredicates = {
         key : termKeys.existingID,
     },
     "http://uri.interlex.org/tgbugs/uris/readable/hasIlxPreferredId" : {
-        key : termKeys.hasIlxPreferredId,
+        key : termKeys.hasIlxPreferredId
     },
     "http://uri.interlex.org/tgbugs/uris/readable/hasIlxId" : {
-        key : termKeys.hasIlxId,
+        key : termKeys.hasIlxId
     },
     "http://purl.obolibrary.org/obo/IAO_0000115" : {
         key : termKeys.description,
@@ -46,6 +47,9 @@ export const termPredicates = {
     },
     "rdfs:subClassOf" : {
         key : termKeys.subClassOf,
+    },
+    "http://uri.interlex.org/tgbugs/uris/readable/status" : {
+        key : termKeys.status,
     },
     "@type" : {
         key : termKeys.type,
@@ -83,7 +87,68 @@ export const termPredicates = {
     "preferredId" : {
         key : termKeys.preferredId,
     },
-    "organization" : {
+    "http://uri.interlex.org/tgbugs/uris/readable/organization" : {
         key : termKeys.organization,
+    }
+}
+
+export const variantKeys = {
+    ...termKeys,
+    status : "status",
+    originatingUser : "originatingUser",
+    editingUser : "editingUser",
+    organization : "organization"
+}
+
+export const variantPrefixes = {
+    ...termPredicates,
+    "http://uri.interlex.org/tgbugs/uris/readable/status" : {
+        key : variantKeys.status,
+    },
+    "http://uri.interlex.org/tgbugs/uris/readable/originatingUser" : {
+        key : variantKeys.originatingUser,
+    },
+    "http://uri.interlex.org/tgbugs/uris/readable/editingUser" : {
+        key : variantKeys.editingUser,
+    },
+}
+
+export const versionKeys = {
+    author : "author",
+    fork : "fork",
+    action : "action",
+    lastModifyBy : "lastModifyBy",
+}
+
+export const versionPrefixes = {
+    "http://uri.interlex.org/tgbugs/uris/readable/action" : {
+        key : versionKeys.action,
+    },
+    "rdfs:name" : {
+        key : versionKeys.author,
+    },
+    "http://uri.interlex.org/tgbugs/uris/readable/fork" : {
+        key : versionKeys.fork,
+    },
+    "http://uri.interlex.org/tgbugs/uris/readable/lastModifyBy" : {
+        key : versionKeys.lastModifyBy,
+    }
+}
+
+export const predicateKeys = {
+    subject : "author",
+    predicate : "fork",
+    object : "action",
+}
+
+export const predicatePrefixes = {
+    "http://uri.interlex.org/tgbugs/uris/readable/subject" : {
+        key : predicateKeys.subject,
+    },
+    "http://uri.interlex.org/tgbugs/uris/readable/predicate" : {
+        key : predicateKeys.predicate,
+    },
+    "http://uri.interlex.org/tgbugs/uris/readable/object" : {
+        key : predicateKeys.object,
     }
 }

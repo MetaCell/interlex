@@ -4,5 +4,6 @@
  * Swagger Mock Missing Endpoints
  * OpenAPI spec version: 1.0.0
  */
+import type { Predicate } from './predicate';
 
-export type termPredicates = { [key: string]: any };
+export type Predicates = Predicate[];

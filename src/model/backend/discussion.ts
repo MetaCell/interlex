@@ -5,4 +5,4 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type termPredicates = { [key: string]: any };
+export interface Discussion { [key: string]: any }

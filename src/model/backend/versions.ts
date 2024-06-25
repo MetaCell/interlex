@@ -4,5 +4,6 @@
  * Swagger Mock Missing Endpoints
  * OpenAPI spec version: 1.0.0
  */
+import type { Version } from './version';
 
-export type termPredicates = { [key: string]: any };
+export type Versions = Version[];

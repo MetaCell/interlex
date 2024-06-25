@@ -238,7 +238,7 @@ const CustomizedTable = ({data}) => {
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await getMatchTerms(searchTerm);
     const parsedData = termParser(data, searchTerm);
-    setTerms(parsedData);
+    setTerms(parsedData?.results);
   }, 500), [getMatchTerms]);
   
   useEffect(() => {
@@ -306,7 +306,7 @@ const CustomizedTable = ({data}) => {
                   selectedValue={object}
                   onChange={(e) => handleSelectChange(e, 'object')}
                   startAdornment={false}
-                  options={terms}
+                  options={terms?.results}
                   searchTerm={objectSearchTerm}
                   setSearchTerm={setObjectSearchTerm}
                 />
