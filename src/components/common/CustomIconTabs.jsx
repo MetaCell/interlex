@@ -1,4 +1,3 @@
-import * as React from 'react';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -44,7 +43,7 @@ function a11yProps(index) {
 const CustomIconTabs = (props) => {
   
   const {tabs, handleChange, value} = props;
-
+  
   return (
     <Tabs value={value} onChange={handleChange} aria-label="basic tabs example" sx={{
       minHeight: 'auto',
@@ -64,6 +63,7 @@ const CustomIconTabs = (props) => {
         minWidth: 0,
         padding: '0.625rem 0.875rem',
         color: gray800,
+        fontSize: '.875rem',
         
         '&:first-child': {
           borderRight: `1px solid ${gray300}`,
@@ -74,13 +74,34 @@ const CustomIconTabs = (props) => {
           color: gray800,
         }
       },
-        ...props.sx
+      ...props.sx
     }}>
       {
-        tabs.map((tab, i) => <Tab icon={tab.icon} value={tab.value} key={i} {...a11yProps(i)} />)
+        tabs.map((tab, i) => (
+          <Tab
+            key={i}
+            value={tab.value}
+            icon={tab.icon || null}
+            label={!tab.icon ? tab.text : null}
+            {...a11yProps(i)}
+          />
+        ))
       }
     </Tabs>
   );
 }
 
-export default CustomIconTabs
+CustomIconTabs.propTypes = {
+  tabs: PropTypes.arrayOf(
+    PropTypes.shape({
+      icon: PropTypes.node,
+      text: PropTypes.string,
+      value: PropTypes.any.isRequired,
+    })
+  ).isRequired,
+  handleChange: PropTypes.func.isRequired,
+  value: PropTypes.any.isRequired,
+  sx: PropTypes.object,
+};
+
+export default CustomIconTabs;

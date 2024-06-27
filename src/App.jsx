@@ -11,7 +11,13 @@ import Footer from "./components/Footer";
 import Organizations from "./components/organizations";
 import TermActivity from "./components/term_activity/TermActivity";
 import { GlobalDataProvider } from './contexts/DataContext'
+import Dashboard from "./components/Dashboard";
 
+const PageContainer = ({children}) => {
+    return (
+      <Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}>{children}</Box>
+    )
+}
 function MainContent() {
     const location = useLocation();
     
@@ -28,14 +34,15 @@ function MainContent() {
           <Routes>
               <Route path="/" element={ <Box sx={{ flex: 1 }}><HomePage /></Box>} />
               <Route path="/search" element={
-                  <Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}>
+                  <PageContainer>
                       <FiltersSidebar filterOptions={initialFilterOptions} />
                       <SearchResultsBox />
-                  </Box>
+                  </PageContainer>
               } />
-              <Route path="/view" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><SingleTermView /></Box>} />
-              <Route path="/organizations" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><Organizations /></Box>} />
-              <Route path="/term-activity" element={<Box sx={{ display: 'flex', height: 'calc(100vh - 7.5rem)' }}><TermActivity /></Box>} />
+              <Route path="/view" element={<PageContainer><SingleTermView /></PageContainer>} />
+              <Route path="/organizations" element={<PageContainer><Organizations /></PageContainer>} />
+              <Route path="/term-activity" element={<PageContainer><TermActivity /></PageContainer>} />
+              <Route path="/dashboard" element={<PageContainer><Dashboard /></PageContainer>} />
           </Routes>
           {showFooter && <Footer />}
       </Box>
