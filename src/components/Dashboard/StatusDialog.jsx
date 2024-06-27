@@ -5,7 +5,7 @@ import {vars} from "../../theme/variables";
 import {BackgroundPattern} from "../../Icons";
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 const { gray600, gray900 } = vars;
-const StatusDialog = ({ handleClose }) => {
+const StatusDialog = ({ setActiveStep }) => {
   return (
     <Box display='flex' flexDirection='column' justifyContent='center' alignItems='center' height='100%' position='relative'>
       <Box sx={{
@@ -33,7 +33,7 @@ const StatusDialog = ({ handleClose }) => {
           <Button
             startIcon={<EditOutlinedIcon />}
             variant='outlined'
-            onClick={handleClose}
+            onClick={() => setActiveStep(0)}
           >
             Edit bulk terms
           </Button>

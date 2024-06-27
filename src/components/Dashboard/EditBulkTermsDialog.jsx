@@ -75,7 +75,7 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
           activeStep === 1 && <EditTerms />
         }
         {
-          activeStep === 2 && <StatusDialog />
+          activeStep === 2 && <StatusDialog setActiveStep={setActiveStep} />
         }
       </>
     </CustomizedDialog>
