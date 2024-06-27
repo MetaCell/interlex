@@ -5,9 +5,10 @@ import EditBulkTermsDialog from "./EditBulkTermsDialog";
 
 const Dashboard = () => {
   const [openEditBulkTerms, setOpenEditBulkTerms] = useState(false)
-  
+  const [activeStep, setActiveStep] = useState(0);
   const handleCloseEditBulkTerms = () => {
     setOpenEditBulkTerms(false)
+    setActiveStep(0)
   }
   const handleOpenEditBulkTerms = () => {
     setOpenEditBulkTerms(true)
@@ -17,7 +18,7 @@ const Dashboard = () => {
       <Button type="string" color="secondary" startIcon={<ModeEditOutlineOutlinedIcon />} onClick={handleOpenEditBulkTerms}>
         Edit bulk terms
       </Button>
-      <EditBulkTermsDialog handleClose={handleCloseEditBulkTerms} open={openEditBulkTerms} />
+      <EditBulkTermsDialog handleClose={handleCloseEditBulkTerms} open={openEditBulkTerms} activeStep={activeStep} setActiveStep={setActiveStep} />
     </Box>
   )
 }

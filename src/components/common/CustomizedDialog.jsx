@@ -29,7 +29,7 @@ const CustomizedDialog = ({children, title, open, handleClose, HeaderRightSideCo
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: `1px solid ${gray200}`
+          borderBottom: `1px solid ${gray200}`,
         }}
         id="customized-dialog-title">
        <Box sx={{
@@ -51,7 +51,13 @@ const CustomizedDialog = ({children, title, open, handleClose, HeaderRightSideCo
        </Box>
         {HeaderRightSideContent}
       </Box>
-      <DialogContent>
+      <DialogContent sx={{
+        '&:has(.edit-terms)': {
+          paddingTop: 0,
+          paddingBottom: 0,
+          paddingRight: 0
+        }
+      }}>
         {children}
       </DialogContent>
     </Dialog>

@@ -1,129 +1,145 @@
 import * as React from 'react';
 import {
-  DataGrid,
-  GridToolbar,
-  GridToolbarColumnsButton,
-  GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport,
-  GridToolbarFilterButton
-} from '@mui/x-data-grid';
-import {Box, Checkbox} from "@mui/material";
-import CheckIcon from '@mui/icons-material/Check';
-import {vars} from "../../theme/variables";
+  Box,
+  Checkbox,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Table,
+  TableCell,
+  TableContainer,
+  TableRow,
+  Paper,
+  TableBody, IconButton, Chip, Stack,
+} from "@mui/material";
+import { vars } from "../../theme/variables";
+import { useState } from "react";
+import CustomTableHead from "../SingleTermView/Variants/CustomTableHead";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-
-const { brand600, gray50, gray300 } = vars
-
-const columns = [
-  { field: 'label', headerName: 'Label', width: 200 },
-  { field: 'description', headerName: 'Description', width: 600 }
-];
-
-const rows = [
-  { id: 1, label: 'Central nervous system', description: 'Presumptive CNS is formed by a circular cord with associated radial cords. However, there is no ganglion that could be considered as brain in invertebrate When a CNS is present, its obligate companion topographic division is a peripheral nervous system.' },
-  { id: 2, label: 'Central nervous system', description: 'For invertebrates the longitudinal division consists of one or more nerve cords, whereas for vertebrates it consists of a single, hollow, and dorsal cerebrospinal axis.In adult Echinoderms, which are symmetrical, a presumptive CNS is formed by a circular cord with associated radial cords.' },
-  { id: 3, label: 'Central nervous system', description: 'The central nervous system (CNS) is the part of the nervous system which includes the brain, spinal cord, and nerve cell layer of the retina.' },
-  { id: 4, label: 'Central nervous system', description: 'However, there is no ganglion that could be considered as brain in invertebrate When a CNS is present, its obligate companion topographic division is a peripheral nervous system.' },
-  { id: 5, label: 'Brain', description: 'In adult Echinoderms, which are radially symmetrical, a presumptive CNS is formed by a circular cord with associated radial cords. However, there is no ganglion that could be considered as brain in invertebrate When a CNS is present, its obligate companion topographic division is a peripheral nervous system.' },
-  { id: 6, label: 'Cerebrospinal axis', description: 'The central nervous system (CNS) is the part of the nervous system which includes the brain, spinal cord, and nerve cell layer of the retina.' },
-  { id: 7, label: 'somatic nervous system', description: 'However, there is no ganglion that could be considered as brain in invertebrate When a CNS is present, its obligate companion topographic division is a peripheral nervous system.' },
-  { id: 8, label: 'Brain', description: 'In adult Echinoderms, which are radially symmetrical, a presumptive CNS is formed by a circular cord with associated radial cords. However, there is no ganglion that could be considered as brain in invertebrate When a CNS is present, its obligate companion topographic division is a peripheral nervous system.' },
-  { id: 9, label: 'Cerebrospinal axis', description: 'The central nervous system (CNS) is the part of the nervous system which includes the brain, spinal cord, and nerve cell layer of the retina.' },
-  { id: 10, label: 'somatic nervous system', description: 'In animals with bilateral symmetry, it is a topographic division that is a condensation of the nervous system in the longitudinal plane, lying on or near the median plane. For invertebrates the longitudinal division consists of one or more nerve cords, whereas for vertebrates it consists of a single, hollow, and dorsal cerebrospinal axis.In adult Echinoderms, which are radially symmetrical, a presumptive CNS is formed by a circular cord with associated radial cords.' },
-  { id: 11, label: 'Central nervous system', description: 'The central nervous system (CNS) is the part of the nervous system which includes the brain, spinal cord, and nerve cell layer of the retina.' },
-];
-function CustomToolbar() {
-  return (
-    <GridToolbarContainer sx={{
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        zIndex: 1,
-    }}>
-      <GridToolbarColumnsButton slotProps={{
-        button: { startIcon: <AddOutlinedIcon />, sx: {
-            padding: '0.5rem',
-            minWidth: 'auto',
-            borderRadius: '0.5rem',
-            border: `1px solid ${gray300}`,
-            boxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)',
-            backgroundColor: '#fff !important',
-              '& .MuiButton-icon': {
-                margin: 0
-              }
-          }
-          },
-      }} />
-    </GridToolbarContainer>
+import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
+import {getComparator, stableSort} from "../../helpers";
+const { gray200, gray50, gray700, brand600 } = vars;
+import SearchTermsData from "../../static/SearchTermsData.json";
+const TermsTable = ({columns, setOpenEditAttributes, setAttributes, attributes}) => {
+  const [visibleColumns, setVisibleColumns] = useState(
+    columns.filter(column => column.visibility).map(column => column.id)
   );
-}
-
-const TermsTable = () => {
+  const [order, setOrder] = React.useState('asc');
+  const [orderBy, setOrderBy] = React.useState('name');
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  
+  const handleRequestSort = (event, property) => {
+    setOrder(order === 'asc' ? 'desc' : 'asc')
+    setOrderBy(property);
+  };
+  
+  const sortedRows = React.useMemo(
+    () => stableSort(SearchTermsData.termsRows, getComparator(order, orderBy)),
+    [order, orderBy]
+  );
+  const handleColumnChange = (event, columnId) => {
+    const newVisibleColumns = [...visibleColumns];
+    if (newVisibleColumns.includes(columnId)) {
+      const index = newVisibleColumns.indexOf(columnId);
+      newVisibleColumns.splice(index, 1);
+    } else {
+      newVisibleColumns.push(columnId);
+    }
+    setVisibleColumns(newVisibleColumns);
+  };
+  
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  
+  const filteredColumns = columns.filter(column => visibleColumns.includes(column.id));
+  
   return (
-    <DataGrid
-      rows={rows}
-      columns={columns}
-      pageSize={10}
-      rowsPerPageOptions={[5, 10, 20]}
-      disableRowSelectionOnClick
-      slots={{
-        toolbar: CustomToolbar,
-      }}
-      slotProps={{
-        columnMenu: { background: 'red', counter: rows.length },
-        toolbar: { printOptions: { disableToolbarButton: true }, csvOptions: { disableToolbarButton: true} },
-        columnsManagement: {
-          disableShowHideToggle: true,
-          disableResetButton: true,
-        },
-        basePopper: {
-          sx: {
-            right: '10rem !important',
-            left: 'auto !important',
-            
-            '& .MuiDataGrid-paper': {
-              '& .MuiDataGrid-panelWrapper': {
-                '& .MuiDataGrid-columnsManagementHeader': {
-                  display: 'none !important',
-                },
-                '& .MuiDataGrid-columnsManagement': {
-                  padding: '.312rem 0.375rem 0',
-                  '& .MuiFormControlLabel-root': {
-                    margin: 0,
-                    flexDirection: 'row-reverse',
-                    width: '100%',
-                    justifyContent: 'space-between',
-                    padding: '0.625rem 0.625rem 0.5rem',
-                    borderRadius: '0.375rem',
-                    marginBottom: '.312rem',
-                    
-                    '&:has(.Mui-checked)': {
-                      backgroundColor: gray50,
-                    }
-                  }
+    <Box>
+      <Paper sx={{
+        width: '100%',
+        border: `1px solid ${gray200}`,
+        boxShadow: '0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)',
+        borderRadius: '0.75rem',
+        position: 'relative',
+      }}>
+        <IconButton aria-label="columns-menu" onClick={handleClick} sx={{
+          position: 'absolute',
+          right: '.25rem',
+          top: '.25rem',
+          zIndex: 1,
+          border: `1px solid ${gray200}`,
+          color: gray700
+        }}>
+          <AddOutlinedIcon />
+        </IconButton>
+        <Menu
+          id="simple-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
+        >
+          {columns.map((column) => (
+            <MenuItem
+              key={column.id}
+              value={column.id}
+              onClick={(event) => handleColumnChange(event, column.id)}
+              sx={{
+                '&:has(.Mui-checked)': {
+                  backgroundColor: gray50,
                 }
-              }
-            }
-          },
-        },
-      }}
-      localeText={{
-        toolbarExport: '',
-        toolbarColumns: ''
-      }}
-      sx={{
-        '& .MuiBox-root': {
-          display: 'none',
-        },
-        '& .MuiButtonBase-root': {
-          backgroundColor: 'transparent',
-          
-          '&:hover': {
-            backgroundColor: 'transparent',
-          }
-        }
-      }}
-    />
+              }}
+            >
+              <ListItemText primary={column.label} />
+              <Checkbox
+                checkedIcon={<CheckOutlinedIcon sx={{ fontSize: 16, color: brand600 }} />}
+                sx={{ color: 'transparent !important' }}
+                checked={visibleColumns.includes(column.id)}
+              />
+            </MenuItem>
+          ))}
+        </Menu>
+        <TableContainer sx={{ borderRadius: '0.75rem' }}>
+          <Table aria-labelledby="tableTitle">
+            <CustomTableHead
+              onRequestSort={handleRequestSort}
+              order={order}
+              orderBy={orderBy}
+              headCells={filteredColumns}
+              viewEditAttributes={true}
+              setOpenEditAttributes={setOpenEditAttributes}
+              setAttributes={setAttributes}
+              attributes={attributes}
+            />
+            <TableBody>
+              {sortedRows.map((row, index) => (
+                <TableRow key={index}>
+                  {filteredColumns.map((column) => (
+                    <TableCell key={column.id} style={{ minWidth: column.minWidth }}>
+                      {Array.isArray(row[column.id]) ? (
+                        <Stack gap='.25rem' direction="row" alignItems="center" maxWidth='20rem' flexWrap='wrap'>
+                          {row[column.id].map((chip, chipIndex) => (
+                            <Chip key={chipIndex} label={chip} className='rounded IDchip-outlined'/>
+                          ))}
+                        </Stack>
+                      ) : (
+                        row[column.id]
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+    </Box>
   );
-}
+};
 
-export default TermsTable
+export default TermsTable;

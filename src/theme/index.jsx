@@ -622,7 +622,7 @@ const theme = createTheme({
                 root: {
                     '& .MuiTableHead-root': {
                         '& .MuiTableCell-root': {
-                            padding: '0.75rem 1.5rem !important',
+                            padding: '0.75rem 1.5rem',
                             background: gray50,
                             lineHeight: '1.25rem',
                             height: '2.75rem'
@@ -730,6 +730,7 @@ const theme = createTheme({
         MuiDataGrid: {
             styleOverrides: {
                root: {
+                   height: '90%',
                    borderColor: gray200,
                    borderRadius: '.75rem',
                    boxShadow: '0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)',
