@@ -9,6 +9,7 @@ import SingleTermView from './components/SingleTermView';
 import HomePage from "./components/HomePage";
 import Footer from "./components/Footer";
 import Organizations from "./components/organizations";
+import TermActivity from "./components/term_activity/TermActivity";
 import { GlobalDataProvider } from './contexts/DataContext'
 import Dashboard from "./components/Dashboard";
 
@@ -40,6 +41,7 @@ function MainContent() {
               } />
               <Route path="/view" element={<PageContainer><SingleTermView /></PageContainer>} />
               <Route path="/organizations" element={<PageContainer><Organizations /></PageContainer>} />
+              <Route path="/term-activity" element={<PageContainer><TermActivity /></PageContainer>} />
               <Route path="/dashboard" element={<PageContainer><Dashboard /></PageContainer>} />
           </Routes>
           {showFooter && <Footer />}
