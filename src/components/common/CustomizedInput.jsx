@@ -4,7 +4,7 @@ import FormControl from '@mui/material/FormControl';
 import {vars} from "../../theme/variables";
 import {Typography} from "@mui/material";
 
-const { gray800, gray300, gray700, brand600, gray500 }= vars
+const { gray800, gray300, gray700, brand600, gray500, gray50 }= vars
 
 const BootstrapInput = styled(InputBase)(() => ({
   '& .MuiInputBase-input': {
@@ -23,6 +23,9 @@ const BootstrapInput = styled(InputBase)(() => ({
     '&::placeholder': {
       color: gray500,
       fontSize: '1rem',
+    },
+    '&.Mui-disabled': {
+      backgroundColor: gray50,
     }
   },
 }));

@@ -12,7 +12,7 @@ import ExpandIcon from '@mui/icons-material/Expand';
 import RemoveIcon from '@mui/icons-material/Remove';
 import CustomIconTabs from "../../common/CustomIconTabs";
 import PredicatesAccordion from "./PredicatesAccordion";
-import predicates from '../../../static/predicates.json';
+import predicatesData from '../../../static/predicates.json';
 
 const { gray800, gray700, gray300 } = vars;
 const URL = ""
@@ -83,7 +83,7 @@ const Predicates = () => {
         }]} value={tabValue} handleChange={onTabsChanged} />
       </Box>
     </Box>
-    <PredicatesAccordion data={predicates} />
+    <PredicatesAccordion data={predicatesData.predicates} />
   </Box>
   
 }
