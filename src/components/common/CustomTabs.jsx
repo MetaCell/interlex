@@ -54,6 +54,7 @@ const BasicTabs = ({tabs, tabValue, handleChange}) => {
             fontWeight: '600',
             color: gray500,
             textAlign: 'center',
+            alignItems: 'center',
             
             '&.Mui-selected': {
               color: brand700
