@@ -23,16 +23,12 @@ export const termKeys = {
     versionInfo : "versionInfo"
 }
 
-export const termPrefixes = {
+export const termPredicates = {
     "http://uri.interlex.org/base/readable/synonym" : {
         key : termKeys.synonym,
-        isPredicate : true,
-        label : "is synonym"
     },
     "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId" : {
         key : termKeys.existingID,
-        isPredicate : true,
-        label : "has existing ID"
     },
     "http://uri.interlex.org/tgbugs/uris/readable/hasIlxPreferredId" : {
         key : termKeys.hasIlxPreferredId
@@ -51,8 +47,6 @@ export const termPrefixes = {
     },
     "rdfs:subClassOf" : {
         key : termKeys.subClassOf,
-        isPredicate : true,
-        label : "is subclass"
     },
     "http://uri.interlex.org/tgbugs/uris/readable/status" : {
         key : termKeys.status,
@@ -107,7 +101,7 @@ export const variantKeys = {
 }
 
 export const variantPrefixes = {
-    ...termPrefixes,
+    ...termPredicates,
     "http://uri.interlex.org/tgbugs/uris/readable/status" : {
         key : variantKeys.status,
     },

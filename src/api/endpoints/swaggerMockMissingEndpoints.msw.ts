@@ -13,9 +13,11 @@ import {
   http
 } from 'msw'
 import type {
+  AddToDiscussion200,
   Curies,
   Discussions,
   Hierarchies,
+  Ontologies,
   Organization,
   Organizations,
   Terms,
@@ -668,9 +670,7 @@ export const getGetOrganizationsResponseMock = () => ((() => [
   }
 ])())
 
-export const getGetSearchResultsResponseMock = (overrideResponse: any = {}): Terms => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({id: faker.word.sample(), prefixes: {}, triples: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.word.sample())))), ...overrideResponse})))
-
-export const getGetHierarchyResultsResponseMock = (overrideResponse: any = {}): Terms => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({id: faker.word.sample(), prefixes: {}, triples: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (faker.word.sample())))), ...overrideResponse})))
+export const getGetHierarchyResultsResponseMock = (): Hierarchies => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ([])))
 
 export const getGetMatchTermsResponseMock = () => ((() => [
   {
@@ -2579,13 +2579,13 @@ export const getGetVersionsResponseMock = () => ((() => [
   }
 ])())
 
+export const getGetOntologiesResponseMock = (): Ontologies => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({})))
+
+export const getGetTermOntologiesResponseMock = (): Ontologies => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({})))
+
 export const getGetDiscussionsResponseMock = () => ([])
 
-export const getGetHierarchiesResponseMock = () => ((() => [{
-                rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-                rdfs: "http://www.w3.org/2000/01/rdf-schema#",
-                owl: "http://www.w3.org/2002/07/owl#"
-              }])())
+export const getAddToDiscussionResponseMock = (): AddToDiscussion200 => ({})
 
 
 export const getLoginMockHandler = (overrideResponse?: void) => {
@@ -2617,7 +2617,7 @@ export const getLogoutMockHandler = (overrideResponse?: void) => {
 }
 
 export const getRegisterMockHandler = (overrideResponse?: void) => {
-  return http.post('*/operations/register', async () => {
+  return http.post('*/operations/signup', async () => {
     await delay(1000);
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getRegisterResponseMock()),
       {
@@ -2631,7 +2631,7 @@ export const getRegisterMockHandler = (overrideResponse?: void) => {
 }
 
 export const getGetOrganizationMockHandler = (overrideResponse?: Organization) => {
-  return http.get('*/operations/organization', async () => {
+  return http.get('*/operations/getOrganization/:id', async () => {
     await delay(1000);
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetOrganizationResponseMock()),
       {
@@ -2645,7 +2645,7 @@ export const getGetOrganizationMockHandler = (overrideResponse?: Organization) =
 }
 
 export const getNewOrganizationMockHandler = (overrideResponse?: Organization) => {
-  return http.post('*/operations/organization', async () => {
+  return http.post('*/operations/newOrganization', async () => {
     await delay(1000);
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getNewOrganizationResponseMock()),
       {
@@ -2659,7 +2659,7 @@ export const getNewOrganizationMockHandler = (overrideResponse?: Organization) =
 }
 
 export const getGetOrganizationsMockHandler = (overrideResponse?: Organizations) => {
-  return http.get('*/operations/organizations', async () => {
+  return http.get('*/operations/getOrganizations', async () => {
     await delay(1000);
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetOrganizationsResponseMock()),
       {
@@ -2672,21 +2672,7 @@ export const getGetOrganizationsMockHandler = (overrideResponse?: Organizations)
   })
 }
 
-export const getGetSearchResultsMockHandler = (overrideResponse?: Terms) => {
-  return http.get('*/:group/search/:string', async () => {
-    await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetSearchResultsResponseMock()),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }
-    )
-  })
-}
-
-export const getGetHierarchyResultsMockHandler = (overrideResponse?: Terms) => {
+export const getGetHierarchyResultsMockHandler = (overrideResponse?: Hierarchies) => {
   return http.get('*/:group/query/transitive/:property/:start?depth', async () => {
     await delay(1000);
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetHierarchyResultsResponseMock()),
@@ -2701,10 +2687,8 @@ export const getGetHierarchyResultsMockHandler = (overrideResponse?: Terms) => {
 }
 
 export const getGetMatchTermsMockHandler = (overrideResponse?: Terms) => {
-  return http.get('*/search_term/:term', async () => {
-    console.log("getGetMatchTermsMockHandler " , overrideResponse)
+  return http.get('*/:group/search/:term', async () => {
     await delay(1000);
-    console.log("getGetMatchTermsMockHandler " , overrideResponse)
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetMatchTermsResponseMock()),
       {
         status: 200,
@@ -2717,7 +2701,7 @@ export const getGetMatchTermsMockHandler = (overrideResponse?: Terms) => {
 }
 
 export const getGetCuriesMockHandler = (overrideResponse?: Curies) => {
-  return http.get('*/get_curies/:group', async () => {
+  return http.get('*/:group/curies', async () => {
     await delay(1000);
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetCuriesResponseMock()),
       {
@@ -2758,6 +2742,34 @@ export const getGetVersionsMockHandler = (overrideResponse?: Versions) => {
   })
 }
 
+export const getGetOntologiesMockHandler = (overrideResponse?: Ontologies) => {
+  return http.get('*/:group/ontologies', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetOntologiesResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getGetTermOntologiesMockHandler = (overrideResponse?: Ontologies) => {
+  return http.get('*/:group/ontologies/:term', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetTermOntologiesResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
 export const getGetDiscussionsMockHandler = (overrideResponse?: Discussions) => {
   return http.get('*/:group/discussions/:term', async () => {
     await delay(1000);
@@ -2772,10 +2784,10 @@ export const getGetDiscussionsMockHandler = (overrideResponse?: Discussions) => 
   })
 }
 
-export const getGetHierarchiesMockHandler = (overrideResponse?: Hierarchies) => {
-  return http.get('*/:group/hierarchies/:term', async () => {
+export const getAddToDiscussionMockHandler = (overrideResponse?: AddToDiscussion200) => {
+  return http.post('*/:group/add_discussions/:term', async () => {
     await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetHierarchiesResponseMock()),
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getAddToDiscussionResponseMock()),
       {
         status: 200,
         headers: {
@@ -2806,12 +2818,13 @@ export const getSwaggerMockMissingEndpointsMock = () => [
   getGetOrganizationMockHandler(),
   getNewOrganizationMockHandler(),
   getGetOrganizationsMockHandler(),
-  getGetSearchResultsMockHandler(),
   getGetHierarchyResultsMockHandler(),
   getGetMatchTermsMockHandler(),
   getGetCuriesMockHandler(),
   getGetVariantsMockHandler(),
   getGetVersionsMockHandler(),
+  getGetOntologiesMockHandler(),
+  getGetTermOntologiesMockHandler(),
   getGetDiscussionsMockHandler(),
-  getGetHierarchiesMockHandler(),
+  getAddToDiscussionMockHandler(),
   getGetPingMockHandler()]

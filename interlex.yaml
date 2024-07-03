@@ -45,7 +45,7 @@ paths:
           description: user was not logged in
       security:
         - AuthToken: []
-  /operations/register:
+  /operations/signup:
     post:
       tags:
         - Auth
@@ -72,10 +72,17 @@ paths:
             enum:
               - EMAIL
               - USERNAME
-  /operations/organization:
+  /operations/getOrganization/{id}:
     get:
       summary: Used to retrieve a specific organization.
       operationId: get_organization
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the organization to retrieve
+          schema:
+            type: string
       requestBody:
         description: The organization to save.
         required: true
@@ -97,6 +104,7 @@ paths:
           description: The request cannot be fullfilled due to the permission of your account.
       tags:
         - API
+  /operations/newOrganization:
     post:
       summary: Used to save a new organization.
       operationId: new_organization
@@ -121,7 +129,7 @@ paths:
           description: The request cannot be fullfilled due to the permission of your account.
       tags:
         - API
-  /operations/organizations:
+  /operations/getOrganizations:
     get:
       summary: Get all organizations
       operationId: get_organizations
@@ -145,43 +153,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /{group}/search/{string}:
-    get:
-      summary: Generic search
-      operationId: get_search_results
-      tags:
-        - API
-      parameters:
-        - name: group
-          in: path
-          required: true
-          description: The group base to search
-          schema:
-            type: string
-        - name: string
-          in: path
-          required: true
-          description: The string to search
-          schema:
-            type: string
-      responses:
-        200:
-          description: A paged array of results
-          headers:
-            x-next:
-              description: A link to the next page of responses
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Terms'
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
   /{group}/query/transitive/{property}/{start}?depth:
     get:
       summary: Retrieve hierarchy results
@@ -192,7 +163,7 @@ paths:
         - name: group
           in: path
           required: true
-          description: group
+          description: base group
           schema:
             type: string
         - name: property
@@ -218,20 +189,26 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Terms'
+                $ref: '#/components/schemas/Hierarchies'
         default:
           description: unexpected error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /search_term/{term}: 
+  /{group}/search/{term}: 
     get:
       summary: List all matching terms
       operationId: get_match_terms
       tags:
         - term
       parameters:
+        - name: group
+          in: path
+          required: true
+          description: group name
+          schema:
+            type: string
         - name: term
           in: path
           required: true
@@ -250,13 +227,156 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Terms'
+                example : [
+                            {
+                              "@context": {
+                                "owl": "http://www.w3.org/2002/07/owl#",
+                                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+                                "xsd": "http://www.w3.org/2001/XMLSchema#"
+                              },
+                              "@graph": [
+                                {
+                                  "@id": "http://uri.interlex.org/base/ilx_0101431",
+                                  "http://uri.interlex.org/tgbugs/uris/readable/hasIlxId": {
+                                    "@id": "http://uri.interlex.org/base/ilx_0101431"
+                                  },
+                                  "http://uri.interlex.org/tgbugs/uris/readable/hasIlxPreferredId": {
+                                    "@id": "http://uri.interlex.org/base/ilx_0101431"
+                                  },
+                                  "http://uri.interlex.org/tgbugs/uris/readable/owlEquivalent": "owlEquivalent",
+                                  "http://uri.interlex.org/tgbugs/uris/readable/lastModify": "lastModify",
+                                  "http://uri.interlex.org/tgbugs/uris/readable/lastModifyBy": "lastModifyBy",
+                                  "http://uri.interlex.org/tgbugs/uris/readable/submittedBy": "submittedBy"
+                                },
+                                {
+                                  "@id": "http://uri.interlex.org/base/ontologies/ilx_0101431",
+                                  "@type": "owl:Ontology",
+                                  "http://purl.obolibrary.org/obo/IAO_0000136": {
+                                    "@id": "http://uri.interlex.org/base/ilx_0101431"
+                                  },
+                                  "owl:versionIRI": {
+                                    "@id": "http://uri.interlex.org/base/ontologies/ilx_0101431/version/1717611398/ilx_0101431"
+                                  },
+                                  "owl:versionInfo": "2024-06-05T18:16:38,089335Z",
+                                  "rdfs:comment": "InterLex single term result for base/ilx_0101431 at 2024-06-05T18:16:38,089335Z"
+                                },
+                                {
+                                  "@id": "http://purl.obolibrary.org/obo/UBERON_0000955",
+                                  "@type": "owl:Class",
+                                  "http://purl.obolibrary.org/obo/IAO_0000115": "The part of the central nervous system contained within the cranium, comprising the forebrain, midbrain, hindbrain, and metencephalon. It is derived from the anterior part of the embryonic neural tube (or the encephalon). Does not include retina. (CUMBO)The rostral topographic division of the cerebrospinal axis, while the caudal division is the spinal cord. The usual criterion for distinguishing the two divisions in the adult is that the vertebrate brain lies within the skull whereas the spinal cord lies within the spinal (vertebral) column, although this is a difficult problem. (Swanson, 2014)",
+                                  "http://uri.interlex.org/base/ilx_0112784": {
+                                    "@id": "http://uri.interlex.org/base/ilx_0102661"
+                                  },
+                                  "http://uri.interlex.org/base/ilx_0112785": {
+                                    "@id": "http://uri.interlex.org/base/ilx_0101999"
+                                  },
+                                  "http://uri.interlex.org/base/ilx_0112796": {
+                                    "@id": "http://uri.interlex.org/base/ilx_0101901"
+                                  },
+                                  "http://uri.interlex.org/base/readable/synonym": [
+                                    "Encephalon",
+                                    "synganglion",
+                                    "the brain",
+                                    "suprasegmental levels of nervous system",
+                                    "suprasegmental structures"
+                                  ],
+                                  "http://uri.interlex.org/tgbugs/uris/readable/MISSING_ILX_ID": true,
+                                  "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId": [
+                                    {
+                                      "@id": "http://uri.neuinfo.org/nif/nifstd/birnlex_796"
+                                    },
+                                    {
+                                      "@id": "http://purl.org/sig/ont/fma/fma50801"
+                                    },
+                                    {
+                                      "@id": "http://purl.obolibrary.org/obo/UBERON_0000955"
+                                    }
+                                  ],
+                                  "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization",
+                                  "http://uri.interlex.org/tgbugs/uris/readable/status": "Approved",
+                                  "rdfs:label": "Brain",
+                                  "rdfs:subClassOf": {
+                                    "@id": "http://uri.interlex.org/base/ilx_0108124"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "@context": {
+                                "owl": "http://www.w3.org/2002/07/owl#",
+                                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+                                "xsd": "http://www.w3.org/2001/XMLSchema#"
+                              },
+                              "@graph": [
+                                {
+                                  "@id": "http://uri.interlex.org/base/ilx_0105177",
+                                  "http://uri.interlex.org/tgbugs/uris/readable/hasIlxId": {
+                                    "@id": "http://uri.interlex.org/base/ilx_0105177"
+                                  },
+                                  "http://uri.interlex.org/tgbugs/uris/readable/hasIlxPreferredId": {
+                                    "@id": "http://uri.interlex.org/base/ilx_0105177"
+                                  },
+                                  "http://uri.interlex.org/tgbugs/uris/readable/owlEquivalent": "owlEquivalent",
+                                  "http://uri.interlex.org/tgbugs/uris/readable/lastModify": "lastModify",
+                                  "http://uri.interlex.org/tgbugs/uris/readable/lastModifyBy": "lastModifyBy",
+                                  "http://uri.interlex.org/tgbugs/uris/readable/submittedBy": "submittedBy"
+                                },
+                                {
+                                  "@id": "http://uri.interlex.org/base/ontologies/ilx_0105177",
+                                  "@type": "owl:Ontology",
+                                  "http://purl.obolibrary.org/obo/IAO_0000136": {
+                                    "@id": "http://uri.interlex.org/base/ilx_0105177"
+                                  },
+                                  "owl:versionIRI": {
+                                    "@id": "http://uri.interlex.org/base/ontologies/ilx_0105177/version/1717612168/ilx_0105177"
+                                  },
+                                  "owl:versionInfo": "2024-06-05T18:29:28,829272Z",
+                                  "rdfs:comment": "InterLex single term result for base/ilx_0105177 at 2024-06-05T18:29:28,829272Z"
+                                },
+                                {
+                                  "@id": "http://purl.obolibrary.org/obo/UBERON_0001898",
+                                  "@type": "owl:Class",
+                                  "http://purl.obolibrary.org/obo/IAO_0000115": "Ventral part of the diencephalon extending from the region of the optic chiasm to the caudal border of the mammillary bodies and forming the inferior and lateral walls of the third ventricle.The ventral topographic division of the interbrain. The first adequate description of the hypothalamus as a layer of gray matter surrounding the lower half of the third ventricle (Galen, c173) was provided by Wharton (1656, see 1966 translation, p. 170). His (1893, pp. 159-162) introduced the term but assigned the preoptic region (Swanson, 1976, pp. 229-235) of the hypothalamus to the telencephalon (His, 1893b). The definition here was introduced for vertebrates by Kuhlenbeck (1927, p. 67, Ch. 9).",
+                                  "http://uri.interlex.org/base/ilx_0112785": {
+                                    "@id": "http://uri.interlex.org/base/ilx_0103217"
+                                  },
+                                  "http://uri.interlex.org/base/readable/synonym": [
+                                    "Preoptico-hypothalamic area",
+                                    "Hypencephalon",
+                                    "Hy",
+                                    "hypothalamus",
+                                    "Preoptico-hypothalamic region"
+                                  ],
+                                  "http://uri.interlex.org/tgbugs/uris/readable/MISSING_ILX_ID": true,
+                                  "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId": [
+                                    {
+                                      "@id": "http://purl.org/sig/ont/fma/fma62008"
+                                    },
+                                    {
+                                      "@id": "http://uri.neuinfo.org/nif/nifstd/birnlex_734"
+                                    },
+                                    {
+                                      "@id": "http://purl.obolibrary.org/obo/UBERON_0001898"
+                                    }
+                                  ],
+                                  "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization 2",
+                                  "http://uri.interlex.org/tgbugs/uris/readable/status": "Edit",
+                                  "rdfs:label": "Hypothalamus",
+                                  "rdfs:subClassOf": {
+                                    "@id": "http://uri.interlex.org/base/ilx_0109835"
+                                  }
+                                }
+                              ]
+                            }]
         default:
           description: unexpected error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /get_curies/{group}: 
+  /{group}/curies: 
     get:
       summary: List all curies for group
       operationId: get_curies
@@ -281,6 +401,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Curies'
+              example:
+                  [{
+                    rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                    rdfs: "http://www.w3.org/2000/01/rdf-schema#",
+                    owl: "http://www.w3.org/2002/07/owl#"
+                  }]
         default:
           description: unexpected error
           content:
@@ -318,6 +444,170 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Variants'
+              example:
+                  [
+                    {
+                      "@context": {
+                        "owl": "http://www.w3.org/2002/07/owl#",
+                        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+                        "xsd": "http://www.w3.org/2001/XMLSchema#"
+                      },
+                      "@graph": [
+                        {
+                          "@id": "http://uri.interlex.org/base/ilx_0101431",
+                          "http://uri.interlex.org/tgbugs/uris/readable/hasIlxId": {
+                            "@id": "http://uri.interlex.org/base/ilx_0101431"
+                          },
+                          "http://uri.interlex.org/tgbugs/uris/readable/hasIlxPreferredId": {
+                            "@id": "http://uri.interlex.org/base/ilx_0101431"
+                          },
+                          "http://uri.interlex.org/tgbugs/uris/readable/owlEquivalent": "owlEquivalent",
+                          "http://uri.interlex.org/tgbugs/uris/readable/lastModify": "lastModify",
+                          "http://uri.interlex.org/tgbugs/uris/readable/lastModifyBy": "lastModifyBy",
+                          "http://uri.interlex.org/tgbugs/uris/readable/submittedBy": "submittedBy"
+                        },
+                        {
+                          "@id": "http://uri.interlex.org/base/ontologies/ilx_0101431",
+                          "@type": "owl:Ontology",
+                          "http://purl.obolibrary.org/obo/IAO_0000136": {
+                            "@id": "http://uri.interlex.org/base/ilx_0101431"
+                          },
+                          "owl:versionIRI": {
+                            "@id": "http://uri.interlex.org/base/ontologies/ilx_0101431/version/1717611398/ilx_0101431"
+                          },
+                          "owl:versionInfo": "2024-06-05T18:16:38,089335Z",
+                          "rdfs:comment": "InterLex single term result for base/ilx_0101431 at 2024-06-05T18:16:38,089335Z"
+                        },
+                        {
+                          "@id": "http://purl.obolibrary.org/obo/UBERON_0000955",
+                          "@type": "owl:Class",
+                          "http://purl.obolibrary.org/obo/IAO_0000115": "The part of the central nervous system contained within the cranium, comprising the forebrain, midbrain, hindbrain, and metencephalon. It is derived from the anterior part of the embryonic neural tube (or the encephalon). Does not include retina. (CUMBO)The rostral topographic division of the cerebrospinal axis, while the caudal division is the spinal cord. The usual criterion for distinguishing the two divisions in the adult is that the vertebrate brain lies within the skull whereas the spinal cord lies within the spinal (vertebral) column, although this is a difficult problem. (Swanson, 2014)",
+                          "http://uri.interlex.org/base/ilx_0112784": {
+                            "@id": "http://uri.interlex.org/base/ilx_0102661"
+                          },
+                          "http://uri.interlex.org/base/ilx_0112785": {
+                            "@id": "http://uri.interlex.org/base/ilx_0101999"
+                          },
+                          "http://uri.interlex.org/base/ilx_0112796": {
+                            "@id": "http://uri.interlex.org/base/ilx_0101901"
+                          },
+                          "http://uri.interlex.org/base/readable/synonym": [
+                            "Encephalon",
+                            "synganglion",
+                            "the brain",
+                            "suprasegmental levels of nervous system",
+                            "suprasegmental structures"
+                          ],
+                          "http://uri.interlex.org/tgbugs/uris/readable/MISSING_ILX_ID": true,
+                          "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId": [
+                            {
+                              "@id": "http://uri.neuinfo.org/nif/nifstd/birnlex_796"
+                            },
+                            {
+                              "@id": "http://purl.org/sig/ont/fma/fma50801"
+                            },
+                            {
+                              "@id": "http://purl.obolibrary.org/obo/UBERON_0000955"
+                            }
+                          ],
+                          "rdfs:label": "Brain",
+                          "rdfs:Organization": "My Organization",
+                          "http://uri.interlex.org/tgbugs/uris/readable/status": "Active",
+                          "http://uri.interlex.org/tgbugs/uris/readable/originatingUser": {
+                            "@id": "userId",
+                            "rdfs:name": "Original User",
+                            "rdfs:email": "original.user@test.com"
+                          },
+                          "http://uri.interlex.org/tgbugs/uris/readable/editingUser": {
+                            "@id": "userId",
+                            "rdfs:name": "Editing User",
+                            "rdfs:email": "editing.user@test.com"
+                          },
+                          "rdfs:subClassOf": {
+                            "@id": "http://uri.interlex.org/base/ilx_0108124"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "@context": {
+                        "owl": "http://www.w3.org/2002/07/owl#",
+                        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+                        "xsd": "http://www.w3.org/2001/XMLSchema#"
+                      },
+                      "@graph": [
+                        {
+                          "@id": "http://uri.interlex.org/base/ilx_0105177",
+                          "http://uri.interlex.org/tgbugs/uris/readable/hasIlxId": {
+                            "@id": "http://uri.interlex.org/base/ilx_0105177"
+                          },
+                          "http://uri.interlex.org/tgbugs/uris/readable/hasIlxPreferredId": {
+                            "@id": "http://uri.interlex.org/base/ilx_0105177"
+                          },
+                          "http://uri.interlex.org/tgbugs/uris/readable/owlEquivalent": "owlEquivalent",
+                          "http://uri.interlex.org/tgbugs/uris/readable/lastModify": "lastModify",
+                          "http://uri.interlex.org/tgbugs/uris/readable/lastModifyBy": "lastModifyBy",
+                          "http://uri.interlex.org/tgbugs/uris/readable/submittedBy": "submittedBy"
+                        },
+                        {
+                          "@id": "http://uri.interlex.org/base/ontologies/ilx_0105177",
+                          "@type": "owl:Ontology",
+                          "http://purl.obolibrary.org/obo/IAO_0000136": {
+                            "@id": "http://uri.interlex.org/base/ilx_0105177"
+                          },
+                          "owl:versionIRI": {
+                            "@id": "http://uri.interlex.org/base/ontologies/ilx_0105177/version/1717612168/ilx_0105177"
+                          },
+                          "owl:versionInfo": "2024-06-05T18:29:28,829272Z",
+                          "rdfs:comment": "InterLex single term result for base/ilx_0105177 at 2024-06-05T18:29:28,829272Z"
+                        },
+                        {
+                          "@id": "http://purl.obolibrary.org/obo/UBERON_0001898",
+                          "@type": "owl:Class",
+                          "http://purl.obolibrary.org/obo/IAO_0000115": "Ventral part of the diencephalon extending from the region of the optic chiasm to the caudal border of the mammillary bodies and forming the inferior and lateral walls of the third ventricle.The ventral topographic division of the interbrain. The first adequate description of the hypothalamus as a layer of gray matter surrounding the lower half of the third ventricle (Galen, c173) was provided by Wharton (1656, see 1966 translation, p. 170). His (1893, pp. 159-162) introduced the term but assigned the preoptic region (Swanson, 1976, pp. 229-235) of the hypothalamus to the telencephalon (His, 1893b). The definition here was introduced for vertebrates by Kuhlenbeck (1927, p. 67, Ch. 9).",
+                          "http://uri.interlex.org/base/ilx_0112785": {
+                            "@id": "http://uri.interlex.org/base/ilx_0103217"
+                          },
+                          "http://uri.interlex.org/base/readable/synonym": [
+                            "Preoptico-hypothalamic area",
+                            "Hypencephalon",
+                            "Hy",
+                            "hypothalamus",
+                            "Preoptico-hypothalamic region"
+                          ],
+                          "http://uri.interlex.org/tgbugs/uris/readable/MISSING_ILX_ID": true,
+                          "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId": [
+                            {
+                              "@id": "http://purl.org/sig/ont/fma/fma62008"
+                            },
+                            {
+                              "@id": "http://uri.neuinfo.org/nif/nifstd/birnlex_734"
+                            },
+                            {
+                              "@id": "http://purl.obolibrary.org/obo/UBERON_0001898"
+                            }
+                          ],
+                          "rdfs:label": "Hypothalamus",
+                          "rdfs:Organization": "My Organization 2",
+                          "http://uri.interlex.org/tgbugs/uris/readable/status": "Inactive",
+                          "http://uri.interlex.org/tgbugs/uris/readable/originatingUser": {
+                            "@id": "userId",
+                            "rdfs:name": "Original User",
+                            "rdfs:email": "original.user@test.com"
+                          },
+                          "http://uri.interlex.org/tgbugs/uris/readable/editingUser": {
+                            "@id": "userId",
+                            "rdfs:name": "Editing User",
+                            "rdfs:email": "editing.user@test.com"
+                          },
+                          "rdfs:subClassOf": {
+                            "@id": "http://uri.interlex.org/base/ilx_0109835"
+                          }
+                        }
+                      ]
+                    }]
         default:
           description: unexpected error
           content:
@@ -355,6 +645,124 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Versions'
+                example: 
+                        {
+                          "@context": {
+                            "owl": "http://www.w3.org/2002/07/owl#",
+                            "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                            "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+                            "xsd": "http://www.w3.org/2001/XMLSchema#"
+                          },
+                          "@graph": [
+                            {
+                              "@id": "http://uri.interlex.org/base/ilx_0101431",
+                              "http://uri.interlex.org/tgbugs/uris/readable/fork" : "ForkPB-1" ,
+                              "http://uri.interlex.org/tgbugs/uris/readable/action": "suggested",
+                              "http://uri.interlex.org/tgbugs/uris/readable/lastModifyBy": "2024-06-05T18:29:28,829272Z",
+                              "rdf:name": "Phoenix Baker"
+                            }
+                          ]
+                        }
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /{group}/ontologies: 
+    get:
+      summary: List all ontologies
+      operationId: get_ontologies
+      tags:
+        - group
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: The group of the ontologies to retrieve
+          schema:
+            type: string
+      responses:
+        200:
+          description: A paged array of ontologies
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ontologies'
+                example: 
+                    [
+                      {
+                        name : "Test Ontology 1",
+                        description : "This file imports all the bridging modules that are relating NIF-Cell with other NIF  modules",
+                        id: "nif-neuron-bridge-test1",
+                        version_info: "0.1; May 9th, 2012",
+                        url : "http://ontology.neuinfo.org/NIF/ttl/unused/NIF-Neuron-Bridge.ttl"
+                      },{
+                        name : "Test Ontology 2",
+                        description : "This file imports all the bridging modules that are relating NIF-Cell with other NIF  modules",
+                        id: "nif-neuron-bridge-test2",
+                        version_info: "0.1; May 9th, 2012",
+                        url : "http://ontology.neuinfo.org/NIF/ttl/unused/NIF-Neuron-Bridge.ttl"
+                      }
+                    ]
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /{group}/ontologies/{term}: 
+    get:
+      summary: List all ontologies
+      operationId: get_term_ontologies
+      tags:
+        - group
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: The group of the ontologies to retrieve
+          schema:
+            type: string
+        - name: term
+          in: path
+          required: true
+          description: The name of term to search for ontologies
+          schema:
+            type: string
+      responses:
+        200:
+          description: A paged array of ontologies
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ontologies'
+                example: 
+                    [
+                      {
+                        name : "Test Ontology 1",
+                        description : "This file imports all the bridging modules that are relating NIF-Cell with other NIF  modules",
+                        id: "nif-neuron-bridge-test1",
+                        version_info: "0.1; May 9th, 2012",
+                        url : "http://ontology.neuinfo.org/NIF/ttl/unused/NIF-Neuron-Bridge.ttl"
+                      },{
+                        name : "Test Ontology 2",
+                        description : "This file imports all the bridging modules that are relating NIF-Cell with other NIF  modules",
+                        id: "nif-neuron-bridge-test2",
+                        version_info: "0.1; May 9th, 2012",
+                        url : "http://ontology.neuinfo.org/NIF/ttl/unused/NIF-Neuron-Bridge.ttl"
+                      }
+                    ]
         default:
           description: unexpected error
           content:
@@ -398,12 +806,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /{group}/hierarchies/{term}: 
-    get:
-      summary: List all hierarchies for a term
-      operationId: get_hierarchies
-      tags:
-        - term
+  /{group}/add_discussions/{term}: 
+    post:
+      summary: Used to save a new discussion.
+      operationId: add_to_discussion
       parameters:
         - name: group
           in: path
@@ -417,24 +823,27 @@ paths:
           description: The id of the term to retrieve
           schema:
             type: string
+      requestBody:
+        description: The discussion to save.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Discussion'
+              x-body-name: discussion
       responses:
         200:
-          description: A paged array of hierachies
-          headers:
-            x-next:
-              description: A link to the next page of responses
-              schema:
-                type: string
+          description: The Discussion data were saved.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Hierarchies'
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+                type : object
+        400:
+          description: Bad Request, bad input parameter for Discusion POST request.
+        403:
+          description: The request cannot be fullfilled due to the permission of your account.
+      tags:
+        - API
   /ping:
     get:
       summary: Checks if the server is running
@@ -497,23 +906,6 @@ components:
   schemas:
     Term:
       type: object
-      required:
-        - id
-        - prefixes
-        - triples
-      properties:
-        id:
-          description: Unique identifier
-          type: string
-          example: 'ilx_0101431'
-        prefixes:
-          type: object
-        triples:
-          type: array
-          items:
-            type: array
-            items:
-              type: string
     Terms:
       type: array
       items:
@@ -536,12 +928,6 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Version'
-    Discussion:
-      type: object
-    Discussions:
-      type: array
-      items:
-        $ref: '#/components/schemas/Discussion'
     Hierarchy:
       type: object
     Hierarchies:
@@ -550,45 +936,16 @@ components:
         $ref: '#/components/schemas/Hierarchies'
     Ontology:
       type: object
-      required:
-        - id
-        - name
-        - description
-        - version_info
-        - url
-        - imports
-      properties:
-        id:
-          description: Unique identifier
-          type: string
-          x-unique: true
-          x-primary-key: true
-          example: 'be4f75a711974bbc8f92fdd24e778542'
-        name:
-          type: string
-          example : rdfs:label 
-        description:
-          type: string
-          example : rdfs:comment
-        version_info:
-          type: string
-          example : owl:versionInfo
-        url:
-          type: string
-          format: uri
-          example : http://ontology.neuinfo.org/NIF/ttl/unused/NIF-Neuron-Bridge.ttl
-        imports:
-          type: array
-          example : owl:imports
-          items:
-            type: array
-            items:
-              type: string
-              format: uri
     Ontologies:
       type: array
       items:
         $ref: '#/components/schemas/Ontology'
+    Discussion:
+      type: object
+    Discussions:
+      type: array
+      items:
+        $ref: '#/components/schemas/Discussion'
     User:
       type: object
       required:
@@ -605,8 +962,6 @@ components:
         id:
           description: Unique identifier
           type: string
-          x-unique: true
-          x-primary-key: true
           example: 'be4f75a711974bbc8f92fdd24e778542'
         identifier:
           description: ORCID ID
