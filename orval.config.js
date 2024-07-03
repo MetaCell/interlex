@@ -60,6 +60,7 @@ module.exports = {
   interlex: {
     input: {
       target: "./interlex.yaml",
+      validation : true
     },
     output: {
       mode: "split",

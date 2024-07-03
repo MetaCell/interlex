@@ -1064,12 +1064,12 @@ components:
         terms: 
           type: array
           items:
-            $ref: '#/components/schemas/Terms'
+            type: object
           description: Terms
         ontologies: 
           type: array
           items:
-            $ref: '#/components/schemas/Ontology'
+            type: object
           description: Ontology
     Organizations:
       type: array
