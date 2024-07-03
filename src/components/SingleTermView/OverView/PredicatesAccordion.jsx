@@ -44,7 +44,6 @@ const PredicatesAccordion = ({ data }) => {
   image.src = imgPath;
 
   const keys = Object.keys(data);
-  console.log("Predicates ", data);
   return (
     <>
       {keys.map((key, index) => (

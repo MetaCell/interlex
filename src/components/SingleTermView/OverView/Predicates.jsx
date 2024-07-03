@@ -28,7 +28,7 @@ const Predicates = ({ term }) => {
   const [predicates, setPredicates] = React.useState([]);
   const [type, setType] = React.useState('Children');
   const [tabValue, setTabValue] = React.useState(0)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null);
 
   const { getEndpointsIlx } = useMockApi();
@@ -40,7 +40,6 @@ const Predicates = ({ term }) => {
   React.useEffect(() => {
     getEndpointsIlx("base",term).then( dat => { 
       const parsedData = termParser(dat);
-      console.log("Predicates ", parsedData?.results[0]?.predicates)
       setPredicates(parsedData?.results[0]?.predicates)
       setLoading(false)
     })
