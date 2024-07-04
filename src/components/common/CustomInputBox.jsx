@@ -4,7 +4,7 @@ import { vars } from "../../theme/variables";
 
 const { gray50, gray300, gray400, gray600, gray700, gray800, gray900, brand600 } = vars;
 
-const CustomInputBox = ({ id, name, value, onInputChange, label, isRequired, helperText, isEndAdornmentVisible, multiline }) => {
+const CustomInputBox = ({ id, name, value, onInputChange, label, isRequired, helperText, placeholder, isEndAdornmentVisible, multiline }) => {
     return (
         <>
             <Stack direction="row" justifyContent="space-between" mb={1.5}>
@@ -19,6 +19,7 @@ const CustomInputBox = ({ id, name, value, onInputChange, label, isRequired, hel
                 fullWidth
                 variant="outlined"
                 helperText={helperText}
+                placeholder={placeholder}
                 multiline={multiline}
                 rows={multiline ? 4 : 0}
                 InputProps={{

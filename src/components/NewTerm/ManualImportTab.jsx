@@ -75,15 +75,15 @@ const options = [
 
 const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChange }) => {
     const [formState, setFormState] = useState({
-        label: "Central nervous system",
+        label: "",
         ilx: "ILX:0101901",
         age: '',
         synonyms: [options[0]],
-        superclass: "Regional part of nervous system",
+        superclass: "",
         existingIds: [options[0]],
         urls: [options[0]],
-        description: "The central nervous system (CNS) is the part of the nervous system which includes the brain, spinal cord, and nerve cell layer of the retina.",
-        comment: "Old definition:"
+        description: "",
+        comment: ""
     });
 
     const handleInputChange = (e) => {
@@ -120,6 +120,7 @@ const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChang
                         label="Label"
                         isRequired
                         helperText={"Label of your term."}
+                        placeholder={"Enter your term label"}
                         isEndAdornmentVisible
                     />
                     <Button
@@ -201,6 +202,7 @@ const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChang
                         onInputChange={handleInputChange}
                         label="Superclass"
                         isEndAdornmentVisible
+                        placeholder={"Add a superclass"}
                     />
                 </Grid>
                 <Grid item xs={12} lg={6}>
@@ -266,6 +268,7 @@ const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChang
                     value={formState.description}
                     onInputChange={handleInputChange}
                     label="Description"
+                    placeholder={"Type your term description"}
                     multiline
                 />
             </Box>
@@ -275,6 +278,7 @@ const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChang
                     name="comment"
                     value={formState.comment}
                     onInputChange={handleInputChange}
+                    placeholder={"Add a comment"}
                     label="Comment"
                 />
             </Box>
