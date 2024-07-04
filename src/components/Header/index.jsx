@@ -87,7 +87,7 @@ const NavMenu = [
     {
         label: 'Term activity',
         icon: <TermActivityIcon />,
-        href: '/term-activity'
+        href: '/predicates'
     },
     {
         label: 'Documentation',
