@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "vite",
     "orval": "orval --config ./orval.config.js && orval",
-    "validate_api" : "",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
