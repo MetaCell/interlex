@@ -20,6 +20,7 @@ import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
 import {getComparator, stableSort} from "../../helpers";
 const { gray200, gray50, gray700, brand600 } = vars;
 import SearchTermsData from "../../static/SearchTermsData.json";
+import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
 const TermsTable = ({columns, setOpenEditAttributes, setAttributes, attributes}) => {
   const [visibleColumns, setVisibleColumns] = useState(
     columns.filter(column => column.visibility).map(column => column.id)
@@ -54,6 +55,10 @@ const TermsTable = ({columns, setOpenEditAttributes, setAttributes, attributes})
   
   const handleClose = () => {
     setAnchorEl(null);
+  };
+  
+  const handleChipClick = (url) => {
+    window.open(url, '_blank');
   };
   
   const filteredColumns = columns.filter(column => visibleColumns.includes(column.id));
@@ -124,7 +129,7 @@ const TermsTable = ({columns, setOpenEditAttributes, setAttributes, attributes})
                       {Array.isArray(row[column.id]) ? (
                         <Stack gap='.25rem' direction="row" alignItems="center" maxWidth='20rem' flexWrap='wrap'>
                           {row[column.id].map((chip, chipIndex) => (
-                            <Chip key={chipIndex} label={chip} className='rounded IDchip-outlined'/>
+                            <Chip key={chipIndex} label={chip} className='rounded IDchip-outlined' icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(chip)} />
                           ))}
                         </Stack>
                       ) : (

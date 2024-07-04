@@ -1,4 +1,4 @@
-import {Box, IconButton, Typography} from "@mui/material";
+import {Box, IconButton, Tooltip, Typography} from "@mui/material";
 import { vars } from "../../theme/variables";
 import TermsTable from "./TermsTable";
 import React, {useState} from "react";
@@ -7,8 +7,9 @@ import EditBulkAttributesForm from "./EditBulkAttributesForm";
 import SearchTermsData from "../../static/SearchTermsData.json";
 const { gray200, gray800,gray700 } = vars;
 const EditTerms = () => {
+  const initialAttributesValue = { attribute: '', condition: 'add', value: '' }
   const [open, setOpen] = React.useState(false);
-  const [attributes, setAttributes] = useState([{ attribute: '', condition: 'add', value: '' }]);
+  const [attributes, setAttributes] = useState([initialAttributesValue]);
 
   return (
     <Box className='edit-terms' display="flex" justifyContent="space-between" height={1}>
@@ -44,19 +45,24 @@ const EditTerms = () => {
           {open ? (
             <Box width={1} display="flex" alignItems="center" justifyContent="space-between" mb={3}>
               <Typography sx={{ fontSize: '1.125rem', fontWeight: 600, color: gray800 }}>Edit bulk arrtibutes</Typography>
-              <IconButton onClick={() => setOpen(!open)} sx={{ border: `1px solid ${gray200}`, color: gray700 }}>
-                <StartOutlined />
-              </IconButton>
+              <Tooltip title='Close edit bulk attributes'>
+                <IconButton onClick={() => setOpen(!open)} sx={{ border: `1px solid ${gray200}`, color: gray700 }}>
+                  <StartOutlined />
+                </IconButton>
+              </Tooltip>
             </Box>
           ) : (
             <Box display="flex" justifyContent="flex-end">
-              <IconButton onClick={() => setOpen(!open)} sx={{ border: `1px solid ${gray200}`, color: gray700 }}>
-                <EditNoteOutlined />
-              </IconButton>
+              <Tooltip title='Open edit bulk attributes'>
+                <IconButton onClick={() => setOpen(!open)} sx={{ border: `1px solid ${gray200}`, color: gray700 }}>
+                  <EditNoteOutlined />
+                </IconButton>
+              </Tooltip>
+              
             </Box>
           )}
           {open && (
-            <EditBulkAttributesForm columns={SearchTermsData.termsColumns} attributes={attributes} setAttributes={setAttributes} />
+            <EditBulkAttributesForm columns={SearchTermsData.termsColumns} attributes={attributes} setAttributes={setAttributes} initialAttributesValue={initialAttributesValue} />
           )}
         </Box>
     </Box>

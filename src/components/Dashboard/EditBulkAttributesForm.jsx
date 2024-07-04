@@ -1,9 +1,6 @@
 import {
   Button,
   Grid,
-  FormControl,
-  Select,
-  MenuItem,
   Typography,
   Box
 } from "@mui/material";
@@ -11,10 +8,11 @@ import { vars } from "../../theme/variables";
 import CustomizedInput from "../common/CustomizedInput";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import CustomSingleSelect from "../common/CustomSingleSelect";
 
-const { gray800, gray700, gray300 } = vars;
+const { gray800 } = vars;
 
-const EditBulkAttributesForm = ({columns, attributes, setAttributes}) => {
+const EditBulkAttributesForm = ({columns, attributes, setAttributes, initialAttributesValue}) => {
   const handleAttributesChange = (index, field, value) => {
     let newAttributes = [...attributes];
     newAttributes[index][field] = value;
@@ -27,12 +25,17 @@ const EditBulkAttributesForm = ({columns, attributes, setAttributes}) => {
   };
   
   const handleAddPredicate = () => {
-    setAttributes([...attributes, { attribute: '', condition: 'add', value: '' }]);
+    setAttributes([...attributes, initialAttributesValue]);
   };
   
   const handleClearAllPredicate = () => {
-    setAttributes([{ attribute: '', condition: 'add', value: '' }]);
+    setAttributes([initialAttributesValue]);
   };
+  
+  const updatedColumnsArray = columns.map(item => ({
+    ...item,
+    value: item.id
+  }));
   
   return (
     <Box>
@@ -49,66 +52,33 @@ const EditBulkAttributesForm = ({columns, attributes, setAttributes}) => {
           <Grid item xs={12} lg={attributes.length > 1 ? 11 : 12}>
             <Grid container spacing='1.25rem'>
               <Grid item xs={12} lg={8}>
-                <FormControl fullWidth>
-                  <Select
-                    value={attributes[index].attribute}
-                    displayEmpty
-                    placeholder='Select'
-                    onChange={(e) => handleAttributesChange(index, 'attribute', e.target.value)}
-                    sx={{
-                      color: gray700,
-                      borderRadius: '0.5rem !important',
-                      fontSize: '0.875rem',
-                      fontWeight: 600,
-                      '& .MuiOutlinedInput-input': {
-                        padding: '0.625rem 0.875rem'
-                      },
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: gray300
-                      },
-                      '& .MuiSvgIcon-root': {
-                        color: gray700,
-                        fontSize: '1.25rem',
-                        right: '0.875rem !important'
-                      }
-                    }}
-                  >
-                    {columns.map((attribute) => (
-                      <MenuItem key={attribute.id} value={attribute.id}>{attribute.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                <CustomSingleSelect
+                  isFormControlFullWidth={true}
+                  value={attributes[index].attribute} onChange={(v) => handleAttributesChange(index, 'attribute', v)}
+                  options={updatedColumnsArray}
+                  placeholder='Choose an attribute'
+                />
               </Grid>
               <Grid item xs={12} lg={4} display='flex' alignItems='end'>
-                <FormControl fullWidth>
-                  <Select
-                    value={attributes[index].condition}
-                    displayEmpty
-                    placeholder='Select'
-                    onChange={(e) => handleAttributesChange(index, 'condition', e.target.value)}
-                    sx={{
-                      color: gray700,
-                      borderRadius: '0.5rem !important',
-                      fontSize: '0.875rem',
-                      fontWeight: 600,
-                      '& .MuiOutlinedInput-input': {
-                        padding: '0.625rem 0.875rem'
-                      },
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: gray300
-                      },
-                      '& .MuiSvgIcon-root': {
-                        color: gray700,
-                        fontSize: '1.25rem',
-                        right: '0.875rem !important'
-                      }
-                    }}
-                  >
-                    <MenuItem value={'replace'}>Replace With</MenuItem>
-                    <MenuItem value={'add'}>Add</MenuItem>
-                    <MenuItem value={'delete'}>Delete</MenuItem>
-                  </Select>
-                </FormControl>
+                <CustomSingleSelect
+                  isFormControlFullWidth={true}
+                  value={attributes[index].condition} onChange={(v) => handleAttributesChange(index, 'condition', v)}
+                  options={[
+                    {
+                      label: 'Replace With',
+                      value: 'replace'
+                    },
+                    {
+                      label: 'Add',
+                      value: 'add'
+                    },
+                    {
+                      label: 'Delete',
+                      value: 'delete'
+                    }
+                  ]}
+                  placeholder='Choose an attribute'
+                />
               </Grid>
               <Grid item xs={12} lg={12}>
                 <CustomizedInput

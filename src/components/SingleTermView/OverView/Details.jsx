@@ -6,11 +6,15 @@ import {
   Typography
 } from "@mui/material";
 import { vars } from "../../../theme/variables";
-
+import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 const { gray800, gray500 } = vars;
 
 const Details = ({loading,  data }) => {
-
+  
+  const handleChipClick = (url) => {
+    window.open(url, '_blank');
+  };
+  
   if (loading) {
     return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <CircularProgress />
@@ -61,7 +65,7 @@ const Details = ({loading,  data }) => {
             </Typography>
             <Box display="flex" flexWrap="wrap" gap=".5rem">
               {data?.existingID?.map((id) => (
-                <Chip className="rounded IDchip-outlined" variant="outlined" key={id} label={id} />
+                <Chip className="rounded IDchip-outlined" variant="outlined" key={id} label={id} icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(id)} />
               ))}
             </Box>
           </Stack>

@@ -216,8 +216,9 @@ const theme = createTheme({
 
                         '& .MuiChip-icon': {
                             margin: 0,
-                            width: '.5rem',
-                            height: '.5rem'
+                            width: '.75rem',
+                            height: '.75rem',
+                            color: gray500
                         }
                     },
 
@@ -259,6 +260,10 @@ const theme = createTheme({
                                 }
                             }
                         }
+                    },
+                    
+                    '&: has(.MuiSvgIcon-root)': {
+                        flexDirection: 'row-reverse',
                     }
                 },
                 label: {

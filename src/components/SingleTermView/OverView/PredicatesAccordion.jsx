@@ -98,7 +98,7 @@ const PredicatesAccordion = ({ data, expandedTabValue }) => {
           </AccordionSummary>
           <AccordionDetails>
             {tabValues[index] === 0 ? (
-              <CustomizedTable data={item} predicates={data} term={term}/>
+              <CustomizedTable data={data} predicates={data} term={term}/>
             ) : (
               <Box display='flex' flexDirection='column'>
                 <Button
