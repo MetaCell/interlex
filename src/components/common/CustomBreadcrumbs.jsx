@@ -4,24 +4,22 @@ import Link from '@mui/material/Link';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import {vars} from "../../theme/variables";
+import {useQuery} from "../../helpers";
 
 const {gray500, gray300, gray600, brand700, gray700} = vars
-function handleClick(event) {
-  event.preventDefault();
-  console.info('You clicked a breadcrumb.');
-}
-
 const CustomBreadcrumbs = () => {
+  const query = useQuery();
+  const storedSearchTerm = query.get('searchTerm');
+  
   const breadcrumbs = [
-    <Link key="1" color="inherit" href="/" onClick={handleClick} display='flex'>
+    <Link key="1" color="inherit" href="/" display='flex'>
       <HomeOutlinedIcon fontSize='medium' htmlColor={gray500} />
     </Link>,
     <Link
       underline="none"
       key="2"
       color="inherit"
-      href="#"
-      onClick={handleClick}
+      href={`/search?searchTerm=${storedSearchTerm}`}
     >
       Term search
     </Link>,
@@ -30,7 +28,6 @@ const CustomBreadcrumbs = () => {
       key="3"
       color="inherit"
       href="#"
-      onClick={handleClick}
     >
       My organization 1
     </Link>,

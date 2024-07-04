@@ -27,7 +27,7 @@ const OverView = ({ isCodeViewVisible, selectedDataFormat }) => {
                 <Hierarchy />
               </Grid>
               <Grid item xs={12} lg={8}>
-                <Predicates />
+                <Predicates term={searchTerm} />
               </Grid>
             </Grid>
           </Box>

@@ -4,11 +4,11 @@
  * Swagger Mock Missing Endpoints
  * OpenAPI spec version: 1.0.0
  */
-import type { TermPrefixes } from './termPrefixes';
+import type { termPredicates } from './termPredicates';
 
 export interface Term {
   /** Unique identifier */
   id: string;
-  prefixes: TermPrefixes;
+  prefixes: termPredicates;
   triples: string[][];
 }
