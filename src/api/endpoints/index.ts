@@ -12,8 +12,7 @@ export const getOrganizations = () => {
 
     /** Call Endpoint */
     const organizations = getOrganizations().then((data) => {
-        const organizations = data as Organizations;
-        return organizations;
+        return data;
       })
       .catch((error) => {
         return error;
