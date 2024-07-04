@@ -62,24 +62,25 @@ const PredicatesAccordion = ({ data, expandedTabValue }) => {
   image.onload = () => <img style={imgStyle} src={imgPath} alt="preview" />
   image.src = imgPath;
 
+  const keys = Object.keys(data);
   return (
     <>
-      {data.map((item, index) => (
+      {keys.map((key, index) => (
         <Accordion key={index} disableGutters elevation={0} expanded={expandedItems[index]} onChange={handleAccordionChange(index)} square>
-          <AccordionSummary
+        <AccordionSummary
             expandIcon={<ExpandMoreIcon fontSize='medium' />}
             aria-controls={`panel${index + 1}-content`}
             id={`panel${index + 1}-header`}
           >
             <Stack direction='row' spacing='.25rem'>
               <Typography>
-                {item.title}
+                {data[key].title}
               </Typography>
               <CallMadeIcon fontSize='medium' />
             </Stack>
             <Stack direction='row' alignItems='center' spacing='.75rem'>
               <Typography color={gray600} fontSize='.875rem'>
-                Number of this type: {item.count}
+                Number of this type: {data[key]?.count}
               </Typography>
               <Divider orientation="vertical" flexItem />
               <CustomIconTabs
@@ -102,7 +103,7 @@ const PredicatesAccordion = ({ data, expandedTabValue }) => {
               <Box display='flex' flexDirection='column'>
                 <Button
                   variant='outlined'
-                  onClick={(e) => handleClickViewDiagram(e, item)}
+                  onClick={(e) => handleClickViewDiagram(e, data[key])}
                   disableRipple
                   sx={{
                     minWidth: 'auto',
