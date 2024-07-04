@@ -31,7 +31,7 @@ const CustomTable = (props) => {
                 <TableContainer sx={{ borderRadius: '0.75rem' }}>
                     <Table aria-labelledby="tableTitle">
                         <CustomTableHead
-                            numSelected={selected.length}
+                            numSelected={selected?.length}
                             order={order}
                             orderBy={orderBy}
                             onSelectAllClick={handleSelectAllClick}
@@ -45,7 +45,7 @@ const CustomTable = (props) => {
                         </TableBody>
                     </Table>
                 </TableContainer>
-                <CustomPagination rowCount={rows.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handlePageChange} />
+                {rowsPerPage !== undefined && <CustomPagination rowCount={rows.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handlePageChange} />}
             </Paper>
         </Box>
     );
