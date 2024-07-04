@@ -3,7 +3,9 @@ import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { a11yLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import axios from 'axios';
 import { vars } from '../../../theme/variables';
+import * as mockApi from './../../../api/endpoints/interLexURIStructureAPI';
 
+const useMockApi = () => mockApi;
 const { gray25, gray200, gray500 } = vars;
 
 const customStyle = {
@@ -25,42 +27,21 @@ const formatExtensions = {
 
 const RawDataViewer = ({ dataId, dataFormat }) => {
     const [formattedData, setFormattedData] = useState(null);
-
+    const [loading, setLoading] = useState(true);
+    const { getEndpointsIlxGet } = useMockApi();
+    
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const responseType = ['JSON-LD', 'CSV'].includes(dataFormat) ? 'json' : 'text';
-                const response = await axios.get(`http://uri.interlex.org/base/${dataId}.${formatExtensions[dataFormat]}`);
-
-                setFormattedData(responseType === 'json' ? JSON.stringify(response.data, null, 2) : convertToTurtle(response.data));
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-
-        fetchData();
+      getEndpointsIlxGet("base",dataId, dataFormat).then( rawResponse => {
+        setFormattedData(JSON.stringify(rawResponse, null, 2));
+        setLoading(false)
+      })
     }, [dataId, dataFormat]);
-
-    const convertToTurtle = (json) => {
-        const prefixes = json.prefixes ? Object.entries(json.prefixes).map(([key, value]) => `@prefix ${key}: <${value}> .`).join('\n') : '';
-
-        const triples = json.triples ? json.triples.map(triple => {
-            const subject = triple[0].startsWith('http') ? `<${triple[0]}>` : triple[0];
-            const predicate = triple[1].startsWith('http') ? `<${triple[1]}>` : triple[1];
-            const object = triple[2].startsWith('http') ? `<${triple[2]}>` : `"${triple[2]}"`;
-            return `${subject} ${predicate} ${object} .`;
-        }).join('\n') : '';
-
-        return `${prefixes}\n\n${triples}`;
-    };
-
-    // const language = dataFormat === 'Turtle' ? 'python' : dataFormat.toLowerCase();
 
     return (
         <div style={{ maxWidth: '81.25rem' }}>
             {formattedData ? (
                 <SyntaxHighlighter
-                    // language={language}
+                    language={dataFormat}
                     style={a11yLight}
                     showLineNumbers
                     customStyle={customStyle}

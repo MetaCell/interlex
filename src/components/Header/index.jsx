@@ -157,6 +157,10 @@ const Header = ({ isLoggedIn = false }) => {
     const handleMenuClick = (e, menu) => {
         navigate(menu.href)
     }
+    
+    const handleLogoClick = () => {
+        navigate('/')
+    }
   
     React.useEffect(() => {
         // TODO : Move to login page and remove this proof of concept call

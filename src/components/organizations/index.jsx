@@ -3,6 +3,8 @@ import {Box, Typography, Button, Link, List, ListItem, ListItemText, CircularPro
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
 import { vars } from "../../theme/variables";
 import organizationss from '../../static/Organizations.json'
+import { getOrganizations } from "../../api/endpoints";
+
 const { gray700, gray500, gray200, brand600 } = vars;
 
 const URL = "https://raw.githubusercontent.com/MetaCell/interlex/feature/ILEX-41/src/static/Organizations.json"
@@ -13,6 +15,7 @@ const Organizations = () => {
   
   useEffect(() => {
     setLoading(true)
+    getOrganizations()
     fetch(URL)
       .then((response) => response.json())
       .then((jsonData) => {

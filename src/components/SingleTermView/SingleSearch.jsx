@@ -9,25 +9,14 @@ import {SearchIcon} from "../../Icons";
 import ListItem from "@mui/material/ListItem";
 
 const { brand300, gray50, gray200, gray900, gray600 } = vars;
-
-const SingleSearch = () => {
-  const options = [
-    { label: 'Oliver Hansen', handler: 'Oliver'},
-    { label: 'April Tucker', handler: 'April'},
-    { label: 'Van Henry', handler: 'Van'},
-    { label: 'Omar Alexander', handler: 'Omar'}
-  ];
-  
-  const [searchTerm, setSearchTerm] = React.useState('');
-  const [selectedValue, setSelectedValue] = React.useState(null);
+const SingleSearch = ({onChange, selectedValue, options, startAdornment = true, searchTerm, setSearchTerm}) => {
   const autocompleteRef = useRef(null);
-  
-  const handleInputChange = (event, value) => {
+  const handleInputChange = (event) => {
     setSearchTerm(event.target.value);
   };
   
   return (
-    <div ref={autocompleteRef}>
+    <Box ref={autocompleteRef} width='100%'>
       <Autocomplete
         fullWidth
         disableCloseOnSelect
@@ -36,9 +25,9 @@ const SingleSearch = () => {
         forcePopupIcon={false}
         onChange={(event, value) => {
           setSearchTerm('')
-          setSelectedValue(value);
+          onChange(value);
         }}
-        inputValue={searchTerm ? searchTerm : selectedValue ? selectedValue?.label : ''}
+        inputValue={searchTerm ? searchTerm : selectedValue ? selectedValue?.label ? selectedValue?.label : selectedValue : ''}
         componentsProps={{
           paper: {
             sx: {
@@ -73,8 +62,10 @@ const SingleSearch = () => {
               gap='.5rem'
               width={1}
             >
-              <Typography variant='body1' fontWeight={500} color={gray900}>{option.label}</Typography>
-              <Typography variant='body2' color={gray600}>@{option.handler}</Typography>
+              <Typography variant='body1' fontWeight={500} color={gray900}>{option.label || option}</Typography>
+              {
+                option?.handler && <Typography variant='body2' color={gray600}>@{option?.handler}</Typography>
+              }
             </Box>
           </ListItem>
         )}
@@ -86,13 +77,12 @@ const SingleSearch = () => {
             onChange={handleInputChange}
             InputProps={{
               ...params.InputProps,
-              startAdornment: <InputAdornment position='start'><SearchIcon /></InputAdornment>,
-              endAdornment: <InputAdornment position='end'><SearchIcon /></InputAdornment>,
+              startAdornment: startAdornment && <InputAdornment position='start'><SearchIcon /></InputAdornment>,
             }}
           />
         )}
       />
-    </div>
+    </Box>
   );
 };
 

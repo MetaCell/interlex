@@ -15,7 +15,7 @@ export * from './parseErrorResponse';
 export * from './review';
 export * from './reviews';
 export * from './term';
-export * from './termPrefixes';
+export * from './termPredicates';
 export * from './terms';
 export * from './user';
 export * from './userNameItem';
