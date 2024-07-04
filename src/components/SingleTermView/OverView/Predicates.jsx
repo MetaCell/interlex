@@ -1,13 +1,6 @@
-import React, {useEffect, useState} from "react";
-import {
-  Box,
-  FormControl,
-  MenuItem,
-  Select,
-  Typography
-} from "@mui/material";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import {vars} from "../../../theme/variables";
+import React, { useEffect, useState } from "react";
+import { Box, Typography, tabClasses } from "@mui/material";
+import { vars } from "../../../theme/variables";
 import ExpandIcon from '@mui/icons-material/Expand';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -20,7 +13,7 @@ import { termParser } from './../../../parsers/termParser'
 
 const useMockApi = () => mockApi;
 
-const { gray800, gray700, gray300 } = vars;
+const { gray800 } = vars;
 const URL = ""
 
 const Predicates = ({ term }) => {
@@ -49,47 +42,19 @@ const Predicates = ({ term }) => {
     <Box display='flex' alignItems='center' justifyContent='space-between'>
       <Typography color={gray800} fontWeight={500}>Predicates</Typography>
       <Box display='flex' alignItems='center' gap='.75rem'>
-        <FormControl sx={{ minWidth: 75 }}>
-          <Select
-            value={type}
-            onChange={(v) => setType(v)}
-            displayEmpty
-            IconComponent={KeyboardArrowDownIcon}
-            sx={{
-              color: gray700,
-              borderRadius: '0.5rem !important',
-              fontSize: '0.875rem',
-              fontWeight: 600,
-              '& .MuiOutlinedInput-input': {
-                padding: '0.625rem 0.875rem'
-              },
-              '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: gray300
-              },
-              '& .MuiSvgIcon-root': {
-                color: gray700,
-                fontSize: '1.25rem',
-                right: '0.875rem !important'
-              }
-            }}
-          >
-            <MenuItem value={'Children'}>Show Sections</MenuItem>
-            <MenuItem value={'Superclasses'}>Superclasses</MenuItem>
-          </Select>
-        </FormControl>
         <CustomIconTabs
           tabs={[{
             icon: <ExpandIcon />,
-            value: 0
-          },{
-            icon: <RemoveIcon />,
             value: 1
-        }]} value={tabValue} handleChange={onTabsChanged} />
+          }, {
+            icon: <RemoveIcon />,
+            value: 0
+          }]} value={tabValue} handleChange={onTabsChanged} />
       </Box>
     </Box>
-    <PredicatesAccordion data={predicates} />
+    <PredicatesAccordion data={predicates} expandedTabValue={tabValue}/>
   </Box>
-  
+
 }
 
 export default Predicates
