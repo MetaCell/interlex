@@ -12,7 +12,7 @@ const EditTerms = () => {
 
   return (
     <Box className='edit-terms' display="flex" justifyContent="space-between" height={1}>
-       <Box padding={'2.25rem 3.25rem 2.5rem 3.25rem'} sx={{
+       <Box padding={'2.25rem 3.25rem 2.5rem 0'} sx={{
          width: open ? 'calc(100% - 42.0625rem)' : 'calc(100% - 5.75rem)',
          transition: 'all 0.5s ease',
        }}>

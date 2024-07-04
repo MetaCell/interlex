@@ -20,10 +20,10 @@ import { useQuery } from "../../../helpers";
 const { gray600 } = vars;
 
 const PredicatesAccordion = ({ data, expandedTabValue }) => {
-  const [tabValues, setTabValues] = useState(data.map(() => 0));
+  const [tabValues, setTabValues] = useState(data?.map(() => 0) || []);
   const [openViewDiagram, setOpenViewDiagram] = React.useState(false);
   const [selectedItem, setSelectedItem] = useState(null)
-  const [expandedItems, setExpandedItems] = useState(data.map(() => false));
+  const [expandedItems, setExpandedItems] = useState(data?.map(() => false) || []);
   const query = useQuery();
   const term = query.get('searchTerm');
 

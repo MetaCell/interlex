@@ -49,7 +49,7 @@ const SearchResultsBox = () => {
   const fetchTerms = useRef(
     debounce((searchTerm) => {
       setLoading(true);
-      getMatchTerms(searchTerm)
+      getMatchTerms(searchTerm, searchTerm)
         .then((data) => {
           const parsedData = termParser(data, searchTerm);
           setTerms(parsedData);

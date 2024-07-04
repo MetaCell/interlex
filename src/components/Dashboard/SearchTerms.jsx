@@ -35,7 +35,7 @@ const SearchTerms = () => {
   };
 
   return (
-    <Box padding={'2.25rem 3.25rem 2.5rem 3.25rem'}>
+    <Box>
       <Typography color={gray800} fontSize='1.125rem' fontWeight={600} mb='2.75rem'>
         Search terms, selecting their attributes and values.
       </Typography>
@@ -43,9 +43,11 @@ const SearchTerms = () => {
         <Grid container spacing='1.75rem' mb='2rem' key={index} alignItems='end'>
           <Grid item xs={12} lg={1}>
             {index === 0 ? (
-              <Typography color={gray800} fontSize='.875rem' fontWeight={600}>
-                Where
-              </Typography>
+             <Box height='2.5rem' display='flex' alignItems='center'>
+               <Typography color={gray800} fontSize='.875rem' fontWeight={600}>
+                 Where
+               </Typography>
+             </Box>
             ) : (
               <CustomIconTabs
                 tabs={[
@@ -67,6 +69,14 @@ const SearchTerms = () => {
             )}
           </Grid>
           <Grid item xs={12} lg={4}>
+            <Typography sx={{
+              fontSize: '1rem',
+              fontWeight: '500',
+              color: gray800,
+              mb: '.75rem'
+            }}>
+              Search for attribute
+            </Typography>
             <FormControl fullWidth>
               <Select
                 value={term.attribute}
