@@ -1,6 +1,7 @@
-import { Organizations } from '../../model/backend';
+import { assert } from 'console';
+import { OrganizationsIcon } from '../../Icons';
+import { Organizations, Organization } from '../../model/backend';
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
-import { validateOrganizations } from './../openapi-response-validator';
 
 const useMockApi = () => mockApi;
 
@@ -11,14 +12,8 @@ export const getOrganizations = () => {
 
     /** Call Endpoint */
     const organizations = getOrganizations().then((data) => {
-        // Validate organizations data received
-        const result = validateOrganizations(data)
-        // Returns { valid : boolean, error : ""}
-        if ( result.valid ) {
-            return data as Organizations;
-        } else {
-            return result.error;
-        }
+        const organizations = data as Organizations;
+        return organizations;
       })
       .catch((error) => {
         return error;
