@@ -23,6 +23,8 @@ const BootstrapInput = styled(InputBase)(() => ({
     '&::placeholder': {
       color: gray500,
       fontSize: '1rem',
+      fontWeight: 400,
+      opacity: 1
     }
   },
 }));

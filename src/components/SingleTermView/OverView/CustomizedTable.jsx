@@ -1,11 +1,10 @@
 import { Box, IconButton, Typography, TextField, Button } from "@mui/material";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import TableRow from "./TableRow";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { vars } from "../../../theme/variables";
-import SingleSearch from "../SingleSearch";
 import { debounce } from 'lodash';
 import * as mockApi from "../../../api/endpoints/swaggerMockMissingEndpoints";
 import termParser from "../../../parsers/termParser";
@@ -288,19 +287,6 @@ const CustomizedTable = ({ data, term }) => {
     setObjectSearchTerm('');
   };
 
-  const handleSelectChange = (e, type) => {
-    if (type === 'subject') {
-      setSubject(e.label);
-    }
-    if (type === 'object') {
-      setObject(e.label);
-    }
-    setTerms([])
-    if (subject && object) {
-      updateTableContent(type === 'subject' ? e.label : subject, type === 'object' ? e.label : object);
-    }
-  };
-
   useEffect(() => {
     if (subject && object) {
       updateTableContent(subject, object);
@@ -309,7 +295,7 @@ const CustomizedTable = ({ data, term }) => {
 
 
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
-    const data = await getMatchTerms(searchTerm);
+    const data = await getMatchTerms(searchTerm, searchTerm);
     const parsedData = termParser(data, searchTerm);
     setTerms(parsedData?.results);
   }, 500), [getMatchTerms]);
