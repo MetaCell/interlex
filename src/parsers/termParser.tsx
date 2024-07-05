@@ -73,12 +73,12 @@ const getTerm = (data) => {
 }
 
 /** Return results between two indeces */
-const indexRange = (arr, start, end) => {
-    return arr.slice(start, end)
+const indexRange = (arr, start?, end?) => {
+    return start && end ? arr.slice(start, end) : arr;
 }
 
 /** Format terms and return array between two indeces */
-const formatTerms = (terms, searchTerm, start, end) => {
+const formatTerms = (terms, searchTerm, start?, end?) => {
     return indexRange(terms?.filter( t => {
         const label = t.label?.toLowerCase();
         const search = searchTerm?.toLowerCase()
@@ -123,7 +123,7 @@ const getFilters = ( terms ) => {
  * @param end - Index of where to end returning data
  * @returns - Array of Terms, it's size depends on passed indexes ( end - start )
  */
-export const termParser = (data, searchTerm, start, end) => {
+export const termParser = (data, searchTerm, start?, end?) => {
     let terms : Terms;
     if ( Array.isArray(data) ){
         terms  = data?.map( term => {

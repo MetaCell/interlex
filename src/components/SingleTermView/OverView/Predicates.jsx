@@ -20,7 +20,7 @@ const Predicates = ({ data }) => {
   }
 
   // React.useEffect(() => {
-  //   setPredicates(data?.results[0]?.predicates)
+  //   data?.predicates && setPredicates(data?.predicates)
   // }, [data]);
 
   return <Box display='flex' flexDirection='column' gap='.75rem'>

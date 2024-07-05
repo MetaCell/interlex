@@ -4,5 +4,10 @@
  * Swagger Mock Missing Endpoints
  * OpenAPI spec version: 1.0.0
  */
+import type { TermContext } from './termContext';
+import type { TermGraphItemItem } from './termGraphItemItem';
 
-export interface Term { [key: string]: any }
+export interface Term {
+  '@context': TermContext;
+  '@graph'?: TermGraphItemItem[][];
+}

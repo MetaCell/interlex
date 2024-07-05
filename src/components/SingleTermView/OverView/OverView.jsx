@@ -9,24 +9,20 @@ import Details from "./Details";
 import RawDataViewer from "./RawDataViewer";
 import {useQuery} from "../../../helpers";
 import {useCallback, useEffect, useMemo, useState} from "react";
-import termParser from "../../../parsers/termParser";
-import * as mockApi from "../../../api/endpoints/interLexURIStructureAPI";
+import { getMatchTerms } from "../../../api/endpoints";
 import { debounce } from 'lodash';
-const useMockApi = () => mockApi;
 
 const OverView = ({ isCodeViewVisible, selectedDataFormat }) => {
   const query = useQuery();
   const searchTerm = query.get('searchTerm');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { getEndpointsIlx } = useMockApi();
   
   const fetchTerms = useCallback(
     debounce((searchTerm) => {
       if (searchTerm) {
-        getEndpointsIlx("base", searchTerm).then(dat => {
-          const parsedData = termParser(dat);
-          setData(parsedData?.results[0]);
+        getMatchTerms(searchTerm).then(data => {
+          setData(data?.results[0]);
           setLoading(false);
         });
       }

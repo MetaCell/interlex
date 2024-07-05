@@ -1,17 +1,13 @@
 import { useMemo, useEffect, useState } from "react";
 import data from "./GraphStructure";
 import * as d3 from "d3";
-import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
-import { termParser } from "../../parsers/termParser";
+import { getMatchTerms } from './../../api/endpoints';
 
 const MARGIN = { top: 60, right: 60, bottom: 60, left: 60 };
-const useMockApi = () => mockApi;
 
 const Graph = ({ width, height }) => {
   const boundsWidth = width - MARGIN.right - MARGIN.left;
   const boundsHeight = height - MARGIN.top - MARGIN.bottom;
-
-  const {  getMatchTerms } = useMockApi();
 
   const [terms, setTerms] = useState(undefined);
 
@@ -41,8 +37,7 @@ const Graph = ({ width, height }) => {
                 .on("mouseleave", mouseleave)
     setTimeout( () => {
         getMatchTerms("ilx_0101431").then(data => { 
-            const parsedData = termParser(data, "brain")
-            setTerms(parsedData)
+            setTerms(data)
         });
     }, 750);
   }, []);
