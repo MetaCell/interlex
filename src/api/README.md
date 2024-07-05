@@ -23,7 +23,7 @@ const Test = () => {
 
     React.useEffect( () => {
         // Call endpoint to retrieve terms that match search word
-        getMatchTerms("i").then(data => { 
+        getMatchTerms("base", "i", { filter: "", value: "" }).then(data => { 
             const parsedData = termParser(data, searchTerm)
             console.log("Parsed retrieved data : ", parsedData)
             setTerms(parsedData)
@@ -33,6 +33,7 @@ const Test = () => {
     render ();
 };
 ```
+To add filters to the search endpoint, use the third parameter and pass an object with a populated filter and value as in the example : { filter: "", value: "" }
 
 - Sample Search Return. 
 
