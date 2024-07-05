@@ -26,6 +26,8 @@ const BootstrapInput = styled(InputBase)(() => ({
     },
     '&.Mui-disabled': {
       backgroundColor: gray50,
+      fontWeight: 400,
+      opacity: 1
     }
   },
 }));
