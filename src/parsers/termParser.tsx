@@ -42,7 +42,7 @@ const getTerm = (data) => {
                 if ( Array.isArray(dataToStore) ){
                     dataToStore?.forEach( pred => {
                         let newPredicate = {
-                            subject : object?.["@id"].split("/").pop(),
+                            subject : object?.["@id"],
                             predicate: predicate,
                             object : pred
                         }
@@ -50,7 +50,7 @@ const getTerm = (data) => {
                     })
                 } else {
                     let newPredicate = {
-                        subject : object?.["@id"]?.split("/").pop(),
+                        subject : object?.["@id"],
                         predicate: predicate,
                         object : dataToStore
                     }
