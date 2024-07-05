@@ -38,20 +38,21 @@ const getTerm = (data) => {
                     term[termPredicates[predicate]?.key] = dataToStore
                 }
 
+                // Organize predicates from triple
                 if ( Array.isArray(dataToStore) ){
                     dataToStore?.forEach( pred => {
                         let newPredicate = {
-                            subject : { id : term.id },
+                            subject : object?.["@id"].split("/").pop(),
                             predicate: predicate,
-                            object : { value : pred }
+                            object : pred
                         }
                         predicates[predicate] ? predicates[predicate].push(newPredicate) : predicates[predicate] = [newPredicate]
                     })
                 } else {
                     let newPredicate = {
-                        subject : { id : term.id },
+                        subject : object?.["@id"]?.split("/").pop(),
                         predicate: predicate,
-                        object : { id : dataToStore }
+                        object : dataToStore
                     }
                     predicates[predicate] ? predicates[predicate].push(newPredicate) : predicates[predicate] = [newPredicate]
                 }
@@ -59,15 +60,17 @@ const getTerm = (data) => {
         }) 
     })
 
+    let predicatesFormatted = new Array();
     // Add Subject ID and Label from Term to each predicate.
     Object.keys(predicates)?.forEach( key => {
-        predicates[key]?.forEach( pred => {
-            pred.subject.id = term.id;
-            pred.subject.label = term.label;
+        predicatesFormatted.push( {
+            title : key,
+            count : predicates[key]?.length,
+            tableData : predicates[key]
         })
     })
 
-    term.predicates = predicates;
+    term.predicates = predicatesFormatted;
 
     return term;
 }
