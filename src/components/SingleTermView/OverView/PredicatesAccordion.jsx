@@ -102,10 +102,10 @@ const PredicatesAccordion = ({ data, expandedTabValue }) => {
           </AccordionSummary>
           <AccordionDetails>
             {tabValues[index] === 0 ? (
-              <CustomizedTable data={pred} term={term}/>
+              <CustomizedTable data={pred} term={term} />
             ) : (
               <Box display='flex' flexDirection='column'>
-                <Graph width={600} height={300} />
+                <Graph width={600} height={300} predicate={pred} />
                 <Button
                   variant='outlined'
                   onClick={(e) => handleClickViewDiagram(e, pred)}

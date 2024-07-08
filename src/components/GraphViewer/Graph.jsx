@@ -8,7 +8,7 @@ import {useQuery} from "../../helpers";
 const MARGIN = { top: 60, right: 60, bottom: 60, left: 60 };
 const useMockApi = () => mockApi;
 
-const Graph = ({ width, height }) => {
+const Graph = ({ width, height, predicate }) => {
   const boundsWidth = width - MARGIN.right - MARGIN.left;
   const boundsHeight = height - MARGIN.top - MARGIN.bottom;
 

@@ -72,7 +72,7 @@ const ViewDiagramDialog = ({open, handleClose, image, selectedItem, predicates})
         />
       }
       >
-        <Graph width={1200} height={600} />
+        <Graph width={1200} height={600} predicate={selectedItem} />
       </CustomizedDialog>
       {
         openAddPredicate && <AddPredicateDialog open={openAddPredicate} handleClose={handleCloseAddPredicate} image={image} predicates={predicatesOptions} />
