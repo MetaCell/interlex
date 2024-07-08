@@ -30,6 +30,9 @@ const HeaderRightSideContent = ({handleOpenAddPredicate, selectedItem, predicate
         value={type}
         onChange={handleChangeType}
         options={predicates}
+        FormControlSX={{
+          width: '15rem'
+        }}
       />
       <Divider orientation="vertical" flexItem sx={{
         m: '0 1rem'
