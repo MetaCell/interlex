@@ -8,16 +8,21 @@ import {vars} from "../../../theme/variables";
 import AddPredicateDialog from "./AddPredicateDialog";
 import {useState} from "react";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
+import Graph from "../../GraphViewer/Graph";
 
 const {gray600, gray700} = vars
 const HeaderRightSideContent = ({handleOpenAddPredicate, selectedItem, predicates}) => {
   const [type, setType] = React.useState(selectedItem?.title);
   const [count, setCount] = React.useState(selectedItem?.count)
-  const handleChangeType = (e) => {
-    setType(e.target.value)
+  const handleChangeType = (value) => {
+    setType(value)
     const selectedTypeCount = predicates.find(predicate => predicate.title === e.target.value).count
     setCount(selectedTypeCount)
   }
+  const options = predicates.map(row => ({
+    label: row.title,
+    value: row.title
+  }))
   return (
     <Box display='flex' alignItems='center'>
       <Typography color={gray700} fontSize='.875rem' mr='1.5rem'>
@@ -27,7 +32,7 @@ const HeaderRightSideContent = ({handleOpenAddPredicate, selectedItem, predicate
       <CustomSingleSelect
         value={type}
         onChange={handleChangeType}
-        options={predicates}
+        options={options}
       />
       <Divider orientation="vertical" flexItem sx={{
         m: '0 1rem'
@@ -67,7 +72,7 @@ const ViewDiagramDialog = ({open, handleClose, image, selectedItem, predicates})
         />
       }
       >
-        Diagram
+        <Graph width={1200} height={600} />
       </CustomizedDialog>
       <AddPredicateDialog open={openAddPredicate} handleClose={handleCloseAddPredicate} image={image} />
     </>
