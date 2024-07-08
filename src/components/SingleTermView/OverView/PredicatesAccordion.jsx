@@ -62,10 +62,9 @@ const PredicatesAccordion = ({ data, expandedTabValue }) => {
   image.onload = () => <img style={imgStyle} src={imgPath} alt="preview" />
   image.src = imgPath;
 
-  const keys = Object.keys(data);
   return (
     <>
-      {keys.map((key, index) => (
+      {data.map((pred, index) => (
         <Accordion key={index} disableGutters elevation={0} expanded={expandedItems[index]} onChange={handleAccordionChange(index)} square>
         <AccordionSummary
             expandIcon={<ExpandMoreIcon fontSize='medium' />}
@@ -74,13 +73,13 @@ const PredicatesAccordion = ({ data, expandedTabValue }) => {
           >
             <Stack direction='row' spacing='.25rem'>
               <Typography>
-                {data[key].title}
+                {pred.title}
               </Typography>
               <CallMadeIcon fontSize='medium' />
             </Stack>
             <Stack direction='row' alignItems='center' spacing='.75rem'>
               <Typography color={gray600} fontSize='.875rem'>
-                Number of this type: {data[key]?.count}
+                Number of this type: {pred?.count}
               </Typography>
               <Divider orientation="vertical" flexItem />
               <CustomIconTabs
@@ -98,12 +97,12 @@ const PredicatesAccordion = ({ data, expandedTabValue }) => {
           </AccordionSummary>
           <AccordionDetails>
             {tabValues[index] === 0 ? (
-              <CustomizedTable data={data} predicates={data} term={term}/>
+              <CustomizedTable data={pred} term={term}/>
             ) : (
               <Box display='flex' flexDirection='column'>
                 <Button
                   variant='outlined'
-                  onClick={(e) => handleClickViewDiagram(e, data[key])}
+                  onClick={(e) => handleClickViewDiagram(e, pred)}
                   disableRipple
                   sx={{
                     minWidth: 'auto',
