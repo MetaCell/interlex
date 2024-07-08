@@ -3,6 +3,7 @@ import data from "./GraphStructure";
 import * as d3 from "d3";
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 import { termParser } from "../../parsers/termParser";
+import {useQuery} from "../../helpers";
 
 const MARGIN = { top: 60, right: 60, bottom: 60, left: 60 };
 const useMockApi = () => mockApi;
@@ -14,7 +15,8 @@ const Graph = ({ width, height }) => {
   const {  getMatchTerms } = useMockApi();
 
   const [terms, setTerms] = useState(undefined);
-
+  const query = useQuery();
+  const term = query.get('searchTerm');
   // Three function that change the tooltip when user hover / move / leave a cell
   const mouseover = (d) => {
     d3.select("#tooltip")
@@ -40,8 +42,8 @@ const Graph = ({ width, height }) => {
     d3.selectAll(".node--g")
                 .on("mouseleave", mouseleave)
     setTimeout( () => {
-        getMatchTerms("ilx_0101431").then(data => { 
-            const parsedData = termParser(data, "brain")
+        getMatchTerms(term, term).then(data => {
+            const parsedData = termParser(data, term)
             setTerms(parsedData)
         });
     }, 750);
