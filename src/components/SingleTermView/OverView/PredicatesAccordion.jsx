@@ -121,14 +121,16 @@ const PredicatesAccordion = ({ data, expandedTabValue }) => {
           </AccordionDetails>
         </Accordion>
       ))}
-
-      <ViewDiagramDialog
-        open={openViewDiagram}
-        handleClose={handleCloseViewDiagram}
-        image={image}
-        selectedItem={selectedItem}
-        predicates={data}
-      />
+      {
+        openViewDiagram &&  <ViewDiagramDialog
+          open={openViewDiagram}
+          handleClose={handleCloseViewDiagram}
+          image={image}
+          selectedItem={selectedItem}
+          predicates={data}
+        />
+      }
+     
     </>
   );
 };

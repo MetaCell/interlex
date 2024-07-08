@@ -14,7 +14,6 @@ const SingleSearch = ({onChange, selectedValue, options, startAdornment = true, 
   const handleInputChange = (event) => {
     setSearchTerm(event.target.value);
   };
-  
   return (
     <Box ref={autocompleteRef} flex={1}>
       <Autocomplete

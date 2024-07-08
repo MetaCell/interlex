@@ -19,26 +19,28 @@ const PredicateGroupInput = ({ predicate, onChange }) => {
   const [objectSearchTerm, setObjectSearchTerm] = useState('');
   const [terms, setTerms] = useState([]);
   const [selectedType, setSelectedType] = useState(predicate.object.type);
-  
   const { getMatchTerms } = useMockApi();
   
   const onChangeTab = (event, newValue) => {
     setTabValues(newValue);
-    onChange('object', { ...predicate.object, isLink: newValue === 1 });
+    onChange({ ...predicate.object, isLink: newValue === 1 });
   };
-  
   const handleSelectChange = (e) => {
     const newType = e.target.value;
     setSelectedType(newType);
+    onChange({ ...predicate.object, type: newType, value: '' });
+  };
+  
+  const handleTermsChange = (e) => {
+    onChange({ ...predicate.object, value: e.label });
     setObjectSearchTerm('');
     setTerms([]);
-    onChange('object', { type: newType, value: '', isLink: predicate.object.isLink });
-  };
+  }
   
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await getMatchTerms(searchTerm);
     const parsedData = termParser(data, searchTerm);
-    setTerms(parsedData);
+    setTerms(parsedData.results);
   }, 500), [getMatchTerms]);
   
   useEffect(() => {
@@ -88,7 +90,7 @@ const PredicateGroupInput = ({ predicate, onChange }) => {
         </FormControl>
         <SingleSearch
           selectedValue={predicate.object.value}
-          onChange={(e) => onChange('object', { ...predicate.object, value: e.label })}
+          onChange={handleTermsChange}
           startAdornment={false}
           options={selectedType === 'Object' ? terms : predicatesData.annotationOptions}
           searchTerm={objectSearchTerm}

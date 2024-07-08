@@ -6,7 +6,6 @@ import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
 const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, index, onInputChange, onDeleteClick, rowIndex, onRowIndexChange, onSaveEdits }) => {
   const { id, subject, predicate, object } = data;
   const [isHovered, setIsHovered] = useState(false);
-  console.log( id, subject, predicate, object)
   return (
     <Box sx={tableStyles.root}
       draggable={true}

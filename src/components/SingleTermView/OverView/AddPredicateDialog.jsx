@@ -1,18 +1,20 @@
 import CustomizedDialog from "../../common/CustomizedDialog";
-import {Box, Grid, Button, Select, MenuItem, FormControl} from "@mui/material";
+import {Box, Grid, Button} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import PlaylistAddOutlinedIcon from "@mui/icons-material/PlaylistAddOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {vars} from "../../../theme/variables";
 import AddPredicateStatusDialog from "./AddPredicateStatusDialog";
-import {useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import CustomizedInput from "../../common/CustomizedInput";
 import PredicateGroupInput from "./PredicateGroupInput";
 import {useQuery} from "../../../helpers";
-import predicatesData from '../../../static/predicates.json';
-
-const {gray800, gray700, gray300} = vars;
+import termParser from "../../../parsers/termParser";
+import {getMatchTerms} from "../../../api/endpoints/swaggerMockMissingEndpoints";
+import {debounce} from "lodash";
+import CustomSingleSelect from "../../common/CustomSingleSelect";
+const {gray800} = vars;
 
 const HeaderRightSideContent = ({handleClose, handleOpenAddPredicateStatusDialog}) => {
   return (
@@ -27,12 +29,14 @@ const HeaderRightSideContent = ({handleClose, handleOpenAddPredicateStatusDialog
   );
 };
 
-const AddPredicateDialog = ({ open, handleClose, image }) => {
+const AddPredicateDialog = ({ open, handleClose, image, predicates: fetchedPredicated }) => {
   const [openAddPredicateStatusDialog, setOpenAddPredicateStatusDialog] = useState(false);
   const query = useQuery();
   const storedSearchTerm = query.get('searchTerm');
+  const [terms, setTerms] = useState([]);
+  const [objectSearchTerm, setObjectSearchTerm] = useState('');
+  const [object, setObject] = useState('');
   const [predicates, setPredicates] = useState([{ subject: storedSearchTerm, predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
-  
   const handleCloseAddPredicateStatusDialog = () => {
     setOpenAddPredicateStatusDialog(false);
   };
@@ -56,6 +60,18 @@ const AddPredicateDialog = ({ open, handleClose, image }) => {
     setPredicates(newPredicates);
   };
   
+  const fetchTerms = useCallback(debounce(async (searchTerm) => {
+    const data = await getMatchTerms(searchTerm, searchTerm);
+    const parsedData = termParser(data, searchTerm);
+    setTerms(parsedData?.results);
+  }, 500), [getMatchTerms]);
+  
+  useEffect(() => {
+    if (objectSearchTerm) {
+      fetchTerms(objectSearchTerm);
+    }
+  }, [objectSearchTerm, fetchTerms]);
+  console.log(predicates)
   return (
     <>
       <CustomizedDialog
@@ -93,35 +109,17 @@ const AddPredicateDialog = ({ open, handleClose, image }) => {
                 }}>
                   Predicate
                 </Typography>
-                <FormControl sx={{ minWidth: 75 }} fullWidth>
-                  <Select
-                    value={predicate.predicate}
-                    onChange={(e) => handlePredicateChange(index, 'predicate', e.target.value)}
-                    displayEmpty
-                    sx={{
-                      color: gray700,
-                      borderRadius: '0.5rem !important',
-                      fontSize: '0.875rem',
-                      fontWeight: 600,
-                      '& .MuiOutlinedInput-input': { padding: '0.625rem 0.875rem' },
-                      '& .MuiOutlinedInput-notchedOutline': { borderColor: gray300 },
-                      '& .MuiSvgIcon-root': {
-                        color: gray700,
-                        fontSize: '1.25rem',
-                        right: '0.875rem !important'
-                      }
-                    }}
-                  >
-                    {
-                      predicatesData.predicates.map((predicate, i) => <MenuItem key={i} value={predicate.title}>{predicate.title}</MenuItem>)
-                    }
-                  </Select>
-                </FormControl>
+                <CustomSingleSelect
+                  value={predicate.predicate}
+                  onChange={(v) => handlePredicateChange(index, 'predicate', v)}
+                  options={fetchedPredicated}
+                  isFormControlFullWidth={true}
+                />
               </Grid>
               <Grid item xs={12} lg={predicates.length > 1 ? 5 : 6}>
                 <PredicateGroupInput
                   predicate={predicate}
-                  onChange={(field, value) => handlePredicateChange(index, field, value)}
+                  onChange={(value) => handlePredicateChange(index, 'object', value)}
                 />
               </Grid>
               {predicates.length > 1 && (
