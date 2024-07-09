@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import {
     Box, TextField, Autocomplete, Grid,
-    Stack, Typography, Button, Select, FormControl, FormHelperText, MenuItem,
+    Stack, Typography, Button,
     FormControlLabel, Chip
 } from "@mui/material";
 import CustomInputBox from "../common/CustomInputBox";
 import Checkbox from "../common/CustomCheckbox";
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CloseIcon from '@mui/icons-material/Close';
 import { vars } from "../../theme/variables";
@@ -73,7 +72,7 @@ const options = [
     { title: "Schindler's List", year: 1993 },
 ];
 
-const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChange }) => {
+const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChange, isResultsEmpty, setTermValue }) => {
     const [formState, setFormState] = useState({
         label: "",
         ilx: "ILX:0101901",
@@ -88,16 +87,12 @@ const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChang
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        if (name === "label") {
+            setTermValue(e.target.value);
+        }
         setFormState((prevState) => ({
             ...prevState,
             [name]: value
-        }));
-    };
-
-    const handleSelectChange = (event) => {
-        setFormState((prevState) => ({
-            ...prevState,
-            age: event.target.value
         }));
     };
 
@@ -111,7 +106,7 @@ const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChang
     return (
         <Box component="form" sx={{ width: '100%', mt: '2.75rem', display: 'flex', flexDirection: 'column', gap: '2.75rem' }} noValidate autoComplete="off">
             <Grid container spacing={5.5}>
-                <Grid item xs={16} md={6} lg={4}>
+                <Grid item xs={16} md={6} lg={6}>
                     <CustomInputBox
                         id="new-term-label-field"
                         name="label"
@@ -123,16 +118,18 @@ const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChang
                         placeholder={"Enter your term label"}
                         isEndAdornmentVisible
                     />
-                    <Button
-                        variant="text"
-                        sx={{ mt: 1, p: 0, height: '1.25rem', color: brand700, '&:hover': { color: brand800, backgroundColor: 'transparent' } }}
-                        endIcon={<ArrowForwardIcon />}
-                        onClick={handleSidebarOpen}
-                    >
-                        Go check potential matches
-                    </Button>
+                    {!isResultsEmpty && (
+                        <Button
+                            variant="text"
+                            sx={{ mt: 1, p: 0, height: '1.25rem', color: brand700, '&:hover': { color: brand800, backgroundColor: 'transparent' } }}
+                            endIcon={<ArrowForwardIcon />}
+                            onClick={handleSidebarOpen}
+                        >
+                            Go check potential matches
+                        </Button>
+                    )}
                 </Grid>
-                <Grid item xs={12} md={6} lg={4}>
+                <Grid item xs={12} md={6} lg={6}>
                     <CustomInputBox
                         id="new-term-ilx-field"
                         name="ilx"
@@ -142,29 +139,6 @@ const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChang
                         helperText={"This is automatically generated but editable."}
                         isEndAdornmentVisible
                     />
-                </Grid>
-                <Grid item xs={12} md={6} lg={4}>
-                    <Stack direction="row" justifyContent="space-between" mb={1.5}>
-                        <Typography>Type</Typography>
-                    </Stack>
-                    <FormControl sx={{ width: '100%' }}>
-                        <Select
-                            labelId="demo-simple-select-helper-label"
-                            id="demo-simple-select-helper"
-                            value={formState.age}
-                            onChange={handleSelectChange}
-                            IconComponent={KeyboardArrowDownIcon}
-                            sx={styles.select}
-                        >
-                            <MenuItem value="">
-                                <em>None</em>
-                            </MenuItem>
-                            <MenuItem value={10}>Ten</MenuItem>
-                            <MenuItem value={20}>Twenty</MenuItem>
-                            <MenuItem value={30}>Thirty</MenuItem>
-                        </Select>
-                        <FormHelperText>Select the type.</FormHelperText>
-                    </FormControl>
                 </Grid>
             </Grid>
             <Box>
@@ -269,7 +243,11 @@ const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChang
                     onInputChange={handleInputChange}
                     label="Description"
                     placeholder={"Type your term description"}
-                    multiline
+                    sx={{
+                        '& .MuiInputBase-root': {
+                            padding: '0.75rem 0.875rem !important'
+                        }
+                    }}
                 />
             </Box>
             <Box>
@@ -302,14 +280,16 @@ const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChang
                         }
                     }}
                 />
-                <Button
-                    variant="text"
-                    sx={{ p: 0, height: '1.25rem', color: brand700, '&:hover': { color: brand800, backgroundColor: 'transparent' } }}
-                    endIcon={<ArrowForwardIcon />}
-                    onClick={handleSidebarOpen}
-                >
-                    Go check potential matches
-                </Button>
+                {!isResultsEmpty && (
+                    <Button
+                        variant="text"
+                        sx={{ p: 0, height: '1.25rem', color: brand700, '&:hover': { color: brand800, backgroundColor: 'transparent' } }}
+                        endIcon={<ArrowForwardIcon />}
+                        onClick={handleSidebarOpen}
+                    >
+                        Go check potential matches
+                    </Button>
+                )}
             </Box>
         </Box>
     );

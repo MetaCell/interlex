@@ -13,7 +13,10 @@ import ImportFileTab from "./ImportFileTab";
 import NewTermSidebar from "./NewTermSidebar";
 import CustomizedInput from "../common/CustomizedInput";
 import PredicateGroupInput from "../SingleTermView/OverView/PredicateGroupInput";
+import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
+import { termParser } from "../../../src/parsers/termParser";
 import { BackgroundPattern } from "../../Icons";
+const useMockApi = () => mockApi;
 
 const { gray100, gray200, gray400, gray600, gray800, gray900, brand700 } = vars;
 
@@ -58,11 +61,14 @@ const HeaderRightSideContent = ({ activeStep, onContinueClick, onClose, isContin
 );
 
 const AddNewTermDialog = ({ open, handleClose }) => {
+    const { getMatchTerms } = useMockApi();
+    const [termResults, setTermResults] = React.useState([]);
     const [activeStep, setActiveStep] = React.useState(0);
     const [tabValue, setTabValue] = React.useState(0);
     const [openSidebar, setOpenSidebar] = React.useState(false);
     const [areMatchesChecked, setAreMatchesChecked] = React.useState(false);
     const [predicates, setPredicates] = React.useState([{ subject: '', object: '' }]);
+    const [termValue, setTermValue] = React.useState("");
 
     const handleChangeTabs = (_, newValue) => setTabValue(newValue);
     const handleAddPredicate = () => setPredicates([...predicates, { subject: '', object: '' }]);
@@ -71,6 +77,17 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const handleMatchesChange = (e) => setAreMatchesChecked(e.target.checked);
     const handleCloseAndActiveStep = () => { handleClose(); setActiveStep(0); };
     const handleDeletePredicate = (index) => setPredicates(predicates.filter((_, i) => i !== index));
+
+    React.useEffect(() => {
+        // Call endpoint to retrieve terms that match search word
+        getMatchTerms("base", "i", { filter: "", value: "" }).then(data => {
+            const parsedData = termParser(data, termValue)
+            console.log("Parsed retrieved data: ", parsedData)
+            setTermResults(parsedData.results)
+        });
+    }, [termValue]);
+
+    const isResultsEmpty = termResults.length === 0;
 
     return (
         <CustomizedDialog
@@ -84,10 +101,10 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                 <Box display="flex" height={1}>
                     <Box sx={{ px: '3.25rem', pt: '1.75rem', pb: '2.5rem', flex: 1, overflowY: 'auto' }}>
                         <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["Manually", "Import"]} />
-                        {tabValue === 0 && <ManualImportTab handleSidebarOpen={() => setOpenSidebar(true)} matchesChecked={areMatchesChecked} handleMatchesChange={handleMatchesChange} />}
+                        {tabValue === 0 && <ManualImportTab handleSidebarOpen={() => setOpenSidebar(true)} matchesChecked={areMatchesChecked} handleMatchesChange={handleMatchesChange} isResultsEmpty={isResultsEmpty} setTermValue={setTermValue} />}
                         {tabValue === 1 && <ImportFileTab />}
                     </Box>
-                    {tabValue === 0 && <NewTermSidebar open={openSidebar} onToggle={handleSidebarToggle} />}
+                    {tabValue === 0 && <NewTermSidebar open={openSidebar} onToggle={handleSidebarToggle} results={termResults} />}
                 </Box>
             )}
             {activeStep === 1 && (

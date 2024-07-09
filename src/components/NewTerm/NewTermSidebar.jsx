@@ -6,7 +6,7 @@ import { vars } from '../../theme/variables';
 const { gray200, gray800, brand600 } = vars;
 
 
-export default function NewTermSidebar({ open, onToggle }) {
+export default function NewTermSidebar({ open, onToggle, results }) {
 
     return (
         <Box
@@ -36,7 +36,7 @@ export default function NewTermSidebar({ open, onToggle }) {
             ) : (
                 <Box>
                     <Tooltip title="Open potential matches" placement='left'>
-                        <IconButton onClick={onToggle} sx={{ border: `1px solid ${gray200}` }}>
+                        <IconButton onClick={onToggle} disabled={!results.length} sx={{ border: `1px solid ${gray200}` }}>
                             <JoinRightIcon />
                         </IconButton>
                     </Tooltip>
@@ -44,36 +44,38 @@ export default function NewTermSidebar({ open, onToggle }) {
             )}
             {open && (
                 <Box width={1} display="flex" flexDirection="column" alignItems="center" gap={1}>
-                    <Box width={1} display="flex" flexDirection="column" px={1} py={1.5} gap={1}
-                        sx={{
-                            borderBottom: '1px solid #DADDDC',
-                            position: 'relative',
-                            '&:hover': {
-                                '& .MuiTypography-body1': { color: '#1C5F54' },
-                                '&:before': {
-                                    position: 'absolute',
-                                    left: 0,
-                                    content: '""',
-                                    height: '1.5rem',
-                                    borderRadius: '3px',
-                                    width: '2px',
-                                    background: brand600
+                    {results.map((result) => (
+                        <Box width={1} key={result.id} display="flex" flexDirection="column" px={1} py={1.5} gap={1}
+                            sx={{
+                                borderBottom: '1px solid #DADDDC',
+                                position: 'relative',
+                                '&:hover': {
+                                    '& .MuiTypography-body1': { color: '#1C5F54' },
+                                    '&:before': {
+                                        position: 'absolute',
+                                        left: 0,
+                                        content: '""',
+                                        height: '1.5rem',
+                                        borderRadius: '3px',
+                                        width: '2px',
+                                        background: brand600
+                                    }
                                 }
-                            }
-                        }}
-                    >
-                        <Typography variant='body1' sx={{ color: '#313534', fontWeight: 500 }}>Nervous system</Typography>
-                        <Typography variant='caption' sx={{
-                            color: '#707574',
-                            overflow: 'hidden',
-                            letterSpacing: 0,
-                            whiteSpace: 'nowrap',
-                            textOverflow: 'ellipsis'
-                        }}
+                            }}
                         >
-                            The nervous system is an organ system containing predominantly neuron and glial cells. In bilaterally symmetrical organism, it is arranged in a network of tree-like structures connected to a central body.In all animals the nervous system probably differentiates from the embryonic ectodermal layer (Swanson, 2014).The main functions of the nervous system are to regulate and control body functions, and to receive sensory input, process this information, and generate behavior."The term was introduced by Monro in 1873.
-                        </Typography>
-                    </Box>
+                            <Typography variant='body1' sx={{ color: '#313534', fontWeight: 500 }}>{result.label}</Typography>
+                            <Typography variant='caption' sx={{
+                                color: '#707574',
+                                overflow: 'hidden',
+                                letterSpacing: 0,
+                                whiteSpace: 'nowrap',
+                                textOverflow: 'ellipsis'
+                            }}
+                            >
+                                {result.description}
+                            </Typography>
+                        </Box>
+                    ))}
                 </Box>
             )
             }

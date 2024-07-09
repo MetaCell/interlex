@@ -4,7 +4,7 @@ import { vars } from "../../theme/variables";
 
 const { gray50, gray300, gray400, gray600, gray700, gray800, gray900, brand600 } = vars;
 
-const CustomInputBox = ({ id, name, value, onInputChange, label, isRequired, helperText, placeholder, isEndAdornmentVisible, multiline }) => {
+const CustomInputBox = ({ id, name, value, onInputChange, label, isRequired, helperText, placeholder, isEndAdornmentVisible, multiline, sx }) => {
     return (
         <>
             <Stack direction="row" justifyContent="space-between" mb={1.5}>
@@ -21,7 +21,6 @@ const CustomInputBox = ({ id, name, value, onInputChange, label, isRequired, hel
                 helperText={helperText}
                 placeholder={placeholder}
                 multiline={multiline}
-                rows={multiline ? 4 : 0}
                 InputProps={{
                     endAdornment: isEndAdornmentVisible ? (
                         <InputAdornment position="end">
@@ -30,6 +29,7 @@ const CustomInputBox = ({ id, name, value, onInputChange, label, isRequired, hel
                     ) : null
                 }}
                 sx={{
+                    ...sx,
                     '& .MuiInputBase-root': {
                         padding: '0.5rem 0.75rem',
                         borderRadius: '0.5rem',
