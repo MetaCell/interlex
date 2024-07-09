@@ -4,8 +4,8 @@
  * Swagger Mock Missing Endpoints
  * OpenAPI spec version: 1.0.0
  */
-import type { Ontology } from './ontology';
-import type { Terms } from './terms';
+import type { OrganizationOntologiesItem } from './organizationOntologiesItem';
+import type { OrganizationTermsItem } from './organizationTermsItem';
 
 export interface Organization {
   /** author */
@@ -20,11 +20,11 @@ export interface Organization {
   legalName?: string;
   name: string;
   /** Ontology */
-  ontologies?: Ontology[];
+  ontologies?: OrganizationOntologiesItem[];
   /** review aspect */
   reviewAspect?: string;
   /** Terms */
-  terms?: Terms[];
+  terms?: OrganizationTermsItem[];
   /** Organization uri */
   url: string;
 }

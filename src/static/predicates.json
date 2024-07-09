@@ -1,5 +1,5 @@
-[
-  {
+{
+  "predicates": [{
     "title": "Is part of",
     "count": 7,
     "tableData": [
@@ -58,5 +58,11 @@
         "Objects": "Central nervous system 3"
       }
     ]
-  }
-]
+  }],
+  "annotationOptions": [
+    { "value": "DbX", "label": "has DbX ref" },
+    { "value": "exact", "label": "has exact synonym" },
+    { "value": "narrow", "label": "has narrow synonym" },
+    { "value": "related", "label": "has related synonym" }
+  ]
+}

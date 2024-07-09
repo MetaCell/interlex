@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { Avatar, Badge, Box, Button, Divider, IconButton, ListItemAvatar, Popover } from "@mui/material";
 import { vars } from "../../theme/variables";
-import { AddIcon, DocumentationIcon, LogoutIcon, NavIcon, OrganizationsIcon, ReleaseNotesIcon, TermActivityIcon, UserIcon } from '../../Icons';
+import { AddIcon, DocumentationIcon, LogoutIcon, NavIcon, OrganizationsIcon, ReleaseNotesIcon, TermActivityIcon, UserIcon, SortIcon } from '../../Icons';
 import Logo from '../../Icons/svg/interlex_logo.svg'
 import React from "react";
 import List from '@mui/material/List';
@@ -10,10 +10,10 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Search from './Search';
-import AddNewTermDialog from '../NewTerm/AddNewTermDialog';
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { GlobalDataContext } from "./../../contexts/DataContext";
+import AddNewTermDialog from "../NewTerm/AddNewTermDialog";
 
 const { gray200, white, gray100, gray600 } = vars;
 
@@ -38,7 +38,7 @@ const styles = {
             border: `0.0625rem solid ${gray200}`,
             borderRadius: '0.5rem',
             marginTop: '0.5rem',
-            padding: '0.3125rem 0.375rem'
+            minWidth: '15rem'
         },
 
         '& .MuiListItemIcon-root': {
@@ -47,7 +47,11 @@ const styles = {
         },
 
         '& .MuiList-root': {
-            padding: 0
+            paddingY: '0.25rem'
+        },
+
+        '& .MuiListItem-root': {
+            padding: '0.063rem 0.375rem'
         },
 
         '& .MuiListItemText-root': {
@@ -88,7 +92,7 @@ const NavMenu = [
     {
         label: 'Term activity',
         icon: <TermActivityIcon />,
-        href: '/term-activity'
+        href: '/predicates'
     },
     {
         label: 'Documentation',
@@ -105,7 +109,8 @@ const NavMenu = [
 const UserNavMenu = [
     {
         label: 'My dashboard',
-        icon: <UserIcon />
+        icon: <UserIcon />,
+        href: '/dashboard'
     },
     {
         label: 'Log out',
@@ -113,7 +118,7 @@ const UserNavMenu = [
     }
 ]
 
-const Header = ({ isLoggedIn = false }) => {
+const Header = ({ isLoggedIn = true }) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
     const { user, setUserData } = useContext(GlobalDataContext);
@@ -148,6 +153,10 @@ const Header = ({ isLoggedIn = false }) => {
         setAnchorElUser(null);
     };
 
+    const handleClickCurieEditor = () => {
+        navigate('curie-editor')
+    };
+
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
 
@@ -167,6 +176,7 @@ const Header = ({ isLoggedIn = false }) => {
     const handleMenuClick = (e, menu) => {
         navigate(menu.href)
     }
+
 
     const handleLogoClick = () => {
         navigate('/')
@@ -230,6 +240,15 @@ const Header = ({ isLoggedIn = false }) => {
                                     </ListItemButton>
                                 </ListItem>
                             ))}
+                            <Divider sx={{ mt: 0.5, mb: 0.5, color: gray200 }} />
+                            <ListItem disablePadding onClick={handleClickCurieEditor}>
+                                <ListItemButton>
+                                    <ListItemIcon>
+                                        <SortIcon />
+                                    </ListItemIcon>
+                                    <ListItemText primary={'Curie Editor'} />
+                                </ListItemButton>
+                            </ListItem>
                         </List>
                     </Popover>
                     <a href="/" style={{ cursor: 'pointer' }}>
@@ -247,7 +266,6 @@ const Header = ({ isLoggedIn = false }) => {
                             <Button>Register</Button>
                             <Button variant="outlined">Log in</Button>
                         </Box>
-                        <Divider sx={styles.divider} />
                         <Button variant="contained" onClick={handleNewTermDialogOpen}>
                             <AddIcon />
                             Add a new term
@@ -336,7 +354,7 @@ const Header = ({ isLoggedIn = false }) => {
                                 </ListItem>
                                 {UserNavMenu.map((menu, index) => (
                                     <ListItem key={index} disablePadding>
-                                        <ListItemButton>
+                                        <ListItemButton onClick={(e) => handleMenuClick(e, menu)}>
                                             <ListItemIcon>
                                                 {menu.icon}
                                             </ListItemIcon>

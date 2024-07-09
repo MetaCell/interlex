@@ -52,7 +52,14 @@ const CustomizedDialog = ({children, title, open, handleClose, HeaderRightSideCo
        </Box>
         {HeaderRightSideContent}
       </Box>
-      <DialogContent>
+      <DialogContent sx={{
+        padding: '2.25rem 3.25rem 2.5rem 3.25rem',
+        '&: has(.edit-terms)': {
+          paddingTop: 0,
+          paddingBottom: 0,
+          paddingRight: 0
+        }
+      }}>
         {children}
       </DialogContent>
     </Dialog>

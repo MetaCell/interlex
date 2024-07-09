@@ -33,16 +33,14 @@ import {
   AccountTreeOutlined
 } from "@mui/icons-material";
 import CustomIconTabs from "../common/CustomIconTabs";
-import DataVisualizerDropdown from "./DataVisualizerDropdown";
 import Discussion from "./Discussion";
 import { CodeIcon } from "../../Icons";
 import {useQuery} from "../../helpers";
-import ExpandIcon from "@mui/icons-material/Expand";
-import RemoveIcon from "@mui/icons-material/Remove";
+import CustomSingleSelect from "../common/CustomSingleSelect";
 
 const { gray200, brand700, gray600 } = vars;
 
-const dataFormats = ['JSON-LD', 'Turtle', 'N3', 'OWL', 'CSV']
+const dataFormats = [ 'JSON-LD', 'Turtle', 'N3', 'OWL', 'CSV']
 
 const SingleTermView = () => {
   const [open, setOpen] = React.useState(false);
@@ -52,7 +50,7 @@ const SingleTermView = () => {
   const [tabValue, setTabValue] = React.useState(0);
   const [isCodeViewVisible, setIsCodeViewVisible] = React.useState(false);
   const [iconTabValue, setIconTabValue] = React.useState(0);
-  const [selectedDataFormat, setSelectedDataFormat] = React.useState('Turtle');
+  const [selectedDataFormat, setSelectedDataFormat] = React.useState('JSON-LD');
   const query = useQuery();
   const searchTerm = query.get('searchTerm');
   const openDataFormatMenu = Boolean(dataFormatAnchorEl);
@@ -186,7 +184,7 @@ const SingleTermView = () => {
                     <Typography color={gray600} fontSize=".875rem" lineHeight="1.25rem">
                       Format to visualize:
                     </Typography>
-                    <DataVisualizerDropdown selectedValue={selectedDataFormat} setSelectedValue={setSelectedDataFormat} menuItems={dataFormats}/>
+                    <CustomSingleSelect value={selectedDataFormat} onChange={(v) => setSelectedDataFormat(v)} options={dataFormats} />
                   </Stack>
                   <Divider sx={{ ml: '0.625rem', mr: '0.625rem', border: `1px solid ${gray200}` }} /></>)
                 }

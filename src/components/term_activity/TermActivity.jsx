@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, CircularProgress, Grid, MenuItem, Select, Stack, FormControl, TableRow, TableCell, Chip } from "@mui/material";
+import { Box, Typography, CircularProgress, Grid, Stack, TableRow, TableCell, Chip } from "@mui/material";
 import CustomTable from "../common/CustomTable";
 import Checkbox from "../common/CustomCheckbox";
 import { getComparator, stableSort } from "../../utils";
 import { parseISO, format } from 'date-fns';
 import * as mockApi from '../../api/endpoints/swaggerMockMissingEndpoints';
 import { termParser } from '../../parsers/termParser'
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { vars } from "../../theme/variables";
-const { gray700, gray600, gray300 } = vars;
+import CustomSingleSelect from "../common/CustomSingleSelect";
+const {  gray600 } = vars;
 
 const headCells = [
     { id: 'label', label: 'Label' },
@@ -72,8 +72,8 @@ const TermActivity = () => {
         setPage(value);
     };
 
-    const handleNumberOfPagesChange = (event) => {
-        setNumberOfVisiblePages(event.target.value);
+    const handleNumberOfPagesChange = (value) => {
+        setNumberOfVisiblePages(value);
         setPage(1);
     };
 
@@ -109,10 +109,9 @@ const TermActivity = () => {
 
     useEffect(() => {
         setLoading(true)
-        getMatchTerms("b").then(data => { 
+        getMatchTerms("").then(data => { 
             const parsedData = termParser(data, 'brain')
-            console.log("Parsed retrieved data : ", parsedData)
-            setRows(parsedData)
+            setRows(parsedData?.results)
             setLoading(false)
         });
     }, []);
@@ -142,7 +141,6 @@ const TermActivity = () => {
             <CircularProgress />
         </Box>
     }
-
     if (error) {
         return <div>error</div>;
     }
@@ -158,35 +156,7 @@ const TermActivity = () => {
                 <Grid item display="flex" justifyContent='end' xs={12} lg={8}>
                     <Stack direction="row" alignItems="center" gap={1}>
                         <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Show on page:</Typography>
-                        <FormControl sx={{ minWidth: 75 }}>
-                            <Select
-                                value={numberOfVisiblePages}
-                                onChange={handleNumberOfPagesChange}
-                                displayEmpty
-                                IconComponent={KeyboardArrowDownIcon}
-                                sx={{
-                                    color: gray700,
-                                    borderRadius: '0.5rem !important',
-                                    fontSize: '0.875rem',
-                                    fontWeight: 600,
-                                    '& .MuiOutlinedInput-input': {
-                                        padding: '0.625rem 0.875rem'
-                                    },
-                                    '& .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: gray300
-                                    },
-                                    '& .MuiSvgIcon-root': {
-                                        color: gray700,
-                                        fontSize: '1.25rem',
-                                        right: '0.875rem !important'
-                                    }
-                                }}
-                            >
-                                {pageOptions.map(option => (
-                                    <MenuItem key={option} value={option}>{option}</MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                        <CustomSingleSelect value={numberOfVisiblePages} onChange={handleNumberOfPagesChange} pageOptions={pageOptions} />
                     </Stack>
                 </Grid>
             </Grid>

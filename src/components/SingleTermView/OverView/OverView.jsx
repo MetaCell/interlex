@@ -8,18 +8,49 @@ import Predicates from "./Predicates";
 import Details from "./Details";
 import RawDataViewer from "./RawDataViewer";
 import {useQuery} from "../../../helpers";
+import {useCallback, useEffect, useMemo, useState} from "react";
+import termParser from "../../../parsers/termParser";
+import * as mockApi from "../../../api/endpoints/interLexURIStructureAPI";
+import { debounce } from 'lodash';
+const useMockApi = () => mockApi;
 
 const OverView = ({ isCodeViewVisible, selectedDataFormat }) => {
   const query = useQuery();
   const searchTerm = query.get('searchTerm');
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { getEndpointsIlx } = useMockApi();
+  
+  const fetchTerms = useCallback(
+    debounce((searchTerm) => {
+      if (searchTerm) {
+        getEndpointsIlx("base", searchTerm).then(dat => {
+          const parsedData = termParser(dat);
+          setData(parsedData?.results[0]);
+          setLoading(false);
+        });
+      }
+    }, 300),
+    []
+  );
+  
+  useEffect(() => {
+    setLoading(true);
+    fetchTerms(searchTerm);
+    return () => {
+      fetchTerms.cancel();
+    };
+  }, [searchTerm, fetchTerms]);
 
+  const memoData = useMemo(() => data, [data]);
+  
   return (
     <Box p="2.5rem 5rem" sx={{
       overflow: 'auto',
     }}>
       {isCodeViewVisible ? <RawDataViewer dataId={"ilx_0101901"} dataFormat={selectedDataFormat} /> :
         <>
-          <Details term={searchTerm} />
+          <Details data={memoData} loading={loading} />
           <Box p='5rem 0'>
             <Divider />
             <Grid container pt='5.25rem' spacing='2.75rem'>
@@ -27,7 +58,7 @@ const OverView = ({ isCodeViewVisible, selectedDataFormat }) => {
                 <Hierarchy />
               </Grid>
               <Grid item xs={12} lg={8}>
-                <Predicates />
+                <Predicates data={memoData} loading={loading} />
               </Grid>
             </Grid>
           </Box>

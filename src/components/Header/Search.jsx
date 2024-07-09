@@ -80,17 +80,16 @@ const Search = () => {
   }, [handleKeyDown]);
   
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
-    const data = await getMatchTerms(searchTerm);
+    const data = await getMatchTerms( searchTerm, searchTerm);
     const parsedData = termParser(data, searchTerm);
-    setTerms(parsedData);
+    setTerms(parsedData?.results);
   }, 500), [getMatchTerms]);
   
   useEffect(() => {
-    if (storedSearchTerm !== searchTerm) {
+    if (searchTerm && (storedSearchTerm !== searchTerm)) {
       fetchTerms(searchTerm);
     }
   }, [searchTerm, fetchTerms, storedSearchTerm]);
-  
   
   useEffect(() => {
     if (storedSearchTerm !== searchTerm) {
