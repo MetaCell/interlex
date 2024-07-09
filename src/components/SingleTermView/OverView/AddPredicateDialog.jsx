@@ -1,5 +1,5 @@
 import CustomizedDialog from "../../common/CustomizedDialog";
-import {Box, Grid, Button} from "@mui/material";
+import {Box, Grid, Button, Select, MenuItem, FormControl} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import PlaylistAddOutlinedIcon from "@mui/icons-material/PlaylistAddOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
@@ -10,8 +10,9 @@ import {useState} from "react";
 import CustomizedInput from "../../common/CustomizedInput";
 import PredicateGroupInput from "./PredicateGroupInput";
 import {useQuery} from "../../../helpers";
+import predicatesData from '../../../static/predicates.json';
 
-const {gray800} = vars;
+const {gray800, gray700, gray300} = vars;
 
 const HeaderRightSideContent = ({handleClose, handleOpenAddPredicateStatusDialog}) => {
   return (
@@ -26,11 +27,12 @@ const HeaderRightSideContent = ({handleClose, handleOpenAddPredicateStatusDialog
   );
 };
 
-const AddPredicateDialog = ({open, handleClose, image}) => {
+const AddPredicateDialog = ({ open, handleClose, image }) => {
   const [openAddPredicateStatusDialog, setOpenAddPredicateStatusDialog] = useState(false);
-  const [predicates, setPredicates] = useState([{ subject: '', object: '' }]);
   const query = useQuery();
   const storedSearchTerm = query.get('searchTerm');
+  const [predicates, setPredicates] = useState([{ subject: storedSearchTerm, predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
+  
   const handleCloseAddPredicateStatusDialog = () => {
     setOpenAddPredicateStatusDialog(false);
   };
@@ -40,7 +42,7 @@ const AddPredicateDialog = ({open, handleClose, image}) => {
   };
   
   const handleAddPredicate = () => {
-    setPredicates([...predicates, { subject: '', object: '' }]);
+    setPredicates([...predicates, { subject: storedSearchTerm, predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
   };
   
   const handlePredicateChange = (index, field, value) => {
@@ -72,24 +74,54 @@ const AddPredicateDialog = ({open, handleClose, image}) => {
             Add predicate(s) to {storedSearchTerm}
           </Typography>
           {predicates.map((predicate, index) => (
-            <Grid container spacing='2.75rem' mb='2rem' key={index} alignItems='end'>
+            <Grid container spacing='1.75rem' mb='2rem' key={index} alignItems='end'>
               <Grid item xs={12} lg={3}>
                 <CustomizedInput
                   value={predicate.subject}
                   label='Subject'
                   placeholder='Subject term'
                   onChange={(e) => handlePredicateChange(index, 'subject', e.target.value)}
+                  disabled={true}
                 />
               </Grid>
-              <Grid item xs={12} lg={predicates.length > 1 ? 5 : 6}>
-                <PredicateGroupInput />
-              </Grid>
               <Grid item xs={12} lg={3}>
-                <CustomizedInput
-                  value={predicate.object}
-                  label='Object'
-                  placeholder='Object term'
-                  onChange={(e) => handlePredicateChange(index, 'object', e.target.value)}
+                <Typography sx={{
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  color: gray800,
+                  mb: '.75rem'
+                }}>
+                  Predicate
+                </Typography>
+                <FormControl sx={{ minWidth: 75 }} fullWidth>
+                  <Select
+                    value={predicate.predicate}
+                    onChange={(e) => handlePredicateChange(index, 'predicate', e.target.value)}
+                    displayEmpty
+                    sx={{
+                      color: gray700,
+                      borderRadius: '0.5rem !important',
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      '& .MuiOutlinedInput-input': { padding: '0.625rem 0.875rem' },
+                      '& .MuiOutlinedInput-notchedOutline': { borderColor: gray300 },
+                      '& .MuiSvgIcon-root': {
+                        color: gray700,
+                        fontSize: '1.25rem',
+                        right: '0.875rem !important'
+                      }
+                    }}
+                  >
+                    {
+                      predicatesData.predicates.map((predicate, i) => <MenuItem key={i} value={predicate.title}>{predicate.title}</MenuItem>)
+                    }
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} lg={predicates.length > 1 ? 5 : 6}>
+                <PredicateGroupInput
+                  predicate={predicate}
+                  onChange={(field, value) => handlePredicateChange(index, field, value)}
                 />
               </Grid>
               {predicates.length > 1 && (

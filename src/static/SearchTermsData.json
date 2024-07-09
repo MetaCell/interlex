@@ -1,0 +1,37 @@
+{
+  "objectOptions": [
+    { "value": "contain", "label": "Contain" },
+    { "value": "not-contain", "label": "Not contain" }
+  ],
+  "annotationOptions": [
+    { "value": "is", "label": "Is" },
+    { "value": "is-not", "label": "Is not" }
+  ],
+  "termsColumns": [
+    { "id": "label", "label": "Label", "minWidth": 300, "visibility": true },
+    { "id": "organization", "label": "Organization", "minWidth": 150, "visibility": false },
+    { "id": "description", "label": "Description", "minWidth": 300, "visibility": true, "sortable": false },
+    { "id": "existingIDs", "label": "Existing IDs", "minWidth": 300, "visibility": false },
+    { "id": "type", "label": "Type", "minWidth": 150, "visibility": false },
+    { "id": "superclass", "label": "Superclass", "minWidth": 150, "visibility": false },
+    { "id": "children", "label": "Children", "minWidth": 200, "visibility": false },
+    { "id": "ontology", "label": "Ontology", "minWidth": 150, "visibility": false },
+    { "id": "isPartOf", "label": "Is part of", "minWidth": 200, "visibility": false },
+    { "id": "relatedTo", "label": "Related to", "minWidth": 200, "visibility": false },
+    { "id": "hasExactSynonym", "label": "Has exact synonym", "minWidth": 300, "visibility": false },
+    { "id": "owlEquivalent", "label": "OWL equivalent", "minWidth": 300, "visibility": false }
+  ],
+  "termsRows": [
+    { "id": 1, "label": "Central nervous system", "description": "Presumptive CNS is formed by a circular cord with associated radial cords. However, there is no ganglion that could be considered as brain in invertebrate When a CNS is present, its obligate companion topographic division is a peripheral nervous system.", "existingIDs": ["UBERON:0001017", "FMA:55675", "ILX:0101901","FMA:55675","FMA:55675"] },
+    { "id": 2, "label": "Central nervous system", "description": "For invertebrates the longitudinal division consists of one or more nerve cords, whereas for vertebrates it consists of a single, hollow, and dorsal cerebrospinal axis.In adult Echinoderms, which are symmetrical, a presumptive CNS is formed by a circular cord with associated radial cords.", "existingIDs": ["UBERON:0001017", "FMA:55675", "ILX:0101901"] },
+    { "id": 3, "label": "Central nervous system", "description": "The central nervous system (CNS) is the part of the nervous system which includes the brain, spinal cord, and nerve cell layer of the retina.", "existingIDs": ["UBERON:0001017", "FMA:55675", "ILX:0101901"] },
+    { "id": 4, "label": "Central nervous system", "description": "However, there is no ganglion that could be considered as brain in invertebrate When a CNS is present, its obligate companion topographic division is a peripheral nervous system.", "existingIDs": ["UBERON:0001017", "FMA:55675", "ILX:0101901"] },
+    { "id": 5, "label": "Brain", "description": "In adult Echinoderms, which are radially symmetrical, a presumptive CNS is formed by a circular cord with associated radial cords. However, there is no ganglion that could be considered as brain in invertebrate When a CNS is present, its obligate companion topographic division is a peripheral nervous system.", "existingIDs": ["UBERON:0001017", "FMA:55675", "ILX:0101901"] },
+    { "id": 6, "label": "Cerebrospinal axis", "description": "The central nervous system (CNS) is the part of the nervous system which includes the brain, spinal cord, and nerve cell layer of the retina.", "existingIDs": ["UBERON:0001017", "FMA:55675", "ILX:0101901"] },
+    { "id": 7, "label": "somatic nervous system", "description": "However, there is no ganglion that could be considered as brain in invertebrate When a CNS is present, its obligate companion topographic division is a peripheral nervous system.", "existingIDs": ["UBERON:0001017", "FMA:55675", "ILX:0101901"] },
+    { "id": 8, "label": "Brain", "description": "In adult Echinoderms, which are radially symmetrical, a presumptive CNS is formed by a circular cord with associated radial cords. However, there is no ganglion that could be considered as brain in invertebrate When a CNS is present, its obligate companion topographic division is a peripheral nervous system.", "existingIDs": ["UBERON:0001017", "FMA:55675", "ILX:0101901"] },
+    { "id": 9, "label": "Cerebrospinal axis", "description": "The central nervous system (CNS) is the part of the nervous system which includes the brain, spinal cord, and nerve cell layer of the retina.", "existingIDs": ["UBERON:0001017", "FMA:55675", "ILX:0101901"] },
+    { "id": 10, "label": "somatic nervous system", "description": "In animals with bilateral symmetry, it is a topographic division that is a condensation of the nervous system in the longitudinal plane, lying on or near the median plane. For invertebrates the longitudinal division consists of one or more nerve cords, whereas for vertebrates it consists of a single, hollow, and dorsal cerebrospinal axis.In adult Echinoderms, which are radially symmetrical, a presumptive CNS is formed by a circular cord with associated radial cords.", "existingIDs": ["UBERON:0001017", "FMA:55675", "ILX:0101901"] },
+    { "id": 11, "label": "Central nervous system", "description": "The central nervous system (CNS) is the part of the nervous system which includes the brain, spinal cord, and nerve cell layer of the retina.", "existingIDs": ["UBERON:0001017", "FMA:55675", "ILX:0101901"] }
+  ]
+}

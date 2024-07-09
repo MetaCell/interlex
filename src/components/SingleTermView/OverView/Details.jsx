@@ -1,5 +1,3 @@
-import React, { useEffect, useState, useMemo } from "react";
-import axios from "axios";
 import {
   Box,
   Chip, CircularProgress,
@@ -8,28 +6,14 @@ import {
   Typography
 } from "@mui/material";
 import { vars } from "../../../theme/variables";
-import * as mockApi from './../../../api/endpoints/interLexURIStructureAPI';
-import { termParser } from './../../../parsers/termParser'
-
-const useMockApi = () => mockApi;
-
+import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 const { gray800, gray500 } = vars;
 
-const URL = "https://raw.githubusercontent.com/MetaCell/interlex/feature/ILEX-11/src/static/Details.json"
-const Details = ({ term }) => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const { getEndpointsIlx } = useMockApi();
+const Details = ({loading,  data }) => {
   
-  useEffect(() => {
-    getEndpointsIlx("base",term).then( dat => { 
-      const parsedData = termParser(dat);
-      setData(parsedData?.results[0])
-      setLoading(false)
-    })
-  }, [term]);
-  
-  const memoData = useMemo(() => data, [data]);
+  const handleChipClick = (url) => {
+    window.open(url, '_blank');
+  };
   
   if (loading) {
     return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -37,19 +21,19 @@ const Details = ({ term }) => {
     </Box>
   }
   
-  if (!memoData) {
+  if (!data) {
     return <div>No data available</div>;
   }
   return (
     <>
       <Grid container>
-        <Grid item xs={12} lg={6}>
+        <Grid item xs={12} lg={5}>
           <Stack spacing=".75rem">
             <Typography color={gray800} fontWeight={500}>
               Synonyms
             </Typography>
             <Box display="flex" flexWrap="wrap" gap=".5rem">
-              {memoData?.synonym?.map((synonym) => (
+              {data?.synonym?.map((synonym) => (
                 <Chip
                   className="rounded synonyms"
                   variant="outlined"
@@ -64,13 +48,13 @@ const Details = ({ term }) => {
             </Box>
           </Stack>
         </Grid>
-        <Grid item xs={12} lg={2}>
+        <Grid item xs={12} lg={3}>
           <Stack spacing=".75rem">
             <Typography color={gray800} fontWeight={500}>
               Preferred ID
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {memoData?.hasIlxPreferredId}
+              {data?.hasIlxPreferredId}
             </Typography>
           </Stack>
         </Grid>
@@ -80,8 +64,8 @@ const Details = ({ term }) => {
               Existing IDs
             </Typography>
             <Box display="flex" flexWrap="wrap" gap=".5rem">
-              {memoData?.existingID?.map((id) => (
-                <Chip className="rounded IDchip-outlined" variant="outlined" key={id} label={id} />
+              {data?.existingID?.map((id) => (
+                <Chip className="rounded IDchip-outlined" variant="outlined" key={id} label={id} icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(id)} />
               ))}
             </Box>
           </Stack>
@@ -94,7 +78,7 @@ const Details = ({ term }) => {
               Description
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {memoData?.description}
+              {data?.description}
             </Typography>
           </Stack>
         </Grid>
@@ -106,7 +90,7 @@ const Details = ({ term }) => {
               Type
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {memoData?.type}
+              {data?.type}
             </Typography>
           </Stack>
         </Grid>
@@ -116,7 +100,7 @@ const Details = ({ term }) => {
               Version
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {memoData?.versionInfo}
+              {data?.versionInfo}
             </Typography>
           </Stack>
         </Grid>
@@ -126,7 +110,7 @@ const Details = ({ term }) => {
               OWL equivalent
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {memoData?.owlEquivalent}
+              {data?.owlEquivalent}
             </Typography>
           </Stack>
         </Grid>
@@ -136,7 +120,7 @@ const Details = ({ term }) => {
               Originally submitted by
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {memoData?.submittedBy}
+              {data?.submittedBy}
             </Typography>
           </Stack>
         </Grid>
@@ -146,7 +130,7 @@ const Details = ({ term }) => {
               Last modified by
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {memoData?.lastModifiedBy}
+              {data?.lastModifiedBy}
             </Typography>
           </Stack>
         </Grid>
@@ -156,7 +140,7 @@ const Details = ({ term }) => {
               Last modify timestamp
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {memoData?.lastModifyTimestamp}
+              {data?.lastModifyTimestamp}
             </Typography>
           </Stack>
         </Grid>

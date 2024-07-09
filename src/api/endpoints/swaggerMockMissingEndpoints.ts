@@ -9,6 +9,7 @@ import type {
   Curies,
   Discussion,
   Discussions,
+  GetMatchTermsParams,
   Hierarchies,
   Ontologies,
   Organization,
@@ -120,9 +121,11 @@ export const getHierarchyResults = (
 export const getMatchTerms = (
     group: string,
     term: string,
+    params?: GetMatchTermsParams,
  options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<Terms>(
-      {url: `http://127.0.0.1:8080/${group}/search/${term}`, method: 'GET'
+      {url: `http://127.0.0.1:8080/${group}/search/${term}`, method: 'GET',
+        params
     },
       options);
     }

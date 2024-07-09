@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Divider, Grid, Stack, FormControl, Select, MenuItem } from "@mui/material";
+import { Box, Typography, Divider, Grid, Stack } from "@mui/material";
 import CustomButton from "../common/CustomButton";
 import BasicTabs from "../common/CustomTabs";
 import CurieEditorDialog from "./CurieEditorDialog";
 import CuriesTabPanel from "./CuriesTabPanel";
 import { EditNoteIcon } from "../../Icons";
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { vars } from "../../theme/variables";
+import CustomSingleSelect from "../common/CustomSingleSelect";
 
-const { gray200, gray300, gray600, gray700 } = vars;
+const { gray200, gray600, gray700 } = vars;
 
 const headCells = [
     { id: 'prefix', label: 'Prefix' },
@@ -72,8 +72,8 @@ const CurieEditor = () => {
         setTabValue(newValue);
     };
 
-    const handleNumberOfVisibleCuriesChange = (event) => {
-        setNumberOfVisibleCuries(event.target.value);
+    const handleNumberOfVisibleCuriesChange = (value) => {
+        setNumberOfVisibleCuries(value);
     };
 
     const image = new Image();
@@ -92,35 +92,7 @@ const CurieEditor = () => {
                     <Grid item display="flex" justifyContent='end' xs={12} lg={8}>
                         <Stack direction="row" alignItems="center" gap={1}>
                             <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Show on page:</Typography>
-                            <FormControl sx={{ minWidth: 75 }}>
-                                <Select
-                                    value={numberOfVisibleCuries}
-                                    onChange={handleNumberOfVisibleCuriesChange}
-                                    displayEmpty
-                                    IconComponent={KeyboardArrowDownIcon}
-                                    sx={{
-                                        color: gray700,
-                                        borderRadius: '0.5rem !important',
-                                        fontSize: '0.875rem',
-                                        fontWeight: 600,
-                                        '& .MuiOutlinedInput-input': {
-                                            padding: '0.625rem 0.875rem'
-                                        },
-                                        '& .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: gray300
-                                        },
-                                        '& .MuiSvgIcon-root': {
-                                            color: gray700,
-                                            fontSize: '1.25rem',
-                                            right: '0.875rem !important'
-                                        }
-                                    }}
-                                >
-                                    {pageOptions.map(option => (
-                                        <MenuItem key={option} value={option}>{option}</MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
+                            <CustomSingleSelect value={numberOfVisibleCuries} onChange={handleNumberOfVisibleCuriesChange} options={pageOptions} />
                         </Stack>
                         <Divider sx={{ border: `1px solid ${gray200}`, mx: '1rem' }} />
                         <CustomButton onClick={handleClickCurieEditor}>

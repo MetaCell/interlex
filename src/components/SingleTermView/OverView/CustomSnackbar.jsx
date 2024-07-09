@@ -37,8 +37,8 @@ const CustomSnackbar = ({ open, handleClose, onUndoDelete, data }) => {
                     <ErrorOutlinedIcon />
                 </IconButton>
                 <Stack direction="column" alignItems="flex-start">
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: gray900 }}>You’ve removed “{data.Subject}”</Typography>
-                    <Typography variant="body2" sx={{ color: gray600, mt: 0.5 }}>from {data.Objects} relationship “{data.Predicates}”.</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: gray900 }}>You’ve removed “{data.subject}”</Typography>
+                    <Typography variant="body2" sx={{ color: gray600, mt: 0.5 }}>from {data.object} relationship “{data.predicate}”.</Typography>
                     <Button variant="text" sx={{ color: gray600, mt: 1.5, ...snackbarStyles.snackbarButtonStyle }} onClick={onUndoDelete}>Undo</Button>
                 </Stack>
                 <IconButton onClick={handleClose}>
