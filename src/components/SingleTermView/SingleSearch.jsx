@@ -9,16 +9,14 @@ import {SearchIcon} from "../../Icons";
 import ListItem from "@mui/material/ListItem";
 
 const { brand300, gray50, gray200, gray900, gray600 } = vars;
-const SingleSearch = ({onChange, selectedValue, options, startAdornment = true, searchTerm, setSearchTerm, sx}) => {
+const SingleSearch = ({onChange, selectedValue, options, startAdornment = true, searchTerm, setSearchTerm, sx, placeholder, isFullWidth = true}) => {
   const autocompleteRef = useRef(null);
   const handleInputChange = (event) => {
     setSearchTerm(event.target.value);
   };
-  
   return (
     <Box ref={autocompleteRef} flex={1}>
       <Autocomplete
-        fullWidth
         disableCloseOnSelect
         disableClearable
         options={options}
@@ -74,7 +72,7 @@ const SingleSearch = ({onChange, selectedValue, options, startAdornment = true, 
           <TextField
             {...params}
             variant="outlined"
-            placeholder="Search for children"
+            placeholder={placeholder || "Search for children"}
             onChange={handleInputChange}
             InputProps={{
               ...params.InputProps,
