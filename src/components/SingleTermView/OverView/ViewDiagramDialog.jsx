@@ -8,16 +8,18 @@ import {vars} from "../../../theme/variables";
 import AddPredicateDialog from "./AddPredicateDialog";
 import {useState} from "react";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
+import Graph from "../../GraphViewer/Graph";
 
 const {gray600, gray700} = vars
 const HeaderRightSideContent = ({handleOpenAddPredicate, selectedItem, predicates}) => {
   const [type, setType] = React.useState(selectedItem?.title);
   const [count, setCount] = React.useState(selectedItem?.count)
-  const handleChangeType = (e) => {
-    setType(e.target.value)
+  const handleChangeType = (value) => {
+    setType(value)
     const selectedTypeCount = predicates.find(predicate => predicate.title === e.target.value).count
     setCount(selectedTypeCount)
   }
+
   return (
     <Box display='flex' alignItems='center'>
       <Typography color={gray700} fontSize='.875rem' mr='1.5rem'>
@@ -28,6 +30,9 @@ const HeaderRightSideContent = ({handleOpenAddPredicate, selectedItem, predicate
         value={type}
         onChange={handleChangeType}
         options={predicates}
+        FormControlSX={{
+          width: '15rem'
+        }}
       />
       <Divider orientation="vertical" flexItem sx={{
         m: '0 1rem'
@@ -53,7 +58,10 @@ const ViewDiagramDialog = ({open, handleClose, image, selectedItem, predicates})
  const handleOpenAddPredicate = () => {
     setOpenAddPredicate(true)
   }
-
+  const predicatesOptions = predicates.map(row => ({
+    label: row.title,
+    value: row.title
+  }))
   return (
     <>
       <CustomizedDialog
@@ -63,13 +71,16 @@ const ViewDiagramDialog = ({open, handleClose, image, selectedItem, predicates})
         HeaderRightSideContent={<HeaderRightSideContent
         selectedItem={selectedItem}
         handleOpenAddPredicate={handleOpenAddPredicate}
-        predicates={predicates}
+        predicates={predicatesOptions}
         />
       }
       >
-        Diagram
+        <Graph width={1200} height={600} predicate={selectedItem} />
       </CustomizedDialog>
-      <AddPredicateDialog open={openAddPredicate} handleClose={handleCloseAddPredicate} image={image} />
+      {
+        openAddPredicate && <AddPredicateDialog open={openAddPredicate} handleClose={handleCloseAddPredicate} image={image} predicates={predicatesOptions} />
+      }
+      
     </>
     
   )

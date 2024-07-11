@@ -16,6 +16,7 @@ import CustomizedTable from "./CustomizedTable";
 import CustomIconTabs from "../../common/CustomIconTabs";
 import ViewDiagramDialog from "./ViewDiagramDialog";
 import { useQuery } from "../../../helpers";
+import Graph from "../../GraphViewer/Graph";
 
 const { gray600 } = vars;
 
@@ -57,6 +58,10 @@ const PredicatesAccordion = ({ data, expandedTabValue }) => {
       setExpandedItems(data.map(() => false));
     }
   }, [expandedTabValue, data])
+  
+  React.useEffect(() => {
+    setTabValues(data?.map(() => 0))
+  }, [data])
 
   const image = new Image();
   image.onload = () => <img style={imgStyle} src={imgPath} alt="preview" />
@@ -97,9 +102,10 @@ const PredicatesAccordion = ({ data, expandedTabValue }) => {
           </AccordionSummary>
           <AccordionDetails>
             {tabValues[index] === 0 ? (
-              <CustomizedTable data={pred} term={term}/>
+              <CustomizedTable data={pred} term={term} />
             ) : (
               <Box display='flex' flexDirection='column'>
+                <Graph width={600} height={300} predicate={pred} />
                 <Button
                   variant='outlined'
                   onClick={(e) => handleClickViewDiagram(e, pred)}
@@ -115,14 +121,16 @@ const PredicatesAccordion = ({ data, expandedTabValue }) => {
           </AccordionDetails>
         </Accordion>
       ))}
-
-      <ViewDiagramDialog
-        open={openViewDiagram}
-        handleClose={handleCloseViewDiagram}
-        image={image}
-        selectedItem={selectedItem}
-        predicates={data}
-      />
+      {
+        openViewDiagram &&  <ViewDiagramDialog
+          open={openViewDiagram}
+          handleClose={handleCloseViewDiagram}
+          image={image}
+          selectedItem={selectedItem}
+          predicates={data}
+        />
+      }
+     
     </>
   );
 };
