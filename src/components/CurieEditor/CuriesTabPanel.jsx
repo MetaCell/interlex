@@ -120,6 +120,7 @@ const CuriesTabPanel = (props) => {
     const handleSort = (dir) => {
         setSortTriggered(true);
         setOrder(dir);
+        handleExit();
     }
 
     if (error) {
