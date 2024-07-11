@@ -1,7 +1,6 @@
 import {Box, MenuItem, Select, Typography} from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import {vars} from "../../../theme/variables";
-import CustomIconTabs from "../../common/CustomIconTabs";
 import {useCallback, useEffect, useState} from "react";
 import TextFieldsIcon from '@mui/icons-material/TextFields';
 import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
@@ -10,21 +9,25 @@ import termParser from "../../../parsers/termParser";
 import { debounce } from 'lodash';
 import * as mockApi from "../../../api/endpoints/swaggerMockMissingEndpoints";
 import predicatesData from "../../../static/predicates.json"
+import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
 
 const {gray700, gray300, gray800, gray600} = vars
 const useMockApi = () => mockApi;
 
 const PredicateGroupInput = ({ predicate, onChange }) => {
-  const [tabValues, setTabValues] = useState(0);
+  const [toggleButtonValue, setToggleButtonValue] = useState('text');
   const [objectSearchTerm, setObjectSearchTerm] = useState('');
   const [terms, setTerms] = useState([]);
   const [selectedType, setSelectedType] = useState(predicate.object.type);
   const { getMatchTerms } = useMockApi();
   
-  const onChangeTab = (event, newValue) => {
-    setTabValues(newValue);
-    onChange({ ...predicate.object, isLink: newValue === 1 });
-  };
+  const onToggleButtonChange = (event, newValue) => {
+    if (newValue) {
+      setToggleButtonValue(newValue);
+      onChange({ ...predicate.object, isLink: newValue === 'link' });
+      }
+    };
+  
   const handleSelectChange = (e) => {
     const newType = e.target.value;
     setSelectedType(newType);
@@ -104,17 +107,26 @@ const PredicateGroupInput = ({ predicate, onChange }) => {
             }
           }}
         />
-        <CustomIconTabs
-          tabs={[{ icon: <TextFieldsIcon />, value: 0 }, { icon: <LinkOutlinedIcon />, value: 1 }]}
-          value={tabValues}
-          handleChange={onChangeTab}
+        <ToggleButtonGroup
+          value={toggleButtonValue}
+          exclusive
+          onChange={onToggleButtonChange}
           sx={{
-            borderLeft: 0,
-            borderTopLeftRadius: 0,
-            borderBottomLeftRadius: 0,
-            height: '2.5rem'
+            height: '2.5rem',
+            '& .MuiToggleButtonGroup-firstButton': {
+              borderLeft: 0,
+              borderTopLeftRadius: 0,
+              borderBottomLeftRadius: 0,
+            }
           }}
-        />
+        >
+          <ToggleButton value={'text'}>
+            <TextFieldsIcon />
+          </ToggleButton>
+          <ToggleButton value={'link'}>
+            <LinkOutlinedIcon />
+          </ToggleButton>
+        </ToggleButtonGroup>
       </Box>
     </Box>
   );
