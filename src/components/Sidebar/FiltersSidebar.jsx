@@ -10,7 +10,7 @@ const useMockApi = () => mockApi;
 
 const { gray200, gray600, gray800, brand700, brand800 } = vars;
 
-export default function FiltersSidebarTemp() {
+export default function FiltersSidebar() {
     const [open, setOpen] = React.useState(true);
     const { getMatchTerms } = useMockApi();
     const query = useQuery();
@@ -36,14 +36,15 @@ export default function FiltersSidebarTemp() {
         }));
     };
 
-    React.useEffect(() => {
+    React.useEffect( () => {
         // Call endpoint to retrieve terms that match search word
-        getMatchTerms("i").then(data => {
-            const parsedData = termParser(data, storedSearchTerm);
-            console.log("Parsed retrieved data terms: ", parsedData);
-            setFilters(parsedData.filters);
+        getMatchTerms("base", "i", { filter: "", value: "" }).then(data => { 
+            const parsedData = termParser(data, storedSearchTerm)
+            console.log("Parsed retrieved data : ", parsedData)
+            setFilters(parsedData.filters)
         });
-    }, []);
+    }, [])
+
 
     return (
         <Box
