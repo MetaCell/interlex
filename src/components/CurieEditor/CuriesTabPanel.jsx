@@ -61,9 +61,8 @@ const CuriesTabPanel = (props) => {
     const debouncedUpdateRows = React.useMemo(
         () => debounce((updatedRows) => {
             setRows(updatedRows);
-            handleExit();
             console.log("here we connect UPDATE method")
-        }, 500),
+        }, 5000),
         []
     );
 
