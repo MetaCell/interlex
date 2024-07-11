@@ -59,7 +59,7 @@ const Graph = ({ width, height, predicate }) => {
     d3.selectAll(".node--g")
                 .on("mouseleave", mouseleave)
     setTimeout( () => {
-        getMatchTerms(term, term).then(data => {
+        getMatchTerms('base', term).then(data => {
             const parsedData = termParser(data, term)
             setTerms(parsedData.results)
         });

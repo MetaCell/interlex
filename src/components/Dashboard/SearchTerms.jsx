@@ -1,5 +1,4 @@
 import {Button, Grid, Typography, Box} from "@mui/material";
-import { useState } from "react";
 import { vars } from "../../theme/variables";
 import CustomizedInput from "../common/CustomizedInput";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -11,10 +10,7 @@ import CustomSingleSelect from "../common/CustomSingleSelect";
 
 const { gray800 } = vars;
 
-const SearchTerms = () => {
-  const initialTermsCondition = { attribute: '', value: '', logic: 'where', condition: SearchTermsData.objectOptions[0].value }
-  const [terms, setTerms] = useState([initialTermsCondition]);
-  
+const SearchTerms = ({terms, setTerms, initialTermsCondition}) => {
   const handleTermChange = (index, field, value) => {
     const newTerms = [...terms];
     newTerms[index][field] = value;

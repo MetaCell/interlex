@@ -61,7 +61,7 @@ const AddPredicateDialog = ({ open, handleClose, image, predicates: fetchedPredi
   };
   
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
-    const data = await getMatchTerms(searchTerm, searchTerm);
+    const data = await getMatchTerms('base', searchTerm);
     const parsedData = termParser(data, searchTerm);
     setTerms(parsedData?.results);
   }, 500), [getMatchTerms]);

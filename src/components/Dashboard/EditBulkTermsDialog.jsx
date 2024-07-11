@@ -7,6 +7,10 @@ import EditTerms from "./EditTerms";
 import {ArrowBack} from "@mui/icons-material";
 import StatusDialog from "./StatusDialog";
 import PropTypes from "prop-types";
+import {useState} from "react";
+import SearchTermsData from "../../static/SearchTermsData.json";
+
+const initialTermsCondition = { attribute: '', value: '', logic: 'where', condition: SearchTermsData.objectOptions[0].value }
 const HeaderRightSideContent = ({ handleClose, activeStep, handleNext, handleBack, setActiveStep }) => {
   return (
     <Box display='flex' alignItems='center' gap='.75rem'>
@@ -44,6 +48,7 @@ const HeaderRightSideContent = ({ handleClose, activeStep, handleNext, handleBac
 };
 
 const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) => {
+  const [terms, setTerms] = useState([initialTermsCondition]);
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
@@ -69,10 +74,10 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
     >
       <>
         {
-          activeStep === 0 && <SearchTerms />
+          activeStep === 0 && <SearchTerms terms={terms} setTerms={setTerms} initialTermsCondition={initialTermsCondition} />
         }
         {
-          activeStep === 1 && <EditTerms />
+          activeStep === 1 && <EditTerms terms={terms} />
         }
         {
           activeStep === 2 && <StatusDialog setActiveStep={setActiveStep} />
