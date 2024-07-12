@@ -215,6 +215,18 @@ paths:
           description: The id of the term to retrieve
           schema:
             type: string
+        - in: query
+          name: filter
+          required: false
+          description: A property to filter results by
+          schema:
+            type: string
+        - in: query
+          name: value
+          required: false
+          description: The value for the filter specified above
+          schema:
+            type: string
       responses:
         200:
           description: A paged array of terms

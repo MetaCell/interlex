@@ -15,6 +15,7 @@ export * from './discussions';
 export * from './error';
 export * from './getEndpointsCuries200';
 export * from './getEndpointsCuriesDefault';
+export * from './getMatchTermsParams';
 export * from './hierarchies';
 export * from './hierarchy';
 export * from './maskErrorResponse';

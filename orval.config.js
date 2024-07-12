@@ -17,6 +17,7 @@ module.exports = {
       schemas: "./src/model/backend",
       baseUrl: 'https://uri.olympiangods.org/',
       mock: true,
+      client: 'react-query',
       override: {
         mutator: {
           path: './mock/mutator/customClient.ts',
@@ -153,6 +154,13 @@ module.exports = {
           get_match_terms: {
             mock: {
               data: mockTerms,
+            },
+            query: {
+              useQuery: true,
+              useSuspenseQuery: true,
+              useSuspenseInfiniteQuery: true,
+              useInfinite: true,
+              useInfiniteQueryParam: ['filter', "value"],
             },
           },
         },

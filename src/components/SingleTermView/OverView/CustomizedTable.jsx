@@ -1,13 +1,14 @@
 import { Box, IconButton, Typography, TextField, Button } from "@mui/material";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import TableRow from "./TableRow";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { vars } from "../../../theme/variables";
-import { debounce } from 'lodash';
+import _ , { debounce } from 'lodash';
 import { getMatchTerms } from "../../../api/endpoints";
 import CustomSnackbar from "./CustomSnackbar";
+import SingleSearch from "../SingleSearch";
 
 const { gray100, gray50, gray600, gray500, brand600, brand50, brand700, gray700 } = vars;
 
@@ -65,6 +66,9 @@ const tableStyles = {
       fontSize: '0.875rem',
       fontWeight: 400,
       lineHeight: '1.25rem',
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap"
     },
     '& > .MuiBox-root': {
       display: 'flex',
@@ -154,17 +158,15 @@ const CustomizedTable = ({ data, term }) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [tableContent, setTableContent] = useState(data?.tableData);
   const [tableHeader, setTableHeader] = useState([
-    { key: 'Subject', label: 'Subject', allowSort: false, direction: 'desc' },
-    { key: 'Predicates', label: 'Predicates', allowSort: false },
-    { key: 'Objects', label: 'Objects', allowSort: true, direction: 'desc' },
+    { key: 'subject', label: 'Subject', allowSort: false, direction: 'desc' },
+    { key: 'predicate', label: 'Predicates', allowSort: false },
+    { key: 'object', label: 'Objects', allowSort: true, direction: 'desc' },
     { key: '', label: '' }
   ]);
 
   const [showSelect, setShowSelect] = useState(false);
-  const [subject, setSubject] = useState('');
   const [object, setObject] = useState('');
   const [terms, setTerms] = useState([]);
-  const [subjectSearchTerm, setSubjectSearchTerm] = useState('');
   const [objectSearchTerm, setObjectSearchTerm] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState(-1);
@@ -255,7 +257,7 @@ const CustomizedTable = ({ data, term }) => {
   const handleDelete = (dataObj) => {
     setSnackbarOpen(true);
     setDeletedObj(dataObj);
-    setTableContent((prev) => prev.filter((row) => row.id !== dataObj.id));
+    setTableContent((prev) => prev.filter((row) => !_.isEqual(row, dataObj)));
   };
 
   const handleInputChange = (e, index, setter) => {
@@ -267,47 +269,42 @@ const CustomizedTable = ({ data, term }) => {
     });
   };
 
-  const updateTableContent = (newSubject, newObject) => {
+  const updateTableContent = (term, newObject) => {
     const newId = tableContent.length + 1;
     const newRow = {
       id: newId.toString(),
-      Subject: newSubject,
-      Predicates: data?.title,
-      Objects: newObject
+      subject: term,
+      predicate: data?.title,
+      object: newObject
     };
 
     setTableContent([...tableContent, newRow]);
     setShowSelect(false);
-    setSubject('');
     setObject('');
-    setSubjectSearchTerm('');
     setObjectSearchTerm('');
   };
-
-  useEffect(() => {
-    if (subject && object) {
-      updateTableContent(subject, object);
+  
+  
+  const handleSelectChange = (e, type) => {
+    if (type === 'object') {
+      setObject(e.label);
     }
-  }, [subject, object])
-
-
+    setTerms([])
+    if (object) {
+      updateTableContent(type === 'subject' ? e.label : subject, type === 'object' ? e.label : object);
+    }
+  };
+  
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await getMatchTerms(searchTerm);
     setTerms(data?.results);
   }, 500), [getMatchTerms]);
-
-  useEffect(() => {
-    if (subjectSearchTerm) {
-      fetchTerms(subjectSearchTerm, 'subject');
-    }
-  }, [subjectSearchTerm, fetchTerms]);
-
+  
   useEffect(() => {
     if (objectSearchTerm) {
-      fetchTerms(objectSearchTerm, 'object');
+      fetchTerms(objectSearchTerm);
     }
   }, [objectSearchTerm, fetchTerms]);
-
 
   return (
     <>
@@ -367,12 +364,14 @@ const CustomizedTable = ({ data, term }) => {
               <Typography>{data.title.toLowerCase()}</Typography>
             </Box>
             <Box sx={{ width: '100%' }}>
-              <TextField
-                value={object}
-                name="Objects"
-                onChange={(e) => setObject(e.target.value)}
-                placeholder="Enter URL or term name"
-                sx={tableStyles.input}
+              <SingleSearch
+                selectedValue={object}
+                onChange={(e) => handleSelectChange(e, 'object')}
+                startAdornment={false}
+                options={terms}
+                searchTerm={objectSearchTerm}
+                setSearchTerm={setObjectSearchTerm}
+                placeholder={"Enter URL or term name"}
               />
             </Box>
             <Box justifyContent="flex-end">

@@ -2,15 +2,34 @@ import { useMemo, useEffect, useState } from "react";
 import data from "./GraphStructure";
 import * as d3 from "d3";
 import { getMatchTerms } from './../../api/endpoints';
+import {useQuery} from "../../helpers";
+import {Box, Button, Collapse} from "@mui/material";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import SingleSearch from "../SingleTermView/SingleSearch";
 
 const MARGIN = { top: 60, right: 60, bottom: 60, left: 60 };
 
-const Graph = ({ width, height }) => {
+const Graph = ({ width, height, predicate }) => {
   const boundsWidth = width - MARGIN.right - MARGIN.left;
   const boundsHeight = height - MARGIN.top - MARGIN.bottom;
 
   const [terms, setTerms] = useState(undefined);
-
+  const [objectSearchTerm, setObjectSearchTerm] = useState('');
+  const [object, setObject] = useState('');
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  
+  const query = useQuery();
+  const term = query.get('searchTerm');
+  
+  const handleSelectChange = (v) => {
+    setObject(v.label)
+    setIsSearchVisible(false)
+  }
+  
+  const handleButtonClick = () => {
+    setIsSearchVisible(!isSearchVisible);
+  };
+  
   // Three function that change the tooltip when user hover / move / leave a cell
   const mouseover = (d) => {
     d3.select("#tooltip")
@@ -124,8 +143,8 @@ const Graph = ({ width, height }) => {
   });
 
   return (
-    <div id="div_template" >
-      <div id="tooltip" style={{position: "fixed", width: "200px",height: "200px"}}></div>
+    <Box id="div_template" >
+      <Box id="tooltip" style={{position: "fixed", width: "200px",height: "200px"}}></Box>
       <svg width={width} height={height} >
         <g
           width={boundsWidth}
@@ -136,7 +155,42 @@ const Graph = ({ width, height }) => {
           {allNodes}
         </g>
       </svg>
-    </div>
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'end',
+        m: '1rem 8rem auto',
+      }}>
+        {isSearchVisible ? (
+            <Collapse in={isSearchVisible} timeout={10000}
+                      unmountOnExit
+                      TransitionProps={{
+                        timeout: { enter: 10000, exit: 100 }
+                      }}>
+              <SingleSearch
+                isFullWidth={false}
+                selectedValue={object}
+                onChange={(e) => handleSelectChange(e)}
+                startAdornment={false}
+                options={terms}
+                searchTerm={objectSearchTerm}
+                setSearchTerm={setObjectSearchTerm}
+                placeholder="Enter URL or term name"
+                sx={{
+                  width: '15rem'
+                }}
+              />
+            </Collapse>
+        ) : <Button
+          startIcon={<AddOutlinedIcon />}
+          type="string"
+          color="secondary"
+          onClick={handleButtonClick}
+        >
+          Add object
+        </Button>}
+      </Box>
+      
+    </Box>
   );
 };
 

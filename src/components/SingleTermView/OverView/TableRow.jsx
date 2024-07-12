@@ -4,9 +4,8 @@ import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutl
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
 const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, index, onInputChange, onDeleteClick, rowIndex, onRowIndexChange, onSaveEdits }) => {
-  const { id, Subject, Predicates, Objects } = data;
+  const { id, subject, predicate, object } = data;
   const [isHovered, setIsHovered] = useState(false);
-
   return (
     <Box sx={tableStyles.root}
       draggable={true}
@@ -16,28 +15,28 @@ const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, inde
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Box sx={{ paddingLeft: '0 !important' }}>
+      <Box sx={{ paddingLeft: "0 !important" }}>
         <Typography>
-          {Subject}
+          {subject}
         </Typography>
       </Box>
       <Box>
         <Typography>
-          {Predicates}
+          {predicate}
         </Typography>
       </Box>
       <Box>
         {rowIndex === index ? (
           <TextField
-            value={Objects}
-            name="Objects"
+            value={object}
+            name="object"
             onChange={(e) => onInputChange(e, index)}
             placeholder="Enter URL or term name"
             sx={tableStyles.input}
           />
         ) : (
           <Typography>
-            {Objects}
+            {object}
           </Typography>
         )}
       </Box>

@@ -2,12 +2,12 @@
 
 This template provides instructions on how to use the API.
 
-- [API - Search for Terms](https://github.com/MetaCell/interlex/tree/feature/ILEX-22/src/api#searching-for-terms)
-- [API - Get Curies](https://github.com/MetaCell/interlex/tree/feature/ILEX-22/src/api#retrieving-curies)
-- [API - Get Single Term](https://github.com/MetaCell/interlex/tree/feature/ILEX-22/src/api#retrieving-single-term)
-- [API - Get Variants](https://github.com/MetaCell/interlex/tree/feature/ILEX-22/src/api#retrieving-variants)
-- [API - Get Versions](https://github.com/MetaCell/interlex/tree/feature/ILEX-22/src/api#retrieving-versions)
-- [API - Get Raw Data](https://github.com/MetaCell/interlex/tree/feature/ILEX-22/src/api#retrieving-raw-data)
+- [API - Search for Terms](#searching-for-terms)
+- [API - Get Curies](#retrieving-curies)
+- [API - Get Single Term](#retrieving-single-term)
+- [API - Get Variants](#retrieving-variants)
+- [API - Get Versions](#retrieving-versions)
+- [API - Get Raw Data](#retrieving-raw-data)
 
 
 ### Searching for Terms
@@ -29,6 +29,7 @@ const Test = () => {
     render ();
 };
 ```
+To add filters to the search endpoint, use the third parameter and pass an object with a populated filter and value as in the example : { filter: "", value: "" }
 
 - Sample Search Return. 
 
