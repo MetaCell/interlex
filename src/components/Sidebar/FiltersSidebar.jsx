@@ -1,34 +1,14 @@
 import React from 'react';
 import { Box, Typography, IconButton, Tooltip, FormGroup, FormLabel, FormControl, Button } from '@mui/material';
 import Checkbox from '../common/CustomCheckbox';
-import { useContext } from "react";
-import { GlobalDataContext } from "./../../contexts/DataContext";
 import { CollapseIcon, HelpOutlinedIcon, ExpandIcon } from '../../Icons';
 import { vars } from '../../theme/variables';
 
 const { gray200, gray600, gray800, brand700, brand800 } = vars;
 
-export default function FiltersSidebar({filterOptions}) {
+export default function FiltersSidebar({ filters, checkedLabels, handleCheckboxChange }) {
     const [open, setOpen] = React.useState(true);
-    // Filters stored in context
-    const { searchTypeFilter, setTypeFiltersData } = useContext(GlobalDataContext);
     const [expandedFilters, setExpandedFilters] = React.useState({});
-    const [filterValues, setFilterValues] = React.useState(
-        filterOptions.reduce((acc, option) => {
-            acc[option.category] = option.values.map(value => ({
-                title: value.title,
-                count: value.count,
-                isChecked: value.isChecked
-            }));
-            return acc;
-        }, {})
-    );
-
-
-    // Store filters changes in context
-    const handleSaveFilters = (values) => {
-        setTypeFiltersData(values);
-    };
 
     const handleToggleExpand = (category) => {
         setExpandedFilters((prev) => ({
@@ -37,27 +17,8 @@ export default function FiltersSidebar({filterOptions}) {
         }));
     };
 
-    const handleCheckboxChange = (category, index) => {
-        setFilterValues(prev => {
-            const updatedCategory = [...prev[category]];
-            updatedCategory[index].isChecked = !updatedCategory[index].isChecked;
+    const nonEmptyFilters = Object.keys(filters).filter(category => Object.keys(filters[category]).length > 0);
 
-            return {
-                ...prev,
-                [category]: updatedCategory
-            };
-        });
-    };
-
-    // Respond to filters changes in context
-    React.useEffect( () => {
-        console.log("Filters stored ", searchTypeFilter)
-    }, [searchTypeFilter])
-
-    // Save filters in context when they change
-    React.useEffect( () => {
-        handleSaveFilters(filterValues)
-    }, filterValues)
 
     return (
         <Box
@@ -92,16 +53,16 @@ export default function FiltersSidebar({filterOptions}) {
             )}
             {open && (
                 <Box width={1} display="flex" flexDirection="column" alignItems="center" gap={3}>
-                    {filterOptions.map((filterOption) => {
-                        const isExpanded = expandedFilters[filterOption.category] || false;
-                        const displayedValues = isExpanded ? filterValues[filterOption.category] : filterValues[filterOption.category].slice(0, 10);
+                    {nonEmptyFilters.map((category) => {
+                        const isExpanded = expandedFilters[category] || false;
+                        const displayedValues = isExpanded ? Object.entries(filters[category]) : Object.entries(filters[category]).slice(0, 10);
 
                         return (
-                            <FormControl key={filterOption.category} sx={{ width: '100%' }} component="fieldset" variant="standard">
+                            <FormControl key={category} sx={{ width: '100%' }} component="fieldset" variant="standard">
                                 <Box display="flex" alignItems="center" justifyContent="space-between" mb={1.5}>
-                                    <FormLabel component="legend">{filterOption.category}</FormLabel>
-                                    {filterOption?.categoryInfo && (
-                                        <Tooltip title={filterOption?.categoryInfo}>
+                                    <FormLabel component="legend">{category}</FormLabel>
+                                    {category === "Superclass" && (
+                                        <Tooltip title={category}>
                                             <IconButton sx={{ p: 0, color: '#979B9A' }}>
                                                 <HelpOutlinedIcon />
                                             </IconButton>
@@ -109,25 +70,27 @@ export default function FiltersSidebar({filterOptions}) {
                                     )}
                                 </Box>
                                 <FormGroup sx={{ gap: 1.5 }}>
-                                    {displayedValues.map((filterValue, index) => (
-                                        <Box key={filterValue.title + index} display="flex" alignItems="center" justifyContent="space-between">
-                                            <Checkbox
-                                                label={filterValue.title}
-                                                checked={filterValue.isChecked}
-                                                onChange={() => handleCheckboxChange(filterOption.category, index)}
-                                            />
-                                            <Typography variant="body2" sx={{ color: gray600, lineHeight: '1.25rem' }}>
-                                                {filterValue.count}
-                                            </Typography>
-                                        </Box>
-                                    ))}
-                                    {filterOption.values.length > 10 && (
+                                    {displayedValues.map(([subCategory, details]) => {
+                                        return (
+                                            <Box key={details.label} display="flex" alignItems="center" justifyContent="space-between">
+                                                <Checkbox
+                                                    label={details.label}
+                                                    checked={checkedLabels[category]?.[details.label] || false}
+                                                    onChange={() => handleCheckboxChange(category, details.label)}
+                                                />
+                                                <Typography variant="body2" sx={{ color: gray600, lineHeight: '1.25rem' }}>
+                                                    {details.ids.length}
+                                                </Typography>
+                                            </Box>
+                                        );
+                                    })}
+                                    {Object.keys(filters[category]).length > 10 && (
                                         <Button
                                             variant="text"
                                             sx={{ width: '5rem', height: '1.25rem', p: 0, color: brand700, '&:hover': { color: brand800, background: 'transparent' } }}
-                                            onClick={() => handleToggleExpand(filterOption.category)}
+                                            onClick={() => handleToggleExpand(category)}
                                         >
-                                            {isExpanded ? 'Show less' : 'Show more'}
+                                            {isExpanded ? 'Show less' : 'Show more '}
                                         </Button>
                                     )}
                                 </FormGroup>
