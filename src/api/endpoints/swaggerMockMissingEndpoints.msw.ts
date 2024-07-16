@@ -21,6 +21,7 @@ import type {
   Organization,
   Organizations,
   Terms,
+  User,
   Variants,
   Versions
 } from '../../model/backend'
@@ -41,6 +42,18 @@ export const getRegisterResponseMock = () => ((() => ({
                 status: 200,
                 token: "",
                 username: ""
+              }))())
+
+export const getGetUserResponseMock = () => ((() => ({
+                status: 200,
+                token: "",
+                username: "Olivia Rhye",
+                creation_date: "April 27, 2020",
+                email: "oliviarhye@gmail.com",
+                actions: "",
+                term_variants: ["ILX_0001", "ILX_0002"],
+                merge_reviews: ["Review 1", "Review2"],
+                organizations: ["Organization 11", "Organization 2"]
               }))())
 
 export const getGetOrganizationResponseMock = () => ((() => {
@@ -1057,6 +1070,20 @@ export const getRegisterMockHandler = (overrideResponse?: void) => {
   })
 }
 
+export const getGetUserMockHandler = (overrideResponse?: User) => {
+  return http.get('*/operations/getUser/:id', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetUserResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
 export const getGetOrganizationMockHandler = (overrideResponse?: Organization) => {
   return http.get('*/operations/getOrganization/:id', async () => {
     await delay(1000);
@@ -1242,6 +1269,7 @@ export const getSwaggerMockMissingEndpointsMock = () => [
   getLoginMockHandler(),
   getLogoutMockHandler(),
   getRegisterMockHandler(),
+  getGetUserMockHandler(),
   getGetOrganizationMockHandler(),
   getNewOrganizationMockHandler(),
   getGetOrganizationsMockHandler(),

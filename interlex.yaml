@@ -72,6 +72,30 @@ paths:
             enum:
               - EMAIL
               - USERNAME
+  /operations/getUser/{id}:
+    get:
+      summary: Used to retrieve a specific user.
+      operationId: get_user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the user to retrieve
+          schema:
+            type: string
+      responses:
+        200:
+          description: The user retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: Bad Request, bad input parameter for User POST request.
+        403:
+          description: The request cannot be fullfilled due to the permission of your account.
+      tags:
+        - API
   /operations/getOrganization/{id}:
     get:
       summary: Used to retrieve a specific organization.

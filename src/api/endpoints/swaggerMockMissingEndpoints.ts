@@ -15,6 +15,7 @@ import type {
   Organization,
   Organizations,
   Terms,
+  User,
   Variants,
   Versions
 } from '../../model/backend'
@@ -57,6 +58,18 @@ export const register = (
  options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<void>(
       {url: `http://127.0.0.1:8080/operations/signup`, method: 'POST'
+    },
+      options);
+    }
+  
+/**
+ * @summary Used to retrieve a specific user.
+ */
+export const getUser = (
+    id: string,
+ options?: SecondParameter<typeof customInstance>,) => {
+      return customInstance<User>(
+      {url: `http://127.0.0.1:8080/operations/getUser/${id}`, method: 'GET'
     },
       options);
     }
@@ -242,6 +255,7 @@ type AwaitedInput<T> = PromiseLike<T> | T;
 export type LoginResult = NonNullable<Awaited<ReturnType<typeof login>>>
 export type LogoutResult = NonNullable<Awaited<ReturnType<typeof logout>>>
 export type RegisterResult = NonNullable<Awaited<ReturnType<typeof register>>>
+export type GetUserResult = NonNullable<Awaited<ReturnType<typeof getUser>>>
 export type GetOrganizationResult = NonNullable<Awaited<ReturnType<typeof getOrganization>>>
 export type NewOrganizationResult = NonNullable<Awaited<ReturnType<typeof newOrganization>>>
 export type GetOrganizationsResult = NonNullable<Awaited<ReturnType<typeof getOrganizations>>>
