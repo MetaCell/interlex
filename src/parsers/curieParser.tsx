@@ -21,11 +21,11 @@ const getCurie = (data, key) => {
 
 /** Return results between two indeces */
 const indexRange = (arr, start, end) => {
-    return arr?.slice(start, end)
+    return start && end ? arr?.slice(start, end) : arr;
 }
 
 /** Format terms and return array between two indeces */
-const formatCuries = (curies, start, end) => {
+const formatCuries = (curies, start?, end?) => {
     return indexRange(curies, start, end);
 }
 
@@ -36,7 +36,7 @@ const formatCuries = (curies, start, end) => {
  * @param end - Index of where to end returning data
  * @returns - Array of Terms, it's size depends on passed indexes ( end - start )
  */
-export const curieParser = (data, start, end) => {
+export const curieParser = (data, start?, end?) => {
     const keys = Object.keys(data[0]);
 
     const curies : Curies = keys?.map( curie => {

@@ -5,4 +5,4 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface Curie { [key: string]: any }
+export type Curie = unknown;

@@ -5,4 +5,4 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface Curies {[key: string]: string}
+export type DefaultTermPrefixes = { [key: string]: any };
