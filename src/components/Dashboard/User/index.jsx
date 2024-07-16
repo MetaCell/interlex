@@ -12,7 +12,7 @@ const breadcrumbItems = [
 ];
 
 const user = {
-  name: 'Olivia Rhye dashboard',
+  name: 'Olivia Rhye',
   email: 'olivia@untitledui.com',
   ORCID: '0009-0004-9628-8563',
   role: 'Contributor',
@@ -32,7 +32,7 @@ const User = () => {
       <CustomBreadcrumbs breadcrumbItems={breadcrumbItems} />
       <Box display='flex' alignItems='center' justifyContent='space-between'>
         <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
-          {user.name}
+          {user.name} dashboard
         </Typography>
         <Button
           startIcon={<SettingsOutlined />}
