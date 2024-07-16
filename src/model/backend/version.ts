@@ -4,5 +4,12 @@
  * Swagger Mock Missing Endpoints
  * OpenAPI spec version: 1.0.0
  */
+import type { VersionFork } from './versionFork';
 
-export interface Version { [key: string]: any }
+export interface Version {
+  action: string;
+  author: string;
+  fork: VersionFork;
+  id: string;
+  lastModifyBy: string;
+}

@@ -2,10 +2,7 @@ import React from "react";
 import { Box, List } from "@mui/material";
 import HistoryItem from "./HistoryItem";
 import { vars } from "../../../theme/variables";
-import * as mockApi from './../../../api/endpoints/swaggerMockMissingEndpoints';
-import { versionsParser } from './../../../parsers/versionsParser'
-
-const useMockApi = () => mockApi;
+import { getVersions } from './../../../api/endpoints';
 
 const { gray50 } = vars;
 
@@ -16,15 +13,12 @@ const historyEntries = [
     { author: "Phoenix Baker", action: "request", date: "Friday 2:05pm" },
 ];
 
-const HistoryPanel = () => {
-    const { getVersions } = useMockApi();
-  
+const HistoryPanel = () => {  
     const [versions, setVersions] = React.useState([]);
     
     React.useEffect(() => {
         getVersions("base", "ILX_....").then( data => {
-            const parsedData = versionsParser(data);
-            setVersions(parsedData);
+            setVersions(data);
         })
     }, []);
 
