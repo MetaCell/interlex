@@ -1,8 +1,8 @@
 import { Box } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import {vars} from "../../theme/variables";
-import {BackgroundPattern} from "../../Icons";
+import {vars} from "../../../theme/variables";
+import {BackgroundPattern} from "../../../Icons";
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 const { gray600, gray900 } = vars;
 const StatusDialog = ({ setActiveStep }) => {

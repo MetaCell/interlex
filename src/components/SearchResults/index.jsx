@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import { Box, Typography, Grid, ButtonGroup, Button, Stack, Divider } from '@mui/material';
+import { Box, Typography, Grid, ButtonGroup, Stack, Divider } from '@mui/material';
 import { TableChartIcon, ListIcon } from '../../Icons';
 import ListView from './ListView';
 import OntologySearch from '../SingleTermView/OntologySearch';
@@ -9,27 +9,9 @@ import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 import {useQuery} from "../../helpers";
 import { debounce } from 'lodash';
 import CustomSingleSelect from "../common/CustomSingleSelect";
+import CustomViewButton from "../common/CustomViewButton";
 
-const { gray50, gray200, gray300, gray600 } = vars;
-const CustomViewButton = ({ view, listView, onClick, icon }) => (
-    <Button
-        sx={{
-            background: listView === view ? gray50 : 'transparent',
-            padding: '0.5rem 0.75rem',
-            border: `1px solid ${gray300}`,
-            '&.Mui-disabled': {
-                border: `1px solid ${gray300}` 
-            },
-            '& svg path': {
-                fill: listView !== view ? gray300 : 'currentColor'
-            }
-        }}
-        disabled={view === 'table' && true}
-        onClick={onClick}
-    >
-        {icon}
-    </Button>
-);
+const { gray200, gray600 } = vars;
 const useMockApi = () => mockApi;
 
 const SearchResultsBox = () => {

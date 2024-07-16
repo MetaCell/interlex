@@ -2,40 +2,10 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import {vars} from "../../theme/variables";
-import {useQuery} from "../../helpers";
 
 const {gray500, gray300, gray600, brand700, gray700} = vars
-const CustomBreadcrumbs = () => {
-  const query = useQuery();
-  const storedSearchTerm = query.get('searchTerm');
-  
-  const breadcrumbs = [
-    <Link key="1" color="inherit" href="/" display='flex'>
-      <HomeOutlinedIcon fontSize='medium' htmlColor={gray500} />
-    </Link>,
-    <Link
-      underline="none"
-      key="2"
-      color="inherit"
-      href={`/search?searchTerm=${storedSearchTerm}`}
-    >
-      Term search
-    </Link>,
-    <Link
-      underline="none"
-      key="3"
-      color="inherit"
-      href="#"
-    >
-      My organization 1
-    </Link>,
-    <Typography key="4" color={brand700}>
-      ILX:0101901
-    </Typography>,
-  ];
-  
+const CustomBreadcrumbs = ({breadcrumbItems}) => {
   return (
     <Breadcrumbs
       separator={<NavigateNextIcon fontSize="small" htmlColor={gray300} />}
@@ -58,7 +28,18 @@ const CustomBreadcrumbs = () => {
         }
       }}
     >
-      {breadcrumbs}
+      {breadcrumbItems.map((item, index) => (
+        index < breadcrumbItems.length - 1 ? (
+          <Link key={index} color="inherit" underline="none" href={item.href} display="flex">
+            {item.icon && <item.icon fontSize="medium" htmlColor={gray500} />}
+            {item.label}
+          </Link>
+        ) : (
+          <Typography key={index} color={brand700}>
+            {item.label}
+          </Typography>
+        )
+      ))}
     </Breadcrumbs>
   );
 }

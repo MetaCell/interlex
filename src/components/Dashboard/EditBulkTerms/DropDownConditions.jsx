@@ -1,10 +1,10 @@
 import { Box } from "@mui/material";
 import { useState, useEffect } from "react";
-import { vars } from "../../theme/variables";
-import CustomIconTabs from "../common/CustomIconTabs";
-import { FiberSmartIcon, JoinInnerIcon } from "../../Icons";
-import SearchTermsData from "../../static/SearchTermsData.json"
-import CustomSingleSelect from "../common/CustomSingleSelect";
+import { vars } from "../../../theme/variables";
+import CustomIconTabs from "../../common/CustomIconTabs";
+import { FiberSmartIcon, JoinInnerIcon } from "../../../Icons";
+import SearchTermsData from "../../../static/SearchTermsData.json"
+import CustomSingleSelect from "../../common/CustomSingleSelect";
 const { gray300 } = vars;
 const DropDownConditions = ({ value, onChange, index, handleTermChange }) => {
   const [tabValues, setTabValues] = useState(0);

@@ -1,13 +1,13 @@
 import {Button, Grid, Typography, Box} from "@mui/material";
 import { useState } from "react";
-import { vars } from "../../theme/variables";
-import CustomizedInput from "../common/CustomizedInput";
+import { vars } from "../../../theme/variables";
+import CustomizedInput from "../../common/CustomizedInput";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DropDownConditions from "./DropDownConditions";
-import SearchTermsData from "../../static/SearchTermsData.json"
-import CustomIconTabs from "../common/CustomIconTabs";
-import CustomSingleSelect from "../common/CustomSingleSelect";
+import SearchTermsData from "../../../static/SearchTermsData.json"
+import CustomIconTabs from "../../common/CustomIconTabs";
+import CustomSingleSelect from "../../common/CustomSingleSelect";
 
 const { gray800 } = vars;
 
