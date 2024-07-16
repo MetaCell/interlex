@@ -16,7 +16,6 @@ const user = {
   email: 'olivia@untitledui.com',
   ORCID: '0009-0004-9628-8563',
   role: 'Contributor',
-  totalActions: '96'
 }
 const User = () => {
   return (
@@ -69,16 +68,6 @@ const User = () => {
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
               <Chip className="greenChip" variant="outlined" label={user.role} />
-            </Typography>
-          </Stack>
-        </Grid>
-        <Grid item xs={12} lg={3} mb=".75rem">
-          <Stack spacing=".75rem">
-            <Typography color={gray800} fontWeight={500}>
-              Total actions
-            </Typography>
-            <Typography fontSize=".875rem" color={gray500}>
-              {user.totalActions}
             </Typography>
           </Stack>
         </Grid>
