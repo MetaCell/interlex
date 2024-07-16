@@ -1,6 +1,6 @@
 import { assert } from 'console';
 import { OrganizationsIcon } from '../../Icons';
-import { Organizations, Organization, Variants, Versions } from '../../model/backend';
+import { Organizations, Organization, Variants, Versions, User } from '../../model/backend';
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 import * as api from './../../api/endpoints/interLexURIStructureAPI'
 
@@ -88,6 +88,20 @@ export const getEndpointsIlx = async (group, term) => {
   /** Call Endpoint */
   return getEndpointsIlx(group,term).then((data) => {
       return termParser(data, term);
+    })
+    .catch((error) => {
+      return error;
+    });
+}
+
+export const getUser = async (id) => {
+  /** Call endpoint for retrieving curies, this is a mock endpoint
+  created by us */
+  const {  getUser } = useMockApi();
+
+  /** Call Endpoint */
+  return getUser(id).then((data) => {
+      return data as User;
     })
     .catch((error) => {
       return error;
