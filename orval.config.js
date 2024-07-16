@@ -89,6 +89,7 @@ module.exports = {
               data: () => ({
                 status: 200,
                 token: "",
+                role : "Curator",
                 username: "Olivia Rhye",
                 creation_date : "April 27, 2020",
                 email : "oliviarhye@gmail.com",
