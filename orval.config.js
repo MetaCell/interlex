@@ -84,6 +84,22 @@ module.exports = {
               }),
             },
           },
+          get_user: {
+            mock: {
+              data: () => ({
+                status: 200,
+                token: "",
+                role : "Curator",
+                username: "Olivia Rhye",
+                creation_date : "April 27, 2020",
+                email : "oliviarhye@gmail.com",
+                actions : "",
+                term_variants : ["ILX_0001", "ILX_0002"],
+                merge_reviews : ["Review 1", "Review2"],
+                organizations : ["Organization 11", "Organization 2"],
+              }),
+            },
+          },
           logout: {
             mock: {
               data: () => ({

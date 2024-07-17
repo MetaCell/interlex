@@ -19,9 +19,9 @@ const Predicates = ({ data }) => {
     setTabValue(newValue)
   }
 
-  React.useEffect(() => {
-    data?.predicates && setPredicates(data?.predicates)
-  }, [data]);
+  // React.useEffect(() => {
+  //   data?.predicates && setPredicates(data?.predicates)
+  // }, [data]);
 
   return <Box display='flex' flexDirection='column' gap='.75rem'>
     <Box display='flex' alignItems='center' justifyContent='space-between'>

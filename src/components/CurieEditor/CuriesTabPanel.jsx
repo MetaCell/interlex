@@ -2,7 +2,7 @@ import * as React from "react";
 import { Box, TableRow, TableCell, IconButton, TextField, ClickAwayListener, CircularProgress } from "@mui/material";
 import CustomTable from "../common/CustomTable";
 import { getComparator, stableSort } from "../../utils";
-import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
+import { getCuries } from './../../api/endpoints';
 import curieParser from '../../parsers/curieParser';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
@@ -29,11 +29,8 @@ const tableCellStyle = {
     fontWeight: 400
 };
 
-const useMockApi = () => mockApi;
-
 const CuriesTabPanel = (props) => {
     const { rows, setRows, curieValue, editMode, headCells, numberOfVisibleCuries, onCurieAmountChange } = props;
-    const { getCuries } = useMockApi();
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
     const [rowIndex, setRowIndex] = React.useState(-1);
@@ -99,8 +96,7 @@ const CuriesTabPanel = (props) => {
         setLoading(true)
         getCuries(curieValue)
             .then(data => {
-                const parsedData = curieParser(data)
-                setRows(parsedData)
+                setRows(data)
                 setLoading(false)
             })
             .catch((error) => {
