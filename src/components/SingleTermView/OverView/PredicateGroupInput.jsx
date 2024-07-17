@@ -6,21 +6,18 @@ import {useCallback, useEffect, useState} from "react";
 import TextFieldsIcon from '@mui/icons-material/TextFields';
 import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
 import SingleSearch from "../SingleSearch";
-import termParser from "../../../parsers/termParser";
 import { debounce } from 'lodash';
-import * as mockApi from "../../../api/endpoints/swaggerMockMissingEndpoints";
+import { getMatchTerms } from "../../../api/endpoints";
 import predicatesData from "../../../static/predicates.json"
 
 const {gray700, gray300, gray800, gray600} = vars
-const useMockApi = () => mockApi;
 
 const PredicateGroupInput = ({ predicate, onChange }) => {
   const [tabValues, setTabValues] = useState(0);
   const [objectSearchTerm, setObjectSearchTerm] = useState('');
   const [terms, setTerms] = useState([]);
   const [selectedType, setSelectedType] = useState(predicate.object.type);
-  const { getMatchTerms } = useMockApi();
-  
+    
   const onChangeTab = (event, newValue) => {
     setTabValues(newValue);
     onChange({ ...predicate.object, isLink: newValue === 1 });
@@ -39,8 +36,7 @@ const PredicateGroupInput = ({ predicate, onChange }) => {
   
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await getMatchTerms(searchTerm);
-    const parsedData = termParser(data, searchTerm);
-    setTerms(parsedData.results);
+    setTerms(data);
   }, 500), [getMatchTerms]);
   
   useEffect(() => {

@@ -4,5 +4,16 @@
  * Swagger Mock Missing Endpoints
  * OpenAPI spec version: 1.0.0
  */
+import type { VariantEditingUser } from './variantEditingUser';
+import type { VariantOriginatingUser } from './variantOriginatingUser';
 
-export interface Variant { [key: string]: any }
+export interface Variant {
+  description: string;
+  editingUser: VariantEditingUser;
+  id?: string;
+  organization: string;
+  originatingUser: VariantOriginatingUser;
+  status: string;
+  timestamp: string;
+  url: string;
+}

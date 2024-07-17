@@ -92,49 +92,6 @@ export const termPredicates = {
     }
 }
 
-export const variantKeys = {
-    ...termKeys,
-    status : "status",
-    originatingUser : "originatingUser",
-    editingUser : "editingUser",
-    organization : "organization"
-}
-
-export const variantPrefixes = {
-    ...termPredicates,
-    "http://uri.interlex.org/tgbugs/uris/readable/status" : {
-        key : variantKeys.status,
-    },
-    "http://uri.interlex.org/tgbugs/uris/readable/originatingUser" : {
-        key : variantKeys.originatingUser,
-    },
-    "http://uri.interlex.org/tgbugs/uris/readable/editingUser" : {
-        key : variantKeys.editingUser,
-    },
-}
-
-export const versionKeys = {
-    author : "author",
-    fork : "fork",
-    action : "action",
-    lastModifyBy : "lastModifyBy",
-}
-
-export const versionPrefixes = {
-    "http://uri.interlex.org/tgbugs/uris/readable/action" : {
-        key : versionKeys.action,
-    },
-    "rdfs:name" : {
-        key : versionKeys.author,
-    },
-    "http://uri.interlex.org/tgbugs/uris/readable/fork" : {
-        key : versionKeys.fork,
-    },
-    "http://uri.interlex.org/tgbugs/uris/readable/lastModifyBy" : {
-        key : versionKeys.lastModifyBy,
-    }
-}
-
 export const predicateKeys = {
     subject : "author",
     predicate : "fork",
