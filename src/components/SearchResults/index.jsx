@@ -31,7 +31,7 @@ const SearchResults = () => {
     const fetchTerms = useRef(
         debounce((searchTerm) => {
             setLoading(true);
-            getMatchTerms(searchTerm, searchTerm)
+            getMatchTerms("i")
                 .then((data) => {
                     const parsedData = termParser(data, searchTerm);
                     setTerms(parsedData);
