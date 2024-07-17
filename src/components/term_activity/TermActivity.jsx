@@ -4,8 +4,7 @@ import CustomTable from "../common/CustomTable";
 import Checkbox from "../common/CustomCheckbox";
 import { getComparator, stableSort } from "../../utils";
 import { parseISO, format } from 'date-fns';
-import * as mockApi from '../../api/endpoints/swaggerMockMissingEndpoints';
-import { termParser } from '../../parsers/termParser'
+import { getMatchTerms } from '../../api/endpoints';
 import { vars } from "../../theme/variables";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 const {  gray600 } = vars;
@@ -42,11 +41,8 @@ const formatDateString = (dateString) => {
     return format(date, 'dd MMM hh:mm a');
   };
 
-const useMockApi = () => mockApi;
-
 
 const TermActivity = () => {
-    const { getMatchTerms } = useMockApi();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [rows, setRows] = React.useState([]);
@@ -109,9 +105,8 @@ const TermActivity = () => {
 
     useEffect(() => {
         setLoading(true)
-        getMatchTerms("").then(data => { 
-            const parsedData = termParser(data, 'brain')
-            setRows(parsedData?.results)
+        getMatchTerms("ilx").then(data => { 
+            setRows(data?.results)
             setLoading(false)
         });
     }, []);

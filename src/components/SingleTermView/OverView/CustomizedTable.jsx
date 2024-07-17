@@ -6,8 +6,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { vars } from "../../../theme/variables";
 import _ , { debounce } from 'lodash';
-import * as mockApi from "../../../api/endpoints/swaggerMockMissingEndpoints";
-import termParser from "../../../parsers/termParser";
+import { getMatchTerms } from "../../../api/endpoints";
 import CustomSnackbar from "./CustomSnackbar";
 import SingleSearch from "../SingleSearch";
 
@@ -154,7 +153,6 @@ const tableStyles = {
     }
   }
 };
-const useMockApi = () => mockApi;
 
 const CustomizedTable = ({ data, term }) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -165,7 +163,6 @@ const CustomizedTable = ({ data, term }) => {
     { key: 'object', label: 'Objects', allowSort: true, direction: 'desc' },
     { key: '', label: '' }
   ]);
-  const { getMatchTerms } = useMockApi();
 
   const [showSelect, setShowSelect] = useState(false);
   const [object, setObject] = useState('');
@@ -299,9 +296,8 @@ const CustomizedTable = ({ data, term }) => {
   };
   
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
-    const data = await getMatchTerms(searchTerm, searchTerm);
-    const parsedData = termParser(data, searchTerm);
-    setTerms(parsedData?.results);
+    const data = await getMatchTerms(searchTerm);
+    setTerms(data?.results);
   }, 500), [getMatchTerms]);
   
   useEffect(() => {
