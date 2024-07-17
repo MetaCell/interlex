@@ -87,22 +87,22 @@ module.exports = {
           },
           get_user: {
             mock: {
-              data: () => mockUser,
+              data: mockUser,
             },
           },
           get_user_terms: {
             mock: {
-              data: () => mockTerms,
+              data: mockTerms,
             },
           },
           get_user_organizations: {
             mock: {
-              data: () => mockOrganizations,
+              data: mockOrganizations,
             },
           },
           get_user_forks: {
             mock: {
-              data: () => mockForks,
+              data: mockForks,
             },
           },
           logout: {
