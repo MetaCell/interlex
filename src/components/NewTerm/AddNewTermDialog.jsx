@@ -1,9 +1,7 @@
 import * as React from "react";
-import { Box, Divider, MobileStepper, Stack, Grid, Typography, Button } from "@mui/material";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { Box, Divider, MobileStepper, Stack, Button } from "@mui/material";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import AddIcon from '@mui/icons-material/Add';
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { vars } from "../../theme/variables";
 import CustomizedDialog from "../common/CustomizedDialog";
 import BasicTabs from "../common/CustomTabs";
@@ -11,14 +9,16 @@ import CustomButton from "../common/CustomButton";
 import ManualImportTab from "./ManualImportTab";
 import ImportFileTab from "./ImportFileTab";
 import NewTermSidebar from "./NewTermSidebar";
-import CustomizedInput from "../common/CustomizedInput";
-import PredicateGroupInput from "../SingleTermView/OverView/PredicateGroupInput";
+import AddPredicatesStep from "./AddPredicatesStep";
+import TermStatusStep from "./TermStatusStep";
 import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
+import * as mockApiInterlex from "../../api/endpoints/interLexURIStructureAPI";
 import { termParser } from "../../../src/parsers/termParser";
-import { BackgroundPattern } from "../../Icons";
+import { debounce } from 'lodash';
 const useMockApi = () => mockApi;
+const useMockApiInterlex = () => mockApiInterlex;
 
-const { gray100, gray200, gray400, gray600, gray800, gray900, brand700 } = vars;
+const { gray100, gray200, gray400, brand700 } = vars;
 
 const HeaderRightSideContent = ({ activeStep, onContinueClick, onClose, isContinueButtonDisabled }) => (
     <Box display='flex' alignItems='center'>
@@ -62,23 +62,42 @@ const HeaderRightSideContent = ({ activeStep, onContinueClick, onClose, isContin
 
 const AddNewTermDialog = ({ open, handleClose }) => {
     const { getMatchTerms } = useMockApi();
-    const [termResults, setTermResults] = React.useState([]);
-    const [activeStep, setActiveStep] = React.useState(0);
-    const [tabValue, setTabValue] = React.useState(0);
-    const [openSidebar, setOpenSidebar] = React.useState(false);
-    const [areMatchesChecked, setAreMatchesChecked] = React.useState(false);
-    const [predicates, setPredicates] = React.useState([{ subject: '', object: '' }]);
-    const [termValue, setTermValue] = React.useState("");
+    const { getEndpointsIlx } = useMockApiInterlex();
+    const [loading, setLoading] = useState(true);
+    const [termResults, setTermResults] = useState([]);
+    const [activeStep, setActiveStep] = useState(0);
+    const [tabValue, setTabValue] = useState(0);
+    const [openSidebar, setOpenSidebar] = useState(true);
+    const [areMatchesChecked, setAreMatchesChecked] = useState(false);
+    const [data, setData] = useState(null);
+    const [termValue, setTermValue] = useState('');
+    const searchTerm = "brain"
+
+
+    const memoData = useMemo(() => data, [data]);
+
+    const fetchTerms = useCallback(
+        debounce((searchTerm) => {
+            if (searchTerm) {
+                getEndpointsIlx("base", searchTerm).then(dat => {
+                    const parsedData = termParser(dat);
+                    setData(parsedData?.results[0]);
+                    setLoading(false);
+                });
+            }
+        }, 300),
+        []
+    );
 
     const handleChangeTabs = (_, newValue) => setTabValue(newValue);
-    const handleAddPredicate = () => setPredicates([...predicates, { subject: '', object: '' }]);
     const handleContinueClick = () => setActiveStep(activeStep + 1);
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
     const handleMatchesChange = (e) => setAreMatchesChecked(e.target.checked);
     const handleCloseAndActiveStep = () => { handleClose(); setActiveStep(0); };
-    const handleDeletePredicate = (index) => setPredicates(predicates.filter((_, i) => i !== index));
+    const [predicates, setPredicates] = React.useState([{ subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
 
-    React.useEffect(() => {
+
+    useEffect(() => {
         // Call endpoint to retrieve terms that match search word
         getMatchTerms("base", "i", { filter: "", value: "" }).then(data => {
             const parsedData = termParser(data, termValue)
@@ -87,7 +106,25 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         });
     }, [termValue]);
 
+    useEffect(() => {
+        setLoading(true);
+        fetchTerms(searchTerm);
+        return () => {
+            fetchTerms.cancel();
+        };
+    }, [searchTerm, fetchTerms]);
+
+    useEffect(() => {
+        memoData?.predicates && setPredicates(memoData?.predicates)
+    }, [memoData]);
+
+    const predicatesOptions = predicates.map(row => ({
+        label: row.title,
+        value: row.title
+    }))
+
     const isResultsEmpty = termResults.length === 0;
+    console.log("memoData: ", memoData)
 
     return (
         <CustomizedDialog
@@ -104,63 +141,11 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                         {tabValue === 0 && <ManualImportTab handleSidebarOpen={() => setOpenSidebar(true)} matchesChecked={areMatchesChecked} handleMatchesChange={handleMatchesChange} isResultsEmpty={isResultsEmpty} setTermValue={setTermValue} />}
                         {tabValue === 1 && <ImportFileTab />}
                     </Box>
-                    {tabValue === 0 && <NewTermSidebar open={openSidebar} onToggle={handleSidebarToggle} results={termResults} />}
+                    {tabValue === 0 && <NewTermSidebar open={openSidebar} onToggle={handleSidebarToggle} results={termResults} isResultsEmpty={isResultsEmpty} />}
                 </Box>
             )}
-            {activeStep === 1 && (
-                <Box height={1} width={1} sx={{ padding: '2.25rem 3.25rem' }}>
-                    <Typography color={gray800} fontSize='1.125rem' fontWeight={600} mb='2.75rem'>
-                        Add Predicates to Central Nervous System
-                    </Typography>
-                    {predicates.map((predicate, index) => (
-                        <Grid container key={index} spacing='2.75rem' mb='2rem' alignItems='end'>
-                            <Grid item xs={12} lg={predicates.length > 1 ? 5 : 6}>
-                                <PredicateGroupInput />
-                            </Grid>
-                            <Grid item xs={12} lg={3}>
-                                <CustomizedInput value={predicate.subject} label='Subject' placeholder='Subject term' />
-                            </Grid>
-                            <Grid item xs={12} lg={3}>
-                                <CustomizedInput value={predicate.object} label='Object' placeholder='Object term' />
-                            </Grid>
-                            {predicates.length > 1 && (
-                                <Grid item lg={1}>
-                                    <Button sx={{ padding: '.625rem', minWidth: 'auto' }} variant='outlined' onClick={() => handleDeletePredicate(index)}>
-                                        <DeleteOutlineIcon />
-                                    </Button>
-                                </Grid>
-                            )}
-                        </Grid>
-                    ))}
-                    <Button variant="outlined" onClick={handleAddPredicate} startIcon={<AddIcon />}>Add a new relationship</Button>
-                </Box>
-            )}
-            {activeStep === 2 && (
-                <Box display='flex' flexDirection='column' justifyContent='center' alignItems='center' height='100%' position='relative'>
-                    <Box sx={{
-                        width: '30rem', height: '30rem', objectFit: 'cover',
-                        position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -60%)', zIndex: 1
-                    }}>
-                        <BackgroundPattern />
-                    </Box>
-                    <Box display='flex' flexDirection='column' justifyContent='center' alignItems='center' zIndex={2} padding='2rem' sx={{
-                        position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -10%)',
-                    }}>
-                        <Typography mt='1.25rem' mb='.75rem' color={gray900} fontSize='1.25rem' fontWeight={600}>
-                            Term successfully created
-                        </Typography>
-                        <Typography mb='2rem' color={gray600} fontSize='1rem'>
-                            Your term “Central nervous system” has been added. Click finish to go see the result, or add a new term.
-                        </Typography>
-                        <Box display='flex' gap='1rem'>
-                            <Button type='text'>Undo</Button>
-                            <Button startIcon={<AddOutlinedIcon />} variant='outlined' onClick={handleCloseAndActiveStep}>
-                                Add a new term
-                            </Button>
-                        </Box>
-                    </Box>
-                </Box>
-            )}
+            {activeStep === 1 && loading ? <>Loading...</> : <AddPredicatesStep predicatesOptions={predicatesOptions} />}
+            {activeStep === 2 && <TermStatusStep handleCloseAndActiveStep={handleCloseAndActiveStep} />}
         </CustomizedDialog>
     );
 };

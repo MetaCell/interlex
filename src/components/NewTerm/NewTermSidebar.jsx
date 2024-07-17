@@ -1,12 +1,13 @@
 import React from 'react';
-import { Box, Typography, IconButton, Tooltip } from '@mui/material';
+import { Box, Typography, IconButton, Tooltip, Stack } from '@mui/material';
 import { StartIcon, JoinRightIcon } from '../../Icons';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { vars } from '../../theme/variables';
 
 const { gray200, gray800, brand600 } = vars;
 
 
-export default function NewTermSidebar({ open, onToggle, results }) {
+export default function NewTermSidebar({ open, onToggle, results, isResultsEmpty }) {
 
     return (
         <Box
@@ -36,49 +37,60 @@ export default function NewTermSidebar({ open, onToggle, results }) {
             ) : (
                 <Box>
                     <Tooltip title="Open potential matches" placement='left'>
-                        <IconButton onClick={onToggle} disabled={!results.length} sx={{ border: `1px solid ${gray200}` }}>
+                        <IconButton onClick={onToggle} sx={{ border: `1px solid ${gray200}` }}>
                             <JoinRightIcon />
                         </IconButton>
                     </Tooltip>
                 </Box>
             )}
             {open && (
-                <Box width={1} display="flex" flexDirection="column" alignItems="center" gap={1}>
-                    {results.map((result) => (
-                        <Box width={1} key={result.id} display="flex" flexDirection="column" px={1} py={1.5} gap={1}
-                            sx={{
-                                borderBottom: '1px solid #DADDDC',
-                                position: 'relative',
-                                '&:hover': {
-                                    '& .MuiTypography-body1': { color: '#1C5F54' },
-                                    '&:before': {
-                                        position: 'absolute',
-                                        left: 0,
-                                        content: '""',
-                                        height: '1.5rem',
-                                        borderRadius: '3px',
-                                        width: '2px',
-                                        background: brand600
-                                    }
-                                }
-                            }}
-                        >
-                            <Typography variant='body1' sx={{ color: '#313534', fontWeight: 500 }}>{result.label}</Typography>
-                            <Typography variant='caption' sx={{
-                                color: '#707574',
-                                overflow: 'hidden',
-                                letterSpacing: 0,
-                                whiteSpace: 'nowrap',
-                                textOverflow: 'ellipsis'
-                            }}
-                            >
-                                {result.description}
-                            </Typography>
+                <Box width={1} height={1} display="flex" flexDirection="column" alignItems="center" gap={1}>
+                    {isResultsEmpty ? (
+                        <Box width={1} height={1} display="flex" flexDirection="column" alignItems="center" justifyContent="center" gap={2}>
+                            <IconButton sx={{ padding: '10px', color: '#313534', border: '1px solid #BDC2C1' }}>
+                                <ErrorOutlineIcon />
+                            </IconButton>
+                            <Stack direction="column" gap={0.5} alignItems="center">
+                                <Typography variant='body1' sx={{ fontWeight: 600, color: '#111212' }}>No match found</Typography>
+                                <Typography variant='body2' sx={{ color: '#515252' }}>Add a label to your term to visualize potential matches.</Typography>
+                            </Stack>
                         </Box>
-                    ))}
+                    ) : (
+                        <>{results.map((result) => (
+                            <Box width={1} key={result.id} display="flex" flexDirection="column" px={1} py={1.5} gap={1}
+                                sx={{
+                                    borderBottom: '1px solid #DADDDC',
+                                    position: 'relative',
+                                    '&:hover': {
+                                        '& .MuiTypography-body1': { color: '#1C5F54' },
+                                        '&:before': {
+                                            position: 'absolute',
+                                            left: 0,
+                                            content: '""',
+                                            height: '1.5rem',
+                                            borderRadius: '3px',
+                                            width: '2px',
+                                            background: brand600
+                                        }
+                                    }
+                                }}
+                            >
+                                <Typography variant='body1' sx={{ color: '#313534', fontWeight: 500 }}>{result.label}</Typography>
+                                <Typography variant='caption' sx={{
+                                    color: '#707574',
+                                    overflow: 'hidden',
+                                    letterSpacing: 0,
+                                    whiteSpace: 'nowrap',
+                                    textOverflow: 'ellipsis'
+                                }}
+                                >
+                                    {result.description}
+                                </Typography>
+                            </Box>
+                        ))}</>
+                    )}
                 </Box>
-            )
-            }
+            )}
         </Box >
     );
 }

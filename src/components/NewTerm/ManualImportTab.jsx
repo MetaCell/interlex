@@ -73,14 +73,25 @@ const options = [
 ];
 
 const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChange, isResultsEmpty, setTermValue }) => {
+    // const [formState, setFormState] = useState({
+    //     label: "",
+    //     ilx: "ILX:0101901",
+    //     age: '',
+    //     synonyms: [options[0]],
+    //     superclass: "",
+    //     existingIds: [options[0]],
+    //     urls: [options[0]],
+    //     description: "",
+    //     comment: ""
+    // });
     const [formState, setFormState] = useState({
         label: "",
         ilx: "ILX:0101901",
         age: '',
-        synonyms: [options[0]],
-        superclass: "",
-        existingIds: [options[0]],
-        urls: [options[0]],
+        synonyms: '',
+        superclass: '',
+        existingIds: '',
+        urls: '',
         description: "",
         comment: ""
     });
@@ -106,7 +117,7 @@ const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChang
     return (
         <Box component="form" sx={{ width: '100%', mt: '2.75rem', display: 'flex', flexDirection: 'column', gap: '2.75rem' }} noValidate autoComplete="off">
             <Grid container spacing={5.5}>
-                <Grid item xs={16} md={6} lg={6}>
+                <Grid item xs={16} md={6} lg={12}>
                     <CustomInputBox
                         id="new-term-label-field"
                         name="label"
@@ -129,7 +140,7 @@ const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChang
                         </Button>
                     )}
                 </Grid>
-                <Grid item xs={12} md={6} lg={6}>
+                {/* <Grid item xs={12} md={6} lg={6}>
                     <CustomInputBox
                         id="new-term-ilx-field"
                         name="ilx"
@@ -139,13 +150,13 @@ const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChang
                         helperText={"This is automatically generated but editable."}
                         isEndAdornmentVisible
                     />
-                </Grid>
+                </Grid> */}
             </Grid>
             <Box>
-                <Stack direction="row" justifyContent="space-between" mb={1.5}>
+                {/* <Stack direction="row" justifyContent="space-between" mb={1.5}>
                     <Typography>Synonyms</Typography>
-                </Stack>
-                <Autocomplete
+                </Stack> */}
+                {/* <Autocomplete
                     multiple
                     id="term-synonyms"
                     options={options}
@@ -165,6 +176,14 @@ const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChang
                     renderInput={(params) => (
                         <TextField {...params} placeholder="Type a new synonym" />
                     )}
+                /> */}
+                <CustomInputBox
+                    id="term-synonyms"
+                    name="synonyms"
+                    value={formState.synonyms}
+                    onInputChange={handleInputChange}
+                    label="Synonyms"
+                    placeholder={"Type a new synonym"}
                 />
             </Box>
             <Grid container spacing={5.5}>
@@ -180,7 +199,7 @@ const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChang
                     />
                 </Grid>
                 <Grid item xs={12} lg={6}>
-                    <Stack direction="row" justifyContent="space-between" mb={1.5}>
+                    {/* <Stack direction="row" justifyContent="space-between" mb={1.5}>
                         <Typography>Existing IDs</Typography>
                     </Stack>
                     <Autocomplete
@@ -205,11 +224,19 @@ const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChang
                         renderInput={(params) => (
                             <TextField {...params} placeholder="Search for an existing ID" />
                         )}
+                    /> */}
+                    <CustomInputBox
+                        id="existing-ids"
+                        name="existingIds"
+                        value={formState.existingIds}
+                        onInputChange={handleInputChange}
+                        label="Existing IDs"
+                        placeholder={"Search for an existing ID"}
                     />
                 </Grid>
             </Grid>
             <Box>
-                <Stack direction="row" justifyContent="space-between" mb={1.5}>
+                {/* <Stack direction="row" justifyContent="space-between" mb={1.5}>
                     <Typography>Is Defined by</Typography>
                 </Stack>
                 <Autocomplete
@@ -233,6 +260,14 @@ const ManualImportTab = ({ handleSidebarOpen, matchesChecked, handleMatchesChang
                     renderInput={(params) => (
                         <TextField {...params} placeholder="Search for an URL" />
                     )}
+                /> */}
+                <CustomInputBox
+                    id="search-urls"
+                    name="urls"
+                    value={formState.urls}
+                    onInputChange={handleInputChange}
+                    label="Is Defined by"
+                    placeholder={"Search for an URL"}
                 />
             </Box>
             <Box>
