@@ -1,12 +1,11 @@
 import { Box } from "@mui/material";
-import { useState, useEffect } from "react";
+import {useState, useEffect, useCallback} from "react";
 import { vars } from "../../../theme/variables";
 import BasicTabs from "../../common/CustomTabs";
 import CustomPagination from "../../common/CustomPagination";
 import List from "./List";
-import versionsParser from "../../../parsers/versionsParser";
-import * as mockApi from "../../../api/endpoints/swaggerMockMissingEndpoints";
-const useMockApi = () => mockApi;
+import {getUserForks} from "../../../api/endpoints/swaggerMockMissingEndpoints";
+import { debounce } from 'lodash';
 
 const { gray25 } = vars;
 
@@ -23,9 +22,7 @@ const TermsChange = () => {
   const [numberOfVisiblePages, setNumberOfVisiblePages] = useState(8);
   const [page, setPage] = useState(1);
   const [tabValue, setTabValue] = useState(0);
-  const [versions, setVersions] = useState([]);
-  const { getVersions } = useMockApi();
-  
+  const [forks, setForks] = useState([])
   const handlePageChange = (event, value) => {
     setPage(value);
   };
@@ -33,28 +30,36 @@ const TermsChange = () => {
   const handleChangeTabs = (event, newValue) => {
     setTabValue(newValue);
   };
-  
-  useEffect(() => {
-    getVersions("base", "ILX_....").then(data => {
-      const parsedData = versionsParser(data);
-      setVersions(parsedData);
-    });
-  }, []);
-  
+
   const getFilteredEntries = () => {
     switch (tabValue) {
       case 0:
-        return entries.filter(entry => entry.action === "request");
+        return forks.filter(entry => entry.status === "requested");
       case 1:
-        return entries.filter(entry => entry.action === "approve");
+        return forks.filter(entry => entry.status === "approved");
       case 2:
-        return entries.filter(entry => entry.action === "reject");
+        return forks.filter(entry => entry.status === "rejected");
       default:
-        return entries;
+        return forks;
     }
   };
   
   const filteredEntries = getFilteredEntries();
+  
+  const fetchForks = useCallback(
+    debounce(async () => {
+      getUserForks("123").then(data => {
+        setForks(data)
+      }).catch(err => {
+        console.log(err);
+      })
+    }, 500),
+    [getUserForks]
+  );
+  
+  useEffect(() => {
+    fetchForks();
+  }, [fetchForks]);
   
   return (
     <Box p='2.5rem 5rem' sx={{

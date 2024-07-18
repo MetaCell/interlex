@@ -3,6 +3,8 @@ import { vars } from "../../../theme/variables";
 import CustomBreadcrumbs from "../../common/CustomBreadcrumbs";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import { SettingsOutlined } from "@mui/icons-material";
+import {GlobalDataContext} from "../../../contexts/DataContext";
+import { useContext } from "react";
 
 const { gray25, gray600, gray800, gray500 } = vars;
 
@@ -11,13 +13,9 @@ const breadcrumbItems = [
   { label: 'My dashboard' },
 ];
 
-const user = {
-  name: 'Olivia Rhye',
-  email: 'olivia@untitledui.com',
-  ORCID: '0009-0004-9628-8563',
-  role: 'Contributor',
-}
 const User = () => {
+  const {user} = useContext(GlobalDataContext)
+
   return (
     <Box sx={{
       p: "2.25rem 5rem",
@@ -31,7 +29,7 @@ const User = () => {
       <CustomBreadcrumbs breadcrumbItems={breadcrumbItems} />
       <Box display='flex' alignItems='center' justifyContent='space-between'>
         <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
-          {user.name} dashboard
+          {user?.name} dashboard
         </Typography>
         <Button
           startIcon={<SettingsOutlined />}
@@ -47,7 +45,7 @@ const User = () => {
               Email
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {user.email}
+              {user?.email}
             </Typography>
           </Stack>
         </Grid>
@@ -57,7 +55,7 @@ const User = () => {
               ORCID ID
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {user.ORCID}
+              {user?.id}
             </Typography>
           </Stack>
         </Grid>
@@ -67,7 +65,7 @@ const User = () => {
               Role
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              <Chip className="greenChip" variant="outlined" label={user.role} />
+              <Chip className="greenChip" variant="outlined" label={user?.role} />
             </Typography>
           </Stack>
         </Grid>

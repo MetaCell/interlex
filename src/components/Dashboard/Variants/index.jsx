@@ -20,7 +20,7 @@ const Variants = ({handleOpenEditBulkTerms}) => {
   const [terms, setTerms] = useState([]);
   const [page, setPage] = useState(1);
   const [slicedTerms, setSlicedTerms] = useState([]);
-  const { getMatchTerms } = useMockApi();
+  const { getUserTerms } = useMockApi();
 
   const handleNumberOfPagesChange = (v) => {
     setNumberOfVisiblePages(v);
@@ -29,7 +29,7 @@ const Variants = ({handleOpenEditBulkTerms}) => {
   
   const fetchTerms = useCallback(
     debounce(async (searchTerm) => {
-      getMatchTerms("base", searchTerm).then(data => {
+      getUserTerms("base", searchTerm).then(data => {
         const parsedData = termParser(data, searchTerm);
         setTerms(parsedData.results)
         setPage(1);
@@ -39,7 +39,7 @@ const Variants = ({handleOpenEditBulkTerms}) => {
         setLoading(false)
       })
     }, 500),
-    [getMatchTerms]
+    [getUserTerms]
   );
   
   useEffect(() => {

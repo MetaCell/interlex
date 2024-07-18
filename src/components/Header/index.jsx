@@ -11,8 +11,6 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Search from './Search';
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
-import { GlobalDataContext } from "./../../contexts/DataContext";
 
 const { gray200, white, gray100, gray600 } = vars;
 
@@ -120,11 +118,7 @@ const UserNavMenu = [
 const Header = ({ isLoggedIn = true }) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
-    const { user, setUserData } = useContext(GlobalDataContext);
 
-    const handleSetUserData = (user, organization) => {
-        setUserData(user, organization);
-    };
     const navigate = useNavigate();
 
     const handleClick = (event) => {
@@ -173,9 +167,6 @@ const Header = ({ isLoggedIn = true }) => {
     }
   
     React.useEffect(() => {
-        // TODO : Move to login page and remove this proof of concept call
-        handleSetUserData("Interlex User", "Interlex");
-
         const handleKeyDown = (event) => {
             if (event.ctrlKey && event.key === 'k') {
                 toggleList();
@@ -191,10 +182,6 @@ const Header = ({ isLoggedIn = true }) => {
             document.removeEventListener('keydown', handleKeyDown);
         };
     }, []);
-
-    React.useEffect(() => {
-        console.log("Stored user in context ", user)
-    }, [user])
 
     return (
         <Box sx={styles.root}>
