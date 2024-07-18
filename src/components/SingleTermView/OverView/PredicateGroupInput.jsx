@@ -5,9 +5,7 @@ import {useCallback, useEffect, useState} from "react";
 import TextFieldsIcon from '@mui/icons-material/TextFields';
 import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
 import SingleSearch from "../SingleSearch";
-import termParser from "../../../parsers/termParser";
 import { debounce } from 'lodash';
-import * as mockApi from "../../../api/endpoints/swaggerMockMissingEndpoints";
 import predicatesData from "../../../static/predicates.json"
 import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
 
@@ -42,8 +40,7 @@ const PredicateGroupInput = ({ predicate, onChange }) => {
   
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await getMatchTerms(searchTerm);
-    const parsedData = termParser(data, searchTerm);
-    setTerms(parsedData.results);
+    setTerms(data);
   }, 500), [getMatchTerms]);
   
   useEffect(() => {

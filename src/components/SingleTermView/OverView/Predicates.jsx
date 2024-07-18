@@ -12,13 +12,13 @@ const { gray800 } = vars;
 const Predicates = ({ data }) => {
   const [predicates, setPredicates] = React.useState([]);
   const [toggleButtonValue, setToggleButtonValue] = React.useState('compress')
-
+  
   const onToggleButtonChange = (event, newValue) => {
     if (newValue) {
       setToggleButtonValue(newValue)
     }
   }
-
+  
   React.useEffect(() => {
     data?.predicates && setPredicates(data?.predicates)
   }, [data]);

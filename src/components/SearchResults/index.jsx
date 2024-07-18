@@ -4,8 +4,7 @@ import { TableChartIcon, ListIcon } from '../../Icons';
 import ListView from './ListView';
 import OntologySearch from '../SingleTermView/OntologySearch';
 import { vars } from '../../theme/variables';
-import { termParser } from "../../parsers/termParser";
-import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
+import { getMatchTerms } from './../../api/endpoints';
 import {useQuery} from "../../helpers";
 import { debounce } from 'lodash';
 import CustomSingleSelect from "../common/CustomSingleSelect";
@@ -30,7 +29,6 @@ const CustomViewButton = ({ view, listView, onClick, icon }) => (
         {icon}
     </Button>
 );
-const useMockApi = () => mockApi;
 
 const SearchResultsBox = () => {
     const [numberOfVisiblePages, setNumberOfVisiblePages] = React.useState(20);
@@ -38,7 +36,6 @@ const SearchResultsBox = () => {
     const [loading, setLoading] = useState(false)
     const query = useQuery();
     const searchTerm = query.get('searchTerm');
-    const {  getMatchTerms } = useMockApi();
 
     const [terms, setTerms] = React.useState({});
 
@@ -49,10 +46,9 @@ const SearchResultsBox = () => {
   const fetchTerms = useRef(
     debounce((searchTerm) => {
       setLoading(true);
-      getMatchTerms(searchTerm, searchTerm)
+      getMatchTerms(searchTerm)
         .then((data) => {
-          const parsedData = termParser(data, searchTerm);
-          setTerms(parsedData);
+          setTerms(data);
           setLoading(false);
         })
         .catch((error) => {
