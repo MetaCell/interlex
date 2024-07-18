@@ -8,6 +8,7 @@ This template provides instructions on how to use the API.
 - [API - Get Variants](#retrieving-variants)
 - [API - Get Versions](#retrieving-versions)
 - [API - Get Raw Data](#retrieving-raw-data)
+- [API - Get User](#retrieving-user)
 
 
 ### Searching for Terms
@@ -1312,8 +1313,8 @@ const Test = () => {
 
 
 
-### Retrieving User Data for Dashboard
-- Sample Code
+### Retrieving User Data
+- To retrieve the user data used on the dashboard, you will need to call 4 different endpoints. One to retrieve general information of the user, and the other three for the terms, ontologies and forks.
 ```
 import { getUser, getUserTerms, getUserOntologies, getUserForks } from './../../api/endpoints';
 
