@@ -8,9 +8,8 @@ import worker from './mock'
 const queryClient = new QueryClient();
 import * as serviceWorker from './serviceWorker';
 
-if (process.env.NODE_ENV === 'development') {
-  worker.start()
-}
+// Allows mock server to start
+worker.start()
  
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
