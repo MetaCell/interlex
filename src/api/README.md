@@ -1309,3 +1309,37 @@ const Test = () => {
   ]
 }
 ```
+
+
+
+### Retrieving User Data for Dashboard
+- Sample Code
+```
+import { getUser, getUserTerms, getUserOntologies, getUserForks } from './../../api/endpoints';
+
+const useMockApi = () => mockApi;
+
+const Test = () => {
+    const { getEndpointsIlxGet } = useMockApi();
+
+    React.useEffect( () => {
+        getUser("123").then(data => { 
+            console.log("Raw Data : ", data)
+        });
+        // For user terms
+        getUserTerms("123").then(data => { 
+            console.log("Raw Data : ", data)
+        });
+        // For user ontologies
+        getUserOntologies("123").then(data => { 
+            console.log("Raw Data : ", data)
+        });
+        // For user forks
+        getUserForks("123").then(data => { 
+            console.log("Raw Data : ", data)
+        });
+    }, [])
+
+    render ();
+};
+```
