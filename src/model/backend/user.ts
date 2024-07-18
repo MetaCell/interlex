@@ -17,18 +17,20 @@ export interface User {
   email: string;
   /** Unique identifier */
   id: string;
-  /** ORCID ID */
-  identifier?: string;
   /** Date User was last login */
   last_login?: string;
   /** My Merge Reviews */
   merge_reviews: unknown;
   /** Object that specify given and family name */
   name: UserNameItem[];
+  /** ORCID ID */
+  orcid?: string;
   /** My Organizations */
   organizations: unknown;
   /** User Role */
   role: string;
   /** My Term Variants */
   term_variants: unknown;
+  /** UserName */
+  username: string;
 }
