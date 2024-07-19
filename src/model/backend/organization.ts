@@ -4,27 +4,15 @@
  * Swagger Mock Missing Endpoints
  * OpenAPI spec version: 1.0.0
  */
-import type { OrganizationOntologiesItem } from './organizationOntologiesItem';
-import type { OrganizationTermsItem } from './organizationTermsItem';
 
 export interface Organization {
-  /** author */
-  author: string;
-  /** Date organization was created */
-  creation_date: string;
   /** Description of Organization */
   description: string;
-  /** Unique identifier */
+  /** Organization uri for icon */
+  icon?: string;
+  /** Unique identifier of organization */
   id: string;
-  /** legal name */
-  legalName?: string;
   name: string;
-  /** Ontology */
-  ontologies?: OrganizationOntologiesItem[];
-  /** review aspect */
-  reviewAspect?: string;
-  /** Terms */
-  terms?: OrganizationTermsItem[];
   /** Organization uri */
   url: string;
 }

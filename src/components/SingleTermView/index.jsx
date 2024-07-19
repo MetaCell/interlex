@@ -20,7 +20,7 @@ import CopyLinkComponent from "../common/CopyLinkComponent";
 import BasicTabs from "../common/CustomTabs";
 import CustomButton from "../common/CustomButton";
 import CustomMenu from "./CustomMenu";
-import React from "react";
+import React, {useState} from "react";
 import OverView from "./OverView/OverView";
 import HistoryPanel from "./History/HistoryPanel";
 import VariantsPanel from "./Variants/VariantsPanel";
@@ -32,11 +32,11 @@ import {
   List,
   AccountTreeOutlined
 } from "@mui/icons-material";
-import CustomIconTabs from "../common/CustomIconTabs";
 import Discussion from "./Discussion";
 import { CodeIcon } from "../../Icons";
 import {useQuery} from "../../helpers";
 import CustomSingleSelect from "../common/CustomSingleSelect";
+import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
 
 const { gray200, brand700, gray600 } = vars;
 
@@ -49,7 +49,7 @@ const SingleTermView = () => {
   const [dataFormatAnchorEl, setDataFormatAnchorEl] = React.useState(null);
   const [tabValue, setTabValue] = React.useState(0);
   const [isCodeViewVisible, setIsCodeViewVisible] = React.useState(false);
-  const [iconTabValue, setIconTabValue] = React.useState(0);
+  const [toggleButtonValue, setToggleButtonValue] = useState('defaultView');
   const [selectedDataFormat, setSelectedDataFormat] = React.useState('JSON-LD');
   const query = useQuery();
   const searchTerm = query.get('searchTerm');
@@ -66,16 +66,16 @@ const SingleTermView = () => {
     setSelectedDataFormat(value);
     setDataFormatAnchorEl(null);
   };
-
-  const handleIconTabValueChange = (event, newValue) => {
-    setIconTabValue(newValue);
-    if (newValue === 1) {
-      setIsCodeViewVisible(true)
-    } else {
-      setIsCodeViewVisible(false)
+  const onToggleButtonChange = (event, newValue) => {
+    if (newValue) {
+      setToggleButtonValue(newValue)
+      if (newValue === 'codeView') {
+        setIsCodeViewVisible(true)
+      } else {
+        setIsCodeViewVisible(false)
+      }
     }
-  };
-
+  }
   const handleChangeTabs = (event, newValue) => {
     setTabValue(newValue);
   };
@@ -188,17 +188,18 @@ const SingleTermView = () => {
                   </Stack>
                   <Divider sx={{ ml: '0.625rem', mr: '0.625rem', border: `1px solid ${gray200}` }} /></>)
                 }
-                <CustomIconTabs
-                  tabs={[{
-                    icon: <List />,
-                    value: 0
-                  },{
-                    icon: <CodeOrTreeIcon />,
-                    value: 1
-                  }]}
-                  value={iconTabValue}
-                  handleChange={handleIconTabValueChange}>
-                </CustomIconTabs>
+                <ToggleButtonGroup
+                  value={toggleButtonValue}
+                  exclusive
+                  onChange={onToggleButtonChange}
+                >
+                  <ToggleButton value={'defaultView'}>
+                    <List />
+                  </ToggleButton>
+                  <ToggleButton value={'codeView'}>
+                    <CodeOrTreeIcon />
+                  </ToggleButton>
+                </ToggleButtonGroup>
               </Box>
             )}
           </Grid>

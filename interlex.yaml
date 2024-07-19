@@ -96,6 +96,78 @@ paths:
           description: The request cannot be fullfilled due to the permission of your account.
       tags:
         - API
+  /operations/getUser/{id}/terms:
+    get:
+      summary: Used to retrieve a specific user's terms.
+      operationId: get_user_terms
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the user to retrieve
+          schema:
+            type: string
+      responses:
+        200:
+          description: The terms for the user retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Terms'
+        400:
+          description: Bad Request, bad input parameter for User Get request.
+        403:
+          description: The request cannot be fullfilled due to the permission of your account.
+      tags:
+        - API
+  /operations/getUser/{id}/organizations:
+    get:
+      summary: Used to retrieve a specific user's organizations.
+      operationId: get_user_organizations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the user to retrieve
+          schema:
+            type: string
+      responses:
+        200:
+          description: The organizations for the user retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organizations'
+        400:
+          description: Bad Request, bad input parameter for User Get request.
+        403:
+          description: The request cannot be fullfilled due to the permission of your account.
+      tags:
+        - API
+  /operations/getUser/{id}/forks:
+    get:
+      summary: Used to retrieve a specific user's forks.
+      operationId: get_user_forks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the user to retrieve
+          schema:
+            type: string
+      responses:
+        200:
+          description: The forks for the user retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Forks'
+        400:
+          description: Bad Request, bad input parameter for User Get request.
+        403:
+          description: The request cannot be fullfilled due to the permission of your account.
+      tags:
+        - API
   /operations/getOrganization/{id}:
     get:
       summary: Used to retrieve a specific organization.
@@ -108,7 +180,7 @@ paths:
           schema:
             type: string
       requestBody:
-        description: The organization to save.
+        description: The organization to retrieve.
         required: true
         content:
           application/json:
@@ -177,6 +249,99 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /operations/getOrganization/{organization}/terms:
+    get:
+      summary: Get all terms for this organization
+      parameters:
+        - name: organization
+          in: path
+          required: true
+          description: The id of the organization to retrieve
+          schema:
+            type: string
+      operationId: get_organizations_terms
+      tags:
+        - API
+      responses:
+        200:
+          description: A paged array of terms for an organization
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Terms'
+        404:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /operations/getOrganization/{organization}/ontologies:
+    get:
+      summary: Get all ontologies for this organization
+      parameters:
+        - name: organization
+          in: path
+          required: true
+          description: The id of the organization to retrieve
+          schema:
+            type: string
+      operationId: get_organizations_ontologies
+      tags:
+        - API
+      responses:
+        200:
+          description: A paged array of ontologies for an organization
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ontologies'
+        404:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /operations/getOrganization/{organization}/curies:
+    get:
+      summary: Get all curies for this organization
+      parameters:
+        - name: organization
+          in: path
+          required: true
+          description: The id of the organization to retrieve
+          schema:
+            type: string
+      operationId: get_organizations_curies
+      tags:
+        - API
+      responses:
+        200:
+          description: A paged array of curies for an organization
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Curies'
+        404:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'              
   /{group}/query/transitive/{property}/{start}?depth:
     get:
       summary: Retrieve hierarchy results
@@ -406,7 +571,7 @@ paths:
                                 }
                               ]
                             }]
-        default:
+        404:
           description: unexpected error
           content:
             application/json:
@@ -962,6 +1127,7 @@ components:
       required:
         - id
         - name
+        - username
         - role
         - creation_date
         - email
@@ -973,11 +1139,14 @@ components:
         id:
           description: Unique identifier
           type: string
-          example: 'be4f75a711974bbc8f92fdd24e778542'
-        identifier:
+          example: 'JD10101987'
+        username:
+          description: UserName
+          type: string
+          example: 'oliva.rhye'
+        orcid:
           description: ORCID ID
           type: string
-          x-unique: true
           example: 'JD10101987'
         active:
           description: active user or not
@@ -1038,50 +1207,28 @@ components:
         - id
         - name
         - description
-        - creation_date
-        - author
         - url
       properties:
         id:
-          description: Unique identifier
+          description: Unique identifier of organization
           type: string
           x-unique: true
           x-primary-key: true
           example: 'be4f75a711974bbc8f92fdd24e778542'
+        icon:
+          type: string
+          format: uri
+          description: Organization uri for icon 
         name:
           type: string
           example : Test Organization
         description : 
           type: string
           description: Description of Organization
-        creation_date:
-          description: Date organization was created
-          type: string
-          format: 'date-time'
-        author :
-            type: string
-            format: uri
-            description: author
-        reviewAspect: 
-          type: string
-          description: review aspect
         url:
           type: string
           format: uri
           description: Organization uri       
-        legalName: 
-          type: string
-          description: legal name
-        terms: 
-          type: array
-          items:
-            type: object
-          description: Terms
-        ontologies: 
-          type: array
-          items:
-            type: object
-          description: Ontology
     Organizations:
       type: array
       items:
@@ -1118,6 +1265,66 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Review'
+    Fork:
+      type: object
+      required:
+        - name
+        - origin
+        - destination
+        - status
+        - date
+        - request_url
+      properties:
+        name:
+          type: string
+          description : name of the fork
+          example : ForkPB08
+        origin:
+          type: object
+          properties :
+            name:
+              type: string
+              description : origin of the fork
+              example : ForkPB08
+            url:
+              type: string
+              description : url of the destination
+              example : destination.fork.com
+        destination:
+          type: object
+          properties :
+            name:
+              type: string
+              description : name of the destination
+              example : Central Nervous System
+            url:
+              type: string
+              description : url of the destination
+              example : destination.fork.com
+            tag:
+              type: string
+              description : tag of the fork
+              example : Spark Anatomical Work Group
+        request_url:
+          description: URL of Fork request
+          type: string
+        date:
+          type: string
+          format: 'date-time'
+          description : date of fork request
+          example : 01/01/2005 2024-06-05T18:16:38
+        status:
+          type: string
+          description : Status of Fork e.g. approved, rejected
+          enum:
+              - requested
+              - approved
+              - rejected
+          example : approved
+    Forks:
+      type: array
+      items:
+        $ref: '#/components/schemas/Fork'
     Error:
       type: object
       required:
