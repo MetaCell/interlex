@@ -1,23 +1,29 @@
 import { Box } from "@mui/material";
 import { useState, useEffect } from "react";
 import { vars } from "../../theme/variables";
-import CustomIconTabs from "../common/CustomIconTabs";
 import { FiberSmartIcon, JoinInnerIcon } from "../../Icons";
 import SearchTermsData from "../../static/SearchTermsData.json"
 import CustomSingleSelect from "../common/CustomSingleSelect";
+import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
 const { gray300 } = vars;
 const DropDownConditions = ({ value, onChange, index, handleTermChange }) => {
-  const [tabValues, setTabValues] = useState(0);
+  const [toggleButtonValue, setToggleButtonValue] = useState('object');
   const [dropdownOptions, setDropdownOptions] = useState(SearchTermsData.objectOptions);
   
   useEffect(() => {
-    setDropdownOptions(tabValues === 0 ? SearchTermsData.objectOptions : SearchTermsData.annotationOptions);
-    handleTermChange(index, 'condition', tabValues === 0 ? SearchTermsData.objectOptions[0].value : SearchTermsData.annotationOptions[0].value);
-  }, [tabValues]);
+    setDropdownOptions(toggleButtonValue === 'object' ? SearchTermsData.objectOptions : SearchTermsData.annotationOptions);
+    handleTermChange(index, 'condition', toggleButtonValue === 'object' ? SearchTermsData.objectOptions[0].value : SearchTermsData.annotationOptions[0].value);
+  }, [toggleButtonValue]);
   
   const onConditionValueChange = (v) => {
     onChange(v);
   }
+  
+  const onToggleButtonChange = (event, newValue) => {
+    if (newValue) {
+      setToggleButtonValue(newValue);
+    }
+  };
   
   return (
     <Box display='flex'>
@@ -35,27 +41,26 @@ const DropDownConditions = ({ value, onChange, index, handleTermChange }) => {
         },
       }}
       />
-      
-      <CustomIconTabs
-        tabs={[
-          {
-            icon: <JoinInnerIcon />,
-            value: 0
-          },
-          {
-            icon: <FiberSmartIcon />,
-            value: 1
-          }
-        ]}
-        value={tabValues}
-        handleChange={(event, newValue) => setTabValues(newValue)}
+      <ToggleButtonGroup
+        value={toggleButtonValue}
+        exclusive
+        onChange={onToggleButtonChange}
         sx={{
-          borderLeft: 0,
-          borderTopLeftRadius: 0,
-          borderBottomLeftRadius: 0,
-          height: '2.5rem'
+          height: '2.5rem',
+          '& .MuiToggleButtonGroup-firstButton': {
+            borderLeft: 0,
+            borderTopLeftRadius: 0,
+            borderBottomLeftRadius: 0,
+          }
         }}
-      />
+      >
+        <ToggleButton value={'object'}>
+          <JoinInnerIcon />
+        </ToggleButton>
+        <ToggleButton value={'annotation'}>
+          <FiberSmartIcon />
+        </ToggleButton>
+      </ToggleButtonGroup>
     </Box>
   );
 };
