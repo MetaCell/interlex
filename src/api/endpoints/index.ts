@@ -10,14 +10,14 @@ import termParser from '../../parsers/termParser';
 const useMockApi = () => mockApi;
 const useApi = () => api;
 
-export const getOrganizations = () => {
+export const getOrganizations = async () => {
     /** Call endpoint for retrieving organizations, this is a mock endpoint
     created by us */
     const {  getOrganizations } = useMockApi();
 
     /** Call Endpoint */
-    const organizations = getOrganizations().then((data) => {
-        return data;
+    return getOrganizations().then((data) => {
+        return data as Organizations;
       })
       .catch((error) => {
         return error;
