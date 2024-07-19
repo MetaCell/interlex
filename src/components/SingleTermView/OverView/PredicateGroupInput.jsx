@@ -1,27 +1,28 @@
 import {Box, MenuItem, Select, Typography} from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import {vars} from "../../../theme/variables";
-import CustomIconTabs from "../../common/CustomIconTabs";
 import {useCallback, useEffect, useState} from "react";
 import TextFieldsIcon from '@mui/icons-material/TextFields';
 import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
 import SingleSearch from "../SingleSearch";
 import { debounce } from 'lodash';
-import { getMatchTerms } from "../../../api/endpoints";
 import predicatesData from "../../../static/predicates.json"
+import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
+import {getMatchTerms} from "../../../api/endpoints";
 
 const {gray700, gray300, gray800, gray600} = vars
-
 const PredicateGroupInput = ({ predicate, onChange }) => {
-  const [tabValues, setTabValues] = useState(0);
+  const [toggleButtonValue, setToggleButtonValue] = useState('text');
   const [objectSearchTerm, setObjectSearchTerm] = useState('');
   const [terms, setTerms] = useState([]);
   const [selectedType, setSelectedType] = useState(predicate.object.type);
-    
-  const onChangeTab = (event, newValue) => {
-    setTabValues(newValue);
-    onChange({ ...predicate.object, isLink: newValue === 1 });
-  };
+  const onToggleButtonChange = (event, newValue) => {
+    if (newValue) {
+      setToggleButtonValue(newValue);
+      onChange({ ...predicate.object, isLink: newValue === 'link' });
+      }
+    };
+  
   const handleSelectChange = (e) => {
     const newType = e.target.value;
     setSelectedType(newType);
@@ -36,7 +37,7 @@ const PredicateGroupInput = ({ predicate, onChange }) => {
   
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await getMatchTerms(searchTerm);
-    setTerms(data);
+    setTerms(data.results);
   }, 500), [getMatchTerms]);
   
   useEffect(() => {
@@ -44,7 +45,7 @@ const PredicateGroupInput = ({ predicate, onChange }) => {
       fetchTerms(objectSearchTerm);
     }
   }, [objectSearchTerm, fetchTerms]);
-  
+
   return (
     <Box>
       <Box display='flex' alignItems='center' justifyContent='space-between' mb='.75rem'>
@@ -100,17 +101,26 @@ const PredicateGroupInput = ({ predicate, onChange }) => {
             }
           }}
         />
-        <CustomIconTabs
-          tabs={[{ icon: <TextFieldsIcon />, value: 0 }, { icon: <LinkOutlinedIcon />, value: 1 }]}
-          value={tabValues}
-          handleChange={onChangeTab}
+        <ToggleButtonGroup
+          value={toggleButtonValue}
+          exclusive
+          onChange={onToggleButtonChange}
           sx={{
-            borderLeft: 0,
-            borderTopLeftRadius: 0,
-            borderBottomLeftRadius: 0,
-            height: '2.5rem'
+            height: '2.5rem',
+            '& .MuiToggleButtonGroup-firstButton': {
+              borderLeft: 0,
+              borderTopLeftRadius: 0,
+              borderBottomLeftRadius: 0,
+            }
           }}
-        />
+        >
+          <ToggleButton value={'text'}>
+            <TextFieldsIcon />
+          </ToggleButton>
+          <ToggleButton value={'link'}>
+            <LinkOutlinedIcon />
+          </ToggleButton>
+        </ToggleButtonGroup>
       </Box>
     </Box>
   );

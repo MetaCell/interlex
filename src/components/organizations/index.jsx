@@ -1,7 +1,6 @@
 import {useEffect, useState } from "react";
 import {Box, Typography, CircularProgress} from "@mui/material";
 import { vars } from "../../theme/variables";
-import organizationss from '../../static/Organizations.json'
 import { getOrganizations } from "../../api/endpoints";
 import OrganizationsList from "../common/OrganizationsList";
 
@@ -12,20 +11,16 @@ const Organizations = () => {
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  useEffect(() => {
+
+  const fetchOrganizations = async() => {
+    const organizations = await getOrganizations()
+    setOrganizations(organizations);
+    setLoading(false)
+  }
+
+  useEffect( () => {
     setLoading(true)
-    getOrganizations()
-    fetch(URL)
-      .then((response) => response.json())
-      .then((jsonData) => {
-        setOrganizations(jsonData);
-        setLoading(false)
-      })
-      .catch((error) => {
-        setError(error)
-        setLoading(false)
-      });
+    fetchOrganizations();
   }, []);
   
   if (loading) {
