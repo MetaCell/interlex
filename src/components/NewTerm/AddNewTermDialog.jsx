@@ -144,7 +144,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                     {tabValue === 0 && <NewTermSidebar open={openSidebar} onToggle={handleSidebarToggle} results={termResults} isResultsEmpty={isResultsEmpty} />}
                 </Box>
             )}
-            {activeStep === 1 && loading ? <>Loading...</> : <AddPredicatesStep predicatesOptions={predicatesOptions} />}
+            {activeStep === 1 && <AddPredicatesStep predicatesOptions={predicatesOptions} />}
             {activeStep === 2 && <TermStatusStep handleCloseAndActiveStep={handleCloseAndActiveStep} />}
         </CustomizedDialog>
     );
