@@ -84,14 +84,14 @@ const HistoryItem = ({ entry }) => (
                     justifyContent: 'space-between'
                 }}
                 primary={
-                    <Box display="flex" alignItems="center" gap={0.5}>
-                        <Typography variant="body2" sx={{ color: gray700, fontWeight: 500 }}>{getText(entry)}</Typography>
-                        <Typography variant="body2" sx={{ color: brand600, fontWeight: 600 }}>{entry?.fork}</Typography>
+                    <Box component="span" display="flex" alignItems="center" gap={0.5}>
+                        <Typography variant="body2" component="span" sx={{ color: gray700, fontWeight: 500 }}>{getText(entry)}</Typography>
+                        <Typography variant="body2" component="span" sx={{ color: brand600, fontWeight: 600 }}>{entry?.fork}</Typography>
                     </Box>
                 }
                 secondary={
-                    <Box display="flex" alignItems="center" gap={1.5}>
-                        <Typography sx={{ color: gray600, fontSize: '0.75rem' }}>{entry.date}</Typography>
+                    <Box component="span" display="flex" alignItems="center" gap={1.5}>
+                        <Typography component="span" sx={{ color: gray600, fontSize: '0.75rem' }}>{entry.date}</Typography>
                         {entry.action === 'request' ? (
                             <CustomButton sx={visibilityHidden}>
                                 Go to

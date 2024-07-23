@@ -71,9 +71,9 @@ const Graph = ({ width, height, predicate }) => {
   }, [hierarchy, width, height]);
   const xMargin = 4
   const yMargin = 2
-  const allNodes = dendrogram.descendants().map((node) => {
+  const allNodes = dendrogram.descendants().map((node, index) => {
     return (
-      <g key={node.id} >
+      <g key={`${node.id}-${index}`} >
         <g>
           <rect
             x={boundsWidth - (node.y)}
@@ -109,7 +109,7 @@ const Graph = ({ width, height, predicate }) => {
     );
   });
 
-  const allEdges = dendrogram.descendants().map((node) => {
+  const allEdges = dendrogram.descendants().map((node, index) => {
     if (!node.parent) {
       return;
     }
@@ -133,7 +133,7 @@ const Graph = ({ width, height, predicate }) => {
     
     return (
       <path
-        key={node.id}
+        key={`${node.id}-${index}`}
         fill="none"
         stroke="grey"
         markerStart='url(#arrow)'

@@ -3,10 +3,12 @@ import { Pagination, PaginationItem, Typography } from "@mui/material";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
-const CustomPagination = ({ rowCount, rowsPerPage, page, onPageChange }) => {
+const CustomPagination = ({ rowCount, rowsPerPage = 10, page, onPageChange }) => {
+    const pageCount = Math.ceil(rowCount / (rowsPerPage || 1)); // Prevent division by zero
+
     return (
         <Pagination
-            count={Math.ceil(rowCount / rowsPerPage)}
+            count={pageCount}
             page={page}
             onChange={onPageChange}
             shape="rounded"

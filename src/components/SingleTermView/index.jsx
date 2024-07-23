@@ -10,6 +10,8 @@ import {
   Menu,
   MenuItem
 } from "@mui/material";
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import ToggleButton from '@mui/material/ToggleButton';
 import CustomBreadcrumbs from "../common/CustomBreadcrumbs";
 import ForkRightIcon from '@mui/icons-material/ForkRight';
 import { vars } from "../../theme/variables";
@@ -20,7 +22,7 @@ import CopyLinkComponent from "../common/CopyLinkComponent";
 import BasicTabs from "../common/CustomTabs";
 import CustomButton from "../common/CustomButton";
 import CustomMenu from "./CustomMenu";
-import React, {useState} from "react";
+import React, { useState } from "react";
 import OverView from "./OverView/OverView";
 import HistoryPanel from "./History/HistoryPanel";
 import VariantsPanel from "./Variants/VariantsPanel";
@@ -34,13 +36,12 @@ import {
 } from "@mui/icons-material";
 import Discussion from "./Discussion";
 import { CodeIcon } from "../../Icons";
-import {useQuery} from "../../helpers";
+import { useQuery } from "../../helpers";
 import CustomSingleSelect from "../common/CustomSingleSelect";
-import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
 
 const { gray200, brand700, gray600 } = vars;
 
-const dataFormats = [ 'JSON-LD', 'Turtle', 'N3', 'OWL', 'CSV']
+const dataFormats = ['JSON-LD', 'Turtle', 'N3', 'OWL', 'CSV']
 
 const SingleTermView = () => {
   const [open, setOpen] = React.useState(false);
@@ -137,7 +138,7 @@ const SingleTermView = () => {
                   boxShadow: open && "0px 0px 0px 4px rgba(50, 129, 115, 0.24)"
                 }}
               >
-                <Button display="flex" alignItems="center">
+                <Button display="flex" sx={{ alignItems: "center" }}>
                   <CreateNewFolderOutlined fontSize="medium" />
                   Add term to active ontology
                 </Button>
@@ -206,16 +207,16 @@ const SingleTermView = () => {
         </Grid>
       </Box>
       {
-        tabValue === 0 &&  <OverView isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat}/>
+        tabValue === 0 && <OverView isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} />
       }
       {
-        tabValue === 1 &&  <VariantsPanel/>
+        tabValue === 1 && <VariantsPanel />
       }
       {
-        tabValue === 2 &&  <HistoryPanel/>
+        tabValue === 2 && <HistoryPanel />
       }
       {
-        tabValue === 3 &&  <Discussion />
+        tabValue === 3 && <Discussion />
       }
     </Box>
   )

@@ -80,7 +80,7 @@ const theme = createTheme({
                     font-family: 'Roboto Mono', monospace;
                 }
 
-                code span:first-child {
+                code span:first-of-type {
                     padding-top: 1.5rem;
                     border-top-left-radius: 0.75rem;
                 }
@@ -356,7 +356,7 @@ const theme = createTheme({
                         height: '2.625rem',
                         borderRadius: '0.375rem',
 
-                        '&:not(:first-child)': {
+                        '&:not(:first-of-type)': {
                             marginTop: '0.375rem'
                         },
 
@@ -723,7 +723,7 @@ const theme = createTheme({
                         flexWrap: 'nowrap',
                         width: '100%',
                         '& li': {
-                            '&:first-child': {
+                            '&:first-of-type': {
                                 flexBasis: '100%',
                                 display: 'flex',
                                 justifyContent: 'flex-start',

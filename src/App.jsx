@@ -30,7 +30,8 @@ function MainContent() {
           flexDirection: 'column',
           minHeight: '100vh'
       }}>
-          <Header />
+        {/* Here we pass default value. Change to constant value */}
+          <Header isLoggedIn={true} />
           <Routes>
               <Route path="/" element={ <Box sx={{ flex: 1 }}><HomePage /></Box>} />
               <Route path="/search" element={<PageContainer><SearchResults /></PageContainer>} />
