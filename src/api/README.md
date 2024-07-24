@@ -9,6 +9,7 @@ This template provides instructions on how to use the API.
 - [API - Get Versions](#retrieving-versions)
 - [API - Get Raw Data](#retrieving-raw-data)
 - [API - Get User](#retrieving-user)
+- [API - Get Existing Ids](#retrieving-existing-ids)
 
 
 ### Searching for Terms
@@ -1322,29 +1323,25 @@ const Test = () => {
 ```
 import { getUser, getUserTerms, getUserOntologies, getUserForks } from './../../api/endpoints';
 
-const useMockApi = () => mockApi;
+const fetchUser= useCallback(debounce(async () => {
+    const data = await getUser("123");
+    console.log("User", data)
+    // For user terms
+    const terms = getUserTerms("123");
+    // For user ontologies
+    const ontologies = getUserOntologies("123");
+    // For user forks
+    const forks = getUserForks("123");
+}), [getUser, getUserTerms, getUserOntologies, getUserForks]);
+```
 
-const Test = () => {
-    const { getEndpointsIlxGet } = useMockApi();
+### Retrieving Existing Ids
+- To retrieve list of Existing Ids, use the method below.
+```
+import { getExistingIDs } from './../../api/endpoints';
 
-    React.useEffect( () => {
-        getUser("123").then(data => { 
-            console.log("Raw Data : ", data)
-        });
-        // For user terms
-        getUserTerms("123").then(data => { 
-            console.log("Raw Data : ", data)
-        });
-        // For user ontologies
-        getUserOntologies("123").then(data => { 
-            console.log("Raw Data : ", data)
-        });
-        // For user forks
-        getUserForks("123").then(data => { 
-            console.log("Raw Data : ", data)
-        });
-    }, [])
-
-    render ();
-};
+const getIds= useCallback(debounce(async () => {
+    const ids = await getExistingIDs();
+    console.log("ids ", ids)
+}), [getUser]);
 ```
