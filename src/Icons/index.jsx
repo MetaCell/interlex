@@ -283,6 +283,70 @@ export const BackgroundPattern = () => (
   </svg>
 )
 
+export const StatusErrorBackgroundPattern = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="104" height="104" viewBox="0 0 104 104" fill="none">
+    <rect width="104" height="104" rx="52" fill="url(#paint0_linear_4943_52335)"/>
+    <g filter="url(#filter0_dd_4943_52335)">
+      <rect x="32" y="32" width="40" height="40" rx="20" fill="#D92D20"/>
+      <path d="M59 46.41L57.59 45L52 50.59L46.41 45L45 46.41L50.59 52L45 57.59L46.41 59L52 53.41L57.59 59L59 57.59L53.41 52L59 46.41Z" fill="white"/>
+    </g>
+    <defs>
+      <filter id="filter0_dd_4943_52335" x="29" y="30" width="46" height="46" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+        <feOffset dy="1"/>
+        <feGaussianBlur stdDeviation="1"/>
+        <feComposite in2="hardAlpha" operator="out"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 0.0627451 0 0 0 0 0.0941176 0 0 0 0 0.156863 0 0 0 0.06 0"/>
+        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_4943_52335"/>
+        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+        <feOffset dy="1"/>
+        <feGaussianBlur stdDeviation="1.5"/>
+        <feComposite in2="hardAlpha" operator="out"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 0.0627451 0 0 0 0 0.0941176 0 0 0 0 0.156863 0 0 0 0.1 0"/>
+        <feBlend mode="normal" in2="effect1_dropShadow_4943_52335" result="effect2_dropShadow_4943_52335"/>
+        <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_4943_52335" result="shape"/>
+      </filter>
+      <linearGradient id="paint0_linear_4943_52335" x1="52" y1="0" x2="52" y2="104" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#F9FAFB"/>
+        <stop offset="1" stop-color="#EDF0F3"/>
+      </linearGradient>
+    </defs>
+  </svg>
+)
+
+export const StatusWarningBackgroundPattern = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="104" height="104" viewBox="0 0 104 104" fill="none">
+    <rect width="104" height="104" rx="52" fill="url(#paint0_linear_4165_32659)"/>
+    <g filter="url(#filter0_dd_4165_32659)">
+      <rect x="32" y="32" width="40" height="40" rx="20" fill="#DC6803"/>
+      <path d="M50.7993 55.5994H53.1994V57.9995H50.7993V55.5994ZM50.7993 45.9992H53.1994V53.1994H50.7993V45.9992ZM51.9873 39.999C45.3632 39.999 39.999 45.3752 39.999 51.9993C39.999 58.6235 45.3632 63.9997 51.9873 63.9997C58.6235 63.9997 63.9997 58.6235 63.9997 51.9993C63.9997 45.3752 58.6235 39.999 51.9873 39.999ZM51.9993 61.5996C46.6952 61.5996 42.3991 57.3035 42.3991 51.9993C42.3991 46.6952 46.6952 42.3991 51.9993 42.3991C57.3035 42.3991 61.5996 46.6952 61.5996 51.9993C61.5996 57.3035 57.3035 61.5996 51.9993 61.5996Z" fill="#FFFCF5"/>
+    </g>
+    <defs>
+      <filter id="filter0_dd_4165_32659" x="29" y="30" width="46" height="46" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+        <feOffset dy="1"/>
+        <feGaussianBlur stdDeviation="1"/>
+        <feComposite in2="hardAlpha" operator="out"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 0.0627451 0 0 0 0 0.0941176 0 0 0 0 0.156863 0 0 0 0.06 0"/>
+        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_4165_32659"/>
+        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+        <feOffset dy="1"/>
+        <feGaussianBlur stdDeviation="1.5"/>
+        <feComposite in2="hardAlpha" operator="out"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 0.0627451 0 0 0 0 0.0941176 0 0 0 0 0.156863 0 0 0 0.1 0"/>
+        <feBlend mode="normal" in2="effect1_dropShadow_4165_32659" result="effect2_dropShadow_4165_32659"/>
+        <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_4165_32659" result="shape"/>
+      </filter>
+      <linearGradient id="paint0_linear_4165_32659" x1="52" y1="0" x2="52" y2="104" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#F9FAFB"/>
+        <stop offset="1" stop-color="#EDF0F3"/>
+      </linearGradient>
+    </defs>
+  </svg>
+)
+
 export const StartIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
     <path d="M12.1582 13.825L15.1415 10.8333L4.99984 10.8333L4.99984 9.16667L15.1415 9.16667L12.1498 6.175L13.3332 5L18.3332 10L13.3332 15L12.1582 13.825ZM1.6665 15L1.6665 5H3.33317L3.33317 15H1.6665Z" fill="#313534" />

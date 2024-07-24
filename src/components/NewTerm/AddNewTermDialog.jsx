@@ -15,12 +15,13 @@ import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
 import * as mockApiInterlex from "../../api/endpoints/interLexURIStructureAPI";
 import { termParser } from "../../../src/parsers/termParser";
 import { debounce } from 'lodash';
+
 const useMockApi = () => mockApi;
 const useMockApiInterlex = () => mockApiInterlex;
 
 const { gray100, gray200, gray400, brand700 } = vars;
 
-const HeaderRightSideContent = ({ activeStep, onContinueClick, onClose, isContinueButtonDisabled }) => (
+const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueButtonDisabled }) => (
     <Box display='flex' alignItems='center'>
         {activeStep !== 2 ? (
             <>
@@ -41,7 +42,7 @@ const HeaderRightSideContent = ({ activeStep, onContinueClick, onClose, isContin
                 <Stack direction="row" spacing={1.5}>
                     <CustomButton onClick={onClose}>Cancel</CustomButton>
                     <Button
-                        onClick={onContinueClick}
+                        onClick={onContinue}
                         disabled={isContinueButtonDisabled}
                         variant="contained"
                         endIcon={<ArrowForwardIcon />}
@@ -70,82 +71,129 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const [openSidebar, setOpenSidebar] = useState(true);
     const [areMatchesChecked, setAreMatchesChecked] = useState(false);
     const [data, setData] = useState(null);
+    const [responseStatus, setResponseStatus] = useState('success')
     const [termValue, setTermValue] = useState('');
-    const searchTerm = "brain"
-
+    const [predicates, setPredicates] = useState([{ subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
+    const [formState, setFormState] = useState({
+        label: '',
+        ilx: "ILX:0101901",
+        age: '',
+        synonyms: '',
+        superclass: '',
+        existingIds: '',
+        urls: '',
+        description: '',
+        comment: ''
+    });
 
     const memoData = useMemo(() => data, [data]);
 
     const fetchTerms = useCallback(
-        debounce((searchTerm) => {
-            if (searchTerm) {
-                getEndpointsIlx("base", searchTerm).then(dat => {
-                    const parsedData = termParser(dat);
+        debounce((termValue) => {
+            setLoading(true);
+            if (termValue) {
+                getEndpointsIlx("base", termValue).then(data => {
+                    const parsedData = termParser(data);
                     setData(parsedData?.results[0]);
+                    setLoading(false);
+                });
+            } else {
+                getMatchTerms("base", "i", { filter: "", value: "" }).then(data => {
+                    const parsedData = termParser(data, "");
+                    setTermResults(parsedData.results);
                     setLoading(false);
                 });
             }
         }, 300),
-        []
+        [getEndpointsIlx, getMatchTerms]
     );
 
     const handleChangeTabs = (_, newValue) => setTabValue(newValue);
-    const handleContinueClick = () => setActiveStep(activeStep + 1);
+    const handleContinueClick = () => {
+        setActiveStep(activeStep + 1);
+        if (activeStep === 2) {
+            console.log("POST: here connect to post request")
+            //here we change status as well according to api response
+        }
+    }
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
     const handleMatchesChange = (e) => setAreMatchesChecked(e.target.checked);
-    const handleCloseAndActiveStep = () => { handleClose(); setActiveStep(0); };
-    const [predicates, setPredicates] = React.useState([{ subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
-
+    const handleCancelBtnClick = () => { handleClose(); setActiveStep(0); setAreMatchesChecked(false); };
+    const handleAddNewTerm = () => { setActiveStep(0); setAreMatchesChecked(false); };
+    const handleFormInputChange = (e) => {
+        const { name, value } = e.target;
+        if (name === "label") {
+            setTermValue(e.target.value);
+        }
+        setFormState((prevState) => ({
+            ...prevState,
+            [name]: value
+        }));
+    };
 
     useEffect(() => {
-        // Call endpoint to retrieve terms that match search word
         getMatchTerms("base", "i", { filter: "", value: "" }).then(data => {
-            const parsedData = termParser(data, termValue)
-            console.log("Parsed retrieved data: ", parsedData)
-            setTermResults(parsedData.results)
+            const parsedData = termParser(data, termValue);
+            setTermResults(parsedData.results);
         });
-    }, [termValue]);
+    }, [termValue, getMatchTerms]);
 
     useEffect(() => {
-        setLoading(true);
-        fetchTerms(searchTerm);
+        fetchTerms(termValue);
         return () => {
             fetchTerms.cancel();
         };
-    }, [searchTerm, fetchTerms]);
+    }, [termValue, fetchTerms]);
 
     useEffect(() => {
-        memoData?.predicates && setPredicates(memoData?.predicates)
+        if (memoData?.predicates) {
+            setPredicates(memoData.predicates);
+        }
     }, [memoData]);
 
     const predicatesOptions = predicates.map(row => ({
         label: row.title,
         value: row.title
-    }))
+    }));
 
     const isResultsEmpty = termResults.length === 0;
-    console.log("memoData: ", memoData)
 
     return (
         <CustomizedDialog
             title='Add a new term'
             open={open}
             handleClose={handleClose}
-            HeaderRightSideContent={<HeaderRightSideContent activeStep={activeStep} onContinueClick={handleContinueClick} onClose={handleCloseAndActiveStep} isContinueButtonDisabled={!areMatchesChecked} />}
+            HeaderRightSideContent={
+                <HeaderRightSideContent
+                    activeStep={activeStep}
+                    onContinue={handleContinueClick}
+                    onClose={handleCancelBtnClick}
+                    isContinueButtonDisabled={!areMatchesChecked}
+                />
+            }
             sx={{ '& .MuiDialogContent-root': { padding: 0, overflowY: "hidden" } }}
         >
             {activeStep === 0 && (
                 <Box display="flex" height={1}>
                     <Box sx={{ px: '3.25rem', pt: '1.75rem', pb: '2.5rem', flex: 1, overflowY: 'auto' }}>
                         <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["Manually", "Import"]} />
-                        {tabValue === 0 && <ManualImportTab handleSidebarOpen={() => setOpenSidebar(true)} matchesChecked={areMatchesChecked} handleMatchesChange={handleMatchesChange} isResultsEmpty={isResultsEmpty} setTermValue={setTermValue} />}
+                        {tabValue === 0 && (
+                            <ManualImportTab
+                                formState={formState}
+                                onInputChange={handleFormInputChange}
+                                handleSidebarOpen={() => setOpenSidebar(true)}
+                                matchesChecked={areMatchesChecked}
+                                handleMatchesChange={handleMatchesChange}
+                                isResultsEmpty={isResultsEmpty}
+                            />
+                        )}
                         {tabValue === 1 && <ImportFileTab />}
                     </Box>
                     {tabValue === 0 && <NewTermSidebar open={openSidebar} onToggle={handleSidebarToggle} results={termResults} isResultsEmpty={isResultsEmpty} />}
                 </Box>
             )}
-            {activeStep === 1 && <AddPredicatesStep predicatesOptions={predicatesOptions} />}
-            {activeStep === 2 && <TermStatusStep handleCloseAndActiveStep={handleCloseAndActiveStep} />}
+            {activeStep === 1 && <AddPredicatesStep termValue={termValue.charAt(0).toUpperCase() + termValue.slice(1)} predicatesOptions={predicatesOptions} />}
+            {activeStep === 2 && <TermStatusStep responseStatus={responseStatus} termValue={termValue.charAt(0).toUpperCase() + termValue.slice(1)} onAddNewTerm={handleAddNewTerm} />}
         </CustomizedDialog>
     );
 };

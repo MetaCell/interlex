@@ -8,9 +8,9 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { vars } from "../../theme/variables";
 const { gray800 } = vars;
 
-const AddPredicatesStep = ({ predicatesOptions }) => {
+const AddPredicatesStep = ({ termValue, predicatesOptions }) => {
 
-    const [predicates, setPredicates] = React.useState([{ subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
+    const [predicates, setPredicates] = React.useState([{ subject: termValue, predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
 
     const handleAddPredicate = () => {
         setPredicates([...predicates, { subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
@@ -26,10 +26,11 @@ const AddPredicatesStep = ({ predicatesOptions }) => {
         const newPredicates = predicates.filter((_, i) => i !== index);
         setPredicates(newPredicates);
     };
+
     return (
         <Box height={1} width={1} sx={{ padding: '2.25rem 3.25rem' }}>
             <Typography color={gray800} fontSize='1.125rem' fontWeight={600} mb='2.75rem'>
-                Add Predicates to Central Nervous System
+                Add Predicates to {termValue}
             </Typography>
             {predicates.map((predicate, index) => (
                 <Grid container spacing='1.75rem' mb='2rem' key={index} alignItems='end'>
