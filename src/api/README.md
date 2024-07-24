@@ -30,7 +30,11 @@ const Test = () => {
     render ();
 };
 ```
-To add filters to the search endpoint, use the third parameter and pass an object with a populated filter and value as in the example : { filter: "", value: "" }
+To add filters to the search endpoint, use the third parameter and pass an object with a populated filter, value , condition as in the example below. If multiple filters needed to be added, the attributes/value/conditions needed to be separated by a comma: 
+
+```
+{ filters : { attribute: "Attribute1, Attribute2, Attribute3", value: "Value1, Value2, Value3", condition : "And, Or, And" } }
+```
 
 - Sample Search Return. 
 
