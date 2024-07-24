@@ -6,12 +6,12 @@
  */
 
 export type GetMatchTermsParams = {
-/**
- * A property to filter results by
- */
-filter?: string;
-/**
- * The value for the filter specified above
- */
-value?: string;
+filters?: {
+  /** A property to filter results by */
+  attribute?: string;
+  /** Condition for filter attribute */
+  condition?: string;
+  /** The value for the filter specified above */
+  value?: number;
+};
 };
