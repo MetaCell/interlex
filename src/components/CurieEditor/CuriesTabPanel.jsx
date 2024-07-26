@@ -2,14 +2,22 @@ import * as React from "react";
 import { Box, TableRow, TableCell, IconButton, TextField, ClickAwayListener, CircularProgress } from "@mui/material";
 import CustomTable from "../common/CustomTable";
 import { getComparator, stableSort } from "../../utils";
-import { getCuries } from './../../api/endpoints';
-import curieParser from '../../parsers/curieParser';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { vars } from "../../theme/variables";
-import debounce from 'lodash/debounce';
 
 const { gray600, brand500, gray100, gray300, gray700 } = vars;
+
+const headCells = [
+    { id: 'prefix', label: 'Prefix' },
+    { id: 'namespace', label: 'Namespace' }
+];
+
+const headCellsEditMode = [
+    { id: 'prefix', label: 'Prefix' },
+    { id: 'namespace', label: 'Namespace' },
+    { id: 'delete-button', label: '' }
+]
 
 const fieldStyle = {
     '& .MuiOutlinedInput-root': {
@@ -30,49 +38,13 @@ const tableCellStyle = {
 };
 
 const CuriesTabPanel = (props) => {
-    const { rows, setRows, curieValue, editMode, headCells, numberOfVisibleCuries, onCurieAmountChange } = props;
-    const [loading, setLoading] = React.useState(true);
-    const [error, setError] = React.useState(null);
+    const { curieValue, error, loading, rows, editMode, numberOfVisibleCuries, onCurieAmountChange, onAddRow, onDeleteRow, onChangeRow } = props;
     const [rowIndex, setRowIndex] = React.useState(-1);
     const [columnIndex, setColumnIndex] = React.useState(-1);
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('prefix');
     const [page, setPage] = React.useState(1);
     const [sortTriggered, setSortTriggered] = React.useState(false);
-
-    const addRow = () => {
-        const newRow = {
-            prefix: '',
-            namespace: ''
-        };
-        setRows([...rows, newRow]);
-    };
-
-    const deleteRow = (rowPrefix, rowNamespace) => {
-        console.log("here we connect DELETE method")
-        const newRows = rows.filter(row => row.prefix !== rowPrefix && row.namespace !== rowNamespace);
-        setRows(newRows)
-        setRowIndex(-1)
-    };
-
-    const debouncedUpdateRows = React.useMemo(
-        () => debounce((updatedRows) => {
-            setRows(updatedRows);
-            console.log("here we connect UPDATE method")
-        }, 5000),
-        []
-    );
-
-    const handleTextFieldChange = (e, rowIndex, columnName) => {
-        const { value } = e.target;
-        const updatedRows = rows.map((row, index) => {
-            if (index === rowIndex) {
-                return { ...row, [columnName]: value };
-            }
-            return row;
-        });
-        debouncedUpdateRows(updatedRows);
-    };
 
     const sortedRows = React.useMemo(() => {
         if (sortTriggered) {
@@ -90,19 +62,6 @@ const CuriesTabPanel = (props) => {
     const handlePageChange = (event, value) => {
         setPage(value);
     };
-
-    React.useEffect(() => {
-        setLoading(true)
-        getCuries(curieValue)
-            .then(data => {
-                setRows(data)
-                setLoading(false)
-            })
-            .catch((error) => {
-                setError(error)
-                setLoading(false)
-            });
-    }, [])
 
     React.useEffect(() => {
         onCurieAmountChange?.(rows.length)
@@ -134,11 +93,11 @@ const CuriesTabPanel = (props) => {
                     orderBy={orderBy}
                     setOrder={handleSort}
                     setOrderBy={setOrderBy}
-                    headCells={headCells}
+                    headCells={editMode ? headCellsEditMode : headCells}
                     rowsPerPage={numberOfVisibleCuries}
                     handlePageChange={handlePageChange}
                 >
-                    {sortedRows.map((row, index) => {
+                    {sortedRows?.map((row, index) => {
                         return (
                             <TableRow tabIndex={-1} key={`${row.prefix}_${row.namespace}`}>
                                 <TableCell
@@ -152,7 +111,7 @@ const CuriesTabPanel = (props) => {
                                                 placeholder={row.prefix}
                                                 defaultValue={row.prefix}
                                                 fullWidth
-                                                onChange={(e) => handleTextFieldChange(e, index, "prefix")}
+                                                onChange={(e) => onChangeRow(e, index, "prefix", curieValue)}
                                                 sx={fieldStyle}
                                                 onKeyDown={(e) => {
                                                     if (e.key === "Enter") {
@@ -173,7 +132,7 @@ const CuriesTabPanel = (props) => {
                                                 placeholder={row.namespace}
                                                 defaultValue={row.namespace}
                                                 fullWidth
-                                                onChange={(e) => handleTextFieldChange(e, index, "namespace")}
+                                                onChange={(e) => onChangeRow(e, index, "namespace", curieValue)}
                                                 sx={fieldStyle}
                                                 onKeyDown={(e) => {
                                                     if (e.key === "Enter") {
@@ -185,7 +144,7 @@ const CuriesTabPanel = (props) => {
                                 </TableCell>
                                 {editMode && (
                                     <TableCell>
-                                        <IconButton sx={{ background: 'transparent', '&:hover': { backgroundColor: gray100 } }} onClick={() => deleteRow(row.prefix, row.namespace)}>
+                                        <IconButton sx={{ background: 'transparent', '&:hover': { backgroundColor: gray100 } }} onClick={() => onDeleteRow(curieValue, row.prefix, row.namespace)}>
                                             <DeleteOutlineOutlinedIcon fontSize="small" />
                                         </IconButton>
                                     </TableCell>
@@ -195,7 +154,7 @@ const CuriesTabPanel = (props) => {
                     })}
                     {editMode && (
                         <TableRow>
-                            <TableCell align="left" sx={{ borderBottom: 'none !important' }} onClick={addRow}>
+                            <TableCell align="left" sx={{ borderBottom: 'none !important' }} onClick={() => onAddRow(curieValue)}>
                                 <IconButton sx={{ padding: '0.625rem', border: `1px solid ${gray300}` }}>
                                     <AddOutlinedIcon fontSize="small" sx={{ fill: gray700 }} />
                                 </IconButton>

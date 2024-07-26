@@ -10,10 +10,12 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Search from './Search';
+import EditBulkTermsDialog from '../Dashboard/EditBulkTermsDialog';
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { GlobalDataContext } from "./../../contexts/DataContext";
 import AddNewTermDialog from "../NewTerm/AddNewTermDialog";
+import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 
 const { gray200, white, gray100, gray600 } = vars;
 
@@ -92,7 +94,7 @@ const NavMenu = [
     {
         label: 'Term activity',
         icon: <TermActivityIcon />,
-        href: '/#'
+        href: '/term-activity'
     },
     {
         label: 'Documentation',
@@ -121,6 +123,8 @@ const UserNavMenu = [
 const Header = ({ isLoggedIn = true }) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
+    const [openEditBulkTerms, setOpenEditBulkTerms] = React.useState(false);
+    const [activeStep, setActiveStep] = React.useState(0);
     const { user, setUserData } = useContext(GlobalDataContext);
     const [openNewTermDialog, setOpenNewTermDialog] = React.useState(false);
 
@@ -156,6 +160,15 @@ const Header = ({ isLoggedIn = true }) => {
     const handleClickCurieEditor = () => {
         navigate('curie-editor')
     };
+
+    const handleCloseEditBulkTerms = () => {
+        setOpenEditBulkTerms(false)
+        setActiveStep(0)
+    }
+
+    const handleOpenEditBulkTerms = () => {
+        setOpenEditBulkTerms(true)
+    }
 
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
@@ -249,6 +262,14 @@ const Header = ({ isLoggedIn = true }) => {
                                     <ListItemText primary={'Curie Editor'} />
                                 </ListItemButton>
                             </ListItem>
+                            <ListItem disablePadding onClick={handleOpenEditBulkTerms}>
+                                <ListItemButton>
+                                    <ListItemIcon>
+                                        <ModeEditOutlineOutlinedIcon fontSize='small' />
+                                    </ListItemIcon>
+                                    <ListItemText primary={'Terms editor'} />
+                                </ListItemButton>
+                            </ListItem>
                         </List>
                     </Popover>
                     <a href="/" style={{ cursor: 'pointer' }}>
@@ -266,6 +287,7 @@ const Header = ({ isLoggedIn = true }) => {
                             <Button>Register</Button>
                             <Button variant="outlined">Log in</Button>
                         </Box>
+                        <Divider sx={styles.divider} />
                         <Button variant="contained" onClick={handleNewTermDialogOpen}>
                             <AddIcon />
                             Add a new term
@@ -371,6 +393,7 @@ const Header = ({ isLoggedIn = true }) => {
                 open={openNewTermDialog}
                 handleClose={handleNewTermDialogClose}
             />
+            <EditBulkTermsDialog handleClose={handleCloseEditBulkTerms} open={openEditBulkTerms} activeStep={activeStep} setActiveStep={setActiveStep} />
         </>
     )
 }
