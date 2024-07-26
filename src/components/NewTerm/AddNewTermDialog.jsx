@@ -14,6 +14,7 @@ import TermStatusStep from "./TermStatusStep";
 import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
 import * as mockApiInterlex from "../../api/endpoints/interLexURIStructureAPI";
 import { termParser } from "../../../src/parsers/termParser";
+import { getExistingIDs } from "../../api/endpoints";
 import { debounce } from 'lodash';
 
 const useMockApi = () => mockApi;
@@ -88,6 +89,11 @@ const AddNewTermDialog = ({ open, handleClose }) => {
 
     const memoData = useMemo(() => data, [data]);
 
+    const fetchIds = useCallback(debounce(async () => {
+        const ids = await getExistingIDs();
+        console.log("getExistingIDs ", ids)
+    }), [getExistingIDs]);
+
     const fetchTerms = useCallback(
         debounce((termValue) => {
             setLoading(true);
@@ -136,6 +142,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
             const parsedData = termParser(data, termValue);
             setTermResults(parsedData.results);
         });
+        fetchIds();
     }, [termValue, getMatchTerms]);
 
     useEffect(() => {
@@ -150,6 +157,10 @@ const AddNewTermDialog = ({ open, handleClose }) => {
             setPredicates(memoData.predicates);
         }
     }, [memoData]);
+
+    // useEffect(() => {
+    //     fetchIds();
+    // }, [])
 
     const predicatesOptions = predicates.map(row => ({
         label: row.title,
