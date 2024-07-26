@@ -5,11 +5,11 @@ import {
   InputAdornment, Typography, Box,
 } from "@mui/material";
 import { vars } from "../../theme/variables";
-import {SearchIcon} from "../../Icons";
+import { SearchIcon } from "../../Icons";
 import ListItem from "@mui/material/ListItem";
 
 const { brand300, gray50, gray200, gray900, gray600 } = vars;
-const SingleSearch = ({onChange, selectedValue, options, startAdornment = true, searchTerm, setSearchTerm, sx, placeholder, isFullWidth = true}) => {
+const SingleSearch = ({ onChange, selectedValue, options, startAdornment = true, searchTerm, setSearchTerm, sx, placeholder, isFullWidth = true }) => {
   const autocompleteRef = useRef(null);
   const handleInputChange = (event) => {
     setSearchTerm(event.target.value);
@@ -36,7 +36,7 @@ const SingleSearch = ({onChange, selectedValue, options, startAdornment = true, 
         }}
         sx={{
           '& .MuiOutlinedInput-root': {
-            borderRadius:  '0.5rem',
+            borderRadius: '0.5rem',
           },
           '&.Mui-focused': {
             '& .MuiOutlinedInput-root': {
@@ -52,22 +52,25 @@ const SingleSearch = ({onChange, selectedValue, options, startAdornment = true, 
           ...sx,
         }}
         autoHighlight={false}
-        renderOption={(props, option) => (
-          <ListItem {...props}>
-            <Box
-              p='.5rem'
-              display='flex'
-              alignItems='center'
-              gap='.5rem'
-              width={1}
-            >
-              <Typography variant='body1' fontWeight={500} color={gray900}>{option.label || option}</Typography>
-              {
-                option?.handler && <Typography variant='body2' color={gray600}>@{option?.handler}</Typography>
-              }
-            </Box>
-          </ListItem>
-        )}
+        renderOption={(props, option) => {
+          const { key, ...otherProps } = props;
+          return (
+            <ListItem key={key} {...otherProps}>
+              <Box
+                p='.5rem'
+                display='flex'
+                alignItems='center'
+                gap='.5rem'
+                width={1}
+              >
+                <Typography variant='body1' fontWeight={500} color={gray900}>{option.label || option}</Typography>
+                {
+                  option?.handler && <Typography variant='body2' color={gray600}>@{option?.handler}</Typography>
+                }
+              </Box>
+            </ListItem>
+          )
+        }}
         renderInput={(params) => (
           <TextField
             {...params}

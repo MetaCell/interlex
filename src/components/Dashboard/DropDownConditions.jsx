@@ -1,10 +1,10 @@
-import { Box } from "@mui/material";
+import { Box, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useState, useEffect } from "react";
 import { vars } from "../../theme/variables";
 import { FiberSmartIcon, JoinInnerIcon } from "../../Icons";
 import SearchTermsData from "../../static/SearchTermsData.json"
 import CustomSingleSelect from "../common/CustomSingleSelect";
-import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
+
 const { gray300 } = vars;
 const DropDownConditions = ({ value, onChange, index, handleTermChange }) => {
   const [toggleButtonValue, setToggleButtonValue] = useState('object');

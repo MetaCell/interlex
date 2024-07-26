@@ -56,7 +56,7 @@ const CustomizedInput = (props) => {
       },
         ...props.sx
       }}>
-        <BootstrapInput defaultValue={value} id={label} placeholder={placeholder} {...props} />
+        <BootstrapInput value={value} id={label} placeholder={placeholder} {...props} />
       </FormControl>
     </>
     
