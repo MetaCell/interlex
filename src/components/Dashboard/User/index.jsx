@@ -20,7 +20,6 @@ const User = () => {
     <Box sx={{
       p: "2.25rem 5rem",
       backgroundColor: gray25,
-      minHeight: '15rem',
       width: '100%',
       gap: '1.75rem',
       display: 'flex',
@@ -65,7 +64,7 @@ const User = () => {
               Role
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              <Chip className="greenChip" variant="outlined" label={user?.role} />
+              <Chip className="darkGreen rounded" variant="outlined" label={user?.role} />
             </Typography>
           </Stack>
         </Grid>

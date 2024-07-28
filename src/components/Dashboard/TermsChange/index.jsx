@@ -9,15 +9,6 @@ import { debounce } from 'lodash';
 
 const { gray25 } = vars;
 
-const entries = [
-  { author: "Phoenix Baker", action: "approve", date: "Friday 2:05pm", fork: 'ForkPB08', base: 'Central nervous system', tag: 'Spark Anatomical Working Group' },
-  { author: "Phoenix Baker", action: "approve", date: "Friday 2:05pm", fork: 'ForkPB08', base: 'Central nervous system', tag: 'Spark Anatomical Working Group' },
-  { author: "Phoenix Baker", action: "reject", date: "Friday 2:05pm", fork: 'ForkPB08', base: 'Central nervous system', tag: 'Spark Anatomical Working Group' },
-  { author: "Phoenix Baker", action: "reject", date: "Friday 2:05pm", fork: 'ForkPB08', base: 'Central nervous system', tag: 'Spark Anatomical Working Group' },
-  { author: "Phoenix Baker", action: "request", date: "Friday 2:05pm", fork: 'ForkPB08', base: 'Central nervous system', tag: 'Spark Anatomical Working Group' },
-  { author: "Phoenix Baker", action: "request", date: "Friday 2:05pm", fork: 'ForkPB08', base: 'Central nervous system', tag: 'Spark Anatomical Working Group' },
-];
-
 const TermsChange = () => {
   const [numberOfVisiblePages, setNumberOfVisiblePages] = useState(8);
   const [page, setPage] = useState(1);
@@ -34,11 +25,11 @@ const TermsChange = () => {
   const getFilteredEntries = () => {
     switch (tabValue) {
       case 0:
-        return forks.filter(entry => entry.status === "requested");
+        return forks?.filter(entry => entry.status === "requested");
       case 1:
-        return forks.filter(entry => entry.status === "approved");
+        return forks?.filter(entry => entry.status === "approved");
       case 2:
-        return forks.filter(entry => entry.status === "rejected");
+        return forks?.filter(entry => entry.status === "rejected");
       default:
         return forks;
     }
@@ -70,7 +61,7 @@ const TermsChange = () => {
     }}>
       <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["Requests", "Approved", "Rejected"]} />
       <List entries={filteredEntries} />
-      <CustomPagination rowCount={entries?.length} rowsPerPage={numberOfVisiblePages} page={page} onPageChange={handlePageChange} />
+      <CustomPagination rowCount={filteredEntries?.length} rowsPerPage={numberOfVisiblePages} page={page} onPageChange={handlePageChange} />
     </Box>
   );
 };

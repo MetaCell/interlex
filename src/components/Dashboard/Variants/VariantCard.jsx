@@ -1,10 +1,7 @@
 import {Box, Chip, Grid, Stack, Typography} from "@mui/material";
 import { vars } from "../../../theme/variables";
-import CustomButton from "../../common/CustomButton";
-import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
-import CreateNewFolderOutlinedIcon from "@mui/icons-material/CreateNewFolderOutlined";
 
-const {gray500, gray700, gray200, brand600, brand200, brand50, error300, error700, error50 } = vars;
+const {gray500, gray700, gray200, brand600, brand200, brand50 } = vars;
 const VariantCard = ({term}) => {
   return (
     <Grid item xs={12} lg={6} sx={{
@@ -44,32 +41,6 @@ const VariantCard = ({term}) => {
             <Typography variant='h6' color={gray700} className='label'>{term?.label}</Typography>
             <Chip label={term?.status} className="greenChip" variant="outlined" />
           </Stack>
-          {term.ontologyIsActive ? (
-            <CustomButton
-              sx={{
-                opacity: 0,
-                visibility: 'hidden',
-                transition: 'opacity 0.3s ease-in-out',
-                border: `1px solid ${error300}`,
-                color: error700,
-                '&:hover': {background: error50}
-              }}
-            >
-              <DeleteOutlinedIcon fontSize="medium" />
-              Remove from active ontology
-            </CustomButton>
-          ) : (
-            <CustomButton
-              sx={{
-                opacity: 0,
-                visibility: 'hidden',
-                transition: 'opacity 0.3s ease-in-out'
-              }}
-            >
-              <CreateNewFolderOutlinedIcon fontSize="medium" />
-              Add term to active ontology
-            </CustomButton>
-          )}
         </Box>
         <Typography variant='body2' color={gray500} sx={{
           display: '-webkit-box',
