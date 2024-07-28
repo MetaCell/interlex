@@ -105,7 +105,7 @@ const TermActivity = () => {
 
     useEffect(() => {
         setLoading(true)
-        getMatchTerms("ilx").then(data => { 
+        getMatchTerms("i").then(data => { 
             setRows(data?.results)
             setLoading(false)
         });
@@ -151,7 +151,7 @@ const TermActivity = () => {
                 <Grid item display="flex" justifyContent='end' xs={12} lg={8}>
                     <Stack direction="row" alignItems="center" gap={1}>
                         <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Show on page:</Typography>
-                        <CustomSingleSelect value={numberOfVisiblePages} onChange={handleNumberOfPagesChange} pageOptions={pageOptions} />
+                        <CustomSingleSelect value={numberOfVisiblePages} onChange={handleNumberOfPagesChange} options={pageOptions} />
                     </Stack>
                 </Grid>
             </Grid>

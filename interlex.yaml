@@ -405,17 +405,24 @@ paths:
           schema:
             type: string
         - in: query
-          name: filter
-          required: false
-          description: A property to filter results by
+          name: filters
           schema:
-            type: string
-        - in: query
-          name: value
-          required: false
-          description: The value for the filter specified above
-          schema:
-            type: string
+            type: object
+            properties:
+              attribute:
+                type: string
+                description: A property to filter results by
+                example: attribute1,attribute2,attribute3
+              value:
+                type: integer
+                description: The value for the filter specified above
+                example: value1,value2,value3
+              condition:
+                type: string
+                description: Condition for filter attribute
+                example: AND, OR, AND
+          style: deepObject
+          explode: true
       responses:
         200:
           description: A paged array of terms

@@ -107,3 +107,19 @@ export const getUser = async (id) => {
       return error;
     });
 }
+
+export const getExistingIDs = async () => {
+  /** Call endpoint for retrieving curies, this is a mock endpoint
+  created by us */
+  const {  getMatchTerms } = useMockApi();
+
+  /** Call Endpoint */
+  return getMatchTerms("base", "*").then((data) => {
+      const terms =  termParser(data, undefined);
+      let existingIds = terms?.results?.map( term => term.id.split("/").pop() );
+      return existingIds;
+    })
+    .catch((error) => {
+      return error;
+    });
+}
