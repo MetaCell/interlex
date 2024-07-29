@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { Box, Divider, MobileStepper, Stack, Button } from "@mui/material";
+import { Box, Divider, MobileStepper, Stack, Button, Typography, Chip } from "@mui/material";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { vars } from "../../theme/variables";
 import CustomizedDialog from "../common/CustomizedDialog";
@@ -17,7 +17,7 @@ import { debounce } from 'lodash';
 const useMockApi = () => mockApi;
 const useMockApiInterlex = () => mockApiInterlex;
 
-const { gray100, gray200, gray400, brand700 } = vars;
+const { gray100, gray200, gray400, brand700, success600, success700 } = vars;
 
 const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueButtonDisabled }) => (
     <Box display='flex' alignItems='center'>
@@ -174,20 +174,27 @@ const TermDialog = ({ open, handleClose }) => {
             {activeStep === 0 && (
                 <Box display="flex" height={1}>
                     <Box sx={{ px: '3.25rem', pt: '1.75rem', pb: '2.5rem', flex: 1, overflowY: 'auto' }}>
-                        <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["Manually", "Import"]} />
-                        {tabValue === 0 && (
-                            <ManualImportTab
-                                formState={formState}
-                                onInputChange={handleFormInputChange}
-                                handleSidebarOpen={() => setOpenSidebar(true)}
-                                matchesChecked={areMatchesChecked}
-                                handleMatchesChange={handleMatchesChange}
-                                isResultsEmpty={isResultsEmpty}
+                        <Stack direction="row" gap={1.5} alignItems="center">
+                            <Typography variant="h5" sx={{ fontWeight: 500 }}>{termValue}</Typography>
+                            <Chip
+                                label="Active"
+                                sx={{
+                                    border: `1.5px solid ${success600}`,
+                                    background: 'transparent',
+                                    color: success700
+                                }}
                             />
-                        )}
-                        {tabValue === 1 && <ImportFile />}
+                        </Stack>
+                        <ManualImportTab
+                            formState={formState}
+                            onInputChange={handleFormInputChange}
+                            handleSidebarOpen={() => setOpenSidebar(true)}
+                            matchesChecked={areMatchesChecked}
+                            handleMatchesChange={handleMatchesChange}
+                            isResultsEmpty={isResultsEmpty}
+                        />
                     </Box>
-                    {tabValue === 0 && <TermSidebar open={openSidebar} onToggle={handleSidebarToggle} results={termResults} isResultsEmpty={isResultsEmpty} />}
+                    <TermSidebar open={openSidebar} onToggle={handleSidebarToggle} results={termResults} isResultsEmpty={isResultsEmpty} />
                 </Box>
             )}
             {activeStep === 1 && <></>}
