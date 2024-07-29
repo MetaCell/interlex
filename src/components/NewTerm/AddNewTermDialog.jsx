@@ -82,7 +82,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         age: '',
         synonyms: '',
         superclass: '',
-        existingId: ids[0],
+        existingId: null,
         urls: '',
         description: '',
         comment: ''
@@ -124,12 +124,20 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const handleAddNewTerm = () => { setActiveStep(0); setAreMatchesChecked(false); };
     const handleFormInputChange = (e) => {
         const { name, value } = e.target;
+        console.log("main value: ", value)
         if (name === "label") {
             setTermValue(e.target.value);
         }
         setFormState((prevState) => ({
             ...prevState,
             [name]: value
+        }));
+    };
+
+    const handleAutocompleteChange = (event, value) => {
+        setFormState((prevState) => ({
+            ...prevState,
+            existingId: value
         }));
     };
 
@@ -160,7 +168,8 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     }
 
     useEffect(() => {
-        fetchIds();
+        if(ids.length > 0) return;
+        fetchIds()
     }, [fetchIds])
 
     const predicatesOptions = predicates.map(row => ({
@@ -198,6 +207,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                                 handleMatchesChange={handleMatchesChange}
                                 isResultsEmpty={isResultsEmpty}
                                 existingIdsOptions={ids}
+                                onExistingIdChange={handleAutocompleteChange}
                             />
                         )}
                         {tabValue === 1 && <ImportFileTab />}

@@ -9,10 +9,10 @@ import { vars } from "../../theme/variables";
 const { white, brand600, gray50, gray800, gray300, gray400 } = vars;
 
 const ExistingIdsSearch = ({ options, value, onChange, label, placeholder }) => {
-    const [searchTerm, setSearchTerm] = React.useState('');
+    const [searchTerm, setSearchTerm] = React.useState(value || '');
 
-    const handleInputChange = (event, value) => {
-        setSearchTerm(value);
+    const handleInputChange = (event, newInputValue) => {
+        setSearchTerm(newInputValue);
     };
 
     return (

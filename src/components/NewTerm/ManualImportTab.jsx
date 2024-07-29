@@ -8,7 +8,7 @@ import ExistingIdsSearch from "./ExistingIdsSearch";
 
 const { gray600, brand700, brand800 } = vars;
 
-const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesChecked, handleMatchesChange, isResultsEmpty, existingIdsOptions }) => {
+const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesChecked, handleMatchesChange, isResultsEmpty, existingIdsOptions, onExistingIdChange }) => {
 
     return (
         <Box component="form" sx={{ width: '100%', mt: '2.75rem', display: 'flex', flexDirection: 'column', gap: '2.75rem' }} noValidate autoComplete="off">
@@ -58,7 +58,7 @@ const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesC
                     />
                 </Grid>
                 <Grid item xs={12} lg={6}>
-                    <ExistingIdsSearch options={existingIdsOptions} label={"Existing IDs"} value={formState.existingId} onChange={onInputChange} placeholder={"Search for an existing ID"} />
+                    <ExistingIdsSearch options={existingIdsOptions} label={"Existing IDs"} value={formState.existingId} onChange={onExistingIdChange} placeholder={"Search for an existing ID"} />
                 </Grid>
             </Grid>
             <Box>
