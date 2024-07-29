@@ -8,14 +8,7 @@ import { vars } from "../../theme/variables";
 
 const { gray300, gray800, gray600, gray700, gray200 } = vars;
 
-
-const ImportFileTab = () => {
-    const [files, setFiles] = useState([]);
-    const [url, setUrl] = useState('');
-
-    const handleChangeUrl = (event) => {
-        setUrl(event.target.value);
-    }
+const ImportFileTab = ({ files, url, onFilesChange, onChangeUrl }) => {
 
     return (
         <Box sx={{ width: '100%', mt: '2.75rem', display: 'flex', flexDirection: 'column', gap: '2.75rem' }}>
@@ -43,7 +36,7 @@ const ImportFileTab = () => {
                             https://
                         </Box>
                     </FormControl>
-                    <CustomizedInput value={url} onChange={handleChangeUrl} placeholder='Enter object string' sx={{
+                    <CustomizedInput value={url} onChange={onChangeUrl} placeholder='Enter object string' sx={{
                         width: 'auto',
                         flex: 1,
                         height: '2.5rem',
@@ -56,18 +49,20 @@ const ImportFileTab = () => {
             </Stack>
             <Divider sx={{ borderColor: gray200, '& .MuiDivider-wrapper': { fontSize: '0.75rem', color: gray600 } }}>or</Divider>
             <Box>
-                <ImportFile onFilesSelected={setFiles} />
+                <ImportFile onFilesSelected={onFilesChange} />
                 <Box mt={2.5}>
-                    <Box sx={{ border: `1px solid ${gray300}`, borderRadius: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '1rem' }}>
-                        <Box display="flex" gap={1.5}>
-                            <CSVIcon />
-                            <Stack>
-                                <Typography variant="body2" sx={{ color: gray700, fontWeight: 500 }}>listOfTerms.csv</Typography>
-                                <Typography variant="body2" sx={{ color: gray600 }}>85 KB – 100% uploaded</Typography>
-                            </Stack>
+                    {files.map((file, index) => (
+                        <Box key={index} sx={{ border: `1px solid ${gray300}`, borderRadius: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '1rem', mb: 2 }}>
+                            <Box display="flex" gap={1.5}>
+                                <CSVIcon />
+                                <Stack>
+                                    <Typography variant="body2" sx={{ color: gray700, fontWeight: 500 }}>{file.name}</Typography>
+                                    <Typography variant="body2" sx={{ color: gray600 }}>{file.size} KB – {file.progress}% uploaded</Typography>
+                                </Stack>
+                            </Box>
+                            <Checkbox />
                         </Box>
-                        <Checkbox />
-                    </Box>
+                    ))}
                 </Box>
             </Box>
         </Box>

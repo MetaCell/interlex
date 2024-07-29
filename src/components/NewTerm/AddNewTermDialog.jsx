@@ -76,6 +76,8 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const [termValue, setTermValue] = useState('');
     const [ids, setIds] = useState([]);
     const [predicates, setPredicates] = useState([{ subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
+    const [files, setFiles] = useState([]);
+    const [url, setUrl] = useState('');
     const [formState, setFormState] = useState({
         label: '',
         ilx: "ILX:0101901",
@@ -141,6 +143,19 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         }));
     };
 
+    const handleChangeUrl = (event) => {
+        setUrl(event.target.value);
+    }
+
+    const handleFilesSelected = (newFiles) => {
+        const updatedFiles = newFiles.map(file => ({
+            name: file.name,
+            size: (file.size / 1024).toFixed(2), // convert bytes to KB
+            progress: 100 // assuming the file upload is completed for now
+        }));
+        setFiles(updatedFiles);
+    }
+
     useEffect(() => {
         getMatchTerms("base", "i", { filter: "", value: "" }).then(data => {
             const parsedData = termParser(data, termValue);
@@ -168,7 +183,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     }
 
     useEffect(() => {
-        if(ids.length > 0) return;
+        if (ids.length > 0) return;
         fetchIds()
     }, [fetchIds])
 
@@ -178,7 +193,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     }));
 
     const isResultsEmpty = termResults.length === 0;
-    
+
     return (
         <CustomizedDialog
             title='Add a new term'
@@ -210,7 +225,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                                 onExistingIdChange={handleAutocompleteChange}
                             />
                         )}
-                        {tabValue === 1 && <ImportFileTab />}
+                        {tabValue === 1 && <ImportFileTab files={files} url={url} onFilesChange={handleFilesSelected} onChangeUrl={handleChangeUrl} />}
                     </Box>
                     {tabValue === 0 && <NewTermSidebar open={openSidebar} onToggle={handleSidebarToggle} results={termResults} isResultsEmpty={isResultsEmpty} />}
                 </Box>

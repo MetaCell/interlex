@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Box, IconButton, Typography } from "@mui/material";
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { vars } from "../../theme/variables";
+
+const { white, gray300, gray600, brand700 } = vars;
+
+const MAX_FILE_SIZE_MB = 800;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 const styles = {
     dragDrop: {
-        background: "#fff",
-        border: "1px solid #BDC2C1",
+        background: white,
+        border: `1px solid ${gray300}`,
         borderRadius: "0.75rem"
     },
     documentUploader: {
-        padding: "24px",
+        padding: "1.5rem",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -30,11 +36,11 @@ const styles = {
     },
     uploadLabel: {
         fontSize: '0.875rem',
-        color: '#515252',
+        color: gray600,
         cursor: 'default'
     },
     uploadText: {
-        color: '#0D4037',
+        color: brand700,
         fontWeight: 600,
         cursor: 'pointer'
     }
@@ -42,20 +48,38 @@ const styles = {
 
 const ImportFile = ({ onFilesSelected }) => {
     const [files, setFiles] = useState([]);
+    const [error, setError] = useState("");
 
     const handleFileChange = (event) => {
         const selectedFiles = event.target.files;
         if (selectedFiles && selectedFiles.length > 0) {
             const newFiles = Array.from(selectedFiles);
-            setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+            const validFiles = newFiles.filter(file => file.size <= MAX_FILE_SIZE_BYTES);
+
+            if (validFiles.length < newFiles.length) {
+                setError(`Some files were too large and were not added (max size is ${MAX_FILE_SIZE_MB}MB).`);
+            } else {
+                setError("");
+            }
+
+            setFiles((prevFiles) => [...prevFiles, ...validFiles]);
         }
     };
+
     const handleDrop = (event) => {
         event.preventDefault();
         const droppedFiles = event.dataTransfer.files;
         if (droppedFiles.length > 0) {
             const newFiles = Array.from(droppedFiles);
-            setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+            const validFiles = newFiles.filter(file => file.size <= MAX_FILE_SIZE_BYTES);
+
+            if (validFiles.length < newFiles.length) {
+                setError(`Some files were too large and were not added (max size is ${MAX_FILE_SIZE_MB}MB).`);
+            } else {
+                setError("");
+            }
+
+            setFiles((prevFiles) => [...prevFiles, ...validFiles]);
         }
     };
 
@@ -87,7 +111,6 @@ const ImportFile = ({ onFilesSelected }) => {
                         hidden
                         id="browse"
                         onChange={handleFileChange}
-                        // accept=".pdf,.docx,.pptx,.txt,.xlsx"
                         accept=".csv"
                         multiple
                     />
@@ -98,6 +121,7 @@ const ImportFile = ({ onFilesSelected }) => {
                         <span>or drag and drop</span>
                     </Box>
                     <Typography variant="caption" sx={{ color: '#515252', cursor: 'default' }}>CSV (max. 800MB)</Typography>
+                    {error && <Typography variant="caption" sx={{ color: 'red' }}>{error}</Typography>}
                 </>
             </div>
         </Box>
