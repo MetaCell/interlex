@@ -1,18 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box, Grid, Button, FormControlLabel } from "@mui/material";
 import CustomInputBox from "../common/CustomInputBox";
 import Checkbox from "../common/CustomCheckbox";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { vars } from "../../theme/variables";
+import ExistingIdsSearch from "./ExistingIdsSearch";
 
 const { gray600, brand700, brand800 } = vars;
 
-const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesChecked, handleMatchesChange, isResultsEmpty }) => {
+const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesChecked, handleMatchesChange, isResultsEmpty, existingIdsOptions }) => {
 
     return (
         <Box component="form" sx={{ width: '100%', mt: '2.75rem', display: 'flex', flexDirection: 'column', gap: '2.75rem' }} noValidate autoComplete="off">
             <Grid container spacing={5.5}>
-                <Grid item xs={16} md={6} lg={12}>
+                <Grid item xs={12}>
                     <CustomInputBox
                         id="new-term-label-field"
                         name="label"
@@ -45,7 +46,7 @@ const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesC
                 />
             </Box>
             <Grid container spacing={5.5}>
-                <Grid item xs={16} lg={6}>
+                <Grid item xs={12} lg={6}>
                     <CustomInputBox
                         id="new-term-superclass-field"
                         name="superclass"
@@ -57,14 +58,7 @@ const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesC
                     />
                 </Grid>
                 <Grid item xs={12} lg={6}>
-                    <CustomInputBox
-                        id="existing-ids"
-                        name="existingIds"
-                        value={formState.existingIds}
-                        onInputChange={onInputChange}
-                        label="Existing IDs"
-                        placeholder={"Search for an existing ID"}
-                    />
+                    <ExistingIdsSearch options={existingIdsOptions} label={"Existing IDs"} value={formState.existingId} onChange={onInputChange} placeholder={"Search for an existing ID"} />
                 </Grid>
             </Grid>
             <Box>

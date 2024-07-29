@@ -74,6 +74,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const [data, setData] = useState(null);
     const [responseStatus, setResponseStatus] = useState('success')
     const [termValue, setTermValue] = useState('');
+    const [ids, setIds] = useState([]);
     const [predicates, setPredicates] = useState([{ subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
     const [formState, setFormState] = useState({
         label: '',
@@ -81,18 +82,13 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         age: '',
         synonyms: '',
         superclass: '',
-        existingIds: '',
+        existingId: ids[0],
         urls: '',
         description: '',
         comment: ''
     });
 
     const memoData = useMemo(() => data, [data]);
-
-    const fetchIds = useCallback(debounce(async () => {
-        const ids = await getExistingIDs();
-        console.log("getExistingIDs ", ids)
-    }), [getExistingIDs]);
 
     const fetchTerms = useCallback(
         debounce((termValue) => {
@@ -142,7 +138,6 @@ const AddNewTermDialog = ({ open, handleClose }) => {
             const parsedData = termParser(data, termValue);
             setTermResults(parsedData.results);
         });
-        fetchIds();
     }, [termValue, getMatchTerms]);
 
     useEffect(() => {
@@ -158,9 +153,15 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         }
     }, [memoData]);
 
-    // useEffect(() => {
-    //     fetchIds();
-    // }, [])
+    const fetchIds = async () => {
+        const ids = await getExistingIDs();
+        setIds(ids);
+        console.log("getExistingIDs ", ids)
+    }
+
+    useEffect(() => {
+        fetchIds();
+    }, [fetchIds])
 
     const predicatesOptions = predicates.map(row => ({
         label: row.title,
@@ -168,7 +169,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     }));
 
     const isResultsEmpty = termResults.length === 0;
-
+    
     return (
         <CustomizedDialog
             title='Add a new term'
@@ -196,6 +197,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                                 matchesChecked={areMatchesChecked}
                                 handleMatchesChange={handleMatchesChange}
                                 isResultsEmpty={isResultsEmpty}
+                                existingIdsOptions={ids}
                             />
                         )}
                         {tabValue === 1 && <ImportFileTab />}
