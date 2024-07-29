@@ -126,7 +126,6 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const handleAddNewTerm = () => { setActiveStep(0); setAreMatchesChecked(false); };
     const handleFormInputChange = (e) => {
         const { name, value } = e.target;
-        console.log("main value: ", value)
         if (name === "label") {
             setTermValue(e.target.value);
         }
