@@ -5,22 +5,12 @@ import React, {useState} from "react";
 import {EditNoteOutlined, StartOutlined} from "@mui/icons-material";
 import EditBulkAttributesForm from "./EditBulkAttributesForm";
 import SearchTermsData from "../../static/SearchTermsData.json";
-import {getMatchTerms} from "../../api/endpoints/swaggerMockMissingEndpoints";
-import termParser from "../../parsers/termParser";
 const { gray200, gray800,gray700 } = vars;
-const EditTerms = ({terms}) => {
+const EditTerms = ({searchConditions}) => {
   const initialAttributesValue = { attribute: '', condition: 'add', value: '' }
   const [open, setOpen] = React.useState(false);
   const [attributes, setAttributes] = useState([initialAttributesValue]);
 
-  // React.useEffect( () => {
-  //   // Call endpoint to retrieve terms that match search word
-  //   getMatchTerms("base", terms[0].attribute, { filter: "", value: "" }).then(data => {
-  //     const parsedData = termParser(data, terms[0].attribute)
-  //     console.log("Parsed retrieved data : ", parsedData)
-  //   });
-  // }, [])
-  
   return (
     <Box className='edit-terms' display="flex" justifyContent="space-between" height={1}>
        <Box padding={'2.25rem 3.25rem 2.5rem 0'} sx={{
@@ -35,6 +25,7 @@ const EditTerms = ({terms}) => {
            setOpenEditAttributes={setOpen}
            setAttributes={setAttributes}
            attributes={attributes}
+           searchConditions={searchConditions}
          />
        </Box>
         

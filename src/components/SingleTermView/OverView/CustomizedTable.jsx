@@ -297,7 +297,7 @@ const CustomizedTable = ({ data, term }) => {
   
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await getMatchTerms(searchTerm);
-    setTerms(data?.results);
+    setTerms(data?.results[0]);
   }, 500), [getMatchTerms]);
   
   useEffect(() => {

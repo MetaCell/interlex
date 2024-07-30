@@ -32,3 +32,21 @@ export function stableSort(array, comparator) {
   });
   return stabilizedThis.map((el) => el[0]);
 }
+
+export function getSearchTermsFilter(filtersArray) {
+  let attributes = [];
+  let values = [];
+  let conditions = [];
+
+  filtersArray.forEach(item => {
+    attributes.push(item.attribute);
+    values.push(item.value);
+    conditions.push(item.condition);
+  });
+
+  return {
+    attribute: attributes.join(", "),
+    value: values.join(", "),
+    condition: conditions.join(", ")
+  };
+}

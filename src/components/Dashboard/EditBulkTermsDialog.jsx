@@ -4,14 +4,15 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import MobileStepper from '@mui/material/MobileStepper';
 import SearchTerms from "./SearchTerms";
 import EditTerms from "./EditTerms";
-import {ArrowBack} from "@mui/icons-material";
+import { ArrowBack } from "@mui/icons-material";
 import StatusDialog from "./StatusDialog";
 import PropTypes from "prop-types";
-import {useState} from "react";
+import { useState } from "react";
 import SearchTermsData from "../../static/SearchTermsData.json";
 
-const initialTermsCondition = { attribute: '', value: '', logic: 'where', condition: SearchTermsData.objectOptions[0].value }
-const HeaderRightSideContent = ({ handleClose, activeStep, handleNext, handleBack, setActiveStep }) => {
+const initialSearchConditions = { attribute: '', value: '', condition: 'where', relation: SearchTermsData.objectOptions[0].value }
+
+const HeaderRightSideContent = ({ handleClose, activeStep, handleNext, handleBack, setActiveStep, isAllFieldsFilled }) => {
   return (
     <Box display='flex' alignItems='center' gap='.75rem'>
       <MobileStepper
@@ -26,19 +27,19 @@ const HeaderRightSideContent = ({ handleClose, activeStep, handleNext, handleBac
       <Divider orientation="vertical" flexItem />
       {
         activeStep === 2 ? <Button variant='contained' color='primary' onClick={() => {
-          handleClose()
-          setActiveStep(0)
+          handleClose();
+          setActiveStep(0);
         }}>
           Finish
         </Button> : <>
           {
-            activeStep === 0 ?  <Button variant='outlined' onClick={handleClose}>
+            activeStep === 0 ? <Button variant='outlined' onClick={handleClose}>
               Cancel
-            </Button> :  <Button startIcon={<ArrowBack />} variant='outlined' onClick={handleBack}>
+            </Button> : <Button startIcon={<ArrowBack />} variant='outlined' onClick={handleBack}>
               Previous
             </Button>
           }
-          <Button endIcon={<ArrowForwardIcon />} variant='contained' color='primary' onClick={handleNext}>
+          <Button endIcon={<ArrowForwardIcon />} variant='contained' color='primary' onClick={handleNext} disabled={activeStep === 0 && !isAllFieldsFilled}>
             Continue
           </Button>
         </>
@@ -48,13 +49,22 @@ const HeaderRightSideContent = ({ handleClose, activeStep, handleNext, handleBac
 };
 
 const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) => {
-  const [terms, setTerms] = useState([initialTermsCondition]);
+  const [searchConditions, setSearchConditions] = useState([initialSearchConditions]);
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
   
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+  
+  const isAllFieldsFilled = (data) => {
+    for (const item of data) {
+      if (!item.attribute || !item.value || !item.condition || !item.relation) {
+        return false;
+      }
+    }
+    return true;
   };
   
   return (
@@ -69,15 +79,16 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
           handleNext={handleNext}
           handleBack={handleBack}
           setActiveStep={setActiveStep}
+          isAllFieldsFilled={isAllFieldsFilled(searchConditions)}
         />
       }
     >
       <>
         {
-          activeStep === 0 && <SearchTerms terms={terms} setTerms={setTerms} initialTermsCondition={initialTermsCondition} />
+          activeStep === 0 && <SearchTerms searchConditions={searchConditions} setSearchConditions={setSearchConditions} initialSearchConditions={initialSearchConditions} />
         }
         {
-          activeStep === 1 && <EditTerms terms={terms} />
+          activeStep === 1 && <EditTerms searchConditions={searchConditions} />
         }
         {
           activeStep === 2 && <StatusDialog setActiveStep={setActiveStep} />
@@ -85,7 +96,7 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
       </>
     </CustomizedDialog>
   );
-}
+};
 
 EditBulkTermsDialog.propTypes = {
   open: PropTypes.bool.isRequired,

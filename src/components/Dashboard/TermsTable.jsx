@@ -10,34 +10,55 @@ import {
   TableContainer,
   TableRow,
   Paper,
-  TableBody, IconButton, Chip, Stack,
+  TableBody,
+  IconButton,
+  Chip,
+  Stack, CircularProgress,
 } from "@mui/material";
 import { vars } from "../../theme/variables";
 import { useState } from "react";
 import CustomTableHead from "../SingleTermView/Variants/CustomTableHead";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
-import {getComparator, stableSort} from "../../helpers";
+import {getComparator, getSearchTermsFilter, stableSort} from "../../helpers";
 const { gray200, gray50, gray700, brand600 } = vars;
-import SearchTermsData from "../../static/SearchTermsData.json";
 import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
-const TermsTable = ({columns, setOpenEditAttributes, setAttributes, attributes}) => {
+import { getMatchTerms } from "../../api/endpoints";
+
+const columns = [
+  { "id": "label", "label": "Label", "minWidth": 300, "visibility": true },
+  { "id": "organization", "label": "Organization", "minWidth": 150, "visibility": false },
+  { "id": "description", "label": "Description", "minWidth": 300, "visibility": true, "sortable": false },
+  { "id": "existingID", "label": "Existing IDs", "minWidth": 300, "visibility": false },
+  { "id": "type", "label": "Type", "minWidth": 150, "visibility": false },
+  { "id": "subClassOf", "label": "Superclass", "minWidth": 150, "visibility": false },
+  { "id": "synonym", "label": "Has exact synonym", "minWidth": 300, "visibility": false },
+  { "id": "type", "label": "OWL equivalent", "minWidth": 300, "visibility": false }
+];
+
+const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, searchConditions }) => {
   const [visibleColumns, setVisibleColumns] = useState(
     columns.filter(column => column.visibility).map(column => column.id)
   );
-  const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState('name');
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [order, setOrder] = useState('asc');
+  const [orderBy, setOrderBy] = useState('label'); // Set a valid initial orderBy value
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [terms, setTerms] = useState([]);
+  const [loading, setLoading] = useState(false)
+  
+  const filters = getSearchTermsFilter(searchConditions);
   
   const handleRequestSort = (event, property) => {
-    setOrder(order === 'asc' ? 'desc' : 'asc')
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
   
   const sortedRows = React.useMemo(
-    () => stableSort(SearchTermsData.termsRows, getComparator(order, orderBy)),
-    [order, orderBy]
+    () => stableSort(terms, getComparator(order, orderBy)),
+    [order, orderBy, terms]
   );
+  
   const handleColumnChange = (event, columnId) => {
     const newVisibleColumns = [...visibleColumns];
     if (newVisibleColumns.includes(columnId)) {
@@ -63,6 +84,21 @@ const TermsTable = ({columns, setOpenEditAttributes, setAttributes, attributes})
   
   const filteredColumns = columns.filter(column => visibleColumns.includes(column.id));
   
+  React.useEffect(() => {
+    setLoading(true)
+    getMatchTerms("i", { filters }).then(data => {
+      setTerms(data.results);
+      setLoading(false);
+    }).catch(err => {
+      console.log(err)
+      setLoading(false);
+    });
+  }, []);
+  if (loading) {
+    return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1 }}>
+      <CircularProgress />
+    </Box>
+  }
   return (
     <Box>
       <Paper sx={{
