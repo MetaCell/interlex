@@ -8,24 +8,22 @@ This template provides instructions on how to use the API.
 - [API - Get Variants](#retrieving-variants)
 - [API - Get Versions](#retrieving-versions)
 - [API - Get Raw Data](#retrieving-raw-data)
+- [API - Get User](#retrieving-user)
+- [API - Get Existing Ids](#retrieving-existing-ids)
 
 
 ### Searching for Terms
 - Sample Code 
 ```
-import * as mockApi from 'src/api/endpoints/swaggerMockMissingEndpoints';
-import { termParser } from 'src/parsers/termParser'
-const useMockApi = () => mockApi;
+import { getMatchTerms } from 'src/api/endpoints';
 
 const Test = () => {
-    const {  getMatchTerms } = useMockApi();
     const [terms, setTerms] = React.useState([]);
 
     React.useEffect( () => {
         // Call endpoint to retrieve terms that match search word
-        getMatchTerms("base", "i", { filter: "", value: "" }).then(data => { 
-            const parsedData = termParser(data, searchTerm)
-            console.log("Parsed retrieved data : ", parsedData)
+        getMatchTerms("i").then(data => { 
+            console.log("Retrieved data : ", data)
             setTerms(parsedData)
         });
     }, [])
@@ -33,7 +31,11 @@ const Test = () => {
     render ();
 };
 ```
-To add filters to the search endpoint, use the third parameter and pass an object with a populated filter and value as in the example : { filter: "", value: "" }
+To add filters to the search endpoint, use the third parameter and pass an object with a populated filter, value , condition as in the example below. If multiple filters needed to be added, the attributes/value/conditions needed to be separated by a comma: 
+
+```
+{ filters : { attribute: "Attribute1, Attribute2, Attribute3", value: "Value1, Value2, Value3", condition : "And, Or, And" } }
+```
 
 - Sample Search Return. 
 
@@ -935,18 +937,13 @@ To add filters to the search endpoint, use the third parameter and pass an objec
 ### Retrieving Single Term
 - Sample Code
 ```
-import * as mockApi from './../../api/endpoints/interLexURIStructureAPI';
-import { termParser } from 'src/parsers/termParser'
-
+import { getEndpointsIlx } from './../../api/endpoints';
 const useMockApi = () => mockApi;
 
 const Test = () => {
-    const { getEndpointsIlx } = useMockApi();
-
     React.useEffect( () => {
         getEndpointsIlx("base", "ilx_0101431").then(data => { 
-            const parsedData = termParser(data)
-            console.log("Parsed retrieved terms : ", parsedData)
+            console.log("Retrieved terms : ", data)
         });
     }, [])
 
@@ -1084,18 +1081,12 @@ const Test = () => {
 ### Retrieving Curies
 - Sample Code
 ```
-import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
-import { curieParser } from 'src/parsers/termParser'
-
-const useMockApi = () => mockApi;
+import { getCuries } from './../../api/endpoints';
 
 const Test = () => {
-    const { getCuries } = useMockApi();
-
     React.useEffect( () => {
         getCuries("base").then(data => { 
-            const parsedData = curieParser(data)
-            console.log("Parsed retrieved curies : ", parsedData)
+            console.log("Retrieved curies : ", data)
         });
     }, [])
 
@@ -1124,18 +1115,12 @@ const Test = () => {
 ### Retrieving Variants
 - Sample Code
 ```
-import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
-import { variantsParser } from 'src/parsers/variantsParser'
-
-const useMockApi = () => mockApi;
+import { getVariants } from './../../api/endpoints';
 
 const Test = () => {
-    const { getVariants } = useMockApi();
-
     React.useEffect( () => {
         getVariants("base", "ILX_....").then(data => { 
-            const parsedData = variantsParser(data)
-            console.log("Parsed retrieved variants : ", parsedData)
+            console.log("Retrieved variants : ", data)
         });
     }, [])
 
@@ -1194,18 +1179,12 @@ const Test = () => {
 ### Retrieving Versions
 - Sample Code
 ```
-import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
-import { versionsParser } from 'src/parsers/versionsParser'
-
-const useMockApi = () => mockApi;
+import { getVersions } from './../../api/endpoints';
 
 const Test = () => {
-    const { getCuries } = useMockApi();
-
     React.useEffect( () => {
         getVersions("base", "ILX_....").then(data => { 
-            const parsedData = versionsParser(data)
-            console.log("Parsed retrieved versions : ", parsedData)
+            console.log("Retrieved versions : ", data)
         });
     }, [])
 
@@ -1335,4 +1314,34 @@ const Test = () => {
     }
   ]
 }
+```
+
+
+
+### Retrieving User Data
+- To retrieve the user data used on the dashboard, you will need to call 4 different endpoints. One to retrieve general information of the user, and the other three for the terms, ontologies and forks.
+```
+import { getUser, getUserTerms, getUserOntologies, getUserForks } from './../../api/endpoints';
+
+const fetchUser= useCallback(debounce(async () => {
+    const data = await getUser("123");
+    console.log("User", data)
+    // For user terms
+    const terms = getUserTerms("123");
+    // For user ontologies
+    const ontologies = getUserOntologies("123");
+    // For user forks
+    const forks = getUserForks("123");
+}), [getUser, getUserTerms, getUserOntologies, getUserForks]);
+```
+
+### Retrieving Existing Ids
+- To retrieve list of Existing Ids, use the method below.
+```
+import { getExistingIDs } from './../../api/endpoints';
+
+const getIds= useCallback(debounce(async () => {
+    const ids = await getExistingIDs();
+    console.log("ids ", ids)
+}), [getUser]);
 ```

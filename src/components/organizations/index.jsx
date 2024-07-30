@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {Box, Typography, Button, Link, List, ListItem, ListItemText, CircularProgress} from "@mui/material";
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
 import { vars } from "../../theme/variables";
-import organizationss from '../../static/Organizations.json'
 import { getOrganizations } from "../../api/endpoints";
 
 const { gray700, gray500, gray200, brand600 } = vars;
@@ -12,20 +11,16 @@ const Organizations = () => {
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  useEffect(() => {
+
+  const fetchOrganizations = async() => {
+    const organizations = await getOrganizations()
+    setOrganizations(organizations);
+    setLoading(false)
+  }
+
+  useEffect( () => {
     setLoading(true)
-    getOrganizations()
-    fetch(URL)
-      .then((response) => response.json())
-      .then((jsonData) => {
-        setOrganizations(jsonData);
-        setLoading(false)
-      })
-      .catch((error) => {
-        setError(error)
-        setLoading(false)
-      });
+    fetchOrganizations();
   }, []);
   
   if (loading) {
@@ -107,10 +102,10 @@ const Organizations = () => {
         }
       }}>
         {
-          organizationss.map((organization, index) => (
+          organizations.map((organization, index) => (
             <ListItem key={index}>
               <Box display='flex' alignItems='center' justifyContent='space-between' width={1}>
-                <img src={organization.logo} alt={organization.title} />
+                <img src={organization.icon} alt={organization.name} />
                 <Button
                   variant="outlined"
                   className="join-button"
@@ -124,10 +119,10 @@ const Organizations = () => {
               </Box>
               <ListItemText primary={
                 <Box display='flex' alignItems='center' justifyContent='space-between'>
-                  <Typography component='span'>{organization.title}</Typography>
-                  {organization.link && (
-                    <Link href={organization.link} display='flex'>
-                      {organization.link}
+                  <Typography component='span'>{organization.name}</Typography>
+                  {organization.url && (
+                    <Link href={organization.url} display='flex'>
+                      {organization.url}
                     </Link>
                   )}
                 </Box>

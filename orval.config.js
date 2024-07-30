@@ -2,8 +2,10 @@ import { mockOntologies } from "./mock/data/mockOntologies";
 import { mockOrganization, mockOrganizations } from "./mock/data/mockOrganizations";
 import { mockTerms, mockTerm } from "./mock/data/mockTerms";
 import { mockVariants } from "./mock/data/mockVariants";
-import { mockVersions } from "./mock/data/mockVersions"
-import { mockCuries } from "./mock/data/mockCuries"
+import { mockVersions } from "./mock/data/mockVersions";
+import { mockCuries } from "./mock/data/mockCuries";
+import { mockUser } from "./mock/data/mockUser";
+import { mockForks } from "./mock/data/mockForks";
 
 module.exports = {
   uri: {
@@ -68,7 +70,6 @@ module.exports = {
       target: "./src/api/endpoints",
       schemas: "./src/model/backend",
       mock: true,
-      baseUrl : "http://127.0.0.1:8080/",
       override: {
         mutator: {
           path: './mock/mutator/customClient.ts',
@@ -82,6 +83,26 @@ module.exports = {
                 token: "",
                 username: ""
               }),
+            },
+          },
+          get_user: {
+            mock: {
+              data: mockUser,
+            },
+          },
+          get_user_terms: {
+            mock: {
+              data: mockTerms,
+            },
+          },
+          get_user_organizations: {
+            mock: {
+              data: mockOrganizations,
+            },
+          },
+          get_user_forks: {
+            mock: {
+              data: mockForks,
             },
           },
           logout: {
@@ -148,6 +169,21 @@ module.exports = {
           get_organizations: {
             mock: {
               data: mockOrganizations,
+            },
+          },
+          get_organizations_terms: {
+            mock: {
+              data: mockTerms,
+            },
+          },
+          get_organizations_curies: {
+            mock: {
+              data: mockCuries,
+            },
+          },
+          get_organizations_ontologies: {
+            mock: {
+              data: mockOntologies,
             },
           },
           // Search for specific 'term' and get all results

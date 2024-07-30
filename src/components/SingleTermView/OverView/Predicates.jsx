@@ -1,24 +1,24 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
+import {Box, Typography} from "@mui/material";
 import { vars } from "../../../theme/variables";
 import ExpandIcon from '@mui/icons-material/Expand';
 import RemoveIcon from '@mui/icons-material/Remove';
-
-import CustomIconTabs from "../../common/CustomIconTabs";
 import PredicatesAccordion from "./PredicatesAccordion";
+import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
 
 
 const { gray800 } = vars;
 
 const Predicates = ({ data }) => {
-  
   const [predicates, setPredicates] = React.useState([]);
-  const [tabValue, setTabValue] = React.useState(0)
-
-  const onTabsChanged = (event, newValue) => {
-    setTabValue(newValue)
+  const [toggleButtonValue, setToggleButtonValue] = React.useState('compress')
+  
+  const onToggleButtonChange = (event, newValue) => {
+    if (newValue) {
+      setToggleButtonValue(newValue)
+    }
   }
-
+  
   React.useEffect(() => {
     data?.predicates && setPredicates(data?.predicates)
   }, [data]);
@@ -27,17 +27,28 @@ const Predicates = ({ data }) => {
     <Box display='flex' alignItems='center' justifyContent='space-between'>
       <Typography color={gray800} fontWeight={500}>Predicates</Typography>
       <Box display='flex' alignItems='center' gap='.75rem'>
-        <CustomIconTabs
-          tabs={[{
-            icon: <ExpandIcon />,
-            value: 1
-          }, {
-            icon: <RemoveIcon />,
-            value: 0
-          }]} value={tabValue} handleChange={onTabsChanged} />
+        <ToggleButtonGroup
+          value={toggleButtonValue}
+          exclusive
+          onChange={onToggleButtonChange}
+          sx={{
+            gap: '.75rem',
+            
+            '& .MuiButtonBase-root': {
+              borderRadius: '.5rem !important'
+            }
+          }}
+        >
+          <ToggleButton value={'expand'}>
+            <ExpandIcon />
+          </ToggleButton>
+          <ToggleButton value={'compress'}>
+            <RemoveIcon />
+          </ToggleButton>
+        </ToggleButtonGroup>
       </Box>
     </Box>
-    <PredicatesAccordion data={predicates} expandedTabValue={tabValue}/>
+    <PredicatesAccordion data={predicates} expandAllPredicates={toggleButtonValue === 'expand'} />
   </Box>
 
 }

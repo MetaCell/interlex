@@ -4,5 +4,6 @@
  * Swagger Mock Missing Endpoints
  * OpenAPI spec version: 1.0.0
  */
+import type { Fork } from './fork';
 
-export interface Curies {[key: string]: string}
+export type Forks = Fork[];

@@ -1,11 +1,10 @@
 import { Box, Button, Divider, IconButton, TextField, Autocomplete, InputAdornment, Typography, Chip } from "@mui/material";
 import { vars } from "../../theme/variables";
 import { useEffect, useState, useCallback } from 'react';
-import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
+import { getMatchTerms } from './../../api/endpoints';
 import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import { termParser } from "../../parsers/termParser";
 import { useNavigate } from "react-router-dom";
 import { debounce } from 'lodash';
 import { useQuery } from "../../helpers";
@@ -18,7 +17,6 @@ const styles = {
   }
 }
 
-const useMockApi = () => mockApi;
 
 const Search = () => {
   const [searchTerm, setSearchTerm] = useState( "");
@@ -27,7 +25,6 @@ const Search = () => {
   const navigate = useNavigate();
   const query = useQuery();
   const storedSearchTerm = query.get('searchTerm');
-  const { getMatchTerms } = useMockApi();
   
   const [terms, setTerms] = useState([]);
   
@@ -80,9 +77,8 @@ const Search = () => {
   }, [handleKeyDown]);
   
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
-    const data = await getMatchTerms( 'base', searchTerm);
-    const parsedData = termParser(data, searchTerm);
-    setTerms(parsedData?.results);
+    const data = await getMatchTerms( searchTerm);
+    setTerms(data?.results);
   }, 500), [getMatchTerms]);
   
   useEffect(() => {

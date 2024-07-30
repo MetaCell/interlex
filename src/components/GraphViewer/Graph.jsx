@@ -1,21 +1,17 @@
 import { useMemo, useEffect, useState } from "react";
 import data from "./GraphStructure";
 import * as d3 from "d3";
-import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
-import { termParser } from "../../parsers/termParser";
+import { getMatchTerms } from './../../api/endpoints';
 import {useQuery} from "../../helpers";
 import {Box, Button, Collapse} from "@mui/material";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import SingleSearch from "../SingleTermView/SingleSearch";
 
 const MARGIN = { top: 60, right: 60, bottom: 60, left: 60 };
-const useMockApi = () => mockApi;
 
 const Graph = ({ width, height, predicate }) => {
   const boundsWidth = width - MARGIN.right - MARGIN.left;
   const boundsHeight = height - MARGIN.top - MARGIN.bottom;
-
-  const {  getMatchTerms } = useMockApi();
 
   const [terms, setTerms] = useState(undefined);
   const [objectSearchTerm, setObjectSearchTerm] = useState('');
@@ -59,9 +55,8 @@ const Graph = ({ width, height, predicate }) => {
     d3.selectAll(".node--g")
                 .on("mouseleave", mouseleave)
     setTimeout( () => {
-        getMatchTerms('base', term).then(data => {
-            const parsedData = termParser(data, term)
-            setTerms(parsedData.results)
+        getMatchTerms("ilx_0101431").then(data => {
+            setTerms(data)
         });
     }, 750);
   }, []);

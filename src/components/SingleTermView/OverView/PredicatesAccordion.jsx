@@ -11,17 +11,19 @@ import {
 import { vars } from "../../../theme/variables";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CallMadeIcon from '@mui/icons-material/CallMade';
-import { FullscreenOutlined, SchemaOutlined, TableChartOutlined } from "@mui/icons-material";
+import { FullscreenOutlined } from "@mui/icons-material";
 import CustomizedTable from "./CustomizedTable";
-import CustomIconTabs from "../../common/CustomIconTabs";
 import ViewDiagramDialog from "./ViewDiagramDialog";
 import { useQuery } from "../../../helpers";
 import Graph from "../../GraphViewer/Graph";
+import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
+import ExpandIcon from "@mui/icons-material/Expand";
+import RemoveIcon from "@mui/icons-material/Remove";
 
 const { gray600 } = vars;
 
-const PredicatesAccordion = ({ data, expandedTabValue }) => {
-  const [tabValues, setTabValues] = useState(data?.map(() => 0) || []);
+const PredicatesAccordion = ({ data, expandAllPredicates }) => {
+  const [toggleButtonValues, setToggleButtonValues] = useState(data?.map(() => 'tableView') || []);
   const [openViewDiagram, setOpenViewDiagram] = React.useState(false);
   const [selectedItem, setSelectedItem] = useState(null)
   const [expandedItems, setExpandedItems] = useState(data?.map(() => false) || []);
@@ -30,12 +32,14 @@ const PredicatesAccordion = ({ data, expandedTabValue }) => {
 
   const imgStyle = { width: '100%' };
   const imgPath = '/success.png';
-  const onTabsChanged = (index) => (event, newValue) => {
-    event.preventDefault();
-    event.stopPropagation();
-    const newTabValues = [...tabValues];
-    newTabValues[index] = newValue;
-    setTabValues(newTabValues);
+  const onToggleButtonChange = (index) => (event, newValue) => {
+    if (newValue) {
+      event.preventDefault();
+      event.stopPropagation();
+      const newTabValues = [...toggleButtonValues];
+      newTabValues[index] = newValue;
+      setToggleButtonValues(newTabValues);
+    }
   };
   const handleClickViewDiagram = (e, item) => {
     setSelectedItem(item)
@@ -52,16 +56,17 @@ const PredicatesAccordion = ({ data, expandedTabValue }) => {
   };
 
   React.useEffect(() => {
-    if (expandedTabValue) {
+    setToggleButtonValues(data?.map(() => 'tableView'))
+    setExpandedItems(data.map(() => false));
+  }, [data])
+
+  React.useEffect(() => {
+    if (expandAllPredicates) {
       setExpandedItems(data.map(() => true));
     } else {
       setExpandedItems(data.map(() => false));
     }
-  }, [expandedTabValue, data])
-  
-  React.useEffect(() => {
-    setTabValues(data?.map(() => 0))
-  }, [data])
+  }, [expandAllPredicates, data])
 
   const image = new Image();
   image.onload = () => <img style={imgStyle} src={imgPath} alt="preview" />
@@ -70,7 +75,14 @@ const PredicatesAccordion = ({ data, expandedTabValue }) => {
   return (
     <>
       {data.map((pred, index) => (
-        <Accordion key={index} disableGutters elevation={0} expanded={expandedItems[index]} onChange={handleAccordionChange(index)} square>
+        <Accordion
+          key={`${index}-${expandAllPredicates}`}
+          disableGutters
+          elevation={0}
+          expanded={expandedItems[index]}
+          onChange={handleAccordionChange(index)}
+          square
+        >
         <AccordionSummary
             expandIcon={<ExpandMoreIcon fontSize='medium' />}
             aria-controls={`panel${index + 1}-content`}
@@ -87,21 +99,22 @@ const PredicatesAccordion = ({ data, expandedTabValue }) => {
                 Number of this type: {pred?.count}
               </Typography>
               <Divider orientation="vertical" flexItem />
-              <CustomIconTabs
-                tabs={[{
-                  icon: <TableChartOutlined />,
-                  value: 0
-                }, {
-                  icon: <SchemaOutlined />,
-                  value: 1
-                }]}
-                value={tabValues[index]}
-                handleChange={onTabsChanged(index)}
-              />
+              <ToggleButtonGroup
+                value={toggleButtonValues[index]}
+                exclusive
+                onChange={onToggleButtonChange(index)}
+              >
+                <ToggleButton value={'tableView'}>
+                  <ExpandIcon />
+                </ToggleButton>
+                <ToggleButton value={'graphView'}>
+                  <RemoveIcon />
+                </ToggleButton>
+              </ToggleButtonGroup>
             </Stack>
           </AccordionSummary>
           <AccordionDetails>
-            {tabValues[index] === 0 ? (
+            {toggleButtonValues[index] === 'tableView' ? (
               <CustomizedTable data={pred} term={term} />
             ) : (
               <Box display='flex' flexDirection='column'>

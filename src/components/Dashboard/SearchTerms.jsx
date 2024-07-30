@@ -5,8 +5,8 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DropDownConditions from "./DropDownConditions";
 import SearchTermsData from "../../static/SearchTermsData.json"
-import CustomIconTabs from "../common/CustomIconTabs";
 import CustomSingleSelect from "../common/CustomSingleSelect";
+import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
 
 const { gray800 } = vars;
 
@@ -26,7 +26,7 @@ const SearchTerms = ({terms, setTerms, initialTermsCondition}) => {
     setTerms([...terms, { attribute: '', value: '', logic: 'and', condition: SearchTermsData.objectOptions[0].value }]);
   };
   const handleLogicChange = (event, newValue, index) => {
-    const value = newValue === 0 ? 'and' : 'or'
+    const value = newValue
     const newTerms = [...terms];
     newTerms[index].logic = value;
     setTerms(newTerms);
@@ -40,7 +40,7 @@ const SearchTerms = ({terms, setTerms, initialTermsCondition}) => {
     ...item,
     value: item.id
   }));
-  
+
   return (
     <Box>
       <Typography color={gray800} fontSize='1.125rem' fontWeight={600} mb='2.75rem'>
@@ -56,24 +56,21 @@ const SearchTerms = ({terms, setTerms, initialTermsCondition}) => {
                </Typography>
              </Box>
             ) : (
-              <CustomIconTabs
-                tabs={[
-                  {
-                    text: 'And',
-                    value: 0
-                  },
-                  {
-                    text: 'Or',
-                    value: 1
-                  }
-                ]}
-                value={term.logic === 'and' ? 0 : 1}
-                handleChange={(event, value) => handleLogicChange(event, value, index)}
+              <ToggleButtonGroup
+                value={term.logic}
+                exclusive
+                onChange={(event, value) =>handleLogicChange(event, value, index)}
                 sx={{
                   height: '2.5rem',
-                  minWidth: '6rem'
                 }}
-              />
+              >
+                <ToggleButton value={'and'}>
+                  And
+                </ToggleButton>
+                <ToggleButton value={'or'}>
+                  Or
+                </ToggleButton>
+              </ToggleButtonGroup>
             )}
           </Grid>
           <Grid item xs={12} lg={4}>

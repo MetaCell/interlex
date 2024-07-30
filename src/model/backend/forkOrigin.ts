@@ -5,4 +5,9 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface Curies {[key: string]: string}
+export type ForkOrigin = {
+  /** origin of the fork */
+  name?: string;
+  /** url of the destination */
+  url?: string;
+};

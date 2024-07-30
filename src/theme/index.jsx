@@ -780,6 +780,35 @@ const theme = createTheme({
                     }
                 },
             }
+        },
+        MuiToggleButtonGroup: {
+            styleOverrides: {
+               root: {
+                '& .MuiButtonBase-root': {
+                    border: `1px solid ${gray300}`,
+                    fontSize: '.875rem',
+                    borderRadius: '.5rem',
+                    color: gray800,
+                    textTransform: 'none',
+                    height: '2.5rem',
+                    
+                    '&.MuiToggleButtonGroup-firstButton': {
+                        borderTopRightRadius: 0,
+                        borderBottomRightRadius: 0
+                    },
+                    
+                    '&.MuiToggleButtonGroup-lastButton': {
+                        borderTopLeftRadius: 0,
+                        borderBottomLeftRadius: 0
+                    },
+                    
+                    '&[aria-pressed="true"]': {
+                        backgroundColor: gray50,
+                    }
+                 },
+                 
+               },
+            }
         }
     }
 });
