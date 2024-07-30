@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import {
   TextField,
   Autocomplete,
@@ -9,11 +9,13 @@ import { SearchIcon } from "../../Icons";
 import ListItem from "@mui/material/ListItem";
 
 const { brand300, gray50, gray200, gray900, gray600 } = vars;
-const SingleSearch = ({ onChange, selectedValue, options, startAdornment = true, searchTerm, setSearchTerm, sx, placeholder, isFullWidth = true }) => {
+const SingleSearch = ({ onChange, selectedValue, options = [], startAdornment = true, sx, placeholder, isFullWidth = true }) => {
+  const [searchTerm, setSearchTerm] = useState('')
   const autocompleteRef = useRef(null);
   const handleInputChange = (event) => {
     setSearchTerm(event.target.value);
   };
+
   return (
     <Box ref={autocompleteRef} flex={1}>
       <Autocomplete
