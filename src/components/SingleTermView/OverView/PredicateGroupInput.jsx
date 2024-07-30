@@ -47,7 +47,7 @@ const PredicateGroupInput = ({ predicate, onChange }) => {
       fetchTerms(objectSearchTerm);
     }
   }, [objectSearchTerm, fetchTerms]);
-  console.log(terms)
+
   return (
     <Box>
       <Box display='flex' alignItems='center' justifyContent='space-between' mb='.75rem'>
