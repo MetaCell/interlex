@@ -55,7 +55,7 @@ const Graph = ({ width, height, predicate }) => {
     d3.selectAll(".node--g")
                 .on("mouseleave", mouseleave)
     setTimeout( () => {
-        getMatchTerms("ilx_0101431").then(data => { 
+        getMatchTerms("ilx_0101431").then(data => {
             setTerms(data)
         });
     }, 750);

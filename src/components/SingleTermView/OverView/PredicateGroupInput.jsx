@@ -8,13 +8,16 @@ import SingleSearch from "../SingleSearch";
 import { debounce } from 'lodash';
 import predicatesData from "../../../static/predicates.json"
 import {getMatchTerms} from "../../../api/endpoints";
+import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
 
 const {gray700, gray300, gray800, gray600} = vars
+
 const PredicateGroupInput = ({ predicate, onChange }) => {
   const [toggleButtonValue, setToggleButtonValue] = useState('text');
   const [objectSearchTerm, setObjectSearchTerm] = useState('');
   const [terms, setTerms] = useState([]);
   const [selectedType, setSelectedType] = useState(predicate.object.type);
+  
   const onToggleButtonChange = (event, newValue) => {
     if (newValue) {
       setToggleButtonValue(newValue);
@@ -36,7 +39,7 @@ const PredicateGroupInput = ({ predicate, onChange }) => {
   
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await getMatchTerms(searchTerm);
-    setTerms(data.results);
+    setTerms(data?.results);
   }, 500), [getMatchTerms]);
   
   useEffect(() => {

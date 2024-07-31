@@ -21,7 +21,7 @@ const HeaderRightSideContent = ({ handleClose, handleCloseAddpredicate }) => {
   );
 };
 
-const AddPredicateStatusDialog = ({ open, handleClose, handleCloseAddpredicate, image, storedSearchTerm }) => {
+const AddPredicateStatusDialog = ({ open, handleClose, handleCloseAddpredicate, storedSearchTerm }) => {
   return (
     <CustomizedDialog
       title='Add new predicate(s)'

@@ -6,23 +6,26 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import {vars} from "../../../theme/variables";
 import AddPredicateStatusDialog from "./AddPredicateStatusDialog";
-import {useCallback, useEffect, useState} from "react";
+import { useState} from "react";
 import CustomizedInput from "../../common/CustomizedInput";
 import PredicateGroupInput from "./PredicateGroupInput";
 import {useQuery} from "../../../helpers";
-import termParser from "../../../parsers/termParser";
-import {getMatchTerms} from "../../../api/endpoints/swaggerMockMissingEndpoints";
-import {debounce} from "lodash";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
 const {gray800} = vars;
 
-const HeaderRightSideContent = ({handleClose, handleOpenAddPredicateStatusDialog}) => {
+const HeaderRightSideContent = ({handleClose, handleOpenAddPredicateStatusDialog, isAllFieldsFilled}) => {
   return (
     <Box display='flex' alignItems='center' gap='.75rem'>
       <Button variant='outlined' onClick={handleClose}>
         Cancel
       </Button>
-      <Button startIcon={<PlaylistAddOutlinedIcon />} variant='contained' color='primary' onClick={handleOpenAddPredicateStatusDialog}>
+      <Button
+        startIcon={<PlaylistAddOutlinedIcon />}
+        variant='contained'
+        color='primary'
+        onClick={handleOpenAddPredicateStatusDialog}
+        disabled={!isAllFieldsFilled}
+      >
         Add new predicate(s)
       </Button>
     </Box>
@@ -33,9 +36,6 @@ const AddPredicateDialog = ({ open, handleClose, image, predicates: fetchedPredi
   const [openAddPredicateStatusDialog, setOpenAddPredicateStatusDialog] = useState(false);
   const query = useQuery();
   const storedSearchTerm = query.get('searchTerm');
-  const [terms, setTerms] = useState([]);
-  const [objectSearchTerm, setObjectSearchTerm] = useState('');
-  const [object, setObject] = useState('');
   const [predicates, setPredicates] = useState([{ subject: storedSearchTerm, predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
   const handleCloseAddPredicateStatusDialog = () => {
     setOpenAddPredicateStatusDialog(false);
@@ -60,18 +60,15 @@ const AddPredicateDialog = ({ open, handleClose, image, predicates: fetchedPredi
     setPredicates(newPredicates);
   };
   
-  const fetchTerms = useCallback(debounce(async (searchTerm) => {
-    const data = await getMatchTerms(searchTerm, searchTerm);
-    const parsedData = termParser(data, searchTerm);
-    setTerms(parsedData?.results);
-  }, 500), [getMatchTerms]);
-  
-  useEffect(() => {
-    if (objectSearchTerm) {
-      fetchTerms(objectSearchTerm);
+  const isAllFieldsFilled = (data) => {
+    for (const item of data) {
+      if (!item.predicate || !item.object.value) {
+        return false;
+      }
     }
-  }, [objectSearchTerm, fetchTerms]);
-  console.log(predicates)
+    return true;
+  }
+
   return (
     <>
       <CustomizedDialog
@@ -82,6 +79,7 @@ const AddPredicateDialog = ({ open, handleClose, image, predicates: fetchedPredi
           <HeaderRightSideContent
             handleClose={handleClose}
             handleOpenAddPredicateStatusDialog={handleOpenAddPredicateStatusDialog}
+            isAllFieldsFilled={isAllFieldsFilled(predicates)}
           />
         }
       >
