@@ -14,6 +14,7 @@ import EditBulkTermsDialog from "../Dashboard/EditBulkTerms/EditBulkTermsDialog"
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { GlobalDataContext } from "../../contexts/DataContext";
+import AddNewTermDialog from "../NewTerm/AddNewTermDialog";
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 
 const { gray200, white, gray100, gray600 } = vars;
@@ -124,8 +125,20 @@ const Header = ({ isLoggedIn = true }) => {
     const [anchorElUser, setAnchorElUser] = React.useState(null);
     const [openEditBulkTerms, setOpenEditBulkTerms] = React.useState(false);
     const [activeStep, setActiveStep] = React.useState(0);
-    const { user } = useContext(GlobalDataContext);
-    
+    const { user, setUserData } = useContext(GlobalDataContext);
+    const [openNewTermDialog, setOpenNewTermDialog] = React.useState(false);
+
+    const handleNewTermDialogClose = () => {
+        setOpenNewTermDialog(false);
+    }
+
+    const handleNewTermDialogOpen = () => {
+        setOpenNewTermDialog(true);
+    }
+
+    const handleSetUserData = (user, organization) => {
+        setUserData(user, organization);
+    };
     const navigate = useNavigate();
 
     const handleClick = (event) => {
@@ -267,14 +280,14 @@ const Header = ({ isLoggedIn = true }) => {
                             <Button variant="outlined">Log in</Button>
                         </Box>
                         <Divider sx={styles.divider} />
-                        <Button variant="contained">
+                        <Button variant="contained" onClick={handleNewTermDialogOpen}>
                             <AddIcon />
                             Add a new term
                         </Button>
                     </Box>
                 ) : (
                     <Box display='flex' gap='1.25rem'>
-                        <Button variant="contained">
+                        <Button variant="contained" onClick={handleNewTermDialogOpen}>
                             <AddIcon />
                             Add a new term
                         </Button>
@@ -368,6 +381,10 @@ const Header = ({ isLoggedIn = true }) => {
                     </Box>
                 )}
             </Box>
+            <AddNewTermDialog
+                open={openNewTermDialog}
+                handleClose={handleNewTermDialogClose}
+            />
             <EditBulkTermsDialog handleClose={handleCloseEditBulkTerms} open={openEditBulkTerms} activeStep={activeStep} setActiveStep={setActiveStep} />
         </>
     )

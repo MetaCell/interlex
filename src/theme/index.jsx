@@ -761,6 +761,19 @@ const theme = createTheme({
                 }
             }
         },
+        MuiTooltip: {
+            styleOverrides: {
+                tooltip: {
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: '0.5rem',
+                    backgroundColor: '#111212 !important',
+                    color: '#fff',
+                    fontSize: '0.75rem',
+                    fontWeight: 600
+                }
+            }
+        },
+        
         MuiMobileStepper: {
             styleOverrides: {
                dot: {
