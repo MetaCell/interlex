@@ -1,5 +1,5 @@
 import { Box, Button, Divider } from "@mui/material";
-import CustomizedDialog from "../common/CustomizedDialog";
+import CustomizedDialog from "../../common/CustomizedDialog";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import MobileStepper from '@mui/material/MobileStepper';
 import SearchTerms from "./SearchTerms";
@@ -8,7 +8,7 @@ import { ArrowBack } from "@mui/icons-material";
 import StatusDialog from "./StatusDialog";
 import PropTypes from "prop-types";
 import { useState } from "react";
-import SearchTermsData from "../../static/SearchTermsData.json";
+import SearchTermsData from "../../../static/SearchTermsData.json";
 
 const initialSearchConditions = { attribute: '', value: '', condition: 'where', relation: SearchTermsData.objectOptions[0].value }
 

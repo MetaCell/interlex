@@ -1,7 +1,7 @@
 import { Box, Button, Divider, IconButton, TextField, Autocomplete, InputAdornment, Typography, Chip } from "@mui/material";
 import { vars } from "../../theme/variables";
 import { useEffect, useState, useCallback } from 'react';
-import { getMatchTerms } from './../../api/endpoints';
+import {getMatchTerms} from "../../api/endpoints";
 import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -77,7 +77,7 @@ const Search = () => {
   }, [handleKeyDown]);
   
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
-    const data = await getMatchTerms( searchTerm);
+    const data = await getMatchTerms(searchTerm);
     setTerms(data?.results);
   }, 500), [getMatchTerms]);
   

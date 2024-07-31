@@ -15,15 +15,16 @@ import {
   Chip,
   Stack, CircularProgress,
 } from "@mui/material";
-import { vars } from "../../theme/variables";
+import { vars } from "../../../theme/variables";
 import { useState } from "react";
-import CustomTableHead from "../SingleTermView/Variants/CustomTableHead";
+import CustomTableHead from "../../SingleTermView/Variants/CustomTableHead";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
-import {getComparator, getSearchTermsFilter, stableSort} from "../../helpers";
-const { gray200, gray50, gray700, brand600 } = vars;
+import {getComparator, getSearchTermsFilter, stableSort} from "../../../helpers";
 import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
-import { getMatchTerms } from "../../api/endpoints";
+import { getMatchTerms } from "../../../api/endpoints";
+
+const { gray200, gray50, gray700, brand600 } = vars;
 
 const columns = [
   { "id": "label", "label": "Label", "minWidth": 300, "visibility": true },
