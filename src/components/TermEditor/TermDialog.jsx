@@ -4,14 +4,15 @@ import { Box, Divider, MobileStepper, Stack, Button, Typography, Chip } from "@m
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { vars } from "../../theme/variables";
 import CustomizedDialog from "../common/CustomizedDialog";
-import BasicTabs from "../common/CustomTabs";
 import CustomButton from "../common/CustomButton";
-import ManualImportTab from "./ManualImportTab";
-import ImportFile from "./ImportFile";
+import TermForm from "./TermForm";
 import TermSidebar from "./TermSidebar";
+import AddPredicatesStep from "./AddPredicatesStep";
+import TermStatusStep from "./TermStatusStep";
 import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
 import * as mockApiInterlex from "../../api/endpoints/interLexURIStructureAPI";
 import { termParser } from "../../parsers/termParser";
+import { useQuery } from "../../helpers";
 import { debounce } from 'lodash';
 
 const useMockApi = () => mockApi;
@@ -19,7 +20,7 @@ const useMockApiInterlex = () => mockApiInterlex;
 
 const { gray100, gray200, gray400, brand700, success600, success700 } = vars;
 
-const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueButtonDisabled }) => (
+const HeaderRightSideContent = ({ activeStep, onContinue, onClose }) => (
     <Box display='flex' alignItems='center'>
         {activeStep !== 2 ? (
             <>
@@ -41,7 +42,6 @@ const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueBut
                     <CustomButton onClick={onClose}>Cancel</CustomButton>
                     <Button
                         onClick={onContinue}
-                        disabled={isContinueButtonDisabled}
                         variant="contained"
                         endIcon={<ArrowForwardIcon />}
                         sx={{
@@ -62,35 +62,31 @@ const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueBut
 const TermDialog = ({ open, handleClose }) => {
     const { getMatchTerms } = useMockApi();
     const { getEndpointsIlx } = useMockApiInterlex();
+    const query = useQuery();
+    const searchTerm = query.get('searchTerm');
     const [loading, setLoading] = useState(true);
     const [termResults, setTermResults] = useState([]);
     const [activeStep, setActiveStep] = useState(0);
-    const [tabValue, setTabValue] = useState(0);
     const [openSidebar, setOpenSidebar] = useState(true);
-    const [areMatchesChecked, setAreMatchesChecked] = useState(false);
-    const [data, setData] = useState(null);
     const [responseStatus, setResponseStatus] = useState('success')
-    const [termValue, setTermValue] = useState('');
-    const [predicates, setPredicates] = useState([{ subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
+    const [predicates, setPredicates] = useState([{ subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }])
+    const [data, setData] = useState(null);
     const [formState, setFormState] = useState({
-        label: '',
-        ilx: "ILX:0101901",
+        label: searchTerm || '',
         age: '',
-        synonyms: '',
+        synonyms: [],
         superclass: '',
-        existingIds: '',
+        existingIds: [],
         urls: '',
         description: '',
         comment: ''
     });
 
-    const memoData = useMemo(() => data, [data]);
-
     const fetchTerms = useCallback(
-        debounce((termValue) => {
+        debounce((searchTerm) => {
             setLoading(true);
-            if (termValue) {
-                getEndpointsIlx("base", termValue).then(data => {
+            if (searchTerm) {
+                getMatchTerms("base", searchTerm).then(data => {
                     const parsedData = termParser(data);
                     setData(parsedData?.results[0]);
                     setLoading(false);
@@ -106,7 +102,6 @@ const TermDialog = ({ open, handleClose }) => {
         [getEndpointsIlx, getMatchTerms]
     );
 
-    const handleChangeTabs = (_, newValue) => setTabValue(newValue);
     const handleContinueClick = () => {
         setActiveStep(activeStep + 1);
         if (activeStep === 2) {
@@ -115,7 +110,6 @@ const TermDialog = ({ open, handleClose }) => {
         }
     }
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
-    const handleMatchesChange = (e) => setAreMatchesChecked(e.target.checked);
     const handleCancelBtnClick = () => { handleClose(); setActiveStep(0); setAreMatchesChecked(false); };
     const handleAddNewTerm = () => { setActiveStep(0); setAreMatchesChecked(false); };
     const handleFormInputChange = (e) => {
@@ -129,19 +123,32 @@ const TermDialog = ({ open, handleClose }) => {
         }));
     };
 
-    useEffect(() => {
-        getMatchTerms("base", "i", { filter: "", value: "" }).then(data => {
-            const parsedData = termParser(data, termValue);
-            setTermResults(parsedData.results);
-        });
-    }, [termValue, getMatchTerms]);
+    const handleAutocompleteChange = (name) => (event, value) => {
+        setFormState((prevState) => ({
+            ...prevState,
+            [name]: value
+        }));
+    };
 
     useEffect(() => {
-        fetchTerms(termValue);
+        fetchTerms(searchTerm);
         return () => {
             fetchTerms.cancel();
         };
-    }, [termValue, fetchTerms]);
+    }, [searchTerm, fetchTerms]);
+
+    useEffect(() => {
+        if (data) {
+            setFormState((prevState) => ({
+                ...prevState,
+                synonyms: data.synonym || [],
+                existingIds: data.existingID || [],
+                description: data.description || ''
+            }));
+        }
+    }, [data]);
+
+    const memoData = useMemo(() => data, [data]);
 
     useEffect(() => {
         if (memoData?.predicates) {
@@ -154,11 +161,10 @@ const TermDialog = ({ open, handleClose }) => {
         value: row.title
     }));
 
-    const isResultsEmpty = termResults.length === 0;
 
     return (
         <CustomizedDialog
-            title='Suggest changes to “Central nervous system”'
+            title={`Suggest changes to “${searchTerm}”`}
             open={open}
             handleClose={handleClose}
             HeaderRightSideContent={
@@ -166,7 +172,6 @@ const TermDialog = ({ open, handleClose }) => {
                     activeStep={activeStep}
                     onContinue={handleContinueClick}
                     onClose={handleCancelBtnClick}
-                    isContinueButtonDisabled={!areMatchesChecked}
                 />
             }
             sx={{ '& .MuiDialogContent-root': { padding: 0, overflowY: "hidden" } }}
@@ -175,7 +180,7 @@ const TermDialog = ({ open, handleClose }) => {
                 <Box display="flex" height={1}>
                     <Box sx={{ px: '3.25rem', pt: '1.75rem', pb: '2.5rem', flex: 1, overflowY: 'auto' }}>
                         <Stack direction="row" gap={1.5} alignItems="center">
-                            <Typography variant="h5" sx={{ fontWeight: 500 }}>{termValue}</Typography>
+                            <Typography variant="h5" sx={{ fontWeight: 500 }}>{searchTerm}</Typography>
                             <Chip
                                 label="Active"
                                 sx={{
@@ -185,20 +190,18 @@ const TermDialog = ({ open, handleClose }) => {
                                 }}
                             />
                         </Stack>
-                        <ManualImportTab
+                        <TermForm
                             formState={formState}
+                            data={memoData}
                             onInputChange={handleFormInputChange}
-                            handleSidebarOpen={() => setOpenSidebar(true)}
-                            matchesChecked={areMatchesChecked}
-                            handleMatchesChange={handleMatchesChange}
-                            isResultsEmpty={isResultsEmpty}
+                            onAutocompleteChange={handleAutocompleteChange}
                         />
                     </Box>
-                    <TermSidebar open={openSidebar} onToggle={handleSidebarToggle} results={termResults} isResultsEmpty={isResultsEmpty} />
+                    <TermSidebar open={openSidebar} loading={loading} onToggle={handleSidebarToggle} results={termResults} data={memoData} />
                 </Box>
             )}
-            {activeStep === 1 && <></>}
-            {activeStep === 2 && <></>}
+            {activeStep === 1 && <AddPredicatesStep searchTerm={searchTerm} predicatesOptions={predicatesOptions} />}
+            {activeStep === 2 && <TermStatusStep responseStatus={responseStatus} termValue={searchTerm} onAddNewTerm={handleAddNewTerm} />}
         </CustomizedDialog>
     );
 };

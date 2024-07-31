@@ -283,6 +283,38 @@ export const BackgroundPattern = () => (
   </svg>
 )
 
+export const StatusErrorBackgroundPattern = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="104" height="104" viewBox="0 0 104 104" fill="none">
+    <rect width="104" height="104" rx="52" fill="url(#paint0_linear_4943_52335)"/>
+    <g filter="url(#filter0_dd_4943_52335)">
+      <rect x="32" y="32" width="40" height="40" rx="20" fill="#D92D20"/>
+      <path d="M59 46.41L57.59 45L52 50.59L46.41 45L45 46.41L50.59 52L45 57.59L46.41 59L52 53.41L57.59 59L59 57.59L53.41 52L59 46.41Z" fill="white"/>
+    </g>
+    <defs>
+      <filter id="filter0_dd_4943_52335" x="29" y="30" width="46" height="46" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+        <feOffset dy="1"/>
+        <feGaussianBlur stdDeviation="1"/>
+        <feComposite in2="hardAlpha" operator="out"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 0.0627451 0 0 0 0 0.0941176 0 0 0 0 0.156863 0 0 0 0.06 0"/>
+        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_4943_52335"/>
+        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+        <feOffset dy="1"/>
+        <feGaussianBlur stdDeviation="1.5"/>
+        <feComposite in2="hardAlpha" operator="out"/>
+        <feColorMatrix type="matrix" values="0 0 0 0 0.0627451 0 0 0 0 0.0941176 0 0 0 0 0.156863 0 0 0 0.1 0"/>
+        <feBlend mode="normal" in2="effect1_dropShadow_4943_52335" result="effect2_dropShadow_4943_52335"/>
+        <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_4943_52335" result="shape"/>
+      </filter>
+      <linearGradient id="paint0_linear_4943_52335" x1="52" y1="0" x2="52" y2="104" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#F9FAFB"/>
+        <stop offset="1" stop-color="#EDF0F3"/>
+      </linearGradient>
+    </defs>
+  </svg>
+)
+
 export const JoinInnerIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
     <path d="M10.0002 14.7832C11.3809 14.7832 12.5002 12.6416 12.5002 9.99984C12.5002 7.35808 11.3809 5.2165 10.0002 5.2165C8.61945 5.2165 7.50016 7.35808 7.50016 9.99984C7.50016 12.6416 8.61945 14.7832 10.0002 14.7832Z" fill="#313534"/>

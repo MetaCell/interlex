@@ -8,6 +8,7 @@ import SingleSearch from "../SingleSearch";
 import { debounce } from 'lodash';
 import predicatesData from "../../../static/predicates.json"
 import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
+import * as mockApi from '../../../api/endpoints/swaggerMockMissingEndpoints';
 
 const {gray700, gray300, gray800, gray600} = vars
 const useMockApi = () => mockApi;
