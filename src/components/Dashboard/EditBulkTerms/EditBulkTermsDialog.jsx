@@ -1,5 +1,5 @@
 import { Box, Button, Divider } from "@mui/material";
-import CustomizedDialog from "../common/CustomizedDialog";
+import CustomizedDialog from "../../common/CustomizedDialog";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import MobileStepper from '@mui/material/MobileStepper';
 import SearchTerms from "./SearchTerms";

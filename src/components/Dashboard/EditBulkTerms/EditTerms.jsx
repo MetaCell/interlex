@@ -1,10 +1,10 @@
 import {Box, IconButton, Tooltip, Typography} from "@mui/material";
-import { vars } from "../../theme/variables";
+import { vars } from "../../../theme/variables";
 import TermsTable from "./TermsTable";
 import React, {useState} from "react";
 import {EditNoteOutlined, StartOutlined} from "@mui/icons-material";
 import EditBulkAttributesForm from "./EditBulkAttributesForm";
-import SearchTermsData from "../../static/SearchTermsData.json";
+import SearchTermsData from "../../../static/SearchTermsData.json";
 const { gray200, gray800,gray700 } = vars;
 const EditTerms = () => {
   const initialAttributesValue = { attribute: '', condition: 'add', value: '' }

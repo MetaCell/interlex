@@ -204,14 +204,15 @@ const theme = createTheme({
                     height: '1.375rem',
                     padding: '0 0.375rem',
                     fontSize: '0.75rem',
-                    borderRadius: '0.375rem',
+                    borderRadius: '0.375rem !important',
                     fontWeight: 500,
+                    width: 'fit-content',
 
                     '&.rounded': {
                         padding: '0.125rem 0.5rem 0.125rem 0.375rem',
                         height: '1.5rem',
                         gap: '.25rem',
-                        borderRadius: '1rem',
+                        borderRadius: '1rem !important',
                         fontSize: '0.75rem',
 
                         '& .MuiChip-icon': {
@@ -262,6 +263,18 @@ const theme = createTheme({
                         }
                     },
                     
+                    '&.greenChip': {
+                        color: gray700,
+                        borderColor: brand300,
+                        boxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)',
+                        background: brand25
+                    },
+                    
+                    '&.darkGreen': {
+                        color: brand700,
+                        border: `1.5px solid ${brand600}`,
+                        background: 'transparent'
+                    },
                     '&: has(.MuiSvgIcon-root)': {
                         flexDirection: 'row-reverse',
                     }
