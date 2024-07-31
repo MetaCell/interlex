@@ -7,6 +7,7 @@ import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
 import SingleSearch from "../SingleSearch";
 import { debounce } from 'lodash';
 import predicatesData from "../../../static/predicates.json"
+import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
 import {getMatchTerms} from "../../../api/endpoints";
 
 const {gray700, gray300, gray800, gray600} = vars

@@ -4,11 +4,11 @@ import {
   Typography,
   Box
 } from "@mui/material";
-import { vars } from "../../theme/variables";
-import CustomizedInput from "../common/CustomizedInput";
+import { vars } from "../../../theme/variables";
+import CustomizedInput from "../../common/CustomizedInput";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import CustomSingleSelect from "../common/CustomSingleSelect";
+import CustomSingleSelect from "../../common/CustomSingleSelect";
 
 const { gray800 } = vars;
 

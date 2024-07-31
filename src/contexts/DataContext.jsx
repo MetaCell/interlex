@@ -1,7 +1,10 @@
-import { createContext, useState } from "react";
+import {createContext, useCallback, useEffect, useState} from "react";
+import * as mockApi from "../api/endpoints/swaggerMockMissingEndpoints";
+import { debounce } from 'lodash';
+
+const useMockApi = () => mockApi;
 
 const GlobalDataContext = createContext();
-
 const GlobalDataProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [activeOntology, setActiveOntology] = useState(null);
@@ -9,11 +12,7 @@ const GlobalDataProvider = ({ children }) => {
   const [searchTypeFilter, setSearchTypeFilter] = useState(null);
   const [predicatesSingleTermState, setPredicatesSingleTermState] = useState(false);
   const [editBulkSearchFilters, setEditBulkSearchFilters] = useState([]);
-
-  const setUserData = (userID, userActiveOrganization) => {
-    setUser({ userID : userID, activeOrganization : userActiveOrganization });
-  };
-
+  const {  getUser } = useMockApi();
   const setOntologyData = (ontology) => {
     setActiveOntology(ontology);
   };
@@ -33,10 +32,19 @@ const GlobalDataProvider = ({ children }) => {
   const setEditBulkSearchData = (filters) => {
     setEditBulkSearchFilters(filters);
   };
+  
+  
+  const fetchUser= useCallback(debounce(async () => {
+    const data = await getUser("123");
+    setUser(data)
+  }, 500), [getUser]);
+  
+  useEffect(() => {
+    fetchUser()
+  }, []);
 
   const dataContextValue = {
     user,
-    setUserData,
     activeOntology,
     setOntologyData,
     searchOrganizationFilters,
