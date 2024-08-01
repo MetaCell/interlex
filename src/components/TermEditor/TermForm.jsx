@@ -4,7 +4,7 @@ import CustomInputBox from "../common/CustomInputBox";
 import CloseIcon from '@mui/icons-material/Close';
 import { vars } from "../../theme/variables";
 
-const { gray50, gray300, gray400, gray500, gray600, gray700, brand700, brand800 } = vars;
+const { gray50, gray300, gray400, gray500, gray600, gray700, brand600, gray800 } = vars;
 
 const styles = {
     autocomplete: {
@@ -12,10 +12,15 @@ const styles = {
             padding: '0.5rem 0.75rem !important',
             backgroundColor: '#fff',
             boxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)',
-            height: 'auto !important'
+            height: 'auto !important',
+            '&.Mui-focused': {
+                border: `0.125rem solid ${brand600}`,
+                backgroundColor: gray50,
+                boxShadow: 'none'
+            }
         },
         '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: gray300
+            borderColor: gray300,
         },
         '& input': {
             fontSize: '1rem !important',
@@ -58,7 +63,7 @@ const styles = {
 };
 
 const TermForm = ({ formState, data, onInputChange, onAutocompleteChange }) => {
-    
+
     if (!data) {
         return <div>No data available</div>;
     }
@@ -82,7 +87,7 @@ const TermForm = ({ formState, data, onInputChange, onAutocompleteChange }) => {
             </Grid>
             <Box>
                 <Stack direction="row" justifyContent="space-between" mb={1.5}>
-                    <Typography sx={{ color: '#1D201F', fontWeight: 500 }}>Synonyms</Typography>
+                    <Typography sx={{ color: gray800, fontWeight: 500 }}>Synonyms</Typography>
                 </Stack>
                 <Autocomplete
                     multiple
@@ -121,7 +126,7 @@ const TermForm = ({ formState, data, onInputChange, onAutocompleteChange }) => {
                 </Grid>
                 <Grid item xs={12} lg={6}>
                     <Stack direction="row" justifyContent="space-between" mb={1.5}>
-                        <Typography sx={{ color: '#1D201F', fontWeight: 500 }}>Existing IDs</Typography>
+                        <Typography sx={{ color: gray800, fontWeight: 500 }}>Existing IDs</Typography>
                     </Stack>
                     <Autocomplete
                         multiple
