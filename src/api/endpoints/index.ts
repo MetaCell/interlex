@@ -1,6 +1,4 @@
-import { assert } from 'console';
-import { OrganizationsIcon } from '../../Icons';
-import { Organizations, Organization, Variants, Versions, User } from '../../model/backend';
+import { Organizations, Variants, Versions, User } from '../../model/backend';
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 import * as api from './../../api/endpoints/interLexURIStructureAPI'
 
@@ -66,14 +64,14 @@ export const getCuries = async (term) => {
     });
 }
 
-export const getMatchTerms = async (term) => {
+export const getMatchTerms = async (term, filters = {}) => {
   /** Call endpoint for retrieving curies, this is a mock endpoint
   created by us */
   const {  getMatchTerms } = useMockApi();
 
   /** Call Endpoint */
-  return getMatchTerms("base", term).then((data) => {
-      return termParser(data, term);
+  return getMatchTerms("base", term, filters).then((data) => {
+      return termParser(data, term, filters);
     })
     .catch((error) => {
       return error;

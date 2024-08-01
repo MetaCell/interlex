@@ -30,7 +30,7 @@ const CustomizedDialog = ({children, title, open, handleClose, HeaderRightSideCo
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: `1px solid ${gray200}`,
+          borderBottom: `1px solid ${gray200}`
         }}
         id="customized-dialog-title">
        <Box sx={{

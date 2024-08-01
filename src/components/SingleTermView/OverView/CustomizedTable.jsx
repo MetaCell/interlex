@@ -1,4 +1,4 @@
-import { Box, IconButton, Typography, TextField, Button } from "@mui/material";
+import { Box, IconButton, Typography, Button } from "@mui/material";
 import {useCallback, useEffect, useRef, useState} from "react";
 import TableRow from "./TableRow";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
@@ -297,7 +297,7 @@ const CustomizedTable = ({ data, term }) => {
   
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await getMatchTerms(searchTerm);
-    setTerms(data?.results);
+    setTerms(data?.results[0]);
   }, 500), [getMatchTerms]);
   
   useEffect(() => {
