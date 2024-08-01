@@ -32,7 +32,7 @@ const BootstrapInput = styled(InputBase)(() => ({
   },
 }));
 const CustomizedInput = (props) => {
-  const {label, value, placeholder} = props
+  const {label, value, onChange, placeholder} = props
   return (
     <>
       {label && <Typography sx={{
@@ -56,7 +56,7 @@ const CustomizedInput = (props) => {
       },
         ...props.sx
       }}>
-        <BootstrapInput value={value} id={label} placeholder={placeholder} {...props} />
+        <BootstrapInput value={value} onChange={onChange} id={label} placeholder={placeholder} {...props} />
       </FormControl>
     </>
     

@@ -38,6 +38,7 @@ import Discussion from "./Discussion";
 import { CodeIcon } from "../../Icons";
 import { useQuery } from "../../helpers";
 import CustomSingleSelect from "../common/CustomSingleSelect";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 
 const { gray200, brand700, gray600 } = vars;
 
@@ -84,14 +85,21 @@ const SingleTermView = () => {
   const CodeOrTreeIcon = () => {
     return isCodeViewVisible ? <CodeIcon /> : <AccountTreeOutlined />
   }
-
+  
+  const breadcrumbItems = [
+    { label: '', href: '/', icon: HomeOutlinedIcon },
+    { label: 'Term search', href: `/search?searchTerm=${searchTerm}` },
+    { label: 'My organization 1', href: '#' },
+    { label: 'ILX:0101901' },
+  ];
+  
   return (
     <Box display="flex" flexDirection="column">
       <Box p="1.5rem 5rem 0rem 5rem">
         <Grid container>
           <Grid item xs={12} lg={6}>
             <Stack direction="row" spacing=".75rem">
-              <CustomBreadcrumbs />
+              <CustomBreadcrumbs breadcrumbItems={breadcrumbItems} />
               <ForkRightIcon fontSize="medium" htmlColor={brand700} />
               <Typography color={brand700} fontSize="0.875rem" fontWeight={600}>
                 fork1

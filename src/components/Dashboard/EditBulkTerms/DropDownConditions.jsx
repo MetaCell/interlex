@@ -1,10 +1,9 @@
 import { Box, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useState, useEffect } from "react";
-import { vars } from "../../theme/variables";
-import { FiberSmartIcon, JoinInnerIcon } from "../../Icons";
-import SearchTermsData from "../../static/SearchTermsData.json"
-import CustomSingleSelect from "../common/CustomSingleSelect";
-
+import { vars } from "../../../theme/variables";
+import { FiberSmartIcon, JoinInnerIcon } from "../../../Icons";
+import SearchTermsData from "../../../static/SearchTermsData.json"
+import CustomSingleSelect from "../../common/CustomSingleSelect";
 const { gray300 } = vars;
 const DropDownConditions = ({ value, onChange, index, handleTermChange }) => {
   const [toggleButtonValue, setToggleButtonValue] = useState('object');
@@ -12,7 +11,7 @@ const DropDownConditions = ({ value, onChange, index, handleTermChange }) => {
   
   useEffect(() => {
     setDropdownOptions(toggleButtonValue === 'object' ? SearchTermsData.objectOptions : SearchTermsData.annotationOptions);
-    handleTermChange(index, 'condition', toggleButtonValue === 'object' ? SearchTermsData.objectOptions[0].value : SearchTermsData.annotationOptions[0].value);
+    handleTermChange(index, 'relation', toggleButtonValue === 'object' ? SearchTermsData.objectOptions[0].value : SearchTermsData.annotationOptions[0].value);
   }, [toggleButtonValue]);
   
   const onConditionValueChange = (v) => {

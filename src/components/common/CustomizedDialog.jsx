@@ -12,7 +12,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const CustomizedDialog = ({children, title, open, handleClose, HeaderRightSideContent}) => {
+const CustomizedDialog = ({children, title, open, handleClose, HeaderRightSideContent, sx}) => {
  
   return (
     <Dialog
@@ -21,6 +21,7 @@ const CustomizedDialog = ({children, title, open, handleClose, HeaderRightSideCo
       open={open}
       fullScreen
       TransitionComponent={Transition}
+      sx={sx}
     >
       <Box
         sx={{
@@ -29,7 +30,7 @@ const CustomizedDialog = ({children, title, open, handleClose, HeaderRightSideCo
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: `1px solid ${gray200}`,
+          borderBottom: `1px solid ${gray200}`
         }}
         id="customized-dialog-title">
        <Box sx={{

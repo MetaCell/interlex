@@ -7,16 +7,15 @@ import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
 import SingleSearch from "../SingleSearch";
 import { debounce } from 'lodash';
 import predicatesData from "../../../static/predicates.json"
+import {getMatchTerms} from "../../../api/endpoints";
 
 const {gray700, gray300, gray800, gray600} = vars
-const useMockApi = () => mockApi;
 
 const PredicateGroupInput = ({ predicate, onChange }) => {
   const [toggleButtonValue, setToggleButtonValue] = useState('text');
   const [objectSearchTerm, setObjectSearchTerm] = useState('');
   const [terms, setTerms] = useState([]);
   const [selectedType, setSelectedType] = useState(predicate.object.type);
-  const { getMatchTerms } = useMockApi();
   
   const onToggleButtonChange = (event, newValue) => {
     if (newValue) {
@@ -39,7 +38,7 @@ const PredicateGroupInput = ({ predicate, onChange }) => {
   
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await getMatchTerms(searchTerm);
-    setTerms(data);
+    setTerms(data?.results);
   }, 500), [getMatchTerms]);
   
   useEffect(() => {
@@ -47,7 +46,7 @@ const PredicateGroupInput = ({ predicate, onChange }) => {
       fetchTerms(objectSearchTerm);
     }
   }, [objectSearchTerm, fetchTerms]);
-  
+
   return (
     <Box>
       <Box display='flex' alignItems='center' justifyContent='space-between' mb='.75rem'>

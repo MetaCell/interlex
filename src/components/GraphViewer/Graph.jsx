@@ -53,11 +53,11 @@ const Graph = ({ width, height, predicate }) => {
     d3.selectAll(".node--leaf-g")
       .on("mousemove", mousemove)
     d3.selectAll(".node--g")
-      .on("mouseleave", mouseleave)
-    setTimeout(() => {
-      getMatchTerms("ilx_0101431").then(data => {
-        setTerms(data)
-      });
+                .on("mouseleave", mouseleave)
+    setTimeout( () => {
+        getMatchTerms("ilx_0101431").then(data => {
+            setTerms(data)
+        });
     }, 750);
   }, []);
 

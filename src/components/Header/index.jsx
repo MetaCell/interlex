@@ -10,10 +10,11 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Search from './Search';
-import EditBulkTermsDialog from '../Dashboard/EditBulkTermsDialog';
+import EditBulkTermsDialog from "../Dashboard/EditBulkTerms/EditBulkTermsDialog";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { GlobalDataContext } from "./../../contexts/DataContext";
+import { GlobalDataContext } from "../../contexts/DataContext";
+import AddNewTermDialog from "../NewTerm/AddNewTermDialog";
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 
 const { gray200, white, gray100, gray600 } = vars;
@@ -125,6 +126,15 @@ const Header = ({ isLoggedIn = true }) => {
     const [openEditBulkTerms, setOpenEditBulkTerms] = React.useState(false);
     const [activeStep, setActiveStep] = React.useState(0);
     const { user, setUserData } = useContext(GlobalDataContext);
+    const [openNewTermDialog, setOpenNewTermDialog] = React.useState(false);
+
+    const handleNewTermDialogClose = () => {
+        setOpenNewTermDialog(false);
+    }
+
+    const handleNewTermDialogOpen = () => {
+        setOpenNewTermDialog(true);
+    }
 
     const handleSetUserData = (user, organization) => {
         setUserData(user, organization);
@@ -180,15 +190,7 @@ const Header = ({ isLoggedIn = true }) => {
         navigate(menu.href)
     }
 
-
-    const handleLogoClick = () => {
-        navigate('/')
-    }
-
     React.useEffect(() => {
-        // TODO : Move to login page and remove this proof of concept call
-        handleSetUserData("Interlex User", "Interlex");
-
         const handleKeyDown = (event) => {
             if (event.ctrlKey && event.key === 'k') {
                 toggleList();
@@ -278,14 +280,14 @@ const Header = ({ isLoggedIn = true }) => {
                             <Button variant="outlined">Log in</Button>
                         </Box>
                         <Divider sx={styles.divider} />
-                        <Button variant="contained">
+                        <Button variant="contained" onClick={handleNewTermDialogOpen}>
                             <AddIcon />
                             Add a new term
                         </Button>
                     </Box>
                 ) : (
                     <Box display='flex' gap='1.25rem'>
-                        <Button variant="contained">
+                        <Button variant="contained" onClick={handleNewTermDialogOpen}>
                             <AddIcon />
                             Add a new term
                         </Button>
@@ -360,8 +362,8 @@ const Header = ({ isLoggedIn = true }) => {
                                         </Badge>
                                     </ListItemAvatar>
                                     <ListItemText
-                                        primary="Olivia Rhye"
-                                        secondary="olivia@untitledui.com"
+                                        primary={user?.name}
+                                        secondary={user?.email}
                                     />
                                 </ListItem>
                                 {UserNavMenu.map((menu, index) => (
@@ -379,6 +381,10 @@ const Header = ({ isLoggedIn = true }) => {
                     </Box>
                 )}
             </Box>
+            <AddNewTermDialog
+                open={openNewTermDialog}
+                handleClose={handleNewTermDialogClose}
+            />
             <EditBulkTermsDialog handleClose={handleCloseEditBulkTerms} open={openEditBulkTerms} activeStep={activeStep} setActiveStep={setActiveStep} />
         </>
     )
