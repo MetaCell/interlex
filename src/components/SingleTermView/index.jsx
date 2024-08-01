@@ -229,7 +229,7 @@ const SingleTermView = () => {
           tabValue === 3 && <Discussion />
         }
       </Box>
-      <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} />
+      <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} searchTerm={searchTerm} />
     </>
   )
 }

@@ -13,7 +13,7 @@ const AddPredicatesStep = ({ searchTerm, predicatesOptions }) => {
     const [predicates, setPredicates] = React.useState([{ subject: searchTerm, predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
 
     const handleAddPredicate = () => {
-        setPredicates([...predicates, { subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
+        setPredicates([...predicates, { subject: searchTerm, predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
     };
 
     const handlePredicateChange = (index, field, value) => {

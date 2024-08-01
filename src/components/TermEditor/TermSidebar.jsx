@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, IconButton, Tooltip, Stack, Divider, Grid, CircularProgress, Chip } from '@mui/material';
 import CustomSingleSelect from '../common/CustomSingleSelect';
-// import { StartIcon, JoinRightIcon } from '../../Icons';
+import { StartIcon, JoinRightIcon } from '../../Icons';
 import CopyLinkComponent from '../common/CopyLinkComponent';
 import { ListIcon } from '../../Icons';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
@@ -13,7 +13,7 @@ import Predicates from '../SingleTermView/OverView/Predicates';
 const { gray200, gray500, gray600, gray800 } = vars;
 
 
-export default function TermSidebar({ open, loading, onToggle, results, data }) {
+export default function TermSidebar({ open, loading, onToggle, data }) {
     const [numberOfVisiblePages, setNumberOfVisiblePages] = React.useState(20);
 
     const handleNumberOfPagesChange = (v) => {
@@ -21,7 +21,7 @@ export default function TermSidebar({ open, loading, onToggle, results, data }) 
     };
 
     if (loading) {
-        return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '42rem' }}>
             <CircularProgress />
         </Box>
     }

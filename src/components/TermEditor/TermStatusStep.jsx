@@ -41,16 +41,18 @@ const StatusMessage = ({ responseStatus, termValue }) => (
     </Box>
 );
 
-const ActionButtons = ({ responseStatus, onAddNewTerm }) => (
+const ActionButtons = ({ showAddButton, responseStatus, onUndo, onAddNewTerm }) => (
     <Box display='flex' gap='1rem'>
-        <Button variant='text'>Undo</Button>
-        <Button startIcon={<AddOutlinedIcon />} variant='outlined' onClick={onAddNewTerm}>
-            {responseStatus === 'success' ? 'Add a new term' : 'Try again'}
-        </Button>
+        <Button variant='text' onClick={onUndo}>Undo</Button>
+        {showAddButton && (
+            <Button startIcon={<AddOutlinedIcon />} variant='outlined' onClick={onAddNewTerm}>
+                {responseStatus === 'success' ? 'Add a new term' : 'Try again'}
+            </Button>
+        )}
     </Box>
 );
 
-const TermStatusStep = ({ responseStatus, termValue, onAddNewTerm }) => (
+const TermStatusStep = ({ showAddButton = true, responseStatus, termValue, onUndo, onAddNewTerm }) => (
     <Box
         display='flex'
         flexDirection='column'
@@ -75,7 +77,7 @@ const TermStatusStep = ({ responseStatus, termValue, onAddNewTerm }) => (
             }}
         >
             <StatusMessage responseStatus={responseStatus} termValue={termValue} />
-            <ActionButtons responseStatus={responseStatus} onAddNewTerm={onAddNewTerm} />
+            <ActionButtons showAddButton={showAddButton} responseStatus={responseStatus} onUndo={onUndo} onAddNewTerm={onAddNewTerm} />
         </Box>
     </Box>
 );
