@@ -28,15 +28,17 @@ const Organizations = () => {
       <CircularProgress />
     </Box>
   }
+
   // if (error) {
   //   return <div>error</div>;
   // }
+  
   return (
     <Box p='2.25rem 5rem' flexGrow={1} overflow='auto'>
       <Typography fontSize='1.5rem' color={gray700} fontWeight={600} mb='1.5rem'>
-        {organizationss.length} Organizations
+        {organizations.length} Organizations
       </Typography>
-      <OrganizationsList organizations={organizationss} />
+      <OrganizationsList organizations={organizations} />
     </Box>
   );
 }

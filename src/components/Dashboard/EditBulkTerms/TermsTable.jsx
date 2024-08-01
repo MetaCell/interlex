@@ -126,9 +126,9 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, searchCo
           open={Boolean(anchorEl)}
           onClose={handleClose}
         >
-          {columns.map((column) => (
+          {columns.map((column, index) => (
             <MenuItem
-              key={column.id}
+              key={`${column.id}-${index}`}
               value={column.id}
               onClick={(event) => handleColumnChange(event, column.id)}
               sx={{
@@ -161,12 +161,12 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, searchCo
             <TableBody>
               {sortedRows.map((row, index) => (
                 <TableRow key={index}>
-                  {filteredColumns.map((column) => (
-                    <TableCell key={column.id} style={{ minWidth: column.minWidth }}>
+                  {filteredColumns.map((column, index) => (
+                    <TableCell key={`${column.id}-${index}`} style={{ minWidth: column.minWidth }}>
                       {Array.isArray(row[column.id]) ? (
                         <Stack gap='.25rem' direction="row" alignItems="center" maxWidth='20rem' flexWrap='wrap'>
                           {row[column.id].map((chip, chipIndex) => (
-                            <Chip key={chipIndex} label={chip} className='rounded IDchip-outlined' icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(chip)} />
+                            <Chip key={`${chip}-${chipIndex}`} label={chip} className='rounded IDchip-outlined' icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(chip)} />
                           ))}
                         </Stack>
                       ) : (

@@ -12,7 +12,7 @@ import {
   ListItem,
 } from "@mui/material";
 import { vars } from "../../theme/variables";
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, forwardRef } from 'react';
 import {getMatchTerms} from "../../api/endpoints";
 import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
 import { useNavigate } from "react-router-dom";
