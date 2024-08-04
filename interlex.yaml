@@ -412,7 +412,41 @@ paths:
               x-body-name: term
       responses:
         200:
-          description: The Organization data were saved.
+          description: The Term data was saved.
+          content:
+            application/json:
+              schema:
+                type: object
+        400:
+          description: Bad Request, bad input parameter for Term POST request.
+        403:
+          description: The request cannot be fullfilled due to the permission of your account.
+        500:
+          description: The server has encountered a situation it does not know how to handle.
+      tags:
+        - API
+  /{group}/bulkEditTerms:
+    post:
+      summary: Used to bulk edit terms.
+      operationId: bulk_edit_terms
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: The group of the term to retrieve
+          schema:
+            type: string
+      requestBody:
+        description: The terms to save.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array,
+              items: { $ref: '#/components/schemas/Term' }
+      responses:
+        200:
+          description: The Terms data were saved.
           content:
             application/json:
               schema:

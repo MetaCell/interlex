@@ -14,6 +14,7 @@ import {
 } from 'msw'
 import type {
   AddToDiscussion200,
+  BulkEditTerms200,
   Curies,
   Discussions,
   Forks,
@@ -1902,6 +1903,8 @@ export const getGetHierarchyResultsResponseMock = (): Hierarchies => (Array.from
 
 export const getPatchTermResponseMock = (): PatchTerm200 => ({})
 
+export const getBulkEditTermsResponseMock = (): BulkEditTerms200 => ({})
+
 export const getGetMatchTermsResponseMock = () => ((() => [
   {
     "@context": {
@@ -3026,6 +3029,20 @@ export const getPatchTermMockHandler = (overrideResponse?: PatchTerm200) => {
   })
 }
 
+export const getBulkEditTermsMockHandler = (overrideResponse?: BulkEditTerms200) => {
+  return http.post('*/:group/bulkEditTerms', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getBulkEditTermsResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
 export const getGetMatchTermsMockHandler = (overrideResponse?: Terms) => {
   return http.get('*/:group/search/:term', async () => {
     await delay(1000);
@@ -3167,6 +3184,7 @@ export const getSwaggerMockMissingEndpointsMock = () => [
   getGetOrganizationsCuriesMockHandler(),
   getGetHierarchyResultsMockHandler(),
   getPatchTermMockHandler(),
+  getBulkEditTermsMockHandler(),
   getGetMatchTermsMockHandler(),
   getGetCuriesMockHandler(),
   getGetVariantsMockHandler(),

@@ -6,6 +6,7 @@
  */
 
 export * from './addToDiscussion200';
+export * from './bulkEditTerms200';
 export * from './curie';
 export * from './curies';
 export * from './defaultTerm';

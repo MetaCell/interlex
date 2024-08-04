@@ -6,6 +6,7 @@
  */
 import type {
   AddToDiscussion200,
+  BulkEditTerms200,
   Curies,
   Discussion,
   Discussions,
@@ -220,6 +221,21 @@ export const patchTerm = (
     }
   
 /**
+ * @summary Used to bulk edit terms.
+ */
+export const bulkEditTerms = (
+    group: string,
+    bulkEditTermsBody: BodyType<unknown>,
+ options?: SecondParameter<typeof customInstance>,) => {
+      return customInstance<BulkEditTerms200>(
+      {url: `/${group}/bulkEditTerms`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: bulkEditTermsBody
+    },
+      options);
+    }
+  
+/**
  * @summary List all matching terms
  */
 export const getMatchTerms = (
@@ -358,6 +374,7 @@ export type GetOrganizationsOntologiesResult = NonNullable<Awaited<ReturnType<ty
 export type GetOrganizationsCuriesResult = NonNullable<Awaited<ReturnType<typeof getOrganizationsCuries>>>
 export type GetHierarchyResultsResult = NonNullable<Awaited<ReturnType<typeof getHierarchyResults>>>
 export type PatchTermResult = NonNullable<Awaited<ReturnType<typeof patchTerm>>>
+export type BulkEditTermsResult = NonNullable<Awaited<ReturnType<typeof bulkEditTerms>>>
 export type GetMatchTermsResult = NonNullable<Awaited<ReturnType<typeof getMatchTerms>>>
 export type GetCuriesResult = NonNullable<Awaited<ReturnType<typeof getCuries>>>
 export type GetVariantsResult = NonNullable<Awaited<ReturnType<typeof getVariants>>>
