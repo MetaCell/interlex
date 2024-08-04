@@ -385,6 +385,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /{group}/{frag_pref_id}:
+    post:
+      summary: Used to save a term.
+      operationId: patch_term
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: The group of the term to retrieve
+          schema:
+            type: string
+        - name: frag_pref_id
+          in: path
+          required: true
+          description: The id of the term to patch
+          schema:
+            type: string
+      requestBody:
+        description: The term to save.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Term'
+              x-body-name: term
+      responses:
+        200:
+          description: The Organization data were saved.
+          content:
+            application/json:
+              schema:
+                type: object
+        400:
+          description: Bad Request, bad input parameter for Term POST request.
+        403:
+          description: The request cannot be fullfilled due to the permission of your account.
+        500:
+          description: The server has encountered a situation it does not know how to handle.
+      tags:
+        - API
   /{group}/search/{term}: 
     get:
       summary: List all matching terms

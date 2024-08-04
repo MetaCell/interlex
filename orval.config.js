@@ -218,7 +218,7 @@ module.exports = {
           },
         },
         // TODO : Missing endpoint and missing operation. Different than add_fragment?
-        add_term: {
+        patch_term: {
           mock: {
             data: () => ({
               status_code: 200,

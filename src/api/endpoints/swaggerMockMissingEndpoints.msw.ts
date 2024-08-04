@@ -21,6 +21,7 @@ import type {
   Ontologies,
   Organization,
   Organizations,
+  PatchTerm200,
   Terms,
   User,
   Variants,
@@ -1899,6 +1900,8 @@ export const getGetOrganizationsCuriesResponseMock = () => ((() => {
 
 export const getGetHierarchyResultsResponseMock = (): Hierarchies => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ([])))
 
+export const getPatchTermResponseMock = (): PatchTerm200 => ({})
+
 export const getGetMatchTermsResponseMock = () => ((() => [
   {
     "@context": {
@@ -3009,6 +3012,20 @@ export const getGetHierarchyResultsMockHandler = (overrideResponse?: Hierarchies
   })
 }
 
+export const getPatchTermMockHandler = (overrideResponse?: PatchTerm200) => {
+  return http.post('*/:group/:fragPrefId', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getPatchTermResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
 export const getGetMatchTermsMockHandler = (overrideResponse?: Terms) => {
   return http.get('*/:group/search/:term', async () => {
     await delay(1000);
@@ -3149,6 +3166,7 @@ export const getSwaggerMockMissingEndpointsMock = () => [
   getGetOrganizationsOntologiesMockHandler(),
   getGetOrganizationsCuriesMockHandler(),
   getGetHierarchyResultsMockHandler(),
+  getPatchTermMockHandler(),
   getGetMatchTermsMockHandler(),
   getGetCuriesMockHandler(),
   getGetVariantsMockHandler(),

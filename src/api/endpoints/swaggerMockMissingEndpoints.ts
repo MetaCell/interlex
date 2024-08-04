@@ -15,6 +15,8 @@ import type {
   Ontologies,
   Organization,
   Organizations,
+  PatchTerm200,
+  Term,
   Terms,
   User,
   Variants,
@@ -202,6 +204,22 @@ export const getHierarchyResults = (
     }
   
 /**
+ * @summary Used to save a term.
+ */
+export const patchTerm = (
+    group: string,
+    fragPrefId: string,
+    term: BodyType<Term>,
+ options?: SecondParameter<typeof customInstance>,) => {
+      return customInstance<PatchTerm200>(
+      {url: `/${group}/${fragPrefId}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: term
+    },
+      options);
+    }
+  
+/**
  * @summary List all matching terms
  */
 export const getMatchTerms = (
@@ -339,6 +357,7 @@ export type GetOrganizationsTermsResult = NonNullable<Awaited<ReturnType<typeof 
 export type GetOrganizationsOntologiesResult = NonNullable<Awaited<ReturnType<typeof getOrganizationsOntologies>>>
 export type GetOrganizationsCuriesResult = NonNullable<Awaited<ReturnType<typeof getOrganizationsCuries>>>
 export type GetHierarchyResultsResult = NonNullable<Awaited<ReturnType<typeof getHierarchyResults>>>
+export type PatchTermResult = NonNullable<Awaited<ReturnType<typeof patchTerm>>>
 export type GetMatchTermsResult = NonNullable<Awaited<ReturnType<typeof getMatchTerms>>>
 export type GetCuriesResult = NonNullable<Awaited<ReturnType<typeof getCuries>>>
 export type GetVariantsResult = NonNullable<Awaited<ReturnType<typeof getVariants>>>
