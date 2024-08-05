@@ -6,7 +6,6 @@
  */
 import type {
   AddToDiscussion200,
-  BulkEditTerms200,
   Curies,
   Discussion,
   Discussions,
@@ -16,6 +15,7 @@ import type {
   Ontologies,
   Organization,
   Organizations,
+  Signup200,
   Terms,
   User,
   Variants,
@@ -55,11 +55,13 @@ export const logout = (
 /**
  * @summary Register to OpenAPI space
  */
-export const register = (
-    
+export const signup = (
+    user: BodyType<User>,
  options?: SecondParameter<typeof customInstance>,) => {
-      return customInstance<void>(
-      {url: `/operations/signup`, method: 'POST'
+      return customInstance<Signup200>(
+      {url: `/operations/signup`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: user
     },
       options);
     }
@@ -117,11 +119,9 @@ export const getUserForks = (
  */
 export const getOrganization = (
     id: string,
-    organization: BodyType<Organization>,
  options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<Organization>(
-      {url: `/operations/getOrganization/${id}`, method: 'GET',
-      headers: {'Content-Type': 'application/json', }
+      {url: `/operations/getOrganization/${id}`, method: 'GET'
     },
       options);
     }
@@ -203,16 +203,16 @@ export const getHierarchyResults = (
     }
   
 /**
- * @summary Used to bulk edit terms.
+ * @summary Used to bulk edit terms
  */
 export const bulkEditTerms = (
     group: string,
-    bulkEditTermsBody: BodyType<unknown>,
+    terms: BodyType<Terms>,
  options?: SecondParameter<typeof customInstance>,) => {
-      return customInstance<BulkEditTerms200>(
+      return customInstance<Terms>(
       {url: `/${group}/bulkEditTerms`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: bulkEditTermsBody
+      data: terms
     },
       options);
     }
@@ -343,7 +343,7 @@ type AwaitedInput<T> = PromiseLike<T> | T;
 
 export type LoginResult = NonNullable<Awaited<ReturnType<typeof login>>>
 export type LogoutResult = NonNullable<Awaited<ReturnType<typeof logout>>>
-export type RegisterResult = NonNullable<Awaited<ReturnType<typeof register>>>
+export type SignupResult = NonNullable<Awaited<ReturnType<typeof signup>>>
 export type GetUserResult = NonNullable<Awaited<ReturnType<typeof getUser>>>
 export type GetUserTermsResult = NonNullable<Awaited<ReturnType<typeof getUserTerms>>>
 export type GetUserOrganizationsResult = NonNullable<Awaited<ReturnType<typeof getUserOrganizations>>>

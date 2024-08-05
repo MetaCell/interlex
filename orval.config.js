@@ -4,7 +4,7 @@ import { mockTerms, mockTerm } from "./mock/data/mockTerms";
 import { mockVariants } from "./mock/data/mockVariants";
 import { mockVersions } from "./mock/data/mockVersions";
 import { mockCuries } from "./mock/data/mockCuries";
-import { mockUser } from "./mock/data/mockUser";
+import { mockSignup, mockUser } from "./mock/data/mockUser";
 import { mockForks } from "./mock/data/mockForks";
 import { mockPatchBulkTermsResponse, mockPatchTermResponse } from "./mock/data/mockPatchTermResponse";
 
@@ -120,13 +120,9 @@ module.exports = {
               }),
             },
           },
-          register: {
+          signup: {
             mock: {
-              data: () => ({
-                status: 200,
-                token: "",
-                username: ""
-              }),
+              data: mockSignup
             },
           },
           new_organization: {
@@ -233,12 +229,9 @@ module.exports = {
             }),
           },
         },
-        /** TODO : Missing endpoint and operation.
-         * Use case, edit multiple terms at once.
-         * */
         bulk_edit_terms: {
           mock: {
-            data: mockPatchBulkTermsResponse
+            data: mockTerms
           },
         },
         /** TODO : Missing endpoint and operation.

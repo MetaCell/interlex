@@ -1345,3 +1345,75 @@ const getIds= useCallback(debounce(async () => {
     console.log("ids ", ids)
 }), [getUser]);
 ```
+
+
+### Retrieving Single Organization
+- To retrieve a single Organization, use the method below.
+```
+import { getOrganization } from './../../api/endpoints';
+
+const getOrganizationRequest = useCallback(async (id) => {
+    await getOrganization(id).then((response) => {
+      console.log("Get Organization response ", response)
+    })
+    .catch((error) => {
+        console.log("Error ", error)
+    });
+  }, [getOrganization]);
+
+  useEffect(() => {
+    getOrganizationRequest("1")
+  }, [getOrganizationRequest]);
+```
+
+### Signup/Register Endpoint
+- To complete the signup process, use the method below.
+```
+import { signup } from './../../api/endpoints';
+
+const postSignUp = useCallback(async (payload) => {
+    await signup(payload).then((response) => {
+      console.log("Signup response ", response)
+    })
+    .catch((error) => {
+        console.log("Error ", error)
+    });
+  }, [signup]);
+
+  useEffect(() => {
+    let payload = {
+      data : { 
+        creationDate : "April 27, 2020",
+        email : "oliviarhye@gmail.com",
+        id : "JD10101987",
+        lastName : "Rhye",
+        name : "rhye",
+        orcid : "JD10101987",
+        organization : "Organization 1",
+        role : "Curator"
+      }
+    }
+    postSignUp(payload)
+  }, [postSignUp]);
+```
+
+### Patching a Term
+- To Edit a Term, use the method below.
+```
+import { patchTerm } from './../../api/endpoints';
+
+const patchTermRequest = useCallback(async (group, id, term) => {
+    await patchTerm(group, id, term).then((response) => {
+      console.log("Patch Terms response ", response)
+    })
+    .catch((error) => {
+        console.log("Error ", error)
+    });
+  }, [patchTerm]);
+
+  useEffect(() => {
+    // User Term object as example to create a Term object
+    let term = {};
+    patchTermRequest("base", "ILX_111", term)
+  }, [patchTermRequest]);
+```

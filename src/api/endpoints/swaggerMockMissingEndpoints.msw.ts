@@ -14,7 +14,6 @@ import {
 } from 'msw'
 import type {
   AddToDiscussion200,
-  BulkEditTerms200,
   Curies,
   Discussions,
   Forks,
@@ -22,6 +21,7 @@ import type {
   Ontologies,
   Organization,
   Organizations,
+  Signup200,
   Terms,
   User,
   Variants,
@@ -40,11 +40,21 @@ export const getLogoutResponseMock = () => ((() => ({
                 username: ""
               }))())
 
-export const getRegisterResponseMock = () => ((() => ({
-                status: 200,
-                token: "",
-                username: ""
-              }))())
+export const getSignupResponseMock = () => ((() => {
+  return {
+    status: 200,
+    user: {
+      role: "Curator",
+      id: "JD10101987",
+      orcid: "JD10101987",
+      name: "rhye",
+      lastName: "Rhye",
+      organization: "Organization 1",
+      creationDate: "April 27, 2020",
+      email: "oliviarhye@gmail.com"
+    }
+  };
+})())
 
 export const getGetUserResponseMock = () => ((() => {
   return {
@@ -1900,7 +1910,11 @@ export const getGetOrganizationsCuriesResponseMock = () => ((() => {
 
 export const getGetHierarchyResultsResponseMock = (): Hierarchies => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ([])))
 
-export const getBulkEditTermsResponseMock = (): BulkEditTerms200 => ({})
+export const getBulkEditTermsResponseMock = (overrideResponse: any = {}): Terms => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({'@context': {
+        [faker.string.alphanumeric(5)]: faker.word.sample()
+      }, '@graph': faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({
+        [faker.string.alphanumeric(5)]: faker.word.sample()
+      })))), undefined]), ...overrideResponse})))
 
 export const getGetMatchTermsResponseMock = () => ((() => [
   {
@@ -2844,10 +2858,10 @@ export const getLogoutMockHandler = (overrideResponse?: void) => {
   })
 }
 
-export const getRegisterMockHandler = (overrideResponse?: void) => {
+export const getSignupMockHandler = (overrideResponse?: Signup200) => {
   return http.post('*/operations/signup', async () => {
     await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getRegisterResponseMock()),
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getSignupResponseMock()),
       {
         status: 200,
         headers: {
@@ -3012,7 +3026,7 @@ export const getGetHierarchyResultsMockHandler = (overrideResponse?: Hierarchies
   })
 }
 
-export const getBulkEditTermsMockHandler = (overrideResponse?: BulkEditTerms200) => {
+export const getBulkEditTermsMockHandler = (overrideResponse?: Terms) => {
   return http.post('*/:group/bulkEditTerms', async () => {
     await delay(1000);
     return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getBulkEditTermsResponseMock()),
@@ -3154,7 +3168,7 @@ export const getGetPingMockHandler = () => {
 export const getSwaggerMockMissingEndpointsMock = () => [
   getLoginMockHandler(),
   getLogoutMockHandler(),
-  getRegisterMockHandler(),
+  getSignupMockHandler(),
   getGetUserMockHandler(),
   getGetUserTermsMockHandler(),
   getGetUserOrganizationsMockHandler(),

@@ -52,18 +52,29 @@ paths:
       summary: Register to OpenAPI space
       description: ''
       x-swagger-router-controller: src.server.auth
-      operationId: register
-      parameters:
-        - name: body
-          in: body
-          description: registration details
-          schema:
-            $ref: "#/definitions/Registration"
+      operationId: signup
+      requestBody:
+        description: The user to register.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+              x-body-name: user
       responses:
         200:
-          description: registration successful
-          schema:
-            $ref: "#/definitions/LoginToken"
+          description: The User data was saved.
+          content:
+            application/json:
+              schema:
+                type : object
+                properties:
+                  status:
+                    type: string
+                    example: 200
+                  user:
+                    schema:
+                      $ref: "#/definitions/User"
         409:
           description: username or email taken
           schema:
@@ -179,14 +190,6 @@ paths:
           description: The id of the organization to retrieve
           schema:
             type: string
-      requestBody:
-        description: The organization to retrieve.
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Organization'
-              x-body-name: organization
       responses:
         200:
           description: The organization data were saved.
@@ -387,7 +390,7 @@ paths:
                 $ref: '#/components/schemas/Error'
   /{group}/bulkEditTerms:
     post:
-      summary: Used to bulk edit terms.
+      summary: Used to bulk edit terms
       operationId: bulk_edit_terms
       parameters:
         - name: group
@@ -402,21 +405,25 @@ paths:
         content:
           application/json:
             schema:
-              type: array,
-              items: { $ref: '#/components/schemas/Term' }
+              $ref: '#/components/schemas/Terms'
       responses:
         200:
-          description: The Terms data were saved.
+          description: A paged array of terms
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
           content:
             application/json:
               schema:
-                type: object
-        400:
-          description: Bad Request, bad input parameter for Term POST request.
-        403:
-          description: The request cannot be fullfilled due to the permission of your account.
-        500:
-          description: The server has encountered a situation it does not know how to handle.
+                $ref: '#/components/schemas/Terms'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       tags:
         - API
   /{group}/search/{term}: 
@@ -885,6 +892,52 @@ definitions:
         type: string
       status:
         type: string
+  User:
+      type: object
+      required:
+        - name
+        - lastName
+        - role
+        - creationDate
+        - email
+        - organization
+      properties:
+        id:
+          description: Unique identifier
+          type: string
+          example: 'JD10101987'
+        name:
+          description: Name
+          type: string
+          example: 'oliva'
+        lastName:
+          description: Last Name
+          type: string
+          example: 'orhye'
+        organization:
+          description: organization
+          type: string
+          example: 'organization'
+        orcid:
+          description: ORCID ID
+          type: string
+          example: 'JD10101987'
+        active:
+          description: active user or not
+          type: boolean
+          example: true
+        role:
+          description: User Role
+          type: string
+          example: 'curator'
+        email:
+          description: Email
+          type: string
+          example: 'curator@interlex.ucsd.edu'
+        creationDate:
+          description: Date User was created
+          type: string
+          format: 'date-time'
 components:
   schemas:
     DefaultTerm:
@@ -1043,19 +1096,32 @@ components:
     User:
       type: object
       required:
-        - id
         - name
-        - username
+        - lastName
         - role
-        - creation_date
+        - creationDate
         - email
-        - actions
-        - term_variants
-        - merge_reviews
-        - organizations
+        - password
+        - organization
       properties:
         id:
           description: Unique identifier
+          type: string
+          example: 'JD10101987'
+        name:
+          description: Name
+          type: string
+          example: 'oliva'
+        lastName:
+          description: Last Name
+          type: string
+          example: 'orhye'
+        organization:
+          description: organization
+          type: string
+          example: 'organization'
+        password:
+          description: Password
           type: string
           example: 'JD10101987'
         username:
@@ -1082,21 +1148,7 @@ components:
           description: Total Actions
           type: string
           example: '96'
-        name:
-          description: Object that specify given and family name
-          type: array
-          items:
-            type: object
-            properties:
-              given:
-                description: given name
-                type: string
-                example: 'John'
-              family:
-                description: family name
-                type: string
-                example: 'Doe'
-        creation_date:
+        creationDate:
           description: Date User was created
           type: string
           format: 'date-time'
