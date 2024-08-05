@@ -1,9 +1,11 @@
 import {Box, Typography, Button, Link, List, ListItem, ListItemText} from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
 import { vars } from "../../theme/variables";
 const { gray700, gray500, gray200, brand600 } = vars;
 
 const OrganizationsList = ({organizations, viewJoinButton = true}) => {
+  const navigate = useNavigate();
   return (
     <List sx={{
       width: '100%',
@@ -78,6 +80,7 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
                 viewJoinButton && <Button
                   variant="outlined"
                   className="join-button"
+                  onClick={() => navigate("/organizations/sparc")}
                   startIcon={<PersonAddOutlinedIcon />}
                   sx={{
                     display: 'none',

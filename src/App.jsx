@@ -12,6 +12,7 @@ import CurieEditor from "./components/CurieEditor";
 import TermActivity from "./components/term_activity/TermActivity";
 import { GlobalDataProvider } from './contexts/DataContext'
 import Dashboard from "./components/Dashboard";
+import SingleOrganization from "./components/SingleOrganization";
 
 const PageContainer = ({children}) => {
     return (
@@ -39,6 +40,7 @@ function MainContent() {
               <Route path="/curie-editor" element={<PageContainer><CurieEditor /></PageContainer>} />
               <Route path="/term-activity" element={<PageContainer><TermActivity /></PageContainer>} />
               <Route path="/dashboard" element={<PageContainer><Dashboard /></PageContainer>} />
+              <Route path="/organizations/sparc" element={<PageContainer><SingleOrganization/></PageContainer>} />
           </Routes>
           {showFooter && <Footer />}
       </Box>
