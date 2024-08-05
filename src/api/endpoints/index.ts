@@ -78,6 +78,21 @@ export const getMatchTerms = async (term, filters = {}) => {
     });
 }
 
+export const patchTerm = async (group, termID, term) => {
+  /** Call endpoint for retrieving curies, this is a mock endpoint
+  created by us */
+  const {  patchEndpointsIlx } = useApi();
+
+  /** Call Endpoint */
+  return patchEndpointsIlx(group, termID, term).then((data) => {
+      console.log("patch term response ", data)
+      return data;
+    })
+    .catch((error) => {
+      return error;
+    });
+}
+
 export const getEndpointsIlx = async (group, term) => {
   /** Call endpoint for retrieving curies, this is a mock endpoint
   created by us */

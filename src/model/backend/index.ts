@@ -35,6 +35,7 @@ export * from './organizationTermsItem';
 export * from './organizations';
 export * from './parseErrorResponse';
 export * from './patchTerm200';
+export * from './patchTerm201';
 export * from './predicate';
 export * from './predicates';
 export * from './review';

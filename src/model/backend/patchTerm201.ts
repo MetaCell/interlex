@@ -5,9 +5,4 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type PatchTerm200 = {
-  /** Response status */
-  status?: string;
-  /** Patched term */
-  term?: unknown;
-};
+export type PatchTerm201 = { [key: string]: any };

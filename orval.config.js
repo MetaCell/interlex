@@ -6,6 +6,7 @@ import { mockVersions } from "./mock/data/mockVersions";
 import { mockCuries } from "./mock/data/mockCuries";
 import { mockUser } from "./mock/data/mockUser";
 import { mockForks } from "./mock/data/mockForks";
+import { mockPatchBulkTermsResponse, mockPatchTermResponse } from "./mock/data/mockPatchTermResponse";
 
 module.exports = {
   uri: {
@@ -47,6 +48,11 @@ module.exports = {
           get_endpoints_ilx: {
             mock: {
               data: mockTerm,
+            },
+          },
+          patch_endpoints_ilx: {
+            mock: {
+              data: mockPatchTermResponse,
             },
           },
           get_endpoints_ilx_get: {
@@ -221,8 +227,9 @@ module.exports = {
         patch_term: {
           mock: {
             data: () => ({
-              status_code: 200,
-              message: "",
+              status: 200,
+              token: "",
+              name: ""
             }),
           },
         },
@@ -231,10 +238,7 @@ module.exports = {
          * */
         bulk_edit_terms: {
           mock: {
-            data: () => ({
-              status_code: 200,
-              message: "",
-            }),
+            data: mockPatchBulkTermsResponse
           },
         },
         /** TODO : Missing endpoint and operation.
