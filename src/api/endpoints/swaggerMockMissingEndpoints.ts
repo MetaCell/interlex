@@ -9,6 +9,7 @@ import type {
   Curies,
   Discussion,
   Discussions,
+  Error,
   Forks,
   GetMatchTermsParams,
   Hierarchies,
@@ -209,7 +210,7 @@ export const bulkEditTerms = (
     group: string,
     terms: BodyType<Terms>,
  options?: SecondParameter<typeof customInstance>,) => {
-      return customInstance<Terms>(
+      return customInstance<Error>(
       {url: `/${group}/bulkEditTerms`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: terms

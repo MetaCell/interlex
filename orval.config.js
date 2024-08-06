@@ -188,6 +188,11 @@ module.exports = {
               data: mockOntologies,
             },
           },
+          bulk_edit_terms: {
+            mock: {
+              data: mockPatchBulkTermsResponse
+            },
+          },
           // Search for specific 'term' and get all results
           get_match_terms: {
             mock: {
@@ -200,38 +205,6 @@ module.exports = {
               useInfinite: true,
               useInfiniteQueryParam: ['filter', "value"],
             },
-          },
-        },
-        /** TODO : New endpoint missing to retrieve hierarchy (relationships)
-         * Suggestion, return array of objects, with indexes determining hierarchies.
-         * */
-        get_hierarchy: {
-          mock: {
-            data: () => [],
-          },
-        },
-        // TODO : Existing endpoint but missing operation, edits exising fragments
-        add_fragment: {
-          mock: {
-            data: () => ({
-              status_code: 200,
-              message: "",
-            }),
-          },
-        },
-        // TODO : Missing endpoint and missing operation. Different than add_fragment?
-        patch_term: {
-          mock: {
-            data: () => ({
-              status: 200,
-              token: "",
-              name: ""
-            }),
-          },
-        },
-        bulk_edit_terms: {
-          mock: {
-            data: mockTerms
           },
         },
         /** TODO : Missing endpoint and operation.

@@ -392,6 +392,10 @@ paths:
     post:
       summary: Used to bulk edit terms
       operationId: bulk_edit_terms
+      tags:
+        - Auth
+      description: ''
+      x-swagger-router-controller: src.server.auth
       parameters:
         - name: group
           in: path
@@ -406,26 +410,24 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Terms'
+              x-body-name: terms
       responses:
         200:
           description: A paged array of terms
-          headers:
-            x-next:
-              description: A link to the next page of responses
-              schema:
-                type: string
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Terms'
+              type: object
+              properties:
+                status:
+                  type: string
+                terms:
+                  $ref: '#/components/schemas/Terms'
         default:
           description: unexpected error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-      tags:
-        - API
   /{group}/search/{term}: 
     get:
       summary: List all matching terms
