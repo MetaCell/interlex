@@ -4,6 +4,5 @@ import { getInterLexURIStructureAPIMock } from './api/endpoints/interLexURIStruc
 
 const handlers = [...getSwaggerMockMissingEndpointsMock(), ...getInterLexURIStructureAPIMock()];
 const worker = setupWorker(...handlers);
-worker.start();
 
 export default worker
