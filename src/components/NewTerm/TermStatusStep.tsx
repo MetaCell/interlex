@@ -33,9 +33,9 @@ const StatusMessage = ({ responseStatus, termValue }) => (
         <Typography mt='1.25rem' mb='.75rem' color={gray900} fontSize='1.25rem' fontWeight={600}>
             {responseStatus === 'success' ? 'Term successfully created' : 'Unable to create the term'}
         </Typography>
-        <Typography mb='2rem' color={gray600} fontSize='1rem'>
+        <Typography mb='2rem' color={gray600} fontSize='1rem' sx={{ maxWidth: "21.875rem", textAlign: "center" }}>
             {responseStatus === 'success'
-                ? `Your term ${termValue} has been added. Click finish to see the result, or add a new term.`
+                ? `Your term “${termValue}” has been added. Go to your term or add a new one..`
                 : `Your term ${termValue} can’t be added. Cancel or try again.`}
         </Typography>
     </Box>

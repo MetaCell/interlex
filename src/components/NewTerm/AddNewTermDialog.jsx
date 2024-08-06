@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Box, Divider, MobileStepper, Stack, Button } from "@mui/material";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { vars } from "../../theme/variables";
@@ -22,24 +23,35 @@ const useMockApiInterlex = () => mockApiInterlex;
 
 const { gray100, gray200, gray400, brand700 } = vars;
 
-const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueButtonDisabled }) => (
+const initialFormState = {
+    label: '',
+    age: '',
+    synonyms: '',
+    superclass: '',
+    existingId: null,
+    urls: '',
+    description: '',
+    comment: ''
+}
+
+const HeaderRightSideContent = ({ activeStep, onContinue, onClose, onGoToTermClick, isContinueButtonDisabled }) => (
     <Box display='flex' alignItems='center'>
-        {activeStep !== 2 ? (
-            <>
-                <MobileStepper
-                    variant="dots"
-                    steps={3}
-                    position="static"
-                    activeStep={activeStep}
-                    sx={{
-                        maxWidth: 64,
-                        flexGrow: 1,
-                        '& .MuiMobileStepper-dots': { gap: '0.75rem' },
-                        '& .MuiMobileStepper-dot': { margin: 0, backgroundColor: gray200 },
-                        '& .MuiMobileStepper-dotActive': { backgroundColor: brand700 }
-                    }}
-                />
-                <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
+        <>
+            <MobileStepper
+                variant="dots"
+                steps={3}
+                position="static"
+                activeStep={activeStep}
+                sx={{
+                    maxWidth: 64,
+                    flexGrow: 1,
+                    '& .MuiMobileStepper-dots': { gap: '0.75rem' },
+                    '& .MuiMobileStepper-dot': { margin: 0, backgroundColor: gray200 },
+                    '& .MuiMobileStepper-dotActive': { backgroundColor: brand700 }
+                }}
+            />
+            <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
+            {activeStep !== 2 ? (
                 <Stack direction="row" spacing={1.5}>
                     <CustomButton onClick={onClose}>Cancel</CustomButton>
                     <Button
@@ -55,10 +67,10 @@ const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueBut
                         Continue
                     </Button>
                 </Stack>
-            </>
-        ) : (
-            <Button variant="contained" onClick={onClose}>Finish</Button>
-        )}
+            ) : (
+                <Button variant="contained" onClick={onGoToTermClick} endIcon={<ArrowForwardIcon />}>Go to term</Button>
+            )}
+        </>
     </Box>
 );
 
@@ -66,6 +78,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const { getMatchTerms } = useMockApi();
     const { getEndpointsIlx } = useMockApiInterlex();
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
     const [termResults, setTermResults] = useState([]);
     const [activeStep, setActiveStep] = useState(0);
     const [tabValue, setTabValue] = useState(0);
@@ -78,17 +91,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const [predicates, setPredicates] = useState([{ subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
     const [files, setFiles] = useState([]);
     const [url, setUrl] = useState('');
-    const [formState, setFormState] = useState({
-        label: '',
-        ilx: "ILX:0101901",
-        age: '',
-        synonyms: '',
-        superclass: '',
-        existingId: null,
-        urls: '',
-        description: '',
-        comment: ''
-    });
+    const [formState, setFormState] = useState(initialFormState);
 
     const memoData = useMemo(() => data, [data]);
 
@@ -123,7 +126,12 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
     const handleMatchesChange = (e) => setAreMatchesChecked(e.target.checked);
     const handleCancelBtnClick = () => { handleClose(); setActiveStep(0); setAreMatchesChecked(false); };
-    const handleAddNewTerm = () => { setActiveStep(0); setAreMatchesChecked(false); };
+    const handleAddNewTerm = () => {
+        setActiveStep(0);
+        setTermValue('');
+        setAreMatchesChecked(false);
+        setFormState(initialFormState);
+    };
     const handleFormInputChange = (e) => {
         const { name, value } = e.target;
         if (name === "label") {
@@ -153,6 +161,11 @@ const AddNewTermDialog = ({ open, handleClose }) => {
             progress: 100 // assuming the file upload is completed for now
         }));
         setFiles(updatedFiles);
+    }
+
+    const handleGoToTermClick = () => {
+        navigate(`/view?searchTerm=${termValue.charAt(0).toUpperCase() + termValue.slice(1)}`);
+        handleClose();
     }
 
     useEffect(() => {
@@ -192,6 +205,8 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     }));
 
     const isResultsEmpty = termResults.length === 0;
+    const isLabelEmpty = formState.label === "";
+    const isContinueButtonDisabled = !areMatchesChecked || isLabelEmpty
 
     return (
         <CustomizedDialog
@@ -203,7 +218,8 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                     activeStep={activeStep}
                     onContinue={handleContinueClick}
                     onClose={handleCancelBtnClick}
-                    isContinueButtonDisabled={!areMatchesChecked}
+                    onGoToTermClick={handleGoToTermClick}
+                    isContinueButtonDisabled={isContinueButtonDisabled}
                 />
             }
             sx={{ '& .MuiDialogContent-root': { padding: 0, overflowY: "hidden" } }}
