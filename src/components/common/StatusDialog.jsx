@@ -47,6 +47,7 @@ const StatusDialog = ({ title, message, subMessage, addButtonTitle, open, handle
                     top: '40%',
                     left: '50%',
                     transform: 'translate(-50%, -10%)',
+                    textAlign: 'center'
                 }}>
                     <Typography mt='1.25rem' mb='.75rem' color={gray900} fontSize='1.25rem' fontWeight={600}>{message}</Typography>
                     <Typography mb='2rem' color={gray600} fontSize='1rem'>{subMessage}</Typography>

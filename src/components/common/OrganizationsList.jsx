@@ -80,7 +80,7 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
                 viewJoinButton && <Button
                   variant="outlined"
                   className="join-button"
-                  onClick={() => navigate("/organizations/sparc")}
+                  onClick={() => navigate(`/organizations/${organization.title}`)}
                   startIcon={<PersonAddOutlinedIcon />}
                   sx={{
                     display: 'none',

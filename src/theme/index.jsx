@@ -390,7 +390,7 @@ const theme = createTheme({
                 },
                 root: {
                     '& .MuiOutlinedInput-root': {
-                        padding: '0.5rem !important',
+                        padding: '0.5rem',
                         height: '2.5rem',
                         background: gray25,
                         borderRadius: '0.5rem',

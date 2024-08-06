@@ -30,6 +30,7 @@ const CustomSingleSelect = ({value, onChange, options, FormControlSX, SelectSX, 
           borderRadius: '0.5rem',
           fontSize: '0.875rem',
           fontWeight: 600,
+          background: '#fff',
           '& .MuiOutlinedInput-input': {
             padding: '0.625rem 0.875rem'
           },
