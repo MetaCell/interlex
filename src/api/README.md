@@ -1397,23 +1397,23 @@ const postSignUp = useCallback(async (payload) => {
   }, [postSignUp]);
 ```
 
-### Patching a Term
-- To Edit a Term, use the method below.
+### Patching Bulk Terms
+- To Edit Bulk Terms, use the method below.
 ```
-import { patchTerm } from './../../api/endpoints';
+import { bulkEditTerms } from './../../api/endpoints';
 
-const patchTermRequest = useCallback(async (group, id, term) => {
-    await patchTerm(group, id, term).then((response) => {
-      console.log("Patch Terms response ", response)
+  const editBulkTermsRequest = useCallback(async (group, terms) => {
+    await bulkEditTerms("base", terms).then((response) => {
+      console.log("Terms edited ", response)
     })
     .catch((error) => {
         console.log("Error ", error)
     });
-  }, [patchTerm]);
+  }, [bulkEditTerms]);
 
   useEffect(() => {
     // User Term object as example to create a Term object
-    let term = {};
-    patchTermRequest("base", "ILX_111", term)
-  }, [patchTermRequest]);
+    let terms = [{}];
+    editBulkTermsRequest("base", terms)
+  }, [editBulkTermsRequest]);
 ```
