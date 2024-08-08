@@ -193,6 +193,11 @@ module.exports = {
               data: mockPatchBulkTermsResponse
             },
           },
+          add_term: {
+            mock: {
+              data: mockPatchTermResponse
+            },
+          },
           // Search for specific 'term' and get all results
           get_match_terms: {
             mock: {

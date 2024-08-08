@@ -79,8 +79,6 @@ export const getCuries = async (term) => {
 }
 
 export const getMatchTerms = async (term, filters = {}) => {
-  /** Call endpoint for retrieving curies, this is a mock endpoint
-  created by us */
   const {  getMatchTerms } = useMockApi();
 
   /** Call Endpoint */
@@ -93,8 +91,6 @@ export const getMatchTerms = async (term, filters = {}) => {
 }
 
 export const patchTerm = async (group, termID, term) => {
-  /** Call endpoint for retrieving curies, this is a mock endpoint
-  created by us */
   const {  patchEndpointsIlx } = useApi();
 
   /** Call Endpoint */
@@ -107,9 +103,20 @@ export const patchTerm = async (group, termID, term) => {
     });
 }
 
+export const addTerm = async (group, term) => {
+  const {  addTerm } = useMockApi();
+
+  /** Call Endpoint */
+  return addTerm(group, term).then((data) => {
+      console.log("add term response ", data)
+      return data;
+    })
+    .catch((error) => {
+      return error;
+    });
+}
+
 export const bulkEditTerms = async (group, payload) => {
-  /** Call endpoint for retrieving curies, this is a mock endpoint
-  created by us */
   const { bulkEditTerms } = useMockApi();
 
   /** Call Endpoint */
@@ -123,8 +130,6 @@ export const bulkEditTerms = async (group, payload) => {
 }
 
 export const getEndpointsIlx = async (group, term) => {
-  /** Call endpoint for retrieving curies, this is a mock endpoint
-  created by us */
   const {  getEndpointsIlx } = useApi();
 
   /** Call Endpoint */
@@ -137,8 +142,6 @@ export const getEndpointsIlx = async (group, term) => {
 }
 
 export const getUser = async (id) => {
-  /** Call endpoint for retrieving curies, this is a mock endpoint
-  created by us */
   const {  getUser } = useMockApi();
 
   /** Call Endpoint */
@@ -151,8 +154,6 @@ export const getUser = async (id) => {
 }
 
 export const getExistingIDs = async () => {
-  /** Call endpoint for retrieving curies, this is a mock endpoint
-  created by us */
   const {  getMatchTerms } = useMockApi();
 
   /** Call Endpoint */
@@ -167,8 +168,6 @@ export const getExistingIDs = async () => {
 }
 
 export const signup = async (body) => {
-  /** Call endpoint for retrieving curies, this is a mock endpoint
-  created by us */
   const {  signup } = useMockApi();
 
   /** Call Endpoint */
