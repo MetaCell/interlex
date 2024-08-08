@@ -1353,7 +1353,7 @@ const getIds= useCallback(debounce(async () => {
 ### Retrieving Single Organization
 - To retrieve a single Organization, use the method below.
 ```
-import { getOrganization } from './../../api/endpoints';
+import { getOrganization, getOrganizationTerms, getOrganizationCuries, getOrganizationOntologies } from './../../api/endpoints';
 
 const getOrganizationRequest = useCallback(async (id) => {
     await getOrganization(id).then((response) => {
@@ -1362,10 +1362,31 @@ const getOrganizationRequest = useCallback(async (id) => {
     .catch((error) => {
         console.log("Error ", error)
     });
-  }, [getOrganization]);
+
+    await getOrganizationTerms(id).then((response) => {
+      console.log("Get Organization terms response ", response)
+    })
+    .catch((error) => {
+        console.log("Error ", error)
+    });
+
+    await getOrganizationCuries(id).then((response) => {
+      console.log("Get Organization curies response ", response)
+    })
+    .catch((error) => {
+        console.log("Error ", error)
+    });
+
+    await getOrganizationOntologies(id).then((response) => {
+      console.log("Get Organization ontologies response ", response)
+    })
+    .catch((error) => {
+        console.log("Error ", error)
+    });
+  }, [getOrganization, getOrganizationTerms, getOrganizationCuries, getOrganizationOntologies]);
 
   useEffect(() => {
-    getOrganizationRequest("1")
+    getOrganizationRequest("1");
   }, [getOrganizationRequest]);
 ```
 

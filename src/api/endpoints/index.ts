@@ -1,9 +1,10 @@
-import { Organizations, Variants, Versions, User, Organization } from '../../model/backend';
+import { Organizations, Variants, Versions, User, Organization, Terms, Ontologies } from '../../model/backend';
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 import * as api from './../../api/endpoints/interLexURIStructureAPI'
 
 import curieParser from '../../parsers/curieParser';
 import termParser from '../../parsers/termParser';
+import { Curies } from '../../model/frontend/curies';
 
 const useMockApi = () => mockApi;
 const useApi = () => api;
@@ -30,6 +31,43 @@ export const getOrganization = async (id) => {
   /** Call Endpoint */
   return getOrganization(id).then((data) => {
       return data as Organization;
+    })
+    .catch((error) => {
+      return error;
+    });
+}
+
+export const getOrganizationTerms = async (id) => {
+  /** Call endpoint for retrieving organizations, this is a mock endpoint
+  created by us */
+  const {  getOrganizationsTerms } = useMockApi();
+
+  /** Call Endpoint */
+  return getOrganizationsTerms(id).then((data) => {
+      return termParser(data, undefined);
+    })
+    .catch((error) => {
+      return error;
+    });
+}
+
+export const getOrganizationCuries = async (id) => {
+  const {  getOrganizationsCuries } = useMockApi();
+
+  /** Call Endpoint */
+  return getOrganizationsCuries(id).then((data) => {
+      return curieParser(data);;
+    })
+    .catch((error) => {
+      return error;
+    });
+}
+
+export const getOrganizationOntologies = async (id) => {
+  const {  getOrganizationsOntologies } = useMockApi();
+
+  return getOrganizationsOntologies(id).then((data) => {
+      return data as Ontologies;
     })
     .catch((error) => {
       return error;
@@ -94,7 +132,7 @@ export const patchTerm = async (group, termID, term) => {
   const {  patchEndpointsIlx } = useApi();
 
   /** Call Endpoint */
-  return patchEndpointsIlx(group, termID, term).then((data) => {
+  return patchEndpointsIlx(group, termID).then((data) => {
       console.log("patch term response ", data)
       return data;
     })
@@ -142,7 +180,7 @@ export const getEndpointsIlx = async (group, term) => {
 }
 
 export const getUser = async (id) => {
-  const {  getUser } = useMockApi();
+  const {  getUser } = useMockApi();patchTerm
 
   /** Call Endpoint */
   return getUser(id).then((data) => {
