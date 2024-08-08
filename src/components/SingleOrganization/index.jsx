@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
     Box,
     Button,
@@ -31,7 +31,7 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
-import organizationLogo from '../../assets/organization-test-logo.png';
+import { getOrganization } from "../../api/endpoints";
 import { vars } from "../../theme/variables";
 
 const { gray25, gray200, gray500, gray600 } = vars;
@@ -52,6 +52,7 @@ const ontologies = [
 
 const SingleOrganization = () => {
     const [loading, setLoading] = React.useState(false);
+    const [organization, setOrganization] = React.useState(null);
     const [numberOfVisiblePages, setNumberOfVisiblePages] = useState(8);
     const [listView, setListView] = useState('list');
     const [page, setPage] = useState(1);
@@ -105,7 +106,21 @@ const SingleOrganization = () => {
 
     const handleCloseLeaveModal = () => {
         setOpenLeaveModal(false);
-    }
+    };
+
+    const getOrganizationRequest = useCallback(async (id) => {
+        await getOrganization(id).then((response) => {
+            console.log("Get Organization response ", response)
+            setOrganization(response)
+        })
+            .catch((error) => {
+                console.log("Error ", error)
+            });
+    }, [getOrganization]);
+
+    useEffect(() => {
+        getOrganizationRequest("1")
+    }, [getOrganizationRequest]);
 
     //change href
     const breadcrumbItems = [
@@ -128,7 +143,7 @@ const SingleOrganization = () => {
                     <Box display='flex' alignItems='center' justifyContent='space-between'>
                         <Box
                             component="img"
-                            src={organizationLogo}
+                            src={organization?.icon}
                             alt="organization logo"
                             sx={{
                                 objectFit: 'contain',
@@ -159,12 +174,12 @@ const SingleOrganization = () => {
                     <Grid container spacing={4.5}>
                         <Grid item xs={12} lg={12}>
                             <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
-                                SPARC Anatomical Working Group
+                                {organization?.name}
                             </Typography>
                         </Grid>
                         <Grid item xs={12} lg={10}>
                             <Typography color={gray500} fontSize="0.875rem">
-                                The Stimulating Peripheral Activity to Relieve Conditions (SPARC) effort is the result of National Institutes of Health’s (NIH) drive to map out the neural circuitry responsible for visceral control in higher vertebrates. The SPARC Anatomy Working Group (SAWG) is responsible for the integrity of anatomical knowledge in SPARC. In particular, it provides the relevant guidance and expertise about: Defining and naming anatomical terms, Maintaining ontologies of anatomical knowledge, Compiling and curating computable knowledge about multiscale routes pathways
+                                {organization?.description}
                             </Typography>
                         </Grid>
                     </Grid>
