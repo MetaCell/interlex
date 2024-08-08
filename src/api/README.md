@@ -10,7 +10,10 @@ This template provides instructions on how to use the API.
 - [API - Get Raw Data](#retrieving-raw-data)
 - [API - Get User](#retrieving-user)
 - [API - Get Existing Ids](#retrieving-existing-ids)
-
+- [API - Register/Signup Endpoint](#register-endpoint)
+- [API - Retrieving Single Organization](#retrieving-single-organization)
+- [API - Patching A Term](#patching-a-term)
+- [API - Patching Bulk Terms](#patching-bulk-terms)
 
 ### Searching for Terms
 - Sample Code 
@@ -1366,7 +1369,7 @@ const getOrganizationRequest = useCallback(async (id) => {
   }, [getOrganizationRequest]);
 ```
 
-### Signup/Register Endpoint
+### Register Endpoint
 - To complete the signup process, use the method below.
 ```
 import { signup } from './../../api/endpoints';
@@ -1395,6 +1398,26 @@ const postSignUp = useCallback(async (payload) => {
     }
     postSignUp(payload)
   }, [postSignUp]);
+```
+### Patching A Term
+- To Edit Bulk Terms, use the method below.
+```
+import { patchTerm } from './../../api/endpoints';
+
+  const patchTermRequest = useCallback(async (group, termID) => {
+    await patchTerm("base", termID).then((response) => {
+      console.log("Term edited ", response)
+    })
+    .catch((error) => {
+        console.log("Error ", error)
+    });
+  }, [bulkEditTerms]);
+
+  useEffect(() => {
+    // User Term object as example to create a Term object
+    let terms = [{}];
+    patchTermRequest("base", "ILX_ID")
+  }, [patchTermRequest]);
 ```
 
 ### Patching Bulk Terms
