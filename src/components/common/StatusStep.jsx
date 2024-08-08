@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Typography, Button } from "@mui/material";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import { BackgroundPattern, StatusErrorBackgroundPattern } from "../../Icons";
+import { BackgroundPattern, StatusErrorBackgroundPattern, AddedSuccessfully } from "../../Icons";
 import { vars } from "../../theme/variables";
 
 const { gray900, gray600 } = vars;
@@ -9,17 +9,16 @@ const { gray900, gray600 } = vars;
 const StatusBackground = ({ responseStatus }) => (
     <Box
         sx={{
-            width: '30rem',
-            height: '30rem',
+            height: '17.875rem',
             objectFit: 'cover',
             position: 'absolute',
-            top: '40%',
+            top: '50%',
             left: '50%',
             transform: 'translate(-50%, -60%)',
             zIndex: 1,
         }}
     >
-        {responseStatus === 'success' ? <BackgroundPattern /> : <StatusErrorBackgroundPattern />}
+        {responseStatus?.success ? <AddedSuccessfully /> : <StatusErrorBackgroundPattern />}
     </Box>
 );
 
@@ -33,7 +32,7 @@ const StatusMessage = ({ message, description }) => (
         <Typography mt='1.25rem' mb='.75rem' color={gray900} fontSize='1.25rem' fontWeight={600}>
             {message}
         </Typography>
-        <Typography mb='2rem' color={gray600} fontSize='1rem'>
+        <Typography mb='2rem' color={gray600} fontSize='1rem' sx={{ textAlign: "center", maxWidth: "22rem" }}>
             {description}
         </Typography>
     </Box>
@@ -49,29 +48,40 @@ const ActionButtons = ({
     addButtonMessage
 }) => (
     <Box display='flex' gap='1rem'>
-        <Button variant='text'>Undo</Button>
         {isCloseButtonVisible && <Button variant='text' onClick={onClose}>Close</Button>}
         {isAddButtonVisible && <Button startIcon={<AddOutlinedIcon />} variant='outlined' onClick={onAdd}>
             {addButtonMessage}
         </Button>}
-        {isTryButtonVisible && <Button startIcon={<AddOutlinedIcon />} variant='outlined' onClick={onTryAgain}>
+        {isTryButtonVisible && <Button variant='outlined' onClick={onTryAgain}>
             Try Again
         </Button>}
     </Box>
 );
 
-const StatusStep = ({ statusProps, onAdd }) => {
+const StatusStep = ({ statusProps, onAdd, onTryAgain, onClose }) => {
     const {
-        message,
-        description,
         statusResponse,
+        successMessage,
+        successDescription,
+        failureMessage,
+        failureDescription,
+        addButtonMessage,
         isAddButtonVisible,
         isTryButtonVisible,
         isCloseButtonVisible,
-        onTryAgain,
-        onClose,
-        addButtonMessage
     } = statusProps;
+
+    const message = statusResponse?.success
+        ? successMessage
+        : statusResponse?.error
+            ? failureMessage
+            : '';
+
+    const description = statusResponse?.success
+        ? successDescription
+        : statusResponse?.error
+            ? failureDescription
+            : '';
 
     return (
         <Box

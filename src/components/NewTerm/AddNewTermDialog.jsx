@@ -73,7 +73,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const [openSidebar, setOpenSidebar] = useState(true);
     const [areMatchesChecked, setAreMatchesChecked] = useState(false);
     const [data, setData] = useState(null);
-    const [responseStatus, setResponseStatus] = useState('success')
+    const [responseStatus, setResponseStatus] = useState(null)
     const [termValue, setTermValue] = useState('');
     const [ids, setIds] = useState([]);
     const [predicates, setPredicates] = useState([{ subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
@@ -187,6 +187,27 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         fetchIds()
     }, [fetchIds])
 
+    //can be deleted, use only for testing purposes
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch('/api/some-endpoint');
+                if (!response.ok) {
+                    throw new Error('HTTP error');
+                }
+                const data = await response.json();
+                setResponseStatus({ success: true, data });
+            } catch (error) {
+                setResponseStatus({ success: false, error: error.message });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+
     const predicatesOptions = predicates.map(row => ({
         label: row.title,
         value: row.title
@@ -233,7 +254,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                 </Box>
             )}
             {activeStep === 1 && <AddPredicatesStep termValue={termValue.charAt(0).toUpperCase() + termValue.slice(1)} predicatesOptions={predicatesOptions} />}
-            {activeStep === 2 && <StatusStep statusProps={statusProps} onAdd={handleAddNewTerm} />}
+            {activeStep === 2 && <StatusStep statusProps={statusProps} onAdd={handleAddNewTerm} onTryAgain={() => console.log("Try again")} onClose={handleCancelBtnClick} />}
         </CustomizedDialog>
     );
 };
