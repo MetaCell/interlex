@@ -10,7 +10,8 @@ import ManualImportTab from "./ManualImportTab";
 import ImportFileTab from "./ImportFileTab";
 import NewTermSidebar from "./NewTermSidebar";
 import AddPredicatesStep from "./AddPredicatesStep";
-import TermStatusStep from "./TermStatusStep";
+import StatusStep from "../common/StatusStep";
+import { getTermStatusProps } from "./termStatusProps";
 import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
 import * as mockApiInterlex from "../../api/endpoints/interLexURIStructureAPI";
 import { termParser } from "../../../src/parsers/termParser";
@@ -193,6 +194,8 @@ const AddNewTermDialog = ({ open, handleClose }) => {
 
     const isResultsEmpty = termResults.length === 0;
 
+    const statusProps = getTermStatusProps(responseStatus, termValue);
+
     return (
         <CustomizedDialog
             title='Add a new term'
@@ -230,7 +233,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                 </Box>
             )}
             {activeStep === 1 && <AddPredicatesStep termValue={termValue.charAt(0).toUpperCase() + termValue.slice(1)} predicatesOptions={predicatesOptions} />}
-            {activeStep === 2 && <TermStatusStep responseStatus={responseStatus} termValue={termValue.charAt(0).toUpperCase() + termValue.slice(1)} onAddNewTerm={handleAddNewTerm} />}
+            {activeStep === 2 && <StatusStep statusProps={statusProps} onAdd={handleAddNewTerm} />}
         </CustomizedDialog>
     );
 };
