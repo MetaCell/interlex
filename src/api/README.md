@@ -10,7 +10,10 @@ This template provides instructions on how to use the API.
 - [API - Get Raw Data](#retrieving-raw-data)
 - [API - Get User](#retrieving-user)
 - [API - Get Existing Ids](#retrieving-existing-ids)
-
+- [API - Register/Signup Endpoint](#register-endpoint)
+- [API - Retrieving Single Organization](#retrieving-single-organization)
+- [API - Patching A Term](#patching-a-term)
+- [API - Patching Bulk Terms](#patching-bulk-terms)
 
 ### Searching for Terms
 - Sample Code 
@@ -1344,4 +1347,96 @@ const getIds= useCallback(debounce(async () => {
     const ids = await getExistingIDs();
     console.log("ids ", ids)
 }), [getUser]);
+```
+
+
+### Retrieving Single Organization
+- To retrieve a single Organization, use the method below.
+```
+import { getOrganization } from './../../api/endpoints';
+
+const getOrganizationRequest = useCallback(async (id) => {
+    await getOrganization(id).then((response) => {
+      console.log("Get Organization response ", response)
+    })
+    .catch((error) => {
+        console.log("Error ", error)
+    });
+  }, [getOrganization]);
+
+  useEffect(() => {
+    getOrganizationRequest("1")
+  }, [getOrganizationRequest]);
+```
+
+### Register Endpoint
+- To complete the signup process, use the method below.
+```
+import { signup } from './../../api/endpoints';
+
+const postSignUp = useCallback(async (payload) => {
+    await signup(payload).then((response) => {
+      console.log("Signup response ", response)
+    })
+    .catch((error) => {
+        console.log("Error ", error)
+    });
+  }, [signup]);
+
+  useEffect(() => {
+    let payload = {
+      data : { 
+        creationDate : "April 27, 2020",
+        email : "oliviarhye@gmail.com",
+        id : "JD10101987",
+        lastName : "Rhye",
+        name : "rhye",
+        orcid : "JD10101987",
+        organization : "Organization 1",
+        role : "Curator"
+      }
+    }
+    postSignUp(payload)
+  }, [postSignUp]);
+```
+### Patching A Term
+- To Edit Bulk Terms, use the method below.
+```
+import { patchTerm } from './../../api/endpoints';
+
+  const patchTermRequest = useCallback(async (group, termID) => {
+    await patchTerm("base", termID).then((response) => {
+      console.log("Term edited ", response)
+    })
+    .catch((error) => {
+        console.log("Error ", error)
+    });
+  }, [bulkEditTerms]);
+
+  useEffect(() => {
+    // User Term object as example to create a Term object
+    let terms = [{}];
+    patchTermRequest("base", "ILX_ID")
+  }, [patchTermRequest]);
+```
+
+### Patching Bulk Terms
+- To Edit Bulk Terms, use the method below.
+```
+import { bulkEditTerms } from './../../api/endpoints';
+
+  const editBulkTermsRequest = useCallback(async (group, terms) => {
+    await bulkEditTerms("base", terms).then((response) => {
+      console.log("Terms edited ", response)
+    })
+    .catch((error) => {
+        console.log("Error ", error)
+    });
+  }, [bulkEditTerms]);
+
+  useEffect(() => {
+    // User Term object as example to create a Term object
+    let terms = [{}];
+    editBulkTermsRequest("base", terms)
+  }, [editBulkTermsRequest]);
 ```
