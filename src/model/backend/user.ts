@@ -4,33 +4,38 @@
  * Swagger Mock Missing Endpoints
  * OpenAPI spec version: 1.0.0
  */
-import type { UserNameItem } from './userNameItem';
 
 export interface User {
   /** Total Actions */
-  actions: string;
+  actions?: string;
   /** active user or not */
   active?: boolean;
   /** Date User was created */
-  creation_date: string;
+  creationDate: string;
   /** Email */
   email: string;
   /** Unique identifier */
-  id: string;
+  id?: string;
   /** Date User was last login */
   last_login?: string;
+  /** Last Name */
+  lastName: string;
   /** My Merge Reviews */
-  merge_reviews: unknown;
-  /** Object that specify given and family name */
-  name: UserNameItem[];
+  merge_reviews?: unknown;
+  /** Name */
+  name: string;
   /** ORCID ID */
   orcid?: string;
+  /** organization */
+  organization: string;
   /** My Organizations */
-  organizations: unknown;
+  organizations?: unknown;
+  /** Password */
+  password: string;
   /** User Role */
   role: string;
   /** My Term Variants */
-  term_variants: unknown;
+  term_variants?: unknown;
   /** UserName */
-  username: string;
+  username?: string;
 }

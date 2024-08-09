@@ -1,4 +1,4 @@
-import { Organizations, Variants, Versions, User } from '../../model/backend';
+import { Organizations, Variants, Versions, User, Organization } from '../../model/backend';
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 import * as api from './../../api/endpoints/interLexURIStructureAPI'
 
@@ -20,6 +20,20 @@ export const getOrganizations = async () => {
       .catch((error) => {
         return error;
       });
+}
+
+export const getOrganization = async (id) => {
+  /** Call endpoint for retrieving organizations, this is a mock endpoint
+  created by us */
+  const {  getOrganization } = useMockApi();
+
+  /** Call Endpoint */
+  return getOrganization(id).then((data) => {
+      return data as Organization;
+    })
+    .catch((error) => {
+      return error;
+    });
 }
 
 export const getVariants = async (group, term) => {
@@ -78,6 +92,36 @@ export const getMatchTerms = async (term, filters = {}) => {
     });
 }
 
+export const patchTerm = async (group, termID, term) => {
+  /** Call endpoint for retrieving curies, this is a mock endpoint
+  created by us */
+  const {  patchEndpointsIlx } = useApi();
+
+  /** Call Endpoint */
+  return patchEndpointsIlx(group, termID, term).then((data) => {
+      console.log("patch term response ", data)
+      return data;
+    })
+    .catch((error) => {
+      return error;
+    });
+}
+
+export const bulkEditTerms = async (group, payload) => {
+  /** Call endpoint for retrieving curies, this is a mock endpoint
+  created by us */
+  const { bulkEditTerms } = useMockApi();
+
+  /** Call Endpoint */
+  return bulkEditTerms(group, payload).then((data) => {
+      console.log("bulkEditTerms ", data)
+      return data;
+    })
+    .catch((error) => {
+      return error;
+    });
+}
+
 export const getEndpointsIlx = async (group, term) => {
   /** Call endpoint for retrieving curies, this is a mock endpoint
   created by us */
@@ -114,8 +158,23 @@ export const getExistingIDs = async () => {
   /** Call Endpoint */
   return getMatchTerms("base", "*").then((data) => {
       const terms =  termParser(data, undefined);
-      let existingIds = terms?.results?.map( term => term.id.split("/").pop() );
+      let existingIds = terms?.results?.map( term => term.id?.split("/").pop() );
       return existingIds;
+    })
+    .catch((error) => {
+      return error;
+    });
+}
+
+export const signup = async (body) => {
+  /** Call endpoint for retrieving curies, this is a mock endpoint
+  created by us */
+  const {  signup } = useMockApi();
+
+  /** Call Endpoint */
+  return signup(body).then((data) => {
+      console.log("Sign up ", data)
+      return data as User;
     })
     .catch((error) => {
       return error;

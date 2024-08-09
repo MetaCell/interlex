@@ -9,12 +9,14 @@ import type {
   Curies,
   Discussion,
   Discussions,
+  Error,
   Forks,
   GetMatchTermsParams,
   Hierarchies,
   Ontologies,
   Organization,
   Organizations,
+  Signup200,
   Terms,
   User,
   Variants,
@@ -54,11 +56,13 @@ export const logout = (
 /**
  * @summary Register to OpenAPI space
  */
-export const register = (
-    
+export const signup = (
+    user: BodyType<User>,
  options?: SecondParameter<typeof customInstance>,) => {
-      return customInstance<void>(
-      {url: `/operations/signup`, method: 'POST'
+      return customInstance<Signup200>(
+      {url: `/operations/signup`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: user
     },
       options);
     }
@@ -116,11 +120,9 @@ export const getUserForks = (
  */
 export const getOrganization = (
     id: string,
-    organization: BodyType<Organization>,
  options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<Organization>(
-      {url: `/operations/getOrganization/${id}`, method: 'GET',
-      headers: {'Content-Type': 'application/json', }
+      {url: `/operations/getOrganization/${id}`, method: 'GET'
     },
       options);
     }
@@ -197,6 +199,21 @@ export const getHierarchyResults = (
  options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<Hierarchies>(
       {url: `/${group}/query/transitive/${property}/${start}?depth`, method: 'GET'
+    },
+      options);
+    }
+  
+/**
+ * @summary Used to bulk edit terms
+ */
+export const bulkEditTerms = (
+    group: string,
+    terms: BodyType<Terms>,
+ options?: SecondParameter<typeof customInstance>,) => {
+      return customInstance<Error>(
+      {url: `/${group}/bulkEditTerms`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: terms
     },
       options);
     }
@@ -327,7 +344,7 @@ type AwaitedInput<T> = PromiseLike<T> | T;
 
 export type LoginResult = NonNullable<Awaited<ReturnType<typeof login>>>
 export type LogoutResult = NonNullable<Awaited<ReturnType<typeof logout>>>
-export type RegisterResult = NonNullable<Awaited<ReturnType<typeof register>>>
+export type SignupResult = NonNullable<Awaited<ReturnType<typeof signup>>>
 export type GetUserResult = NonNullable<Awaited<ReturnType<typeof getUser>>>
 export type GetUserTermsResult = NonNullable<Awaited<ReturnType<typeof getUserTerms>>>
 export type GetUserOrganizationsResult = NonNullable<Awaited<ReturnType<typeof getUserOrganizations>>>
@@ -339,6 +356,7 @@ export type GetOrganizationsTermsResult = NonNullable<Awaited<ReturnType<typeof 
 export type GetOrganizationsOntologiesResult = NonNullable<Awaited<ReturnType<typeof getOrganizationsOntologies>>>
 export type GetOrganizationsCuriesResult = NonNullable<Awaited<ReturnType<typeof getOrganizationsCuries>>>
 export type GetHierarchyResultsResult = NonNullable<Awaited<ReturnType<typeof getHierarchyResults>>>
+export type BulkEditTermsResult = NonNullable<Awaited<ReturnType<typeof bulkEditTerms>>>
 export type GetMatchTermsResult = NonNullable<Awaited<ReturnType<typeof getMatchTerms>>>
 export type GetCuriesResult = NonNullable<Awaited<ReturnType<typeof getCuries>>>
 export type GetVariantsResult = NonNullable<Awaited<ReturnType<typeof getVariants>>>
