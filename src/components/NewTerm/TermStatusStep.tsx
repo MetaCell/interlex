@@ -43,7 +43,6 @@ const StatusMessage = ({ responseStatus, termValue }) => (
 
 const ActionButtons = ({ responseStatus, onAddNewTerm }) => (
     <Box display='flex' gap='1rem'>
-        <Button variant='text'>Undo</Button>
         <Button startIcon={<AddOutlinedIcon />} variant='outlined' onClick={onAddNewTerm}>
             {responseStatus === 'success' ? 'Add a new term' : 'Try again'}
         </Button>
