@@ -388,6 +388,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /{group}/addTerm:
+    post:
+      summary: Used to add a new term
+      operationId: add_term
+      tags:
+        - Auth
+      description: ''
+      x-swagger-router-controller: src.server.auth
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: The group of the term to retrieve
+          schema:
+            type: string
+      requestBody:
+        description: The term to add
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Term'
+              x-body-name: term
+      responses:
+        200:
+          description: A json with new term and status response
+          content:
+            application/json:
+              type: object
+              properties:
+                status:
+                  type: string
+                terms:
+                  $ref: '#/components/schemas/Term'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /{group}/bulkEditTerms:
     post:
       summary: Used to bulk edit terms
