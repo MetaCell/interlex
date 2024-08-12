@@ -31,7 +31,7 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
-import { getOrganization } from "../../api/endpoints";
+import { getOrganization, getOrganizationCuries, getOrganizationTerms, getOrganizationOntologies } from "../../api/endpoints";
 import { vars } from "../../theme/variables";
 
 const { gray25, gray200, gray500, gray600 } = vars;
@@ -51,8 +51,11 @@ const ontologies = [
 ]
 
 const SingleOrganization = () => {
-    const [loading, setLoading] = React.useState(false);
-    const [organization, setOrganization] = React.useState(null);
+    const [loading, setLoading] = useState(false);
+    const [organization, setOrganization] = useState(null);
+    const [organizationCuries, setOrganizationCuries] = React.useState([]);
+    const [organizationTerms, setOrganizationTerms] = useState([]);
+    const [organizationOntologies, setOrganizationOntologies] = useState([]);
     const [numberOfVisiblePages, setNumberOfVisiblePages] = useState(8);
     const [listView, setListView] = useState('list');
     const [page, setPage] = useState(1);
@@ -116,10 +119,34 @@ const SingleOrganization = () => {
             .catch((error) => {
                 console.log("Error ", error)
             });
-    }, [getOrganization]);
+
+        await getOrganizationTerms(id).then((response) => {
+            console.log("Get Organization terms response ", response)
+            setOrganizationTerms(response.results)
+        })
+            .catch((error) => {
+                console.log("Error ", error)
+            });
+
+        await getOrganizationCuries(id).then((response) => {
+            console.log("Get Organization curies response ", response)
+            setOrganizationCuries(response)
+        })
+            .catch((error) => {
+                console.log("Error ", error)
+            });
+
+        await getOrganizationOntologies(id).then((response) => {
+            console.log("Get Organization ontologies response ", response)
+            setOrganizationOntologies(response)
+        })
+            .catch((error) => {
+                console.log("Error ", error)
+            });
+    }, [getOrganization, getOrganizationTerms, getOrganizationCuries, getOrganizationOntologies]);
 
     useEffect(() => {
-        getOrganizationRequest("1")
+        getOrganizationRequest("1");
     }, [getOrganizationRequest]);
 
     //change href
@@ -232,7 +259,7 @@ const SingleOrganization = () => {
                             <CircularProgress />
                         </Box> : <Grid container spacing='2.75rem'>
                             {
-                                terms.map((data, index) => (
+                                organizationTerms?.map((data, index) => (
                                     <OrganizationCard data={data} key={index} />
                                 ))
                             }
@@ -287,7 +314,7 @@ const SingleOrganization = () => {
                             <CircularProgress />
                         </Box> : <Grid container spacing='2.75rem'>
                             {
-                                ontologies.map((data, index) => (
+                                organizationOntologies?.map((data, index) => (
                                     <OrganizationCard data={data} key={index} isOntology={true} />
                                 ))
                             }

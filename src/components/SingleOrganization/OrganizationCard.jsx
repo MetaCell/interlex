@@ -34,7 +34,7 @@ const OntologyTitleSection = ({ ontology }) => {
         <Box display="flex" justifyContent="space-between" alignItems="center">
             <Stack direction="row" alignItems="center" spacing={'.75rem'}>
                 <FolderOpenOutlinedIcon />
-                <Typography variant='h6' color={gray700} className='label'>{ontology?.label}</Typography>
+                <Typography variant='h6' color={gray700} className='label'>{ontology?.name}</Typography>
             </Stack>
             <CustomButton
                 sx={{
