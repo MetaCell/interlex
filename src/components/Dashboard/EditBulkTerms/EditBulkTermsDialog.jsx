@@ -5,10 +5,12 @@ import MobileStepper from '@mui/material/MobileStepper';
 import SearchTerms from "./SearchTerms";
 import EditTerms from "./EditTerms";
 import { ArrowBack } from "@mui/icons-material";
-import StatusDialog from "./StatusDialog";
 import PropTypes from "prop-types";
 import { useState } from "react";
 import SearchTermsData from "../../../static/SearchTermsData.json";
+import StatusStep from "../../common/StatusStep";
+import { getStatusProps } from "./editBulkTermStatusProps";
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 const initialSearchConditions = { attribute: '', value: '', condition: 'where', relation: SearchTermsData.objectOptions[0].value }
 
@@ -53,11 +55,11 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
-  
+
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
-  
+
   const isAllFieldsFilled = (data) => {
     for (const item of data) {
       if (!item.attribute || !item.value || !item.condition || !item.relation) {
@@ -66,7 +68,10 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
     }
     return true;
   };
-  
+
+  // put success by default, should be changed later
+  const statusProps = getStatusProps({ success: true });
+
   return (
     <CustomizedDialog
       title='Edit bulk terms - Conditional search for term selection'
@@ -91,7 +96,7 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
           activeStep === 1 && <EditTerms searchConditions={searchConditions} />
         }
         {
-          activeStep === 2 && <StatusDialog setActiveStep={setActiveStep} />
+          activeStep === 2 && <StatusStep statusProps={statusProps} onAction={() => setActiveStep(0)} actionButtonStartIcon={<EditOutlinedIcon />} />
         }
       </>
     </CustomizedDialog>

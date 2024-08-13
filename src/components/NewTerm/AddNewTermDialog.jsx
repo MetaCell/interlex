@@ -11,6 +11,7 @@ import ImportFileTab from "./ImportFileTab";
 import NewTermSidebar from "./NewTermSidebar";
 import AddPredicatesStep from "./AddPredicatesStep";
 import StatusStep from "../common/StatusStep";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { getTermStatusProps } from "./termStatusProps";
 import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
 import * as mockApiInterlex from "../../api/endpoints/interLexURIStructureAPI";
@@ -23,24 +24,25 @@ const useMockApiInterlex = () => mockApiInterlex;
 
 const { gray100, gray200, gray400, brand700 } = vars;
 
+
 const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueButtonDisabled }) => (
     <Box display='flex' alignItems='center'>
-        {activeStep !== 2 ? (
-            <>
-                <MobileStepper
-                    variant="dots"
-                    steps={3}
-                    position="static"
-                    activeStep={activeStep}
-                    sx={{
-                        maxWidth: 64,
-                        flexGrow: 1,
-                        '& .MuiMobileStepper-dots': { gap: '0.75rem' },
-                        '& .MuiMobileStepper-dot': { margin: 0, backgroundColor: gray200 },
-                        '& .MuiMobileStepper-dotActive': { backgroundColor: brand700 }
-                    }}
-                />
-                <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
+        <>
+            <MobileStepper
+                variant="dots"
+                steps={3}
+                position="static"
+                activeStep={activeStep}
+                sx={{
+                    maxWidth: 64,
+                    flexGrow: 1,
+                    '& .MuiMobileStepper-dots': { gap: '0.75rem' },
+                    '& .MuiMobileStepper-dot': { margin: 0, backgroundColor: gray200 },
+                    '& .MuiMobileStepper-dotActive': { backgroundColor: brand700 }
+                }}
+            />
+            <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
+            {activeStep !== 2 ? (
                 <Stack direction="row" spacing={1.5}>
                     <CustomButton onClick={onClose}>Cancel</CustomButton>
                     <Button
@@ -56,10 +58,10 @@ const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueBut
                         Continue
                     </Button>
                 </Stack>
-            </>
-        ) : (
-            <Button variant="contained" onClick={onClose}>Finish</Button>
-        )}
+            ) : (
+                <Button variant="contained" onClick={onClose}>Finish</Button>
+            )}
+        </>
     </Box>
 );
 
@@ -254,7 +256,13 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                 </Box>
             )}
             {activeStep === 1 && <AddPredicatesStep termValue={termValue.charAt(0).toUpperCase() + termValue.slice(1)} predicatesOptions={predicatesOptions} />}
-            {activeStep === 2 && <StatusStep statusProps={statusProps} onAdd={handleAddNewTerm} onTryAgain={() => console.log("Try again")} onClose={handleCancelBtnClick} />}
+            {activeStep === 2 && <StatusStep
+                statusProps={statusProps}
+                onAction={handleAddNewTerm}
+                onTryAgain={() => console.log("Try again")}
+                onClose={handleCancelBtnClick}
+                actionButtonStartIcon={<AddOutlinedIcon />}
+            />}
         </CustomizedDialog>
     );
 };

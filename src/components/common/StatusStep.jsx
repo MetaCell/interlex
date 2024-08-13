@@ -1,7 +1,6 @@
 import React from "react";
 import { Box, Typography, Button } from "@mui/material";
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import { BackgroundPattern, StatusErrorBackgroundPattern, AddedSuccessfully } from "../../Icons";
+import { StatusErrorBackgroundPattern, AddedSuccessfully } from "../../Icons";
 import { vars } from "../../theme/variables";
 
 const { gray900, gray600 } = vars;
@@ -39,18 +38,18 @@ const StatusMessage = ({ message, description }) => (
 );
 
 const ActionButtons = ({
-    isAddButtonVisible,
     isTryButtonVisible,
     isCloseButtonVisible,
-    onAdd,
+    onAction,
     onTryAgain,
     onClose,
-    addButtonMessage
+    actionButtonMessage,
+    actionButtonStartIcon
 }) => (
     <Box display='flex' gap='1rem'>
         {isCloseButtonVisible && <Button variant='text' onClick={onClose}>Close</Button>}
-        {isAddButtonVisible && <Button startIcon={<AddOutlinedIcon />} variant='outlined' onClick={onAdd}>
-            {addButtonMessage}
+        {actionButtonMessage && <Button startIcon={actionButtonStartIcon} variant='outlined' onClick={onAction}>
+            {actionButtonMessage}
         </Button>}
         {isTryButtonVisible && <Button variant='outlined' onClick={onTryAgain}>
             Try Again
@@ -58,15 +57,14 @@ const ActionButtons = ({
     </Box>
 );
 
-const StatusStep = ({ statusProps, onAdd, onTryAgain, onClose }) => {
+const StatusStep = ({ statusProps, onAction, onTryAgain, onClose, actionButtonStartIcon }) => {
     const {
         statusResponse,
         successMessage,
         successDescription,
         failureMessage,
         failureDescription,
-        addButtonMessage,
-        isAddButtonVisible,
+        actionButtonMessage,
         isTryButtonVisible,
         isCloseButtonVisible,
     } = statusProps;
@@ -109,13 +107,13 @@ const StatusStep = ({ statusProps, onAdd, onTryAgain, onClose }) => {
             >
                 <StatusMessage message={message} description={description} />
                 <ActionButtons
-                    isAddButtonVisible={isAddButtonVisible}
                     isTryButtonVisible={isTryButtonVisible}
                     isCloseButtonVisible={isCloseButtonVisible}
-                    onAdd={onAdd}
+                    onAction={onAction}
                     onTryAgain={onTryAgain}
                     onClose={onClose}
-                    addButtonMessage={addButtonMessage}
+                    actionButtonMessage={actionButtonMessage}
+                    actionButtonStartIcon={actionButtonStartIcon}
                 />
             </Box>
         </Box>
