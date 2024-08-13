@@ -242,7 +242,7 @@ export const getMatchTerms = (
     term: string,
     params?: GetMatchTermsParams,
  options?: SecondParameter<typeof customInstance>,) => {
-      return customInstance<Terms>(
+      return customInstance<unknown>(
       {url: `/${group}/search/${term}`, method: 'GET',
         params
     },

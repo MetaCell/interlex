@@ -1,6 +1,7 @@
 import { mockOntologies } from "./mock/data/mockOntologies";
 import { mockOrganization, mockOrganizations } from "./mock/data/mockOrganizations";
 import { mockTerms, mockTerm } from "./mock/data/mockTerms";
+import { mockSearch } from "./mock/data/mockSearch";
 import { mockVariants } from "./mock/data/mockVariants";
 import { mockVersions } from "./mock/data/mockVersions";
 import { mockCuries } from "./mock/data/mockCuries";
@@ -201,7 +202,7 @@ module.exports = {
           // Search for specific 'term' and get all results
           get_match_terms: {
             mock: {
-              data: mockTerms,
+              data: mockSearch,
             },
             query: {
               useQuery: true,

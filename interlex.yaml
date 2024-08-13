@@ -516,8 +516,14 @@ paths:
                 type: string
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/Terms'
+              type: object
+              properties:
+                  terms:
+                    $ref: "#/components/schemas/Terms"
+                  ontologies:
+                    $ref: "#/components/schemas/Ontologies"
+                  organizations:
+                    $ref: "#/components/schemas/Organizations"
         404:
           description: unexpected error
           content:

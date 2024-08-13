@@ -121,7 +121,12 @@ export const getMatchTerms = async (term, filters = {}) => {
 
   /** Call Endpoint */
   return getMatchTerms("base", term, filters).then((data) => {
-      return termParser(data, term, filters);
+      let terms = termParser(data.terms, term, filters);
+      let organizations = data.organizations;
+      let ontologies = data.ontologies;
+      let results = {...terms, results : [...terms.results, ...organizations, ...ontologies]}
+      console.log("search ", results)
+      return results;
     })
     .catch((error) => {
       return error;
