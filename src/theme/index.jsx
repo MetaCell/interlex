@@ -830,6 +830,14 @@ const theme = createTheme({
                     
                     '&[aria-pressed="true"]': {
                         backgroundColor: gray50,
+                        color: gray800,
+                        "& .MuiSvgIcon-root": {
+                            color: gray800
+                        }
+                    },
+                    color: gray700,
+                    "& .MuiSvgIcon-root": {
+                        color: gray700
                     }
                  },
                  

@@ -17,6 +17,7 @@ import type {
   Organization,
   Organizations,
   Signup200,
+  Term,
   Terms,
   User,
   Variants,
@@ -204,6 +205,21 @@ export const getHierarchyResults = (
     }
   
 /**
+ * @summary Used to add a new term
+ */
+export const addTerm = (
+    group: string,
+    term: BodyType<Term>,
+ options?: SecondParameter<typeof customInstance>,) => {
+      return customInstance<Error>(
+      {url: `/${group}/addTerm`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: term
+    },
+      options);
+    }
+  
+/**
  * @summary Used to bulk edit terms
  */
 export const bulkEditTerms = (
@@ -356,6 +372,7 @@ export type GetOrganizationsTermsResult = NonNullable<Awaited<ReturnType<typeof 
 export type GetOrganizationsOntologiesResult = NonNullable<Awaited<ReturnType<typeof getOrganizationsOntologies>>>
 export type GetOrganizationsCuriesResult = NonNullable<Awaited<ReturnType<typeof getOrganizationsCuries>>>
 export type GetHierarchyResultsResult = NonNullable<Awaited<ReturnType<typeof getHierarchyResults>>>
+export type AddTermResult = NonNullable<Awaited<ReturnType<typeof addTerm>>>
 export type BulkEditTermsResult = NonNullable<Awaited<ReturnType<typeof bulkEditTerms>>>
 export type GetMatchTermsResult = NonNullable<Awaited<ReturnType<typeof getMatchTerms>>>
 export type GetCuriesResult = NonNullable<Awaited<ReturnType<typeof getCuries>>>
