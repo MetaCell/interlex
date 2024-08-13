@@ -8,6 +8,7 @@ const {
     gray300,
     gray600,
     gray700,
+    gray900,
     success50,
     success200,
     success500,
@@ -83,6 +84,18 @@ const theme = createTheme({
                 code span:first-child {
                     padding-top: 1.5rem;
                     border-top-left-radius: 0.75rem;
+                }
+                .messageArea {
+                    width: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    height: calc(100vh - 4.688rem);
+                    .MuiTypography-root {
+                        font-weight: 600;
+                        color: ${gray900};
+                    }
                 }
             `
         },
