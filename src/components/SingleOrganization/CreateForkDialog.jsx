@@ -1,13 +1,20 @@
 import * as React from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Stack, Button, Grid, Box, Typography } from "@mui/material";
 import CustomizedDialog from "../common/CustomizedDialog";
 import CustomInputBox from "../common/CustomInputBox";
 import CustomSelectBox from "../common/CustomSelectBox";
 import ForkRightIcon from '@mui/icons-material/ForkRight';
 import CustomAutocompleteBox from "../common/CustomAutocompleteBox";
+import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
+import termParser from "../../parsers/termParser";
+import { getOrganizations } from "../../api/endpoints";
+import { debounce } from 'lodash';
 import { vars } from "../../theme/variables";
 
 const { gray800, gray500, gray600 } = vars;
+
+const useMockApi = () => mockApi;
 
 const HeaderRightSideContent = ({ handleClose, onCreateFork }) => {
     return (
@@ -22,18 +29,33 @@ const HeaderRightSideContent = ({ handleClose, onCreateFork }) => {
     )
 }
 
-const options = [
-    { value: "1", label: "SPARC Anatomical Working Group" },
-    { value: "2", label: "SPARC" },
-    { value: "3", label: "Working Group" }
-]
-
 const CreateForkDialog = ({ open, handleClose, onSubmit }) => {
+    const { getMatchTerms } = useMockApi();
+    const [loading, setLoading] = useState(true);
+    const [termResults, setTermResults] = useState([]);
+    const [organizations, setOrganizations] = useState([]);
     const [newFork, setNewFork] = React.useState({
         term: null,
-        owner: "1",
+        owner: "",
         name: ""
     });
+
+    const fetchTerms = useCallback(
+        debounce((term) => {
+            setLoading(true);
+            getMatchTerms("base", "i", { filter: "", value: "" }).then(data => {
+                const parsedData = termParser(data, term);
+                setTermResults(parsedData.results);
+            });
+        }, 300),
+        [getMatchTerms]
+    );
+
+    const fetchOrganizations = async () => {
+        const organizations = await getOrganizations()
+        setOrganizations(organizations);
+        setLoading(false)
+    }
 
     const handleCreateFork = () => {
         onSubmit(newFork);
@@ -50,6 +72,19 @@ const CreateForkDialog = ({ open, handleClose, onSubmit }) => {
     const handleNameChange = (event) => {
         setNewFork({ ...newFork, name: event.target.value });
     };
+
+    useEffect(() => {
+        fetchTerms(newFork.term);
+        return () => {
+            fetchTerms.cancel();
+        };
+    }, [newFork.term, fetchTerms]);
+
+    useEffect(() => {
+        setLoading(true)
+        fetchOrganizations();
+    }, []);
+    
 
     return (
         <CustomizedDialog
@@ -74,6 +109,7 @@ const CreateForkDialog = ({ open, handleClose, onSubmit }) => {
                             value={newFork.term}
                             helperText="Type what term you’d like to add, then select the term in the dropdown or hit enter."
                             onChange={handleTermChange}
+                            options={termResults}
                         />
                     </Stack>
                 </Grid>
@@ -84,8 +120,9 @@ const CreateForkDialog = ({ open, handleClose, onSubmit }) => {
                             <CustomSelectBox
                                 value={newFork.owner}
                                 onChange={handleOwnerChange}
-                                options={options}
+                                options={organizations}
                                 sx={{ minWidth: "15.5rem" }}
+                                placeholder="Select fork owner"
                             />
                         </Stack>
                         <Typography sx={{ color: gray500, fontSize: "1.875rem" }}>/</Typography>

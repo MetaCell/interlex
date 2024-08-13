@@ -4,44 +4,41 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import { vars } from "../../theme/variables";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import {BackgroundPattern} from "../../Icons";
+import { BackgroundPattern } from "../../Icons";
 
 const { gray600, gray900 } = vars;
 
-const HeaderRightSideContent = ({ handleClose, handleCloseandAdd }) => {
+const HeaderRightSideContent = ({ handleClose, finishButtonTitle, finishButtonEndIcon }) => {
     return (
         <Box display='flex' alignItems='center' gap='.75rem'>
-            <Button variant='contained' color='primary' onClick={() => {
-                handleCloseandAdd();
-                handleClose();
-            }}>
-                Finish
+            <Button variant='contained' color='primary' onClick={handleClose} endIcon={finishButtonEndIcon}>
+                {finishButtonTitle}
             </Button>
         </Box>
     );
 };
 
-const StatusDialog = ({ title, message, subMessage, addButtonTitle, open, handleClose, handleCloseandAdd, image }) => {
+const StatusDialog = ({ open, handleClose, title, message, subMessage, finishButtonTitle, actionButtonTitle, handleActionButtonClick, finishButtonEndIcon, actionButtonStartIcon }) => {
     return (
         <CustomizedDialog
             title={title}
             open={open}
             handleClose={handleClose}
-            HeaderRightSideContent={<HeaderRightSideContent handleClose={handleClose} handleCloseandAdd={handleCloseandAdd} />}
+            HeaderRightSideContent={<HeaderRightSideContent handleClose={handleClose} finishButtonTitle={finishButtonTitle} finishButtonEndIcon={finishButtonEndIcon} />}
         >
             <Box display='flex' flexDirection='column' justifyContent='center' alignItems='center' height='100%' position='relative'>
-              <Box sx={{
-                width: '30rem',
-                height: '30rem',
-                objectFit: 'cover',
-                position: 'absolute',
-                top: '40%',
-                left: '50%',
-                transform: 'translate(-50%, -60%)',
-                zIndex: 1
-              }}>
-                <BackgroundPattern />
-              </Box>
+                <Box sx={{
+                    width: '30rem',
+                    height: '30rem',
+                    objectFit: 'cover',
+                    position: 'absolute',
+                    top: '40%',
+                    left: '50%',
+                    transform: 'translate(-50%, -60%)',
+                    zIndex: 1
+                }}>
+                    <BackgroundPattern />
+                </Box>
                 <Box display='flex' flexDirection='column' justifyContent='center' alignItems='center' zIndex={2} padding='2rem' sx={{
                     position: 'absolute',
                     top: '40%',
@@ -52,14 +49,15 @@ const StatusDialog = ({ title, message, subMessage, addButtonTitle, open, handle
                     <Typography mt='1.25rem' mb='.75rem' color={gray900} fontSize='1.25rem' fontWeight={600}>{message}</Typography>
                     <Typography mb='2rem' color={gray600} fontSize='1rem'>{subMessage}</Typography>
                     <Box display='flex' gap='1rem'>
-                        <Button type='text' onClick={handleClose}>Undo</Button>
-                        <Button
-                            startIcon={<AddOutlinedIcon />}
-                            variant='outlined'
-                            onClick={handleClose}
-                        >
-                            {addButtonTitle}
-                        </Button>
+                        {actionButtonTitle && (
+                            <Button
+                                startIcon={actionButtonStartIcon}
+                                variant='outlined'
+                                onClick={handleActionButtonClick}
+                            >
+                                {actionButtonTitle}
+                            </Button>
+                        )}
                     </Box>
                 </Box>
             </Box>

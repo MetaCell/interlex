@@ -67,6 +67,10 @@ const styles = {
 
 const LeaveModal = ({ open, handleClose }) => {
 
+    const handleLeaveClickButton = () => {
+        console.log("Leave button clicked!")
+    }
+
     return (
         <Modal
             open={open}
@@ -96,7 +100,7 @@ const LeaveModal = ({ open, handleClose }) => {
                 </Typography>
                 <Box display="flex" justifyContent="space-between" sx={{ padding: "1rem 1.5rem" }}>
                     <Button sx={styles.cancelBtn} onClick={handleClose}>Cancel</Button>
-                    <Button sx={styles.leaveBtn}>Leave</Button>
+                    <Button sx={styles.leaveBtn} onClick={handleLeaveClickButton}>Leave</Button>
                 </Box>
             </Box>
         </Modal>

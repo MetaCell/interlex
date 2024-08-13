@@ -5,7 +5,7 @@ import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import FolderOpenOutlinedIcon from '@mui/icons-material/FolderOpenOutlined';
 import { vars } from "../../theme/variables";
 
-const { gray500, gray700, gray200, brand600, brand200, brand50 } = vars;
+const { gray50, gray500, gray700, gray200, brand600, brand200, brand50 } = vars;
 
 const TermTitleSection = ({ term }) => {
     return (
@@ -61,7 +61,9 @@ const OrganizationCard = ({ data, isOntology }) => {
                 minHeight: '11.314rem',
                 p: '1.5rem',
                 position: 'relative',
+                borderRadius: "0.5rem",
                 '&:hover': {
+                    background: gray50,
                     '&:before': {
                         position: 'absolute',
                         top: '1.8rem',

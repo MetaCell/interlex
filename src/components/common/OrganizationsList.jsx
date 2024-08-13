@@ -75,12 +75,12 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
         organizations.map((organization, index) => (
           <ListItem key={index}>
             <Box display='flex' alignItems='center' justifyContent='space-between' width={1}>
-              <img src={organization.logo} alt={organization.title} />
+              <img src={organization.logo} alt={organization.name} />
               {
                 viewJoinButton && <Button
                   variant="outlined"
                   className="join-button"
-                  onClick={() => navigate(`/organizations/${organization.title}`)}
+                  onClick={() => navigate(`/organizations/${organization.name}`)}
                   startIcon={<PersonAddOutlinedIcon />}
                   sx={{
                     display: 'none',
@@ -93,7 +93,7 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
             </Box>
             <ListItemText primary={
               <Box display='flex' alignItems='center' justifyContent='space-between'>
-                <Typography component='span'>{organization.title}</Typography>
+                <Typography component='span'>{organization.name}</Typography>
                 {organization.link && (
                   <Link href={organization.link} display='flex'>
                     {organization.link}

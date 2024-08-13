@@ -18,12 +18,16 @@ const HeaderRightSideContent = ({ handleClose, onAddNewOntology }) => {
     )
 }
 
-const AddNewOntologyDialog = ({ open, handleClose, onSubmit }) => {
+const AddNewOntologyDialog = ({ open, handleClose }) => {
     const [openStatusDialog, setOpenStatusDialog] = React.useState(false);
     const [newOntology, setNewOntology] = React.useState({
         title: "",
         description: ""
     });
+
+    const handleSubmit = () => {
+        console.log("Submit new ontology data!");
+    }
 
     const handleNewOntologyChange = (e) => {
         const { name, value } = e.target;
@@ -34,8 +38,9 @@ const AddNewOntologyDialog = ({ open, handleClose, onSubmit }) => {
     };
 
     const handleAddNewOntology = () => {
-        onSubmit();
+        handleSubmit();
         setOpenStatusDialog(true);
+        setNewOntology({ title: "", description: "" })
     };
 
     const handleCloseStatusDialog = () => {
@@ -45,6 +50,7 @@ const AddNewOntologyDialog = ({ open, handleClose, onSubmit }) => {
     const handleFinishButtonClick = () => {
         handleClose();
         setOpenStatusDialog(false);
+        setNewOntology({ title: "", description: "" })
     }
 
     return (
@@ -95,6 +101,7 @@ const AddNewOntologyDialog = ({ open, handleClose, onSubmit }) => {
                 message={"Ontology successfully created"}
                 subMessage={"Your ontology “Nervous system” has been added. Click finish to go see the result, or add a new ontology."}
                 addButtonTitle={"Add a new ontology"}
+                finishButtonTitle={"Go to ontology"}
                 open={openStatusDialog}
                 handleClose={handleCloseStatusDialog}
                 handleCloseandAdd={handleFinishButtonClick}

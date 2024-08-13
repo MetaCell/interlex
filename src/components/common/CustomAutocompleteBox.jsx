@@ -13,8 +13,8 @@ import ListItem from '@mui/material/ListItem';
 
 const { white, brand600, gray50, gray200, gray600, gray800, gray300 } = vars;
 
-const CustomAutocompleteBox = ({ label, value, onChange, isRequired, placeholder, isEndAdornmentVisible, helperText }) => {
-    const options = [
+const CustomAutocompleteBox = ({ label, value, onChange, isRequired, placeholder, isEndAdornmentVisible, helperText, startAdornment, options }) => {
+    const defaultOptions = [
         { label: 'Nervous system1', badge: 'My Organization 1', selected: false },
         { label: 'Nervous system2', badge: 'ODC-TBI', selected: false },
         { label: 'Nervous system3', badge: 'Dk-net', selected: false },
@@ -57,7 +57,7 @@ const CustomAutocompleteBox = ({ label, value, onChange, isRequired, placeholder
                 <Autocomplete
                     disableCloseOnSelect
                     disableClearable
-                    options={options}
+                    options={options || defaultOptions}
                     open={openList}
                     onOpen={handleOpenList}
                     forcePopupIcon={false}
@@ -127,21 +127,24 @@ const CustomAutocompleteBox = ({ label, value, onChange, isRequired, placeholder
                             },
                         },
                     }}
-                    renderOption={(props, option) => (
-                        <ListItem {...props} sx={{ padding: "0.063rem 0.375rem" }}>
-                            <Box
-                                p='0.563rem 0.625rem'
-                                display='flex'
-                                justifyContent='space-between'
-                                alignItems='center'
-                                gap='.5'
-                                width={1}
-                                sx={{ "&:hover": { backgroundColor: gray50, borderRadius: "0.375rem" } }}
-                            >
-                                <Typography sx={{ color: "#3B403F", fontSize: "0.875rem" }}>{option.label}</Typography>
-                            </Box>
-                        </ListItem>
-                    )}
+                    renderOption={(props, option) => {
+                        const { key, ...otherProps } = props;
+                        return (
+                            <ListItem key={key} {...otherProps} sx={{ padding: "0.063rem 0.375rem" }}>
+                                <Box
+                                    p='0.563rem 0.625rem'
+                                    display='flex'
+                                    justifyContent='space-between'
+                                    alignItems='center'
+                                    gap='.5'
+                                    width={1}
+                                    sx={{ "&:hover": { backgroundColor: gray50, borderRadius: "0.375rem" } }}
+                                >
+                                    <Typography sx={{ color: "#3B403F", fontSize: "0.875rem" }}>{option.label}</Typography>
+                                </Box>
+                            </ListItem>
+                        )
+                    }}
                     renderInput={(params) => (
                         <TextField
                             {...params}
@@ -149,6 +152,11 @@ const CustomAutocompleteBox = ({ label, value, onChange, isRequired, placeholder
                             placeholder={placeholder}
                             InputProps={{
                                 ...params.InputProps,
+                                startAdornment: startAdornment ? (
+                                    <InputAdornment position="start">
+                                        {startAdornment}
+                                    </InputAdornment>
+                                ) : null,
                                 endAdornment: isEndAdornmentVisible ? (
                                     <InputAdornment position="end">
                                         <HelpOutlinedIcon />

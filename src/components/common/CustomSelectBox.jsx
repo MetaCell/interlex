@@ -5,7 +5,7 @@ import { vars } from '../../theme/variables';
 
 const { white, gray200, gray300, gray500, gray600, gray700, gray800 } = vars;
 
-const CustomSelectBox = ({ isRequired, label, value, onChange, options, sx }) => {
+const CustomSelectBox = ({ isRequired, label, value, onChange, options, sx, placeholder }) => {
 
     return (
         <div>
@@ -16,10 +16,14 @@ const CustomSelectBox = ({ isRequired, label, value, onChange, options, sx }) =>
             <FormControl sx={sx}>
                 <Select
                     id="demo-controlled-select"
+                    displayEmpty
                     value={value}
                     onChange={onChange}
                     IconComponent={KeyboardArrowDownIcon}
                     className="custom-select"
+                    renderValue={
+                        value !== "" ? undefined : () => <Typography sx={{ fontSize: "0.875rem", color: gray500 }}>{placeholder}</Typography>
+                    }
                     MenuProps={{
                         PaperProps: {
                             sx: {
@@ -60,7 +64,7 @@ const CustomSelectBox = ({ isRequired, label, value, onChange, options, sx }) =>
                     }}
                 >
                     {
-                        options?.map((option, i) => <MenuItem key={i} value={typeof option === 'object' ? option.value : option}>{typeof option === 'object' ? option.label : option}</MenuItem>)
+                        options?.map((option, i) => <MenuItem key={i} value={typeof option === 'object' ? option.name : option}>{typeof option === 'object' ? option.name : option}</MenuItem>)
                     }
                 </Select>
             </FormControl>

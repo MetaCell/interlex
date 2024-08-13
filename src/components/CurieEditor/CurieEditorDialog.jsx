@@ -3,6 +3,7 @@ import { Box, Button } from "@mui/material";
 import CustomizedDialog from "../common/CustomizedDialog";
 import { EditNoteIcon } from "../../Icons";
 import StatusDialog from "../common/StatusDialog";
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 
 const HeaderRightSideContent = ({ handleClose, onSaveCuries }) => {
@@ -17,7 +18,7 @@ const HeaderRightSideContent = ({ handleClose, onSaveCuries }) => {
     )
 }
 
-const CurieEditorDialog = ({ open, handleClose, onSubmit, children }) => {
+const CurieEditorDialog = ({ open, handleClose, onSubmit, isFromOrganization, children }) => {
     const [openStatusDialog, setOpenStatusDialog] = React.useState(false);
 
     const handleSaveCuries = () => {
@@ -29,14 +30,13 @@ const CurieEditorDialog = ({ open, handleClose, onSubmit, children }) => {
         setOpenStatusDialog(false)
     }
 
-    const handleFinishButtonClick = () => {
-        handleClose();
+    const handleStatusDialogActionButtonClick = () => {
         setOpenStatusDialog(false);
     }
 
     return (
         <>
-            <CustomizedDialog title='Curie editor' open={open} handleClose={handleClose}
+            <CustomizedDialog title={isFromOrganization ? "Curie editor - organization" : "Curie editor"} open={open} handleClose={handleClose}
                 HeaderRightSideContent={
                     <HeaderRightSideContent
                         handleClose={handleClose}
@@ -47,13 +47,16 @@ const CurieEditorDialog = ({ open, handleClose, onSubmit, children }) => {
                 {children}
             </CustomizedDialog>
             <StatusDialog
-                title={"Curie editor"}
-                message={"Curies edits successfully submitted"}
-                subMessage={"Your changes has been applied. Click finish to exit the flow, or resume editing."}
-                addButtonTitle={"Edit curies"}
                 open={openStatusDialog}
                 handleClose={handleCloseStatusDialog}
-                handleCloseandAdd={handleFinishButtonClick}
+                title={isFromOrganization ? "Curie editor - organization" : "Curie editor"}
+                message={"Curies edits successfully submitted"}
+                subMessage={"Your changes has been applied. Go to curie or keep editing."}
+                finishButtonTitle={"Go to curie"}
+                actionButtonTitle={"Edit curies"}
+                handleActionButtonClick={handleStatusDialogActionButtonClick}
+                finishButtonEndIcon={<ArrowForwardIcon />}
+                actionButtonStartIcon={<EditNoteIcon />}
             />
         </>
     )
