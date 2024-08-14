@@ -102,10 +102,10 @@ const PredicatesAccordion = ({ data, expandAllPredicates }) => {
                 onChange={onToggleButtonChange(index)}
               >
                 <ToggleButton value={'tableView'}>
-                  <ExpandIcon />
+                  <TableChartIcon />
                 </ToggleButton>
                 <ToggleButton value={'graphView'}>
-                  <RemoveIcon />
+                  <GraphIcon />
                 </ToggleButton>
               </ToggleButtonGroup>
             </Stack>
