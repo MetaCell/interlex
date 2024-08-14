@@ -30,7 +30,7 @@ const columns = [
   { "id": "label", "label": "Label", "minWidth": 300, "visibility": true },
   { "id": "organization", "label": "Organization", "minWidth": 150, "visibility": false },
   { "id": "description", "label": "Description", "minWidth": 300, "visibility": true, "sortable": false },
-  { "id": "existingID", "label": "Existing IDs", "minWidth": 300, "visibility": false },
+  { "id": "existingIDs", "label": "Existing IDs", "minWidth": 300, "visibility": false },
   { "id": "type", "label": "Type", "minWidth": 150, "visibility": false },
   { "id": "subClassOf", "label": "Superclass", "minWidth": 150, "visibility": false },
   { "id": "synonym", "label": "Has exact synonym", "minWidth": 300, "visibility": false },
