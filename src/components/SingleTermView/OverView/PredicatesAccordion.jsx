@@ -14,11 +14,10 @@ import CustomizedTable from "./CustomizedTable";
 import ViewDiagramDialog from "./ViewDiagramDialog";
 import { useQuery } from "../../../helpers";
 import Graph from "../../GraphViewer/Graph";
-import ExpandIcon from "@mui/icons-material/Expand";
-import RemoveIcon from "@mui/icons-material/Remove";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CallMadeIcon from '@mui/icons-material/CallMade';
 import { FullscreenOutlined } from "@mui/icons-material";
+import { TableChartIcon, GraphIcon } from "../../../Icons";
 import { vars } from "../../../theme/variables";
 
 const { gray600 } = vars;
