@@ -6,6 +6,7 @@
  */
 
 export * from './addToDiscussion200';
+export * from './bulkEditTerms200';
 export * from './curie';
 export * from './curies';
 export * from './defaultTerm';
@@ -33,10 +34,13 @@ export * from './organizationTerms';
 export * from './organizationTermsItem';
 export * from './organizations';
 export * from './parseErrorResponse';
+export * from './patchTerm200';
+export * from './patchTerm201';
 export * from './predicate';
 export * from './predicates';
 export * from './review';
 export * from './reviews';
+export * from './signup200';
 export * from './term';
 export * from './termContext';
 export * from './termGraphItemItem';

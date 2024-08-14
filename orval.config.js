@@ -4,8 +4,9 @@ import { mockTerms, mockTerm } from "./mock/data/mockTerms";
 import { mockVariants } from "./mock/data/mockVariants";
 import { mockVersions } from "./mock/data/mockVersions";
 import { mockCuries } from "./mock/data/mockCuries";
-import { mockUser } from "./mock/data/mockUser";
+import { mockSignup, mockUser } from "./mock/data/mockUser";
 import { mockForks } from "./mock/data/mockForks";
+import { mockPatchBulkTermsResponse, mockPatchTermResponse } from "./mock/data/mockPatchTermResponse";
 
 module.exports = {
   uri: {
@@ -47,6 +48,11 @@ module.exports = {
           get_endpoints_ilx: {
             mock: {
               data: mockTerm,
+            },
+          },
+          patch_endpoints_ilx: {
+            mock: {
+              data: mockPatchTermResponse,
             },
           },
           get_endpoints_ilx_get: {
@@ -114,13 +120,9 @@ module.exports = {
               }),
             },
           },
-          register: {
+          signup: {
             mock: {
-              data: () => ({
-                status: 200,
-                token: "",
-                username: ""
-              }),
+              data: mockSignup
             },
           },
           new_organization: {
@@ -186,6 +188,16 @@ module.exports = {
               data: mockOntologies,
             },
           },
+          bulk_edit_terms: {
+            mock: {
+              data: mockPatchBulkTermsResponse
+            },
+          },
+          add_term: {
+            mock: {
+              data: mockPatchTermResponse
+            },
+          },
           // Search for specific 'term' and get all results
           get_match_terms: {
             mock: {
@@ -198,43 +210,6 @@ module.exports = {
               useInfinite: true,
               useInfiniteQueryParam: ['filter', "value"],
             },
-          },
-        },
-        /** TODO : New endpoint missing to retrieve hierarchy (relationships)
-         * Suggestion, return array of objects, with indexes determining hierarchies.
-         * */
-        get_hierarchy: {
-          mock: {
-            data: () => [],
-          },
-        },
-        // TODO : Existing endpoint but missing operation, edits exising fragments
-        add_fragment: {
-          mock: {
-            data: () => ({
-              status_code: 200,
-              message: "",
-            }),
-          },
-        },
-        // TODO : Missing endpoint and missing operation. Different than add_fragment?
-        add_term: {
-          mock: {
-            data: () => ({
-              status_code: 200,
-              message: "",
-            }),
-          },
-        },
-        /** TODO : Missing endpoint and operation.
-         * Use case, edit multiple terms at once.
-         * */
-        bulk_edit_terms: {
-          mock: {
-            data: () => ({
-              status_code: 200,
-              message: "",
-            }),
           },
         },
         /** TODO : Missing endpoint and operation.

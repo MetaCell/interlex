@@ -17,8 +17,7 @@ import ViewDiagramDialog from "./ViewDiagramDialog";
 import { useQuery } from "../../../helpers";
 import Graph from "../../GraphViewer/Graph";
 import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
-import ExpandIcon from "@mui/icons-material/Expand";
-import RemoveIcon from "@mui/icons-material/Remove";
+import { TableChartIcon, GraphIcon } from "../../../Icons";
 
 const { gray600 } = vars;
 
@@ -105,10 +104,10 @@ const PredicatesAccordion = ({ data, expandAllPredicates }) => {
                 onChange={onToggleButtonChange(index)}
               >
                 <ToggleButton value={'tableView'}>
-                  <ExpandIcon />
+                  <TableChartIcon />
                 </ToggleButton>
                 <ToggleButton value={'graphView'}>
-                  <RemoveIcon />
+                  <GraphIcon />
                 </ToggleButton>
               </ToggleButtonGroup>
             </Stack>

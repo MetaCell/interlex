@@ -52,18 +52,29 @@ paths:
       summary: Register to OpenAPI space
       description: ''
       x-swagger-router-controller: src.server.auth
-      operationId: register
-      parameters:
-        - name: body
-          in: body
-          description: registration details
-          schema:
-            $ref: "#/definitions/Registration"
+      operationId: signup
+      requestBody:
+        description: The user to register.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+              x-body-name: user
       responses:
         200:
-          description: registration successful
-          schema:
-            $ref: "#/definitions/LoginToken"
+          description: The User data was saved.
+          content:
+            application/json:
+              schema:
+                type : object
+                properties:
+                  status:
+                    type: string
+                    example: 200
+                  user:
+                    schema:
+                      $ref: "#/definitions/User"
         409:
           description: username or email taken
           schema:
@@ -179,14 +190,6 @@ paths:
           description: The id of the organization to retrieve
           schema:
             type: string
-      requestBody:
-        description: The organization to retrieve.
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Organization'
-              x-body-name: organization
       responses:
         200:
           description: The organization data were saved.
@@ -385,6 +388,86 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /{group}/addTerm:
+    post:
+      summary: Used to add a new term
+      operationId: add_term
+      tags:
+        - Auth
+      description: ''
+      x-swagger-router-controller: src.server.auth
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: The group of the term to retrieve
+          schema:
+            type: string
+      requestBody:
+        description: The term to add
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Term'
+              x-body-name: term
+      responses:
+        200:
+          description: A json with new term and status response
+          content:
+            application/json:
+              type: object
+              properties:
+                status:
+                  type: string
+                terms:
+                  $ref: '#/components/schemas/Term'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /{group}/bulkEditTerms:
+    post:
+      summary: Used to bulk edit terms
+      operationId: bulk_edit_terms
+      tags:
+        - Auth
+      description: ''
+      x-swagger-router-controller: src.server.auth
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: The group of the term to retrieve
+          schema:
+            type: string
+      requestBody:
+        description: The terms to save.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Terms'
+              x-body-name: terms
+      responses:
+        200:
+          description: A paged array of terms
+          content:
+            application/json:
+              type: object
+              properties:
+                status:
+                  type: string
+                terms:
+                  $ref: '#/components/schemas/Terms'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /{group}/search/{term}: 
     get:
       summary: List all matching terms
@@ -435,149 +518,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Terms'
-                example : [
-                            {
-                              "@context": {
-                                "owl": "http://www.w3.org/2002/07/owl#",
-                                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-                                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-                                "xsd": "http://www.w3.org/2001/XMLSchema#"
-                              },
-                              "@graph": [
-                                {
-                                  "@id": "http://uri.interlex.org/base/ilx_0101431",
-                                  "http://uri.interlex.org/tgbugs/uris/readable/hasIlxId": {
-                                    "@id": "http://uri.interlex.org/base/ilx_0101431"
-                                  },
-                                  "http://uri.interlex.org/tgbugs/uris/readable/hasIlxPreferredId": {
-                                    "@id": "http://uri.interlex.org/base/ilx_0101431"
-                                  },
-                                  "http://uri.interlex.org/tgbugs/uris/readable/owlEquivalent": "owlEquivalent",
-                                  "http://uri.interlex.org/tgbugs/uris/readable/lastModify": "lastModify",
-                                  "http://uri.interlex.org/tgbugs/uris/readable/lastModifyBy": "lastModifyBy",
-                                  "http://uri.interlex.org/tgbugs/uris/readable/submittedBy": "submittedBy"
-                                },
-                                {
-                                  "@id": "http://uri.interlex.org/base/ontologies/ilx_0101431",
-                                  "@type": "owl:Ontology",
-                                  "http://purl.obolibrary.org/obo/IAO_0000136": {
-                                    "@id": "http://uri.interlex.org/base/ilx_0101431"
-                                  },
-                                  "owl:versionIRI": {
-                                    "@id": "http://uri.interlex.org/base/ontologies/ilx_0101431/version/1717611398/ilx_0101431"
-                                  },
-                                  "owl:versionInfo": "2024-06-05T18:16:38,089335Z",
-                                  "rdfs:comment": "InterLex single term result for base/ilx_0101431 at 2024-06-05T18:16:38,089335Z"
-                                },
-                                {
-                                  "@id": "http://purl.obolibrary.org/obo/UBERON_0000955",
-                                  "@type": "owl:Class",
-                                  "http://purl.obolibrary.org/obo/IAO_0000115": "The part of the central nervous system contained within the cranium, comprising the forebrain, midbrain, hindbrain, and metencephalon. It is derived from the anterior part of the embryonic neural tube (or the encephalon). Does not include retina. (CUMBO)The rostral topographic division of the cerebrospinal axis, while the caudal division is the spinal cord. The usual criterion for distinguishing the two divisions in the adult is that the vertebrate brain lies within the skull whereas the spinal cord lies within the spinal (vertebral) column, although this is a difficult problem. (Swanson, 2014)",
-                                  "http://uri.interlex.org/base/ilx_0112784": {
-                                    "@id": "http://uri.interlex.org/base/ilx_0102661"
-                                  },
-                                  "http://uri.interlex.org/base/ilx_0112785": {
-                                    "@id": "http://uri.interlex.org/base/ilx_0101999"
-                                  },
-                                  "http://uri.interlex.org/base/ilx_0112796": {
-                                    "@id": "http://uri.interlex.org/base/ilx_0101901"
-                                  },
-                                  "http://uri.interlex.org/base/readable/synonym": [
-                                    "Encephalon",
-                                    "synganglion",
-                                    "the brain",
-                                    "suprasegmental levels of nervous system",
-                                    "suprasegmental structures"
-                                  ],
-                                  "http://uri.interlex.org/tgbugs/uris/readable/MISSING_ILX_ID": true,
-                                  "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId": [
-                                    {
-                                      "@id": "http://uri.neuinfo.org/nif/nifstd/birnlex_796"
-                                    },
-                                    {
-                                      "@id": "http://purl.org/sig/ont/fma/fma50801"
-                                    },
-                                    {
-                                      "@id": "http://purl.obolibrary.org/obo/UBERON_0000955"
-                                    }
-                                  ],
-                                  "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization",
-                                  "http://uri.interlex.org/tgbugs/uris/readable/status": "Approved",
-                                  "rdfs:label": "Brain",
-                                  "rdfs:subClassOf": {
-                                    "@id": "http://uri.interlex.org/base/ilx_0108124"
-                                  }
-                                }
-                              ]
-                            },
-                            {
-                              "@context": {
-                                "owl": "http://www.w3.org/2002/07/owl#",
-                                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-                                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-                                "xsd": "http://www.w3.org/2001/XMLSchema#"
-                              },
-                              "@graph": [
-                                {
-                                  "@id": "http://uri.interlex.org/base/ilx_0105177",
-                                  "http://uri.interlex.org/tgbugs/uris/readable/hasIlxId": {
-                                    "@id": "http://uri.interlex.org/base/ilx_0105177"
-                                  },
-                                  "http://uri.interlex.org/tgbugs/uris/readable/hasIlxPreferredId": {
-                                    "@id": "http://uri.interlex.org/base/ilx_0105177"
-                                  },
-                                  "http://uri.interlex.org/tgbugs/uris/readable/owlEquivalent": "owlEquivalent",
-                                  "http://uri.interlex.org/tgbugs/uris/readable/lastModify": "lastModify",
-                                  "http://uri.interlex.org/tgbugs/uris/readable/lastModifyBy": "lastModifyBy",
-                                  "http://uri.interlex.org/tgbugs/uris/readable/submittedBy": "submittedBy"
-                                },
-                                {
-                                  "@id": "http://uri.interlex.org/base/ontologies/ilx_0105177",
-                                  "@type": "owl:Ontology",
-                                  "http://purl.obolibrary.org/obo/IAO_0000136": {
-                                    "@id": "http://uri.interlex.org/base/ilx_0105177"
-                                  },
-                                  "owl:versionIRI": {
-                                    "@id": "http://uri.interlex.org/base/ontologies/ilx_0105177/version/1717612168/ilx_0105177"
-                                  },
-                                  "owl:versionInfo": "2024-06-05T18:29:28,829272Z",
-                                  "rdfs:comment": "InterLex single term result for base/ilx_0105177 at 2024-06-05T18:29:28,829272Z"
-                                },
-                                {
-                                  "@id": "http://purl.obolibrary.org/obo/UBERON_0001898",
-                                  "@type": "owl:Class",
-                                  "http://purl.obolibrary.org/obo/IAO_0000115": "Ventral part of the diencephalon extending from the region of the optic chiasm to the caudal border of the mammillary bodies and forming the inferior and lateral walls of the third ventricle.The ventral topographic division of the interbrain. The first adequate description of the hypothalamus as a layer of gray matter surrounding the lower half of the third ventricle (Galen, c173) was provided by Wharton (1656, see 1966 translation, p. 170). His (1893, pp. 159-162) introduced the term but assigned the preoptic region (Swanson, 1976, pp. 229-235) of the hypothalamus to the telencephalon (His, 1893b). The definition here was introduced for vertebrates by Kuhlenbeck (1927, p. 67, Ch. 9).",
-                                  "http://uri.interlex.org/base/ilx_0112785": {
-                                    "@id": "http://uri.interlex.org/base/ilx_0103217"
-                                  },
-                                  "http://uri.interlex.org/base/readable/synonym": [
-                                    "Preoptico-hypothalamic area",
-                                    "Hypencephalon",
-                                    "Hy",
-                                    "hypothalamus",
-                                    "Preoptico-hypothalamic region"
-                                  ],
-                                  "http://uri.interlex.org/tgbugs/uris/readable/MISSING_ILX_ID": true,
-                                  "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId": [
-                                    {
-                                      "@id": "http://purl.org/sig/ont/fma/fma62008"
-                                    },
-                                    {
-                                      "@id": "http://uri.neuinfo.org/nif/nifstd/birnlex_734"
-                                    },
-                                    {
-                                      "@id": "http://purl.obolibrary.org/obo/UBERON_0001898"
-                                    }
-                                  ],
-                                  "http://uri.interlex.org/tgbugs/uris/readable/organization": "My Organization 2",
-                                  "http://uri.interlex.org/tgbugs/uris/readable/status": "Edit",
-                                  "rdfs:label": "Hypothalamus",
-                                  "rdfs:subClassOf": {
-                                    "@id": "http://uri.interlex.org/base/ilx_0109835"
-                                  }
-                                }
-                              ]
-                            }]
         404:
           description: unexpected error
           content:
@@ -964,6 +904,26 @@ definitions:
         type: string
       status:
         type: string
+  Term:
+      type: object
+      required:
+        - "@context"
+        - "@graph":
+      properties:
+        "@context":
+          type: object
+          additionalProperties: 
+            type: string
+            format: uri,
+            example: "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        "@graph":
+          type: array
+          items:
+            type: array
+            items:
+              type: object
+              additionalProperties: 
+                type: string
   LoginToken:
     type: object
     properties:
@@ -974,6 +934,52 @@ definitions:
         type: string
       status:
         type: string
+  User:
+      type: object
+      required:
+        - name
+        - lastName
+        - role
+        - creationDate
+        - email
+        - organization
+      properties:
+        id:
+          description: Unique identifier
+          type: string
+          example: 'JD10101987'
+        name:
+          description: Name
+          type: string
+          example: 'oliva'
+        lastName:
+          description: Last Name
+          type: string
+          example: 'orhye'
+        organization:
+          description: organization
+          type: string
+          example: 'organization'
+        orcid:
+          description: ORCID ID
+          type: string
+          example: 'JD10101987'
+        active:
+          description: active user or not
+          type: boolean
+          example: true
+        role:
+          description: User Role
+          type: string
+          example: 'curator'
+        email:
+          description: Email
+          type: string
+          example: 'curator@interlex.ucsd.edu'
+        creationDate:
+          description: Date User was created
+          type: string
+          format: 'date-time'
 components:
   schemas:
     DefaultTerm:
@@ -1132,19 +1138,32 @@ components:
     User:
       type: object
       required:
-        - id
         - name
-        - username
+        - lastName
         - role
-        - creation_date
+        - creationDate
         - email
-        - actions
-        - term_variants
-        - merge_reviews
-        - organizations
+        - password
+        - organization
       properties:
         id:
           description: Unique identifier
+          type: string
+          example: 'JD10101987'
+        name:
+          description: Name
+          type: string
+          example: 'oliva'
+        lastName:
+          description: Last Name
+          type: string
+          example: 'orhye'
+        organization:
+          description: organization
+          type: string
+          example: 'organization'
+        password:
+          description: Password
           type: string
           example: 'JD10101987'
         username:
@@ -1171,21 +1190,7 @@ components:
           description: Total Actions
           type: string
           example: '96'
-        name:
-          description: Object that specify given and family name
-          type: array
-          items:
-            type: object
-            properties:
-              given:
-                description: given name
-                type: string
-                example: 'John'
-              family:
-                description: family name
-                type: string
-                example: 'Doe'
-        creation_date:
+        creationDate:
           description: Date User was created
           type: string
           format: 'date-time'
