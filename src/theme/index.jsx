@@ -91,7 +91,7 @@ const theme = createTheme({
                     flex-direction: column;
                     justify-content: center;
                     align-items: center;
-                    height: calc(100vh - 4.688rem);
+                    height: calc(100vh - 6.875rem);
                     .MuiTypography-root {
                         font-weight: 600;
                         color: ${gray900};
