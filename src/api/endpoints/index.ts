@@ -147,7 +147,7 @@ export const addTerm = async (group, term) => {
   /** Call Endpoint */
   return addTerm(group, term).then((data) => {
       console.log("add term response ", data)
-      return data;
+      return termParser(data.data, undefined);
     })
     .catch((error) => {
       return error;
@@ -198,7 +198,7 @@ export const getExistingIDs = async () => {
   return getMatchTerms("base", "*").then((data) => {
       const terms =  termParser(data, undefined);
       let existingIds = terms?.results?.map( term => term.id?.split("/").pop() );
-      return existingIds;
+      return terms?.results?.[0]?.id != undefined ? existingIds : [];
     })
     .catch((error) => {
       return error;

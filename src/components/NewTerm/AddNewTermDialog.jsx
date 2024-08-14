@@ -12,26 +12,40 @@ import ImportFileTab from "./ImportFileTab";
 import NewTermSidebar from "./NewTermSidebar";
 import AddPredicatesStep from "./AddPredicatesStep";
 import TermStatusStep from "./TermStatusStep";
+import { addTerm } from "../../api/endpoints";
 import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
 import * as mockApiInterlex from "../../api/endpoints/interLexURIStructureAPI";
 import { termParser } from "../../../src/parsers/termParser";
-import { getExistingIDs } from "../../api/endpoints";
+import { getExistingIDs, getUser } from "../../api/endpoints";
 import { debounce } from 'lodash';
 
 const useMockApi = () => mockApi;
 const useMockApiInterlex = () => mockApiInterlex;
 
-const { gray100, gray200, gray400, brand700 } = vars;
+const { gray100, gray200, gray400, brand700, gray800, gray700 } = vars;
 
 const initialFormState = {
-    label: '',
-    age: '',
-    synonyms: '',
-    superclass: '',
-    existingId: null,
-    urls: '',
-    description: '',
-    comment: ''
+    label: "",
+    synonyms: [],
+    superClass: "",
+    existingIDs: [],
+    isDefinedBy: "",
+    description: "",
+    comment: ""
+}
+
+const formatIdText = (termId) => {
+    const [prefix, suffix] = termId.split('_');
+    return (
+        <div>
+            <span style={{ fontSize: '1rem', fontWeight: 500, color: gray800 }}>
+                {prefix.toUpperCase()}:
+            </span>
+            <span style={{ fontSize: '1rem', fontWeight: 400, color: gray700 }}>
+                {suffix}
+            </span>
+        </div>
+    );
 }
 
 const HeaderRightSideContent = ({ activeStep, onContinue, onClose, onGoToTermClick, isContinueButtonDisabled }) => (
@@ -92,6 +106,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const [files, setFiles] = useState([]);
     const [url, setUrl] = useState('');
     const [formState, setFormState] = useState(initialFormState);
+    const [newTermId, setNewTermId] = useState("");
 
     const memoData = useMemo(() => data, [data]);
 
@@ -115,13 +130,19 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         [getEndpointsIlx, getMatchTerms]
     );
 
+    const addTermRequest = useCallback(async (group, term) => {
+        await addTerm("base", term).then((response) => {
+            console.log("Term added ", response)
+            setNewTermId(response.results[0].id.split("/").pop())
+        })
+            .catch((error) => {
+                console.log("Error ", error)
+            });
+    }, [addTerm]);
+
     const handleChangeTabs = (_, newValue) => setTabValue(newValue);
     const handleContinueClick = () => {
         setActiveStep(activeStep + 1);
-        if (activeStep === 2) {
-            console.log("POST: here connect to post request")
-            //here we change status as well according to api response
-        }
     }
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
     const handleMatchesChange = (e) => setAreMatchesChecked(e.target.checked);
@@ -143,12 +164,19 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         }));
     };
 
-    const handleAutocompleteChange = (event, value) => {
+    const handleExistingIDsChange = (event, value) => {
         setFormState((prevState) => ({
             ...prevState,
-            existingId: value
+            existingIDs: value
         }));
     };
+
+    const handleSynonymsChange = (value) => {
+        setFormState((prevState) => ({
+            ...prevState,
+            synonyms: value
+        }));
+    }
 
     const handleChangeUrl = (event) => {
         setUrl(event.target.value);
@@ -188,16 +216,20 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         }
     }, [memoData]);
 
-    const fetchIds = async () => {
+    const getIds = useCallback(debounce(async () => {
         const ids = await getExistingIDs();
-        setIds(ids);
-        console.log("getExistingIDs ", ids)
-    }
+        setIds(ids)
+    }), [getUser]);
 
     useEffect(() => {
-        if (ids.length > 0) return;
-        fetchIds()
-    }, [fetchIds])
+        getIds();
+    }, [])
+
+    useEffect(() => {
+        if (activeStep === 2) {
+            addTermRequest("base", formState)
+        }
+    }, [addTermRequest, formState, activeStep]);
 
     const predicatesOptions = predicates.map(row => ({
         label: row.title,
@@ -207,6 +239,8 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const isResultsEmpty = termResults.length === 0;
     const isLabelEmpty = formState.label === "";
     const isContinueButtonDisabled = !areMatchesChecked || isLabelEmpty
+    const formattedNewTermId = formatIdText(newTermId);
+
 
     return (
         <CustomizedDialog
@@ -236,8 +270,9 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                                 matchesChecked={areMatchesChecked}
                                 handleMatchesChange={handleMatchesChange}
                                 isResultsEmpty={isResultsEmpty}
-                                existingIdsOptions={ids}
-                                onExistingIdChange={handleAutocompleteChange}
+                                existingIDsOptions={ids}
+                                onExistingIDsChange={handleExistingIDsChange}
+                                onSynonymsChange={handleSynonymsChange}
                             />
                         )}
                         {tabValue === 1 && <ImportFileTab files={files} url={url} onFilesChange={handleFilesSelected} onChangeUrl={handleChangeUrl} />}
@@ -246,7 +281,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                 </Box>
             )}
             {activeStep === 1 && <AddPredicatesStep termValue={termValue.charAt(0).toUpperCase() + termValue.slice(1)} predicatesOptions={predicatesOptions} />}
-            {activeStep === 2 && <TermStatusStep responseStatus={responseStatus} termValue={termValue.charAt(0).toUpperCase() + termValue.slice(1)} onAddNewTerm={handleAddNewTerm} />}
+            {activeStep === 2 && <TermStatusStep responseStatus={responseStatus} termValue={termValue.charAt(0).toUpperCase() + termValue.slice(1)} additionalInfo={formattedNewTermId} onAddNewTerm={handleAddNewTerm} />}
         </CustomizedDialog>
     );
 };

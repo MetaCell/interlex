@@ -4,7 +4,7 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { BackgroundPattern, StatusErrorBackgroundPattern } from "../../Icons";
 import { vars } from "../../theme/variables";
 
-const { gray900, gray600 } = vars;
+const { gray900, gray600, gray700 } = vars;
 
 const StatusBackground = ({ responseStatus }) => (
     <Box
@@ -23,7 +23,7 @@ const StatusBackground = ({ responseStatus }) => (
     </Box>
 );
 
-const StatusMessage = ({ responseStatus, termValue }) => (
+const StatusMessage = ({ responseStatus, termValue, additionalInfo }) => (
     <Box
         display='flex'
         flexDirection='column'
@@ -33,11 +33,12 @@ const StatusMessage = ({ responseStatus, termValue }) => (
         <Typography mt='1.25rem' mb='.75rem' color={gray900} fontSize='1.25rem' fontWeight={600}>
             {responseStatus === 'success' ? 'Term successfully created' : 'Unable to create the term'}
         </Typography>
-        <Typography mb='2rem' color={gray600} fontSize='1rem' sx={{ maxWidth: "21.875rem", textAlign: "center" }}>
+        <Typography mb='1.25rem' color={gray600} fontSize='1rem' sx={{ maxWidth: "21.875rem", textAlign: "center" }}>
             {responseStatus === 'success'
                 ? `Your term “${termValue}” has been added. Go to your term or add a new one..`
                 : `Your term ${termValue} can’t be added. Cancel or try again.`}
         </Typography>
+        <Typography mb="2rem" sx={{ color: gray700 }}>{additionalInfo}</Typography>
     </Box>
 );
 
@@ -49,7 +50,7 @@ const ActionButtons = ({ responseStatus, onAddNewTerm }) => (
     </Box>
 );
 
-const TermStatusStep = ({ responseStatus, termValue, onAddNewTerm }) => (
+const TermStatusStep = ({ responseStatus, termValue, onAddNewTerm, additionalInfo }) => (
     <Box
         display='flex'
         flexDirection='column'
@@ -73,7 +74,7 @@ const TermStatusStep = ({ responseStatus, termValue, onAddNewTerm }) => (
                 transform: 'translate(-50%, -10%)',
             }}
         >
-            <StatusMessage responseStatus={responseStatus} termValue={termValue} />
+            <StatusMessage responseStatus={responseStatus} termValue={termValue} additionalInfo={additionalInfo} />
             <ActionButtons responseStatus={responseStatus} onAddNewTerm={onAddNewTerm} />
         </Box>
     </Box>
