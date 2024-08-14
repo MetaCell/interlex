@@ -1,7 +1,3 @@
-import { mockOntologies } from "./mockOntologies"
-import { mockOrganizations } from "./mockOrganizations"
-import { mockTerms } from "./mockTerms"
-
 export const mockSearch = () => { 
     return {
         terms :  [
@@ -851,7 +847,7 @@ export const mockSearch = () => {
                 }
               ]
             } 
-            ],
+        ],
         ontologies : [{
             name : "Test Ontology 1",
             description : "This file imports all the bridging modules that are relating NIF-Cell with other NIF  modules",

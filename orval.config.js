@@ -202,7 +202,7 @@ module.exports = {
           // Search for specific 'term' and get all results
           get_match_terms: {
             mock: {
-              data: mockSearch,
+              data: mockTerms,
             },
             query: {
               useQuery: true,
@@ -212,6 +212,18 @@ module.exports = {
               useInfiniteQueryParam: ['filter', "value"],
             },
           },
+          search_all :{
+            mock : {
+              data : mockSearch
+            },
+            query: {
+              useQuery: true,
+              useSuspenseQuery: true,
+              useSuspenseInfiniteQuery: true,
+              useInfinite: true,
+              useInfiniteQueryParam: ['filter', "value"],
+            },
+          }
         },
         /** TODO : Missing endpoint and operation.
          * Use case, download all ontologies.

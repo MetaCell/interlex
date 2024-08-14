@@ -1,7 +1,7 @@
 import { Box, Button, Divider, IconButton, TextField, Autocomplete, InputAdornment, Typography, Chip } from "@mui/material";
 import { vars } from "../../theme/variables";
 import { useEffect, useState, useCallback } from 'react';
-import {getMatchTerms} from "../../api/endpoints";
+import {searchAll} from "../../api/endpoints";
 import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -77,9 +77,9 @@ const Search = () => {
   }, [handleKeyDown]);
   
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
-    const data = await getMatchTerms(searchTerm);
+    const data = await searchAll(searchTerm);
     setTerms(data?.results);
-  }, 500), [getMatchTerms]);
+  }, 500), [searchAll]);
   
   useEffect(() => {
     if (searchTerm && (storedSearchTerm !== searchTerm)) {
@@ -130,7 +130,7 @@ const Search = () => {
             },
           }} {...props}>
             <TermsIcon />
-            <Typography variant='body1'>{option?.label}</Typography>
+            <Typography variant='body1'>{option?.label || option?.name}</Typography>
             <Typography variant='body2'>{option?.submittedBy}</Typography>
             {selected ? <Chip label="Fork" variant='outlined' color='success' /> : <Chip label="Curated" variant='outlined' />}
             <Button

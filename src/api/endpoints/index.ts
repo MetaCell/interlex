@@ -1,7 +1,7 @@
 import { Organizations, Variants, Versions, User, Organization, Terms, Ontologies } from '../../model/backend';
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 import * as api from './../../api/endpoints/interLexURIStructureAPI'
-
+import { TERM, ONTOLOGY, ORGANIZATION } from '../../model/frontend/types'
 import curieParser from '../../parsers/curieParser';
 import termParser from '../../parsers/termParser';
 import { Curies } from '../../model/frontend/curies';
@@ -121,9 +121,30 @@ export const getMatchTerms = async (term, filters = {}) => {
 
   /** Call Endpoint */
   return getMatchTerms("base", term, filters).then((data) => {
+      return termParser(data, term, filters);
+    })
+    .catch((error) => {
+      return error;
+    });
+}
+
+export const searchAll = async (term, filters = {}) => {
+  const {  searchAll } = useMockApi();
+
+  /** Call Endpoint */
+  return searchAll("base", term, filters).then((data) => {
       let terms = termParser(data.terms, term, filters);
+      terms?.results?.forEach( result => {
+        result.type = TERM;
+      })
       let organizations = data.organizations;
+      organizations?.forEach( organization => {
+        organization.type = ORGANIZATION;
+      })
       let ontologies = data.ontologies;
+      ontologies?.forEach( ontology => {
+        ontology.type = ONTOLOGY;
+      })
       let results = {...terms, results : [...terms.results, ...organizations, ...ontologies]}
       console.log("search ", results)
       return results;
@@ -203,7 +224,7 @@ export const getExistingIDs = async () => {
   return getMatchTerms("base", "*").then((data) => {
       const terms =  termParser(data, undefined);
       let existingIds = terms?.results?.map( term => term.id?.split("/").pop() );
-      return existingIds;
+      return terms?.results?.[0]?.id != undefined ? existingIds : [];
     })
     .catch((error) => {
       return error;
