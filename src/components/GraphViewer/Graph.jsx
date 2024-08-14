@@ -56,7 +56,7 @@ const Graph = ({ width, height, predicate }) => {
                 .on("mouseleave", mouseleave)
     setTimeout( () => {
         getMatchTerms("ilx_0101431").then(data => {
-            setTerms(data)
+            setTerms(data.results)
         });
     }, 750);
   }, []);
