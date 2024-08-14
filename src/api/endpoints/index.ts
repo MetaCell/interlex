@@ -3,7 +3,7 @@ import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 import * as api from './../../api/endpoints/interLexURIStructureAPI'
 import { TERM, ONTOLOGY, ORGANIZATION } from '../../model/frontend/types'
 import curieParser from '../../parsers/curieParser';
-import termParser from '../../parsers/termParser';
+import termParser, { getTerm } from '../../parsers/termParser';
 import { Curies } from '../../model/frontend/curies';
 
 const useMockApi = () => mockApi;
@@ -158,8 +158,13 @@ export const patchTerm = async (group, termID, term) => {
 
   /** Call Endpoint */
   return patchEndpointsIlx(group, termID).then((data) => {
-      console.log("patch term response ", data)
-      return data;
+      let termParsed = getTerm(data.data);
+      let response = {
+        status : data.status,
+        term : termParsed
+      }
+
+      return response;
     })
     .catch((error) => {
       return error;
@@ -171,8 +176,13 @@ export const addTerm = async (group, term) => {
 
   /** Call Endpoint */
   return addTerm(group, term).then((data) => {
-      console.log("add term response ", data)
-      return data;
+      let termParsed = getTerm(data.data);
+      let response = {
+        status : data.status,
+        term : termParsed
+      }
+
+      return response;
     })
     .catch((error) => {
       return error;
@@ -184,8 +194,13 @@ export const bulkEditTerms = async (group, payload) => {
 
   /** Call Endpoint */
   return bulkEditTerms(group, payload).then((data) => {
-      console.log("bulkEditTerms ", data)
-      return data;
+      let termsParsed = termParser(data.data, undefined);
+      let response = {
+        status : data.status,
+        terms : termsParsed
+      }
+
+      return response;
     })
     .catch((error) => {
       return error;
