@@ -146,7 +146,6 @@ export const searchAll = async (term, filters = {}) => {
         ontology.type = ONTOLOGY;
       })
       let results = {...terms, results : [...terms.results, ...organizations, ...ontologies]}
-      console.log("search ", results)
       return results;
     })
     .catch((error) => {
