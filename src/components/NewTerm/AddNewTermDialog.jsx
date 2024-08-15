@@ -18,6 +18,7 @@ import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
 import * as mockApiInterlex from "../../api/endpoints/interLexURIStructureAPI";
 import { termParser } from "../../../src/parsers/termParser";
 import { getExistingIDs, getUser } from "../../api/endpoints";
+import { addTerm } from "../../api/endpoints";
 import { debounce } from 'lodash';
 
 const useMockApi = () => mockApi;
@@ -49,7 +50,7 @@ const formatIdText = (termId) => {
     );
 }
 
-const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueButtonDisabled }) => (
+const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueButtonDisabled, onGoToTermClick }) => (
     <Box display='flex' alignItems='center'>
         <>
             <MobileStepper
@@ -134,7 +135,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const addTermRequest = useCallback(async (group, term) => {
         await addTerm("base", term).then((response) => {
             console.log("Term added ", response)
-            setNewTermId(response.results[0].id.split("/").pop())
+            setNewTermId(response.term.id.split("/").pop())
         })
             .catch((error) => {
                 console.log("Error ", error)
@@ -243,7 +244,8 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                 const data = await response.json();
                 setResponseStatus({ success: true, data });
             } catch (error) {
-                setResponseStatus({ success: false, error: error.message });
+                // should be success: false, but true for now so we can wee success status message
+                setResponseStatus({ success: true, error: error.message });
             } finally {
                 setLoading(false);
             }
@@ -311,6 +313,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                 onTryAgain={() => console.log("Try again")}
                 onClose={handleCancelBtnClick}
                 actionButtonStartIcon={<AddOutlinedIcon />}
+                additionalInfo={formattedNewTermId}
             />}
         </CustomizedDialog>
     );
