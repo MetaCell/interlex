@@ -19,7 +19,7 @@ const TitleSection = ({ searchResult }) => {
     return (
         <Box display="flex" justifyContent="space-between" alignItems="center">
             <Stack direction="row" alignItems="center" gap={1.5}>
-                <Typography variant='h6' sx={{ color: gray700 }}>{searchResult.label}</Typography>
+                <Typography variant='h6' sx={{ color: gray700 }}>{searchResult.label || searchResult.name}</Typography>
                 <Chip label="Curated" variant="outlined" />
             </Stack>
             {searchResult.ontologyIsActive ? (

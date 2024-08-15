@@ -468,7 +468,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /{group}/search/{term}: 
+  /{group}/match/{term}: 
     get:
       summary: List all matching terms
       operationId: get_match_terms
@@ -517,7 +517,69 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Terms'
+                $ref: "#/components/schemas/Terms"
+        404:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /{group}/search/{term}: 
+    get:
+      summary: List all matching terms, ontologies and organizations
+      operationId: search_all
+      tags:
+        - term
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: group name
+          schema:
+            type: string
+        - name: term
+          in: path
+          required: true
+          description: The id of the term to retrieve
+          schema:
+            type: string
+        - in: query
+          name: filters
+          schema:
+            type: object
+            properties:
+              attribute:
+                type: string
+                description: A property to filter results by
+                example: attribute1,attribute2,attribute3
+              value:
+                type: integer
+                description: The value for the filter specified above
+                example: value1,value2,value3
+              condition:
+                type: string
+                description: Condition for filter attribute
+                example: AND, OR, AND
+          style: deepObject
+          explode: true
+      responses:
+        200:
+          description: A paged array of terms
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              type: object
+              properties:
+                  terms:
+                    $ref: "#/components/schemas/Terms"
+                  ontologies:
+                    $ref: "#/components/schemas/Ontologies"
+                  organizations:
+                    $ref: "#/components/schemas/Organizations"
         404:
           description: unexpected error
           content:

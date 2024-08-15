@@ -1,6 +1,7 @@
 import { mockOntologies } from "./mock/data/mockOntologies";
 import { mockOrganization, mockOrganizations } from "./mock/data/mockOrganizations";
 import { mockTerms, mockTerm } from "./mock/data/mockTerms";
+import { mockSearch } from "./mock/data/mockSearch";
 import { mockVariants } from "./mock/data/mockVariants";
 import { mockVersions } from "./mock/data/mockVersions";
 import { mockCuries } from "./mock/data/mockCuries";
@@ -211,6 +212,18 @@ module.exports = {
               useInfiniteQueryParam: ['filter', "value"],
             },
           },
+          search_all :{
+            mock : {
+              data : mockSearch
+            },
+            query: {
+              useQuery: true,
+              useSuspenseQuery: true,
+              useSuspenseInfiniteQuery: true,
+              useInfinite: true,
+              useInfiniteQueryParam: ['filter', "value"],
+            },
+          }
         },
         /** TODO : Missing endpoint and operation.
          * Use case, download all ontologies.

@@ -9,7 +9,7 @@ import { defaultTermFiltersSections } from "../configuration/filters";
  * @param data - Raw term data object received from server
  * @returns - Term
  */
-const getTerm = (data) => {
+export const getTerm = (data) => {
     let term : Term = {} as Term
     let predicates = {};
     // Extract triplets if predicate is in model 
