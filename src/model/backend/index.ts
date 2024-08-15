@@ -40,6 +40,7 @@ export * from './predicate';
 export * from './predicates';
 export * from './review';
 export * from './reviews';
+export * from './searchAllParams';
 export * from './signup200';
 export * from './term';
 export * from './termContext';

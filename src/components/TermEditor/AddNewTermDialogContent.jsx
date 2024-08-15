@@ -6,7 +6,9 @@ import ManualImportTab from "./ManualImportTab";
 import ImportFileTab from "./ImportFileTab";
 import NewTermSidebar from "./NewTermSidebar";
 import AddPredicatesStep from "./AddPredicatesStep";
-import TermStatusStep from "./TermStatusStep";
+import StatusStep from "../common/StatusStep";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import { getTermStatusProps } from "./termStatusProps";
 import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
 import * as mockApiInterlex from "../../api/endpoints/interLexURIStructureAPI";
 import { termParser } from "../../parsers/termParser";
@@ -36,7 +38,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     const [tabValue, setTabValue] = useState(0);
     const [openSidebar, setOpenSidebar] = useState(true);
     const [data, setData] = useState(null);
-    const [responseStatus, setResponseStatus] = useState('success')
+    const [responseStatus, setResponseStatus] = useState(null)
     const [termValue, setTermValue] = useState('');
     const [ids, setIds] = useState([]);
     const [predicates, setPredicates] = useState([{ subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
@@ -127,7 +129,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     }, [memoData]);
 
     useEffect(() => {
-        if(activeStep === 2){
+        if (activeStep === 2) {
             console.log("POST: connect post method here and set response status")
         }
     }, [activeStep])
@@ -143,12 +145,35 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
         fetchIds()
     }, [fetchIds])
 
+    //can be deleted, use only for testing purposes
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch('/api/some-endpoint');
+                if (!response.ok) {
+                    throw new Error('HTTP error');
+                }
+                const data = await response.json();
+                setResponseStatus({ success: true, data });
+            } catch (error) {
+                setResponseStatus({ success: false, error: error.message });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+
     const predicatesOptions = predicates.map(row => ({
         label: row.title,
         value: row.title
     }));
 
     const isResultsEmpty = termResults.length === 0;
+
+    const statusProps = getTermStatusProps(responseStatus, termValue);
 
     return (
         <>
@@ -173,10 +198,16 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
                     {tabValue === 0 && <NewTermSidebar open={openSidebar} loading={loading} onToggle={handleSidebarToggle} results={termResults} isResultsEmpty={isResultsEmpty} />}
                 </Box>
             )}
-            {activeStep === 1 && <AddPredicatesStep searchTerm={termValue.charAt(0).toUpperCase() + termValue.slice(1)} predicatesOptions={predicatesOptions} />}
-            {activeStep === 2 && <TermStatusStep responseStatus={responseStatus} termValue={termValue.charAt(0).toUpperCase() + termValue.slice(1)} onUndo={handleUndoAction} onAddNewTerm={handleAddNewTerm} />}
+            {activeStep === 1 && <AddPredicatesStep termValue={termValue.charAt(0).toUpperCase() + termValue.slice(1)} predicatesOptions={predicatesOptions} />}
+            {activeStep === 2 && <StatusStep
+                statusProps={statusProps}
+                onAction={handleAddNewTerm}
+                onTryAgain={() => console.log("Try again")}
+                onClose={handleCancelBtnClick}
+                actionButtonStartIcon={<AddOutlinedIcon />}
+            />}
         </>
-    )
-}
+    );
+};
 
 export default AddNewTermDialogContent;
