@@ -160,7 +160,7 @@ const Graph = ({ width, height, predicate }) => {
         justifyContent: 'end',
         m: '1rem 8rem auto',
       }}>
-        {isSearchVisible ? (
+        {/* {isSearchVisible ? (
             <Collapse in={isSearchVisible} timeout={10000}
                       unmountOnExit
                       TransitionProps={{
@@ -187,7 +187,7 @@ const Graph = ({ width, height, predicate }) => {
           onClick={handleButtonClick}
         >
           Add object
-        </Button>}
+        </Button>} */}
       </Box>
       
     </Box>

@@ -1,14 +1,15 @@
 import { Box, IconButton, Typography, Button } from "@mui/material";
-import {useCallback, useEffect, useRef, useState} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import TableRow from "./TableRow";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { vars } from "../../../theme/variables";
-import _ , { debounce } from 'lodash';
+import _, { debounce } from 'lodash';
 import { getMatchTerms } from "../../../api/endpoints";
 import CustomSnackbar from "./CustomSnackbar";
 import SingleSearch from "../SingleSearch";
+import TermDialog from "../../TermEditor/TermDialog";
 
 const { gray100, gray50, gray600, gray500, brand600, brand50, brand700, gray700 } = vars;
 
@@ -171,6 +172,7 @@ const CustomizedTable = ({ data, term }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState(-1);
   const [deletedObj, setDeletedObj] = useState({});
+  const [editTermDialogOpen, setEditTermDialogOpen] = useState(false);
 
   const targetRow = useRef();
   const sourceRow = useRef();
@@ -245,6 +247,14 @@ const CustomizedTable = ({ data, term }) => {
     setShowSelect(true);
   };
 
+  const handleOpenEditTermDialog = () => {
+    setEditTermDialogOpen(true);
+  };
+
+  const handleCloseEditTermDialog = () => {
+    setEditTermDialogOpen(false);
+  };
+
   const handleUndoDelete = () => {
     console.log("Undo deletion!")
   };
@@ -283,8 +293,8 @@ const CustomizedTable = ({ data, term }) => {
     setObject('');
     setObjectSearchTerm('');
   };
-  
-  
+
+
   const handleSelectChange = (e, type) => {
     if (type === 'object') {
       setObject(e.label);
@@ -294,12 +304,12 @@ const CustomizedTable = ({ data, term }) => {
       updateTableContent(type === 'subject' ? e.label : subject, type === 'object' ? e.label : object);
     }
   };
-  
+
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await getMatchTerms(searchTerm);
     setTerms(data?.results[0]);
   }, 500), [getMatchTerms]);
-  
+
   useEffect(() => {
     if (objectSearchTerm) {
       fetchTerms(objectSearchTerm);
@@ -346,8 +356,15 @@ const CustomizedTable = ({ data, term }) => {
             />
           )}
         </Box>
+        <Box sx={tableStyles.root}>
+          <Box sx={{ paddingLeft: '0 !important' }}>
+            <IconButton onClick={handleOpenEditTermDialog}>
+              <AddOutlinedIcon />
+            </IconButton>
+          </Box>
+        </Box>
 
-        {!showSelect ? (
+        {/* {!showSelect ? (
           <Box sx={tableStyles.root}>
             <Box sx={{ paddingLeft: '0 !important' }}>
               <IconButton onClick={handleAddClick}>
@@ -384,8 +401,9 @@ const CustomizedTable = ({ data, term }) => {
               </Button>
             </Box>
           </Box>
-        )}
+        )} */}
       </Box>
+      <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} searchTerm={term} />
       <CustomSnackbar open={snackbarOpen} handleClose={handleSnackbarClose} onUndoDelete={handleUndoDelete} data={deletedObj} />
     </>
   );

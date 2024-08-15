@@ -40,8 +40,8 @@ const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, inde
           </Typography>
         )}
       </Box>
-      <Box display="flex" justifyContent="flex-end">
-        {
+      <Box display="flex" justifyContent="flex-end" sx={{ paddingRight: "0 !important" }}>
+        {/* {
           isHovered && rowIndex !== index && <Stack direction='row' spacing='.5rem'>
             <IconButton onClick={() => onRowIndexChange(index)}>
               <ModeEditOutlineOutlinedIcon fontSize='small' />
@@ -56,14 +56,23 @@ const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, inde
               </IconButton>
             </Tooltip>
           </Stack>
-        }
+        } */}
         {
+          isHovered && (
+            <Tooltip placement='right' title={"Help"}>
+              <IconButton>
+                <HelpOutlineOutlinedIcon fontSize='small' />
+              </IconButton>
+            </Tooltip>
+          )
+        }
+        {/* {
           rowIndex === index && (
             <Box justifyContent="flex-end">
               <Button variant="text" onClick={() => onSaveEdits(index)} sx={tableStyles.confirmButton}>Save edits</Button>
             </Box>
           )
-        }
+        } */}
       </Box>
     </Box>);
 };
