@@ -4,7 +4,6 @@ import CustomizedDialog from "../common/CustomizedDialog";
 import { EditNoteIcon } from "../../Icons";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import StatusDialog from "../common/StatusDialog";
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 
 const HeaderRightSideContent = ({ handleClose, onSaveCuries }) => {
