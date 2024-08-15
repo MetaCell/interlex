@@ -13,22 +13,19 @@ const EditTerms = ({searchConditions}) => {
 
   return (
     <Box className='edit-terms' display="flex" justifyContent="space-between" height={1}>
-       <Box padding={'2.25rem 3.25rem 2.5rem 0'} sx={{
-         width: open ? 'calc(100% - 42.0625rem)' : 'calc(100% - 5.75rem)',
-         transition: 'all 0.5s ease',
-       }}>
-         <Typography color={gray800} fontSize='1.125rem' fontWeight={600} mb='2.75rem'>
-           Edit your terms or select an header to bulk edit that property
-         </Typography>
-         <TermsTable
-           columns={SearchTermsData.termsColumns}
-           setOpenEditAttributes={setOpen}
-           setAttributes={setAttributes}
-           attributes={attributes}
-           searchConditions={searchConditions}
-         />
-       </Box>
-        
+        <Box padding={'2.25rem 3.25rem 2.5rem 0'} sx={{
+          width: open ? 'calc(100% - 42.0625rem)' : 'calc(100% - 5.75rem)',
+          transition: 'all 0.5s ease',
+        }}>
+          <TermsTable
+            columns={SearchTermsData.termsColumns}
+            setOpenEditAttributes={setOpen}
+            setAttributes={setAttributes}
+            attributes={attributes}
+            searchConditions={searchConditions}
+          />
+          
+        </Box>
         <Box
           sx={{
             display: 'flex',

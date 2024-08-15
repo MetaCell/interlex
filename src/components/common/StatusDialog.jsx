@@ -3,7 +3,6 @@ import { Box } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import { vars } from "../../theme/variables";
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { BackgroundPattern } from "../../Icons";
 
 const { gray600, gray900 } = vars;

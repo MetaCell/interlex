@@ -72,7 +72,7 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
       }
     }}>
       {
-        organizations.map((organization, index) => (
+        organizations?.map((organization, index) => (
           <ListItem key={index}>
             <Box display='flex' alignItems='center' justifyContent='space-between' width={1}>
               <img src={organization.logo} alt={organization.name} />

@@ -14,6 +14,7 @@ import {
   IconButton,
   Chip,
   Stack, CircularProgress,
+  Typography,
 } from "@mui/material";
 import { vars } from "../../../theme/variables";
 import { useState } from "react";
@@ -24,7 +25,7 @@ import {getComparator, getSearchTermsFilter, stableSort} from "../../../helpers"
 import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
 import { getMatchTerms } from "../../../api/endpoints";
 
-const { gray200, gray50, gray700, brand600 } = vars;
+const { gray200, gray50, gray700, brand600, gray800 } = vars;
 
 const columns = [
   { "id": "label", "label": "Label", "minWidth": 300, "visibility": true },
@@ -101,87 +102,96 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, searchCo
     </Box>
   }
   return (
-    <Box>
-      <Paper sx={{
-        width: '100%',
-        border: `1px solid ${gray200}`,
-        boxShadow: '0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)',
-        borderRadius: '0.75rem',
-        position: 'relative',
-      }}>
-        <IconButton aria-label="columns-menu" onClick={handleClick} sx={{
-          position: 'absolute',
-          right: '.25rem',
-          top: '.25rem',
-          zIndex: 1,
+    terms.length > 0 ? (
+      <>
+        <Typography color={gray800} fontSize='1.125rem' fontWeight={600} mb='2.75rem'>
+        Edit your terms or select an header to bulk edit that property
+        </Typography>
+      <Box>
+        <Paper sx={{
+          width: '100%',
           border: `1px solid ${gray200}`,
-          color: gray700
+          boxShadow: '0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)',
+          borderRadius: '0.75rem',
+          position: 'relative',
         }}>
-          <AddOutlinedIcon />
-        </IconButton>
-        <Menu
-          id="simple-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-        >
-          {columns.map((column) => (
-            <MenuItem
-              key={column.id}
-              value={column.id}
-              onClick={(event) => handleColumnChange(event, column.id)}
-              sx={{
-                '&:has(.Mui-checked)': {
-                  backgroundColor: gray50,
-                }
-              }}
-            >
-              <ListItemText primary={column.label} />
-              <Checkbox
-                checkedIcon={<CheckOutlinedIcon sx={{ fontSize: 16, color: brand600 }} />}
-                sx={{ color: 'transparent !important' }}
-                checked={visibleColumns.includes(column.id)}
+          <IconButton aria-label="columns-menu" onClick={handleClick} sx={{
+            position: 'absolute',
+            right: '.25rem',
+            top: '.25rem',
+            zIndex: 1,
+            border: `1px solid ${gray200}`,
+            color: gray700
+          }}>
+            <AddOutlinedIcon />
+          </IconButton>
+          <Menu
+            id="simple-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+          >
+            {columns.map((column) => (
+              <MenuItem
+                key={column.id}
+                value={column.id}
+                onClick={(event) => handleColumnChange(event, column.id)}
+                sx={{
+                  '&:has(.Mui-checked)': {
+                    backgroundColor: gray50,
+                  }
+                }}
+              >
+                <ListItemText primary={column.label} />
+                <Checkbox
+                  checkedIcon={<CheckOutlinedIcon sx={{ fontSize: 16, color: brand600 }} />}
+                  sx={{ color: 'transparent !important' }}
+                  checked={visibleColumns.includes(column.id)}
+                />
+              </MenuItem>
+            ))}
+          </Menu>
+          <TableContainer sx={{ borderRadius: '0.75rem' }}>
+            <Table aria-labelledby="tableTitle">
+              <CustomTableHead
+                onRequestSort={handleRequestSort}
+                order={order}
+                orderBy={orderBy}
+                headCells={filteredColumns}
+                viewEditAttributes={true}
+                setOpenEditAttributes={setOpenEditAttributes}
+                setAttributes={setAttributes}
+                attributes={attributes}
               />
-            </MenuItem>
-          ))}
-        </Menu>
-        <TableContainer sx={{ borderRadius: '0.75rem' }}>
-          <Table aria-labelledby="tableTitle">
-            <CustomTableHead
-              onRequestSort={handleRequestSort}
-              order={order}
-              orderBy={orderBy}
-              headCells={filteredColumns}
-              viewEditAttributes={true}
-              setOpenEditAttributes={setOpenEditAttributes}
-              setAttributes={setAttributes}
-              attributes={attributes}
-            />
-            <TableBody>
-              {sortedRows.map((row, index) => (
-                <TableRow key={index}>
-                  {filteredColumns.map((column) => (
-                    <TableCell key={column.id} style={{ minWidth: column.minWidth }}>
-                      {Array.isArray(row[column.id]) ? (
-                        <Stack gap='.25rem' direction="row" alignItems="center" maxWidth='20rem' flexWrap='wrap'>
-                          {row[column.id].map((chip, chipIndex) => (
-                            <Chip key={chipIndex} label={chip} className='rounded IDchip-outlined' icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(chip)} />
-                          ))}
-                        </Stack>
-                      ) : (
-                        row[column.id]
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
-    </Box>
-  );
+              <TableBody>
+                {sortedRows.map((row, index) => (
+                  <TableRow key={index}>
+                    {filteredColumns.map((column) => (
+                      <TableCell key={column.id} style={{ minWidth: column.minWidth }}>
+                        {Array.isArray(row[column.id]) ? (
+                          <Stack gap='.25rem' direction="row" alignItems="center" maxWidth='20rem' flexWrap='wrap'>
+                            {row[column.id].map((chip, chipIndex) => (
+                              <Chip key={chipIndex} label={chip} className='rounded IDchip-outlined' icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(chip)} />
+                            ))}
+                          </Stack>
+                        ) : (
+                          row[column.id]
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      </Box>
+    </> ) : (
+    <Box className="messageArea">
+      <Typography variant="body1">No terms available with the parameters set</Typography>
+    </Box> )
+  )
 };
 
 export default TermsTable;

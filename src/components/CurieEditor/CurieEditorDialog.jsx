@@ -2,6 +2,7 @@ import * as React from "react";
 import { Box, Button } from "@mui/material";
 import CustomizedDialog from "../common/CustomizedDialog";
 import { EditNoteIcon } from "../../Icons";
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import StatusDialog from "../common/StatusDialog";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
@@ -18,7 +19,7 @@ const HeaderRightSideContent = ({ handleClose, onSaveCuries }) => {
     )
 }
 
-const CurieEditorDialog = ({ open, handleClose, onSubmit, isFromOrganization, children }) => {
+const CurieEditorDialog = ({ open, handleClose, onSubmit, children, isFromOrganization }) => {
     const [openStatusDialog, setOpenStatusDialog] = React.useState(false);
 
     const handleSaveCuries = () => {
@@ -29,7 +30,7 @@ const CurieEditorDialog = ({ open, handleClose, onSubmit, isFromOrganization, ch
     const handleCloseStatusDialog = () => {
         setOpenStatusDialog(false)
     }
-
+    
     const handleStatusDialogActionButtonClick = () => {
         setOpenStatusDialog(false);
     }

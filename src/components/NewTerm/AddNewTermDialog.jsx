@@ -10,7 +10,9 @@ import ManualImportTab from "./ManualImportTab";
 import ImportFileTab from "./ImportFileTab";
 import NewTermSidebar from "./NewTermSidebar";
 import AddPredicatesStep from "./AddPredicatesStep";
-import TermStatusStep from "./TermStatusStep";
+import StatusStep from "../common/StatusStep";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import { getTermStatusProps } from "./termStatusProps";
 import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
 import * as mockApiInterlex from "../../api/endpoints/interLexURIStructureAPI";
 import { termParser } from "../../../src/parsers/termParser";
@@ -22,24 +24,25 @@ const useMockApiInterlex = () => mockApiInterlex;
 
 const { gray100, gray200, gray400, brand700 } = vars;
 
+
 const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueButtonDisabled }) => (
     <Box display='flex' alignItems='center'>
-        {activeStep !== 2 ? (
-            <>
-                <MobileStepper
-                    variant="dots"
-                    steps={3}
-                    position="static"
-                    activeStep={activeStep}
-                    sx={{
-                        maxWidth: 64,
-                        flexGrow: 1,
-                        '& .MuiMobileStepper-dots': { gap: '0.75rem' },
-                        '& .MuiMobileStepper-dot': { margin: 0, backgroundColor: gray200 },
-                        '& .MuiMobileStepper-dotActive': { backgroundColor: brand700 }
-                    }}
-                />
-                <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
+        <>
+            <MobileStepper
+                variant="dots"
+                steps={3}
+                position="static"
+                activeStep={activeStep}
+                sx={{
+                    maxWidth: 64,
+                    flexGrow: 1,
+                    '& .MuiMobileStepper-dots': { gap: '0.75rem' },
+                    '& .MuiMobileStepper-dot': { margin: 0, backgroundColor: gray200 },
+                    '& .MuiMobileStepper-dotActive': { backgroundColor: brand700 }
+                }}
+            />
+            <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
+            {activeStep !== 2 ? (
                 <Stack direction="row" spacing={1.5}>
                     <CustomButton onClick={onClose}>Cancel</CustomButton>
                     <Button
@@ -55,10 +58,10 @@ const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueBut
                         Continue
                     </Button>
                 </Stack>
-            </>
-        ) : (
-            <Button variant="contained" onClick={onClose}>Finish</Button>
-        )}
+            ) : (
+                <Button variant="contained" onClick={onClose}>Finish</Button>
+            )}
+        </>
     </Box>
 );
 
@@ -72,7 +75,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const [openSidebar, setOpenSidebar] = useState(true);
     const [areMatchesChecked, setAreMatchesChecked] = useState(false);
     const [data, setData] = useState(null);
-    const [responseStatus, setResponseStatus] = useState('success')
+    const [responseStatus, setResponseStatus] = useState(null)
     const [termValue, setTermValue] = useState('');
     const [ids, setIds] = useState([]);
     const [predicates, setPredicates] = useState([{ subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
@@ -186,12 +189,35 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         fetchIds()
     }, [fetchIds])
 
+    //can be deleted, use only for testing purposes
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch('/api/some-endpoint');
+                if (!response.ok) {
+                    throw new Error('HTTP error');
+                }
+                const data = await response.json();
+                setResponseStatus({ success: true, data });
+            } catch (error) {
+                setResponseStatus({ success: false, error: error.message });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+
     const predicatesOptions = predicates.map(row => ({
         label: row.title,
         value: row.title
     }));
 
     const isResultsEmpty = termResults.length === 0;
+
+    const statusProps = getTermStatusProps(responseStatus, termValue);
 
     return (
         <CustomizedDialog
@@ -230,7 +256,13 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                 </Box>
             )}
             {activeStep === 1 && <AddPredicatesStep termValue={termValue.charAt(0).toUpperCase() + termValue.slice(1)} predicatesOptions={predicatesOptions} />}
-            {activeStep === 2 && <TermStatusStep responseStatus={responseStatus} termValue={termValue.charAt(0).toUpperCase() + termValue.slice(1)} onAddNewTerm={handleAddNewTerm} />}
+            {activeStep === 2 && <StatusStep
+                statusProps={statusProps}
+                onAction={handleAddNewTerm}
+                onTryAgain={() => console.log("Try again")}
+                onClose={handleCancelBtnClick}
+                actionButtonStartIcon={<AddOutlinedIcon />}
+            />}
         </CustomizedDialog>
     );
 };

@@ -1,9 +1,9 @@
 import { Organizations, Variants, Versions, User, Organization, Terms, Ontologies } from '../../model/backend';
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 import * as api from './../../api/endpoints/interLexURIStructureAPI'
-
+import { TERM, ONTOLOGY, ORGANIZATION } from '../../model/frontend/types'
 import curieParser from '../../parsers/curieParser';
-import termParser from '../../parsers/termParser';
+import termParser, { getTerm } from '../../parsers/termParser';
 import { Curies } from '../../model/frontend/curies';
 
 const useMockApi = () => mockApi;
@@ -128,13 +128,43 @@ export const getMatchTerms = async (term, filters = {}) => {
     });
 }
 
+export const searchAll = async (term, filters = {}) => {
+  const {  searchAll } = useMockApi();
+
+  /** Call Endpoint */
+  return searchAll("base", term, filters).then((data) => {
+      let terms = termParser(data.terms, term, filters);
+      terms?.results?.forEach( result => {
+        result.type = TERM;
+      })
+      let organizations = data.organizations;
+      organizations?.forEach( organization => {
+        organization.type = ORGANIZATION;
+      })
+      let ontologies = data.ontologies;
+      ontologies?.forEach( ontology => {
+        ontology.type = ONTOLOGY;
+      })
+      let results = {...terms, results : [...terms.results, ...organizations, ...ontologies]}
+      return results;
+    })
+    .catch((error) => {
+      return error;
+    });
+}
+
 export const patchTerm = async (group, termID, term) => {
   const {  patchEndpointsIlx } = useApi();
 
   /** Call Endpoint */
   return patchEndpointsIlx(group, termID).then((data) => {
-      console.log("patch term response ", data)
-      return data;
+      let termParsed = getTerm(data.data);
+      let response = {
+        status : data.status,
+        term : termParsed
+      }
+
+      return response;
     })
     .catch((error) => {
       return error;
@@ -146,8 +176,13 @@ export const addTerm = async (group, term) => {
 
   /** Call Endpoint */
   return addTerm(group, term).then((data) => {
-      console.log("add term response ", data)
-      return data;
+      let termParsed = getTerm(data.data);
+      let response = {
+        status : data.status,
+        term : termParsed
+      }
+
+      return response;
     })
     .catch((error) => {
       return error;
@@ -159,8 +194,13 @@ export const bulkEditTerms = async (group, payload) => {
 
   /** Call Endpoint */
   return bulkEditTerms(group, payload).then((data) => {
-      console.log("bulkEditTerms ", data)
-      return data;
+      let termsParsed = termParser(data.data, undefined);
+      let response = {
+        status : data.status,
+        terms : termsParsed
+      }
+
+      return response;
     })
     .catch((error) => {
       return error;
@@ -198,7 +238,7 @@ export const getExistingIDs = async () => {
   return getMatchTerms("base", "*").then((data) => {
       const terms =  termParser(data, undefined);
       let existingIds = terms?.results?.map( term => term.id?.split("/").pop() );
-      return existingIds;
+      return terms?.results?.[0]?.id != undefined ? existingIds : [];
     })
     .catch((error) => {
       return error;
