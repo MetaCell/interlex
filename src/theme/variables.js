@@ -72,4 +72,5 @@ export const vars = {
     success800: '#085D3A',
     success900: '#074D31',
     success950: '#053321',
+    paperShadow: '0px 12px 16px -4px rgba(16, 24, 40, 0.08), 0px 4px 6px -2px rgba(16, 24, 40, 0.03)',
 }
