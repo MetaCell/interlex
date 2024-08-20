@@ -23,7 +23,8 @@ const ForgotPassword = () => {
 						flexGrow: 1,
 					}}
 				>
-					<Link startIcon={<ArrowBack />} variant="text" to={"/login"}>
+					<Link variant="text" to={"/login"} className="authLink">
+						<ArrowBack />
 						Back to log in
 					</Link>
 					<Typography variant="h4">Forgot password</Typography>

@@ -3,6 +3,7 @@ import {
 	Box,
 	Button,
 	FormControl,
+	FormControlLabel,
 	Grid,
 	Paper,
 	Typography,
@@ -10,7 +11,7 @@ import {
 import { ArrowBack } from "@mui/icons-material";
 import Checkbox from "@mui/material/Checkbox";
 import { Link } from "react-router-dom";
-import { OrcidIcon, OrganizationsIcon } from "../../Icons";
+import { CheckedIcon, OrcidIcon, UncheckedIcon } from "../../Icons";
 import FormField from "./UI/Formfield";
 import PasswordField from "./UI/PasswordField";
 
@@ -23,12 +24,12 @@ const Login = () => {
 				<Paper
 					className="authPaper"
 					sx={{
-						p: 5,
 						maxWidth: 528,
 						flexGrow: 1,
 					}}
 				>
-					<Link startIcon={<ArrowBack />} variant="text" to={"/"}>
+					<Link variant="text" to={"/"} className="authLink">
+						<ArrowBack />
 						Return to page
 					</Link>
 					<Typography variant="h4">Log in to your account</Typography>
@@ -56,12 +57,26 @@ const Login = () => {
 									justifyContent={"space-between"}
 								>
 									<Box display={"flex"} alignItems={"center"}>
-										<Checkbox {...label} defaultChecked color="primary" />
-										<Typography variant="body2">
-											Remember for 30 days
-										</Typography>
+										<FormControlLabel
+											control={
+												<Checkbox
+													size="small"
+													icon={<UncheckedIcon />}
+													checkedIcon={<CheckedIcon />}
+													{...label}
+													defaultChecked
+													color="primary"
+												/>
+											}
+											label="Remember for 30 days"
+										/>
 									</Box>
-									<Link color="primary" variant="text" to={"/forgot"}>
+									<Link
+										color="primary"
+										variant="text"
+										to={"/forgot"}
+										className="authLink"
+									>
 										Forgot password
 									</Link>
 								</Box>

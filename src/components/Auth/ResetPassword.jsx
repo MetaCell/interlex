@@ -4,6 +4,7 @@ import {
 	Button,
 	FormControl,
 	Grid,
+	Link,
 	Paper,
 	Typography,
 } from "@mui/material";
@@ -22,7 +23,8 @@ const ResetPassword = () => {
 						flexGrow: 1,
 					}}
 				>
-					<Link startIcon={<ArrowBack />} variant="text" to={"/login"}>
+					<Link variant="text" to={"/login"} className="authLink">
+						<ArrowBack />
 						Back to log in
 					</Link>
 					<Typography variant="h4">Reset your password</Typography>

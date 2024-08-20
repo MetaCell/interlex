@@ -3,6 +3,8 @@ import {
 	Box,
 	Button,
 	FormControl,
+	FormControlLabel,
+	FormGroup,
 	Grid,
 	OutlinedInput,
 	Paper,
@@ -11,11 +13,11 @@ import {
 import { ArrowBack } from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import Checkbox from "@mui/material/Checkbox";
 import { Link } from "react-router-dom";
 import FormField from "./UI/Formfield";
 import PasswordField from "./UI/PasswordField";
+import { CheckedIcon, HelpIcon, UncheckedIcon } from "../../Icons";
 const Register = () => {
 	const label = { inputProps: { "aria-label": "Checkbox demo" } };
 
@@ -30,7 +32,8 @@ const Register = () => {
 						flexGrow: 1,
 					}}
 				>
-					<Link startIcon={<ArrowBack />} variant="text" to={"/login"}>
+					<Link variant="text" to={"/login"} className="authLink">
+						<ArrowBack />
 						Return to page
 					</Link>
 					<Typography variant="h4">Register a new account and join</Typography>
@@ -77,7 +80,7 @@ const Register = () => {
 										endAdornment={
 											<InputAdornment position="end">
 												<IconButton>
-													<HelpOutlineIcon />
+													<HelpIcon />
 												</IconButton>
 											</InputAdornment>
 										}
@@ -90,11 +93,25 @@ const Register = () => {
 									display={"flex"}
 									alignItems={"center"}
 								>
-									<Checkbox {...label} defaultChecked color="primary" />
-									<Typography variant="body2">
-										I have read the <Link>Terms and Conditions</Link> and{" "}
-										<Link>Privacy Policy.</Link>
-									</Typography>
+									<FormGroup>
+										<FormControlLabel
+											control={
+												<Checkbox
+													size="small"
+													icon={<UncheckedIcon />}
+													checkedIcon={<CheckedIcon />}
+													{...label}
+													defaultChecked
+													color="primary"
+												/>
+											}
+											label="I have read the"
+										/>
+										<Typography variant="body2">
+											<Link>Terms and Conditions</Link> and{" "}
+											<Link>Privacy Policy.</Link>
+										</Typography>
+									</FormGroup>
 								</Box>
 							</Grid>
 							<Grid item xs={12}>

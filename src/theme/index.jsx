@@ -880,6 +880,16 @@ const theme = createTheme({
 					"&.authPaper": {
 						borderRadius: "2rem",
 						boxShadow: paperShadow,
+						padding: "3rem 4rem",
+						"& .authLink": {
+							color: brand700,
+							fontSize: "0.875rem",
+							textDecoration: "none",
+							fontWeight: 600,
+							display: "flex",
+							gap: "6px",
+							marginBottom: "2rem",
+						},
 						"& .MuiButton-text": {
 							padding: 0,
 							marginBottom: "1rem",
@@ -889,32 +899,42 @@ const theme = createTheme({
 						},
 						"& .authForm": {
 							marginTop: "2rem",
-							"& p, a": {
-								fontWeight: 500,
-								color: gray700,
+							"& .MuiTypography-body1": {
+								fontWeight: 400,
+								color: gray600,
+								fontSize: "1rem",
 							},
 							"& .authlightButton": {
 								background: "transparent",
 								border: `1px solid ${gray300}`,
-								fontWeight: 700,
 								color: gray700,
 							},
 							"& .authOption": {
 								borderTop: `1px solid ${gray200}`,
 								textAlign: "center",
+								margin: "0.25rem 0 0",
 								"& .MuiTypography-root": {
 									textAlign: "center",
 									background: "white",
 									position: "relative",
 									top: "-0.925rem",
+									fontSize: "0.75rem",
 									padding: "0 0.5rem",
 									color: gray600,
 									display: "inline-block",
 								},
 							},
 							"& .authRemember": {
+								"& .authLink": {
+									marginBottom: 0,
+								},
 								"& .MuiCheckbox-root": {
-									margin: "0 0 0 -0.5rem",
+									padding: "0.5rem",
+								},
+								"& .MuiFormControlLabel-label": {
+									color: gray700,
+									fontWeight: 500,
+									fontSize: "0.875rem",
 								},
 								"& .MuiButton-text": {
 									padding: 0,
@@ -923,6 +943,20 @@ const theme = createTheme({
 									fontWeight: 600,
 									"&:hover": {
 										background: "transparent",
+									},
+								},
+								"& .MuiFormGroup-root": {
+									display: "flex",
+									flexDirection: "row",
+									alignItems: "center",
+									gap: 5,
+									"& .MuiFormControlLabel-root": {
+										margin: 0,
+									},
+									"& a": {
+										color: gray600,
+										fontWeight: 500,
+										fontSize: "0.875rem",
 									},
 								},
 							},
@@ -938,6 +972,10 @@ const theme = createTheme({
 										textDecoration: "none",
 									},
 								},
+							},
+							"& .MuiButtonBase-root": {
+								fontSize: "1rem",
+								height: "2.75rem",
 							},
 						},
 						"& .MuiTypography-h4": {
