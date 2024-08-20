@@ -16,6 +16,7 @@ import type {
   Ontologies,
   Organization,
   Organizations,
+  SearchAllParams,
   Signup200,
   Term,
   Terms,
@@ -243,6 +244,21 @@ export const getMatchTerms = (
     params?: GetMatchTermsParams,
  options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<Terms>(
+      {url: `/${group}/match/${term}`, method: 'GET',
+        params
+    },
+      options);
+    }
+  
+/**
+ * @summary List all matching terms, ontologies and organizations
+ */
+export const searchAll = (
+    group: string,
+    term: string,
+    params?: SearchAllParams,
+ options?: SecondParameter<typeof customInstance>,) => {
+      return customInstance<unknown>(
       {url: `/${group}/search/${term}`, method: 'GET',
         params
     },
@@ -375,6 +391,7 @@ export type GetHierarchyResultsResult = NonNullable<Awaited<ReturnType<typeof ge
 export type AddTermResult = NonNullable<Awaited<ReturnType<typeof addTerm>>>
 export type BulkEditTermsResult = NonNullable<Awaited<ReturnType<typeof bulkEditTerms>>>
 export type GetMatchTermsResult = NonNullable<Awaited<ReturnType<typeof getMatchTerms>>>
+export type SearchAllResult = NonNullable<Awaited<ReturnType<typeof searchAll>>>
 export type GetCuriesResult = NonNullable<Awaited<ReturnType<typeof getCuries>>>
 export type GetVariantsResult = NonNullable<Awaited<ReturnType<typeof getVariants>>>
 export type GetVersionsResult = NonNullable<Awaited<ReturnType<typeof getVersions>>>
