@@ -8,7 +8,7 @@ import NewTermSidebar from "./NewTermSidebar";
 import AddPredicatesStep from "./AddPredicatesStep";
 import StatusStep from "../common/StatusStep";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import { getTermStatusProps } from "./termStatusProps";
+import { getAddTermStatusProps } from "./termStatusProps";
 import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
 import * as mockApiInterlex from "../../api/endpoints/interLexURIStructureAPI";
 import { termParser } from "../../parsers/termParser";
@@ -173,7 +173,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
 
     const isResultsEmpty = termResults.length === 0;
 
-    const statusProps = getTermStatusProps(responseStatus, termValue);
+    const statusProps = getAddTermStatusProps(responseStatus, termValue);
 
     return (
         <>

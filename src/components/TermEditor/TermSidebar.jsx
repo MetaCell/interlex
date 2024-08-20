@@ -1,14 +1,11 @@
 import React from 'react';
 import { Box, Typography, IconButton, Tooltip, Stack, Divider, Grid, CircularProgress, Chip } from '@mui/material';
 import CustomSingleSelect from '../common/CustomSingleSelect';
-import { StartIcon, JoinRightIcon } from '../../Icons';
 import CopyLinkComponent from '../common/CopyLinkComponent';
-import { ListIcon } from '../../Icons';
+import { ListIcon, StartIcon } from '../../Icons';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 import { vars } from '../../theme/variables';
-import Hierarchy from '../SingleTermView/OverView/Hierarchy';
-import Predicates from '../SingleTermView/OverView/Predicates';
 
 const { gray200, gray500, gray600, gray800 } = vars;
 
@@ -57,7 +54,7 @@ export default function TermSidebar({ open, loading, onToggle, data }) {
                         <Divider orientation='vertical' flexItem sx={{ ml: "10px", mr: "10px", borderColor: '#DADDDC' }} />
                         <Tooltip title="Collapse potential matches" placement='left'>
                             <IconButton onClick={onToggle} sx={{ border: `1px solid ${gray200}` }}>
-                                <ListIcon />
+                                <StartIcon />
                             </IconButton>
                         </Tooltip>
                     </Box>
@@ -206,12 +203,6 @@ export default function TermSidebar({ open, loading, onToggle, data }) {
                                     </Stack>
                                 </Grid>
                             </Grid>
-                            <Box width={1} mt={4}>
-                                <Hierarchy />
-                            </Box>
-                            <Box width={1} mt={4}>
-                                <Predicates data={data} loading={loading} />
-                            </Box>
                         </>
                     )}
                 </Box>

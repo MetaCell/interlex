@@ -50,7 +50,7 @@ const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueBut
     </Box>
 );
 
-const TermDialog = ({ open, handleClose, searchTerm }) => {
+const TermDialog = ({ open, handleClose, searchTerm, forwardPredicateStep }) => {
     const [activeStep, setActiveStep] = useState(0);
     const [areMatchesChecked, setAreMatchesChecked] = useState(false);
 
@@ -61,6 +61,12 @@ const TermDialog = ({ open, handleClose, searchTerm }) => {
     const handleReset = () => { setAreMatchesChecked(false); setActiveStep(0) }
     const isSearchTermAvailable = searchTerm ? true : false;
     const isContinueButtonDisabled = !isSearchTermAvailable && !areMatchesChecked;
+
+    React.useEffect(() => {
+        if(forwardPredicateStep) {
+            setActiveStep(1)
+        }
+    }, [forwardPredicateStep])
 
     return (
         <CustomizedDialog

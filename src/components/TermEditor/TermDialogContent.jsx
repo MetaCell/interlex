@@ -2,9 +2,11 @@ import * as React from "react";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Box, Stack, Typography, Chip } from "@mui/material";
 import AddPredicatesStep from "./AddPredicatesStep";
-import TermStatusStep from "./TermStatusStep";
+import StatusStep from "../common/StatusStep";
 import TermForm from "./TermForm";
 import TermSidebar from "./TermSidebar";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import { getTermStatusProps } from "./termStatusProps";
 import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
 import { termParser } from "../../parsers/termParser";
 import { debounce } from 'lodash';
@@ -19,7 +21,7 @@ const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
     const { getMatchTerms } = useMockApi();
     const [loading, setLoading] = useState(true);
     const [openSidebar, setOpenSidebar] = useState(true);
-    const [responseStatus, setResponseStatus] = useState('success')
+    const [responseStatus, setResponseStatus] = useState({ success: true })
     const [predicates, setPredicates] = useState([{ subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }])
     const [data, setData] = useState(null);
     const [formState, setFormState] = useState({
@@ -48,7 +50,6 @@ const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
     );
 
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
-    const handleUndoAction = () => { console.log("here connect to DELETE method") }
     const handleFormInputChange = (e) => {
         const { name, value } = e.target;
         if (name === "label") {
@@ -94,7 +95,7 @@ const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
     }, [memoData]);
 
     useEffect(() => {
-        if(activeStep === 2){
+        if (activeStep === 2) {
             console.log("POST: connect post method here and set response status")
         }
     }, [activeStep])
@@ -103,6 +104,8 @@ const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
         label: row.title,
         value: row.title
     }));
+
+    const statusProps = getTermStatusProps(responseStatus, searchTerm);
 
     return (
         <>
@@ -131,7 +134,16 @@ const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
                 </Box>
             )}
             {activeStep === 1 && <AddPredicatesStep searchTerm={searchTerm} predicatesOptions={predicatesOptions} />}
-            {activeStep === 2 && <TermStatusStep showAddButton={false} responseStatus={responseStatus} termValue={searchTerm} onUndo={handleUndoAction} onAddNewTerm={onReset} />}
+            {/* {activeStep === 2 && <StatusStep showAddButton={false} responseStatus={responseStatus} termValue={searchTerm} onUndo={handleUndoAction} onAddNewTerm={onReset} />} */}
+            {activeStep === 2 && (
+                <StatusStep
+                    statusProps={statusProps}
+                    onAction={onReset}
+                    onTryAgain={() => console.log("Try again")}
+                    // onClose={handleCancelBtnClick}
+                    actionButtonStartIcon={<AddOutlinedIcon />}
+                />
+            )}
         </>
     )
 }
