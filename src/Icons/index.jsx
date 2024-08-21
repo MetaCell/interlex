@@ -305,8 +305,8 @@ export const StatusErrorBackgroundPattern = () => (
       <path d="M59 46.41L57.59 45L52 50.59L46.41 45L45 46.41L50.59 52L45 57.59L46.41 59L52 53.41L57.59 59L59 57.59L53.41 52L59 46.41Z" fill="white"/>
     </g>
     <defs>
-      <filter id="filter0_dd_4943_52335" x="29" y="30" width="46" height="46" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <filter id="filter0_dd_4943_52335" x="29" y="30" width="46" height="46" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+        <feFlood floodOpacity="0" result="BackgroundImageFix"/>
         <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
         <feOffset dy="1"/>
         <feGaussianBlur stdDeviation="1"/>
@@ -322,8 +322,8 @@ export const StatusErrorBackgroundPattern = () => (
         <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_4943_52335" result="shape"/>
       </filter>
       <linearGradient id="paint0_linear_4943_52335" x1="52" y1="0" x2="52" y2="104" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#F9FAFB"/>
-        <stop offset="1" stop-color="#EDF0F3"/>
+        <stop stopColor="#F9FAFB"/>
+        <stop offset="1" stopColor="#EDF0F3"/>
       </linearGradient>
     </defs>
   </svg>
@@ -337,8 +337,8 @@ export const StatusWarningBackgroundPattern = () => (
       <path d="M50.7993 55.5994H53.1994V57.9995H50.7993V55.5994ZM50.7993 45.9992H53.1994V53.1994H50.7993V45.9992ZM51.9873 39.999C45.3632 39.999 39.999 45.3752 39.999 51.9993C39.999 58.6235 45.3632 63.9997 51.9873 63.9997C58.6235 63.9997 63.9997 58.6235 63.9997 51.9993C63.9997 45.3752 58.6235 39.999 51.9873 39.999ZM51.9993 61.5996C46.6952 61.5996 42.3991 57.3035 42.3991 51.9993C42.3991 46.6952 46.6952 42.3991 51.9993 42.3991C57.3035 42.3991 61.5996 46.6952 61.5996 51.9993C61.5996 57.3035 57.3035 61.5996 51.9993 61.5996Z" fill="#FFFCF5"/>
     </g>
     <defs>
-      <filter id="filter0_dd_4165_32659" x="29" y="30" width="46" height="46" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <filter id="filter0_dd_4165_32659" x="29" y="30" width="46" height="46" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+        <feFlood floodOpacity="0" result="BackgroundImageFix"/>
         <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
         <feOffset dy="1"/>
         <feGaussianBlur stdDeviation="1"/>
@@ -354,8 +354,8 @@ export const StatusWarningBackgroundPattern = () => (
         <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow_4165_32659" result="shape"/>
       </filter>
       <linearGradient id="paint0_linear_4165_32659" x1="52" y1="0" x2="52" y2="104" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#F9FAFB"/>
-        <stop offset="1" stop-color="#EDF0F3"/>
+        <stop stopColor="#F9FAFB"/>
+        <stop offset="1" stopColor="#EDF0F3"/>
       </linearGradient>
     </defs>
   </svg>

@@ -188,6 +188,7 @@ const Search = () => {
       onClose={handleCloseList}
       onFocus={handleInputFocus}
       forcePopupIcon={false}
+      getOptionLabel={(option) => option.label || option.name || ''}
       renderOption={(props, option, { selected }) => {
         const { key, ...otherProps } = props;
         return (
