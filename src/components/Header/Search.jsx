@@ -14,6 +14,7 @@ import {
 import { vars } from "../../theme/variables";
 import { useEffect, useState, useCallback, forwardRef } from 'react';
 import {getMatchTerms} from "../../api/endpoints";
+import {searchAll} from "../../api/endpoints";
 import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
 import { useNavigate } from "react-router-dom";
 import { debounce } from 'lodash';
@@ -124,10 +125,10 @@ const Search = () => {
   }, [handleKeyDown]);
 
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
-    const data = await getMatchTerms(searchTerm);
+    const data = await searchAll(searchTerm);
     setTerms(data?.results);
-  }, 500), []);
-
+  }, 500), [searchAll]);
+  
   useEffect(() => {
     if (searchTerm && storedSearchTerm !== searchTerm) {
       fetchTerms(searchTerm);
@@ -192,10 +193,18 @@ const Search = () => {
         return (
           <ListItem key={key} {...otherProps} sx={styles.listItem}>
             <TermsIcon />
-            <Typography variant="body1">{option?.label}</Typography>
-            <Typography variant="body2">{option?.submittedBy}</Typography>
-            <Chip label={selected ? "Fork" : "Curated"} variant="outlined" color={selected ? 'success' : 'default'} />
-            <Button variant="text" id={option?.label} sx={styles.searchButton}>
+            <Typography variant='body1'>{option?.label || option?.name}</Typography>
+            <Typography variant='body2'>{option?.submittedBy}</Typography>
+            {selected ? <Chip label="Fork" variant='outlined' color='success' /> : <Chip label="Curated" variant='outlined' />}
+            <Button
+              variant='text'
+              id={option?.label}
+              sx={{
+                p: 0, height: 'auto', lineHeight: 1, background: 'transparent',
+                '&:hover': {
+                  backgroundColor: 'transparent'
+                }
+              }}>
               Go to <ForwardIcon />
             </Button>
           </ListItem>
