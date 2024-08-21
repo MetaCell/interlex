@@ -73,7 +73,7 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
     }}>
       {
         organizations?.map((organization, index) => (
-          <ListItem key={index}>
+          <ListItem key={index} onClick={() => navigate(`/organizations/${organization.name}`)}>
             <Box display='flex' alignItems='center' justifyContent='space-between' width={1}>
               <img src={organization.logo} alt={organization.name} />
               {
