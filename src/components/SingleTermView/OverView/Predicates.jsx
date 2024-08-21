@@ -9,7 +9,7 @@ import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
 
 const { gray800 } = vars;
 
-const Predicates = ({ data }) => {
+const Predicates = ({ data, isGraphVisible }) => {
   const [predicates, setPredicates] = React.useState([]);
   const [toggleButtonValue, setToggleButtonValue] = React.useState('compress')
   
@@ -48,7 +48,7 @@ const Predicates = ({ data }) => {
         </ToggleButtonGroup>
       </Box>
     </Box>
-    <PredicatesAccordion data={predicates} expandAllPredicates={toggleButtonValue === 'expand'} />
+    <PredicatesAccordion data={predicates} expandAllPredicates={toggleButtonValue === 'expand'} isGraphVisible={isGraphVisible} />
   </Box>
 
 }

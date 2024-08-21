@@ -54,7 +54,7 @@ const OverView = ({ isCodeViewVisible, selectedDataFormat }) => {
                 <Hierarchy />
               </Grid>
               <Grid item xs={12} lg={8}>
-                <Predicates data={memoData} loading={loading} />
+                <Predicates data={memoData} loading={loading} isGraphVisible={true} />
               </Grid>
             </Grid>
           </Box>
