@@ -38,6 +38,7 @@ import {useQuery} from "../../helpers";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import CreateForkDialog from "./CreateForkDialog";
 
 const { gray200, brand700, gray600 } = vars;
 
@@ -55,6 +56,15 @@ const SingleTermView = () => {
   const query = useQuery();
   const searchTerm = query.get('searchTerm');
   const openDataFormatMenu = Boolean(dataFormatAnchorEl);
+	const [openForkDialog, setOpenForkDialog] = React.useState(false);
+
+    const handleForkDialogClose = () => {
+      setOpenForkDialog(false);
+    }
+
+    const handleOpenForkDialog = () => {
+      setOpenForkDialog(true);
+    }
   const handleClickDataFormatMenu = (event) => {
     setDataFormatAnchorEl(event.currentTarget);
   };
@@ -93,6 +103,7 @@ const SingleTermView = () => {
   ];
   
   return (
+		<>
     <Box display="flex" flexDirection="column">
       <Box p="1.5rem 5rem 0rem 5rem">
         <Grid container>
@@ -135,7 +146,7 @@ const SingleTermView = () => {
                 Edit term
               </Button>
               <Divider orientation="vertical" flexItem />
-              <Button type="string" color="secondary" startIcon={<ForkRightIcon />}>
+              <Button type="string" color="secondary" startIcon={<ForkRightIcon />} onClick={handleOpenForkDialog}>
                 Create fork
               </Button>
               <ButtonGroup
@@ -226,6 +237,11 @@ const SingleTermView = () => {
         tabValue === 3 &&  <Discussion />
       }
     </Box>
+		<CreateForkDialog
+			open={openForkDialog}
+			handleClose={handleForkDialogClose}
+		/>
+		</>
   )
 }
 
