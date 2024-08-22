@@ -40,7 +40,7 @@ function a11yProps(index) {
   };
 }
 
-const BasicTabs = ({tabs, tabValue, handleChange}) => {
+const BasicTabs = ({tabs, tabValue, handleChange, tabStyles}) => {
   
   return (
       <Box sx={{ width: 'fit-content', borderBottom: 1, borderColor: gray200 }}>
@@ -66,7 +66,7 @@ const BasicTabs = ({tabs, tabValue, handleChange}) => {
           }
         }}>
           {
-            tabs.map((tab, i) => <Tab key={i} label={tab} {...a11yProps(i)} />)
+            tabs.map((tab, i) => <Tab key={i} label={tab} {...a11yProps(i)} sx={{tabStyles}} />)
           }
         </Tabs>
       </Box>

@@ -1,10 +1,11 @@
-import { Box, Button, Divider, IconButton, TextField, Autocomplete, InputAdornment, Typography, Chip } from "@mui/material";
+import { Box, Button, Divider, IconButton, TextField, Autocomplete, InputAdornment, Typography, Chip, tabClasses } from "@mui/material";
 import { vars } from "../../theme/variables";
 import { useEffect, useState, useCallback } from 'react';
-import {searchAll} from "../../api/endpoints";
+import { searchAll } from "../../api/endpoints";
 import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import BasicTabs from "../common/CustomTabs";
 import { useNavigate } from "react-router-dom";
 import { debounce } from 'lodash';
 import { useQuery } from "../../helpers";
@@ -19,46 +20,49 @@ const styles = {
 
 
 const Search = () => {
-  const [searchTerm, setSearchTerm] = useState( "");
+  const [searchTerm, setSearchTerm] = useState("");
   const [openList, setOpenList] = useState(false);
   const [selectedValue, setSelectedValue] = useState(null);
+  const [tabValue, setTabValue] = useState(0);
   const navigate = useNavigate();
   const query = useQuery();
   const storedSearchTerm = query.get('searchTerm');
-  
+
   const [terms, setTerms] = useState([]);
-  
+
   const handleOpenList = () => {
     setOpenList(true);
   };
-  
+
   const handleCloseList = () => {
     setOpenList(false);
   };
-  
+
   const handleInputChange = (event) => {
     setSearchTerm(event.target.value);
   };
-  
+
   const onSelectTerm = (event, newInputValue) => {
     setSearchTerm("");
     setSelectedValue(newInputValue?.label);
     handleCloseList();
     navigate(`/view?searchTerm=${newInputValue?.label}`);
   };
-  
+
   const handleClickSearchTerm = () => {
     setSelectedValue(searchTerm);
     navigate(`/search?searchTerm=${searchTerm}`);
     handleCloseList();
   };
-  
+
   const onInputFocus = (event) => {
     if (event.target.value) {
       fetchTerms(event.target.value)
     }
   }
-  
+
+  const handleChangeTabs = (event, newValue) => setTabValue(newValue);
+
   const handleKeyDown = useCallback(event => {
     if (event.ctrlKey && event.key === 'k') {
       setOpenList(true);
@@ -67,33 +71,33 @@ const Search = () => {
       handleCloseList();
     }
   }, []);
-  
+
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
-    
+
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [handleKeyDown]);
-  
+
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await searchAll(searchTerm);
     setTerms(data?.results);
   }, 500), [searchAll]);
-  
+
   useEffect(() => {
     if (searchTerm && (storedSearchTerm !== searchTerm)) {
       fetchTerms(searchTerm);
     }
   }, [searchTerm, fetchTerms, storedSearchTerm]);
-  
+
   useEffect(() => {
     if (storedSearchTerm !== searchTerm) {
       setSearchTerm(storedSearchTerm);
     }
   }, [storedSearchTerm]);
-  
-  
+
+
   return (
     <Autocomplete
       sx={{
@@ -104,7 +108,7 @@ const Search = () => {
       options={terms}
       onChange={onSelectTerm}
       filterOptions={options => options}
-      open={openList}
+      open={true}
       onOpen={handleOpenList}
       onClose={handleCloseList}
       onFocus={onInputFocus}
@@ -116,13 +120,13 @@ const Search = () => {
             display: 'flex',
             gap: '0.5rem',
             alignItems: 'center',
-            
+
             '&:hover': {
               '& .MuiChip-root': {
                 display: 'none',
               }
             },
-            
+
             '&:not(:hover)': {
               '& .MuiButton-root': {
                 display: 'none'
@@ -189,7 +193,7 @@ const Search = () => {
                   lineHeight: '142.857%',
                   color: gray800
                 },
-                
+
                 '& .MuiTypography-body2': {
                   fontSize: '0.875rem',
                   flex: 1,
@@ -198,23 +202,23 @@ const Search = () => {
                   color: gray500
                 },
               }} {...props}>
-                <ListItem className='MuiAutocomplete-option' sx={{
+                {/* <ListItem className='MuiAutocomplete-option' sx={{
                   '&:hover': {
                     backgroundColor: 'transparent !important',
                     cursor: 'default'
                   }
                 }}>
                   <Typography variant='body1'>I’m looking for...</Typography>
-                </ListItem>
+                </ListItem> */}
                 <ListItem className='MuiAutocomplete-option'
                   onClick={handleClickSearchTerm}
                   sx={{
-                  display: 'flex',
-                  gap: '0.5rem',
-                  alignItems: 'center',
-                }}>
+                    display: 'flex',
+                    gap: '0.5rem',
+                    alignItems: 'center',
+                  }}>
                   <SearchIcon />
-                  <Typography sx={{flex: 1}} variant='body1'>{searchTerm}</Typography>
+                  <Typography sx={{ flex: 1 }} variant='body1'>{searchTerm}</Typography>
                   <Button
                     variant='text'
                     sx={{
@@ -223,13 +227,20 @@ const Search = () => {
                         backgroundColor: 'transparent'
                       }
                     }}
-                  >Search all</Button>
+                  >Browse all</Button>
                 </ListItem>
               </List>
             </Box>
-              <Divider sx={{borderColor: gray200}} /></> ) }
-            
+              <Divider sx={{ borderColor: gray200 }} /></>)}
             <Box p="0.875rem 0.5rem 0.5rem 0.5rem">
+              <ListItem className='MuiAutocomplete-option' sx={{
+                '&:hover': {
+                  backgroundColor: 'transparent !important',
+                  cursor: 'default'
+                }
+              }}>
+                <Typography variant='body1'>I’m looking for specific type</Typography>
+              </ListItem>
               <List sx={{
                 '& .MuiTypography-body1': {
                   fontSize: '0.875rem',
@@ -237,7 +248,7 @@ const Search = () => {
                   lineHeight: '142.857%',
                   color: gray800
                 },
-                
+
                 '& .MuiTypography-body2': {
                   fontSize: '0.875rem',
                   flex: 1,
@@ -246,14 +257,23 @@ const Search = () => {
                   color: gray500
                 },
               }} {...props}>
-                <ListItem className='MuiAutocomplete-option' sx={{
+                <BasicTabs
+                  tabValue={tabValue}
+                  handleChange={handleChangeTabs}
+                  tabs={["Terms", "Predicates", "Ontologies"]}
+                  tabStyles={{
+                    fontSize: "0.875rem",
+                    lineHeight: "1.25rem"
+                  }}
+                />
+                {/* <ListItem className='MuiAutocomplete-option' sx={{
                   '&:hover': {
                     backgroundColor: 'transparent !important',
                     cursor: 'default'
                   }
                 }}>
                   <Typography variant='body1'>Terms</Typography>
-                </ListItem>
+                </ListItem> */}
                 {props?.children}
               </List>
             </Box>
