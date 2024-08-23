@@ -16,6 +16,7 @@ import { vars } from "../../theme/variables";
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import OntologySearch from "./OntologySearch";
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
+import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import CopyLinkComponent from "../common/CopyLinkComponent";
 import BasicTabs from "../common/CustomTabs";
 import CustomButton from "../common/CustomButton";
@@ -104,6 +105,8 @@ const SingleTermView = () => {
     { label: 'ILX:0101901' },
   ];
 
+  const isItFork = true;
+
   return (
     <>
       <Box display="flex" flexDirection="column">
@@ -148,9 +151,15 @@ const SingleTermView = () => {
                   Edit term
                 </Button>
                 <Divider orientation="vertical" flexItem />
-                <Button type="string" color="secondary" startIcon={<ForkRightIcon />} onClick={handleOpenRequestMergeDialog}>
-                  Create fork
-                </Button>
+                {isItFork ? (
+                  <Button type="string" color="secondary" startIcon={<RateReviewOutlinedIcon />} onClick={handleOpenRequestMergeDialog}>
+                    Request to merge changes to curated
+                  </Button>
+                ) : (
+                  <Button type="string" color="secondary" startIcon={<ForkRightIcon />}>
+                    Create fork
+                  </Button>
+                )}
                 <ButtonGroup
                   variant="outlined"
                   ref={anchorRef}
