@@ -1,9 +1,11 @@
 import {Box, Typography, Button, Link, List, ListItem, ListItemText} from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
 import { vars } from "../../theme/variables";
 const { gray700, gray500, gray200, brand600 } = vars;
 
 const OrganizationsList = ({organizations, viewJoinButton = true}) => {
+  const navigate = useNavigate();
   return (
     <List sx={{
       width: '100%',
@@ -71,13 +73,14 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
     }}>
       {
         organizations?.map((organization, index) => (
-          <ListItem key={index}>
+          <ListItem key={index} onClick={() => navigate(`/organizations/${organization.name}`)}>
             <Box display='flex' alignItems='center' justifyContent='space-between' width={1}>
-              <img src={organization.logo} alt={organization.title} />
+              <img src={organization.logo} alt={organization.name} />
               {
                 viewJoinButton && <Button
                   variant="outlined"
                   className="join-button"
+                  onClick={() => navigate(`/organizations/${organization.name}`)}
                   startIcon={<PersonAddOutlinedIcon />}
                   sx={{
                     display: 'none',
@@ -90,7 +93,7 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
             </Box>
             <ListItemText primary={
               <Box display='flex' alignItems='center' justifyContent='space-between'>
-                <Typography component='span'>{organization.title}</Typography>
+                <Typography component='span'>{organization.name}</Typography>
                 {organization.link && (
                   <Link href={organization.link} display='flex'>
                     {organization.link}
