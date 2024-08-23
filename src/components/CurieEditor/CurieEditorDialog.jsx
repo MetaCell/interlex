@@ -36,7 +36,7 @@ const CurieEditorDialog = ({ open, handleClose, onSubmit, children, isFromOrgani
 
     return (
         <>
-            <CustomizedDialog title='Curie editor' open={open} handleClose={handleClose}
+            <CustomizedDialog title={isFromOrganization ? "Curie editor - organization" : "Curie editor"} open={open} handleClose={handleClose}
                 HeaderRightSideContent={
                     <HeaderRightSideContent
                         handleClose={handleClose}
