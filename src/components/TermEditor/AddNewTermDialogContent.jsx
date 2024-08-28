@@ -1,10 +1,8 @@
 import * as React from "react";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Divider, MobileStepper, Stack, Button } from "@mui/material";
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { Box } from "@mui/material";
 import { vars } from "../../theme/variables";
-import CustomizedDialog from "../common/CustomizedDialog";
 import BasicTabs from "../common/CustomTabs";
 import ManualImportTab from "./ManualImportTab";
 import ImportFileTab from "./ImportFileTab";
@@ -23,7 +21,7 @@ import { debounce } from 'lodash';
 const useMockApi = () => mockApi;
 const useMockApiInterlex = () => mockApiInterlex;
 
-const { gray100, gray200, gray400, brand700, gray800, gray700 } = vars;
+const { gray800, gray700 } = vars;
 
 const initialFormState = {
     label: "",
@@ -102,7 +100,6 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
 
     const handleChangeTabs = (_, newValue) => setTabValue(newValue);
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
-    const handleUndoAction = () => { console.log("here connect to DELETE method") }
     const handleAddNewTerm = () => {
         onReset();
         setTermValue('');
@@ -149,7 +146,6 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
 
     const handleGoToTermClick = () => {
         navigate(`/view?searchTerm=${termValue.charAt(0).toUpperCase() + termValue.slice(1)}`);
-        handleClose();
     }
 
     useEffect(() => {
@@ -251,7 +247,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
                 statusProps={statusProps}
                 onAction={handleAddNewTerm}
                 onTryAgain={() => console.log("Try again")}
-                onClose={handleCancelBtnClick}
+                onClose={handleGoToTermClick}
                 actionButtonStartIcon={<AddOutlinedIcon />}
                 additionalInfo={formattedNewTermId}
             />}
