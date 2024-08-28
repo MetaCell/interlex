@@ -6,14 +6,13 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { vars } from "../../theme/variables";
 import CustomizedDialog from "../common/CustomizedDialog";
 import BasicTabs from "../common/CustomTabs";
-import CustomButton from "../common/CustomButton";
 import ManualImportTab from "./ManualImportTab";
 import ImportFileTab from "./ImportFileTab";
 import NewTermSidebar from "./NewTermSidebar";
 import AddPredicatesStep from "./AddPredicatesStep";
 import StatusStep from "../common/StatusStep";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import { getTermStatusProps } from "./termStatusProps";
+import { getAddTermStatusProps } from "./termStatusProps";
 import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
 import * as mockApiInterlex from "../../api/endpoints/interLexURIStructureAPI";
 import { termParser } from "../../../src/parsers/termParser";
@@ -50,56 +49,15 @@ const formatIdText = (termId) => {
     );
 }
 
-const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueButtonDisabled, onGoToTermClick }) => (
-    <Box display='flex' alignItems='center'>
-        <>
-            <MobileStepper
-                variant="dots"
-                steps={3}
-                position="static"
-                activeStep={activeStep}
-                sx={{
-                    maxWidth: 64,
-                    flexGrow: 1,
-                    '& .MuiMobileStepper-dots': { gap: '0.75rem' },
-                    '& .MuiMobileStepper-dot': { margin: 0, backgroundColor: gray200 },
-                    '& .MuiMobileStepper-dotActive': { backgroundColor: brand700 }
-                }}
-            />
-            <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
-            {activeStep !== 2 ? (
-                <Stack direction="row" spacing={1.5}>
-                    <CustomButton onClick={onClose}>Cancel</CustomButton>
-                    <Button
-                        onClick={onContinue}
-                        disabled={isContinueButtonDisabled}
-                        variant="contained"
-                        endIcon={<ArrowForwardIcon />}
-                        sx={{
-                            padding: '0.625rem 0.875rem',
-                            '&.Mui-disabled': { border: `1px solid ${gray200}`, color: gray400, backgroundColor: gray100 }
-                        }}
-                    >
-                        Continue
-                    </Button>
-                </Stack>
-            ) : (
-                <Button variant="contained" onClick={onGoToTermClick} endIcon={<ArrowForwardIcon />}>Go to term</Button>
-            )}
-        </>
-    </Box>
-);
+const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChange, onReset }) => {
 
-const AddNewTermDialog = ({ open, handleClose }) => {
     const { getMatchTerms } = useMockApi();
     const { getEndpointsIlx } = useMockApiInterlex();
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
     const [termResults, setTermResults] = useState([]);
-    const [activeStep, setActiveStep] = useState(0);
     const [tabValue, setTabValue] = useState(0);
     const [openSidebar, setOpenSidebar] = useState(true);
-    const [areMatchesChecked, setAreMatchesChecked] = useState(false);
     const [data, setData] = useState(null);
     const [responseStatus, setResponseStatus] = useState(null)
     const [termValue, setTermValue] = useState('');
@@ -143,18 +101,14 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     }, [addTerm]);
 
     const handleChangeTabs = (_, newValue) => setTabValue(newValue);
-    const handleContinueClick = () => {
-        setActiveStep(activeStep + 1);
-    }
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
-    const handleMatchesChange = (e) => setAreMatchesChecked(e.target.checked);
-    const handleCancelBtnClick = () => { handleClose(); setActiveStep(0); setAreMatchesChecked(false); };
+    const handleUndoAction = () => { console.log("here connect to DELETE method") }
     const handleAddNewTerm = () => {
-        setActiveStep(0);
+        onReset();
         setTermValue('');
-        setAreMatchesChecked(false);
-        setFormState(initialFormState);
-    };
+        setIds([]);
+        setFormState(initialFormState)
+    }
     const handleFormInputChange = (e) => {
         const { name, value } = e.target;
         if (name === "label") {
@@ -266,24 +220,10 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const formattedNewTermId = formatIdText(newTermId);
 
 
-    const statusProps = getTermStatusProps(responseStatus, termValue);
+    const statusProps = getAddTermStatusProps(responseStatus, termValue);
 
     return (
-        <CustomizedDialog
-            title='Add a new term'
-            open={open}
-            handleClose={handleClose}
-            HeaderRightSideContent={
-                <HeaderRightSideContent
-                    activeStep={activeStep}
-                    onContinue={handleContinueClick}
-                    onClose={handleCancelBtnClick}
-                    onGoToTermClick={handleGoToTermClick}
-                    isContinueButtonDisabled={isContinueButtonDisabled}
-                />
-            }
-            sx={{ '& .MuiDialogContent-root': { padding: 0, overflowY: "hidden" } }}
-        >
+        <>
             {activeStep === 0 && (
                 <Box display="flex" height={1}>
                     <Box sx={{ px: '3.25rem', pt: '1.75rem', pb: '2.5rem', flex: 1, overflowY: 'auto' }}>
@@ -294,7 +234,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                                 onInputChange={handleFormInputChange}
                                 handleSidebarOpen={() => setOpenSidebar(true)}
                                 matchesChecked={areMatchesChecked}
-                                handleMatchesChange={handleMatchesChange}
+                                handleMatchesChange={onMatchesChange}
                                 isResultsEmpty={isResultsEmpty}
                                 existingIDsOptions={ids}
                                 onExistingIDsChange={handleExistingIDsChange}
@@ -303,7 +243,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                         )}
                         {tabValue === 1 && <ImportFileTab files={files} url={url} onFilesChange={handleFilesSelected} onChangeUrl={handleChangeUrl} />}
                     </Box>
-                    {tabValue === 0 && <NewTermSidebar open={openSidebar} onToggle={handleSidebarToggle} results={termResults} isResultsEmpty={isResultsEmpty} />}
+                    {tabValue === 0 && <NewTermSidebar open={openSidebar} loading={loading} onToggle={handleSidebarToggle} results={termResults} isResultsEmpty={isResultsEmpty} />}
                 </Box>
             )}
             {activeStep === 1 && <AddPredicatesStep termValue={termValue.charAt(0).toUpperCase() + termValue.slice(1)} predicatesOptions={predicatesOptions} />}
@@ -315,8 +255,8 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                 actionButtonStartIcon={<AddOutlinedIcon />}
                 additionalInfo={formattedNewTermId}
             />}
-        </CustomizedDialog>
+        </>
     );
 };
 
-export default AddNewTermDialog;
+export default AddNewTermDialogContent;

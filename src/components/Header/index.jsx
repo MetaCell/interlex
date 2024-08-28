@@ -14,7 +14,7 @@ import EditBulkTermsDialog from "../Dashboard/EditBulkTerms/EditBulkTermsDialog"
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { GlobalDataContext } from "../../contexts/DataContext";
-import AddNewTermDialog from "../NewTerm/AddNewTermDialog";
+import TermDialog from '../TermEditor/TermDialog';
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 
 const { gray200, white, gray100, gray600 } = vars;
@@ -381,7 +381,7 @@ const Header = ({ isLoggedIn = true }) => {
                     </Box>
                 )}
             </Box>
-            <AddNewTermDialog
+            <TermDialog
                 open={openNewTermDialog}
                 handleClose={handleNewTermDialogClose}
             />
