@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, IconButton, Tooltip, Stack } from '@mui/material';
+import { Box, Typography, IconButton, Tooltip, Stack, CircularProgress } from '@mui/material';
 import { StartIcon, JoinRightIcon } from '../../Icons';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { vars } from '../../theme/variables';
@@ -7,7 +7,13 @@ import { vars } from '../../theme/variables';
 const { gray200, gray800, brand600 } = vars;
 
 
-export default function NewTermSidebar({ open, onToggle, results, isResultsEmpty }) {
+export default function NewTermSidebar({ open, loading, onToggle, results, isResultsEmpty }) {
+
+    if (loading) {
+        return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32rem' }}>
+            <CircularProgress />
+        </Box>
+    }
 
     return (
         <Box

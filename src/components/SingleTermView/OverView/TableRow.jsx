@@ -1,9 +1,7 @@
-import { Box, Divider, IconButton, Stack, Tooltip, Typography, TextField, Button } from "@mui/material";
+import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import { useState } from "react";
-import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
-const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, index, onInputChange, onDeleteClick, rowIndex, onRowIndexChange, onSaveEdits }) => {
+const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, index }) => {
   const { id, subject, predicate, object } = data;
   const [isHovered, setIsHovered] = useState(false);
   return (
@@ -25,43 +23,14 @@ const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, inde
           {predicate}
         </Typography>
       </Box>
-      <Box>
-        {rowIndex === index ? (
-          <TextField
-            value={object}
-            name="object"
-            onChange={(e) => onInputChange(e, index)}
-            placeholder="Enter URL or term name"
-            sx={tableStyles.input}
-          />
-        ) : (
-          <Typography>
-            {object}
-          </Typography>
-        )}
-      </Box>
-      <Box display="flex" justifyContent="flex-end">
+      <Box display="flex" justifyContent="flex-end" sx={{ paddingRight: "0 !important" }}>
         {
-          isHovered && rowIndex !== index && <Stack direction='row' spacing='.5rem'>
-            <IconButton onClick={() => onRowIndexChange(index)}>
-              <ModeEditOutlineOutlinedIcon fontSize='small' />
-            </IconButton>
-            <IconButton onClick={() => onDeleteClick(data)}>
-              <DeleteOutlineOutlinedIcon fontSize='small' />
-            </IconButton>
-            <Divider orientation="vertical" flexItem />
+          isHovered && (
             <Tooltip placement='right' title={"Help"}>
               <IconButton>
                 <HelpOutlineOutlinedIcon fontSize='small' />
               </IconButton>
             </Tooltip>
-          </Stack>
-        }
-        {
-          rowIndex === index && (
-            <Box justifyContent="flex-end">
-              <Button variant="text" onClick={() => onSaveEdits(index)} sx={tableStyles.confirmButton}>Save edits</Button>
-            </Box>
           )
         }
       </Box>
