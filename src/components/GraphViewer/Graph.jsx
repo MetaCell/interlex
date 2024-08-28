@@ -14,7 +14,6 @@ const Graph = ({ width, height, predicate }) => {
   const boundsHeight = height - MARGIN.top - MARGIN.bottom;
 
   const [terms, setTerms] = useState(undefined);
-  const [objectSearchTerm, setObjectSearchTerm] = useState('');
   const [object, setObject] = useState('');
   const [isSearchVisible, setIsSearchVisible] = useState(false);
 
@@ -53,11 +52,11 @@ const Graph = ({ width, height, predicate }) => {
     d3.selectAll(".node--leaf-g")
       .on("mousemove", mousemove)
     d3.selectAll(".node--g")
-                .on("mouseleave", mouseleave)
-    setTimeout( () => {
-        getMatchTerms("ilx_0101431").then(data => {
-            setTerms(data.results)
-        });
+      .on("mouseleave", mouseleave)
+    setTimeout(() => {
+      getMatchTerms("ilx_0101431").then(data => {
+        setTerms(data)
+      });
     }, 750);
   }, []);
 
@@ -160,38 +159,6 @@ const Graph = ({ width, height, predicate }) => {
         justifyContent: 'end',
         m: '1rem 8rem auto',
       }}>
-        {isSearchVisible ? (
-          <Collapse
-            in={isSearchVisible}
-            // timeout={10000}
-            timeout={{
-              enter: 10000, 
-              exit: 100
-            }}
-            unmountOnExit
-          >
-            <SingleSearch
-              isFullWidth={false}
-              selectedValue={object}
-              onChange={(e) => handleSelectChange(e)}
-              startAdornment={false}
-              options={terms}
-              searchTerm={objectSearchTerm}
-              setSearchTerm={setObjectSearchTerm}
-              placeholder="Enter URL or term name"
-              sx={{
-                width: '15rem'
-              }}
-            />
-          </Collapse>
-        ) : <Button
-          startIcon={<AddOutlinedIcon />}
-          type="string"
-          color="secondary"
-          onClick={handleButtonClick}
-        >
-          Add object
-        </Button>}
       </Box>
 
     </Box>
