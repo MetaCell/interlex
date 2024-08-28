@@ -8,6 +8,7 @@ import SingleSearch from "../SingleSearch";
 import { debounce } from 'lodash';
 import predicatesData from "../../../static/predicates.json"
 import {getMatchTerms} from "../../../api/endpoints";
+import * as mockApi from '../../../api/endpoints/swaggerMockMissingEndpoints';
 
 const {gray700, gray300, gray800, gray600} = vars
 

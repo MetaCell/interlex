@@ -38,6 +38,7 @@ import Discussion from "./Discussion";
 import { CodeIcon } from "../../Icons";
 import { useQuery } from "../../helpers";
 import CustomSingleSelect from "../common/CustomSingleSelect";
+import TermDialog from "../TermEditor/TermDialog";
 import { ToggleButton, ToggleButtonGroup } from "@mui/lab";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 
@@ -55,12 +56,21 @@ const SingleTermView = () => {
   const [toggleButtonValue, setToggleButtonValue] = useState('defaultView');
   const [selectedDataFormat, setSelectedDataFormat] = React.useState('JSON-LD');
   const [openRequestMergeDialog, setOpenRequestMergeDialog] = React.useState(false);
+  const [editTermDialogOpen, setEditTermDialogOpen] = React.useState(false);
   const query = useQuery();
   const searchTerm = query.get('searchTerm');
   const openDataFormatMenu = Boolean(dataFormatAnchorEl);
   const handleClickDataFormatMenu = (event) => {
     setDataFormatAnchorEl(event.currentTarget);
   };
+
+  const handleOpenEditTermDialog = () => {
+    setEditTermDialogOpen(true);
+  };
+
+  const handleCloseEditTermDialog = () => {
+    setEditTermDialogOpen(false);
+  }
 
   const handleCloseDataFormatMenu = () => {
     setDataFormatAnchorEl(null);
@@ -127,111 +137,103 @@ const SingleTermView = () => {
                 />
               </Stack>
             </Grid>
-            <Grid item xs={12} lg={6} display="flex" justifyContent="end">
-              <Stack direction="row" spacing=".5rem" alignItems="center">
-                <Typography color={gray600} fontSize=".875rem" lineHeight="1.25rem">
-                  Active Ontology:
-                </Typography>
-                <OntologySearch />
-              </Stack>
-            </Grid>
-          </Grid>
-          <Grid container mt="1.75rem">
-            <Grid item xs={12} lg={4}>
-              <Stack direction="row" spacing=".75rem" alignItems="center">
-                <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
-                  {searchTerm}
-                </Typography>
-                <Chip label="Fork" variant="outlined" />
-              </Stack>
-            </Grid>
-            <Grid display="flex" justifyContent='end' mt=".56rem" item xs={12} lg={8}>
-              <Stack direction="row" spacing="1rem" alignItems="center">
-                <Button type="string" color="secondary" startIcon={<ModeEditOutlineOutlinedIcon />}>
-                  Edit term
-                </Button>
-                <Divider orientation="vertical" flexItem />
-                {isItFork ? (
-                  <Button type="string" color="secondary" startIcon={<RateReviewOutlinedIcon />} onClick={handleOpenRequestMergeDialog}>
-                    Request to merge changes to curated
+            <Grid container mt="1.75rem">
+              <Grid item xs={12} lg={4}>
+                <Stack direction="row" spacing=".75rem" alignItems="center">
+                  <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
+                    {searchTerm}
+                  </Typography>
+                  <Chip label="Fork" variant="outlined" />
+                </Stack>
+              </Grid>
+              <Grid display="flex" justifyContent='end' mt=".56rem" item xs={12} lg={8}>
+                <Stack direction="row" spacing="1rem" alignItems="center">
+                  <Button type="string" color="secondary" startIcon={<ModeEditOutlineOutlinedIcon />} onClick={handleOpenEditTermDialog}>
+                    Suggest changes
                   </Button>
-                ) : (
-                  <Button type="string" color="secondary" startIcon={<ForkRightIcon />}>
-                    Create fork
-                  </Button>
+                  <Divider orientation="vertical" flexItem />
+                  {isItFork ? (
+                    <Button type="string" color="secondary" startIcon={<RateReviewOutlinedIcon />} onClick={handleOpenRequestMergeDialog}>
+                      Request to merge changes to curated
+                    </Button>
+                  ) : (
+                    <Button type="string" color="secondary" startIcon={<ForkRightIcon />}>
+                      Create fork
+                    </Button>
+                  )}
+                  <ButtonGroup
+                    variant="outlined"
+                    ref={anchorRef}
+                    sx={{
+                      boxShadow: open && "0px 0px 0px 4px rgba(50, 129, 115, 0.24)"
+                    }}
+                  >
+                    <Button display="flex" alignItems="center">
+                      <CreateNewFolderOutlined fontSize="medium" />
+                      Add term to active ontology
+                    </Button>
+                    <Button
+                      aria-controls={open ? 'split-button-ontology-menu' : undefined}
+                      aria-expanded={open ? 'true' : undefined}
+                      aria-label="select ontology action"
+                      aria-haspopup="ontology-menu"
+                      onMouseDown={() => {
+                        actionRef.current = () => setOpen(!open);
+                      }}
+                      onKeyDown={() => {
+                        actionRef.current = () => setOpen(!open);
+                      }}
+                      onClick={() => {
+                        actionRef.current?.();
+                      }}
+                    >
+                      {open ? <KeyboardArrowUp fontSize="medium" /> : <KeyboardArrowDown fontSize="medium" />}
+                    </Button>
+                  </ButtonGroup>
+                  <CustomMenu open={open} anchorRef={anchorRef} setOpen={setOpen} />
+                  <CustomButton onClick={handleClickDataFormatMenu}><DownloadOutlined fontSize="medium" />Download as</CustomButton>
+                  <Menu
+                    anchorEl={dataFormatAnchorEl}
+                    open={openDataFormatMenu}
+                    onClose={handleCloseDataFormatMenu}
+                  >
+                    {dataFormats.map(dataFormat => (
+                      <MenuItem key={dataFormat} onClick={() => handleDataFormatMenuItemClick(dataFormat)}>{dataFormat}</MenuItem>
+                    ))}
+                  </Menu>
+                </Stack>
+              </Grid>
+              <Grid item xs={6}>
+                <CopyLinkComponent url="http://uri.interlex.org/base/ilx_0101901" />
+              </Grid>
+              <Grid item xs={12} mt="2rem" display='flex' alignItems='center' justifyContent='space-between'>
+                <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["Overview", "Variants", "Version history", "Discussions"]} />
+                {tabValue === 0 && (
+                  <Box display="flex">
+                    {isCodeViewVisible && (<>
+                      <Stack direction="row" spacing=".5rem" alignItems="center">
+                        <Typography color={gray600} fontSize=".875rem" lineHeight="1.25rem">
+                          Format to visualize:
+                        </Typography>
+                        <CustomSingleSelect value={selectedDataFormat} onChange={(v) => setSelectedDataFormat(v)} options={dataFormats} />
+                      </Stack>
+                      <Divider sx={{ ml: '0.625rem', mr: '0.625rem', border: `1px solid ${gray200}` }} /></>)
+                    }
+                    <ToggleButtonGroup
+                      value={toggleButtonValue}
+                      exclusive
+                      onChange={onToggleButtonChange}
+                    >
+                      <ToggleButton value={'defaultView'}>
+                        <List />
+                      </ToggleButton>
+                      <ToggleButton value={'codeView'}>
+                        <CodeOrTreeIcon />
+                      </ToggleButton>
+                    </ToggleButtonGroup>
+                  </Box>
                 )}
-                <ButtonGroup
-                  variant="outlined"
-                  ref={anchorRef}
-                  sx={{
-                    boxShadow: open && "0px 0px 0px 4px rgba(50, 129, 115, 0.24)"
-                  }}
-                >
-                  <Button display="flex" alignItems="center">
-                    <CreateNewFolderOutlined fontSize="medium" />
-                    Add term to active ontology
-                  </Button>
-                  <Button
-                    aria-controls={open ? 'split-button-ontology-menu' : undefined}
-                    aria-expanded={open ? 'true' : undefined}
-                    aria-label="select ontology action"
-                    aria-haspopup="ontology-menu"
-                    onMouseDown={() => {
-                      actionRef.current = () => setOpen(!open);
-                    }}
-                    onKeyDown={() => {
-                      actionRef.current = () => setOpen(!open);
-                    }}
-                    onClick={() => {
-                      actionRef.current?.();
-                    }}
-                  >
-                    {open ? <KeyboardArrowUp fontSize="medium" /> : <KeyboardArrowDown fontSize="medium" />}
-                  </Button>
-                </ButtonGroup>
-                <CustomMenu open={open} anchorRef={anchorRef} setOpen={setOpen} />
-                <CustomButton onClick={handleClickDataFormatMenu}><DownloadOutlined fontSize="medium" />Download as</CustomButton>
-                <Menu
-                  anchorEl={dataFormatAnchorEl}
-                  open={openDataFormatMenu}
-                  onClose={handleCloseDataFormatMenu}
-                >
-                  {dataFormats.map(dataFormat => (
-                    <MenuItem key={dataFormat} onClick={() => handleDataFormatMenuItemClick(dataFormat)}>{dataFormat}</MenuItem>
-                  ))}
-                </Menu>
-              </Stack>
-            </Grid>
-            <Grid item xs={6}>
-              <CopyLinkComponent url="http://uri.interlex.org/base/ilx_0101901" />
-            </Grid>
-            <Grid item xs={12} mt="2rem" display='flex' alignItems='center' justifyContent='space-between'>
-              <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["Overview", "Variants", "Version history", "Discussions"]} />
-              {tabValue === 0 && (
-                <Box display="flex">
-                  {isCodeViewVisible && (<>
-                    <Stack direction="row" spacing=".5rem" alignItems="center">
-                      <Typography color={gray600} fontSize=".875rem" lineHeight="1.25rem">
-                        Format to visualize:
-                      </Typography>
-                      <CustomSingleSelect value={selectedDataFormat} onChange={(v) => setSelectedDataFormat(v)} options={dataFormats} />
-                    </Stack>
-                    <Divider sx={{ ml: '0.625rem', mr: '0.625rem', border: `1px solid ${gray200}` }} /></>)
-                  }
-                  <ToggleButtonGroup
-                    value={toggleButtonValue}
-                    exclusive
-                    onChange={onToggleButtonChange}
-                  >
-                    <ToggleButton value={'defaultView'}>
-                      <List />
-                    </ToggleButton>
-                    <ToggleButton value={'codeView'}>
-                      <CodeOrTreeIcon />
-                    </ToggleButton>
-                  </ToggleButtonGroup>
-                </Box>
-              )}
+              </Grid>
             </Grid>
           </Grid>
         </Box>
@@ -249,6 +251,7 @@ const SingleTermView = () => {
         }
       </Box>
       <RequestMergeChanges searchTerm={searchTerm} open={openRequestMergeDialog} handleClose={handleCloseRequestMergeDialog} />
+      <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} searchTerm={searchTerm} />
     </>
   )
 }

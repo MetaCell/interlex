@@ -8,6 +8,7 @@ import { vars } from "../../../theme/variables";
 import _, { debounce } from 'lodash';
 import { getMatchTerms } from "../../../api/endpoints";
 import CustomSnackbar from "./CustomSnackbar";
+import TermDialog from "../../TermEditor/TermDialog";
 
 const { gray100, gray50, gray600, gray500, brand600, brand50, brand700, gray700 } = vars;
 
@@ -301,16 +302,15 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
             />
           )}
         </Box>
-        {isAddButtonVisible ? (
-          <Box sx={tableStyles.root}>
-            <Box sx={{ paddingLeft: '0 !important' }}>
-              <IconButton onClick={handleOpenEditTermDialog}>
-                <AddOutlinedIcon />
-              </IconButton>
-            </Box>
+        <Box sx={tableStyles.root}>
+          <Box sx={{ paddingLeft: '0 !important' }}>
+            <IconButton onClick={handleOpenEditTermDialog}>
+              <AddOutlinedIcon />
+            </IconButton>
           </Box>
-        ) : <></>}
+        </Box>
       </Box>
+      <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} searchTerm={term} forwardPredicateStep={true} />
       <CustomSnackbar open={snackbarOpen} handleClose={handleSnackbarClose} onUndoDelete={handleUndoDelete} data={deletedObj} />
     </>
   );

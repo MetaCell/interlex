@@ -3,7 +3,7 @@ import { Box, IconButton, Typography } from "@mui/material";
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { vars } from "../../theme/variables";
 
-const { white, gray300, gray600, brand700 } = vars;
+const { white, gray300, brand700, gray600, gray700 } = vars;
 
 const MAX_FILE_SIZE_MB = 800;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
@@ -92,7 +92,7 @@ const ImportFile = ({ onFilesSelected }) => {
     }, [files, onFilesSelected]);
 
     return (
-        <Box sx={{ width: "100%", height: "142px", ...styles.dragDrop }}>
+        <Box sx={{ width: "100%", height: "8.875rem", ...styles.dragDrop }}>
             <div
                 onDrop={handleDrop}
                 style={styles.documentUploader}
@@ -101,7 +101,7 @@ const ImportFile = ({ onFilesSelected }) => {
                 <>
                     <Box sx={styles.uploadInfo}>
                         <Box>
-                            <IconButton sx={{ padding: '10px', color: '#313534', border: '1px solid #BDC2C1' }}>
+                            <IconButton sx={{ padding: '0.625rem', color: gray700, border: '1px solid #BDC2C1' }}>
                                 <ErrorOutlineIcon />
                             </IconButton>
                         </Box>
@@ -120,7 +120,7 @@ const ImportFile = ({ onFilesSelected }) => {
                         </label>
                         <span>or drag and drop</span>
                     </Box>
-                    <Typography variant="caption" sx={{ color: '#515252', cursor: 'default' }}>CSV (max. 800MB)</Typography>
+                    <Typography variant="caption" sx={{ color: gray600, cursor: 'default' }}>CSV (max. 800MB)</Typography>
                     {error && <Typography variant="caption" sx={{ color: 'red' }}>{error}</Typography>}
                 </>
             </div>
