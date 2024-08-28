@@ -138,7 +138,7 @@ const SingleTermView = () => {
               </Stack>
             </Grid>
             <Grid container mt="1.75rem">
-              <Grid item xs={12} lg={4}>
+              <Grid item xs={12} lg={2}>
                 <Stack direction="row" spacing=".75rem" alignItems="center">
                   <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
                     {searchTerm}
@@ -146,7 +146,7 @@ const SingleTermView = () => {
                   <Chip label="Fork" variant="outlined" />
                 </Stack>
               </Grid>
-              <Grid display="flex" justifyContent='end' mt=".56rem" item xs={12} lg={8}>
+              <Grid display="flex" justifyContent='end' mt=".56rem" item xs={12} lg={10}>
                 <Stack direction="row" spacing="1rem" alignItems="center">
                   <Button type="string" color="secondary" startIcon={<ModeEditOutlineOutlinedIcon />} onClick={handleOpenEditTermDialog}>
                     Suggest changes
