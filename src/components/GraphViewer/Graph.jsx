@@ -93,7 +93,7 @@ const Graph = ({ width, height, predicate }) => {
 
     const start = [boundsWidth - node.parent.y, node.parent.x]
     const end = [boundsWidth - node.y, node.x]
-    const radius = 4;
+    const radius = 5;
 
     const points = [
       start,

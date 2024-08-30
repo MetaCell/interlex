@@ -14,6 +14,7 @@ const getName = (nodeName) => {
 
   return name;
 }
+
 export const getGraphStructure = (pred) => {
   let data = {
     type : "node",
