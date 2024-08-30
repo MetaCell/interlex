@@ -1,8 +1,6 @@
 import { useMemo, useEffect, useState } from "react";
-import data from "./GraphStructure";
+import { getGraphStructure , OBJECT, SUBJECT, PREDICATE, ROOT} from "./GraphStructure";
 import * as d3 from "d3";
-import { getMatchTerms } from './../../api/endpoints';
-import { useQuery } from "../../helpers";
 import { Box } from "@mui/material";
 
 const MARGIN = { top: 60, right: 60, bottom: 60, left: 60 };
@@ -11,33 +9,17 @@ const Graph = ({ width, height, predicate }) => {
   const boundsWidth = width - MARGIN.right - MARGIN.left;
   const boundsHeight = height - MARGIN.top - MARGIN.bottom;
 
-  const [terms, setTerms] = useState(undefined);
-  const [object, setObject] = useState('');
-  const [isSearchVisible, setIsSearchVisible] = useState(false);
-
-  const query = useQuery();
-  const term = query.get('searchTerm');
-
-  const handleSelectChange = (v) => {
-    setObject(v.label)
-    setIsSearchVisible(false)
-  }
-
-  const handleButtonClick = () => {
-    setIsSearchVisible(!isSearchVisible);
-  };
-
   // Three function that change the tooltip when user hover / move / leave a cell
   const mouseover = (d) => {
     d3.select("#tooltip")
       .html((c) => {
-        return "The exact value of<br>this tooltip is: " + d.currentTarget.id
+        return d.currentTarget.id
       }).style("opacity", 1).style("left", (d.pageX) + "px").style("top", (d.pageY) + "px")
   }
   const mousemove = (event, d) => {
     d3.select("#tooltip")
       .html((c) => {
-        return "The exact value of<br>this tooltip is: " + event.currentTarget.id
+        return event.currentTarget.id
       }).style("opacity", 1).style("left", (event.pageX) + "px").style("top", (event.pageY) + "px")
 
   }
@@ -51,55 +33,47 @@ const Graph = ({ width, height, predicate }) => {
       .on("mousemove", mousemove)
     d3.selectAll(".node--g")
       .on("mouseleave", mouseleave)
-    setTimeout(() => {
-      getMatchTerms("ilx_0101431").then(data => {
-        setTerms(data)
-      });
-    }, 750);
   }, []);
 
   const hierarchy = useMemo(() => {
+    const data = getGraphStructure(predicate)
     return d3.hierarchy(data).sum((d) => d.value);
-  }, [terms]);
+  }, [predicate]);
 
   const dendrogram = useMemo(() => {
     const dendrogramGenerator = d3.cluster().size([boundsHeight, boundsWidth]);
     return dendrogramGenerator(hierarchy);
   }, [hierarchy, width, height]);
-  const xMargin = 4
-  const yMargin = 2
+
   const allNodes = dendrogram.descendants().map((node) => {
+    let textOffset = 0;
+    if ( node.data.type === OBJECT ) {
+      textOffset = 40;
+    } else if ( node.data.type === SUBJECT ) {
+      textOffset = 40;
+    } else if ( node.data.type === PREDICATE ) {
+      textOffset = 40;
+    }
+
     return (
+      
       <g key={node.id} >
-        <g>
-          <rect
-            x={boundsWidth - (node.y)}
-            y={node.x - 5}
-            width={100}
-            height={20}
-            fill="white"
-            className="node--g"
-          >
-            {node.data.name}
-          </rect>
-        </g>
         {(
           <text
-            x={boundsWidth - (node.y)}
-            y={node.x}
+            x={(boundsWidth - (node.y) ) - textOffset }
+            y={node.x - (node.data.type === ROOT ? 0 : 10)}
             id={node.data.name}
-            width={100}
+            width={80}
             height={20}
             className="node--leaf-g"
             fontSize={12}
             textAnchor="left"
             alignmentBaseline="middle"
-            fill="grey"
+            fill="black"
             target="_blank"
             href="google.com"
-            textDecoration="underline"
           >
-            {node.data.name.substring(0, 15) + '...'}
+            {node.data.name }
           </text>
         )}
       </g>
@@ -115,15 +89,14 @@ const Graph = ({ width, height, predicate }) => {
       .line()
       .x(d => d[0])
       .y(d => d[1])
-      .curve(d3.curveBundle.beta(1));
+      .curve(d3.curveBundle.beta(.75));
 
     const start = [boundsWidth - node.parent.y, node.parent.x]
     const end = [boundsWidth - node.y, node.x]
-    const radius = 5;
+    const radius = 4;
 
     const points = [
       start,
-      [start[0], end[1] - radius],
       [start[0] + radius, end[1]],
       end
     ];
@@ -133,7 +106,7 @@ const Graph = ({ width, height, predicate }) => {
         key={node.id}
         fill="none"
         stroke="grey"
-        markerStart='url(#arrow)'
+        markerStart='url(#head)'
         d={line(points)}
       />
     );
@@ -143,13 +116,26 @@ const Graph = ({ width, height, predicate }) => {
     <Box id="div_template" >
       <Box id="tooltip" style={{ position: "fixed", width: "200px", height: "200px" }}></Box>
       <svg width={width} height={height} >
+        <defs>
+          <marker
+            id="head"
+            viewBox="0 0 10 10"
+            refX="10"
+            refY="5"
+            fill="grey"
+            markerWidth="10"
+            markerHeight="10"
+            orient="auto-start">
+            <path d="M 0 0 L 10 5 L 0 10 z" />
+          </marker>
+        </defs>
         <g
           width={boundsWidth}
           height={boundsHeight}
           transform={`translate(${[MARGIN.left, MARGIN.top].join(",")})`}
         >
-          {allEdges}
           {allNodes}
+          {allEdges}
         </g>
       </svg>
       <Box sx={{
