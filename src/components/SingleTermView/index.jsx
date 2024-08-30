@@ -10,6 +10,8 @@ import {
   Menu,
   MenuItem
 } from "@mui/material";
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import ToggleButton from '@mui/material/ToggleButton';
 import CustomBreadcrumbs from "../common/CustomBreadcrumbs";
 import ForkRightIcon from '@mui/icons-material/ForkRight';
 import { vars } from "../../theme/variables";
@@ -36,9 +38,8 @@ import Discussion from "./Discussion";
 import { CodeIcon } from "../../Icons";
 import { useQuery } from "../../helpers";
 import CustomSingleSelect from "../common/CustomSingleSelect";
-import TermDialog from "../TermEditor/TermDialog";
-import { ToggleButton, ToggleButtonGroup } from "@mui/lab";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import TermDialog from "../TermEditor/TermDialog";
 
 const { gray200, brand700, gray600 } = vars;
 

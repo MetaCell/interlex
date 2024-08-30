@@ -21,7 +21,7 @@ const StatusBackground = ({ responseStatus }) => (
     </Box>
 );
 
-const StatusMessage = ({ message, description }) => (
+const StatusMessage = ({ message, description, additionalInfo }) => (
     <Box
         display='flex'
         flexDirection='column'
@@ -31,9 +31,10 @@ const StatusMessage = ({ message, description }) => (
         <Typography mt='1.25rem' mb='.75rem' color={gray900} fontSize='1.25rem' fontWeight={600}>
             {message}
         </Typography>
-        <Typography mb='2rem' color={gray600} fontSize='1rem' sx={{ textAlign: "center", maxWidth: "22rem" }}>
+        <Typography mb='1.25rem' color={gray600} fontSize='1rem' sx={{ textAlign: "center", maxWidth: "22rem" }}>
             {description}
         </Typography>
+        <Typography mb="2rem">{additionalInfo}</Typography>
     </Box>
 );
 
@@ -57,7 +58,7 @@ const ActionButtons = ({
     </Box>
 );
 
-const StatusStep = ({ statusProps, onAction, onTryAgain, onClose, actionButtonStartIcon }) => {
+const StatusStep = ({ statusProps, onAction, onTryAgain, onClose, actionButtonStartIcon, additionalInfo }) => {
     const {
         statusResponse,
         successMessage,
@@ -105,7 +106,7 @@ const StatusStep = ({ statusProps, onAction, onTryAgain, onClose, actionButtonSt
                     transform: 'translate(-50%, -10%)',
                 }}
             >
-                <StatusMessage message={message} description={description} />
+                <StatusMessage message={message} description={description} additionalInfo={additionalInfo} />
                 <ActionButtons
                     isTryButtonVisible={isTryButtonVisible}
                     isCloseButtonVisible={isCloseButtonVisible}

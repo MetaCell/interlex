@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -6,18 +6,19 @@ import {
   Divider,
   Stack,
   Typography,
-  Box, Button
+  Box, Button,
+  ToggleButtonGroup,
+  ToggleButton
 } from "@mui/material";
-import { vars } from "../../../theme/variables";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import CallMadeIcon from '@mui/icons-material/CallMade';
-import { FullscreenOutlined } from "@mui/icons-material";
 import CustomizedTable from "./CustomizedTable";
 import ViewDiagramDialog from "./ViewDiagramDialog";
 import { useQuery } from "../../../helpers";
 import Graph from "../../GraphViewer/Graph";
-import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CallMadeIcon from '@mui/icons-material/CallMade';
+import { FullscreenOutlined } from "@mui/icons-material";
 import { TableChartIcon, GraphIcon } from "../../../Icons";
+import { vars } from "../../../theme/variables";
 
 const { gray600 } = vars;
 
@@ -31,6 +32,7 @@ const PredicatesAccordion = ({ data, expandAllPredicates }) => {
 
   const imgStyle = { width: '100%' };
   const imgPath = '/success.png';
+
   const onToggleButtonChange = (index) => (event, newValue) => {
     if (newValue) {
       event.preventDefault();
@@ -54,18 +56,13 @@ const PredicatesAccordion = ({ data, expandAllPredicates }) => {
     setExpandedItems(newExpandedItems);
   };
 
-  React.useEffect(() => {
-    setToggleButtonValues(data?.map(() => 'tableView'))
-    setExpandedItems(data.map(() => false));
-  }, [data])
+  useEffect(() => {
+    const newToggleButtonValues = data?.map(() => "tableView") || [];
+    const newExpandedItems = data?.map(() => expandAllPredicates) || [];
 
-  React.useEffect(() => {
-    if (expandAllPredicates) {
-      setExpandedItems(data.map(() => true));
-    } else {
-      setExpandedItems(data.map(() => false));
-    }
-  }, [expandAllPredicates, data])
+    setToggleButtonValues(newToggleButtonValues);
+    setExpandedItems(newExpandedItems);
+  }, [data, expandAllPredicates]);
 
   const image = new Image();
   image.onload = () => <img style={imgStyle} src={imgPath} alt="preview" />
@@ -78,11 +75,11 @@ const PredicatesAccordion = ({ data, expandAllPredicates }) => {
           key={`${index}-${expandAllPredicates}`}
           disableGutters
           elevation={0}
-          expanded={expandedItems[index]}
+          expanded={expandedItems[index] ?? false}
           onChange={handleAccordionChange(index)}
           square
         >
-        <AccordionSummary
+          <AccordionSummary
             expandIcon={<ExpandMoreIcon fontSize='medium' />}
             aria-controls={`panel${index + 1}-content`}
             id={`panel${index + 1}-header`}
@@ -134,7 +131,7 @@ const PredicatesAccordion = ({ data, expandAllPredicates }) => {
         </Accordion>
       ))}
       {
-        openViewDiagram &&  <ViewDiagramDialog
+        openViewDiagram && <ViewDiagramDialog
           open={openViewDiagram}
           handleClose={handleCloseViewDiagram}
           image={image}
@@ -142,7 +139,7 @@ const PredicatesAccordion = ({ data, expandAllPredicates }) => {
           predicates={data}
         />
       }
-     
+
     </>
   );
 };

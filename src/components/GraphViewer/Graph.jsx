@@ -80,7 +80,7 @@ const Graph = ({ width, height, predicate }) => {
     );
   });
 
-  const allEdges = dendrogram.descendants().map((node) => {
+  const allEdges = dendrogram.descendants().map((node, index) => {
     if (!node.parent) {
       return;
     }
@@ -103,7 +103,7 @@ const Graph = ({ width, height, predicate }) => {
 
     return (
       <path
-        key={node.id}
+        key={`${node.id}-${index}`}
         fill="none"
         stroke="grey"
         markerStart='url(#head)'

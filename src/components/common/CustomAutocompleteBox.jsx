@@ -77,6 +77,11 @@ const CustomAutocompleteBox = ({ label, value, onChange, isRequired, placeholder
                             background: white,
                             boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
                         },
+                        '& input': {
+                            padding: 0,
+                            fontSize: '1rem !important',
+                            fontWeight: '400 !important',
+                        },
                         '& .MuiOutlinedInput-notchedOutline': {
                             borderColor: gray300,
                         },

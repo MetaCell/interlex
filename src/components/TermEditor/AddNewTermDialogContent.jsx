@@ -1,6 +1,8 @@
 import * as React from "react";
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Box } from "@mui/material";
+import { vars } from "../../theme/variables";
 import BasicTabs from "../common/CustomTabs";
 import ManualImportTab from "./ManualImportTab";
 import ImportFileTab from "./ImportFileTab";
@@ -11,22 +13,38 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { getAddTermStatusProps } from "./termStatusProps";
 import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
 import * as mockApiInterlex from "../../api/endpoints/interLexURIStructureAPI";
-import { termParser } from "../../parsers/termParser";
-import { getExistingIDs } from "../../api/endpoints";
+import { termParser } from "../../../src/parsers/termParser";
+import { getExistingIDs, getUser } from "../../api/endpoints";
+import { addTerm } from "../../api/endpoints";
 import { debounce } from 'lodash';
 
 const useMockApi = () => mockApi;
 const useMockApiInterlex = () => mockApiInterlex;
 
+const { gray800, gray700 } = vars;
+
 const initialFormState = {
-    label: '',
-    age: '',
-    synonyms: '',
-    superclass: '',
-    existingId: null,
-    urls: '',
-    description: '',
-    comment: ''
+    label: "",
+    synonyms: [],
+    superClass: "",
+    existingIDs: [],
+    isDefinedBy: "",
+    description: "",
+    comment: ""
+}
+
+const formatIdText = (termId) => {
+    const [prefix, suffix] = termId.split('_');
+    return (
+        <div>
+            <span style={{ fontSize: '1rem', fontWeight: 500, color: gray800 }}>
+                {prefix.toUpperCase()}:
+            </span>
+            <span style={{ fontSize: '1rem', fontWeight: 400, color: gray700 }}>
+                {suffix}
+            </span>
+        </div>
+    );
 }
 
 const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChange, onReset }) => {
@@ -34,6 +52,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     const { getMatchTerms } = useMockApi();
     const { getEndpointsIlx } = useMockApiInterlex();
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
     const [termResults, setTermResults] = useState([]);
     const [tabValue, setTabValue] = useState(0);
     const [openSidebar, setOpenSidebar] = useState(true);
@@ -45,6 +64,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     const [files, setFiles] = useState([]);
     const [url, setUrl] = useState('');
     const [formState, setFormState] = useState(initialFormState);
+    const [newTermId, setNewTermId] = useState("");
 
     const memoData = useMemo(() => data, [data]);
 
@@ -68,9 +88,18 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
         [getEndpointsIlx, getMatchTerms]
     );
 
+    const addTermRequest = useCallback(async (group, term) => {
+        await addTerm("base", term).then((response) => {
+            console.log("Term added ", response)
+            setNewTermId(response.term.id.split("/").pop())
+        })
+            .catch((error) => {
+                console.log("Error ", error)
+            });
+    }, [addTerm]);
+
     const handleChangeTabs = (_, newValue) => setTabValue(newValue);
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
-    const handleUndoAction = () => { console.log("here connect to DELETE method") }
     const handleAddNewTerm = () => {
         onReset();
         setTermValue('');
@@ -88,12 +117,19 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
         }));
     };
 
-    const handleAutocompleteChange = (event, value) => {
+    const handleExistingIDsChange = (event, value) => {
         setFormState((prevState) => ({
             ...prevState,
-            existingId: value
+            existingIDs: value
         }));
     };
+
+    const handleSynonymsChange = (value) => {
+        setFormState((prevState) => ({
+            ...prevState,
+            synonyms: value
+        }));
+    }
 
     const handleChangeUrl = (event) => {
         setUrl(event.target.value);
@@ -106,6 +142,10 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
             progress: 100 // assuming the file upload is completed for now
         }));
         setFiles(updatedFiles);
+    }
+
+    const handleGoToTermClick = () => {
+        navigate(`/view?searchTerm=${termValue.charAt(0).toUpperCase() + termValue.slice(1)}`);
     }
 
     useEffect(() => {
@@ -128,22 +168,20 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
         }
     }, [memoData]);
 
+    const getIds = useCallback(debounce(async () => {
+        const ids = await getExistingIDs();
+        setIds(ids)
+    }), [getUser]);
+
+    useEffect(() => {
+        getIds();
+    }, [])
+
     useEffect(() => {
         if (activeStep === 2) {
-            console.log("POST: connect post method here and set response status")
+            addTermRequest("base", formState)
         }
-    }, [activeStep])
-
-    const fetchIds = async () => {
-        const ids = await getExistingIDs();
-        setIds(ids);
-        console.log("getExistingIDs ", ids)
-    }
-
-    useEffect(() => {
-        if (ids.length > 0) return;
-        fetchIds()
-    }, [fetchIds])
+    }, [addTermRequest, formState, activeStep]);
 
     //can be deleted, use only for testing purposes
     useEffect(() => {
@@ -156,7 +194,8 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
                 const data = await response.json();
                 setResponseStatus({ success: true, data });
             } catch (error) {
-                setResponseStatus({ success: false, error: error.message });
+                // should be success: false, but true for now so we can wee success status message
+                setResponseStatus({ success: true, error: error.message });
             } finally {
                 setLoading(false);
             }
@@ -172,6 +211,10 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     }));
 
     const isResultsEmpty = termResults.length === 0;
+    const isLabelEmpty = formState.label === "";
+    const isContinueButtonDisabled = !areMatchesChecked || isLabelEmpty
+    const formattedNewTermId = formatIdText(newTermId);
+
 
     const statusProps = getAddTermStatusProps(responseStatus, termValue);
 
@@ -189,8 +232,9 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
                                 matchesChecked={areMatchesChecked}
                                 handleMatchesChange={onMatchesChange}
                                 isResultsEmpty={isResultsEmpty}
-                                existingIdsOptions={ids}
-                                onExistingIdChange={handleAutocompleteChange}
+                                existingIDsOptions={ids}
+                                onExistingIDsChange={handleExistingIDsChange}
+                                onSynonymsChange={handleSynonymsChange}
                             />
                         )}
                         {tabValue === 1 && <ImportFileTab files={files} url={url} onFilesChange={handleFilesSelected} onChangeUrl={handleChangeUrl} />}
@@ -203,8 +247,9 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
                 statusProps={statusProps}
                 onAction={handleAddNewTerm}
                 onTryAgain={() => console.log("Try again")}
-                onClose={handleCancelBtnClick}
+                onClose={handleGoToTermClick}
                 actionButtonStartIcon={<AddOutlinedIcon />}
+                additionalInfo={formattedNewTermId}
             />}
         </>
     );
