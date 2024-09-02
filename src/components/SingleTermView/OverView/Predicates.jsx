@@ -1,10 +1,9 @@
 import React from "react";
-import {Box, Typography} from "@mui/material";
+import {Box, Typography, ToggleButton, ToggleButtonGroup} from "@mui/material";
 import { vars } from "../../../theme/variables";
 import ExpandIcon from '@mui/icons-material/Expand';
 import RemoveIcon from '@mui/icons-material/Remove';
 import PredicatesAccordion from "./PredicatesAccordion";
-import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
 
 
 const { gray800 } = vars;

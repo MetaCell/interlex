@@ -23,7 +23,7 @@ const Hierarchy = () => {
   const [type, setType] = React.useState('children');
   const [selectedValue, setSelectedValue] = React.useState(null);
   
-  const handleSelectChange = (event, value) => {
+  const handleSelectChange = (value) => {
     setSelectedValue(value);
   }
 

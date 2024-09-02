@@ -292,7 +292,7 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
         <Box sx={tableStyles.body}>
           {tableContent.map((row, index) =>
             <TableRow
-              key={row.id}
+              key={`${row.id}-${index}`}
               tableStyles={tableStyles}
               data={row}
               index={index}

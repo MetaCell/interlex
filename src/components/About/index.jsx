@@ -32,7 +32,7 @@ const style = {
                 color: brand700
             },
 
-            '&:not(:first-child)': {
+            '&:not(:first-of-type)': {
                 marginTop: '1.5rem'
             },
 
@@ -72,7 +72,7 @@ const style = {
         lineHeight: '155.556%',
         color: gray500,
 
-        '&:not(:first-child)': {
+        '&:not(:first-of-type)': {
             marginTop: '1rem'
         }
     }
