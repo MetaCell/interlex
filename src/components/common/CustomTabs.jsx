@@ -4,12 +4,12 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import {vars} from "../../theme/variables";
+import { vars } from "../../theme/variables";
 
-const {brand700, brand600, gray500, gray200} = vars
+const { brand700, brand600, gray500, gray200 } = vars
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
-  
+
   return (
     <div
       role="tabpanel"
@@ -40,36 +40,39 @@ function a11yProps(index) {
   };
 }
 
-const BasicTabs = ({tabs, tabValue, handleChange}) => {
-  
+const BasicTabs = ({ tabs, tabValue, handleChange, onMouseDown, parentBoxStyles, tabStyles }) => {
+
   return (
-      <Box sx={{ width: 'fit-content', borderBottom: 1, borderColor: gray200 }}>
-        <Tabs value={tabValue} onChange={handleChange} aria-label="basic tabs example" sx={{
-          minHeight: '2.25rem',
-          '& .MuiTabs-flexContainer': {
-            gap: '.75rem'
-          },
-          '& .MuiTab-root': {
-            padding: '0rem 0.25rem 0.75rem 0.25rem',
-            fontSize: '1rem',
-            fontWeight: '600',
-            color: gray500,
-            textAlign: 'center',
-            alignItems: 'center',
-            
-            '&.Mui-selected': {
-              color: brand700
-            }
-          },
-          '& .MuiTabs-indicator': {
-            backgroundColor: brand600
+    <Box sx={{ width: 'fit-content', borderBottom: 1, borderColor: gray200, ...parentBoxStyles }}>
+      <Tabs value={tabValue} onChange={handleChange} aria-label="basic tabs example" sx={{
+        minHeight: '2.25rem',
+        '& .MuiTabs-flexContainer': {
+          gap: '.75rem'
+        },
+        '& .MuiTab-root': {
+          padding: '0rem 0.25rem 0.75rem 0.25rem',
+          fontSize: '1rem',
+          fontWeight: '600',
+          color: gray500,
+          textAlign: 'center',
+          alignItems: 'center',
+
+          '&.Mui-selected': {
+            color: brand700
           }
-        }}>
-          {
-            tabs.map((tab, i) => <Tab key={i} label={tab} {...a11yProps(i)} />)
-          }
-        </Tabs>
-      </Box>
+        },
+        '& .MuiTabs-indicator': {
+          backgroundColor: brand600
+        },
+        ...tabStyles
+      }}
+        onMouseDown={(event) => event.preventDefault()}
+      >
+        {
+          tabs.map((tab, i) => <Tab key={i} label={tab} {...a11yProps(i)} />)
+        }
+      </Tabs>
+    </Box>
   );
 }
 

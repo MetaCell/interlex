@@ -13,14 +13,16 @@ import {
 } from "@mui/material";
 import { vars } from "../../theme/variables";
 import { useEffect, useState, useCallback, forwardRef } from 'react';
-import {getMatchTerms} from "../../api/endpoints";
-import {searchAll} from "../../api/endpoints";
+import { searchAll } from "../../api/endpoints";
 import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
+import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
+import CorporateFareOutlinedIcon from '@mui/icons-material/CorporateFareOutlined';
+import BasicTabs from "../common/CustomTabs";
 import { useNavigate } from "react-router-dom";
 import { debounce } from 'lodash';
 import { useQuery } from "../../helpers";
 
-const { gray200, gray100, gray600, gray800, gray500 } = vars;
+const { gray200, gray100, gray600, gray800, gray500, gray700 } = vars;
 
 const styles = {
   keyBoardInfo: {
@@ -82,10 +84,13 @@ const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openList, setOpenList] = useState(false);
   const [selectedValue, setSelectedValue] = useState(null);
-  const [terms, setTerms] = useState([]);
+  const [tabValue, setTabValue] = useState(0);
   const navigate = useNavigate();
   const query = useQuery();
   const storedSearchTerm = query.get('searchTerm');
+  const [terms, setTerms] = useState([]);
+  const [organizations, setOrganizations] = useState([]);
+  const [ontologies, setOntologies] = useState([]);
 
   const handleOpenList = () => setOpenList(true);
   const handleCloseList = () => setOpenList(false);
@@ -108,9 +113,11 @@ const Search = () => {
     if (event.target.value) {
       fetchTerms(event.target.value);
     }
-  };
+  }
 
-  const handleKeyDown = useCallback((event) => {
+  const handleChangeTabs = (event, newValue) => setTabValue(newValue);
+
+  const handleKeyDown = useCallback(event => {
     if (event.ctrlKey && event.key === 'k') {
       setOpenList(true);
     }
@@ -126,9 +133,14 @@ const Search = () => {
 
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await searchAll(searchTerm);
-    setTerms(data?.results);
+    const dataTerms = data?.results.filter(result => result.type === "TERM")
+    const dataOrganizations = data?.results.filter(result => result.type === "ORGANIZATION")
+    const dataOntologies = data?.results.filter(result => result.type === "ONTOLOGY")
+    setTerms(dataTerms);
+    setOrganizations(dataOrganizations)
+    setOntologies(dataOntologies)
   }, 500), [searchAll]);
-  
+
   useEffect(() => {
     if (searchTerm && storedSearchTerm !== searchTerm) {
       fetchTerms(searchTerm);
@@ -144,32 +156,103 @@ const Search = () => {
   const ListboxComponent = forwardRef(function ListboxComponent(props, ref) {
     return (
       <>
-        {searchTerm && (
-          <>
-            <Box sx={styles.listbox}>
-              <List sx={styles.listboxTypography} {...props} ref={ref}>
-                <ListItem sx={styles.listboxOption}>
-                  <Typography variant="body1">I’m looking for...</Typography>
-                </ListItem>
-                <ListItem onClick={handleSearchTermClick} sx={styles.listItem}>
-                  <SearchIcon />
-                  <Typography sx={{ flex: 1 }} variant="body1">
-                    {searchTerm}
-                  </Typography>
-                  <Button variant="text" sx={styles.searchButton}>
-                    Search all
-                  </Button>
-                </ListItem>
-              </List>
-            </Box>
-            <Divider sx={{ borderColor: gray200 }} />
-          </>
-        )}
-        <Box sx={styles.listbox}>
-          <List sx={styles.listboxTypography} {...props} ref={ref}>
-            <ListItem sx={styles.listboxOption}>
-              <Typography variant="body1">Terms</Typography>
+        {searchTerm && (<><Box p="0.5rem">
+          <List sx={{
+            '& .MuiTypography-body1': {
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              lineHeight: '142.857%',
+              color: gray800
+            },
+
+            '& .MuiTypography-body2': {
+              fontSize: '0.875rem',
+              flex: 1,
+              fontWeight: 400,
+              lineHeight: '142.857%',
+              color: gray500
+            },
+          }} {...props} onMouseDown={(event) => event.preventDefault()}>
+            <ListItem
+              onClick={handleSearchTermClick}
+              sx={{
+                display: 'flex',
+                gap: '0.5rem',
+                alignItems: 'center',
+                padding: "0.688rem 0.5rem"
+              }}>
+              <SearchIcon />
+              <Typography sx={{ flex: 1 }} variant='body1'>{searchTerm}</Typography>
+              <Button
+                variant='text'
+                sx={{
+                  color: gray700,
+                  p: 0, height: 'auto', lineHeight: 1, background: 'transparent',
+                  '&:hover': {
+                    backgroundColor: 'transparent'
+                  }
+                }}
+              >Browse all</Button>
             </ListItem>
+          </List>
+        </Box>
+          <Divider sx={{ borderColor: gray200 }} /></>)}
+        <Box>
+          <ListItem sx={{
+            padding: "0.75rem 1rem",
+            "& .MuiTypography-body1": {
+              fontSize: "0.875rem",
+              fontWeight: 500,
+              color: gray600,
+              lineHeight: "1.25rem"
+            },
+            '&:hover': {
+              backgroundColor: 'transparent !important',
+              cursor: 'default'
+            }
+          }}>
+            <Typography variant='body1'>I’m looking for specific type</Typography>
+          </ListItem>
+          <BasicTabs
+            tabValue={tabValue}
+            handleChange={handleChangeTabs}
+            tabs={["Terms", "Organizations", "Ontologies"]}
+            onMouseDown={(event) => event.preventDefault()}
+            parentBoxStyles={{
+              margin: "0 0.875rem"
+            }}
+            tabStyles={{
+              '& .MuiTab-root': {
+                fontSize: "0.875rem",
+                lineHeight: "1.25rem",
+                minHeight: "2rem",
+                padding: "0 0.25rem 0.75rem 0.25rem",
+                minWidth: "3.188rem"
+              }
+            }}
+          />
+          <List sx={{
+            "&.MuiAutocomplete-listbox": {
+              padding: "0.813rem 0.5rem",
+              "& .MuiAutocomplete-option": {
+                padding: "0.5rem"
+              }
+            },
+            "& .MuiTypography-body1": {
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              lineHeight: '142.857%',
+              color: gray800
+            },
+
+            "& .MuiTypography-body2": {
+              fontSize: '0.875rem',
+              flex: 1,
+              fontWeight: 400,
+              lineHeight: '142.857%',
+              color: gray500
+            }
+          }} {...props}>
             {props?.children}
           </List>
         </Box>
@@ -180,7 +263,7 @@ const Search = () => {
   return (
     <Autocomplete
       sx={{ '& .MuiOutlinedInput-root': { borderRadius: openList ? '0.5rem 0.5rem 0 0' : '0.5rem' } }}
-      options={terms}
+      options={tabValue === 0 ? terms : tabValue === 1 ? organizations : ontologies}
       onChange={handleSelectTerm}
       filterOptions={(options) => options}
       open={openList}
@@ -192,24 +275,46 @@ const Search = () => {
       renderOption={(props, option, { selected }) => {
         const { key, ...otherProps } = props;
         return (
-          <ListItem key={key} {...otherProps} sx={styles.listItem}>
-            <TermsIcon />
-            <Typography variant='body1'>{option?.label || option?.name}</Typography>
-            <Typography variant='body2'>{option?.submittedBy}</Typography>
-            {selected ? <Chip label="Fork" variant='outlined' color='success' /> : <Chip label="Curated" variant='outlined' />}
+          <ListItem
+            key={key}
+            sx={{
+              display: "flex",
+              gap: "0.5rem",
+              alignItems: "center",
+              "&:hover": {
+                "& .MuiChip-root": {
+                  display: "none",
+                },
+              },
+              "&:not(:hover)": {
+                "& .MuiButton-root": {
+                  display: "none",
+                },
+              },
+            }} {...otherProps}>
+            {tabValue === 0 ? <TermsIcon /> : tabValue === 1 ? <CorporateFareOutlinedIcon sx={{ color: gray600 }} /> : <FolderOutlinedIcon sx={{ color: gray600 }} />}
+            <Typography variant="body1">{option?.label || option?.name}</Typography>
+            <Typography variant="body2">{option?.submittedBy}</Typography>
+            <Chip
+              label={selected ? "Fork" : "Curated"}
+              variant="outlined"
+              color={selected ? "success" : "default"}
+            />
             <Button
-              variant='text'
+              variant="text"
               id={option?.label}
               sx={{
-                p: 0, height: 'auto', lineHeight: 1, background: 'transparent',
-                '&:hover': {
-                  backgroundColor: 'transparent'
-                }
-              }}>
-              Go to <ForwardIcon />
-            </Button>
+                p: 0,
+                height: "auto",
+                lineHeight: 1,
+                background: "transparent",
+                "&:hover": {
+                  backgroundColor: "transparent",
+                },
+              }}
+            >Go to <ForwardIcon /></Button>
           </ListItem>
-        )
+        );
       }}
       renderInput={(params) => (
         <TextField
