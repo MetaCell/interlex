@@ -16,6 +16,7 @@ import { useEffect, useState, useCallback, forwardRef } from 'react';
 import { searchAll } from "../../api/endpoints";
 import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
+import CorporateFareOutlinedIcon from '@mui/icons-material/CorporateFareOutlined';
 import BasicTabs from "../common/CustomTabs";
 import { useNavigate } from "react-router-dom";
 import { debounce } from 'lodash';
@@ -291,7 +292,7 @@ const Search = () => {
                 },
               },
             }} {...otherProps}>
-            {tabValue === 0 ? <TermsIcon /> : <FolderOutlinedIcon />}
+            {tabValue === 0 ? <TermsIcon /> : tabValue === 1 ? <CorporateFareOutlinedIcon sx={{ color: gray600 }} /> : <FolderOutlinedIcon sx={{ color: gray600 }} />}
             <Typography variant="body1">{option?.label || option?.name}</Typography>
             <Typography variant="body2">{option?.submittedBy}</Typography>
             <Chip
