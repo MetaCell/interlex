@@ -18,6 +18,7 @@ import { vars } from "../../theme/variables";
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import OntologySearch from "./OntologySearch";
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
+import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import CopyLinkComponent from "../common/CopyLinkComponent";
 import BasicTabs from "../common/CustomTabs";
 import CustomButton from "../common/CustomButton";
@@ -26,6 +27,7 @@ import React, { useState } from "react";
 import OverView from "./OverView/OverView";
 import HistoryPanel from "./History/HistoryPanel";
 import VariantsPanel from "./Variants/VariantsPanel";
+import RequestMergeChanges from "./RequestMergeChanges";
 import {
   CreateNewFolderOutlined,
   DownloadOutlined,
@@ -54,6 +56,7 @@ const SingleTermView = () => {
   const [isCodeViewVisible, setIsCodeViewVisible] = React.useState(false);
   const [toggleButtonValue, setToggleButtonValue] = useState('defaultView');
   const [selectedDataFormat, setSelectedDataFormat] = React.useState('JSON-LD');
+  const [openRequestMergeDialog, setOpenRequestMergeDialog] = React.useState(false);
   const [editTermDialogOpen, setEditTermDialogOpen] = React.useState(false);
   const query = useQuery();
   const searchTerm = query.get('searchTerm');
@@ -78,6 +81,15 @@ const SingleTermView = () => {
     setSelectedDataFormat(value);
     setDataFormatAnchorEl(null);
   };
+
+  const handleOpenRequestMergeDialog = () => {
+    setOpenRequestMergeDialog(true)
+  };
+
+  const handleCloseRequestMergeDialog = () => {
+    setOpenRequestMergeDialog(false)
+  }
+
   const onToggleButtonChange = (event, newValue) => {
     if (newValue) {
       setToggleButtonValue(newValue)
@@ -88,6 +100,7 @@ const SingleTermView = () => {
       }
     }
   }
+
   const handleChangeTabs = (event, newValue) => {
     setTabValue(newValue);
   };
@@ -102,6 +115,8 @@ const SingleTermView = () => {
     { label: 'My organization 1', href: '#' },
     { label: 'ILX:0101901' },
   ];
+
+  const isItFork = true;
 
   return (
     <>
@@ -124,7 +139,7 @@ const SingleTermView = () => {
               </Stack>
             </Grid>
             <Grid container mt="1.75rem">
-              <Grid item xs={12} lg={4}>
+              <Grid item xs={12} lg={2}>
                 <Stack direction="row" spacing=".75rem" alignItems="center">
                   <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
                     {searchTerm}
@@ -132,15 +147,21 @@ const SingleTermView = () => {
                   <Chip label="Fork" variant="outlined" />
                 </Stack>
               </Grid>
-              <Grid display="flex" justifyContent='end' mt=".56rem" item xs={12} lg={8}>
+              <Grid display="flex" justifyContent='end' mt=".56rem" item xs={12} lg={10}>
                 <Stack direction="row" spacing="1rem" alignItems="center">
                   <Button type="string" color="secondary" startIcon={<ModeEditOutlineOutlinedIcon />} onClick={handleOpenEditTermDialog}>
                     Suggest changes
                   </Button>
                   <Divider orientation="vertical" flexItem />
-                  <Button type="string" color="secondary" startIcon={<ForkRightIcon />}>
-                    Create fork
-                  </Button>
+                  {isItFork ? (
+                    <Button type="string" color="secondary" startIcon={<RateReviewOutlinedIcon />} onClick={handleOpenRequestMergeDialog}>
+                      Request to merge changes to curated
+                    </Button>
+                  ) : (
+                    <Button type="string" color="secondary" startIcon={<ForkRightIcon />}>
+                      Create fork
+                    </Button>
+                  )}
                   <ButtonGroup
                     variant="outlined"
                     ref={anchorRef}
@@ -230,6 +251,7 @@ const SingleTermView = () => {
           tabValue === 3 && <Discussion />
         }
       </Box>
+      <RequestMergeChanges searchTerm={searchTerm} open={openRequestMergeDialog} handleClose={handleCloseRequestMergeDialog} />
       <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} searchTerm={searchTerm} />
     </>
   )

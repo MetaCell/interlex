@@ -22,7 +22,7 @@ import { vars } from "../../../theme/variables";
 
 const { gray600 } = vars;
 
-const PredicatesAccordion = ({ data, expandAllPredicates }) => {
+const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
   const [toggleButtonValues, setToggleButtonValues] = useState(data?.map(() => 'tableView') || []);
   const [openViewDiagram, setOpenViewDiagram] = React.useState(false);
   const [selectedItem, setSelectedItem] = useState(null)
@@ -78,6 +78,11 @@ const PredicatesAccordion = ({ data, expandAllPredicates }) => {
           expanded={expandedItems[index] ?? false}
           onChange={handleAccordionChange(index)}
           square
+          sx={{
+            "&.MuiPaper-root": {
+              backgroundColor: "transparent"
+            }
+          }}
         >
           <AccordionSummary
             expandIcon={<ExpandMoreIcon fontSize='medium' />}
@@ -94,24 +99,28 @@ const PredicatesAccordion = ({ data, expandAllPredicates }) => {
               <Typography color={gray600} fontSize='.875rem'>
                 Number of this type: {pred?.count}
               </Typography>
-              <Divider orientation="vertical" flexItem />
-              <ToggleButtonGroup
-                value={toggleButtonValues[index]}
-                exclusive
-                onChange={onToggleButtonChange(index)}
-              >
-                <ToggleButton value={'tableView'}>
-                  <TableChartIcon />
-                </ToggleButton>
-                <ToggleButton value={'graphView'}>
-                  <GraphIcon />
-                </ToggleButton>
-              </ToggleButtonGroup>
+              {isGraphVisible ? (
+                <>
+                  <Divider orientation="vertical" flexItem />
+                  <ToggleButtonGroup
+                    value={toggleButtonValues[index]}
+                    exclusive
+                    onChange={onToggleButtonChange(index)}
+                  >
+                    <ToggleButton value={'tableView'}>
+                      <TableChartIcon />
+                    </ToggleButton>
+                    <ToggleButton value={'graphView'}>
+                      <GraphIcon />
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </>
+              ) : <></>}
             </Stack>
           </AccordionSummary>
           <AccordionDetails>
             {toggleButtonValues[index] === 'tableView' ? (
-              <CustomizedTable data={pred} term={term} />
+              <CustomizedTable data={pred} term={term} isAddButtonVisible={isGraphVisible}/>
             ) : (
               <Box display='flex' flexDirection='column'>
                 <Graph width={600} height={300} predicate={pred} />

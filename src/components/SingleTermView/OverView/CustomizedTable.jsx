@@ -154,7 +154,7 @@ const tableStyles = {
   }
 };
 
-const CustomizedTable = ({ data, term }) => {
+const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [tableContent, setTableContent] = useState(data?.tableData);
   const [tableHeader, setTableHeader] = useState([
