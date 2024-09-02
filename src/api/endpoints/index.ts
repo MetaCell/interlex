@@ -1,4 +1,4 @@
-import { Organizations, Variants, Versions, User, Organization, Terms, Ontologies } from '../../model/backend';
+import { Organizations, Variants, Versions, User, Organization, Terms, Ontologies, Discussions, AddToDiscussion200, AddToTermDiscussion200 } from '../../model/backend';
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 import * as api from './../../api/endpoints/interLexURIStructureAPI'
 import { TERM, ONTOLOGY, ORGANIZATION } from '../../model/frontend/types'
@@ -220,7 +220,7 @@ export const getEndpointsIlx = async (group, term) => {
 }
 
 export const getUser = async (id) => {
-  const {  getUser } = useMockApi();patchTerm
+  const {  getUser } = useMockApi();
 
   /** Call Endpoint */
   return getUser(id).then((data) => {
@@ -252,6 +252,54 @@ export const signup = async (body) => {
   return signup(body).then((data) => {
       console.log("Sign up ", data)
       return data as User;
+    })
+    .catch((error) => {
+      return error;
+    });
+}
+
+export const getVariantDiscussions = async (group, variantID) => {
+  const {  getVariantDiscussions } = useMockApi();
+
+  /** Call Endpoint */
+  return getVariantDiscussions(group, variantID).then((data) => {
+      return data as Discussions;
+    })
+    .catch((error) => {
+      return error;
+    });
+}
+
+export const getTermDiscussions = async (group, variantID) => {
+  const {  getTermDiscussions } = useMockApi();
+
+  /** Call Endpoint */
+  return getTermDiscussions(group, variantID).then((data) => {
+      return data as Discussions;
+    })
+    .catch((error) => {
+      return error;
+    });
+}
+
+export const addMessateToTermDiscussion = async (group, termID, message) => {
+  const {  addToTermDiscussion } = useMockApi();
+
+  /** Call Endpoint */
+  return addToTermDiscussion(group, termID, message).then((data) => {
+      return data as AddToDiscussion200;
+    })
+    .catch((error) => {
+      return error;
+    });
+}
+
+export const addMessateToVariantDiscussion = async (group, variantID, message) => {
+  const {  addToVariantDiscussion } = useMockApi();
+
+  /** Call Endpoint */
+  return mockApi.addToVariantDiscussion(group, variantID, message).then((data) => {
+      return data as AddToDiscussion200;
     })
     .catch((error) => {
       return error;

@@ -843,10 +843,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /{group}/discussions/{term}: 
+  /{group}/discussions/term/{termID}: 
     get:
       summary: List all discussions for a term
-      operationId: get_discussions
+      operationId: get_term_discussions
       tags:
         - term
       parameters:
@@ -856,10 +856,10 @@ paths:
           description: The group of the term to retrieve
           schema:
             type: string
-        - name: term
+        - name: termID
           in: path
           required: true
-          description: The id of the term to retrieve
+          description: The id of the term to retrieve discussions for
           schema:
             type: string
       responses:
@@ -880,21 +880,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /{group}/add_discussions/{term}: 
     post:
-      summary: Used to save a new discussion.
-      operationId: add_to_discussion
+      summary: Used to save a new message on a term.
+      operationId: add_to_term_discussion
       parameters:
         - name: group
           in: path
           required: true
-          description: The group of the term to retrieve
+          description: The group of the term to post discussion
           schema:
             type: string
-        - name: term
+        - name: termID
           in: path
           required: true
-          description: The id of the term to retrieve
+          description: The id of the term to add a message to the discussion
           schema:
             type: string
       requestBody:
@@ -917,7 +916,81 @@ paths:
         403:
           description: The request cannot be fullfilled due to the permission of your account.
       tags:
-        - API
+        - API   
+  /{group}/discussions/variant/{variantID}: 
+    get:
+      summary: List all discussions for a variant
+      operationId: get_variant_discussions
+      tags:
+        - variant
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: The group of the variant to retrieve
+          schema:
+            type: string
+        - name: variantID
+          in: path
+          required: true
+          description: The id of the variant to retrieve discussions for
+          schema:
+            type: string
+      responses:
+        200:
+          description: A paged array of discussions
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Discussions'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Used to save a new discussion.
+      operationId: add_to_variant_discussion
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: The group of the variant to post the message
+          schema:
+            type: string
+        - name: variantID
+          in: path
+          required: true
+          description: The id of the variant to add a message
+          schema:
+            type: string
+      requestBody:
+        description: The message to save.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Discussion'
+              x-body-name: discussion
+      responses:
+        200:
+          description: The Discussion data were saved.
+          content:
+            application/json:
+              schema:
+                type : object
+        400:
+          description: Bad Request, bad input parameter for Discusion POST request.
+        403:
+          description: The request cannot be fullfilled due to the permission of your account.
+      tags:
+        - API    
   /ping:
     get:
       summary: Checks if the server is running
@@ -1193,6 +1266,21 @@ components:
         $ref: '#/components/schemas/Ontology'
     Discussion:
       type: object
+      required:
+        - senderUserName
+        - senderID
+        - message
+        - timestamp
+      properties:
+        senderUserName:
+          type: string
+        senderID:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+          format: 'date-time'
     Discussions:
       type: array
       items:
