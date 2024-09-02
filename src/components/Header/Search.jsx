@@ -15,10 +15,59 @@ const { gray200, gray100, gray600, gray800, gray500, gray700 } = vars;
 
 const styles = {
   keyBoardInfo: {
-    borderRadius: '0.25rem', pointerEvents: 'none', background: gray100, color: gray600, fontSize: '0.875rem', lineHeight: '142.857%', p: '0.125rem 0.5rem'
-  }
-}
-
+    borderRadius: '0.25rem',
+    pointerEvents: 'none',
+    background: gray100,
+    color: gray600,
+    fontSize: '0.875rem',
+    lineHeight: '142.857%',
+    p: '0.125rem 0.5rem',
+  },
+  listItem: {
+    display: 'flex',
+    gap: '0.5rem',
+    alignItems: 'center',
+    '&:hover .MuiChip-root': {
+      display: 'none',
+    },
+    '&:not(:hover) .MuiButton-root': {
+      display: 'none',
+    },
+  },
+  searchButton: {
+    p: 0,
+    height: 'auto',
+    lineHeight: 1,
+    background: 'transparent',
+    '&:hover': {
+      backgroundColor: 'transparent',
+    },
+  },
+  listbox: {
+    p: '0.875rem 0.5rem 0.5rem 0.5rem',
+  },
+  listboxTypography: {
+    '& .MuiTypography-body1': {
+      fontSize: '0.875rem',
+      fontWeight: 500,
+      lineHeight: '142.857%',
+      color: gray800,
+    },
+    '& .MuiTypography-body2': {
+      fontSize: '0.875rem',
+      flex: 1,
+      fontWeight: 400,
+      lineHeight: '142.857%',
+      color: gray500,
+    },
+  },
+  listboxOption: {
+    '&:hover': {
+      backgroundColor: 'transparent !important',
+      cursor: 'default',
+    },
+  },
+};
 
 const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -60,7 +109,7 @@ const Search = () => {
 
   const onInputFocus = (event) => {
     if (event.target.value) {
-      fetchTerms(event.target.value)
+      fetchTerms(event.target.value);
     }
   }
 
@@ -94,7 +143,7 @@ const Search = () => {
   }, 500), [searchAll]);
 
   useEffect(() => {
-    if (searchTerm && (storedSearchTerm !== searchTerm)) {
+    if (searchTerm && storedSearchTerm !== searchTerm) {
       fetchTerms(searchTerm);
     }
   }, [searchTerm, fetchTerms, storedSearchTerm]);
@@ -119,7 +168,7 @@ const Search = () => {
       open={openList}
       onOpen={handleOpenList}
       onClose={handleCloseList}
-      onFocus={onInputFocus}
+      onFocus={handleInputFocus}
       forcePopupIcon={false}
       renderOption={(props, option, state) => {
         const { selected } = state;
@@ -169,29 +218,32 @@ const Search = () => {
           {...params}
           variant="outlined"
           placeholder="Find something..."
+          value={searchTerm || selectedValue}
           onChange={handleInputChange}
           InputProps={{
             ...params.InputProps,
-            startAdornment: <InputAdornment position='start'><SearchIcon /></InputAdornment>,
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
             endAdornment: (
-              <>
-                <InputAdornment position='end'>
-                  {openList ? (
-                    <Box display='flex' alignItems='center' gap='0.75rem'>
-                      <IconButton sx={{
-                        p: 0, background: 'transparent',
-                        '&:hover': {
-                          background: 'transparent'
-                        }
-                      }} onClick={() => setOpenList(true)}>
-                        <CloseIcon />
-                      </IconButton>
-                      <Box sx={styles.keyBoardInfo}>Esc</Box>
-                    </Box>
-                  ) : <Box sx={styles.keyBoardInfo}>Ctrl + K</Box>}
-                </InputAdornment>
-              </>
-            )
+              <InputAdornment position="end">
+                {openList ? (
+                  <Box display="flex" alignItems="center" gap="0.75rem">
+                    <IconButton
+                      sx={styles.searchButton}
+                      onClick={() => setOpenList(true)}
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                    <Box sx={styles.keyBoardInfo}>Esc</Box>
+                  </Box>
+                ) : (
+                  <Box sx={styles.keyBoardInfo}>Ctrl + K</Box>
+                )}
+              </InputAdornment>
+            ),
           }}
         />
       )}
@@ -303,7 +355,7 @@ const Search = () => {
       }}
       inputValue={searchTerm ? searchTerm : selectedValue}
     />
-  )
-}
+  );
+};
 
 export default Search;

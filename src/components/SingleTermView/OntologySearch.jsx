@@ -18,32 +18,33 @@ const { brand600, gray50 } = vars;
 
 const OntologySearch = () => {
   const options = [
-    { label: 'Nervous system1', badge: 'My Organization 1', selected: false},
-    { label: 'Nervous system2', badge: 'ODC-TBI', selected: false},
-    { label: 'Nervous system3', badge: 'Dk-net', selected: false},
-    { label: 'Nervous system4', badge: 'My Organization 2', selected: false}
+    { label: 'Nervous system1', badge: 'My Organization 1', selected: false },
+    { label: 'Nervous system2', badge: 'ODC-TBI', selected: false },
+    { label: 'Nervous system3', badge: 'Dk-net', selected: false },
+    { label: 'Nervous system4', badge: 'My Organization 2', selected: false }
   ];
-  
+
   const [searchTerm, setSearchTerm] = React.useState('');
   const [openList, setOpenList] = React.useState(false);
   const [selectedValue, setSelectedValue] = React.useState(null);
   const autocompleteRef = useRef(null);
   const popperRef = useRef(null);
+
   const handleOpenList = () => {
     setOpenList(true);
   };
-  
+
   const handleInputChange = (event, value) => {
     setSearchTerm(event.target.value);
   };
-  
+
   const onSetActive = (event) => {
     event.stopPropagation();
     event.preventDefault();
     setOpenList(false);
-    setSelectedValue({...selectedValue, selected: true})
+    setSelectedValue({ ...selectedValue, selected: true });
   };
-  
+
   const handleClickOutside = (event) => {
     if (
       autocompleteRef.current &&
@@ -54,13 +55,16 @@ const OntologySearch = () => {
       setOpenList(false);
     }
   };
-  
+
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const isOptionEqualToValue = (option, value) =>
+    option.label === value?.label && option.badge === value?.badge;
 
   return (
     <div ref={autocompleteRef}>
@@ -72,9 +76,10 @@ const OntologySearch = () => {
         onOpen={handleOpenList}
         forcePopupIcon={false}
         onChange={(event, value) => {
-          setSearchTerm('')
+          setSearchTerm('');
           setSelectedValue(value);
         }}
+        isOptionEqualToValue={isOptionEqualToValue}
         sx={{
           '& .MuiOutlinedInput-root': {
             minWidth: selectedValue ? '21.75rem' : '11.75rem',
@@ -101,7 +106,6 @@ const OntologySearch = () => {
             sx: {
               width: '21.75rem !important',
               backgroundColor: 'white',
-              
             },
             ref: popperRef
           },
@@ -132,28 +136,31 @@ const OntologySearch = () => {
           },
         }}
         inputValue={searchTerm ? searchTerm : selectedValue?.selected ? selectedValue?.label : ''}
-        renderOption={(props, option) => (
-          <ListItem {...props}>
-            <Box
-              p='.5rem'
-              display='flex'
-              justifyContent='space-between'
-              alignItems='center'
-              gap='.5'
-              width={1}
-            >
-              <FormControlLabel
-                control={
-                  <CustomizedRadio
-                    checked={selectedValue?.label === option.label}
-                  />
-                }
-                label={option.label}
-              />
-              <Chip label={option.badge} variant='outlined' />
-            </Box>
-          </ListItem>
-        )}
+        renderOption={(props, option) => {
+          const { key, ...otherProps } = props;
+          return (
+            <ListItem key={key} {...otherProps}>
+              <Box
+                p='.5rem'
+                display='flex'
+                justifyContent='space-between'
+                alignItems='center'
+                gap='.5'
+                width={1}
+              >
+                <FormControlLabel
+                  control={
+                    <CustomizedRadio
+                      checked={selectedValue?.label === option.label}
+                    />
+                  }
+                  label={option.label}
+                />
+                <Chip label={option.badge} variant='outlined' />
+              </Box>
+            </ListItem>
+          );
+        }}
         renderInput={(params) => (
           <TextField
             {...params}

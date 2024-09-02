@@ -29,8 +29,8 @@ const CurieEditor = () => {
     const [curies, setCuries] = useState({ base: [], curated: [], latest: [] });
     const [tabValue, setTabValue] = useState(0);
     const [curieAmount, setCurieAmount] = useState(0);
-    const [numberOfVisibleCuries, setNumberOfVisibleCuries] = useState(0);
-    const [openCurieEditor, setOpenCurieEditor] = useState(false);
+    const [numberOfVisibleCuries, setNumberOfVisibleCuries] = React.useState('');
+    const [openCurieEditor, setOpenCurieEditor] = React.useState(false);
     const [pageOptions, setPageOptions] = useState([]);
 
     const fetchCuries = async (type) => {
@@ -88,7 +88,9 @@ const CurieEditor = () => {
     useEffect(() => {
         const options = generatePageOptions(curieAmount);
         setPageOptions(options);
-        setNumberOfVisibleCuries(options[0]);
+        if (options.length > 0) {
+            setNumberOfVisibleCuries(options[0]);
+        }
     }, [curieAmount]);
 
     return (

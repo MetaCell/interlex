@@ -1,4 +1,4 @@
-import {Button, Grid, Typography, Box} from "@mui/material";
+import {Button, Grid, Typography, Box, ToggleButton, ToggleButtonGroup} from "@mui/material";
 import { useState } from "react";
 import { vars } from "../../../theme/variables";
 import CustomizedInput from "../../common/CustomizedInput";
@@ -7,7 +7,6 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DropDownConditions from "./DropDownConditions";
 import SearchTermsData from "../../../static/SearchTermsData.json"
 import CustomSingleSelect from "../../common/CustomSingleSelect";
-import {ToggleButton, ToggleButtonGroup} from "@mui/lab";
 
 const { gray800 } = vars;
 

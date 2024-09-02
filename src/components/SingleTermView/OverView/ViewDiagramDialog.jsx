@@ -14,9 +14,10 @@ const {gray600, gray700} = vars
 const HeaderRightSideContent = ({handleOpenAddPredicate, selectedItem, predicates}) => {
   const [type, setType] = React.useState(selectedItem?.title);
   const [count, setCount] = React.useState(selectedItem?.count)
+
   const handleChangeType = (value) => {
     setType(value)
-    const selectedTypeCount = predicates.find(predicate => predicate.title === e.target.value).count
+    const selectedTypeCount = predicates.find(predicate => predicate.label === value).count
     setCount(selectedTypeCount)
   }
 

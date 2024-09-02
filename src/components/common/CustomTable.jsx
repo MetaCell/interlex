@@ -16,7 +16,7 @@ const paperStyle = {
 };
 
 
-const CustomTable = (props) => {
+const CustomTable = React.forwardRef((props, ref) => {
     const {rows, order, orderBy, setOrder, setOrderBy, 
         headCells, isCheckboxPresent, selected, handleSelectAllClick, rowsPerPage, page, handlePageChange, children} = props;
 
@@ -29,7 +29,7 @@ const CustomTable = (props) => {
         <Box sx={{ width: '100%' }}>
             <Paper sx={paperStyle}>
                 <TableContainer sx={{ borderRadius: '0.75rem' }}>
-                    <Table aria-labelledby="tableTitle">
+                    <Table aria-labelledby="tableTitle" ref={ref}>
                         <CustomTableHead
                             numSelected={selected?.length}
                             order={order}
@@ -49,6 +49,6 @@ const CustomTable = (props) => {
             </Paper>
         </Box>
     );
-};
+});
 
 export default CustomTable;

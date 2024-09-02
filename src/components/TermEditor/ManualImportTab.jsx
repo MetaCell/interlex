@@ -5,10 +5,11 @@ import Checkbox from "../common/CustomCheckbox";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { vars } from "../../theme/variables";
 import ExistingIdsSearch from "./ExistingIdsSearch";
+import CustomAutocompleteBox from "../common/CustomAutocompleteBox";
 
 const { gray600, brand700, brand800 } = vars;
 
-const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesChecked, handleMatchesChange, isResultsEmpty, existingIdsOptions, onExistingIdChange }) => {
+const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesChecked, handleMatchesChange, isResultsEmpty, existingIDsOptions, onExistingIDsChange, onSynonymsChange }) => {
 
     return (
         <Box component="form" sx={{ width: '100%', mt: '2.75rem', display: 'flex', flexDirection: 'column', gap: '2.75rem' }} noValidate autoComplete="off">
@@ -36,21 +37,19 @@ const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesC
                 </Grid>
             </Grid>
             <Box>
-                <CustomInputBox
-                    id="term-synonyms"
-                    name="synonyms"
+                <CustomAutocompleteBox
                     value={formState.synonyms}
-                    onInputChange={onInputChange}
+                    onChange={onSynonymsChange}
                     label="Synonyms"
-                    placeholder={"Type a new synonym"}
+                    placeholder="Type a new synonym"
                 />
             </Box>
             <Grid container spacing={5.5}>
                 <Grid item xs={12} lg={6}>
                     <CustomInputBox
                         id="new-term-superclass-field"
-                        name="superclass"
-                        value={formState.superclass}
+                        name="superClass"
+                        value={formState.superClass}
                         onInputChange={onInputChange}
                         label="Superclass"
                         isEndAdornmentVisible
@@ -58,14 +57,14 @@ const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesC
                     />
                 </Grid>
                 <Grid item xs={12} lg={6}>
-                    <ExistingIdsSearch options={existingIdsOptions} label={"Existing IDs"} value={formState.existingId} onChange={onExistingIdChange} placeholder={"Search for an existing ID"} />
+                    <ExistingIdsSearch options={existingIDsOptions} value={formState.existingIDs} onChange={onExistingIDsChange} label={"Existing IDs"} placeholder={"Search for an existing ID"} />
                 </Grid>
             </Grid>
             <Box>
                 <CustomInputBox
                     id="search-urls"
-                    name="urls"
-                    value={formState.urls}
+                    name="isDefinedBy"
+                    value={formState.isDefinedBy}
                     onInputChange={onInputChange}
                     label="Is Defined by"
                     placeholder={"Search for an URL"}
