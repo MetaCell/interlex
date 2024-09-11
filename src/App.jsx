@@ -21,6 +21,8 @@ import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import ForgotPassword from "./components/Auth/ForgotPassword";
 import ResetPassword from "./components/Auth/ResetPassword";
+import SingleOrganization from "./components/SingleOrganization";
+import OrganizationsCurieEditor from "./components/CurieEditor/OrganizationCurieEditor";
 
 const PageContainer = ({ children }) => {
 	return (
@@ -100,6 +102,8 @@ function MainContent() {
 					<Route path="/register" element={<Register />} />
 					<Route path="/forgot" element={<ForgotPassword />} />
 					<Route path="/reset" element={<ResetPassword />} />
+					<Route path="/organizations/:title" element={<PageContainer><SingleOrganization /></PageContainer>} />
+					<Route path="/organizations/:title/curie-editor" element={<PageContainer><OrganizationsCurieEditor /></PageContainer>} />
 				</Routes>
 			</Layout>
 		</Box>

@@ -1,14 +1,14 @@
-import { Box, IconButton, Typography, Button } from "@mui/material";
-import {useCallback, useEffect, useRef, useState} from "react";
+import { Box, IconButton, Typography } from "@mui/material";
+import { useCallback, useEffect, useRef, useState } from "react";
 import TableRow from "./TableRow";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { vars } from "../../../theme/variables";
-import _ , { debounce } from 'lodash';
+import _, { debounce } from 'lodash';
 import { getMatchTerms } from "../../../api/endpoints";
 import CustomSnackbar from "./CustomSnackbar";
-import SingleSearch from "../SingleSearch";
+import TermDialog from "../../TermEditor/TermDialog";
 
 const { gray100, gray50, gray600, gray500, brand600, brand50, brand700, gray700 } = vars;
 
@@ -154,7 +154,7 @@ const tableStyles = {
   }
 };
 
-const CustomizedTable = ({ data, term }) => {
+const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [tableContent, setTableContent] = useState(data?.tableData);
   const [tableHeader, setTableHeader] = useState([
@@ -164,13 +164,11 @@ const CustomizedTable = ({ data, term }) => {
     { key: '', label: '' }
   ]);
 
-  const [showSelect, setShowSelect] = useState(false);
-  const [object, setObject] = useState('');
   const [terms, setTerms] = useState([]);
   const [objectSearchTerm, setObjectSearchTerm] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [editingIndex, setEditingIndex] = useState(-1);
   const [deletedObj, setDeletedObj] = useState({});
+  const [editTermDialogOpen, setEditTermDialogOpen] = useState(false);
 
   const targetRow = useRef();
   const sourceRow = useRef();
@@ -241,8 +239,12 @@ const CustomizedTable = ({ data, term }) => {
     return <ArrowDownwardIcon fontSize="small" style={{ opacity: 0.3 }} />;
   };
 
-  const handleAddClick = () => {
-    setShowSelect(true);
+  const handleOpenEditTermDialog = () => {
+    setEditTermDialogOpen(true);
+  };
+
+  const handleCloseEditTermDialog = () => {
+    setEditTermDialogOpen(false);
   };
 
   const handleUndoDelete = () => {
@@ -254,52 +256,11 @@ const CustomizedTable = ({ data, term }) => {
     setSnackbarOpen(false);
   };
 
-  const handleDelete = (dataObj) => {
-    setSnackbarOpen(true);
-    setDeletedObj(dataObj);
-    setTableContent((prev) => prev.filter((row) => !_.isEqual(row, dataObj)));
-  };
-
-  const handleInputChange = (e, index, setter) => {
-    const { name, value } = e.target;
-    setter((prev) => {
-      const updatedContent = [...prev];
-      updatedContent[index] = { ...updatedContent[index], [name]: value };
-      return updatedContent;
-    });
-  };
-
-  const updateTableContent = (term, newObject) => {
-    const newId = tableContent.length + 1;
-    const newRow = {
-      id: newId.toString(),
-      subject: term,
-      predicate: data?.title,
-      object: newObject
-    };
-
-    setTableContent([...tableContent, newRow]);
-    setShowSelect(false);
-    setObject('');
-    setObjectSearchTerm('');
-  };
-  
-  
-  const handleSelectChange = (e, type) => {
-    if (type === 'object') {
-      setObject(e.label);
-    }
-    setTerms([])
-    if (object) {
-      updateTableContent(type === 'subject' ? e.label : subject, type === 'object' ? e.label : object);
-    }
-  };
-  
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await getMatchTerms(searchTerm);
     setTerms(data?.results[0]);
   }, 500), [getMatchTerms]);
-  
+
   useEffect(() => {
     if (objectSearchTerm) {
       fetchTerms(objectSearchTerm);
@@ -331,61 +292,25 @@ const CustomizedTable = ({ data, term }) => {
         <Box sx={tableStyles.body}>
           {tableContent.map((row, index) =>
             <TableRow
-              key={row.id}
+              key={`${row.id}-${index}`}
               tableStyles={tableStyles}
               data={row}
               index={index}
               onDragStart={dragStart}
               onDragEnter={dragEnter}
               onDragEnd={dragEnd}
-              onDeleteClick={handleDelete}
-              onInputChange={(e) => handleInputChange(e, index, setTableContent)}
-              rowIndex={editingIndex}
-              onRowIndexChange={setEditingIndex}
-              onSaveEdits={() => setEditingIndex(-1)}
             />
           )}
         </Box>
-
-        {!showSelect ? (
-          <Box sx={tableStyles.root}>
-            <Box sx={{ paddingLeft: '0 !important' }}>
-              <IconButton onClick={handleAddClick}>
-                <AddOutlinedIcon />
-              </IconButton>
-            </Box>
+        <Box sx={tableStyles.root}>
+          <Box sx={{ paddingLeft: '0 !important' }}>
+            <IconButton onClick={handleOpenEditTermDialog}>
+              <AddOutlinedIcon />
+            </IconButton>
           </Box>
-        ) : (
-          <Box sx={{ ...tableStyles.root, ...tableStyles.inputParentBox }}>
-            <Box sx={{ paddingLeft: '0 !important', width: '100%' }}>
-              <Typography>{term}</Typography>
-            </Box>
-            <Box>
-              <Typography>{data.title.toLowerCase()}</Typography>
-            </Box>
-            <Box sx={{ width: '100%' }}>
-              <SingleSearch
-                selectedValue={object}
-                onChange={(e) => handleSelectChange(e, 'object')}
-                startAdornment={false}
-                options={terms}
-                searchTerm={objectSearchTerm}
-                setSearchTerm={setObjectSearchTerm}
-                placeholder={"Enter URL or term name"}
-              />
-            </Box>
-            <Box justifyContent="flex-end">
-              <Button
-                variant="text"
-                onClick={() => updateTableContent(term, object)}
-                sx={tableStyles.confirmButton}
-              >
-                Confirm
-              </Button>
-            </Box>
-          </Box>
-        )}
+        </Box>
       </Box>
+      <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} searchTerm={term} forwardPredicateStep={true} />
       <CustomSnackbar open={snackbarOpen} handleClose={handleSnackbarClose} onUndoDelete={handleUndoDelete} data={deletedObj} />
     </>
   );

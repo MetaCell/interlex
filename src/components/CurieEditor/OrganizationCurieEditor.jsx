@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Box, Typography, Divider, Grid, Stack } from "@mui/material";
 import CustomButton from "../common/CustomButton";
 import BasicTabs from "../common/CustomTabs";
@@ -7,7 +7,8 @@ import CuriesTabPanel from "./CuriesTabPanel";
 import { EditNoteIcon } from "../../Icons";
 import { vars } from "../../theme/variables";
 import CustomSingleSelect from "../common/CustomSingleSelect";
-import { getCuries } from '../../api/endpoints';
+import OntologyTabPanel from "./OntologyTabPanel";
+import { getOrganizationCuries } from "../../api/endpoints";
 import debounce from 'lodash/debounce';
 
 const { gray200, gray600, gray700 } = vars;
@@ -20,53 +21,51 @@ const generatePageOptions = (curieAmount) => {
 
 const newRowObj = { prefix: '', namespace: '' };
 
-const curiesTabs = ["My curies", "Curated", "Latest"];
-const curieValues = ["base", "curated", "latest"]
+const curiesTabs = ["Organization", "Ontologies"];
 
-const CurieEditor = () => {
+const OrganizationsCurieEditor = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [curies, setCuries] = useState({ base: [], curated: [], latest: [] });
+    const [curies, setCuries] = useState([]);
     const [tabValue, setTabValue] = useState(0);
     const [curieAmount, setCurieAmount] = useState(0);
-    const [numberOfVisibleCuries, setNumberOfVisibleCuries] = React.useState('');
-    const [openCurieEditor, setOpenCurieEditor] = React.useState(false);
+    const [numberOfVisibleCuries, setNumberOfVisibleCuries] = useState(0);
+    const [openCurieEditor, setOpenCurieEditor] = useState(false);
     const [pageOptions, setPageOptions] = useState([]);
 
-    const fetchCuries = async (type) => {
-        try {
-            const data = await getCuries(type);
-            setCuries(prev => ({ ...prev, [type]: data }));
-        } catch (error) {
-            setError(error);
-        } finally {
+    const getOrganizationRequest = useCallback(async (id) => {
+        await getOrganizationCuries(id).then((response) => {
+            console.log("Get Organization curies response ", response)
+            setCuries(response)
+            setCurieAmount(response.length)
             setLoading(false);
-        }
-    };
+        }).catch((error) => {
+            console.log("Error ", error)
+        });
+    }, [getOrganizationCuries]);
 
     const handleAddNewCurieRow = (curieValue) => {
-        setCuries(prev => ({ ...prev, [curieValue]: [...prev[curieValue], newRowObj] }));
+        setCuries(prev => [
+            ...prev, newRowObj
+        ]);
     };
 
     const handleDeleteCurieRow = (curieValue, rowPrefix, rowNamespace) => {
         console.log("DELETE: connect to delete method")
-        setCuries(prev => ({
-            ...prev,
-            [curieValue]: prev[curieValue].filter(row => row.prefix !== rowPrefix && row.namespace !== rowNamespace)
-        }));
+        setCuries(prev => prev.filter(row => row.prefix !== rowPrefix || row.namespace !== rowNamespace));
     };
 
     const debouncedUpdateRows = useMemo(
-        () => debounce((curieValue, updatedRows) => {
-            setCuries(prev => ({ ...prev, [curieValue]: updatedRows }));
+        () => debounce((updatedRows) => {
+            setCuries(updatedRows);
         }, 2000),
         []
     );
 
     const handleInputChangeCurieRow = (e, rowIndex, columnName, curieValue) => {
         console.log("UPDATE: here connect to update method")
-        const updatedRows = curies[curieValue].map((row, index) => index === rowIndex ? { ...row, [columnName]: e.target.value } : row);
-        debouncedUpdateRows(curieValue, updatedRows);
+        const updatedRows = curies.map((row, index) => index === rowIndex ? { ...row, [columnName]: e.target.value } : row);
+        debouncedUpdateRows(updatedRows);
     };
 
     const handleCurieAmountChange = (value) => setCurieAmount(value);
@@ -80,17 +79,13 @@ const CurieEditor = () => {
     }
 
     useEffect(() => {
-        fetchCuries('base');
-        fetchCuries('curated');
-        fetchCuries('latest');
-    }, []);
+        getOrganizationRequest("1");
+    }, [getOrganizationRequest]);
 
     useEffect(() => {
         const options = generatePageOptions(curieAmount);
         setPageOptions(options);
-        if (options.length > 0) {
-            setNumberOfVisibleCuries(options[0]);
-        }
+        setNumberOfVisibleCuries(options[0]);
     }, [curieAmount]);
 
     return (
@@ -117,42 +112,38 @@ const CurieEditor = () => {
                 <Grid container mt={3}>
                     <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={curiesTabs} />
                     <Box flexGrow={1} overflow="auto" p="2.5rem 0.5rem" width={1}>
-                        {curieValues.map((tab, index) => (
-                            tabValue === index && (
-                                <CuriesTabPanel
-                                    key={tab}
-                                    error={error}
-                                    loading={loading}
-                                    rows={curies[tab]}
-                                    numberOfVisibleCuries={numberOfVisibleCuries}
-                                    onCurieAmountChange={handleCurieAmountChange}
-                                />
-                            )
-                        ))}
+                        {tabValue === 0 && (
+                            <CuriesTabPanel
+                                error={error}
+                                loading={loading}
+                                rows={curies}
+                                numberOfVisibleCuries={numberOfVisibleCuries}
+                                onCurieAmountChange={handleCurieAmountChange}
+                            />
+                        )}
+                        {tabValue === 1 && (
+                            <OntologyTabPanel />
+                        )}
                     </Box>
                 </Grid>
             </Box>
-            <CurieEditorDialog open={openCurieEditor} handleClose={handleCloseCurieEditor} onSubmit={handleSubmit}>
+            <CurieEditorDialog open={openCurieEditor} handleClose={handleCloseCurieEditor} onSubmit={handleSubmit} isFromOrganization={true}>
                 <Box sx={{ padding: '0.75rem 1.25rem' }}>
                     <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={curiesTabs} />
                     <Box flexGrow={1} overflow="auto" p="2.5rem 0.5rem" width={1}>
-                        {curieValues.map((tab, index) => (
-                            tabValue === index && (
-                                <CuriesTabPanel
-                                    key={tab}
-                                    curieValue={tab}
-                                    error={error}
-                                    loading={loading}
-                                    editMode
-                                    rows={curies[tab]}
-                                    numberOfVisibleCuries={numberOfVisibleCuries}
-                                    onCurieAmountChange={handleCurieAmountChange}
-                                    onAddRow={handleAddNewCurieRow}
-                                    onDeleteRow={handleDeleteCurieRow}
-                                    onChangeRow={handleInputChangeCurieRow}
-                                />
-                            )
-                        ))}
+                        {tabValue === 0 && (
+                            <CuriesTabPanel
+                                error={error}
+                                loading={loading}
+                                editMode
+                                rows={curies}
+                                numberOfVisibleCuries={numberOfVisibleCuries}
+                                onCurieAmountChange={handleCurieAmountChange}
+                                onAddRow={handleAddNewCurieRow}
+                                onDeleteRow={handleDeleteCurieRow}
+                                onChangeRow={handleInputChangeCurieRow}
+                            />
+                        )}
                     </Box>
                 </Box>
             </CurieEditorDialog>
@@ -160,4 +151,4 @@ const CurieEditor = () => {
     );
 }
 
-export default CurieEditor;
+export default OrganizationsCurieEditor;

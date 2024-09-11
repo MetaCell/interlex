@@ -1,28 +1,68 @@
-const data = {
-    type: "node",
-    name: "Nervous System",
-    value: 10,
-    children: [
-      {
-        type: "node",
-        name: "Central Nervous System",
-        value: 10,
-        children: [
-          {
-            type: "node",
-            name: "Is Part Of",
-            value: 10,
-            children: [
-              { type: "leaf", name: "Extrensic Neuron", value: 90 },
-              { type: "leaf", name: "Nerve Tract", value: 12 },
-              { type: "leaf", name: "Nucleus of CNS", value: 34 },
-              { type: "leaf", name: "Pdf Neuron of abdominal neuromere", value: 53 },
-              { type: "leaf", name: "SP1 Neuron", value: 12 },
-            ],
-          }
-        ],
-      }
-    ],
-  };
+export const OBJECT = "object";
+export const PREDICATE = "predicate";
+export const SUBJECT = "subject";
+export const ROOT = "root";
 
-export default data;
+// TODO : Temporary until we get real data for predicates, right now parsing to make URLs
+// fit on Graph
+const getName = (nodeName) => {
+  let name = nodeName?.split("/")?.pop();
+
+  if ( name == undefined ) {
+    name = nodeName;
+  }
+
+  return name;
+}
+
+export const getGraphStructure = (pred) => {
+  let data = {
+    type : "node",
+    name : getName(pred.title),
+    id : pred.title,
+    type : ROOT,
+    value : pred.count,
+    children : []
+  }
+
+  let uniqueObjects = [];
+
+  pred?.tableData?.forEach( child => {
+    let newChild = { type : "leaf", name : getName(child.subject), id : child.subject, type : SUBJECT};
+
+    let getExistingObject = uniqueObjects?.find( c => c.id === child.object );
+    if ( getExistingObject ) {
+      let getExistingPredicate = getExistingObject.children?.find( c => c.id === child.predicate );
+      if ( getExistingPredicate ) {
+        getExistingPredicate.children.push(newChild)
+      }
+    } else {
+      let newPredicate = {
+        type : "node",
+        name : getName(child.predicate),
+        id : child.predicate,
+        type : PREDICATE,
+        children : [newChild] 
+      }
+
+      let newObject = {
+        type : "node",
+        name : getName(child.object),
+        id : child.object,
+        type : OBJECT,
+        children : [newPredicate]
+      }
+
+      uniqueObjects.push(newObject)
+    }
+  })
+
+  if ( uniqueObjects.length > 1 ) {
+    data.children = uniqueObjects;
+  } else {
+    data = uniqueObjects[0];
+    data.type = ROOT;
+  }
+
+  return data; 
+}

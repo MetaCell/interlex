@@ -8,12 +8,12 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { vars } from "../../theme/variables";
 const { gray800 } = vars;
 
-const AddPredicatesStep = ({ termValue, predicatesOptions }) => {
+const AddPredicatesStep = ({ searchTerm, predicatesOptions }) => {
 
-    const [predicates, setPredicates] = React.useState([{ subject: termValue, predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
+    const [predicates, setPredicates] = React.useState([{ subject: searchTerm, predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
 
     const handleAddPredicate = () => {
-        setPredicates([...predicates, { subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
+        setPredicates([...predicates, { subject: searchTerm, predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
     };
 
     const handlePredicateChange = (index, field, value) => {
@@ -30,7 +30,7 @@ const AddPredicatesStep = ({ termValue, predicatesOptions }) => {
     return (
         <Box height={1} width={1} sx={{ padding: '2.25rem 3.25rem' }}>
             <Typography color={gray800} fontSize='1.125rem' fontWeight={600} mb='2.75rem'>
-                Add Predicates to {termValue}
+                Add Predicates to {searchTerm}
             </Typography>
             {predicates.map((predicate, index) => (
                 <Grid container spacing='1.75rem' mb='2rem' key={index} alignItems='end'>

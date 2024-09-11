@@ -4,7 +4,7 @@ import { vars } from "../../theme/variables";
 
 const { gray50, gray300, gray400, gray600, gray700, gray800, gray900, brand600 } = vars;
 
-const CustomInputBox = ({ id, name, value, onInputChange, label, isRequired, helperText, placeholder, isEndAdornmentVisible, multiline, sx }) => {
+const CustomInputBox = ({ id, name, value, onInputChange, label, isRequired, helperText, placeholder, isEndAdornmentVisible, multiline, rows, sx }) => {
     return (
         <>
             <Stack direction="row" justifyContent="space-between" mb={1.5}>
@@ -21,6 +21,7 @@ const CustomInputBox = ({ id, name, value, onInputChange, label, isRequired, hel
                 helperText={helperText}
                 placeholder={placeholder}
                 multiline={multiline}
+                rows={rows}
                 InputProps={{
                     endAdornment: isEndAdornmentVisible ? (
                         <InputAdornment position="end">
