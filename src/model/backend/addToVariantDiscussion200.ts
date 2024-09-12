@@ -5,9 +5,4 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export interface Discussion {
-  message: string;
-  senderID: string;
-  senderUserName: string;
-  timestamp: string;
-}
+export type AddToVariantDiscussion200 = { [key: string]: any };

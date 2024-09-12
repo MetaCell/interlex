@@ -13,7 +13,8 @@ import {
   http
 } from 'msw'
 import type {
-  AddToDiscussion200,
+  AddToTermDiscussion200,
+  AddToVariantDiscussion200,
   Curies,
   Discussions,
   Error,
@@ -3950,9 +3951,97 @@ export const getGetOntologiesResponseMock = (): Ontologies => (Array.from({ leng
 
 export const getGetTermOntologiesResponseMock = (): Ontologies => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({})))
 
-export const getGetDiscussionsResponseMock = () => ([])
+export const getGetTermDiscussionsResponseMock = () => ((() => [
+  {
+    senderUserName: "User1",
+    senderID: "UserID1",
+    message: "First message",
+    timestamp: "2024-08-31T21:20:38+00:00"
+  },
+  {
+    senderUserName: "User2",
+    senderID: "UserID2",
+    message: "Second message",
+    timestamp: "2024-08-31T21:21:38+00:00"
+  },
+  {
+    senderUserName: "User3",
+    senderID: "UserID3",
+    message: "Third message",
+    timestamp: "2024-08-31T21:22:38+00:00"
+  },
+  {
+    senderUserName: "User4",
+    senderID: "UserID4",
+    message: "Fourth message",
+    timestamp: "2024-08-31T21:23:38+00:00"
+  },
+  {
+    senderUserName: "User5",
+    senderID: "UserID5",
+    message: "Fifth message",
+    timestamp: "2024-08-31T21:24:38+00:00"
+  },
+  {
+    senderUserName: "User6",
+    senderID: "UserID6",
+    message: "Sixth message",
+    timestamp: "2024-08-31T21:25:38+00:00"
+  }
+])())
 
-export const getAddToDiscussionResponseMock = (): AddToDiscussion200 => ({})
+export const getAddToTermDiscussionResponseMock = () => ((() => {
+  return {
+    status: 200,
+    timestamp: "2024-08-31T21:21:38+00:00"
+  };
+})())
+
+export const getGetVariantDiscussionsResponseMock = () => ((() => [
+  {
+    senderUserName: "User1",
+    senderID: "UserID1",
+    message: "First message",
+    timestamp: "2024-08-31T21:20:38+00:00"
+  },
+  {
+    senderUserName: "User2",
+    senderID: "UserID2",
+    message: "Second message",
+    timestamp: "2024-08-31T21:21:38+00:00"
+  },
+  {
+    senderUserName: "User3",
+    senderID: "UserID3",
+    message: "Third message",
+    timestamp: "2024-08-31T21:22:38+00:00"
+  },
+  {
+    senderUserName: "User4",
+    senderID: "UserID4",
+    message: "Fourth message",
+    timestamp: "2024-08-31T21:23:38+00:00"
+  },
+  {
+    senderUserName: "User5",
+    senderID: "UserID5",
+    message: "Fifth message",
+    timestamp: "2024-08-31T21:24:38+00:00"
+  },
+  {
+    senderUserName: "User6",
+    senderID: "UserID6",
+    message: "Sixth message",
+    timestamp: "2024-08-31T21:25:38+00:00"
+  }
+])())
+
+export const getAddToVariantDiscussionResponseMock = () => ((() => {
+  return {
+    status: 200,
+    timestamp: "2024-08-31T21:21:38+00:00"
+  };
+})())
 
 
 export const getLoginMockHandler = (overrideResponse?: void) => {
@@ -4277,10 +4366,10 @@ export const getGetTermOntologiesMockHandler = (overrideResponse?: Ontologies) =
   })
 }
 
-export const getGetDiscussionsMockHandler = (overrideResponse?: Discussions) => {
-  return http.get('*/:group/discussions/:term', async () => {
+export const getGetTermDiscussionsMockHandler = (overrideResponse?: Discussions) => {
+  return http.get('*/:group/discussions/term/:termID', async () => {
     await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetDiscussionsResponseMock()),
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetTermDiscussionsResponseMock()),
       {
         status: 200,
         headers: {
@@ -4291,10 +4380,38 @@ export const getGetDiscussionsMockHandler = (overrideResponse?: Discussions) => 
   })
 }
 
-export const getAddToDiscussionMockHandler = (overrideResponse?: AddToDiscussion200) => {
-  return http.post('*/:group/add_discussions/:term', async () => {
+export const getAddToTermDiscussionMockHandler = (overrideResponse?: AddToTermDiscussion200) => {
+  return http.post('*/:group/discussions/term/:termID', async () => {
     await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getAddToDiscussionResponseMock()),
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getAddToTermDiscussionResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getGetVariantDiscussionsMockHandler = (overrideResponse?: Discussions) => {
+  return http.get('*/:group/discussions/variant/:variantID', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetVariantDiscussionsResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
+export const getAddToVariantDiscussionMockHandler = (overrideResponse?: AddToVariantDiscussion200) => {
+  return http.post('*/:group/discussions/variant/:variantID', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getAddToVariantDiscussionResponseMock()),
       {
         status: 200,
         headers: {
@@ -4342,6 +4459,8 @@ export const getSwaggerMockMissingEndpointsMock = () => [
   getGetVersionsMockHandler(),
   getGetOntologiesMockHandler(),
   getGetTermOntologiesMockHandler(),
-  getGetDiscussionsMockHandler(),
-  getAddToDiscussionMockHandler(),
+  getGetTermDiscussionsMockHandler(),
+  getAddToTermDiscussionMockHandler(),
+  getGetVariantDiscussionsMockHandler(),
+  getAddToVariantDiscussionMockHandler(),
   getGetPingMockHandler()]

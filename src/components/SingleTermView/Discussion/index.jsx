@@ -4,13 +4,25 @@ import TimeLine from "./TimeLine";
 import { vars } from "../../../theme/variables";
 import { useState, useRef, useEffect } from "react";
 import CommentEditor from "./CommentEditor";
+import { getTermDiscussions } from "../../../api/endpoints";
 
 const { gray25, gray200, gray700 } = vars;
 
-const Discussion = () => {
+const Discussion = (term) => {
   const [comments, setComments] = useState([]);
   const commentsEndRef = useRef(null);
+  const [discussions, setDiscussions] = useState([]);
+
+  const getDiscussions = async () =>  {
+    const data = await getTermDiscussions("base", term)
+    setDiscussions(data)
+  }
   
+  useEffect(() => {
+    getDiscussions()
+  }, []);
+
+
   const addComment = (comment) => {
     setComments([...comments, comment]);
   };
@@ -44,7 +56,7 @@ const Discussion = () => {
                 flexGrow: 1,
               }}
             >
-              {comments.map((comment, index) => (
+              {discussions.map((comment, index) => (
                 <TimeLine key={index} comment={comment} hideConnector={index === comments.length - 1} />
               ))}
               <div ref={commentsEndRef} />

@@ -8,6 +8,7 @@ import { mockCuries } from "./mock/data/mockCuries";
 import { mockSignup, mockUser } from "./mock/data/mockUser";
 import { mockForks } from "./mock/data/mockForks";
 import { mockPatchBulkTermsResponse, mockPatchTermResponse } from "./mock/data/mockPatchTermResponse";
+import { mockDiscussions, mockPostMessage } from "./mock/data/mockDiscussions";
 
 module.exports = {
   uri: {
@@ -150,9 +151,24 @@ module.exports = {
               data : mockVersions
             }
           },
-          get_discussions : {
+          get_term_discussions : {
             mock: {
-              data : []
+              data : mockDiscussions
+            }
+          },
+          get_variant_discussions : {
+            mock: {
+              data : mockDiscussions
+            }
+          },
+          add_to_term_discussion : {
+            mock: {
+              data : mockPostMessage
+            }
+          },
+          add_to_variant_discussion : {
+            mock: {
+              data : mockPostMessage
             }
           },
           get_hierarchies : {

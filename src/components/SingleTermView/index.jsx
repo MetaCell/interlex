@@ -248,7 +248,7 @@ const SingleTermView = () => {
           tabValue === 2 && <HistoryPanel />
         }
         {
-          tabValue === 3 && <Discussion />
+          tabValue === 3 && <Discussion term={searchTerm} />
         }
       </Box>
       <RequestMergeChanges searchTerm={searchTerm} open={openRequestMergeDialog} handleClose={handleCloseRequestMergeDialog} />

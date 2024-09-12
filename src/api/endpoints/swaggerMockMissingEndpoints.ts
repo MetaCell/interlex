@@ -5,7 +5,8 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
-  AddToDiscussion200,
+  AddToTermDiscussion200,
+  AddToVariantDiscussion200,
   Curies,
   Discussion,
   Discussions,
@@ -331,12 +332,41 @@ export const getTermOntologies = (
 /**
  * @summary List all discussions for a term
  */
-export const getDiscussions = (
+export const getTermDiscussions = (
     group: string,
-    term: string,
+    termID: string,
  options?: SecondParameter<typeof customInstance>,) => {
       return customInstance<Discussions>(
-      {url: `/${group}/discussions/${term}`, method: 'GET'
+      {url: `/${group}/discussions/term/${termID}`, method: 'GET'
+    },
+      options);
+    }
+  
+/**
+ * @summary Used to save a new message on a term.
+ */
+export const addToTermDiscussion = (
+    group: string,
+    termID: string,
+    discussion: BodyType<Discussion>,
+ options?: SecondParameter<typeof customInstance>,) => {
+      return customInstance<AddToTermDiscussion200>(
+      {url: `/${group}/discussions/term/${termID}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: discussion
+    },
+      options);
+    }
+  
+/**
+ * @summary List all discussions for a variant
+ */
+export const getVariantDiscussions = (
+    group: string,
+    variantID: string,
+ options?: SecondParameter<typeof customInstance>,) => {
+      return customInstance<Discussions>(
+      {url: `/${group}/discussions/variant/${variantID}`, method: 'GET'
     },
       options);
     }
@@ -344,13 +374,13 @@ export const getDiscussions = (
 /**
  * @summary Used to save a new discussion.
  */
-export const addToDiscussion = (
+export const addToVariantDiscussion = (
     group: string,
-    term: string,
+    variantID: string,
     discussion: BodyType<Discussion>,
  options?: SecondParameter<typeof customInstance>,) => {
-      return customInstance<AddToDiscussion200>(
-      {url: `/${group}/add_discussions/${term}`, method: 'POST',
+      return customInstance<AddToVariantDiscussion200>(
+      {url: `/${group}/discussions/variant/${variantID}`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: discussion
     },
@@ -397,6 +427,8 @@ export type GetVariantsResult = NonNullable<Awaited<ReturnType<typeof getVariant
 export type GetVersionsResult = NonNullable<Awaited<ReturnType<typeof getVersions>>>
 export type GetOntologiesResult = NonNullable<Awaited<ReturnType<typeof getOntologies>>>
 export type GetTermOntologiesResult = NonNullable<Awaited<ReturnType<typeof getTermOntologies>>>
-export type GetDiscussionsResult = NonNullable<Awaited<ReturnType<typeof getDiscussions>>>
-export type AddToDiscussionResult = NonNullable<Awaited<ReturnType<typeof addToDiscussion>>>
+export type GetTermDiscussionsResult = NonNullable<Awaited<ReturnType<typeof getTermDiscussions>>>
+export type AddToTermDiscussionResult = NonNullable<Awaited<ReturnType<typeof addToTermDiscussion>>>
+export type GetVariantDiscussionsResult = NonNullable<Awaited<ReturnType<typeof getVariantDiscussions>>>
+export type AddToVariantDiscussionResult = NonNullable<Awaited<ReturnType<typeof addToVariantDiscussion>>>
 export type GetPingResult = NonNullable<Awaited<ReturnType<typeof getPing>>>
