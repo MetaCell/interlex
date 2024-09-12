@@ -41,6 +41,7 @@ import { CodeIcon } from "../../Icons";
 import { useQuery } from "../../helpers";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import CreateForkDialog from "./CreateForkDialog";
 import TermDialog from "../TermEditor/TermDialog";
 
 const { gray200, brand700, gray600 } = vars;
@@ -61,6 +62,15 @@ const SingleTermView = () => {
   const query = useQuery();
   const searchTerm = query.get('searchTerm');
   const openDataFormatMenu = Boolean(dataFormatAnchorEl);
+	const [openForkDialog, setOpenForkDialog] = React.useState(false);
+
+    const handleForkDialogClose = () => {
+      setOpenForkDialog(false);
+    }
+
+    const handleOpenForkDialog = () => {
+      setOpenForkDialog(true);
+    }
   const handleClickDataFormatMenu = (event) => {
     setDataFormatAnchorEl(event.currentTarget);
   };
@@ -158,7 +168,7 @@ const SingleTermView = () => {
                       Request to merge changes to curated
                     </Button>
                   ) : (
-                    <Button type="string" color="secondary" startIcon={<ForkRightIcon />}>
+                    <Button type="string" color="secondary" startIcon={<ForkRightIcon />} onClick={handleOpenForkDialog}>
                       Create fork
                     </Button>
                   )}
@@ -253,6 +263,10 @@ const SingleTermView = () => {
       </Box>
       <RequestMergeChanges searchTerm={searchTerm} open={openRequestMergeDialog} handleClose={handleCloseRequestMergeDialog} />
       <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} searchTerm={searchTerm} />
+			<CreateForkDialog
+				open={openForkDialog}
+				handleClose={handleForkDialogClose}
+			/>
     </>
   )
 }
