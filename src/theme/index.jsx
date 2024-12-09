@@ -105,6 +105,9 @@ const theme = createTheme({
                     min-height: 100vh;
                     padding: 1rem 0;
                 }
+				.custom-toolbar {
+					padding: 2rem !important;
+				}
             `,
 		},
 		MuiRichTreeView: {

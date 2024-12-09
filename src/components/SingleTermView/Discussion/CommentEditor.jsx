@@ -22,13 +22,9 @@ const CommentEditor = ({ onAddComment }) => {
         value={editorState}
         onChange={handleEditorChange}
         toolbarConfig={{
-          display: ['INLINE_STYLE_BUTTONS', 'BLOCK_TYPE_BUTTONS'],
-          BLOCK_TYPE_BUTTONS: [
-            { label: 'UL', style: 'unordered-list-item' },
-            { label: 'OL', style: 'ordered-list-item' }
-          ]
+          display: []
         }}
-        
+        toolbarClassName="custom-toolbar"
       />
       <Button
         onClick={handleAddComment}
