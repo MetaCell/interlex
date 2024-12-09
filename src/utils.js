@@ -42,3 +42,25 @@ export const stableSort = (array, comparator) => {
     });
     return stabilizedThis.map((el) => el[0]);
 }
+
+export function compareArrays(originalArray, modifiedArray) {
+    const difference = originalArray.filter(item => !modifiedArray.includes(item));
+    return difference;
+}
+
+export function compareSentences(originalText, modifiedText) {
+    // Split texts into sentences
+    const originalSentences = originalText.match(/[^.!?]+[.!?]+/g) || [];
+    const modifiedSentences = modifiedText.match(/[^.!?]+[.!?]+/g) || [];
+
+    // Find sentences in original that are not in modified
+    const uniqueSentences = originalSentences.filter(sentence => 
+        !modifiedSentences.some(modSentence => 
+            sentence.trim().toLowerCase() === modSentence.trim().toLowerCase()
+        )
+    );
+
+    return uniqueSentences;
+}
+
+
