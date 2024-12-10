@@ -146,6 +146,11 @@ module.exports = {
               data : mockVariants
             }
           },
+          get_variant : {
+            mock: {
+              data : mockVariants
+            }
+          },
           get_versions : {
             mock: {
               data : mockVersions

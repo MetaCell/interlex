@@ -3934,6 +3934,41 @@ export const getGetVariantsResponseMock = () => ((() => [
   }
 ])())
 
+export const getGetVariantResponseMock = () => ((() => [
+  {
+    "id": "variant_ilx_0101901",
+    "organization": "Interlex Lab",
+    "description": "The central nervous system is the part of the nervous system...",
+    "timestamp": "24 March 12:08am",
+    "status": "Active",
+    "originatingUser": {
+      "userID": "olivia",
+      "userName": "Oliviya Rhye"
+    },
+    "editingUser": {
+      "userID": "olivia",
+      "userName": "Oliviya Rhye"
+    },
+    "url": "https://uri.olympiangods.org/base/ilx_0101901.jsonld"
+  },
+  {
+    "id": "variant_ilx_0101431",
+    "organization": "Interlex Lab 2",
+    "description": "The central nervous system is the part of the nervous system...",
+    "timestamp": "25 March 12:08am",
+    "status": "Active",
+    "originatingUser": {
+      "userID": "olivia",
+      "userName": "Oliviya Rhye"
+    },
+    "editingUser": {
+      "userID": "olivia",
+      "userName": "Oliviya Rhye"
+    },
+    "url": "https://uri.olympiangods.org/base/ilx_0101431.jsonld"
+  }
+])())
+
 export const getGetVersionsResponseMock = () => ((() => [
   {
     "id": "version_ilx_0101901",
@@ -4324,6 +4359,20 @@ export const getGetVariantsMockHandler = (overrideResponse?: Variants) => {
   })
 }
 
+export const getGetVariantMockHandler = (overrideResponse?: Variants) => {
+  return http.get('*/:group/variant/:term', async () => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetVariantResponseMock()),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    )
+  })
+}
+
 export const getGetVersionsMockHandler = (overrideResponse?: Versions) => {
   return http.get('*/:group/versions/:term', async () => {
     await delay(1000);
@@ -4456,6 +4505,7 @@ export const getSwaggerMockMissingEndpointsMock = () => [
   getSearchAllMockHandler(),
   getGetCuriesMockHandler(),
   getGetVariantsMockHandler(),
+  getGetVariantMockHandler(),
   getGetVersionsMockHandler(),
   getGetOntologiesMockHandler(),
   getGetTermOntologiesMockHandler(),
