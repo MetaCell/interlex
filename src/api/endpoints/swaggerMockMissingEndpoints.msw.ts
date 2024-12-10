@@ -3934,40 +3934,73 @@ export const getGetVariantsResponseMock = () => ((() => [
   }
 ])())
 
-export const getGetVariantResponseMock = () => ((() => [
-  {
-    "id": "variant_ilx_0101901",
-    "organization": "Interlex Lab",
-    "description": "The central nervous system is the part of the nervous system...",
-    "timestamp": "24 March 12:08am",
-    "status": "Active",
-    "originatingUser": {
-      "userID": "olivia",
-      "userName": "Oliviya Rhye"
-    },
-    "editingUser": {
-      "userID": "olivia",
-      "userName": "Oliviya Rhye"
-    },
-    "url": "https://uri.olympiangods.org/base/ilx_0101901.jsonld"
-  },
-  {
-    "id": "variant_ilx_0101431",
-    "organization": "Interlex Lab 2",
-    "description": "The central nervous system is the part of the nervous system...",
-    "timestamp": "25 March 12:08am",
-    "status": "Active",
-    "originatingUser": {
-      "userID": "olivia",
-      "userName": "Oliviya Rhye"
-    },
-    "editingUser": {
-      "userID": "olivia",
-      "userName": "Oliviya Rhye"
-    },
-    "url": "https://uri.olympiangods.org/base/ilx_0101431.jsonld"
-  }
-])())
+export const getGetVariantResponseMock = () => ((() => {
+  return {
+    "id": "http://uri.interlex.org/base/ilx_0101431",
+    "description": "It is an organization. It is derived from the anterior part of the embryonic neural tube (or the encephalon). Does not include retina. (CUMBO)The rostral topographic division of the cerebrospinal axis, while the caudal division is the spinal cord. The usual criterion for distinguishing the two divisions in the adult is that the vertebrate brain lies within the skull whereas the spinal cord lies within the spinal (vertebral) column, although this is a difficult problem. (Swanson, 2014)",
+    "existingID": ["http://uri.neuinfo.org/nif/nifstd/birnlex_796", "http://purl.org/sig/ont/fma/fma50801", "UBERON:0001017"],
+    "hasIlxId": "http://uri.interlex.org/base/ilx_0101431",
+    "hasIlxPreferredId": "http://uri.interlex.org/base/ilx_0101431",
+    "label": "Brain",
+    "organization": "My Organization",
+    "predicates": [
+      { "title": "@id", "count": 3, "tableData": [
+        { "subject": "http://uri.interlex.org/base/ilx_0101431", "predicate": "@id", "object": "http://uri.interlex.org/base/ilx_0101431" },
+        { "subject": "http://uri.interlex.org/base/ontologies/ilx_0101431", "predicate": "@id", "object": "http://uri.interlex.org/base/ontologies/ilx_0101431" },
+        { "subject": "http://purl.obolibrary.org/obo/UBERON_0000955", "predicate": "@id", "object": "http://purl.obolibrary.org/obo/UBERON_0000955" }
+      ] },
+      { "title": "http://uri.interlex.org/tgbugs/uris/readable/hasIlxId", "count": 1, "tableData": [
+        { "subject": "http://uri.interlex.org/base/ilx_0101431", "predicate": "http://uri.interlex.org/tgbugs/uris/readable/hasIlxId", "object": "http://uri.interlex.org/base/ilx_0101431" }
+      ] },
+      { "title": "http://uri.interlex.org/tgbugs/uris/readable/hasIlxPreferredId", "count": 1, "tableData": [
+        { "subject": "http://uri.interlex.org/base/ilx_0101431", "object": "http://uri.interlex.org/base/ilx_0101431", "predicate": "http://uri.interlex.org/tgbugs/uris/readable/hasIlxPreferredId" }
+      ] },
+      { "title": "@type", "count": 2, "tableData": [
+        { "subject": "http://uri.interlex.org/base/ontologies/ilx_0101431", "predicate": "@type", "object": "owl:Ontology" },
+        { "subject": "http://purl.obolibrary.org/obo/UBERON_0000955", "predicate": "@type", "object": "owl:Class" }
+      ] },
+      { "title": "owl:versionIRI", "count": 1, "tableData": [
+        { "subject": "http://uri.interlex.org/base/ontologies/ilx_0101431", "predicate": "owl:versionIRI", "object": "http://uri.interlex.org/base/ontologies/ilx_0101431/version/1717611398/ilx_0101431" }
+      ] },
+      { "title": "owl:versionInfo", "count": 1, "tableData": [
+        { "subject": "http://uri.interlex.org/base/ontologies/ilx_0101431", "predicate": "owl:versionInfo", "object": "2024-06-05T18:16:38,089335Z" }
+      ] },
+      { "title": "http://purl.obolibrary.org/obo/IAO_0000115", "count": 1, "tableData": [
+        { "subject": "http://purl.obolibrary.org/obo/UBERON_0000955", "predicate": "http://purl.obolibrary.org/obo/IAO_0000115", "object": "The part of the central nervous system contained w\u2026ough this is a difficult problem. (Swanson, 2014)" }
+      ] },
+      { "title": "http://uri.interlex.org/base/readable/synonym", "count": 5, "tableData": [
+        { "subject": "http://purl.obolibrary.org/obo/UBERON_0000955", "predicate": "http://uri.interlex.org/base/readable/synonym", "object": "Encephalon" },
+        { "subject": "http://purl.obolibrary.org/obo/UBERON_0000955", "predicate": "http://uri.interlex.org/base/readable/synonym", "object": "synganglion" },
+        { "subject": "http://purl.obolibrary.org/obo/UBERON_0000955", "predicate": "http://uri.interlex.org/base/readable/synonym", "object": "the brain" },
+        { "subject": "http://purl.obolibrary.org/obo/UBERON_0000955", "predicate": "http://uri.interlex.org/base/readable/synonym", "object": "suprasegmental levels of nervous system" },
+        { "subject": "http://purl.obolibrary.org/obo/UBERON_0000955", "predicate": "http://uri.interlex.org/base/readable/synonym", "object": "suprasegmental structures" }
+      ] },
+      { "title": "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId", "count": 3, "tableData": [
+        { "subject": "http://purl.obolibrary.org/obo/UBERON_0000955", "predicate": "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId", "object": "http://uri.neuinfo.org/nif/nifstd/birnlex_796" },
+        { "subject": "http://purl.obolibrary.org/obo/UBERON_0000955", "predicate": "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId", "object": "http://purl.org/sig/ont/fma/fma50801" },
+        { "subject": "http://purl.obolibrary.org/obo/UBERON_0000955", "predicate": "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId", "object": "http://purl.obolibrary.org/obo/UBERON_0000955" }
+      ] },
+      { "title": "http://uri.interlex.org/tgbugs/uris/readable/organization", "count": 1, "tableData": [
+        { "subject": "http://purl.obolibrary.org/obo/UBERON_0000955", "predicate": "http://uri.interlex.org/tgbugs/uris/readable/organization", "object": "My Organization" }
+      ] },
+      { "title": "http://uri.interlex.org/tgbugs/uris/readable/status", "count": 1, "tableData": [
+        { "subject": "http://purl.obolibrary.org/obo/UBERON_0000955", "predicate": "http://uri.interlex.org/tgbugs/uris/readable/status", "object": "Approved" }
+      ] },
+      { "title": "rdfs:label", "count": 1, "tableData": [
+        { "subject": "http://purl.obolibrary.org/obo/UBERON_0000955", "predicate": "rdfs:label", "object": "Brain" }
+      ] },
+      { "title": "rdfs:subClassOf", "count": 1, "tableData": [
+        { "subject": "http://purl.obolibrary.org/obo/UBERON_0000955", "predicate": "rdfs:subClassOf", "object": "http://uri.interlex.org/base/ilx_0108124" }
+      ] }
+    ],
+    "status": "Approved",
+    "subClassOf": "http://uri.interlex.org/base/ilx_0108124",
+    "synonym": ["Encephalon", "synganglion", "the brain", "suprasegmental structures", "structure"],
+    "type": "owl:Ontology",
+    "versionIRI": "http://uri.interlex.org/base/ontologies/ilx_0101431/version/1717611398/ilx_0101431",
+    "versionInfo": "2024-06-05T18:16:38,089335Z"
+  };
+})())
 
 export const getGetVersionsResponseMock = () => ((() => [
   {
