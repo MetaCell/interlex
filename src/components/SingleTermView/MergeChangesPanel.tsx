@@ -1,7 +1,6 @@
 import React from "react";
 import { useMemo } from "react";
 import { Grid, Box, Chip, Stack, Typography } from "@mui/material";
-import Hierarchy from "./OverView/Hierarchy";
 import Predicates from "./OverView/Predicates";
 import MergeStatusContainer from "./MergeStatusContainer";
 import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
@@ -200,9 +199,6 @@ const MergeChangesPanel = ({ data, comparingData, statusType }) => {
                 </Grid>
             </Grid>
             <Grid container item p={3} lg={12}>
-                <Grid item lg={12} mb={5.5}>
-                    <Hierarchy />
-                </Grid>
                 <Grid item lg={12}>
                     <Predicates data={memoData} isGraphVisible={false} />
                 </Grid>
