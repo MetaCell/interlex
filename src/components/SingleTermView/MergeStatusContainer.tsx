@@ -7,7 +7,7 @@ const { white, error700, success700 } = vars;
 const styles = {
     statusContainer: {
         position: "relative",
-        width: "100%",
+        width: "fit-content",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -25,8 +25,7 @@ const styles = {
     }),
     childrenWrapper: {
         position: "relative" as const,
-        zIndex: 1,
-        width: "100%"
+        zIndex: 1
     },
     status: (color: string) => ({
         border: `2px solid ${color}`,

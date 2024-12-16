@@ -7,18 +7,6 @@ const TableRow = ({ tableStyles, data, comparingData, onDragStart, onDragEnter, 
   const { id, subject, predicate, object } = data;
   const [isHovered, setIsHovered] = useState(false);
 
-  const renderContent = (content, compareContent) => {
-    const shouldWrapInMergeStatus = (comparingData || statusType) && compareContent !== content;
-
-    const contentElement = <Typography>{content}</Typography>;
-
-    return shouldWrapInMergeStatus ? (
-      <MergeStatusContainer status={statusType}>
-        {contentElement}
-      </MergeStatusContainer>
-    ) : contentElement;
-  };
-
   return (
     <Box sx={tableStyles.root}
       draggable={true}
@@ -28,12 +16,36 @@ const TableRow = ({ tableStyles, data, comparingData, onDragStart, onDragEnter, 
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Box sx={{ paddingLeft: "0 !important" }}>
-        {renderContent(subject, comparingData?.subject)}
-      </Box>
-      <Box>
-        {renderContent(predicate, comparingData?.predicate)}
-      </Box>
+      {(comparingData || statusType) && comparingData?.subject !== subject ? (
+        <MergeStatusContainer status={statusType}>
+          <Box sx={{ paddingLeft: "0 !important" }}>
+            <Typography>
+              {subject}
+            </Typography>
+          </Box>
+        </MergeStatusContainer>
+      ) : (
+        <Box sx={{ paddingLeft: "0 !important" }}>
+          <Typography>
+            {subject}
+          </Typography>
+        </Box>
+      )}
+      {(comparingData || statusType) && comparingData?.predicate !== predicate ? (
+        <MergeStatusContainer status={statusType}>
+          <Box>
+            <Typography>
+              {predicate}
+            </Typography>
+          </Box>
+        </MergeStatusContainer>
+      ) : (
+        <Box>
+          <Typography>
+            {predicate}
+          </Typography>
+        </Box>
+      )}
       <Box display="flex" justifyContent="flex-end" sx={{ paddingRight: "0 !important" }}>
         {
           isHovered && (

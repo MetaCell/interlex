@@ -7,7 +7,7 @@ import MergeChangesPanel from "./MergeChangesPanel";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { EditNoteIcon } from "../../Icons";
 import { getMatchTerms } from "../../api/endpoints";
-import termMockData from "../../static/modifiedTermMockData.json";
+import { getVariant } from "../../api/endpoints/swaggerMockMissingEndpoints";
 import { debounce } from 'lodash'
 
 
@@ -34,8 +34,10 @@ const RequestMergeChanges = ({ searchTerm, open, handleClose }) => {
             if (searchTerm) {
                 getMatchTerms(searchTerm).then(data => {
                     setData(data?.results[0]);
-                    setModifiedData(termMockData);
                     setLoading(false);
+                });
+                getVariant("base", "ILX_....").then(data => { 
+                    setModifiedData(data);
                 });
             }
         }, 300),
