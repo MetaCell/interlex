@@ -292,6 +292,19 @@ export const getVariants = (
     }
   
 /**
+ * @summary Get variant for a term
+ */
+export const getVariant = (
+    group: string,
+    term: string,
+ options?: SecondParameter<typeof customInstance>,) => {
+      return customInstance<Variants>(
+      {url: `/${group}/variant/${term}`, method: 'GET'
+    },
+      options);
+    }
+  
+/**
  * @summary List all versions for a term
  */
 export const getVersions = (
@@ -424,6 +437,7 @@ export type GetMatchTermsResult = NonNullable<Awaited<ReturnType<typeof getMatch
 export type SearchAllResult = NonNullable<Awaited<ReturnType<typeof searchAll>>>
 export type GetCuriesResult = NonNullable<Awaited<ReturnType<typeof getCuries>>>
 export type GetVariantsResult = NonNullable<Awaited<ReturnType<typeof getVariants>>>
+export type GetVariantResult = NonNullable<Awaited<ReturnType<typeof getVariant>>>
 export type GetVersionsResult = NonNullable<Awaited<ReturnType<typeof getVersions>>>
 export type GetOntologiesResult = NonNullable<Awaited<ReturnType<typeof getOntologies>>>
 export type GetTermOntologiesResult = NonNullable<Awaited<ReturnType<typeof getTermOntologies>>>

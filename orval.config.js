@@ -2,7 +2,7 @@ import { mockOntologies } from "./mock/data/mockOntologies";
 import { mockOrganization, mockOrganizations } from "./mock/data/mockOrganizations";
 import { mockTerms, mockTerm } from "./mock/data/mockTerms";
 import { mockSearch } from "./mock/data/mockSearch";
-import { mockVariants } from "./mock/data/mockVariants";
+import { mockVariants, mockVariant } from "./mock/data/mockVariants";
 import { mockVersions } from "./mock/data/mockVersions";
 import { mockCuries } from "./mock/data/mockCuries";
 import { mockSignup, mockUser } from "./mock/data/mockUser";
@@ -144,6 +144,11 @@ module.exports = {
           get_variants : {
             mock: {
               data : mockVariants
+            }
+          },
+          get_variant : {
+            mock: {
+              data : mockVariant
             }
           },
           get_versions : {

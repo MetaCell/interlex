@@ -695,6 +695,60 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /{group}/variant/{term}: 
+    get:
+      summary: Get variant for a term
+      operationId: get_variant
+      tags:
+        - term
+      parameters:
+        - name: group
+          in: path
+          required: true
+          description: The group of the term to retrieve
+          schema:
+            type: string
+        - name: term
+          in: path
+          required: true
+          description: The id of the term to retrieve
+          schema:
+            type: string
+      responses:
+        200:
+          description: An object with the variant
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Variants'
+              example:
+                    {
+                        "id" : "variant_ilx_0101901",
+                        "organization" : "Interlex Lab",  
+                        "description" : "The central nervous system is the part of the nervous system...",
+                        "timestamp" : "24 March 12:08am",
+                        "status" : "Active",
+                        "originatingUser" : {
+                          "userID" : "olivia",
+                          "userName" : "Oliviya Rhye"
+                        },
+                        "editingUser" : {
+                          "userID" : "olivia",
+                          "userName" : "Oliviya Rhye"
+                        },
+                        "url" : "https://uri.olympiangods.org/base/ilx_0101901.jsonld",
+                    }
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /{group}/versions/{term}: 
     get:
       summary: List all versions for a term

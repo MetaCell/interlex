@@ -6,6 +6,7 @@ This template provides instructions on how to use the API.
 - [API - Get Curies](#retrieving-curies)
 - [API - Get Single Term](#retrieving-single-term)
 - [API - Get Variants](#retrieving-variants)
+- [API - Get Variant](#retrieving-single-variant)
 - [API - Get Versions](#retrieving-versions)
 - [API - Get Raw Data](#retrieving-raw-data)
 - [API - Get User](#retrieving-user)
@@ -1177,6 +1178,47 @@ const Test = () => {
         "subClassOf": "http://uri.interlex.org/base/ilx_0109835"
     }
 ]
+```
+
+### Retrieving Single Variant
+- Sample Code
+```
+import { getVariant } from './../../api/endpoints';
+
+const Test = () => {
+    React.useEffect( () => {
+        getVariant("base", "ILX_....").then(data => { 
+            console.log("Retrieved variant : ", data)
+        });
+    }, [])
+
+    render ();
+};
+```
+
+- Sample Return
+```
+    {
+        "id": "http://uri.interlex.org/base/ilx_0101431",
+        "hasIlxId": "http://uri.interlex.org/base/ilx_0101431",
+        "hasIlxPreferredId": "http://uri.interlex.org/base/ilx_0101431",
+        "type": "owl:Ontology",
+        "versionIRI": "http://uri.interlex.org/base/ontologies/ilx_0101431/version/1717611398/ilx_0101431",
+        "versionInfo": "2024-06-05T18:16:38,089335Z",
+        "description": "The part of the central nervous system contained within the cranium, comprising the forebrain, midbrain, hindbrain, and metencephalon. It is derived from the anterior part of the embryonic neural tube (or the encephalon). Does not include retina. (CUMBO)The rostral topographic division of the cerebrospinal axis, while the caudal division is the spinal cord. The usual criterion for distinguishing the two divisions in the adult is that the vertebrate brain lies within the skull whereas the spinal cord lies within the spinal (vertebral) column, although this is a difficult problem. (Swanson, 2014)",
+        "synonym": [],
+        "existingID": [
+            "http://uri.neuinfo.org/nif/nifstd/birnlex_796",
+            "http://purl.org/sig/ont/fma/fma50801",
+            "http://purl.obolibrary.org/obo/UBERON_0000955"
+        ],
+        "label": "Brain",
+        "organization": "My Organization",
+        "status": "Active",
+        "originatingUser": "userId",
+        "editingUser": "userId",
+        "subClassOf": "http://uri.interlex.org/base/ilx_0108124"
+    }
 ```
 
 ### Retrieving Versions
