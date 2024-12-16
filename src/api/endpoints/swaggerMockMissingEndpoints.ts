@@ -22,7 +22,7 @@ import type {
   Term,
   Terms,
   User,
-  Variants,
+  Variant,
   Versions
 } from '../../model/backend'
 import { customInstance } from '../../../mock/mutator/customClient';
@@ -281,24 +281,11 @@ export const getCuries = (
 /**
  * @summary List all variants for a term
  */
-export const getVariants = (
-    group: string,
-    term: string,
- options?: SecondParameter<typeof customInstance>,) => {
-      return customInstance<Variants>(
-      {url: `/${group}/variants/${term}`, method: 'GET'
-    },
-      options);
-    }
-  
-/**
- * @summary Get variant for a term
- */
 export const getVariant = (
     group: string,
     term: string,
  options?: SecondParameter<typeof customInstance>,) => {
-      return customInstance<Variants>(
+      return customInstance<Variant>(
       {url: `/${group}/variant/${term}`, method: 'GET'
     },
       options);
@@ -436,7 +423,6 @@ export type BulkEditTermsResult = NonNullable<Awaited<ReturnType<typeof bulkEdit
 export type GetMatchTermsResult = NonNullable<Awaited<ReturnType<typeof getMatchTerms>>>
 export type SearchAllResult = NonNullable<Awaited<ReturnType<typeof searchAll>>>
 export type GetCuriesResult = NonNullable<Awaited<ReturnType<typeof getCuries>>>
-export type GetVariantsResult = NonNullable<Awaited<ReturnType<typeof getVariants>>>
 export type GetVariantResult = NonNullable<Awaited<ReturnType<typeof getVariant>>>
 export type GetVersionsResult = NonNullable<Awaited<ReturnType<typeof getVersions>>>
 export type GetOntologiesResult = NonNullable<Awaited<ReturnType<typeof getOntologies>>>

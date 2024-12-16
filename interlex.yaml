@@ -623,81 +623,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /{group}/variants/{term}: 
-    get:
-      summary: List all variants for a term
-      operationId: get_variants
-      tags:
-        - term
-      parameters:
-        - name: group
-          in: path
-          required: true
-          description: The group of the term to retrieve
-          schema:
-            type: string
-        - name: term
-          in: path
-          required: true
-          description: The id of the term to retrieve
-          schema:
-            type: string
-      responses:
-        200:
-          description: A paged array of variants
-          headers:
-            x-next:
-              description: A link to the next page of responses
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Variants'
-              example:
-                  [
-                    {
-                        "id" : "variant_ilx_0101901",
-                        "organization" : "Interlex Lab",  
-                        "description" : "The central nervous system is the part of the nervous system...",
-                        "timestamp" : "24 March 12:08am",
-                        "status" : "Active",
-                        "originatingUser" : {
-                          "userID" : "olivia",
-                          "userName" : "Oliviya Rhye"
-                        },
-                        "editingUser" : {
-                          "userID" : "olivia",
-                          "userName" : "Oliviya Rhye"
-                        },
-                        "url" : "https://uri.olympiangods.org/base/ilx_0101901.jsonld",
-                    },
-                    {
-                      "id" : "variant_ilx_0101431",
-                      "organization" : "Interlex Lab 2",  
-                      "description" : "The central nervous system is the part of the nervous system...",
-                      "timestamp" : "25 March 12:08am",
-                      "status" : "Active",
-                      "originatingUser" : {
-                        "userID" : "olivia",
-                        "userName" : "Oliviya Rhye"
-                      },
-                      "editingUser" : {
-                        "userID" : "olivia",
-                        "userName" : "Oliviya Rhye"
-                      },
-                      "url" : "https://uri.olympiangods.org/base/ilx_0101431.jsonld",
-                  }
-                ]
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
   /{group}/variant/{term}: 
     get:
-      summary: Get variant for a term
+      summary: List all variants for a term
       operationId: get_variant
       tags:
         - term
@@ -716,7 +644,7 @@ paths:
             type: string
       responses:
         200:
-          description: An object with the variant
+          description: A variant of a term
           headers:
             x-next:
               description: A link to the next page of responses
@@ -725,24 +653,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Variants'
-              example:
-                    {
-                        "id" : "variant_ilx_0101901",
-                        "organization" : "Interlex Lab",  
-                        "description" : "The central nervous system is the part of the nervous system...",
-                        "timestamp" : "24 March 12:08am",
-                        "status" : "Active",
-                        "originatingUser" : {
-                          "userID" : "olivia",
-                          "userName" : "Oliviya Rhye"
-                        },
-                        "editingUser" : {
-                          "userID" : "olivia",
-                          "userName" : "Oliviya Rhye"
-                        },
-                        "url" : "https://uri.olympiangods.org/base/ilx_0101901.jsonld",
-                    }
+                $ref: '#/components/schemas/Variant'
         default:
           description: unexpected error
           content:
@@ -1221,53 +1132,8 @@ components:
         example: "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     Variant:
       type: object
-      required:
-        - organization
-        - description
-        - timestamp
-        - status
-        - originatingUser
-        - editingUser
-        - url
-      properties:
-        id:
-          type: string
-        organization:
-          type: string
-        description:
-          type: string
-        timestamp:
-          type: string
-        status:
-          type: string
-        originatingUser:
-          type: object,
-          required:
-            userId
-            userName
-          properties:
-            userId:
-              type: string,
-              example: "olivia"
-            userName:
-              type: string,
-              example: "Oliviya Rhye"
-        editingUser:
-          type: object,
-          required:
-            userId
-            userName
-          properties:
-            userId:
-              type: string,
-              example: "olivia"
-            userName:
-              type: string,
-              example: "Oliviya Rhye"
-        url:
-          type: string
-          format: uri,
-          example: "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      items:
+        $ref: '#/components/schemas/Term'
     Variants:
       type: array
       items:

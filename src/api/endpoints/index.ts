@@ -1,4 +1,4 @@
-import { Organizations, Variants, Versions, User, Organization, Terms, Ontologies, Discussions, AddToDiscussion200, AddToTermDiscussion200 } from '../../model/backend';
+import { Organizations, Variants, Versions, User, Organization, Terms, Ontologies, Discussions, AddToDiscussion200, AddToTermDiscussion200, Term, Variant } from '../../model/backend';
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 import * as api from './../../api/endpoints/interLexURIStructureAPI'
 import { TERM, ONTOLOGY, ORGANIZATION } from '../../model/frontend/types'
@@ -82,6 +82,21 @@ export const getVariants = async (group, term) => {
   /** Call Endpoint */
   return getVariants(group, term).then((data) => {
       return data as Variants;
+    })
+    .catch((error) => {
+      return error;
+    });
+}
+
+export const getVariant = async (group, term) => {
+  /** Call endpoint for retrieving variants, this is a mock endpoint
+  created by us */
+  const {  getVariant } = useMockApi();
+
+  /** Call Endpoint */
+  return getVariant(group, term).then((data) => {
+      let parsedVariant = termParser(data, term)?.results?.[0];
+      return parsedVariant;
     })
     .catch((error) => {
       return error;
