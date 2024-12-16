@@ -28,7 +28,7 @@ const MergeChangesPanel = ({ data, comparingData, statusType }) => {
 
     const memoData = useMemo(() => data, [data]);
 
-    const differencesOfSynonym = compareArrays(data.synonym, comparingData.synonym);
+    const differencesOfSynonym = compareArrays(data?.synonym, comparingData?.synonym);
     const differencesOfExistingID = compareArrays(data.existingID, comparingData.existingID);
     const differencesOfDescription = compareSentences(data.description, comparingData.description);
 
@@ -200,7 +200,7 @@ const MergeChangesPanel = ({ data, comparingData, statusType }) => {
             </Grid>
             <Grid container item p={3} lg={12}>
                 <Grid item lg={12}>
-                    <Predicates data={memoData} isGraphVisible={false} />
+                    <Predicates data={memoData} isGraphVisible={false} viewChangesMode />
                 </Grid>
             </Grid>
         </Grid>
