@@ -34,7 +34,7 @@ const MergeChangesPanel = ({ data, comparingData, statusType }) => {
 
 
     return (
-        <Grid container xs={12} lg={6} sx={{ borderRight: `1px solid ${gray200}`, backgroundColor: gray25 }}>
+        <Grid container xs={12} lg={6} sx={{ borderRight: `1px solid ${gray200}`, backgroundColor: gray25, overflowY: 'auto' }}>
             <Box display="flex" justifyContent="space-between" sx={{ padding: "1.5rem", borderBottom: `1px solid ${gray200}`, background: "#fff", maxHeight: "4.75rem" }} width={1}>
                 <Typography sx={styles.title}>{data?.label}</Typography>
                 <Chip label={"Curated"} sx={styles.chip} />
@@ -200,7 +200,7 @@ const MergeChangesPanel = ({ data, comparingData, statusType }) => {
             </Grid>
             <Grid container item p={3} lg={12}>
                 <Grid item lg={12}>
-                    <Predicates data={memoData} isGraphVisible={false} />
+                    <Predicates data={memoData} comparingData={comparingData} isGraphVisible={false} statusType={statusType} />
                 </Grid>
             </Grid>
         </Grid>

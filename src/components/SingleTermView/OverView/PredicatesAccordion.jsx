@@ -22,7 +22,7 @@ import { vars } from "../../../theme/variables";
 
 const { gray600 } = vars;
 
-const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
+const PredicatesAccordion = ({ data, comparingData=[], expandAllPredicates, isGraphVisible, statusType }) => {
   const [toggleButtonValues, setToggleButtonValues] = useState(data?.map(() => 'tableView') || []);
   const [openViewDiagram, setOpenViewDiagram] = React.useState(false);
   const [selectedItem, setSelectedItem] = useState(null)
@@ -120,7 +120,7 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
           </AccordionSummary>
           <AccordionDetails>
             {toggleButtonValues[index] === 'tableView' ? (
-              <CustomizedTable data={pred} term={term} isAddButtonVisible={isGraphVisible}/>
+              <CustomizedTable data={pred} comparingData={comparingData[index]} term={term} isAddButtonVisible={isGraphVisible} statusType={statusType}/>
             ) : (
               <Box display='flex' flexDirection='column'>
                 <Graph width={600} height={300} predicate={pred} />

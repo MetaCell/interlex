@@ -65,9 +65,9 @@ const RequestMergeChanges = ({ searchTerm, open, handleClose }) => {
                 open={open}
                 handleClose={handleClose}
                 HeaderRightSideContent={<HeaderRightSideContent handleClose={handleClose} handleSubmit={handleOpenStatusDialog} />}
-                sx={{ '& .MuiDialogContent-root': { padding: 0 } }}
+                sx={{ '& .MuiDialogContent-root': { padding: 0, overflowY: "hidden" } }}
             >
-                <Box display="flex">
+                <Box display="flex" width={1} height={1}>
                     <MergeChangesPanel data={data} comparingData={modifiedData} statusType="delete" />
                     <MergeChangesPanel data={modifiedData} comparingData={data} statusType="add" />
                 </Box>

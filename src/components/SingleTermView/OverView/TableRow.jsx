@@ -1,9 +1,24 @@
 import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import { useState } from "react";
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
-const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, index }) => {
+import MergeStatusContainer from "../MergeStatusContainer";
+
+const TableRow = ({ tableStyles, data, comparingData, onDragStart, onDragEnter, onDragEnd, index, statusType }) => {
   const { id, subject, predicate, object } = data;
   const [isHovered, setIsHovered] = useState(false);
+
+  const renderContent = (content, compareContent) => {
+    const shouldWrapInMergeStatus = (comparingData || statusType) && compareContent !== content;
+
+    const contentElement = <Typography>{content}</Typography>;
+
+    return shouldWrapInMergeStatus ? (
+      <MergeStatusContainer status={statusType}>
+        {contentElement}
+      </MergeStatusContainer>
+    ) : contentElement;
+  };
+
   return (
     <Box sx={tableStyles.root}
       draggable={true}
@@ -14,14 +29,10 @@ const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, inde
       onMouseLeave={() => setIsHovered(false)}
     >
       <Box sx={{ paddingLeft: "0 !important" }}>
-        <Typography>
-          {subject}
-        </Typography>
+        {renderContent(subject, comparingData?.subject)}
       </Box>
       <Box>
-        <Typography>
-          {predicate}
-        </Typography>
+        {renderContent(predicate, comparingData?.predicate)}
       </Box>
       <Box display="flex" justifyContent="flex-end" sx={{ paddingRight: "0 !important" }}>
         {

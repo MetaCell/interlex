@@ -9,8 +9,7 @@
     "predicates": [
         {"title": "@id", "count": 3, "tableData": [
             {"subject": "http://uri.interlex.org/base/ilx_0101431", "predicate": "@id", "object": "http://uri.interlex.org/base/ilx_0101431"},
-            {"subject": "http://uri.interlex.org/base/ontologies/ilx_0101431", "predicate": "@id", "object": "http://uri.interlex.org/base/ontologies/ilx_0101431"},
-            {"subject": "http://purl.obolibrary.org/obo/UBERON_0000955", "predicate": "@id", "object": "http://purl.obolibrary.org/obo/UBERON_0000955"}
+            {"subject": "http://uri.interlex.org/base/ontologies/ilx_0101431", "predicate": "@id", "object": "http://uri.interlex.org/base/ontologies/ilx_0101431"}
         ]},
         {"title": "http://uri.interlex.org/tgbugs/uris/readable/hasIlxId", "count": 1, "tableData": [
             {"subject": "http://uri.interlex.org/base/ilx_0101431", "predicate": "http://uri.interlex.org/tgbugs/uris/readable/hasIlxId", "object": "http://uri.interlex.org/base/ilx_0101431"}

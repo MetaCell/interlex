@@ -7,12 +7,11 @@ const { white, error700, success700 } = vars;
 const styles = {
     statusContainer: {
         position: "relative",
-        width: "fit-content",
+        width: "100%",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         minHeight: "2.25rem",
-        minWidth: "6.25rem",
         borderRadius: "0 0.25rem 0.25rem 0.25rem",
     },
     overlay: (color: string) => ({
@@ -27,6 +26,7 @@ const styles = {
     childrenWrapper: {
         position: "relative" as const,
         zIndex: 1,
+        width: "100%"
     },
     status: (color: string) => ({
         border: `2px solid ${color}`,
@@ -37,9 +37,9 @@ const styles = {
         left: "-2px",
         bottom: "100%",
         borderRadius: "0.25rem 0.25rem 0 0",
-        fontSize: "0.75rem",
+        fontSize: "0.75rem !important",
         lineHeight: "1.125rem",
-        color: white,
+        color: `${white} !important`,
         background: color,
         zIndex: 3
     }),
