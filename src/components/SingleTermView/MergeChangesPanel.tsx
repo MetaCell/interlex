@@ -200,7 +200,7 @@ const MergeChangesPanel = ({ data, comparingData, statusType }) => {
             </Grid>
             <Grid container item p={3} lg={12}>
                 <Grid item lg={12}>
-                    <Predicates data={memoData} isGraphVisible={false} viewChangesMode />
+                    <Predicates data={memoData} isGraphVisible={false} />
                 </Grid>
             </Grid>
         </Grid>
