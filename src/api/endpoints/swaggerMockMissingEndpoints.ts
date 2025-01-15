@@ -18,6 +18,8 @@ import type {
   Organization,
   Organizations,
   SearchAllParams,
+  SearchElastic200,
+  SearchElasticBody,
   Signup200,
   Term,
   Terms,
@@ -401,6 +403,20 @@ export const addToVariantDiscussion = (
     }
   
 /**
+ * @summary Perform an ElasticSearch query
+ */
+export const searchElastic = (
+    searchElasticBody: BodyType<SearchElasticBody>,
+ options?: SecondParameter<typeof customInstance>,) => {
+      return customInstance<SearchElastic200>(
+      {url: `/term/elastic/search`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: searchElasticBody
+    },
+      options);
+    }
+  
+/**
  * @summary Checks if the server is running
  */
 export const getPing = (
@@ -445,4 +461,5 @@ export type GetTermDiscussionsResult = NonNullable<Awaited<ReturnType<typeof get
 export type AddToTermDiscussionResult = NonNullable<Awaited<ReturnType<typeof addToTermDiscussion>>>
 export type GetVariantDiscussionsResult = NonNullable<Awaited<ReturnType<typeof getVariantDiscussions>>>
 export type AddToVariantDiscussionResult = NonNullable<Awaited<ReturnType<typeof addToVariantDiscussion>>>
+export type SearchElasticResult = NonNullable<Awaited<ReturnType<typeof searchElastic>>>
 export type GetPingResult = NonNullable<Awaited<ReturnType<typeof getPing>>>

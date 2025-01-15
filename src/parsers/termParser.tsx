@@ -146,4 +146,26 @@ export const termParser = (data, searchTerm, start?, end?) => {
     }
 };
 
+export const elasticSearhParser = (data) => {
+    let terms : Terms;
+    if ( Array.isArray(data) ){
+        terms  = data?.map( term => {
+            let newTerm : Term = {} as Term
+            term = term._source
+            return term
+        })
+
+        // We are receiving an unknown amout of terms from server, we need to control
+        // how much to send back based on request made (start,end)
+        const results = terms;
+        const filters = getFilters(results);
+        return {
+            filters : filters,
+            results : results
+        }
+    } else {
+        return { filters : {} ,results : []}
+    }
+};
+
 export default termParser;

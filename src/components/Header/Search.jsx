@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { vars } from "../../theme/variables";
 import { useEffect, useState, useCallback, forwardRef } from 'react';
-import { searchAll } from "../../api/endpoints";
+import { searchAll, elasticSearch } from "../../api/endpoints";
 import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
 import CorporateFareOutlinedIcon from '@mui/icons-material/CorporateFareOutlined';
@@ -132,10 +132,11 @@ const Search = () => {
   }, [handleKeyDown]);
 
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
-    const data = await searchAll(searchTerm);
-    const dataTerms = data?.results.filter(result => result.type === "TERM")
-    const dataOrganizations = data?.results.filter(result => result.type === "ORGANIZATION")
-    const dataOntologies = data?.results.filter(result => result.type === "ONTOLOGY")
+    const data = await elasticSearch(searchTerm);
+    console.log("Elastic data search ", data)
+    const dataTerms = data?.results.filter(result => result.type === "term")
+    const dataOrganizations = data?.results.filter(result => result.type === "organization")
+    const dataOntologies = data?.results.filter(result => result.type === "ontology")
     setTerms(dataTerms);
     setOrganizations(dataOrganizations)
     setOntologies(dataOntologies)

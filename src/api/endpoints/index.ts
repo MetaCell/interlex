@@ -3,8 +3,10 @@ import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 import * as api from './../../api/endpoints/interLexURIStructureAPI'
 import { TERM, ONTOLOGY, ORGANIZATION } from '../../model/frontend/types'
 import curieParser from '../../parsers/curieParser';
-import termParser, { getTerm } from '../../parsers/termParser';
+import termParser, { elasticSearhParser, getTerm } from '../../parsers/termParser';
 import { Curies } from '../../model/frontend/curies';
+import { customInstance } from '../../../mock/mutator/customClient';
+import axios from 'axios';
 
 const useMockApi = () => mockApi;
 const useApi = () => api;
@@ -127,6 +129,43 @@ export const getMatchTerms = async (term, filters = {}) => {
       return error;
     });
 }
+
+export const elasticSearch = async (query) => {
+  const proxyUrl = 'http://localhost:3000/api/scicrunch'; // Proxy URL
+
+  const data = {
+    size: 20,
+    from: 0,
+    query: {
+      bool: {
+        must: [
+          {
+            match_phrase: {
+              "existing_ids.curie": {
+                query: query, // Use query as the search term
+              },
+            },
+          },
+        ],
+      },
+    },
+  };
+
+  try {
+    const response = await axios.post(proxyUrl, data, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
+    console.log('Elastic search results:', response.data);
+    const newData = elasticSearhParser(response?.data?.data?.hits?.hits)
+    console.log("results ", newData)
+    return newData;
+  } catch (error) {
+    console.error('Elastic search error:', error);
+    throw error;
+  }
+};
 
 export const searchAll = async (term, filters = {}) => {
   const {  searchAll } = useMockApi();
