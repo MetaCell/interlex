@@ -5,7 +5,6 @@ import { TERM, ONTOLOGY, ORGANIZATION } from '../../model/frontend/types'
 import curieParser from '../../parsers/curieParser';
 import termParser, { elasticSearhParser, getTerm } from '../../parsers/termParser';
 import { Curies } from '../../model/frontend/curies';
-import { customInstance } from '../../../mock/mutator/customClient';
 import axios from 'axios';
 
 const useMockApi = () => mockApi;
