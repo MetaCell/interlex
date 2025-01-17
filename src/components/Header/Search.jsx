@@ -100,7 +100,7 @@ const Search = () => {
     setSearchTerm("");
     setSelectedValue(newInputValue?.label);
     handleCloseList();
-    navigate(`/view?searchTerm=${newInputValue?.label}`);
+    navigate(`/view?searchTerm=${newInputValue?.ilx}`);
   };
 
   const handleSearchTermClick = () => {
@@ -133,7 +133,6 @@ const Search = () => {
 
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await elasticSearch(searchTerm);
-    console.log("Elastic data search ", data)
     const dataTerms = data?.results.filter(result => result.type === "term")
     const dataOrganizations = data?.results.filter(result => result.type === "organization")
     const dataOntologies = data?.results.filter(result => result.type === "ontology")

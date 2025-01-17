@@ -119,10 +119,10 @@ export const getCuries = async (term) => {
 }
 
 export const getMatchTerms = async (term, filters = {}) => {
-  const {  getMatchTerms } = useMockApi();
+  const {  getEndpointsIlxGet } = useApi();
 
   /** Call Endpoint */
-  return getMatchTerms("base", term, filters).then((data) => {
+  return getEndpointsIlxGet("base", term, "jsonld").then((data) => {
       return termParser(data, term, filters);
     })
     .catch((error) => {
@@ -130,36 +130,22 @@ export const getMatchTerms = async (term, filters = {}) => {
     });
 }
 
+// Elastic search client function
 export const elasticSearch = async (query) => {
-  const proxyUrl = 'http://localhost:3000/api/scicrunch'; // Proxy URL
+  const proxyUrl = 'http://localhost:3000/api/scicrunch';
 
   const data = {
-    size: 20,
-    from: 0,
-    query: {
-      bool: {
-        must: [
-          {
-            match_phrase: {
-              "existing_ids.curie": {
-                query: query, // Use query as the search term
-              },
-            },
-          },
-        ],
-      },
-    },
+    query: query
   };
 
   try {
     const response = await axios.post(proxyUrl, data, {
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
     });
-    console.log('Elastic search results:', response.data);
-    const newData = elasticSearhParser(response?.data?.data?.hits?.hits)
-    console.log("results ", newData)
+
+    const newData = elasticSearhParser(response?.data?.data?.hits?.hits);
     return newData;
   } catch (error) {
     console.error('Elastic search error:', error);

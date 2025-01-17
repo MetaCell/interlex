@@ -9,20 +9,23 @@ const PORT = 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
-// Proxy endpoint
 app.post('/api/scicrunch', async (req, res) => {
   const apiUrl = 'https://scicrunch.org/api/1/term/elastic/search';
   const apiKey = 'tvVqyYwrQqolqVfMo45cu31t5uEGx6RZ';
 
   try {
-    console.log("Request body received:", req.body);
+    // Extract the query from the request body
+    const query = req.body.query;
 
+    if (!query) {
+      return res.status(400).json({ message: "Missing 'query' in request body." });
+    }
+
+    // Make the GET request to the external API
     const response = await axios.get(apiUrl, {
-      headers: {
-        'api_key' : apiKey
-      },
       params: {
-        api_key: apiKey, // Correct query parameter name
+        api_key: apiKey,
+        query: JSON.stringify({ match: { label: query } }),
       },
     });
 

@@ -23,7 +23,6 @@ import type {
   Ontologies,
   Organization,
   Organizations,
-  SearchElastic200,
   Signup200,
   Terms,
   User,
@@ -4112,8 +4111,6 @@ export const getAddToVariantDiscussionResponseMock = () => ((() => {
   };
 })())
 
-export const getSearchElasticResponseMock = (overrideResponse: any = {}): SearchElastic200 => ({results: faker.helpers.arrayElement([Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ({})), undefined]), ...overrideResponse})
-
 
 export const getLoginMockHandler = (overrideResponse?: void) => {
   return http.post('*/operations/login', async () => {
@@ -4507,20 +4504,6 @@ export const getAddToVariantDiscussionMockHandler = (overrideResponse?: AddToVar
   })
 }
 
-export const getSearchElasticMockHandler = (overrideResponse?: SearchElastic200) => {
-  return http.post('*/term/elastic/search', async () => {
-    await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getSearchElasticResponseMock()),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }
-    )
-  })
-}
-
 export const getGetPingMockHandler = () => {
   return http.get('*/ping', async () => {
     await delay(1000);
@@ -4563,5 +4546,4 @@ export const getSwaggerMockMissingEndpointsMock = () => [
   getAddToTermDiscussionMockHandler(),
   getGetVariantDiscussionsMockHandler(),
   getAddToVariantDiscussionMockHandler(),
-  getSearchElasticMockHandler(),
   getGetPingMockHandler()]

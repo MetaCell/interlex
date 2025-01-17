@@ -1045,38 +1045,6 @@ paths:
           description: The request cannot be fullfilled due to the permission of your account.
       tags:
         - API
-  /term/elastic/search:
-    post:
-      summary: Perform an ElasticSearch query
-      operationId: searchElastic
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                size:
-                  type: integer
-                  description: Number of results to return
-                from:
-                  type: integer
-                  description: Starting index
-                query:
-                  type: object
-                  description: ElasticSearch query
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  results:
-                    type: array
-                    items:
-                      type: object    
   /ping:
     get:
       summary: Checks if the server is running

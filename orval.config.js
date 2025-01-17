@@ -184,22 +184,7 @@ module.exports = {
             mock: {
               data: mockPatchTermResponse
             },
-          },
-          search_elastic: {
-            override: {
-              mutator: {
-                path: './src/api/mutator/sciCrunchClient.ts',
-                name: 'sciCrunchInstance',
-              },
-            },
-            query: {
-              useQuery: true,
-              useSuspenseQuery: true,
-              useSuspenseInfiniteQuery: true,
-              useInfinite: true,
-              useInfiniteQueryParam: ['filter', 'value'],
-            },
-          },          
+          },        
           // Search for specific 'term' and get all results
           get_match_terms: {
             mock: {
