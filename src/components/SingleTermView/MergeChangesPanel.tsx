@@ -2,7 +2,7 @@ import React from "react";
 import { useMemo } from "react";
 import { Grid, Box, Chip, Stack, Typography } from "@mui/material";
 import Predicates from "./OverView/Predicates";
-import MergeStatusContainer from "./MergeStatusContainer";
+import MergeStatusWrapper from "./MergePanel/MergeStatusWrapper";
 import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
 import { compareArrays, compareSentences } from "../../utils";
 import { vars } from "../../theme/variables";
@@ -50,7 +50,7 @@ const MergeChangesPanel = ({ data, comparingData, statusType }) => {
                                 const isDifferent = differencesOfSynonym.includes(synonym);
 
                                 return isDifferent ? (
-                                    <MergeStatusContainer key={synonym} status={statusType}>
+                                    <MergeStatusWrapper key={synonym} status={statusType}>
                                         <Chip
                                             className="rounded synonyms"
                                             variant="outlined"
@@ -60,7 +60,7 @@ const MergeChangesPanel = ({ data, comparingData, statusType }) => {
                                                 </span>
                                             }
                                         />
-                                    </MergeStatusContainer>
+                                    </MergeStatusWrapper>
                                 ) : (
                                     <Chip
                                         key={synonym}
@@ -87,14 +87,14 @@ const MergeChangesPanel = ({ data, comparingData, statusType }) => {
                                 const isDifferent = differencesOfExistingID.includes(id);
 
                                 return isDifferent ? (
-                                    <MergeStatusContainer key={id} status={statusType}>
+                                    <MergeStatusWrapper key={id} status={statusType}>
                                         <Chip
                                             className="rounded IDchip-outlined"
                                             variant="outlined"
                                             label={id}
                                             icon={<OpenInNewOutlinedIcon />}
                                         />
-                                    </MergeStatusContainer>
+                                    </MergeStatusWrapper>
                                 ) : (
                                     <Chip
                                         key={id}
@@ -125,9 +125,9 @@ const MergeChangesPanel = ({ data, comparingData, statusType }) => {
                             {data?.description.split(new RegExp(`(${differencesOfDescription.join('|')})`, 'g')).map((part, index) => {
                                 if (differencesOfDescription.includes(part)) {
                                     return (
-                                        <MergeStatusContainer key={index} status={statusType}>
+                                        <MergeStatusWrapper key={index} status={statusType}>
                                             {part}
-                                        </MergeStatusContainer>
+                                        </MergeStatusWrapper>
                                     );
                                 }
                                 return part;

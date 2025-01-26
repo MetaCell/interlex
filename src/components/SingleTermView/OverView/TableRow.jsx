@@ -1,7 +1,7 @@
 import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import { useState } from "react";
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
-import MergeStatusContainer from "../MergeStatusContainer";
+import MergeStatusWrapper from "../MergePanel/MergeStatusWrapper";
 
 const TableRow = ({ tableStyles, data, comparingData, onDragStart, onDragEnter, onDragEnd, index, statusType }) => {
   const { id, subject, predicate, object } = data;
@@ -17,13 +17,13 @@ const TableRow = ({ tableStyles, data, comparingData, onDragStart, onDragEnter, 
       onMouseLeave={() => setIsHovered(false)}
     >
       {(comparingData || statusType) && comparingData?.subject !== subject ? (
-        <MergeStatusContainer status={statusType}>
+        <MergeStatusWrapper status={statusType}>
           <Box sx={{ paddingLeft: "0 !important" }}>
             <Typography>
               {subject}
             </Typography>
           </Box>
-        </MergeStatusContainer>
+        </MergeStatusWrapper>
       ) : (
         <Box sx={{ paddingLeft: "0 !important" }}>
           <Typography>
@@ -32,13 +32,13 @@ const TableRow = ({ tableStyles, data, comparingData, onDragStart, onDragEnter, 
         </Box>
       )}
       {(comparingData || statusType) && comparingData?.predicate !== predicate ? (
-        <MergeStatusContainer status={statusType}>
+        <MergeStatusWrapper status={statusType}>
           <Box>
             <Typography>
               {predicate}
             </Typography>
           </Box>
-        </MergeStatusContainer>
+        </MergeStatusWrapper>
       ) : (
         <Box>
           <Typography>

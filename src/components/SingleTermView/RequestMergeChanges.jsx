@@ -2,8 +2,8 @@ import React from "react";
 import { useState, useEffect, useCallback } from "react";
 import { Box, Button } from "@mui/material";
 import CustomizedDialog from "../common/CustomizedDialog";
+import MergePanel from "./MergePanel/MergePanel";
 import StatusDialog from "../common/StatusDialog";
-import MergeChangesPanel from "./MergeChangesPanel";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { EditNoteIcon } from "../../Icons";
 import { getMatchTerms } from "../../api/endpoints";
@@ -70,8 +70,8 @@ const RequestMergeChanges = ({ searchTerm, open, handleClose }) => {
                 sx={{ '& .MuiDialogContent-root': { padding: 0, overflowY: "hidden" } }}
             >
                 <Box display="flex" width={1} height={1}>
-                    <MergeChangesPanel data={data} comparingData={modifiedData} statusType="delete" />
-                    <MergeChangesPanel data={modifiedData} comparingData={data} statusType="add" />
+                    <MergePanel data={data} comparingData={modifiedData} statusType="delete" />
+                    <MergePanel data={modifiedData} comparingData={data} statusType="add" />
                 </Box>
             </CustomizedDialog>
             <StatusDialog

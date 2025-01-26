@@ -54,13 +54,36 @@ export function compareSentences(originalText, modifiedText) {
     const modifiedSentences = modifiedText.match(/[^.!?]+[.!?]+/g) || [];
 
     // Find sentences in original that are not in modified
-    const uniqueSentences = originalSentences.filter(sentence => 
-        !modifiedSentences.some(modSentence => 
+    const uniqueSentences = originalSentences.filter(sentence =>
+        !modifiedSentences.some(modSentence =>
             sentence.trim().toLowerCase() === modSentence.trim().toLowerCase()
         )
     );
 
     return uniqueSentences;
+}
+
+export function compareData(data, comparingData) {
+    if (Array.isArray(data) && Array.isArray(comparingData)) {
+        return data.filter((item) => !comparingData.includes(item))
+    }
+    if (typeof data === "string" && typeof comparingData === "string") {
+        return data !== comparingData ? [data] : []
+    }
+    if (typeof data === "object" && data !== null && typeof comparingData === "object" && comparingData !== null) {
+        return Object.keys(data).filter((key) => data[key] !== comparingData[key])
+    }
+    return data !== comparingData ? [data] : []
+}
+
+export function getDataType(data) {
+    if (Array.isArray(data)) return "array"
+    if (typeof data === "string") return "string"
+    if (typeof data === "number") return "number"
+    if (typeof data === "boolean") return "boolean"
+    if (data === null) return "null"
+    if (typeof data === "object") return "object"
+    return "unknown"
 }
 
 

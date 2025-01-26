@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
-import { vars } from "../../theme/variables";
+import { vars } from "../../../theme/variables";
 
 const { white, error700, success700 } = vars;
 
@@ -63,7 +63,7 @@ const getStatusStyles = (status: string) => {
     };
 };
 
-const MergeStatusContainer: React.FC<MergeStatusContainerProps> = ({ children, status }) => {
+const MergeStatusWrapper: React.FC<MergeStatusContainerProps> = ({ children, status }) => {
     const { color, label } = getStatusStyles(status);
 
     return (
@@ -77,4 +77,4 @@ const MergeStatusContainer: React.FC<MergeStatusContainerProps> = ({ children, s
     );
 };
 
-export default MergeStatusContainer;
+export default MergeStatusWrapper;
