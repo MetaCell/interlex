@@ -1,27 +1,26 @@
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const express = require('express');
 const axios = require('axios');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
 
 app.post('/api/scicrunch', async (req, res) => {
-  const apiUrl = 'https://scicrunch.org/api/1/term/elastic/search';
-  const apiKey = 'tvVqyYwrQqolqVfMo45cu31t5uEGx6RZ';
+  const apiUrl = process.env.SCICRUNCH_API_URL;
+  const apiKey = process.env.SCICRUNCH_API_KEY;
 
   try {
-    // Extract the query from the request body
     const query = req.body.query;
-
     if (!query) {
       return res.status(400).json({ message: "Missing 'query' in request body." });
     }
 
-    // Make the GET request to the external API
     const response = await axios.get(apiUrl, {
       params: {
         api_key: apiKey,
@@ -29,7 +28,7 @@ app.post('/api/scicrunch', async (req, res) => {
       },
     });
 
-    console.log("Response from ElasticSearch:", response.data);
+    console.log("Response from SciCrunch:", response.data);
     res.status(response.status).json(response.data);
   } catch (error) {
     console.error("Error in proxy:", error.response?.data || error.message);
@@ -40,7 +39,25 @@ app.post('/api/scicrunch', async (req, res) => {
   }
 });
 
-// Start server
+app.post('/olympianGods', async (req, res) => {
+  try {
+    const baseUrl = process.env.OLYMPIAN_GODS_URL;
+    const url = `${baseUrl}${req.body?.group}/${req?.body?.term}.${req?.body?.type}`;
+
+    console.log("Requesting OlympianGods URL:", url);
+    const response = await axios.get(url);
+
+    console.log("Response from OlympianGods:", response.data);
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error("Error in proxy:", error.response?.data || error.message);
+    res.status(error.response?.status || 500).json({
+      message: error.message,
+      error: error.response?.data,
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Proxy server running at http://localhost:${PORT}`);
 });

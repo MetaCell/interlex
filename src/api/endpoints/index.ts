@@ -118,15 +118,26 @@ export const getCuries = async (term) => {
 }
 
 export const getMatchTerms = async (term, filters = {}) => {
-  const {  getEndpointsIlxGet } = useApi();
+  const proxyUrl = 'http://localhost:3000/olympianGods';
 
-  /** Call Endpoint */
-  return getEndpointsIlxGet("base", term, "jsonld").then((data) => {
-      return termParser(data, term, filters);
-    })
-    .catch((error) => {
-      return error;
+  const data = {
+    group: "base",
+    term : term,
+    type : "jsonld"
+  };
+
+  try {
+    const response = await axios.post(proxyUrl, data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
+    const newData = termParser(response.data, term, filters);
+    return newData;
+  } catch (error) {
+    console.error('Elastic search error:', error);
+    throw error;
+  }
 }
 
 // Elastic search client function
