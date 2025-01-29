@@ -1,0 +1,32 @@
+export const API_CONFIG = {
+    MOCK_API: {
+        GET_ORGANIZATIONS: "/api/mock/organizations",
+        GET_ORGANIZATION: "/api/mock/organization",
+        GET_ORGANIZATION_TERMS: "/api/mock/organization/terms",
+        GET_ORGANIZATION_CURIES: "/api/mock/organization/curies",
+        GET_ORGANIZATION_ONTOLOGIES: "/api/mock/organization/ontologies",
+        GET_VARIANTS: "/api/mock/variants",
+        GET_VERSIONS: "/api/mock/versions",
+        GET_CURIES: "/api/mock/curies",
+        SEARCH_ALL: "/api/mock/search",
+        PATCH_TERM: "/api/mock/patch-term",
+        ADD_TERM: "/api/mock/add-term",
+        BULK_EDIT_TERMS: "/api/mock/bulk-edit",
+        GET_USER: "/api/mock/user",
+        GET_EXISTING_IDS: "/api/mock/existing-ids",
+        SIGNUP: "/api/mock/signup",
+        GET_VARIANT_DISCUSSIONS: "/api/mock/variant-discussions",
+        GET_TERM_DISCUSSIONS: "/api/mock/term-discussions",
+        ADD_TO_TERM_DISCUSSION: "/api/mock/add-term-discussion",
+        ADD_TO_VARIANT_DISCUSSION: "/api/mock/add-variant-discussion",
+    },
+    REAL_API: {
+        GET_ENDPOINTS_ILX: "/api/real/endpoints-ilx",
+        PATCH_ENDPOINTS_ILX: "/api/real/patch-endpoints-ilx",
+    },
+    PROXY: {
+        MATCH_TERMS: "http://localhost:3000/olympianGods",
+        ELASTIC_SEARCH: "http://localhost:3000/api/scicrunch",
+    },
+    BASE_SCICRUNCH_URL: "https://scicrunch.org/api/1",
+};

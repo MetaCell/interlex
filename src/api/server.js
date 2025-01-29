@@ -44,10 +44,8 @@ app.post('/olympianGods', async (req, res) => {
     const baseUrl = process.env.OLYMPIAN_GODS_URL;
     const url = `${baseUrl}${req.body?.group}/${req?.body?.term}.${req?.body?.type}`;
 
-    console.log("Requesting OlympianGods URL:", url);
     const response = await axios.get(url);
 
-    console.log("Response from OlympianGods:", response.data);
     res.status(response.status).json(response.data);
   } catch (error) {
     console.error("Error in proxy:", error.response?.data || error.message);

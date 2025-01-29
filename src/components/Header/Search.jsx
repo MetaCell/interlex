@@ -12,6 +12,7 @@ import {
   ListItem,
 } from "@mui/material";
 import { vars } from "../../theme/variables";
+import { SEARCH_TYPES } from "../../constants/types";
 import { useEffect, useState, useCallback, forwardRef } from 'react';
 import { searchAll, elasticSearch } from "../../api/endpoints";
 import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
@@ -133,12 +134,12 @@ const Search = () => {
 
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await elasticSearch(searchTerm);
-    const dataTerms = data?.results.filter(result => result.type === "term")
-    const dataOrganizations = data?.results.filter(result => result.type === "organization")
-    const dataOntologies = data?.results.filter(result => result.type === "ontology")
+    const dataTerms = data?.results.filter(result => result.type === SEARCH_TYPES.TERM);
+    const dataOrganizations = data?.results.filter(result => result.type === SEARCH_TYPES.ORGANIZATION);
+    const dataOntologies = data?.results.filter(result => result.type === SEARCH_TYPES.ONTOLOGY);
     setTerms(dataTerms);
-    setOrganizations(dataOrganizations)
-    setOntologies(dataOntologies)
+    setOrganizations(dataOrganizations);
+    setOntologies(dataOntologies);
   }, 500), [searchAll]);
 
   useEffect(() => {
