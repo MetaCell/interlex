@@ -41,6 +41,7 @@ const OntologySearch = () => {
   const onSetActive = (event) => {
     event.stopPropagation();
     event.preventDefault();
+    console.log("selected value: ", selectedValue)
     setOpenList(false);
     setSelectedValue({ ...selectedValue, selected: true });
   };

@@ -133,7 +133,7 @@ const SingleTermView = () => {
       <Box display="flex" flexDirection="column">
         <Box p="1.5rem 5rem 0rem 5rem">
           <Grid container>
-            <Grid item xs={12} lg={6}>
+            <Grid container xs={12} lg={12} direction="row" alignItems="center" justifyContent="space-between">
               <Stack direction="row" spacing=".75rem">
                 <CustomBreadcrumbs breadcrumbItems={breadcrumbItems} />
                 <ForkRightIcon fontSize="medium" htmlColor={brand700} />
@@ -146,6 +146,10 @@ const SingleTermView = () => {
                   variant="outlined"
                   className="rounded not-merged"
                 />
+              </Stack>
+              <Stack direction="row" alignItems="center" gap={1}>
+                <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Active Ontology:</Typography>
+                <OntologySearch />
               </Stack>
             </Grid>
             <Grid container mt="1.75rem">
