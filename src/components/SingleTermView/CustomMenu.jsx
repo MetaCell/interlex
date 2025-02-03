@@ -5,6 +5,7 @@ import Divider from '@mui/material/Divider';
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import ForkRightOutlinedIcon from '@mui/icons-material/ForkRightOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import FolderCopyOutlinedIcon from '@mui/icons-material/FolderCopyOutlined';
 import { vars } from '../../theme/variables';
 
 const { gray100, gray200, gray600, error700 } = vars;
@@ -31,7 +32,7 @@ const menuStyles = {
         },
     },
     dangerMenuItem: {
-        color: error700,
+        color: `${error700} !important`,
         '&:hover': {
             background: 'transparent',
         },
@@ -43,37 +44,77 @@ const menuStyles = {
 };
 
 const CustomMenu = ({ open, anchorRef, setOpen }) => {
+    const handleAddToActiveOntology = () => {
+        console.log('Add term to active ontology');
+        setOpen(false);
+    };
+
+    const handleCreateFork = () => {
+        console.log('Create fork');
+        setOpen(false);
+    };
+
+    const handleAddToAnotherOntology = () => {
+        console.log('Add term to another ontology');
+        setOpen(false);
+    };
+
+    const handleRemoveFromActiveOntology = () => {
+        console.log('Remove from active ontology');
+        setOpen(false);
+    };
+
+    const menuOptions = [
+        {
+            icon: <CreateNewFolderOutlinedIcon fontSize="small" />,
+            name: "Add term to active ontology",
+            onClick: handleAddToActiveOntology
+        },
+        {
+            icon: <ForkRightOutlinedIcon fontSize="small" />,
+            name: "Create fork",
+            onClick: handleCreateFork
+        },
+        {
+            icon: <FolderCopyOutlinedIcon fontSize="small" />,
+            name: "Add term to another ontology",
+            onClick: handleAddToAnotherOntology
+        }
+    ]
+
     return (
         <Menu
             id="customized-menu"
             open={open}
-            onClose={() => setOpen(false)} 
+            onClose={() => setOpen(false)}
             anchorEl={anchorRef.current}
             keepMounted
             elevation={0}
             anchorOrigin={{
                 vertical: 'bottom',
-                horizontal: 'right',
+                horizontal: 'left',
             }}
             transformOrigin={{
                 vertical: 'top',
-                horizontal: 'right',
+                horizontal: 'left',
             }}
             sx={{
                 '& .MuiPaper-root': menuStyles.paper,
                 '& .MuiList-root': menuStyles.list,
             }}
         >
-            <MenuItem onClick={() => setOpen(false)} sx={menuStyles.menuItem}>
-                <CreateNewFolderOutlinedIcon fontSize="small" />
-                Add term to active ontology
-            </MenuItem>
-            <MenuItem onClick={() => setOpen(false)} sx={menuStyles.menuItem}>
-                <ForkRightOutlinedIcon fontSize="small" />
-                Create fork
-            </MenuItem>
+            {menuOptions.map((item, index) => (
+                <MenuItem
+                    key={`${item.name}_${index}`}
+                    onClick={item.onClick}
+                    sx={menuStyles.menuItem}
+                >
+                    {item.icon}
+                    {item.name}
+                </MenuItem>
+            ))}
             <Divider sx={menuStyles.divider} />
-            <MenuItem onClick={() => setOpen(false)} sx={{ ...menuStyles.menuItem, ...menuStyles.dangerMenuItem }}>
+            <MenuItem onClick={handleRemoveFromActiveOntology} sx={{ ...menuStyles.menuItem, ...menuStyles.dangerMenuItem }}>
                 <DeleteOutlineOutlinedIcon fontSize="small" sx={{ color: error700 }} />
                 Remove from active ontology
             </MenuItem>
