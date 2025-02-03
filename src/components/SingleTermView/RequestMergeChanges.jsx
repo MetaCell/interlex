@@ -70,8 +70,8 @@ const RequestMergeChanges = ({ searchTerm, open, handleClose }) => {
                 sx={{ '& .MuiDialogContent-root': { padding: 0, overflowY: "hidden" } }}
             >
                 <Box display="flex" width={1} height={1}>
-                    <MergePanel data={data} comparingData={modifiedData} statusType="delete" />
-                    <MergePanel data={modifiedData} comparingData={data} statusType="add" />
+                    <MergePanel data={data} changedData={modifiedData} status="delete" />
+                    <MergePanel data={modifiedData} changedData={data} status="add" />
                 </Box>
             </CustomizedDialog>
             <StatusDialog

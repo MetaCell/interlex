@@ -8,10 +8,9 @@ import PredicatesAccordion from "./PredicatesAccordion";
 
 const { gray800 } = vars;
 
-const Predicates = ({ data, comparingData = [], isGraphVisible, statusType }) => {
+const Predicates = ({ data, isGraphVisible }) => {
   const [predicates, setPredicates] = React.useState([]);
   const [toggleButtonValue, setToggleButtonValue] = React.useState('compress')
-  const [comparingPredicates, setComparingPredicates] = React.useState([]);
   
   const onToggleButtonChange = (event, newValue) => {
     if (newValue) {
@@ -21,11 +20,6 @@ const Predicates = ({ data, comparingData = [], isGraphVisible, statusType }) =>
   
   React.useEffect(() => {
     data?.predicates && setPredicates(data?.predicates)
-
-    if(comparingData) {
-      comparingData?.predicates && setComparingPredicates(comparingData?.predicates)
-    }
-
   }, [data, comparingData]);
 
   return <Box display='flex' flexDirection='column' gap='.75rem'>
@@ -53,7 +47,7 @@ const Predicates = ({ data, comparingData = [], isGraphVisible, statusType }) =>
         </ToggleButtonGroup>
       </Box>
     </Box>
-    <PredicatesAccordion data={predicates} comparingData={comparingPredicates} expandAllPredicates={toggleButtonValue === 'expand'} isGraphVisible={isGraphVisible} statusType={statusType} />
+    <PredicatesAccordion data={predicates} expandAllPredicates={toggleButtonValue === 'expand'} isGraphVisible={isGraphVisible} />
   </Box>
 
 }

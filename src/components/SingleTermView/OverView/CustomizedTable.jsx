@@ -154,16 +154,9 @@ const tableStyles = {
   }
 };
 
-const defaultComparingData = {
-  title: "",
-  count: 0,
-  tableData: []
-}
-
-const CustomizedTable = ({ data, comparingData = defaultComparingData, term, isAddButtonVisible, statusType }) => {
+const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [tableContent, setTableContent] = useState(data?.tableData);
-  const [comparingTableContent, setComparingTableContent] = useState(comparingData?.tableData)
   const [tableHeader, setTableHeader] = useState([
     { key: 'subject', label: 'Subject', allowSort: false, direction: 'desc' },
     { key: 'predicate', label: 'Predicates', allowSort: false },
@@ -302,12 +295,10 @@ const CustomizedTable = ({ data, comparingData = defaultComparingData, term, isA
               key={`${row.id}-${index}`}
               tableStyles={tableStyles}
               data={row}
-              comparingData={comparingTableContent[index]}
               index={index}
               onDragStart={dragStart}
               onDragEnter={dragEnter}
               onDragEnd={dragEnd}
-              statusType={statusType}
             />
           )}
         </Box>
