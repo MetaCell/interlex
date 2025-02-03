@@ -20,7 +20,7 @@ const Predicates = ({ data, isGraphVisible }) => {
   
   React.useEffect(() => {
     data?.predicates && setPredicates(data?.predicates)
-  }, [data, comparingData]);
+  }, [data]);
 
   return <Box display='flex' flexDirection='column' gap='.75rem'>
     <Box display='flex' alignItems='center' justifyContent='space-between'>
