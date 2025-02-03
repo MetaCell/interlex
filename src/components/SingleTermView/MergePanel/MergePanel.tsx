@@ -38,7 +38,7 @@ const keyToTitleMap = {
 const orderedKeys = ["synonym", "existingID", "hasIlxPreferredId", "description", "type", "versionInfo", "owlEquivalent", "submittedBy", "lastModifiedBy", "lastModifyTimestamp", "predicates"]
 
 
-const MergePanel = ({ data, changedData, status }) => {
+const MergePanel = ({ data, compareData, status }) => {
 
   const getTitle = (key: string): string => {
     return keyToTitleMap[key] || key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())
@@ -56,23 +56,23 @@ const MergePanel = ({ data, changedData, status }) => {
           switch (component) {
             case "ChipSynonymChanges":
               return <Grid item lg={12}>
-                  <ChipChanges data={data[property]} compareData={changedData[property]} status={status} type="synonym" />
+                  <ChipChanges data={data[property]} compareData={compareData[property]} status={status} type="synonym" />
                 </Grid>
             case "ChipExistingIDChanges":
               return <Grid item lg={6} xs={12}>
-                  <ChipChanges data={data[property]} compareData={changedData[property]} status={status} type="existingID" />
+                  <ChipChanges data={data[property]} compareData={compareData[property]} status={status} type="existingID" />
                 </Grid>
             case "LabelChanges":
                 return <Grid item lg={6} xs={2} sm={4} md={4}>
-                  <LabelChanges title={getTitle(property)} data={data[property]} compareData={changedData[property]} status={status} />
+                  <LabelChanges title={getTitle(property)} data={data[property]} compareData={compareData[property]} status={status} />
                 </Grid>
             case "TextChanges":
                 return <Grid item lg={12}>
-                  <TextChanges title={getTitle(property)} data={data[property]} compareData={changedData[property]} status={status} />
+                  <TextChanges title={getTitle(property)} data={data[property]} compareData={compareData[property]} status={status} />
                 </Grid>
             case "TableChanges":
                 return <Grid item lg={12}>
-                  <PredicateChanges title={getTitle(property)} data={data[property]} compareData={changedData[property]} status={status} />
+                  <PredicateChanges title={getTitle(property)} data={data[property]} compareData={compareData[property]} status={status} />
                 </Grid>
             default:
                 return <></>
