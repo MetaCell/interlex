@@ -21,7 +21,7 @@ module.exports = {
       target: "./src/api/endpoints",
       schemas: "./src/model/backend",
       baseUrl: 'https://uri.olympiangods.org/',
-      mock: true,
+      mock: false,
       client: 'react-query',
       override: {
         mutator: {

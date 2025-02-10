@@ -4,7 +4,7 @@ import CustomTable from "../common/CustomTable";
 import Checkbox from "../common/CustomCheckbox";
 import { getComparator, stableSort } from "../../utils";
 import { parseISO, format } from 'date-fns';
-import { getMatchTerms } from '../../api/endpoints';
+import { elasticSearch } from "../../api/endpoints";
 import { vars } from "../../theme/variables";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 const {  gray600 } = vars;
@@ -103,12 +103,11 @@ const TermActivity = () => {
 
     const isSelected = (id) => selected.indexOf(id) !== -1;
 
-    useEffect(() => {
+    useEffect(async () => {
         setLoading(true)
-        getMatchTerms("i").then(data => { 
-            setRows(data?.results)
-            setLoading(false)
-        });
+        const data = await elasticSearch("");
+        setRows(data)
+        setLoading(false)
     }, []);
 
     useEffect(() => {

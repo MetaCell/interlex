@@ -12,6 +12,9 @@ import { config } from 'dotenv';
 const useMockApi = () => mockApi;
 const useApi = () => api;
 
+const BASE_GROUP = "base";
+const BASE_EXTENSION = "jsonld";
+
 export const getOrganizations = async () => {
     /** Call endpoint for retrieving organizations, this is a mock endpoint
     created by us */
@@ -123,7 +126,7 @@ export const getMatchTerms = async (term, filters = {}) => {
   const {  getEndpointsIlx } = useApi();
 
   /** Call Endpoint */
-  return getEndpointsIlx("base",term).then((data) => {
+  return getEndpointsIlx(BASE_GROUP,term, BASE_EXTENSION).then((data) => {
       return termParser(data, term);
     })
     .catch((error) => {
