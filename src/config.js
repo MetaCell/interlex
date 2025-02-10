@@ -24,9 +24,6 @@ export const API_CONFIG = {
         GET_ENDPOINTS_ILX: "/api/real/endpoints-ilx",
         PATCH_ENDPOINTS_ILX: "/api/real/patch-endpoints-ilx",
     },
-    PROXY: {
-        MATCH_TERMS: "http://localhost:3000/olympianGods",
-        ELASTIC_SEARCH: "http://localhost:3000/api/scicrunch",
-    },
-    BASE_SCICRUNCH_URL: "https://scicrunch.org/api/1",
+    OLYMPIAN_GODS : "https://uri.olympiangods.org",
+    BASE_SCICRUNCH_URL: "/api/elasticsearch?key=",
 };
