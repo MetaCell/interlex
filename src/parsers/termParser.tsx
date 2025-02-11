@@ -10,70 +10,87 @@ import { defaultTermFiltersSections } from "../configuration/filters";
  * @returns - Term
  */
 export const getTerm = (data) => {
-    let term : Term = {} as Term
+    let term: Term = {} as Term;
     let predicates = {};
-    // Extract triplets if predicate is in model 
-    data?.["@graph"]?.forEach( object => {
-        const keys = Object.keys(object);
-        keys.forEach( key => {
-            const predicate = key;
-            if ( termPredicates[predicate] ) {
-                let value = object[key];
-                let dataToStore = value;
-                if ( value?.["@id"] ) {
-                    dataToStore = value?.["@id"] 
-                } 
+    let isAboutValue = null;
 
-                if ( Array.isArray(value) ) {
-                    dataToStore = [];
-                    value?.forEach( v => {
-                        if ( v?.["@id"] ) {
-                            dataToStore = [...dataToStore, v?.["@id"]]
-                        } else {
-                            dataToStore = [...dataToStore, v]
-                        }
-                    })
-                }
-                if ( term[termPredicates[predicate]?.key] === undefined ) {
-                    term[termPredicates[predicate]?.key] = dataToStore
-                }
+    data?.["@graph"]?.forEach((object) => {
+        if (object["isAbout"]) {
+            isAboutValue = object["isAbout"]?.["@id"] || object["isAbout"];
+        }
+    });
 
-                // Organize predicates from triple
-                if ( Array.isArray(dataToStore) ){
-                    dataToStore?.forEach( pred => {
-                        let newPredicate = {
-                            subject : object?.["@id"],
-                            predicate: predicate,
-                            object : pred
-                        }
-                        predicates[predicate] ? predicates[predicate].push(newPredicate) : predicates[predicate] = [newPredicate]
-                    })
-                } else {
-                    let newPredicate = {
-                        subject : object?.["@id"],
-                        predicate: predicate,
-                        object : dataToStore
-                    }
-                    predicates[predicate] ? predicates[predicate].push(newPredicate) : predicates[predicate] = [newPredicate]
-                }
+    let matchedObject = null;
+    data?.["@graph"]?.forEach((object) => {
+        if (object["@id"] === isAboutValue && object["@type"] === "owl:Class") {
+            matchedObject = object;
+        }
+    });
+
+    const keys = Object.keys(matchedObject);
+    keys.forEach((key) => {
+        const predicate = key;
+        if (termPredicates[predicate]) {
+            let value = matchedObject[key];
+            let dataToStore = value;
+
+            if (value?.["@id"]) {
+                dataToStore = value?.["@id"];
             }
-        }) 
-    })
 
-    let predicatesFormatted = new Array();
-    // Add Subject ID and Label from Term to each predicate.
-    Object.keys(predicates)?.forEach( key => {
-        predicatesFormatted.push( {
-            title : key,
-            count : predicates[key]?.length,
-            tableData : predicates[key]
-        })
-    })
+            if (Array.isArray(value)) {
+                dataToStore = [];
+                value?.forEach((v) => {
+                    if (v?.["@id"]) {
+                        dataToStore = [...dataToStore, v?.["@id"]];
+                    } else {
+                        dataToStore = [...dataToStore, v];
+                    }
+                });
+            }
+
+            if (term[termPredicates[predicate]?.key] === undefined) {
+                term[termPredicates[predicate]?.key] = dataToStore;
+            }
+
+            // Organize predicates from triple
+            if (Array.isArray(dataToStore)) {
+                dataToStore?.forEach((pred) => {
+                    let newPredicate = {
+                        subject: matchedObject["@id"],
+                        predicate: predicate,
+                        object: pred,
+                    };
+                    predicates[predicate]
+                        ? predicates[predicate].push(newPredicate)
+                        : (predicates[predicate] = [newPredicate]);
+                });
+            } else {
+                let newPredicate = {
+                    subject: matchedObject["@id"],
+                    predicate: predicate,
+                    object: dataToStore,
+                };
+                predicates[predicate]
+                    ? predicates[predicate].push(newPredicate)
+                    : (predicates[predicate] = [newPredicate]);
+            }
+        }
+    });
+
+    let predicatesFormatted = [];
+    Object.keys(predicates)?.forEach((key) => {
+        predicatesFormatted.push({
+            title: key,
+            count: predicates[key]?.length,
+            tableData: predicates[key],
+        });
+    });
 
     term.predicates = predicatesFormatted;
 
     return term;
-}
+};
 
 /** Return results between two indeces */
 const indexRange = (arr, start?, end?) => {

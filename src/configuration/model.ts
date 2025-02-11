@@ -30,7 +30,7 @@ export const termPredicates = {
     "ilxtr:hasExistingId" : {
         key : termKeys.existingID,
     },
-    "http://uri.interlex.org/tgbugs/uris/readable/hasIlxPreferredId" : {
+    "isAbout" : {
         key : termKeys.hasIlxPreferredId
     },
     "http://uri.interlex.org/tgbugs/uris/readable/hasIlxId" : {
