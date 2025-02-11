@@ -24,10 +24,10 @@ export const termKeys = {
 }
 
 export const termPredicates = {
-    "http://uri.interlex.org/base/readable/synonym" : {
+    "ilxr:synonym" : {
         key : termKeys.synonym,
     },
-    "http://uri.interlex.org/tgbugs/uris/readable/hasExistingId" : {
+    "ilxtr:hasExistingId" : {
         key : termKeys.existingID,
     },
     "http://uri.interlex.org/tgbugs/uris/readable/hasIlxPreferredId" : {
@@ -36,7 +36,7 @@ export const termPredicates = {
     "http://uri.interlex.org/tgbugs/uris/readable/hasIlxId" : {
         key : termKeys.hasIlxId
     },
-    "http://purl.obolibrary.org/obo/IAO_0000115" : {
+    "definition" : {
         key : termKeys.description,
     },
     "@id" : {
@@ -66,7 +66,7 @@ export const termPredicates = {
     "owl:versionInfo" : {
         key : termKeys.versionInfo,
     },
-    "owlEquivalent" : {
+    "oboInOwl:id" : {
         key : termKeys.owlEquivalent,
     },
     "lastModify" : {
