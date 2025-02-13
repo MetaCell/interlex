@@ -343,3 +343,70 @@ export const addMessateToVariantDiscussion = async (group, variantID, message) =
       return error;
     });
 }
+
+export const handleLogin = async (email: string, password: string) => {
+  try {
+    const { postOpsUserLogin } = useApi()
+    const response = await postOpsUserLogin({
+      email,
+      password,
+    });
+    console.log("Login successful:", response);
+    return response.data;
+  } catch (error) {
+    console.error("Login failed:", error);
+    throw error;
+  }
+};
+
+export const handleRegister = async (
+  firstName: string,
+  lastName: string,
+  email: string,
+  password: string,
+  organization: string
+) => {
+  try {
+    const { postOpsUserNew } = useApi()
+    const response = await postOpsUserNew({
+      firstName,
+      lastName,
+      email,
+      password,
+      organization,
+    });
+    console.log("Registration successful:", response);
+    return response.data;
+  } catch (error) {
+    console.error("Registration failed:", error);
+    throw error;
+  }
+};
+
+export const handleForgotPassword = async (email : string) => {
+  try {
+    const { getOpsPasswordReset } = useApi()
+    const response = await getOpsPasswordReset({
+      email,
+    });
+    console.log("Password reset successful:", response);
+    return response;
+  } catch (error) {
+    console.error("Forgot password :", error);
+    throw error;
+  }
+};
+
+export const handleRecoverUser = async (email: string) => {
+  try {
+    const { postOpsUserRecover } = useApi()
+    const response = await postOpsUserRecover({
+      email
+    });
+    console.log("Recover User :", response);
+    return response;
+  } catch (error) {
+    console.error("Recover user failed:", error);
+    throw error;
+  }
+};
