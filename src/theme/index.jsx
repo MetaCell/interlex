@@ -30,9 +30,12 @@ const {
 	brand50,
 	error50,
 	error200,
+	error300,
+	error500,
 	error700,
 	gray400,
 	brand200,
+	errorInputBoxShadow
 } = vars;
 
 const theme = createTheme({
@@ -194,21 +197,31 @@ const theme = createTheme({
 		MuiOutlinedInput: {
 			styleOverrides: {
 				root: {
-					"&:hover": {
-						"& .MuiOutlinedInput-notchedOutline": {
-							borderColor: gray200,
-						},
+					"& .MuiOutlinedInput-notchedOutline": {
+						borderColor: gray200,
 					},
-					"&.Mui-focused": {
-						"& .MuiOutlinedInput-notchedOutline": {
-							borderColor: gray200,
-							borderWidth: "0.0625rem",
-						},
+					"&:hover .MuiOutlinedInput-notchedOutline": {
+						borderColor: gray200,
 					},
-				},
-				notchedOutline: {
-					borderColor: gray200,
-				},
+					"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+						borderColor: gray200,
+						borderWidth: "0.0625rem",
+					},
+					"&.Mui-error": {
+						"& .MuiOutlinedInput-notchedOutline": {
+							borderColor: error300,
+						},
+						"&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+							boxShadow: errorInputBoxShadow,
+						},
+						"& .MuiInputAdornment-root": {
+							color: error500
+						},
+						"& .MuiIconButton-root": {
+							color: error500
+						}
+					},
+				}
 			},
 		},
 
