@@ -15,18 +15,12 @@ const { gray100, gray50, gray600, gray500, brand600, brand50, brand700, gray700 
 const tableStyles = {
   head: {
     display: 'flex',
-    p: '0.75rem 0 0.5rem',
+    p: '0.75rem 0.5rem 0.5rem 0.5rem',
     borderBottom: `1px solid ${gray100}`,
 
     '& > .MuiBox-root': {
-      width: '20rem',
-      px: '0.75rem',
-      '&:first-of-type': {
-        width: 'calc(55% - 5.625rem)'
-      },
-      '&:last-of-type': {
-        width: 'calc(45% - 5.625rem)'
-      },
+      paddingRight: '0.75rem',
+      paddingLeft: 0
     },
     '& .MuiTypography-root': {
       color: gray600,
@@ -96,15 +90,9 @@ const tableStyles = {
       },
 
       '& > .MuiBox-root': {
-        width: '20rem',
         gap: '0.5rem',
-        px: '0.75rem',
-        '&:first-of-type': {
-          width: 'calc(55% - 5.625rem)',
-        },
-        '&:last-of-type': {
-          width: 'calc(45% - 5.625rem)'
-        },
+        paddingRight: '0.75rem',
+        paddingLeft: 0
       },
     },
   },
@@ -160,8 +148,7 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
   const [tableHeader, setTableHeader] = useState([
     { key: 'subject', label: 'Subject', allowSort: false, direction: 'desc' },
     { key: 'predicate', label: 'Predicates', allowSort: false },
-    { key: 'object', label: 'Objects', allowSort: true, direction: 'desc' },
-    { key: '', label: '' }
+    { key: 'object', label: 'Objects', allowSort: true, direction: 'desc' }
   ]);
 
   const [terms, setTerms] = useState([]);
@@ -267,12 +254,15 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
     }
   }, [objectSearchTerm, fetchTerms]);
 
+  const tableWidth = 800;
+  const columnWidth = `${tableWidth / tableHeader.length}px`;
+
   return (
     <>
-      <Box pb={1.5}>
+      <Box pb={1.5} width={1} sx={{ maxWidth: `${tableWidth}px` }}>
         <Box sx={tableStyles.head}>
           {tableHeader.map((head, index) => (
-            <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box key={index} sx={{ display: 'flex', alignItems: 'center', width: columnWidth }}>
               <Typography>{head.label}</Typography>
               {head.key && head.allowSort && (
                 <IconButton
@@ -294,6 +284,7 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
             <TableRow
               key={`${row.id}-${index}`}
               tableStyles={tableStyles}
+              columnWidth={columnWidth}
               data={row}
               index={index}
               onDragStart={dragStart}

@@ -8,6 +8,7 @@ import TermSidebar from "./TermSidebar";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { getTermStatusProps } from "./termStatusProps";
 import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
+import { elasticSearch } from "../../api/endpoints";
 import { termParser } from "../../parsers/termParser";
 import { debounce } from 'lodash';
 import { vars } from "../../theme/variables";
@@ -18,7 +19,6 @@ const useMockApi = () => mockApi;
 
 const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
 
-    const { getMatchTerms } = useMockApi();
     const [loading, setLoading] = useState(true);
     const [openSidebar, setOpenSidebar] = useState(true);
     const [responseStatus, setResponseStatus] = useState({ success: true })
@@ -36,14 +36,13 @@ const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
     });
 
     const fetchTerms = useCallback(
-        debounce((searchTerm) => {
+        debounce(async(searchTerm) => {
             setLoading(true);
+            const data = await elasticSearch(searchTerm);
             if (searchTerm) {
-                getMatchTerms("base", searchTerm).then(data => {
-                    const parsedData = termParser(data);
-                    setData(parsedData?.results[0]);
-                    setLoading(false);
-                });
+                const data = await elasticSearch(searchTerm);
+                setData(data);
+                setLoading(false);
             }
         }, 300),
         [getMatchTerms]
