@@ -19,7 +19,6 @@ const useMockApi = () => mockApi;
 
 const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
 
-    const { getMatchTerms } = useMockApi();
     const [loading, setLoading] = useState(true);
     const [openSidebar, setOpenSidebar] = useState(true);
     const [responseStatus, setResponseStatus] = useState({ success: true })

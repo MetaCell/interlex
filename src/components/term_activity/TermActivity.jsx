@@ -35,10 +35,10 @@ const getChipColor = (type) => ({
 }[type]);
 
 const formatDateString = (dateString) => {
-    const simplifiedString = dateString.split(',')[0] + 'Z';
+    const simplifiedString = dateString?.split(',')[0] + 'Z';
     const date = parseISO(simplifiedString);
     
-    return format(date, 'dd MMM hh:mm a');
+    return dateString != undefined ? format(date, 'dd MMM hh:mm a') : "N/A";
   };
 
 
@@ -103,12 +103,21 @@ const TermActivity = () => {
 
     const isSelected = (id) => selected.indexOf(id) !== -1;
 
-    useEffect(async () => {
-        setLoading(true)
-        const data = await elasticSearch("");
-        setRows(data)
-        setLoading(false)
-    }, []);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const data = await elasticSearch("");
+                setRows(data?.results);
+            } catch (err) {
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+    
+        fetchData();
+    }, []);    
 
     useEffect(() => {
         const computePageOptions = (rowCount) => {
