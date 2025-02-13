@@ -1,13 +1,19 @@
 import { Organizations, Variants, Versions, User, Organization, Terms, Ontologies, Discussions, AddToDiscussion200, AddToTermDiscussion200 } from '../../model/backend';
 import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
-import * as api from './../../api/endpoints/interLexURIStructureAPI'
+import * as api from "./../../api/endpoints/interLexURIStructureAPI";
 import { TERM, ONTOLOGY, ORGANIZATION } from '../../model/frontend/types'
 import curieParser from '../../parsers/curieParser';
-import termParser, { getTerm } from '../../parsers/termParser';
+import termParser, { elasticSearhParser, getTerm } from '../../parsers/termParser';
 import { Curies } from '../../model/frontend/curies';
+import axios from 'axios';
+import { API_CONFIG } from '../../config';
+import { config } from 'dotenv';
 
 const useMockApi = () => mockApi;
 const useApi = () => api;
+
+const BASE_GROUP = "base";
+const BASE_EXTENSION = "jsonld";
 
 export const getOrganizations = async () => {
     /** Call endpoint for retrieving organizations, this is a mock endpoint
@@ -15,7 +21,7 @@ export const getOrganizations = async () => {
     const {  getOrganizations } = useMockApi();
 
     /** Call Endpoint */
-    return getOrganizations().then((data) => {
+    return await getOrganizations().then((data) => {
         return data as Organizations;
       })
       .catch((error) => {
@@ -117,15 +123,47 @@ export const getCuries = async (term) => {
 }
 
 export const getMatchTerms = async (term, filters = {}) => {
-  const {  getMatchTerms } = useMockApi();
+  const {  getEndpointsIlx } = useApi();
 
   /** Call Endpoint */
-  return getMatchTerms("base", term, filters).then((data) => {
-      return termParser(data, term, filters);
+  return getEndpointsIlx(BASE_GROUP,term, BASE_EXTENSION).then((data) => {
+      return termParser(data, term);
     })
     .catch((error) => {
       return error;
     });
+};
+
+const fetchData = async (url, method = "GET", data = null) => {
+    try {
+        const response = await axios({
+            url,
+            method,
+            data,
+            headers: {
+                "Content-Type": "application/json",
+            },
+            withCredentials : true
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`API Error at ${url}:`, error);
+        throw error;
+    }
+};
+
+export const elasticSearch = async (query) => {
+  const url = API_CONFIG.BASE_SCICRUNCH_URL + import.meta.env.VITE_SCICRUNCH_API_KEY
+  try {
+    const result = await fetchData(url, "POST", {
+      query: {
+        match_all: {}
+      }
+    });
+    return elasticSearhParser(result?.hits?.hits)
+  } catch (error) {
+      console.error("ElasticSearch Query Failed:", error);
+  }
 }
 
 export const searchAll = async (term, filters = {}) => {
@@ -154,7 +192,7 @@ export const searchAll = async (term, filters = {}) => {
 }
 
 export const patchTerm = async (group, termID, term) => {
-  const {  patchEndpointsIlx } = useApi();
+  const patchEndpointsIlx= "";
 
   /** Call Endpoint */
   return patchEndpointsIlx(group, termID).then((data) => {

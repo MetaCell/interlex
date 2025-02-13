@@ -21,47 +21,12 @@ module.exports = {
       target: "./src/api/endpoints",
       schemas: "./src/model/backend",
       baseUrl: 'https://uri.olympiangods.org/',
-      mock: true,
+      mock: false,
       client: 'react-query',
       override: {
         mutator: {
           path: './mock/mutator/customClient.ts',
           name: 'customInstance',
-        },
-        operations: {
-          /** TODO : Endpoint returns a 500, it's being reused by multiple endpoints.
-           * In our use case, we need this operation to ADD Ontologies with or
-           * without paths.
-           * */
-          get_ontologies_ontologies: {
-            mock: {
-              data: () => ({
-                status_code: 200,
-                message: "",
-              }),
-            },
-          },
-          get_endpoints_curies_ : {
-            mock: {
-              data : mockCuries
-            }
-          },
-          // Override existing endpoint, return mock data for fragment ID ilx_0101431
-          get_endpoints_ilx: {
-            mock: {
-              data: mockTerm,
-            },
-          },
-          patch_endpoints_ilx: {
-            mock: {
-              data: mockPatchTermResponse,
-            },
-          },
-          get_endpoints_ilx_get: {
-            mock: {
-              data: mockTerm,
-            },
-          },
         },
         allParamsOptional: true,
         urlEncodeParameters: true,
@@ -219,7 +184,7 @@ module.exports = {
             mock: {
               data: mockPatchTermResponse
             },
-          },
+          },        
           // Search for specific 'term' and get all results
           get_match_terms: {
             mock: {
