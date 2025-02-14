@@ -52,7 +52,7 @@ export const PredicateChanges: React.FC<PredicateChangesProps> = ({ title, data,
 
   return (
     <Box display="flex" flexDirection="column" gap=".75rem">
-      <Box display="flex" alignItems="center" justifyContent="space-between">
+      <Box display="flex" sx={{ alignItems: "center", justifyContent: "space-between" }}>
         <Typography color={gray800} fontWeight={500}>
           {title}
         </Typography>

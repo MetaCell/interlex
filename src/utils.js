@@ -44,8 +44,12 @@ export const stableSort = (array, comparator) => {
 }
 
 export function compareArrays(originalArray, modifiedArray) {
-  const difference = originalArray.filter(item => !modifiedArray.includes(item));
-  return difference;
+    if (!Array.isArray(originalArray) || !Array.isArray(modifiedArray)) {
+      console.warn("compareArrays received invalid input", { originalArray, modifiedArray });
+      return [];
+    }
+  
+    return originalArray.filter(item => !modifiedArray.includes(item));
 }
 
 export function compareSentences(originalText, modifiedText) {

@@ -17,7 +17,7 @@ const TextChanges = ({ title, data, compareData, status }) => {
     <Typography fontSize=".875rem" color={gray500}>
       {data.split(new RegExp(`(${differences.join('|')})`, 'g')).map((part, index) => {
         if (differences.includes(part)) {
-          return (<MergeStatusWrapper key={index} status={status}>{part}</MergeStatusWrapper>);
+          return (<MergeStatusWrapper key={`${part}-${index}`} status={status}>{part}</MergeStatusWrapper>);
         }
         return part;
       })}
