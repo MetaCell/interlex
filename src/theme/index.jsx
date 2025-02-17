@@ -270,7 +270,7 @@ const theme = createTheme({
 						color: gray700,
 					},
 
-					"&.synonyms": {
+					"&.dual-text-chip": {
 						background: gray50,
 						color: gray700,
 						borderColor: gray200,

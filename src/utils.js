@@ -70,4 +70,16 @@ export function compareStrings(originalString, modifiedString) {
   return originalString !== modifiedString ? [originalString] : []
 }
 
+export function compareObjects(originalObject, modifiedObject) {
+    return Object.keys(originalObject).filter((key) => originalObject[key] !== modifiedObject[key])
+}
 
+export function getDataType(data) {
+  if (Array.isArray(data)) return "array"
+  if (typeof data === "string") return "string"
+  if (typeof data === "number") return "number"
+  if (typeof data === "boolean") return "boolean"
+  if (data === null) return "null"
+  if (typeof data === "object") return "object"
+  return "unknown"
+}

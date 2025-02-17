@@ -4,6 +4,7 @@ import ChipChanges from "./ChipChanges";
 import LabelChanges from "./LabelChanges";
 import TextChanges from "./TextChanges";
 import PredicateChanges from "./PredicateChanges";
+import DefaultComponentChanges from "./DefaultComponentChanges";
 import mapping from './mapping.json';
 import { vars } from "../../../theme/variables";
 
@@ -51,9 +52,8 @@ const MergePanel = ({ data, compareData, status }) => {
         <Chip label={"Curated"} sx={styles.chip} />
       </Box>
       <Grid container p={3} spacing={5.5}>
-        {Object.keys(data).sort((a, b) => orderedKeys.indexOf(a) - orderedKeys.indexOf(b)).map((property, index) => {
+        {Object.keys(data).sort((a, b) => orderedKeys.indexOf(a) - orderedKeys.indexOf(b)).map((property) => {
           const component = mapping[property]
-          
           if (!component || data[property] === undefined || data[property] === null) return null;
 
           const uniqueKey = `${property}-${status}-${JSON.stringify(data[property])}`;
@@ -61,11 +61,11 @@ const MergePanel = ({ data, compareData, status }) => {
           switch (component) {
             case "ChipSynonymChanges":
               return <Grid key={uniqueKey} item lg={12}>
-                  <ChipChanges data={data[property]} compareData={compareData[property]} status={status} type="synonym" title="Synonym" />
+                  <ChipChanges data={data[property]} compareData={compareData[property]} status={status} type="dual-text-chip" title="Synonym" />
                 </Grid>
             case "ChipExistingIDChanges":
               return <Grid key={uniqueKey} item lg={6} xs={12}>
-                  <ChipChanges data={data[property]} compareData={compareData[property]} status={status} type="existingID" title="Existing IDs" />
+                  <ChipChanges data={data[property]} compareData={compareData[property]} status={status} type="chip-link" title="Existing IDs" />
                 </Grid>
             case "LabelChanges":
                 return <Grid key={uniqueKey} item lg={6} xs={2} sm={4} md={4}>
@@ -81,7 +81,7 @@ const MergePanel = ({ data, compareData, status }) => {
                 </Grid>
             default:
                 return <Grid key={uniqueKey} item lg={12} xs={6}>
-                  
+                  <DefaultComponentChanges data={data[property]} compareData={compareData[property]} title={getTitle(property)} status={status} />
                 </Grid>
           }
         })}

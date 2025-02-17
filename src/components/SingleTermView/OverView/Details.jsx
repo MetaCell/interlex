@@ -35,7 +35,7 @@ const Details = ({loading,  data }) => {
             <Box display="flex" flexWrap="wrap" gap=".5rem">
               {data?.synonym?.map((synonym) => (
                 <Chip
-                  className="rounded synonyms"
+                  className="rounded dual-text-chip"
                   variant="outlined"
                   key={synonym}
                   label={
