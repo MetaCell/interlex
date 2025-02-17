@@ -7,7 +7,7 @@ import { vars } from "../../../theme/variables";
 const { gray500, gray800 } = vars;
 
 
-const TextChanges = ({ title, data, compareData, status }) => {
+const TextChanges = ({ title, data, compareData = "", status }) => {
   const differences = compareSentences(data, compareData)
   
   return (<Stack spacing=".75rem">

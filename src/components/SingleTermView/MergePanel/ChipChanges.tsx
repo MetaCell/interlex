@@ -15,9 +15,8 @@ interface ChipChangesProps {
   title: string
 }
 
-const ChipChanges: React.FC<ChipChangesProps> = ({ data, compareData, status, type, title }) => {
+const ChipChanges: React.FC<ChipChangesProps> = ({ data, compareData = [], status, type, title }) => {
   const differences = compareArrays(data, compareData) || [];
-  
   return (
     <Stack spacing=".75rem">
       <Typography color={gray800} fontWeight={500}>
