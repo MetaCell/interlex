@@ -6,19 +6,19 @@ export const ROOT = "root";
 // TODO : Temporary until we get real data for predicates, right now parsing to make URLs
 // fit on Graph
 const getName = (nodeName) => {
-  let name = nodeName?.split("/")?.pop();
+  let name = nodeName
 
   if ( name == undefined ) {
     name = nodeName;
   }
 
-  return name;
+  return "name";
 }
 
 export const getGraphStructure = (pred) => {
   let data = {
     type : "node",
-    name : getName(pred.title),
+    name : pred.title,
     id : pred.title,
     type : ROOT,
     value : pred.count,

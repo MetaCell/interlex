@@ -1,18 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-	Box,
-	Button,
-	FormControl,
-	FormControlLabel,
-	Grid,
-	Paper,
-	Typography,
+  Box,
+  Button,
+  FormControl,
+  FormControlLabel,
+  Grid,
+  Paper,
+  Typography,
 } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
 import Checkbox from "@mui/material/Checkbox";
 import { Link } from "react-router-dom";
-import { CheckedIcon, OrcidIcon, UncheckedIcon } from "../../Icons";
+import { CheckedIcon, UncheckedIcon, OrcidIcon } from "../../Icons";
 import FormField from "./UI/Formfield";
 import PasswordField from "./UI/PasswordField";
 import { CLIENT_ID, REDIRECT_URI, ORCID_LINK } from "../../model/frontend/auth";

@@ -63,7 +63,6 @@ const PasswordField = ({ xs = 12, label, placeholder, helperText, value, name, o
   );
 };
 
-// Prop Types for validation
 PasswordField.propTypes = {
   xs: PropTypes.number,
   label: PropTypes.string.isRequired,
@@ -71,7 +70,6 @@ PasswordField.propTypes = {
   helperText: PropTypes.string,
 };
 
-// Default Props
 PasswordField.defaultProps = {
   placeholder: "",
   helperText: "",

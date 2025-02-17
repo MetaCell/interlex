@@ -4,7 +4,7 @@ import CustomTable from "../common/CustomTable";
 import Checkbox from "../common/CustomCheckbox";
 import { getComparator, stableSort } from "../../utils";
 import { parseISO, format } from 'date-fns';
-import { getMatchTerms } from '../../api/endpoints';
+import { elasticSearch } from "../../api/endpoints";
 import { vars } from "../../theme/variables";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 const {  gray600 } = vars;
@@ -35,10 +35,10 @@ const getChipColor = (type) => ({
 }[type]);
 
 const formatDateString = (dateString) => {
-    const simplifiedString = dateString.split(',')[0] + 'Z';
+    const simplifiedString = dateString?.split(',')[0] + 'Z';
     const date = parseISO(simplifiedString);
     
-    return format(date, 'dd MMM hh:mm a');
+    return dateString != undefined ? format(date, 'dd MMM hh:mm a') : "N/A";
   };
 
 
@@ -104,12 +104,20 @@ const TermActivity = () => {
     const isSelected = (id) => selected.indexOf(id) !== -1;
 
     useEffect(() => {
-        setLoading(true)
-        getMatchTerms("i").then(data => { 
-            setRows(data?.results)
-            setLoading(false)
-        });
-    }, []);
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const data = await elasticSearch("");
+                setRows(data?.results);
+            } catch (err) {
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+    
+        fetchData();
+    }, []);    
 
     useEffect(() => {
         const computePageOptions = (rowCount) => {

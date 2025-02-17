@@ -1044,7 +1044,7 @@ paths:
         403:
           description: The request cannot be fullfilled due to the permission of your account.
       tags:
-        - API    
+        - API
   /ping:
     get:
       summary: Checks if the server is running

@@ -40,7 +40,6 @@ const FormField = ({ xs = 12, label, helperText, placeholder, value, name, onCha
   );
 };
 
-// Add prop types for validation
 FormField.propTypes = {
   xs: PropTypes.number,
   label: PropTypes.string.isRequired,
@@ -48,7 +47,6 @@ FormField.propTypes = {
   placeholder: PropTypes.string,
 };
 
-// Add default values for optional props
 FormField.defaultProps = {
   helperText: "",
   placeholder: "",
