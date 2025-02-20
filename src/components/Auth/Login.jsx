@@ -68,7 +68,7 @@ const Login = () => {
 
   const handleOrcidSignIn = () => {
     const originUrl = window.location.href;
-    const orcidSignInUrl = `https://uri.olympiangods.org/u/ops/orcid-login`;ygj
+    const orcidSignInUrl = `https://uri.olympiangods.org/u/ops/orcid-login`;
     window.location.href = orcidSignInUrl;
   };
 
