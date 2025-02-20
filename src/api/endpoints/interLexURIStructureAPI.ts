@@ -483,16 +483,32 @@ export const useGetOpsUserLogin = <TData = Awaited<ReturnType<typeof getOpsUserL
 
 
 
-export const postOpsUserLogin = (
+// export const postOpsUserLogin = (
     
- options?: SecondParameter<typeof customInstance>,) => {
+//  options?: SecondParameter<typeof customInstance>,) => {
       
       
-      return customInstance<void>(
-      {url: `https://uri.olympiangods.org/u/ops/user-login`, method: 'POST'
+//       return customInstance<void>(
+//       {url: `https://uri.olympiangods.org/u/ops/user-login`, method: 'POST'
+//     },
+//       options);
+//     }
+export const postOpsUserLogin = (
+  userData: { username: string; password: string },
+  options?: SecondParameter<typeof customInstance>
+) => {
+  return customInstance<void>(
+    {
+      url: `https://uri.olympiangods.org/u/ops/user-login`,
+      method: 'POST',
+      data: userData,
+      headers: {
+        'Content-Type': "application/x-www-form-urlencoded",
+      },
     },
-      options);
-    }
+    options
+  );
+};
   
 
 

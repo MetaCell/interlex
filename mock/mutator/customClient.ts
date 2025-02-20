@@ -12,7 +12,10 @@ export const customInstance = <T>(
     ...config,
     ...options,
     cancelToken: source.token,
-  }).then(({ data }) => data).catch(error => console.log("Error ", error));
+  }).then(({ data }) => data).catch(error => {
+    console.log("Error ", error);
+    throw error;
+  });
 
   // @ts-ignore
   promise.cancel = () => {

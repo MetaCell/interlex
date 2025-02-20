@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
   Button,
@@ -19,13 +19,13 @@ import { handleLogin } from "../../api/endpoints/index";
 import * as yup from 'yup';
 
 const schema = yup.object().shape({
-  email: yup.string().email().required(),
+  username: yup.string().required().min(3),
   password: yup.string().required().min(6),
 });
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: "",
+    username: "",
     password: ""
   });
   const [errors, setErrors] = useState({});
@@ -36,9 +36,20 @@ const Login = () => {
       await schema.validate(formData, { abortEarly: false })
       setErrors({})
 
-      await handleLogin(formData.email, formData.password);
-      console.log("Login successful");
-      navigate("/");
+      try {
+        await handleLogin(formData.username || "", formData.password || "")
+        navigate("/")
+      } catch (error) {
+        if (error.status === 401) {
+          setErrors({
+            auth: "Invalid username or password. Please try again",
+          })
+        } else {
+          setErrors({
+            auth: `${error.message}. Please try again` || "An unknown error occured. Please try again",
+          })
+        }
+      }
     } catch (error) {
       const newErrors = {}
       error.inner.forEach((e) => {
@@ -47,7 +58,6 @@ const Login = () => {
         }
       })
       setErrors(newErrors)
-      console.error("Login error:", error);
     }
   };
 
@@ -72,15 +82,16 @@ const Login = () => {
         <Typography variant="h4">Log in to your account</Typography>
         <Typography variant="body1">Welcome! Please enter your details.</Typography>
         <form className="authForm">
+          {errors.auth && <Typography variant="body2" sx={{ marginBottom: "0.375rem", color: "#F04438" }}>{errors.auth}</Typography>}
           <Grid container spacing={2.5}>
             <FormField
-              name="email"
-              label="Email"
+              name="username"
+              label="Username"
               helperText="Required"
-              placeholder="Enter your email"
-              value={formData.email}
+              placeholder="Enter your username"
+              value={formData.username}
               onChange={handleChange}
-              errorMessage={errors.email}
+              errorMessage={errors.username}
             />
             <PasswordField
               name="password"
