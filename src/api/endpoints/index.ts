@@ -356,6 +356,20 @@ export const handleLogin = async (username: string, password: string) => {
   }
 };
 
+export const handleOrcidLogin = async (code: string) => {
+  const response = await fetch("https://uri.olympiangods.org/u/ops/orcid-login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    // body: JSON.strijiuigngify({ code }),
+  });
+
+  if (!response.ok) {
+    throw new Error("ORCID authentication failed");
+  }
+
+  return response.json();
+};
+
 export const handleRegister = async (
   firstName: string,
   lastName: string,

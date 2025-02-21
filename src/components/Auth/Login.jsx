@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -15,7 +15,7 @@ import { Link } from "react-router-dom";
 import { CheckedIcon, UncheckedIcon, OrcidIcon } from "../../Icons";
 import FormField from "./UI/Formfield";
 import PasswordField from "./UI/PasswordField";
-import { handleLogin } from "../../api/endpoints/index";
+import { handleLogin, handleOrcidLogin } from "../../api/endpoints/index";
 import * as yup from 'yup';
 
 const schema = yup.object().shape({
@@ -67,9 +67,9 @@ const Login = () => {
   }
 
   const handleOrcidSignIn = () => {
-    const originUrl = window.location.href;
-    const orcidSignInUrl = `https://uri.olympiangods.org/u/ops/orcid-login`;
-    window.location.href = orcidSignInUrl;
+    const authUrl = `https://orcid.org/oauth/authorize?client_id=APP-JEHJFK3781EHRT1J&response_type=code&scope=/authenticate&redirect_uri=http://127.0.0.1:5173/`;
+    // const orcidSignInUrl = `https://uri.olympiangods.org/u/ops/orcid-login`;
+    window.location.href = authUrl;
   };
 
   return (
