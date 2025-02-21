@@ -120,7 +120,7 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
           </AccordionSummary>
           <AccordionDetails>
             {toggleButtonValues[index] === 'tableView' ? (
-              <CustomizedTable data={pred} term={term} isAddButtonVisible={isGraphVisible}/>
+              <CustomizedTable data={pred} term={term} isAddButtonVisible={isGraphVisible} />
             ) : (
               <Box display='flex' flexDirection='column'>
                 <Graph width={600} height={300} predicate={pred} />

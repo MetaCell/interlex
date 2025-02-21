@@ -293,13 +293,15 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
             />
           )}
         </Box>
-        <Box sx={tableStyles.root}>
-          <Box sx={{ paddingLeft: '0 !important' }}>
-            <IconButton onClick={handleOpenEditTermDialog}>
-              <AddOutlinedIcon />
-            </IconButton>
+        {isAddButtonVisible && (
+          <Box sx={tableStyles.root}>
+            <Box sx={{ paddingLeft: '0 !important' }}>
+              <IconButton onClick={handleOpenEditTermDialog}>
+                <AddOutlinedIcon />
+              </IconButton>
+            </Box>
           </Box>
-        </Box>
+        )}
       </Box>
       <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} searchTerm={term} forwardPredicateStep={true} />
       <CustomSnackbar open={snackbarOpen} handleClose={handleSnackbarClose} onUndoDelete={handleUndoDelete} data={deletedObj} />
