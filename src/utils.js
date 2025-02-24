@@ -42,3 +42,44 @@ export const stableSort = (array, comparator) => {
     });
     return stabilizedThis.map((el) => el[0]);
 }
+
+export function compareArrays(originalArray, modifiedArray) {
+    if (!Array.isArray(originalArray) || !Array.isArray(modifiedArray)) {
+      console.warn("compareArrays received invalid input", { originalArray, modifiedArray });
+      return [];
+    }
+  
+    return originalArray.filter(item => !modifiedArray.includes(item));
+}
+
+export function compareSentences(originalText, modifiedText) {
+  // Split texts into sentences
+  const originalSentences = originalText.match(/[^.!?]+[.!?]+/g) || [];
+  const modifiedSentences = modifiedText.match(/[^.!?]+[.!?]+/g) || [];
+  
+  // Find sentences in original that are not in modified
+  const uniqueSentences = originalSentences.filter(sentence =>
+    !modifiedSentences.some(modSentence =>
+      sentence.trim().toLowerCase() === modSentence.trim().toLowerCase()
+    )
+  );
+  return uniqueSentences;
+}
+
+export function compareStrings(originalString, modifiedString) {
+  return originalString !== modifiedString ? [originalString] : []
+}
+
+export function compareObjects(originalObject, modifiedObject) {
+    return Object.keys(originalObject).filter((key) => originalObject[key] !== modifiedObject[key])
+}
+
+export function getDataType(data) {
+  if (Array.isArray(data)) return "array"
+  if (typeof data === "string") return "string"
+  if (typeof data === "number") return "number"
+  if (typeof data === "boolean") return "boolean"
+  if (data === null) return "null"
+  if (typeof data === "object") return "object"
+  return "unknown"
+}
