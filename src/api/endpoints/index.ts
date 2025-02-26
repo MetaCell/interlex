@@ -157,8 +157,10 @@ export const elasticSearch = async (query) => {
   try {
     const result = await fetchData(url, "POST", {
       query: {
-        match_all: {}
-      }
+        query_string: {
+          query: query,
+        },
+      },
     });
     return elasticSearhParser(result?.hits?.hits)
   } catch (error) {
