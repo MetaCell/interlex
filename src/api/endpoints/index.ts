@@ -192,17 +192,11 @@ export const searchAll = async (term, filters = {}) => {
 }
 
 export const patchTerm = async (group, termID, term) => {
-  const patchEndpointsIlx= "";
+  const {  patchEndpointsIlx } = useApi();
 
   /** Call Endpoint */
-  return patchEndpointsIlx(group, termID).then((data) => {
-      let termParsed = getTerm(data.data);
-      let response = {
-        status : data.status,
-        term : termParsed
-      }
-
-      return response;
+  return patchEndpointsIlx(group, termID, term).then((data) => {
+      return termParser(data, term);
     })
     .catch((error) => {
       return error;

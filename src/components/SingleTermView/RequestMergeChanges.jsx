@@ -33,7 +33,7 @@ const RequestMergeChanges = ({ searchTerm, open, handleClose }) => {
         debounce((searchTerm) => {
             if (searchTerm) {
                 getMatchTerms(searchTerm).then(data => {
-                    setData(data?.results[0]);
+                    setData(data?.results?.[0]);
                     setLoading(false);
                 });
                 getVariant("base", "ILX_....").then(data => { 
