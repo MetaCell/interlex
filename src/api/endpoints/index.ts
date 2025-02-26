@@ -83,11 +83,11 @@ export const getOrganizationOntologies = async (id) => {
 export const getVariants = async (group, term) => {
   /** Call endpoint for retrieving variants, this is a mock endpoint
   created by us */
-  const {  getVariants } = useMockApi();
+  const {  getEndpointsOther } = useApi();
 
   /** Call Endpoint */
-  return getVariants(group, term).then((data) => {
-      return data as Variants;
+  return getEndpointsOther(group, term).then((data) => {
+      return data;
     })
     .catch((error) => {
       return error;
@@ -97,11 +97,11 @@ export const getVariants = async (group, term) => {
 export const getVersions = async (group, term) => {
   /** Call endpoint for retrieving versions, this is a mock endpoint
   created by us */
-  const {  getVersions } = useMockApi();
+  const {  getEndpointsVersions } = useApi();
 
   /** Call Endpoint */
-  return getVersions(group, term).then((data) => {
-      return data as Versions;
+  return getEndpointsVersions(group, term).then((data) => {
+      return data;
     })
     .catch((error) => {
       return error;
@@ -194,11 +194,17 @@ export const searchAll = async (term, filters = {}) => {
 }
 
 export const patchTerm = async (group, termID, term) => {
-  const {  patchEndpointsIlx } = useApi();
+  const patchEndpointsIlx= "";
 
   /** Call Endpoint */
-  return patchEndpointsIlx(group, termID, term).then((data) => {
-      return termParser(data, term);
+  return patchEndpointsIlx(group, termID).then((data) => {
+      let termParsed = getTerm(data.data);
+      let response = {
+        status : data.status,
+        term : termParsed
+      }
+
+      return response;
     })
     .catch((error) => {
       return error;
@@ -343,10 +349,7 @@ export const addMessateToVariantDiscussion = async (group, variantID, message) =
 export const handleLogin = async (email: string, password: string) => {
   try {
     const { postOpsUserLogin } = useApi()
-    const response = await postOpsUserLogin({
-      email,
-      password,
-    });
+    const response = await postOpsUserLogin({ username: email, password: password });
     console.log("Login successful:", response);
     return response.data;
   } catch (error) {
