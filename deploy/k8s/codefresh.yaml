@@ -20,8 +20,8 @@ steps:
     working_directory: ./interlex
     buildkit: true    
     registry: "${{CODEFRESH_REGISTRY}}"
-    environment:
-      - VITE_SCICRUNCH_API_KEY=${{VITE_SCICRUNCH_API_KEY}}
+    arguments:
+      - "--build-arg=VITE_SCICRUNCH_API_KEY=${{VITE_SCICRUNCH_API_KEY}}"
   deploy:
     stage: "deploy"
     title: "Deploying interlex"
