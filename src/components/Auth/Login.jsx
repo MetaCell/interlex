@@ -66,11 +66,11 @@ const Login = () => {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleOrcidSignIn = () => {
-    const authUrl = `https://orcid.org/oauth/authorize?client_id=APP-JEHJFK3781EHRT1J&response_type=code&scope=/authenticate&redirect_uri=http://127.0.0.1:5173/`;
-    // const orcidSignInUrl = `https://uri.olympiangods.org/u/ops/orcid-login`;
-    window.location.href = authUrl;
-  };
+  // const handleOrcidSignIn = () => {
+  //   const authUrl = `https://orcid.org/oauth/authorize?client_id=APP-JEHJFK3781EHRT1J&response_type=code&scope=/authenticate&redirect_uri=http://127.0.0.1:5173/`;
+  //   // const orcidSignInUrl = `https://uri.olympiangods.org/u/ops/orcid-login`;
+  //   window.location.href = authUrl;
+  // };
 
   return (
     <Box className="authArea">
@@ -134,7 +134,7 @@ const Login = () => {
               </FormControl>
             </Grid>
             <Grid item xs={12}>
-              <Typography variant="body2"> or </Typography>
+              <Typography variant="body2" sx={{textAlign: 'center', paddingBottom: '10px'}}> or </Typography>
             </Grid>
           </Grid>
           <FormControl>
@@ -142,7 +142,7 @@ const Login = () => {
               startIcon={<OrcidIcon />}
               variant="contained"
               className="authlightButton"
-              onClick={handleOrcidSignIn}
+              onClick={handleOrcidLogin}
             >
               Sign in with ORCID
             </Button>
