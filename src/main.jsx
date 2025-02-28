@@ -8,7 +8,9 @@ import worker from './mock'
 const queryClient = new QueryClient();
 import * as serviceWorker from './serviceWorker';
  
-worker.start();
+worker.start({
+  onUnhandledRequest: 'bypass', // Allow unhandled requests to pass through
+});
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
