@@ -136,6 +136,7 @@ export const getMatchTerms = async (term, filters = {}) => {
 
 const fetchData = async (url, method = "GET", data = null) => {
     try {
+        console.log("Elastic search url ", url)
         const response = await axios({
             url,
             method,
@@ -145,6 +146,7 @@ const fetchData = async (url, method = "GET", data = null) => {
             },
             withCredentials : true
         });
+        console.log("Elastic search response ", response)
         return response.data;
     } catch (error) {
         console.error(`API Error at ${url}:`, error);
@@ -154,6 +156,7 @@ const fetchData = async (url, method = "GET", data = null) => {
 
 export const elasticSearch = async (query) => {
   const url = API_CONFIG.BASE_SCICRUNCH_URL + import.meta.env.VITE_SCICRUNCH_API_KEY
+  console.log("Elastic search performed ", query)
   try {
     const result = await fetchData(url, "POST", {
       query: {
