@@ -23,11 +23,15 @@ RUN yarn build
 # Use the existing base image
 FROM nginx:alpine
 
+RUN cat /etc/nginx/conf.d/default.conf
+
 # Remove the auto-update script that modifies default.conf
 RUN rm -f /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
 
 # Copy the existing configurations
-COPY default.conf /etc/nginx/conf.d/default.conf
+COPY --from=frontend /app/default.conf  /etc/nginx/conf.d/default.conf
+
+COPY --from=frontend /app/dist /usr/share/nginx/html/
 
 # Ensure proper file permissions
 RUN chmod 644 /etc/nginx/conf.d/default.conf
