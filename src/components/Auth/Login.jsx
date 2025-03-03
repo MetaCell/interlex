@@ -17,6 +17,7 @@ import FormField from "./UI/Formfield";
 import PasswordField from "./UI/PasswordField";
 import { handleLogin, handleOrcidLogin } from "../../api/endpoints/index";
 import * as yup from 'yup';
+import OrcidWidget from "./UI/OrcidWidget";
 
 const schema = yup.object().shape({
   username: yup.string().required().min(3),
@@ -138,6 +139,7 @@ const Login = () => {
             </Grid>
           </Grid>
           <FormControl>
+            <OrcidWidget clientId={"APP-34IBF14LOTOGDJZZ"} redirectUri={"http://localhost:5173/"} />
             <Button
               startIcon={<OrcidIcon />}
               variant="contained"
