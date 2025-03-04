@@ -364,6 +364,7 @@ export const handleLogin = async (email: string, password: string) => {
 export const handleRegister = async (
   firstName: string,
   lastName: string,
+  username: string,
   email: string,
   password: string,
   organization: string
@@ -373,6 +374,7 @@ export const handleRegister = async (
     const response = await postOpsUserNew({
       firstName,
       lastName,
+      username,
       email,
       password,
       organization,
