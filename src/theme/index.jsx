@@ -925,6 +925,17 @@ const theme = createTheme({
 								border: `1px solid ${gray300}`,
 								color: gray700,
 							},
+							"& #orcidAuthButton": {
+								display: "flex",
+								alignItems: "center", 
+								justifyContent: "center",
+								gap: "0.25rem",
+								fontSize: "1rem", 
+								fontWeight: 600,
+								textDecoration: "none",
+								borderRadius: "0.5rem",
+								height: "100%"
+							},
 							"& .authOption": {
 								borderTop: `1px solid ${gray200}`,
 								textAlign: "center",
