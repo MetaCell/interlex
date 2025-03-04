@@ -8,19 +8,14 @@ export default defineConfig({
       "/api/elasticsearch": {
         target: "https://scicrunch.org",
         changeOrigin: true,
-        secure: true,
+        secure: true, // Ensure HTTPS requests work
         rewrite: (path) =>
           path.replace(/^\/api\/elasticsearch/, "/api/1/elastic/Interlex_pr/_search"),
         headers: {
+          // Forward headers correctly
           "Content-Type": "application/json",
         },
-        configure: (proxy) => {
-          proxy.on('proxyReq', (proxyReq) => {
-            proxyReq.method = "POST";  // Force requests to POST
-          });
-        }
       }
     },
   },
 });
-
