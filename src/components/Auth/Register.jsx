@@ -18,6 +18,7 @@ const Register = () => {
   const [formData, setFormData] = React.useState({
     firstName: "",
     lastName: "",
+    username: "",
     email: "",
     password: "",
     organization: "",
@@ -32,6 +33,7 @@ const Register = () => {
       const response = await handleRegister(
         formData.firstName,
         formData.lastName,
+        formData.username,
         formData.email,
         formData.password,
         formData.organization
@@ -85,6 +87,16 @@ const Register = () => {
                 }
                 error={!!errors.lastName}
                 helperText={errors.lastName}
+              />
+              <FormField
+                label="Username"
+                placeholder="Enter your username"
+                value={formData.username}
+                onChange={(e) =>
+                  setFormData({ ...formData, username: e.target.value })
+                }
+                error={!!errors.username}
+                helperText={errors.username}
               />
               <FormField
                 label="Email"
