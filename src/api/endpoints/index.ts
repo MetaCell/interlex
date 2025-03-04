@@ -142,7 +142,8 @@ const fetchData = async (url, method = "GET", data = null) => {
             method,
             data,
             headers: {
-                "Content-Type": "application/json",
+              "Content-Type": "application/json",
+              "Accept": "application/json"
             },
             withCredentials : true
         });
