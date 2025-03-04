@@ -1,5 +1,5 @@
 import {Button, Grid, Typography, Box, ToggleButton, ToggleButtonGroup} from "@mui/material";
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { vars } from "../../../theme/variables";
 import CustomizedInput from "../../common/CustomizedInput";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -7,14 +7,25 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DropDownConditions from "./DropDownConditions";
 import SearchTermsData from "../../../static/SearchTermsData.json"
 import CustomSingleSelect from "../../common/CustomSingleSelect";
+import { searchAll, elasticSearch } from "../../../api/endpoints";
+import { SEARCH_TYPES } from "../../../constants/types";
+import { debounce } from 'lodash';
 
 const { gray800 } = vars;
 
 const SearchTerms = ({searchConditions, setSearchConditions, initialSearchConditions}) => {
+  const [searchTerm, setSearchTerm] = useState("brain");
+  const [terms, setTerms] = useState([]);
+  const [attributes, setAttributes] = useState([]);
+
   const handleTermChange = (index, field, value) => {
     const newTerms = [...searchConditions];
     newTerms[index][field] = value;
     setSearchConditions(newTerms);
+
+    if(field==="value"){
+      setSearchTerm(value)
+    }
   };
   
   const handleDeleteTerm = (index) => {
@@ -36,12 +47,30 @@ const SearchTerms = ({searchConditions, setSearchConditions, initialSearchCondit
   const handleClearAllConditions = () => {
     setSearchConditions([initialSearchConditions]);
   };
-  
+
+  const fetchTerms = useCallback(debounce(async (searchTerm) => {
+    const data = await elasticSearch(searchTerm);
+    console.log("data: ", data)
+    const dataTerms = data?.results.filter(result => result.type === SEARCH_TYPES.TERM);
+    setAttributes(Object.keys(data.filters));
+    setTerms(dataTerms);
+  }, 500), [searchAll]);
+
   const updatedColumnsArray = SearchTermsData.termsColumns.map(item => ({
     ...item,
     value: item.id
   }));
 
+  useEffect(() => {
+    if (searchTerm) {
+      fetchTerms(searchTerm);
+    }
+  }, [searchTerm, fetchTerms]);
+
+  console.log("terms: ", terms)
+  console.log("attributes: ", attributes)
+  console.log("searchConditions: ", searchConditions)
+  
   return (
     <Box>
       <Typography color={gray800} fontSize='1.125rem' fontWeight={600} mb='2.75rem'>
@@ -85,8 +114,9 @@ const SearchTerms = ({searchConditions, setSearchConditions, initialSearchCondit
             </Typography>
             <CustomSingleSelect
               isFormControlFullWidth={true}
-              value={term.attribute} onChange={(v) => handleTermChange(index, 'attribute', v)}
-              options={updatedColumnsArray}
+              value={term.attribute}
+              onChange={(v) => handleTermChange(index, 'attribute', v)}
+              options={attributes}
               placeholder='Choose an attribute'
             />
           </Grid>

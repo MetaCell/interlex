@@ -102,7 +102,7 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, searchCo
     </Box>
   }
   return (
-    terms.length > 0 ? (
+    terms && terms.length > 0 ? (
       <>
         <Typography color={gray800} fontSize='1.125rem' fontWeight={600} mb='2.75rem'>
           Edit your terms or select an header to bulk edit that property
