@@ -134,7 +134,7 @@ export const getMatchTerms = async (term, filters = {}) => {
     });
 };
 
-const fetchData = async (url, method = "GET", data = null) => {
+const fetchData = async (url, method = "POST", data = null) => {
     try {
         console.log("Elastic search url ", url)
         const response = await axios({
@@ -159,7 +159,7 @@ export const elasticSearch = async (query) => {
   const url = API_CONFIG.BASE_SCICRUNCH_URL + import.meta.env.VITE_SCICRUNCH_API_KEY
   console.log("Elastic search performed ", query)
   try {
-    const result = await fetchData(url, "GET", {
+    const result = await fetchData(url, "POST", {
       query: {
         query_string: {
           query: query,
