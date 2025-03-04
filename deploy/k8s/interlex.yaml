@@ -23,17 +23,17 @@ spec:
               path: /api/elasticsearch 
               port: 80
               scheme: HTTP
-            initialDelaySeconds: 45
+            initialDelaySeconds: 30
             periodSeconds: 30
-            timeoutSeconds: 5
+            timeoutSeconds: 60
           readinessProbe:
             httpGet:
               path: /api/elasticsearch 
               port: 80
               scheme: HTTP
-            initialDelaySeconds: 15
+            initialDelaySeconds: 30
             periodSeconds: 30
-            timeoutSeconds: 5
+            timeoutSeconds: 60
           resources:
             limits:
               cpu: 1500m
