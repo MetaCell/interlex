@@ -29,7 +29,7 @@ metadata:
   name: interlex-nginx-ingress
 spec:
   rules:
-  - host: interlex.dev.metacell.us
+  - host: "{{DOMAIN}}"
     http:
       paths:
       - path: /
