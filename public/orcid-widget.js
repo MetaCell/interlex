@@ -164,7 +164,7 @@
 	}
 
 	function showAuthButton($){
-		$('<a id="orcidAuthButton" className="authlightButton" href=' + buildReturnUrl() + '><img src="https://orcid.org/sites/default/files/images/orcid_24x24.png" />Connect your ORCID iD</a>').appendTo(elementId);
+		$('<a id="orcidAuthButton" class="authlightButton" href=' + buildReturnUrl() + '><img src="https://orcid.org/sites/default/files/images/orcid_24x24.png" />Connect your ORCID iD</a>').appendTo(elementId);
 	}
 
 	function showError($){

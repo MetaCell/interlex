@@ -21,6 +21,7 @@ const OrcidWidget = ({ clientId, redirectUri }) => {
       data-redirecturi={redirectUri}
       data-env="sandbox"
       data-size="lg"
+      style={{ height: "2.75rem" }}
     />
   )
 }
