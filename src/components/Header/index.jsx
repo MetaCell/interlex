@@ -16,6 +16,7 @@ import { useContext } from "react";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import TermDialog from '../TermEditor/TermDialog';
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 
 const { gray200, white, gray100, gray600 } = vars;
 
@@ -82,6 +83,17 @@ const styles = {
 
     keyBoardInfo: {
         borderRadius: '0.25rem', pointerEvents: 'none', background: gray100, color: gray600, fontSize: '0.875rem', lineHeight: '142.857%', p: '0.125rem 0.5rem'
+    },
+
+    avatar: {
+        border: '0.0469rem solid rgba(0,0,0,0.08)', 
+        width: '2.5rem', 
+        height: '2.5rem',
+        '& .MuiSvgIcon-root': {
+            width: '1.5rem',
+            height: '1.5rem',
+            fontSize: '1.5rem'
+        }
     }
 }
 
@@ -301,7 +313,9 @@ const Header = ({ isLoggedIn = true }) => {
                         }}
                             onClick={handleUserClick} aria-describedby={idUser}
                         >
-                            <Avatar sx={{ border: '0.0469rem solid rgba(0,0,0,0.08)', width: '2.5rem', height: '2.5rem' }} src="https://mui.com/static/images/avatar/1.jpg" />
+                            <Avatar sx={styles.avatar}>
+                                <PersonOutlineIcon />
+                            </Avatar>
                         </IconButton>
                         <Popover
                             sx={{
@@ -358,7 +372,9 @@ const Header = ({ isLoggedIn = true }) => {
                                                 horizontal: 'right',
                                             }}
                                         >
-                                            <Avatar sx={{ border: '0.0469rem solid rgba(0,0,0,0.08)', width: '2.5rem', height: '2.5rem' }} src="https://mui.com/static/images/avatar/1.jpg" />
+                                            <Avatar sx={styles.avatar}>
+                                                <PersonOutlineIcon />
+                                            </Avatar>
                                         </Badge>
                                     </ListItemAvatar>
                                     <ListItemText
