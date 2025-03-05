@@ -1,19 +1,7 @@
-import { useEffect, useRef } from "react"
+import React from "react";
+import PropTypes from "prop-types";
 
 const OrcidWidget = ({ clientId, redirectUri }) => {
-  const initialized = useRef(false);
-
-  useEffect(() => {
-    if (initialized.current) return
-    initialized.current = true
-
-    const script = document.createElement("script")
-    script.id = "orcid-widget-script"
-    script.src = "/orcid-widget.js"
-    script.async = true
-    document.body.appendChild(script)
-  }, [])
-
   return (
     <div
       id="orcidWidget"
@@ -25,5 +13,9 @@ const OrcidWidget = ({ clientId, redirectUri }) => {
     />
   )
 }
+OrcidWidget.propTypes = {
+  clientId: PropTypes.string.isRequired,
+  redirectUri: PropTypes.string.isRequired,
+};
 
 export default OrcidWidget;

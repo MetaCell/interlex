@@ -15,7 +15,7 @@ import { Link } from "react-router-dom";
 import { CheckedIcon, UncheckedIcon, OrcidIcon } from "../../Icons";
 import FormField from "./UI/Formfield";
 import PasswordField from "./UI/PasswordField";
-import { handleLogin, handleOrcidLogin } from "../../api/endpoints/index";
+import { handleLogin } from "../../api/endpoints/index";
 import * as yup from 'yup';
 import OrcidWidget from "./UI/OrcidWidget";
 
@@ -66,12 +66,6 @@ const Login = () => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
-
-  // const handleOrcidSignIn = () => {
-  //   const authUrl = `https://orcid.org/oauth/authorize?client_id=APP-JEHJFK3781EHRT1J&response_type=code&scope=/authenticate&redirect_uri=http://127.0.0.1:5173/`;
-  //   // const orcidSignInUrl = `https://uri.olympiangods.org/u/ops/orcid-login`;
-  //   window.location.href = authUrl;
-  // };
 
   return (
     <Box className="authArea">
@@ -139,16 +133,7 @@ const Login = () => {
             </Grid>
           </Grid>
           <FormControl>
-          {/* https://uri.olympiangods.org/u/ops/orcid-land-login */}
             <OrcidWidget clientId={"APP-W38FCVGUSBXCUI3B"} redirectUri={"https://uri.olympiangods.org/"} />
-            <Button
-              startIcon={<OrcidIcon />}
-              variant="contained"
-              className="authlightButton"
-              onClick={handleOrcidLogin}
-            >
-              Sign in with ORCID
-            </Button>
           </FormControl>
           <Box className="authFooter">
             <Typography variant="body1">
