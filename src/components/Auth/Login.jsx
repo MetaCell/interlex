@@ -139,7 +139,8 @@ const Login = () => {
             </Grid>
           </Grid>
           <FormControl>
-            <OrcidWidget clientId={"APP-34IBF14LOTOGDJZZ"} redirectUri={"http://localhost:5173/"} />
+          {/* https://uri.olympiangods.org/u/ops/orcid-land-login */}
+            <OrcidWidget clientId={"APP-W38FCVGUSBXCUI3B"} redirectUri={"https://uri.olympiangods.org/"} />
             <Button
               startIcon={<OrcidIcon />}
               variant="contained"

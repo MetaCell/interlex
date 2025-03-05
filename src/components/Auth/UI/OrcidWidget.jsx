@@ -19,7 +19,7 @@ const OrcidWidget = ({ clientId, redirectUri }) => {
       id="orcidWidget"
       data-clientid={clientId}
       data-redirecturi={redirectUri}
-      data-env="production"
+      data-env="sandbox"
       data-size="lg"
     />
   )
