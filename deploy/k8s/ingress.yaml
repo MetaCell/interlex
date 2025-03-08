@@ -25,7 +25,11 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "120"
     nginx.ingress.kubernetes.io/enable-rewrite-log: "true"
-    nginx.ingress.kubernetes.io/proxy-method: "GET, POST, OPTIONS"
+    nginx.ingress.kubernetes.io/proxy-method: "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "Access-Control-Allow-Origin: *";
+      more_set_headers "Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS";
+      more_set_headers "Access-Control-Allow-Headers: Content-Type, Authorization";
   name: interlex-nginx-ingress
 spec:
   rules:
@@ -43,9 +47,9 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: interlex
+            name: elasticsearch
             port:
-              number: 80
+              number: 9200
   tls:
   - hosts:
     - "{{DOMAIN}}"
