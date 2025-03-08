@@ -25,7 +25,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "120"
     nginx.ingress.kubernetes.io/enable-rewrite-log: "true"
-    nginx.ingress.kubernetes.io/proxy-method: "GET"
+    nginx.ingress.kubernetes.io/proxy-method: "GET, POST, OPTIONS"
   name: interlex-nginx-ingress
 spec:
   rules:
