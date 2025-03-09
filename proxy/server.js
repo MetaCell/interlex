@@ -7,10 +7,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors()); // Enable CORS
-app.use(express.json()); // Handle JSON requests
+app.use(cors());
+app.use(express.json());
 
-// Proxy setup (similar to Vite's proxy)
+// Proxy setup
 app.use(
   "/api/elasticsearch",
   createProxyMiddleware({
@@ -31,7 +31,17 @@ app.get("/", (req, res) => {
   res.send("Proxy Server is Running!");
 });
 
-// Start server
-app.listen(PORT, () => {
+// 🔹 Prevent crash if server is already running
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`Proxy server running on port ${PORT}`);
+});
+
+// Handle EADDRINUSE error
+server.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    console.error(`⚠️ Port ${PORT} is already in use. Server not restarted.`);
+    process.exit(1);
+  } else {
+    throw err;
+  }
 });

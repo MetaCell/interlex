@@ -49,7 +49,7 @@ EXPOSE 80 3000
 # Install tini for better process management
 RUN apk add --no-cache tini supervisor
 
-# Create supervisord config file
+# Use supervisor to manage both Nginx and server.js
 RUN echo "[supervisord]" > /etc/supervisord.conf && \
     echo "nodaemon=true" >> /etc/supervisord.conf && \
     echo "[program:nginx]" >> /etc/supervisord.conf && \
@@ -57,7 +57,7 @@ RUN echo "[supervisord]" > /etc/supervisord.conf && \
     echo "[program:server]" >> /etc/supervisord.conf && \
     echo "command=node /app/server.js" >> /etc/supervisord.conf && \
     echo "autostart=true" >> /etc/supervisord.conf && \
-    echo "autorestart=true" >> /etc/supervisord.conf
+    echo "autorestart=true" >> /etc/supervisord.conf && \
+    echo "startsecs=5" >> /etc/supervisord.conf  # Wait before restarting
 
-# Use supervisord to manage both processes
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
