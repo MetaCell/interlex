@@ -23,26 +23,23 @@ RUN yarn build
 # Use Node.js for the backend (Express proxy)
 FROM node:18-alpine as backend
 
-WORKDIR /backend
+WORKDIR /proxy
 COPY package.json package-lock.json ./
 RUN npm install
 
-COPY proxy/server.js .  # Make sure server.js exists
+COPY proxy/server.js .  # Ensure correct path
 
 EXPOSE 3000
-CMD ["node", "server.js"]
 
-# Use Nginx to serve the frontend
+# Use Nginx for the frontend
 FROM nginx:alpine
-
-RUN cat /etc/nginx/conf.d/default.conf
-
-# Remove the auto-update script that modifies default.conf
-RUN rm -f /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
 
 # Copy the frontend build output
 COPY --from=frontend /app/default.conf  /etc/nginx/conf.d/default.conf
 COPY --from=frontend /app/dist /usr/share/nginx/html/
+
+# Copy the backend (Express) into the container
+COPY --from=backend /proxy /proxy
 
 # Ensure proper file permissions
 RUN chmod 644 /etc/nginx/conf.d/default.conf
@@ -51,4 +48,4 @@ RUN chmod 644 /etc/nginx/conf.d/default.conf
 EXPOSE 80 3000
 
 # Start both Nginx and the Express server
-CMD ["sh", "-c", "nginx & node /proxy/server.js"]
+CMD ["sh", "-c", "node /proxy/server.js & nginx -g 'daemon off;'"]
