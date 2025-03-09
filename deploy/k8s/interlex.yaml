@@ -26,6 +26,7 @@ spec:
             initialDelaySeconds: 15
             periodSeconds: 10
             failureThreshold: 5
+
           readinessProbe:
             httpGet:
               path: /
@@ -40,7 +41,6 @@ spec:
             requests:
               cpu: 500m
               memory: 768Mi
-          command: [ "node", "server.js" ]
 ---
 apiVersion: v1
 kind: Service

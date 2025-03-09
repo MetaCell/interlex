@@ -1,60 +1,58 @@
-# Build Stage 1: Node.js for Frontend and API Server
 ARG NODE_PARENT=node:18-alpine
-FROM ${NODE_PARENT} as frontend
+
+FROM  ${NODE_PARENT} as frontend
 
 ARG VITE_SCICRUNCH_API_KEY 
 
 ENV BUILDDIR=/app
 
-RUN apk add --no-cache git
+RUN apk add git
 
 WORKDIR ${BUILDDIR}
+COPY package.json ${BUILDDIR}
+COPY yarn.lock ${BUILDDIR}
+COPY nginx/default.conf ${BUILDDIR}
 
-# Copy dependencies and install
-COPY package.json yarn.lock ${BUILDDIR}/
 RUN yarn install
+COPY . ${BUILDDIR}
 
-# Copy everything else
-COPY . ${BUILDDIR}/
-
-# Set up environment for Vite build
-ENV VITE_SCICRUNCH_API_KEY=${VITE_SCICRUNCH_API_KEY}
+RUN echo "VITE_SCICRUNCH_API_KEY=${VITE_SCICRUNCH_API_KEY}" > ${BUILDDIR}/.env
 
 RUN yarn build
 
-# Build Stage 2: Final Image with Nginx and Node.js
+# Use the existing base image
 FROM nginx:alpine
 
-# Install Node.js for API Proxy
-RUN apk add --no-cache nodejs npm
+RUN cat /etc/nginx/conf.d/default.conf
 
-# Set up directories
-WORKDIR /app
+# Remove the auto-update script that modifies default.conf
+RUN rm -f /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
 
-# Copy frontend build
+# Copy the existing configurations
+COPY --from=frontend /app/default.conf  /etc/nginx/conf.d/default.conf
+
 COPY --from=frontend /app/dist /usr/share/nginx/html/
 
-# Copy Nginx configuration
-COPY nginx/default.conf /etc/nginx/conf.d/default.conf
-
 # Copy API Proxy (server.js)
-COPY proxy/server.js /app/server.js
+COPY server.js /app/server.js
+COPY package.json /app/
+RUN cd /app && npm install --only=production
 
-# Install dependencies for server.js
-RUN npm install express http-proxy-middleware cors dotenv
-
-# Ensure permissions are correct
+# Ensure proper file permissions
 RUN chmod 644 /etc/nginx/conf.d/default.conf
 
 # Expose both Nginx (80) and Express (3000)
 EXPOSE 80 3000
 
-# Install tini for better process management
-RUN apk add --no-cache tini
+# Create supervisord config file
+RUN echo "[supervisord]" > /etc/supervisord.conf && \
+    echo "nodaemon=true" >> /etc/supervisord.conf && \
+    echo "[program:nginx]" >> /etc/supervisord.conf && \
+    echo "command=nginx -g 'daemon off;'" >> /etc/supervisord.conf && \
+    echo "[program:server]" >> /etc/supervisord.conf && \
+    echo "command=node /app/server.js" >> /etc/supervisord.conf && \
+    echo "autostart=true" >> /etc/supervisord.conf && \
+    echo "autorestart=true" >> /etc/supervisord.conf
 
-# Use tini as the init system to manage both processes
-ENTRYPOINT ["/sbin/tini", "--"]
-
-# Start both Express and Nginx
-CMD ["sh", "-c", "node /app/server.js & nginx -g 'daemon off;'"]
-
+# Use supervisord to manage both processes
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]

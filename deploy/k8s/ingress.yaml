@@ -47,9 +47,9 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: elasticsearch
+            name: interlex
             port:
-              number: 9200
+              number: 3000
   tls:
   - hosts:
     - "{{DOMAIN}}"
