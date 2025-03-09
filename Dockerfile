@@ -24,10 +24,10 @@ RUN yarn build
 FROM node:18-alpine as backend
 
 WORKDIR /backend
-COPY package.json ./
+COPY package.json package-lock.json ./
 RUN npm install
 
-COPY proxy/server.js .  # Ensure correct path
+COPY proxy/server.js .  # Make sure server.js exists
 
 EXPOSE 3000
 
@@ -39,7 +39,7 @@ COPY --from=frontend /app/default.conf  /etc/nginx/conf.d/default.conf
 COPY --from=frontend /app/dist /usr/share/nginx/html/
 
 # Copy the backend (Express) into the container
-COPY --from=backend /proxy /proxy
+COPY --from=backend /backend /backend
 
 # Ensure proper file permissions
 RUN chmod 644 /etc/nginx/conf.d/default.conf
@@ -48,4 +48,4 @@ RUN chmod 644 /etc/nginx/conf.d/default.conf
 EXPOSE 80 3000
 
 # Start both Nginx and the Express server
-CMD ["sh", "-c", "node /proxy/server.js & nginx -g 'daemon off;'"]
+CMD ["sh", "-c", "node /backend/server.js & nginx -g 'daemon off;'"]
