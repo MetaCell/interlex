@@ -38,7 +38,7 @@ COPY --from=frontend /app/dist /usr/share/nginx/html/
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # Copy API Proxy (server.js)
-COPY server.js /app/server.js
+COPY proxy/server.js /app/server.js
 
 # Install dependencies for server.js
 RUN npm install express http-proxy-middleware cors dotenv
