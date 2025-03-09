@@ -12,7 +12,7 @@ WORKDIR ${BUILDDIR}
 
 # Copy dependencies and install
 COPY package.json yarn.lock ${BUILDDIR}/
-RUN yarn install --frozen-lockfile
+RUN yarn install
 
 # Copy everything else
 COPY . ${BUILDDIR}/
