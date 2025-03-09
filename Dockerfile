@@ -49,5 +49,12 @@ RUN chmod 644 /etc/nginx/conf.d/default.conf
 # Expose both Nginx (80) and Express (3000)
 EXPOSE 80 3000
 
-# Start both Nginx and the Proxy Server
-CMD sh -c "node /app/server.js & nginx -g 'daemon off;'"
+# Install tini for better process management
+RUN apk add --no-cache tini
+
+# Use tini as the init system to manage both processes
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Start both Express and Nginx
+CMD ["sh", "-c", "node /app/server.js & nginx -g 'daemon off;'"]
+
