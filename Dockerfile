@@ -36,7 +36,7 @@ COPY --from=frontend /app/dist /usr/share/nginx/html/
 # Copy API Proxy (server.js)
 COPY proxy/server.js /app/server.js
 COPY package.json /app/
-RUN cd /app && npm install --only=production
+RUN cd /app && npm install
 
 # Ensure proper file permissions
 RUN chmod 644 /etc/nginx/conf.d/default.conf
