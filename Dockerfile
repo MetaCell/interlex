@@ -23,7 +23,7 @@ RUN yarn build
 # Use Node.js for the backend (Express proxy)
 FROM node:18-alpine as backend
 
-WORKDIR /proxy
+WORKDIR /backend
 COPY package.json package-lock.json ./
 RUN npm install
 
