@@ -22,19 +22,17 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: 80
-              scheme: HTTP
-            initialDelaySeconds: 30
-            periodSeconds: 30
-            timeoutSeconds: 10
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 5
           readinessProbe:
             httpGet:
               path: /
-              port: 80
-              scheme: HTTP
-            initialDelaySeconds: 30
-            periodSeconds: 30
-            timeoutSeconds: 10
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 5
           resources:
             limits:
               cpu: 1500m
