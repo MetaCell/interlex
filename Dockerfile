@@ -43,8 +43,8 @@ RUN cd /app && npm install --legacy-peer-deps
 # Ensure permissions are correct
 RUN chmod 644 /etc/nginx/conf.d/default.conf
 
-# Expose both Nginx (80) and Express (3000)
-EXPOSE 80 3000
+# Expose both Nginx (80) and Express (3001)
+EXPOSE 80 3001
 
 # Install tini for better process management
 RUN apk add --no-cache tini supervisor

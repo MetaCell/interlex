@@ -35,4 +35,4 @@ steps:
     environment:
       - KUBECONTEXT=${{CLUSTER_NAME}}
       - KUBERNETES_NAMESPACE=${{NAMESPACE}}
-      - EXPRESS_PORT=3000
+      - EXPRESS_PORT=3001
