@@ -38,7 +38,7 @@ COPY proxy/server.js /app/server.js
 COPY package.json /app/
 
 # 🔹 Ensure dependencies are installed correctly
-RUN cd /app && npm install --only=production
+RUN cd /app && npm install --legacy-peer-deps
 
 # Ensure permissions are correct
 RUN chmod 644 /etc/nginx/conf.d/default.conf
