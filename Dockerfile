@@ -1,44 +1,53 @@
+# Build Stage 1: Node.js for Frontend and API Server
 ARG NODE_PARENT=node:18-alpine
-
-FROM  ${NODE_PARENT} as frontend
+FROM ${NODE_PARENT} as frontend
 
 ARG VITE_SCICRUNCH_API_KEY 
 
 ENV BUILDDIR=/app
 
-RUN apk add git
+RUN apk add --no-cache git
 
 WORKDIR ${BUILDDIR}
-COPY package.json ${BUILDDIR}
-COPY yarn.lock ${BUILDDIR}
-COPY nginx/default.conf ${BUILDDIR}
 
-RUN yarn install
-COPY . ${BUILDDIR}
+# Copy dependencies and install
+COPY package.json yarn.lock ${BUILDDIR}/
+RUN yarn install --frozen-lockfile
 
-RUN echo "VITE_SCICRUNCH_API_KEY=${VITE_SCICRUNCH_API_KEY}" > ${BUILDDIR}/.env
+# Copy everything else
+COPY . ${BUILDDIR}/
+
+# Set up environment for Vite build
+ENV VITE_SCICRUNCH_API_KEY=${VITE_SCICRUNCH_API_KEY}
 
 RUN yarn build
 
-# Use the existing base image
+# Build Stage 2: Final Image with Nginx and Node.js
 FROM nginx:alpine
 
-RUN cat /etc/nginx/conf.d/default.conf
+# Install Node.js for API Proxy
+RUN apk add --no-cache nodejs npm
 
-# Remove the auto-update script that modifies default.conf
-RUN rm -f /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+# Set up directories
+WORKDIR /app
 
-# Copy the existing configurations
-COPY --from=frontend /app/default.conf  /etc/nginx/conf.d/default.conf
-
+# Copy frontend build
 COPY --from=frontend /app/dist /usr/share/nginx/html/
 
-# Ensure proper file permissions
+# Copy Nginx configuration
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# Copy API Proxy (server.js)
+COPY server.js /app/server.js
+
+# Install dependencies for server.js
+RUN npm install express http-proxy-middleware cors dotenv
+
+# Ensure permissions are correct
 RUN chmod 644 /etc/nginx/conf.d/default.conf
 
-# Expose port 80
-EXPOSE 80
+# Expose both Nginx (80) and Express (3000)
+EXPOSE 80 3000
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
-
+# Start both Nginx and the Proxy Server
+CMD sh -c "node /app/server.js & nginx -g 'daemon off;'"
