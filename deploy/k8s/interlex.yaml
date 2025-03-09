@@ -16,12 +16,8 @@ spec:
         - name: interlex
           image: "gcr.io/metacellllc/interlex:{{CF_SHORT_REVISION}}"
           imagePullPolicy: "IfNotPresent"
-          command: ["/bin/sh", "-c"]
-          args:
-            - "gunicorn --bind 0.0.0.0:5000 app:app & nginx -g 'daemon off;'"
           ports:
             - containerPort: 80
-            - containerPort: 5000
           livenessProbe:
             httpGet:
               path: /
