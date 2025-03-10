@@ -1,16 +1,16 @@
+import { useState } from "react";
+import PropTypes from "prop-types";
+import EditTerms from "./EditTerms";
+import SearchTerms from "./SearchTerms";
+import { ArrowBack } from "@mui/icons-material";
+import StatusStep from "../../common/StatusStep";
 import { Box, Button, Divider } from "@mui/material";
+import MobileStepper from '@mui/material/MobileStepper';
+import { getStatusProps } from "./editBulkTermStatusProps";
 import CustomizedDialog from "../../common/CustomizedDialog";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import MobileStepper from '@mui/material/MobileStepper';
-import SearchTerms from "./SearchTerms";
-import EditTerms from "./EditTerms";
-import { ArrowBack } from "@mui/icons-material";
-import PropTypes from "prop-types";
-import { useState } from "react";
-import SearchTermsData from "../../../static/SearchTermsData.json";
-import StatusStep from "../../common/StatusStep";
-import { getStatusProps } from "./editBulkTermStatusProps";
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import SearchTermsData from "../../../static/SearchTermsData.json";
 
 const initialSearchConditions = { attribute: '', value: '', condition: 'where', relation: SearchTermsData.objectOptions[0].value }
 
@@ -109,5 +109,15 @@ EditBulkTermsDialog.propTypes = {
   activeStep: PropTypes.number.isRequired,
   setActiveStep: PropTypes.func.isRequired,
 };
+
+HeaderRightSideContent.propTypes = {
+  handleClose: PropTypes.func.isRequired,
+  activeStep: PropTypes.number.isRequired,
+  handleNext: PropTypes.func.isRequired,
+  handleBack: PropTypes.func.isRequired,
+  setActiveStep: PropTypes.func.isRequired,
+  isAllFieldsFilled: PropTypes.bool.isRequired,
+};
+
 
 export default EditBulkTermsDialog;

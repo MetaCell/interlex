@@ -115,9 +115,8 @@ const TermActivity = () => {
                 setLoading(false);
             }
         };
-    
         fetchData();
-    }, []);    
+    }, []);
 
     useEffect(() => {
         const computePageOptions = (rowCount) => {

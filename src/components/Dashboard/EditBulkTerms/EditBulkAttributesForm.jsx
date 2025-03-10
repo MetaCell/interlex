@@ -4,6 +4,7 @@ import {
   Typography,
   Box
 } from "@mui/material";
+import PropTypes from 'prop-types';
 import { vars } from "../../../theme/variables";
 import CustomizedInput from "../../common/CustomizedInput";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -127,5 +128,11 @@ const EditBulkAttributesForm = ({columns, attributes, setAttributes, initialAttr
     </Box>
   );
 }
+EditBulkAttributesForm.propTypes = {
+  columns: PropTypes.array.isRequired,
+  attributes: PropTypes.array.isRequired,
+  setAttributes: PropTypes.func.isRequired,
+  initialAttributesValue: PropTypes.object.isRequired,
+};
 
 export default EditBulkAttributesForm;

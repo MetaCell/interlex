@@ -15,7 +15,7 @@ export default defineConfig({
           // Forward headers correctly
           "Content-Type": "application/json",
         },
-      }
+      },
     },
   },
 });

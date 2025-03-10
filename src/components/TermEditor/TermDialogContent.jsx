@@ -1,21 +1,17 @@
-import * as React from "react";
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { Box, Stack, Typography, Chip } from "@mui/material";
-import AddPredicatesStep from "./AddPredicatesStep";
-import StatusStep from "../common/StatusStep";
-import TermForm from "./TermForm";
-import TermSidebar from "./TermSidebar";
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import { getTermStatusProps } from "./termStatusProps";
-import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
-import { elasticSearch } from "../../api/endpoints";
-import { termParser } from "../../parsers/termParser";
 import { debounce } from 'lodash';
+import TermForm from "./TermForm";
+import PropTypes from 'prop-types';
+import TermSidebar from "./TermSidebar";
+import StatusStep from "../common/StatusStep";
+import AddPredicatesStep from "./AddPredicatesStep";
+import { elasticSearch } from "../../api/endpoints";
+import { getTermStatusProps } from "./termStatusProps";
+import { Box, Stack, Typography, Chip } from "@mui/material";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import { useState, useEffect, useMemo, useCallback } from "react";
+
 import { vars } from "../../theme/variables";
-
 const { success600, success700 } = vars;
-
-const useMockApi = () => mockApi;
 
 const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
 
@@ -146,5 +142,10 @@ const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
         </>
     )
 }
+TermDialogContent.propTypes = {
+    activeStep: PropTypes.number.isRequired,
+    searchTerm: PropTypes.string,
+    onReset: PropTypes.func.isRequired,
+};
 
 export default TermDialogContent;

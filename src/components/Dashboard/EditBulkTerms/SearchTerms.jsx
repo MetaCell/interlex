@@ -1,12 +1,12 @@
-import {Button, Grid, Typography, Box, ToggleButton, ToggleButtonGroup} from "@mui/material";
-import { useState } from "react";
+import PropTypes from 'prop-types';
 import { vars } from "../../../theme/variables";
-import CustomizedInput from "../../common/CustomizedInput";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DropDownConditions from "./DropDownConditions";
-import SearchTermsData from "../../../static/SearchTermsData.json"
+import CustomizedInput from "../../common/CustomizedInput";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import SearchTermsData from "../../../static/SearchTermsData.json"
+import {Button, Grid, Typography, Box, ToggleButton, ToggleButtonGroup} from "@mui/material";
 
 const { gray800 } = vars;
 
@@ -137,5 +137,21 @@ const SearchTerms = ({searchConditions, setSearchConditions, initialSearchCondit
     </Box>
   );
 }
+
+SearchTerms.propTypes = {
+  searchConditions: PropTypes.arrayOf(PropTypes.shape({
+    attribute: PropTypes.string,
+    value: PropTypes.string,
+    condition: PropTypes.string,
+    relation: PropTypes.string,
+  })).isRequired,
+  setSearchConditions: PropTypes.func.isRequired,
+  initialSearchConditions: PropTypes.shape({
+    attribute: PropTypes.string,
+    value: PropTypes.string,
+    condition: PropTypes.string,
+    relation: PropTypes.string,
+  }).isRequired,
+};
 
 export default SearchTerms;

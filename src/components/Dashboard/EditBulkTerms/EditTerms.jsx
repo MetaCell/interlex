@@ -1,11 +1,13 @@
-import {Box, IconButton, Tooltip, Typography} from "@mui/material";
-import { vars } from "../../../theme/variables";
-import TermsTable from "./TermsTable";
+import PropTypes from 'prop-types';
 import React, {useState} from "react";
-import {EditNoteOutlined, StartOutlined} from "@mui/icons-material";
+import TermsTable from "./TermsTable";
+import { vars } from "../../../theme/variables";
 import EditBulkAttributesForm from "./EditBulkAttributesForm";
+import {Box, IconButton, Tooltip, Typography} from "@mui/material";
 import SearchTermsData from "../../../static/SearchTermsData.json";
+import {EditNoteOutlined, StartOutlined} from "@mui/icons-material";
 const { gray200, gray800,gray700 } = vars;
+
 const EditTerms = ({searchConditions}) => {
   const initialAttributesValue = { attribute: '', condition: 'add', value: '' }
   const [open, setOpen] = React.useState(false);
@@ -24,7 +26,6 @@ const EditTerms = ({searchConditions}) => {
             attributes={attributes}
             searchConditions={searchConditions}
           />
-          
         </Box>
         <Box
           sx={{
@@ -56,7 +57,6 @@ const EditTerms = ({searchConditions}) => {
                   <EditNoteOutlined />
                 </IconButton>
               </Tooltip>
-              
             </Box>
           )}
           {open && (
@@ -65,6 +65,11 @@ const EditTerms = ({searchConditions}) => {
         </Box>
     </Box>
   );
+}
+
+EditTerms.propTypes = {
+  searchConditions: PropTypes.array.isRequired,
 };
 
 export default EditTerms;
+

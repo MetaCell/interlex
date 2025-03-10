@@ -9,6 +9,14 @@ import axios from 'axios';
 import { API_CONFIG } from '../../config';
 import { config } from 'dotenv';
 
+interface ImportMetaEnv {
+  VITE_SCICRUNCH_API_KEY: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+
 const useMockApi = () => mockApi;
 const useApi = () => api;
 
@@ -134,7 +142,7 @@ export const getMatchTerms = async (term, filters = {}) => {
     });
 };
 
-const fetchData = async (url, method = "GET", data = null) => {
+const fetchData = async (url, method = "GET", data: object = {}) => {
     try {
         const response = await axios({
             url,
@@ -173,15 +181,15 @@ export const searchAll = async (term, filters = {}) => {
 
   /** Call Endpoint */
   return searchAll("base", term, filters).then((data) => {
-      let terms = termParser(data.terms, term, filters);
+      let terms = termParser((data as any).terms, term, filters);
       terms?.results?.forEach( result => {
         result.type = TERM;
       })
-      let organizations = data.organizations;
+      let organizations = (data as any).organizations;
       organizations?.forEach( organization => {
         organization.type = ORGANIZATION;
       })
-      let ontologies = data.ontologies;
+      let ontologies = (data as any).ontologies;
       ontologies?.forEach( ontology => {
         ontology.type = ONTOLOGY;
       })
@@ -194,13 +202,13 @@ export const searchAll = async (term, filters = {}) => {
 }
 
 export const patchTerm = async (group, termID, term) => {
-  const patchEndpointsIlx= "";
+  const { patchEndpointsIlx } = useApi();
 
   /** Call Endpoint */
-  return patchEndpointsIlx(group, termID).then((data) => {
-      let termParsed = getTerm(data.data);
+  return patchEndpointsIlx(group, termID, term).then((data) => {
+      let termParsed = getTerm((data as any).data);
       let response = {
-        status : data.status,
+        status : (data as any).status,
         term : termParsed
       }
 
@@ -216,9 +224,9 @@ export const addTerm = async (group, term) => {
 
   /** Call Endpoint */
   return addTerm(group, term).then((data) => {
-      let termParsed = getTerm(data.data);
+      let termParsed = getTerm((data as any).data);
       let response = {
-        status : data.status,
+        status : (data as any).status,
         term : termParsed
       }
 
@@ -234,9 +242,9 @@ export const bulkEditTerms = async (group, payload) => {
 
   /** Call Endpoint */
   return bulkEditTerms(group, payload).then((data) => {
-      let termsParsed = termParser(data.data, undefined);
+      let termsParsed = termParser((data as any).data, undefined);
       let response = {
-        status : data.status,
+        status : (data as any).status,
         terms : termsParsed
       }
 
@@ -251,7 +259,7 @@ export const getEndpointsIlx = async (group, term) => {
   const {  getEndpointsIlx } = useApi();
 
   /** Call Endpoint */
-  return getEndpointsIlx(group,term).then((data) => {
+  return getEndpointsIlx(group, term, BASE_EXTENSION).then((data) => {
       return termParser(data, term);
     })
     .catch((error) => {
@@ -382,14 +390,16 @@ export const handleRegister = async (
   try {
     const { postOpsUserNew } = useApi()
     const response = await postOpsUserNew({
-      firstName,
-      lastName,
-      email,
-      password,
-      organization,
+      data: {
+        firstName,
+        lastName,
+        email,
+        password,
+        organization,
+      }
     });
     console.log("Registration successful:", response);
-    return response.data;
+    return response;
   } catch (error) {
     console.error("Registration failed:", error);
     throw error;
@@ -400,7 +410,9 @@ export const handleForgotPassword = async (email : string) => {
   try {
     const { getOpsPasswordReset } = useApi()
     const response = await getOpsPasswordReset({
-      email,
+      data: {
+        email,
+      },
     });
     console.log("Password reset successful:", response);
     return response;
@@ -414,7 +426,9 @@ export const handleRecoverUser = async (email: string) => {
   try {
     const { postOpsUserRecover } = useApi()
     const response = await postOpsUserRecover({
-      email
+      data: {
+        email
+      }
     });
     console.log("Recover User :", response);
     return response;
