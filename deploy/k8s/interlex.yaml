@@ -49,9 +49,11 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 80
+    - name : http
+      port: 80
       targetPort: 80
-    - port: 3001
+    - name : elasticSearch
+      port: 3001
       targetPort: 3001
   selector:
     app: interlex
