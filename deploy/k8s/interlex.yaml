@@ -11,6 +11,14 @@ spec:
     metadata:
       labels:
         app: interlex
+    env:
+      - name: PORT
+        value: "3001"
+      - name: VITE_SCICRUNCH_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: scicrunch-secret
+            key: VITE_SCICRUNCH_API_KEY    
     spec:
       containers:
         - name: interlex
