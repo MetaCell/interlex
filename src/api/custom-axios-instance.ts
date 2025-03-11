@@ -11,7 +11,6 @@ export const customAxiosInstance = axios.create({
 customAxiosInstance.interceptors.request.use((config) => {
   config.params = {
     ...config.params,
-    api_key: process.env.API_KEY, // Load API key from .env
-  };
+    api_key: "tvVqyYwrQqolqVfMo45cu31t5uEGx6RZ",
   return config;
 });

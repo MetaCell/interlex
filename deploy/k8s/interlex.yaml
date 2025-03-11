@@ -20,7 +20,7 @@ spec:
             - containerPort: 80
           env:
             - name: ELASTICSEARCH_API_KEY
-              value: "your-secret-api-key"
+              value: "tvVqyYwrQqolqVfMo45cu31t5uEGx6RZ"
             - name: ELASTICSEARCH_URL
               value: "https://scicrunch.org/api/1/elastic/Interlex_pr/_search"
           livenessProbe:
