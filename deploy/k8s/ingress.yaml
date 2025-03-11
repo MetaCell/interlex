@@ -17,13 +17,15 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /api/1/elastic/Interlex_pr/_search
+    cert-manager.io/issuer: letsencrypt-interlex
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: 'true'
     nginx.ingress.kubernetes.io/configuration-snippet: |
       proxy_set_header Authorization $http_authorization;
   name: interlex-nginx-ingress
 spec:
   rules:
-  - host: "interlex.dev.metacell.us"
+  - host: "{{DOMAIN}}"
     http:
       paths:
       - path: /api/elasticsearch
@@ -34,7 +36,7 @@ spec:
             port:
               number: 80
       - path: /
-        pathType: ImplementationSpecific
+        pathType: Prefix
         backend:
           service:
             name: interlex
@@ -42,5 +44,5 @@ spec:
               number: 80
   tls:
   - hosts:
-    - "interlex.dev.metacell.us"
+    - "{{DOMAIN}}"
     secretName: interlex-tls
