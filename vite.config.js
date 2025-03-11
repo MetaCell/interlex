@@ -12,7 +12,7 @@ export default defineConfig({
         target: "https://scicrunch.org",
         changeOrigin: true,
         secure: true, // Ensure HTTPS requests work
-        rewrite: (path) => path.replace(/^\/api\/elasticsearch/, `/api/1/elastic/Interlex_pr/_search?key=${apiKey}`),
+        rewrite: (path) => path.replace(/^\/api\/elasticsearch/, `/api/1/elastic/Interlex_pr/_search?key=tvVqyYwrQqolqVfMo45cu31t5uEGx6RZ`),
         headers: {
           // Forward headers correctly
           "Content-Type": "application/json",
