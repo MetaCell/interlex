@@ -18,6 +18,11 @@ spec:
           imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 80
+          env:
+            - name: ELASTICSEARCH_API_KEY
+              value: "your-secret-api-key"
+            - name: ELASTICSEARCH_URL
+              value: "https://scicrunch.org/api/1/elastic/Interlex_pr/_search"
           livenessProbe:
             failureThreshold: 3
             httpGet:
