@@ -26,13 +26,20 @@ spec:
   - host: "{{DOMAIN}}"
     http:
       paths:
-      - backend:
+      - path: /api/elasticsearch
+        pathType: Prefix
+        backend:
           service:
             name: interlex
             port:
               number: 80
-        path: /
+      - path: /
         pathType: ImplementationSpecific
+        backend:
+          service:
+            name: interlex
+            port:
+              number: 80
   tls:
   - hosts:
     - "{{DOMAIN}}"
