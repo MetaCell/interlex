@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
     Box,
     Button,
@@ -9,28 +9,28 @@ import {
     Typography,
     CircularProgress,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import CustomSingleSelect from "../common/CustomSingleSelect";
-import CustomPagination from "../common/CustomPagination";
-import CustomViewButton from "../common/CustomViewButton";
-import CustomButton from "../common/CustomButton";
-import OrganizationCard from "./OrganizationCard";
-import EditBulkTermsDialog from "../Dashboard/EditBulkTerms/EditBulkTermsDialog";
-import AddNewOntologyDialog from "./AddNewOntologyDialog";
-import CreateForkDialog from "./CreateForkDialog";
-import LeaveModal from "./LeaveModal";
 import {
     CreateNewFolderOutlined,
 } from "@mui/icons-material";
-import { ListIcon, TableChartIcon, EditNoteIcon } from "../../Icons";
-import ForkRightIcon from '@mui/icons-material/ForkRight';
-import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import LeaveModal from "./LeaveModal";
 import AddIcon from '@mui/icons-material/Add';
+import { useNavigate } from "react-router-dom";
+import CustomButton from "../common/CustomButton";
+import OrganizationCard from "./OrganizationCard";
+import CreateForkDialog from "./CreateForkDialog";
+import ForkRightIcon from '@mui/icons-material/ForkRight';
+import CustomPagination from "../common/CustomPagination";
+import CustomViewButton from "../common/CustomViewButton";
+import AddNewOntologyDialog from "./AddNewOntologyDialog";
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import CustomSingleSelect from "../common/CustomSingleSelect";
+import EditBulkTermsDialog from "../Dashboard/EditBulkTerms/EditBulkTermsDialog";
+import { ListIcon, TableChartIcon, EditNoteIcon } from "../../Icons";
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
 import { getOrganization, getOrganizationCuries, getOrganizationTerms, getOrganizationOntologies } from "../../api/endpoints";
-import { vars } from "../../theme/variables";
 
+import { vars } from "../../theme/variables";
 const { gray25, gray200, gray500, gray600 } = vars;
 
 const generatePageOptions = (totalItems) => {
@@ -125,7 +125,6 @@ const SingleOrganization = () => {
 
     const handleTermsPageChange = (event, value) => setTermsPage(value);
     const handleOntologiesPageChange = (event, value) => setOntologiesPage(value);
-
     const handleViewOrganizationsClick = () => navigate(`/organizations/${organization?.name}/curie-editor`);
     const handleOpenEditBulkTerms = () => setOpenEditBulkTerms(true);
     const handleCloseEditBulkTerms = () => {
@@ -135,14 +134,10 @@ const SingleOrganization = () => {
 
     const handleOpenOntologyDialog = () => setOpenAddOntology(true);
     const handleCloseOntologyDialog = () => setOpenAddOntology(false);
-
     const handleOpenForkDialog = () => setOpenFork(true);
     const handleCloseForkDialog = () => setOpenFork(false);
-
     const handleOpenLeaveModal = () => setOpenLeaveModal(true);
     const handleCloseLeaveModal = () => setOpenLeaveModal(false);
-
-    
     return (
         <>
             <Box flex={1} display='flex' flexDirection='column'>

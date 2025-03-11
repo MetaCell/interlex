@@ -1,16 +1,15 @@
-import React from "react";
-import { Box, Grid, Button, FormControlLabel } from "@mui/material";
-import CustomInputBox from "../common/CustomInputBox";
+import PropTypes from "prop-types";
 import Checkbox from "../common/CustomCheckbox";
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { vars } from "../../theme/variables";
 import ExistingIdsSearch from "./ExistingIdsSearch";
+import CustomInputBox from "../common/CustomInputBox";
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { Box, Grid, Button, FormControlLabel } from "@mui/material";
 import CustomAutocompleteBox from "../common/CustomAutocompleteBox";
 
+import { vars } from "../../theme/variables";
 const { gray600, brand700, brand800 } = vars;
 
 const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesChecked, handleMatchesChange, isResultsEmpty, existingIDsOptions, onExistingIDsChange, onSynonymsChange }) => {
-
     return (
         <Box component="form" sx={{ width: '100%', mt: '2.75rem', display: 'flex', flexDirection: 'column', gap: '2.75rem' }} noValidate autoComplete="off">
             <Grid container spacing={5.5}>
@@ -128,6 +127,18 @@ const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesC
             </Box>
         </Box>
     );
+};
+
+ManualImportTab.propTypes = {
+    formState: PropTypes.object.isRequired,
+    onInputChange: PropTypes.func.isRequired,
+    handleSidebarOpen: PropTypes.func.isRequired,
+    matchesChecked: PropTypes.bool.isRequired,
+    handleMatchesChange: PropTypes.func.isRequired,
+    isResultsEmpty: PropTypes.bool.isRequired,
+    existingIDsOptions: PropTypes.array.isRequired,
+    onExistingIDsChange: PropTypes.func.isRequired,
+    onSynonymsChange: PropTypes.func.isRequired
 };
 
 export default ManualImportTab;

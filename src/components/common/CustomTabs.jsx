@@ -1,11 +1,10 @@
-import * as React from 'react';
 import PropTypes from 'prop-types';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { vars } from "../../theme/variables";
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import Typography from '@mui/material/Typography';
 
+import { vars } from "../../theme/variables";
 const { brand700, brand600, gray500, gray200 } = vars
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -40,6 +39,8 @@ function a11yProps(index) {
   };
 }
 
+
+// eslint-disable-next-line no-unused-vars
 const BasicTabs = ({ tabs, tabValue, handleChange, onMouseDown, parentBoxStyles, tabStyles }) => {
 
   return (
@@ -75,5 +76,14 @@ const BasicTabs = ({ tabs, tabValue, handleChange, onMouseDown, parentBoxStyles,
     </Box>
   );
 }
+
+BasicTabs.propTypes = {
+  tabs: PropTypes.array.isRequired,
+  tabValue: PropTypes.number.isRequired,
+  handleChange: PropTypes.func.isRequired,
+  onMouseDown: PropTypes.func,
+  parentBoxStyles: PropTypes.object,
+  tabStyles: PropTypes.object
+};
 
 export default BasicTabs

@@ -1,12 +1,11 @@
+import {Box, Chip} from "@mui/material";
 import { styled } from '@mui/material/styles';
 import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
 import { TreeItem, treeItemClasses } from '@mui/x-tree-view/TreeItem';
-import {vars} from "../../theme/variables";
 import ExpandLessOutlinedIcon from '@mui/icons-material/ExpandLessOutlined';
 import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
-import {Box, Chip} from "@mui/material";
-import React from "react";
 
+import {vars} from "../../theme/variables";
 const {gray500, brand200, brand50} = vars
 
 const ITEMS = [
@@ -78,7 +77,6 @@ const StyledTreeItem = styled((props) =>  (
             borderColor: brand200,
             backgroundColor: brand50
           }}
-          
         />
       }
     </Box>}

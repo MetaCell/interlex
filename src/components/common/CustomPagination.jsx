@@ -1,4 +1,3 @@
-import React from "react";
 import PropTypes from "prop-types";
 import { Pagination, PaginationItem, Typography } from "@mui/material";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';

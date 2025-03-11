@@ -1,17 +1,19 @@
+import { debounce } from 'lodash';
+import PropTypes from "prop-types";
+import VariantCard from "./VariantCard";
+import termParser from "../../../parsers/termParser";
 import { useCallback, useEffect, useState } from "react";
-import {Box, Button, ButtonGroup, CircularProgress, Divider, Grid, Stack, Typography} from "@mui/material";
-import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
-import { vars } from "../../../theme/variables";
-import CustomSingleSelect from "../../common/CustomSingleSelect";
 import { ListIcon, TableChartIcon } from "../../../Icons";
 import CustomPagination from "../../common/CustomPagination";
-import termParser from "../../../parsers/termParser";
-import { debounce } from 'lodash';
-import * as mockApi from "../../../api/endpoints/swaggerMockMissingEndpoints";
-import VariantCard from "./VariantCard";
 import CustomViewButton from "../../common/CustomViewButton";
+import CustomSingleSelect from "../../common/CustomSingleSelect";
+import * as mockApi from "../../../api/endpoints/swaggerMockMissingEndpoints";
+import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
+import {Box, Button, ButtonGroup, CircularProgress, Divider, Grid, Stack, Typography} from "@mui/material";
 
+import { vars } from "../../../theme/variables";
 const { gray600, gray200 } = vars;
+
 const useMockApi = () => mockApi;
 const Variants = ({handleOpenEditBulkTerms}) => {
   const [loading, setLoading] = useState(false);
@@ -26,7 +28,8 @@ const Variants = ({handleOpenEditBulkTerms}) => {
     setNumberOfVisiblePages(v);
     setPage(1);
   };
-  
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchTerms = useCallback(
     debounce(async (searchTerm) => {
       getUserTerms("base", searchTerm).then(data => {
@@ -41,18 +44,18 @@ const Variants = ({handleOpenEditBulkTerms}) => {
     }, 500),
     [getUserTerms]
   );
-  
+
   useEffect(() => {
     setLoading(true)
     fetchTerms('a');
   }, [fetchTerms]);
-  
+
   useEffect(() => {
     const start = (page - 1) * numberOfVisiblePages;
     const end = start + numberOfVisiblePages;
     setSlicedTerms(terms.slice(start, end));
   }, [terms, page, numberOfVisiblePages]);
-  
+
   const handlePageChange = (event, value) => {
     setPage(value);
   };
@@ -109,6 +112,10 @@ const Variants = ({handleOpenEditBulkTerms}) => {
         <CustomPagination rowCount={terms?.length} rowsPerPage={numberOfVisiblePages} page={page} onPageChange={handlePageChange} />
       </Box>
   );
+};
+
+Variants.propTypes = {
+  handleOpenEditBulkTerms: PropTypes.func.isRequired
 };
 
 export default Variants;

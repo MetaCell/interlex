@@ -1,9 +1,9 @@
-import React from "react";
-import { Box, Grid, Button, FormControlLabel, Autocomplete, Chip, Stack, Typography, TextField } from "@mui/material";
-import CustomInputBox from "../common/CustomInputBox";
+import PropTypes from 'prop-types';
 import CloseIcon from '@mui/icons-material/Close';
-import { vars } from "../../theme/variables";
+import CustomInputBox from "../common/CustomInputBox";
+import { Box, Grid, Autocomplete, Chip, Stack, Typography, TextField } from "@mui/material";
 
+import { vars } from "../../theme/variables";
 const { gray50, gray300, gray400, gray500, gray600, gray700, brand600, gray800 } = vars;
 
 const styles = {
@@ -190,6 +190,13 @@ const TermForm = ({ formState, data, onInputChange, onAutocompleteChange }) => {
             </Box>
         </Box>
     );
+};
+
+TermForm.propTypes = {
+    formState: PropTypes.object,
+    data: PropTypes.object,
+    onInputChange: PropTypes.func,
+    onAutocompleteChange: PropTypes.func
 };
 
 export default TermForm;

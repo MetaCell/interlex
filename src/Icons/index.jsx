@@ -885,9 +885,9 @@ export const StatusErrorBackgroundPattern = () => (
 				width="46"
 				height="46"
 				filterUnits="userSpaceOnUse"
-				color-interpolation-filters="sRGB"
+				colorInterpolationFilters="sRGB"
 			>
-				<feFlood flood-opacity="0" result="BackgroundImageFix" />
+				<feFlood floodOpacity="0" result="BackgroundImageFix" />
 				<feColorMatrix
 					in="SourceAlpha"
 					type="matrix"
@@ -939,8 +939,8 @@ export const StatusErrorBackgroundPattern = () => (
 				y2="104"
 				gradientUnits="userSpaceOnUse"
 			>
-				<stop stop-color="#F9FAFB" />
-				<stop offset="1" stop-color="#EDF0F3" />
+				<stop stopColor="#F9FAFB" />
+				<stop offset="1" stopColor="#EDF0F3" />
 			</linearGradient>
 		</defs>
 	</svg>
@@ -975,9 +975,9 @@ export const StatusWarningBackgroundPattern = () => (
 				width="46"
 				height="46"
 				filterUnits="userSpaceOnUse"
-				color-interpolation-filters="sRGB"
+				colorInterpolationFilters="sRGB"
 			>
-				<feFlood flood-opacity="0" result="BackgroundImageFix" />
+				<feFlood floodOpacity="0" result="BackgroundImageFix" />
 				<feColorMatrix
 					in="SourceAlpha"
 					type="matrix"
@@ -1029,8 +1029,8 @@ export const StatusWarningBackgroundPattern = () => (
 				y2="104"
 				gradientUnits="userSpaceOnUse"
 			>
-				<stop stop-color="#F9FAFB" />
-				<stop offset="1" stop-color="#EDF0F3" />
+				<stop stopColor="#F9FAFB" />
+				<stop offset="1" stopColor="#EDF0F3" />
 			</linearGradient>
 		</defs>
 	</svg>

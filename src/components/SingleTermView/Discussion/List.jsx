@@ -1,10 +1,9 @@
-import * as React from 'react';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import { vars } from "../../../theme/variables";
 import { Box, Chip, Typography } from "@mui/material";
 
+import { vars } from "../../../theme/variables";
 const { gray200, brand600, gray50, gray700, gray500 } = vars;
 
 const DiscussionList = () => {
@@ -19,7 +18,6 @@ const DiscussionList = () => {
         '& .MuiListItem-root': {
           padding: '1.375rem 2.75rem 1.375rem 5rem',
           borderBottom: `1px solid ${gray200}`,
-          
           '&:hover': {
             borderBottom: `2px solid ${brand600}`,
             background: gray50

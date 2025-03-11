@@ -1,9 +1,10 @@
 import React from 'react';
-import { Box, Typography, IconButton, Tooltip, FormGroup, FormLabel, FormControl, Button } from '@mui/material';
+import PropTypes from 'prop-types';
 import Checkbox from '../common/CustomCheckbox';
 import { CollapseIcon, HelpOutlinedIcon, ExpandIcon } from '../../Icons';
-import { vars } from '../../theme/variables';
+import { Box, Typography, IconButton, Tooltip, FormGroup, FormLabel, FormControl, Button } from '@mui/material';
 
+import { vars } from '../../theme/variables';
 const { gray200, gray600, gray800, brand700, brand800 } = vars;
 
 export default function FiltersSidebar({ filters, checkedLabels, handleCheckboxChange }) {
@@ -18,8 +19,6 @@ export default function FiltersSidebar({ filters, checkedLabels, handleCheckboxC
     };
 
     const nonEmptyFilters = Object.keys(filters).filter(category => Object.keys(filters[category]).length > 0);
-
-
     return (
         <Box
             sx={{
@@ -70,7 +69,8 @@ export default function FiltersSidebar({ filters, checkedLabels, handleCheckboxC
                                     )}
                                 </Box>
                                 <FormGroup sx={{ gap: 1.5 }}>
-                                    {displayedValues.map(([subCategory, details]) => {
+                                    {// eslint-disable-next-line no-unused-vars
+                                    displayedValues.map(([subCategory, details]) => {
                                         return (
                                             <Box key={details.label} display="flex" alignItems="center" justifyContent="space-between">
                                                 <Checkbox
@@ -102,3 +102,9 @@ export default function FiltersSidebar({ filters, checkedLabels, handleCheckboxC
         </Box>
     );
 }
+
+FiltersSidebar.propTypes = {
+    filters: PropTypes.object.isRequired,
+    checkedLabels: PropTypes.object.isRequired,
+    handleCheckboxChange: PropTypes.func.isRequired,
+};

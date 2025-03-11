@@ -1,26 +1,24 @@
-import * as React from "react";
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { Box, Stack, Typography, Chip } from "@mui/material";
-import AddPredicatesStep from "./AddPredicatesStep";
-import StatusStep from "../common/StatusStep";
-import TermForm from "./TermForm";
-import TermSidebar from "./TermSidebar";
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import { getTermStatusProps } from "./termStatusProps";
-import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
-import { elasticSearch } from "../../api/endpoints";
-import { termParser } from "../../parsers/termParser";
 import { debounce } from 'lodash';
-import { vars } from "../../theme/variables";
+import TermForm from "./TermForm";
+import PropTypes from 'prop-types';
+import TermSidebar from "./TermSidebar";
+import StatusStep from "../common/StatusStep";
+import AddPredicatesStep from "./AddPredicatesStep";
+import { elasticSearch } from "../../api/endpoints";
+import { getTermStatusProps } from "./termStatusProps";
+import { Box, Stack, Typography, Chip } from "@mui/material";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import { useState, useEffect, useMemo, useCallback } from "react";
 
+import { vars } from "../../theme/variables";
 const { success600, success700 } = vars;
 
-const useMockApi = () => mockApi;
-
 const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
-
     const [loading, setLoading] = useState(true);
     const [openSidebar, setOpenSidebar] = useState(true);
+    // eslint-disable-next-line no-unused-vars
+    const [termValue, setTermValue] = useState(searchTerm);
+    // eslint-disable-next-line no-unused-vars
     const [responseStatus, setResponseStatus] = useState({ success: true })
     const [predicates, setPredicates] = useState([{ subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }])
     const [data, setData] = useState(null);
@@ -35,9 +33,15 @@ const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
         comment: ''
     });
 
+    const getMatchTerms = (searchTerm) => {
+        return searchTerm;
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const fetchTerms = useCallback(
         debounce(async(searchTerm) => {
             setLoading(true);
+            // eslint-disable-next-line no-unused-vars
             const data = await elasticSearch(searchTerm);
             if (searchTerm) {
                 const data = await elasticSearch(searchTerm);
@@ -145,6 +149,12 @@ const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
             )}
         </>
     )
+}
+
+TermDialogContent.propTypes = {
+    activeStep: PropTypes.number.isRequired,
+    searchTerm: PropTypes.string.isRequired,
+    onReset: PropTypes.func.isRequired
 }
 
 export default TermDialogContent;

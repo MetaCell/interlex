@@ -7,16 +7,17 @@ import {
   Avatar,
   Typography, Chip
 } from "@mui/material";
-import CustomButton from "../../common/CustomButton";
-import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
-import { vars } from "../../../theme/variables";
 import {
   ApproveHistoryIcon,
   MergeHistoryIcon,
   RejectHistoryIcon
 } from "../../../Icons";
+import PropTypes from "prop-types";
 import {formatDate} from "../../../helpers";
+import CustomButton from "../../common/CustomButton";
+import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 
+import { vars } from "../../../theme/variables";
 const { gray600, gray700, brand600 } = vars;
 
 const visibilityHidden = {
@@ -52,7 +53,6 @@ const getVariantsIcon = (action) => {
 const ListTermItem = ({ entry, onRequestClick }) => {
   const handleForkClick = (url) => {
     const formattedUrl = url.startsWith('http://') || url.startsWith('https://') ? url : `http://${url}`;
-    
     window.open(formattedUrl, '_blank');
   }
   return (
@@ -101,7 +101,6 @@ const ListTermItem = ({ entry, onRequestClick }) => {
                 entry.action === 'reject' &&
                 <Typography variant="body2" sx={{color: gray700, fontWeight: 500}}>has been rejected</Typography>
               }
-            
             </Box>
           }
           secondary={
@@ -117,6 +116,11 @@ const ListTermItem = ({ entry, onRequestClick }) => {
       </Stack>
     </ListItem>
   )
+};
+
+ListTermItem.propTypes = {
+  entry: PropTypes.object.isRequired,
+  onRequestClick: PropTypes.func.isRequired
 };
 
 export default ListTermItem;

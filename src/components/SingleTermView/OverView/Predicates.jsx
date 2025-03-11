@@ -1,23 +1,23 @@
 import React from "react";
-import {Box, Typography, ToggleButton, ToggleButtonGroup} from "@mui/material";
-import { vars } from "../../../theme/variables";
+import PropTypes from 'prop-types';
 import ExpandIcon from '@mui/icons-material/Expand';
 import RemoveIcon from '@mui/icons-material/Remove';
 import PredicatesAccordion from "./PredicatesAccordion";
+import {Box, Typography, ToggleButton, ToggleButtonGroup} from "@mui/material";
 
-
+import { vars } from "../../../theme/variables";
 const { gray800 } = vars;
 
 const Predicates = ({ data, isGraphVisible }) => {
   const [predicates, setPredicates] = React.useState([]);
   const [toggleButtonValue, setToggleButtonValue] = React.useState('compress')
-  
+
   const onToggleButtonChange = (event, newValue) => {
     if (newValue) {
       setToggleButtonValue(newValue)
     }
   }
-  
+
   React.useEffect(() => {
     data?.predicates && setPredicates(data?.predicates)
   }, [data]);
@@ -32,7 +32,6 @@ const Predicates = ({ data, isGraphVisible }) => {
           onChange={onToggleButtonChange}
           sx={{
             gap: '.75rem',
-            
             '& .MuiButtonBase-root': {
               borderRadius: '.5rem !important'
             }
@@ -49,7 +48,11 @@ const Predicates = ({ data, isGraphVisible }) => {
     </Box>
     <PredicatesAccordion data={predicates} expandAllPredicates={toggleButtonValue === 'expand'} isGraphVisible={isGraphVisible} />
   </Box>
-
 }
 
-export default Predicates
+Predicates.propTypes = {
+  data: PropTypes.object,
+  isGraphVisible: PropTypes.bool
+}
+
+export default Predicates;

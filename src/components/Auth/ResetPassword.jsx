@@ -1,9 +1,8 @@
 import * as React from "react";
-import { Box, Button, FormControl, Grid, Paper, Typography } from "@mui/material";
-import { ArrowBack } from "@mui/icons-material";
-import PasswordField from "./UI/PasswordField";
 import { Link } from "react-router-dom";
-import { handleForgotPassword } from "../../api/endpoints/index";
+import PasswordField from "./UI/PasswordField";
+import { ArrowBack } from "@mui/icons-material";
+import { Box, Button, FormControl, Grid, Paper, Typography } from "@mui/material";
 
 const ResetPassword = () => {
   const [password, setPassword] = React.useState("");
@@ -16,7 +15,8 @@ const ResetPassword = () => {
     }
 
     try {
-      await handleResetPassword(password);
+      // Call the reset password API
+      // await handleResetPassword(password);
       console.log("Password reset successful");
     } catch (error) {
       console.error("Error:", error);

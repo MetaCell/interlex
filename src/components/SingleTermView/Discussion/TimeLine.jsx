@@ -1,13 +1,14 @@
+import PropTypes from 'prop-types';
 import Timeline from '@mui/lab/Timeline';
-import TimelineItem from '@mui/lab/TimelineItem';
-import TimelineSeparator from '@mui/lab/TimelineSeparator';
-import TimelineConnector from '@mui/lab/TimelineConnector';
-import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import { timelineItemClasses } from "@mui/lab";
 import { Box, Typography } from "@mui/material";
-import { vars } from "../../../theme/variables";
+import TimelineItem from '@mui/lab/TimelineItem';
+import TimelineContent from '@mui/lab/TimelineContent';
+import TimelineSeparator from '@mui/lab/TimelineSeparator';
+import TimelineConnector from '@mui/lab/TimelineConnector';
 
+import { vars } from "../../../theme/variables";
 const { gray100, gray600, gray700, gray200, gray50 } = vars;
 
 const TimeLine = ({ comment, hideConnector }) => {
@@ -76,6 +77,11 @@ const TimeLine = ({ comment, hideConnector }) => {
       </TimelineItem>
     </Timeline>
   );
+};
+
+TimeLine.propTypes = {
+  comment: PropTypes.object.isRequired,
+  hideConnector: PropTypes.bool
 };
 
 export default TimeLine;
