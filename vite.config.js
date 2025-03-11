@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-const apiKey = process.env.ELASTICSEARCH_API_KEY || import.meta.env.VITE_SCICRUNCH_API_KEY;
+const apiKey = process.env.ELASTICSEARCH_API_KEY || "your-default-key";
 console.log("🛠️ API Key being used:", apiKey);
 
 export default defineConfig({
