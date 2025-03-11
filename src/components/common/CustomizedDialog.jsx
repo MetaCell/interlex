@@ -1,19 +1,27 @@
-import * as React from 'react';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
-import Typography from '@mui/material/Typography';
-import {Box, Divider, Slide} from "@mui/material";
-import {vars} from "../../theme/variables";
-const {gray600, gray200} = vars
+import * as React from "react";
+import PropTypes from "prop-types";
+import Dialog from "@mui/material/Dialog";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import Typography from "@mui/material/Typography";
+import { Box, Divider, Slide } from "@mui/material";
+import DialogContent from "@mui/material/DialogContent";
+
+import { vars } from "../../theme/variables";
+const { gray600, gray200 } = vars;
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-const CustomizedDialog = ({children, title, open, handleClose, HeaderRightSideContent, sx}) => {
- 
+const CustomizedDialog = ({
+  children,
+  title,
+  open,
+  handleClose,
+  HeaderRightSideContent,
+  sx,
+}) => {
   return (
     <Dialog
       onClose={handleClose}
@@ -26,44 +34,59 @@ const CustomizedDialog = ({children, title, open, handleClose, HeaderRightSideCo
       <Box
         sx={{
           m: 0,
-          p: '1rem 1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          borderBottom: `1px solid ${gray200}`
+          p: "1rem 1.5rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderBottom: `1px solid ${gray200}`,
         }}
-        id="customized-dialog-title">
-       <Box sx={{
-         display: 'flex',
-         alignItems: 'center',
-       }}>
-         <IconButton
-           aria-label="close"
-           onClick={handleClose}
-         >
-           <CloseIcon />
-         </IconButton>
-         <Divider orientation="vertical" flexItem sx={{
-           margin: '0 1.5rem'
-         }} />
-         <Typography fontWeight={500} fontSize='1.25rem' color={gray600}>
-           {title}
-         </Typography>
-       </Box>
+        id="customized-dialog-title"
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <IconButton aria-label="close" onClick={handleClose}>
+            <CloseIcon />
+          </IconButton>
+          <Divider
+            orientation="vertical"
+            flexItem
+            sx={{
+              margin: "0 1.5rem",
+            }}
+          />
+          <Typography fontWeight={500} fontSize="1.25rem" color={gray600}>
+            {title}
+          </Typography>
+        </Box>
         {HeaderRightSideContent}
       </Box>
-      <DialogContent sx={{
-        padding: '2.25rem 3.25rem 2.5rem 3.25rem',
-        '&: has(.edit-terms)': {
-          paddingTop: 0,
-          paddingBottom: 0,
-          paddingRight: 0
-        }
-      }}>
+      <DialogContent
+        sx={{
+          padding: "2.25rem 3.25rem 2.5rem 3.25rem",
+          "&: has(.edit-terms)": {
+            paddingTop: 0,
+            paddingBottom: 0,
+            paddingRight: 0,
+          },
+        }}
+      >
         {children}
       </DialogContent>
     </Dialog>
   );
-}
+};
 
-export default CustomizedDialog
+CustomizedDialog.propTypes = {
+  children: PropTypes.node.isRequired,
+  title: PropTypes.string.isRequired,
+  open: PropTypes.bool.isRequired,
+  handleClose: PropTypes.func.isRequired,
+  HeaderRightSideContent: PropTypes.node,
+  sx: PropTypes.object,
+};
+
+export default CustomizedDialog;

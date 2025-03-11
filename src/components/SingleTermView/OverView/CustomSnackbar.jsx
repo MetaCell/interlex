@@ -1,9 +1,10 @@
-import { Box, IconButton, Typography, Button, Snackbar, Stack } from "@mui/material";
-import { ErrorOutlinedIcon } from "../../../Icons";
+import PropTypes from 'prop-types';
 import CloseIcon from '@mui/icons-material/Close';
-import { vars } from "../../../theme/variables";
+import { ErrorOutlinedIcon } from "../../../Icons";
+import { Box, IconButton, Typography, Button, Snackbar, Stack } from "@mui/material";
 
-const { gray200, gray300, gray600, gray900, brand700 } = vars
+import { vars } from "../../../theme/variables";
+const { gray200, gray300, gray600, gray900 } = vars
 
 const snackbarStyles = {
     root: {
@@ -47,6 +48,13 @@ const CustomSnackbar = ({ open, handleClose, onUndoDelete, data }) => {
             </Box>
         </Snackbar>
     )
+}
+
+CustomSnackbar.propTypes = {
+    open: PropTypes.bool.isRequired,
+    handleClose: PropTypes.func.isRequired,
+    onUndoDelete: PropTypes.func.isRequired,
+    data: PropTypes.object.isRequired
 }
 
 export default CustomSnackbar;

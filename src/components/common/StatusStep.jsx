@@ -1,8 +1,8 @@
-import React from "react";
+import PropTypes from "prop-types";
 import { Box, Typography, Button } from "@mui/material";
 import { StatusErrorBackgroundPattern, AddedSuccessfully } from "../../Icons";
-import { vars } from "../../theme/variables";
 
+import { vars } from "../../theme/variables";
 const { gray900, gray600 } = vars;
 
 const StatusBackground = ({ responseStatus }) => (
@@ -21,6 +21,10 @@ const StatusBackground = ({ responseStatus }) => (
     </Box>
 );
 
+StatusBackground.propTypes = {
+    responseStatus: PropTypes.object,
+};
+
 const StatusMessage = ({ message, description, additionalInfo }) => (
     <Box
         display='flex'
@@ -37,6 +41,12 @@ const StatusMessage = ({ message, description, additionalInfo }) => (
         <Typography mb="2rem">{additionalInfo}</Typography>
     </Box>
 );
+
+StatusMessage.propTypes = {
+    message: PropTypes.string,
+    description: PropTypes.string,
+    additionalInfo: PropTypes.string,
+};
 
 const ActionButtons = ({
     isTryButtonVisible,
@@ -57,6 +67,16 @@ const ActionButtons = ({
         </Button>}
     </Box>
 );
+
+ActionButtons.propTypes = {
+    isTryButtonVisible: PropTypes.bool,
+    isCloseButtonVisible: PropTypes.bool,
+    onAction: PropTypes.func,
+    onTryAgain: PropTypes.func,
+    onClose: PropTypes.func,
+    actionButtonMessage: PropTypes.string,
+    actionButtonStartIcon: PropTypes.node,
+};
 
 const StatusStep = ({ statusProps, onAction, onTryAgain, onClose, actionButtonStartIcon, additionalInfo }) => {
     const {
@@ -120,5 +140,14 @@ const StatusStep = ({ statusProps, onAction, onTryAgain, onClose, actionButtonSt
         </Box>
     )
 }
+
+StatusStep.propTypes = {
+    statusProps: PropTypes.object,
+    onAction: PropTypes.func,
+    onTryAgain: PropTypes.func,
+    onClose: PropTypes.func,
+    actionButtonStartIcon: PropTypes.node,
+    additionalInfo: PropTypes.string,
+};
 
 export default StatusStep;

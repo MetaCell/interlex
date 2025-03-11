@@ -1,6 +1,8 @@
-import {Box, Typography, Button, Link, List, ListItem, ListItemText} from "@mui/material";
+import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
+import {Box, Typography, Button, Link, List, ListItem, ListItemText} from "@mui/material";
+
 import { vars } from "../../theme/variables";
 const { gray700, gray500, gray200, brand600 } = vars;
 
@@ -89,7 +91,6 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
                   Join organization
                 </Button>
               }
-              
             </Box>
             <ListItemText primary={
               <Box display='flex' alignItems='center' justifyContent='space-between'>
@@ -107,5 +108,10 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
     </List>
   );
 }
+
+OrganizationsList.propTypes = {
+  organizations: PropTypes.array.isRequired,
+  viewJoinButton: PropTypes.bool
+};
 
 export default OrganizationsList;

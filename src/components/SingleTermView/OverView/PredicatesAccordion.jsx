@@ -10,16 +10,17 @@ import {
   ToggleButtonGroup,
   ToggleButton
 } from "@mui/material";
-import CustomizedTable from "./CustomizedTable";
-import ViewDiagramDialog from "./ViewDiagramDialog";
+import PropTypes from "prop-types";
 import { useQuery } from "../../../helpers";
 import Graph from "../../GraphViewer/Graph";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CustomizedTable from "./CustomizedTable";
+import ViewDiagramDialog from "./ViewDiagramDialog";
 import CallMadeIcon from '@mui/icons-material/CallMade';
 import { FullscreenOutlined } from "@mui/icons-material";
 import { TableChartIcon, GraphIcon } from "../../../Icons";
-import { vars } from "../../../theme/variables";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
+import { vars } from "../../../theme/variables";
 const { gray600 } = vars;
 
 const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
@@ -151,6 +152,12 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
 
     </>
   );
+};
+
+PredicatesAccordion.propTypes = {
+  data: PropTypes.array.isRequired,
+  expandAllPredicates: PropTypes.bool,
+  isGraphVisible: PropTypes.bool
 };
 
 export default PredicatesAccordion;

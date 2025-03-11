@@ -1,10 +1,11 @@
-import CustomizedDialog from "./CustomizedDialog";
+import PropTypes from "prop-types";
 import { Box } from "@mui/material";
-import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import { vars } from "../../theme/variables";
 import { BackgroundPattern } from "../../Icons";
+import CustomizedDialog from "./CustomizedDialog";
+import Typography from "@mui/material/Typography";
 
+import { vars } from "../../theme/variables";
 const { gray600, gray900 } = vars;
 
 const HeaderRightSideContent = ({ handleClose, finishButtonTitle, finishButtonEndIcon }) => {
@@ -15,6 +16,12 @@ const HeaderRightSideContent = ({ handleClose, finishButtonTitle, finishButtonEn
             </Button>
         </Box>
     );
+};
+
+HeaderRightSideContent.propTypes = {
+    handleClose: PropTypes.func,
+    finishButtonTitle: PropTypes.string,
+    finishButtonEndIcon: PropTypes.node,
 };
 
 const StatusDialog = ({ open, handleClose, title, message, subMessage, finishButtonTitle, actionButtonTitle, handleActionButtonClick, finishButtonEndIcon, actionButtonStartIcon }) => {
@@ -62,6 +69,19 @@ const StatusDialog = ({ open, handleClose, title, message, subMessage, finishBut
             </Box>
         </CustomizedDialog>
     );
+};
+
+StatusDialog.propTypes = {
+    open: PropTypes.bool,
+    handleClose: PropTypes.func,
+    title: PropTypes.string,
+    message: PropTypes.string,
+    subMessage: PropTypes.string,
+    finishButtonTitle: PropTypes.string,
+    actionButtonTitle: PropTypes.string,
+    handleActionButtonClick: PropTypes.func,
+    finishButtonEndIcon: PropTypes.node,
+    actionButtonStartIcon: PropTypes.node,
 };
 
 export default StatusDialog;

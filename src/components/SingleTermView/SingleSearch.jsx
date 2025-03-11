@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { useRef, useState } from "react";
 import {
   TextField,
@@ -6,19 +7,21 @@ import {
   Typography,
   Box,
 } from "@mui/material";
-import { vars } from "../../theme/variables";
 import { SearchIcon } from "../../Icons";
+import { vars } from "../../theme/variables";
 import ListItem from "@mui/material/ListItem";
 
 const { brand300, gray50, gray200, gray900, gray600 } = vars;
 
 const SingleSearch = ({
   onChange,
+  // eslint-disable-next-line no-unused-vars
   selectedValue,
   options = [],
   startAdornment = true,
   sx,
   placeholder,
+  // eslint-disable-next-line no-unused-vars
   isFullWidth = true,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -111,6 +114,17 @@ const SingleSearch = ({
       />
     </Box>
   );
+};
+
+SingleSearch.propTypes = {
+  onChange: PropTypes.func.isRequired,
+  selectedValue: PropTypes.object,
+  options: PropTypes.array,
+  startAdornment: PropTypes.bool,
+  sx: PropTypes.object,
+  placeholder: PropTypes.string,
+  isFullWidth: PropTypes.bool,
+  key: PropTypes.string,
 };
 
 export default SingleSearch;

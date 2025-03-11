@@ -1,10 +1,11 @@
+import { debounce } from 'lodash';
+import PropTypes from 'prop-types';
 import {createContext, useCallback, useEffect, useState} from "react";
 import * as mockApi from "../api/endpoints/swaggerMockMissingEndpoints";
-import { debounce } from 'lodash';
 
 const useMockApi = () => mockApi;
-
 const GlobalDataContext = createContext();
+
 const GlobalDataProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [activeOntology, setActiveOntology] = useState(null);
@@ -32,16 +33,17 @@ const GlobalDataProvider = ({ children }) => {
   const setEditBulkSearchData = (filters) => {
     setEditBulkSearchFilters(filters);
   };
-  
-  
+
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchUser= useCallback(debounce(async () => {
     const data = await getUser("123");
     setUser(data)
   }, 500), [getUser]);
-  
+
   useEffect(() => {
     fetchUser()
-  }, []);
+  }, [fetchUser]);
 
   const dataContextValue = {
     user,
@@ -62,6 +64,10 @@ const GlobalDataProvider = ({ children }) => {
       {children}
     </GlobalDataContext.Provider>
   );
+};
+
+GlobalDataProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export { GlobalDataContext, GlobalDataProvider };

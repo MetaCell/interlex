@@ -1,10 +1,11 @@
 import * as React from "react";
+import PropTypes from "prop-types";
+import AddIcon from '@mui/icons-material/Add';
+import Checkbox from "../common/CustomCheckbox";
+import StatusDialog from "../common/StatusDialog";
+import CustomInputBox from "../common/CustomInputBox";
 import { Stack, Button, Grid, Box } from "@mui/material";
 import CustomizedDialog from "../common/CustomizedDialog";
-import CustomInputBox from "../common/CustomInputBox";
-import StatusDialog from "../common/StatusDialog";
-import Checkbox from "../common/CustomCheckbox";
-import AddIcon from '@mui/icons-material/Add';
 
 const HeaderRightSideContent = ({ handleClose, onAddNewOntology }) => {
     return (
@@ -16,6 +17,11 @@ const HeaderRightSideContent = ({ handleClose, onAddNewOntology }) => {
             </Button>
         </Box>
     )
+}
+
+HeaderRightSideContent.propTypes = {
+    handleClose: PropTypes.func,
+    onAddNewOntology: PropTypes.func
 }
 
 const AddNewOntologyDialog = ({ open, handleClose }) => {
@@ -109,4 +115,10 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
         </>
     )
 }
+
+AddNewOntologyDialog.propTypes = {
+    open: PropTypes.bool,
+    handleClose: PropTypes.func
+}
+
 export default AddNewOntologyDialog;

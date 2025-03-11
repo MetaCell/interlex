@@ -1,29 +1,32 @@
-import { Box, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import PropTypes from 'prop-types';
 import { useState, useEffect } from "react";
-import { vars } from "../../../theme/variables";
 import { FiberSmartIcon, JoinInnerIcon } from "../../../Icons";
-import SearchTermsData from "../../../static/SearchTermsData.json"
 import CustomSingleSelect from "../../common/CustomSingleSelect";
+import SearchTermsData from "../../../static/SearchTermsData.json"
+import { Box, ToggleButton, ToggleButtonGroup } from "@mui/material";
+
+import { vars } from "../../../theme/variables";
 const { gray300 } = vars;
+
 const DropDownConditions = ({ value, onChange, index, handleTermChange }) => {
   const [toggleButtonValue, setToggleButtonValue] = useState('object');
   const [dropdownOptions, setDropdownOptions] = useState(SearchTermsData.objectOptions);
-  
+
   useEffect(() => {
     setDropdownOptions(toggleButtonValue === 'object' ? SearchTermsData.objectOptions : SearchTermsData.annotationOptions);
     handleTermChange(index, 'relation', toggleButtonValue === 'object' ? SearchTermsData.objectOptions[0].value : SearchTermsData.annotationOptions[0].value);
-  }, [toggleButtonValue]);
-  
+  }, [toggleButtonValue, handleTermChange, index]);
+
   const onConditionValueChange = (v) => {
     onChange(v);
   }
-  
+
   const onToggleButtonChange = (event, newValue) => {
     if (newValue) {
       setToggleButtonValue(newValue);
     }
   };
-  
+
   return (
     <Box display='flex'>
       <CustomSingleSelect value={value} onChange={onConditionValueChange} options={dropdownOptions} FormControlSX={{
@@ -62,6 +65,13 @@ const DropDownConditions = ({ value, onChange, index, handleTermChange }) => {
       </ToggleButtonGroup>
     </Box>
   );
+};
+
+DropDownConditions.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func,
+  index: PropTypes.number,
+  handleTermChange: PropTypes.func
 };
 
 export default DropDownConditions;

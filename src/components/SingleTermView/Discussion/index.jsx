@@ -20,6 +20,7 @@ const Discussion = (term) => {
   
   useEffect(() => {
     getDiscussions()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 

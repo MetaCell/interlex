@@ -1,16 +1,18 @@
-import CustomizedDialog from "../../common/CustomizedDialog";
-import {Box, Divider} from "@mui/material";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import PlaylistAddOutlinedIcon from "@mui/icons-material/PlaylistAddOutlined";
 import * as React from "react";
-import {vars} from "../../../theme/variables";
-import AddPredicateDialog from "./AddPredicateDialog";
 import {useState} from "react";
-import CustomSingleSelect from "../../common/CustomSingleSelect";
+import PropTypes from 'prop-types'
+import Button from "@mui/material/Button";
+import {Box, Divider} from "@mui/material";
 import Graph from "../../GraphViewer/Graph";
+import Typography from "@mui/material/Typography";
+import AddPredicateDialog from "./AddPredicateDialog";
+import CustomizedDialog from "../../common/CustomizedDialog";
+import CustomSingleSelect from "../../common/CustomSingleSelect";
+import PlaylistAddOutlinedIcon from "@mui/icons-material/PlaylistAddOutlined";
 
+import {vars} from "../../../theme/variables";
 const {gray600, gray700} = vars
+
 const HeaderRightSideContent = ({handleOpenAddPredicate, selectedItem, predicates}) => {
   const [type, setType] = React.useState(selectedItem?.title);
   const [count, setCount] = React.useState(selectedItem?.count)
@@ -81,10 +83,22 @@ const ViewDiagramDialog = ({open, handleClose, image, selectedItem, predicates})
       {
         openAddPredicate && <AddPredicateDialog open={openAddPredicate} handleClose={handleCloseAddPredicate} image={image} predicates={predicatesOptions} />
       }
-      
     </>
-    
   )
+}
+
+HeaderRightSideContent.propTypes = {
+  handleOpenAddPredicate: PropTypes.func,
+  selectedItem: PropTypes.object,
+  predicates: PropTypes.array
+}
+
+ViewDiagramDialog.propTypes = {
+  open: PropTypes.bool,
+  handleClose: PropTypes.func,
+  image: PropTypes.string,
+  selectedItem: PropTypes.object,
+  predicates: PropTypes.array
 }
 
 export default ViewDiagramDialog
