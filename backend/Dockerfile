@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copy package.json and package-lock.json first for caching
 COPY backend/package.json package.json ./
-COPY backend/server.js server.js ./
+COPY backend/. .
 
 # Install dependencies with fix for peer dependencies
 RUN npm install --legacy-peer-deps
