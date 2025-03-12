@@ -38,7 +38,7 @@ spec:
           service:
             name: interlex
             port:
-              number: 80
+              number: 3001
       - path: /
         pathType: Prefix
         backend:
