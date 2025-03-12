@@ -10,9 +10,11 @@ steps:
     type: "git-clone"
     repo: "metacell/interlex"
     revision: "${{CF_BRANCH}}"
-  build:
+
+  # Build Frontend
+  build-frontend:
     stage: "build"
-    title: "Building interlex"
+    title: "Building interlex frontend"
     type: "build"
     image_name: "interlex"
     tag: "${{CF_SHORT_REVISION}}"
@@ -20,14 +22,28 @@ steps:
     working_directory: ./interlex
     buildkit: true    
     registry: "${{CODEFRESH_REGISTRY}}"
+
+  # Build Backend
+  build-backend:
+    stage: "build"
+    title: "Building interlex backend"
+    type: "build"
+    image_name: "interlex-backend"
+    tag: "${{CF_SHORT_REVISION}}"
+    dockerfile: backend/Dockerfile
+    working_directory: ./backend
+    buildkit: true    
+    registry: "${{CODEFRESH_REGISTRY}}"
+
   deploy:
     stage: "deploy"
-    title: "Deploying interlex"
+    title: "Deploying interlex services"
     image: codefresh/cf-deploy-kubernetes
     tag: latest
     working_directory: ./interlex/deploy/k8s
     commands:
       - /cf-deploy-kubernetes interlex.yaml
+      - /cf-deploy-kubernetes interlex-backend.yaml
       - /cf-deploy-kubernetes ingress.yaml
     environment:
       - KUBECONTEXT=${{CLUSTER_NAME}}

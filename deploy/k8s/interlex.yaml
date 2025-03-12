@@ -21,33 +21,30 @@ spec:
           env:
             - name: ELASTICSEARCH_API_KEY
               value: "tvVqyYwrQqolqVfMo45cu31t5uEGx6RZ"
-            - name: ELASTICSEARCH_URL
-              value: "https://scicrunch.org/api/1/elastic/Interlex_pr/_search"
-          livenessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /index.html
-              port: 80
-              scheme: HTTP
-            initialDelaySeconds: 45
-            periodSeconds: 30
-            timeoutSeconds: 2
-          readinessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /index.html
-              port: 80
-              scheme: HTTP
-            initialDelaySeconds: 15
-            periodSeconds: 30
-            timeoutSeconds: 2
-          resources:
-            limits:
-              cpu: 2000m
-              memory: 1024Mi
-            requests:
-              cpu: 1000m
-              memory: 1024Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: interlex-backend
+spec:
+  selector:
+    matchLabels:
+      app: interlex-backend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: interlex-backend
+    spec:
+      containers:
+        - name: interlex-backend
+          image: "gcr.io/metacellllc/interlex-backend:latest"
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 3001
+          env:
+            - name: ELASTICSEARCH_API_KEY
+              value: "tvVqyYwrQqolqVfMo45cu31t5uEGx6RZ"
 ---
 apiVersion: v1
 kind: Service
@@ -60,3 +57,15 @@ spec:
     targetPort: 80
   selector:
     app: interlex
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: interlex-backend
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3001
+    targetPort: 3001
+  selector:
+    app: interlex-backend
