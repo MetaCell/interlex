@@ -64,7 +64,7 @@ spec:
     spec:
       containers:
         - name: interlex-backend
-          image: "gcr.io/metacellllc/interlex-backend:latest"
+          image: "gcr.io/metacellllc/interlex-backend:{{CF_SHORT_REVISION}}"
           imagePullPolicy: "IfNotPresent"
           ports:
             - containerPort: 3001
