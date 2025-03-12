@@ -30,8 +30,8 @@ steps:
     type: "build"
     image_name: "interlex-backend"
     tag: "${{CF_SHORT_REVISION}}"
-    dockerfile: Dockerfile
-    working_directory: ./backend
+    dockerfile: backend/Dockerfile
+    working_directory: ./interlex
     buildkit: true    
     registry: "${{CODEFRESH_REGISTRY}}"
 
