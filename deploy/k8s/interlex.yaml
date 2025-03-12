@@ -21,6 +21,32 @@ spec:
           env:
             - name: ELASTICSEARCH_API_KEY
               value: "tvVqyYwrQqolqVfMo45cu31t5uEGx6RZ"
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /index.html
+              port: 80
+              scheme: HTTP
+            initialDelaySeconds: 45
+            periodSeconds: 30
+            timeoutSeconds: 2
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /index.html
+              port: 80
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 2
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 1024Mi
+            requests:
+              cpu: 1000m
+              memory: 1024Mi
+---
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -45,6 +71,31 @@ spec:
           env:
             - name: ELASTICSEARCH_API_KEY
               value: "tvVqyYwrQqolqVfMo45cu31t5uEGx6RZ"
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 3001
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 3001
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 512Mi
+            requests:
+              cpu: 500m
+              memory: 256Mi
 ---
 apiVersion: v1
 kind: Service
