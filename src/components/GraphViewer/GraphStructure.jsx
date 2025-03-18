@@ -17,7 +17,6 @@ const getName = (nodeName) => {
 
 export const getGraphStructure = (pred) => {
   let data = {
-    type : "node",
     name : pred.title,
     id : pred.title,
     type : ROOT,
@@ -38,7 +37,6 @@ export const getGraphStructure = (pred) => {
       }
     } else {
       let newPredicate = {
-        type : "node",
         name : getName(child.predicate),
         id : child.predicate,
         type : PREDICATE,
@@ -46,7 +44,6 @@ export const getGraphStructure = (pred) => {
       }
 
       let newObject = {
-        type : "node",
         name : getName(child.object),
         id : child.object,
         type : OBJECT,
@@ -64,5 +61,5 @@ export const getGraphStructure = (pred) => {
     data.type = ROOT;
   }
 
-  return data; 
+  return data;
 }

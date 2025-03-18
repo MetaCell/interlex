@@ -4,10 +4,8 @@ import * as api from "./../../api/endpoints/interLexURIStructureAPI";
 import { TERM, ONTOLOGY, ORGANIZATION } from '../../model/frontend/types'
 import curieParser from '../../parsers/curieParser';
 import termParser, { elasticSearhParser, getTerm } from '../../parsers/termParser';
-import { Curies } from '../../model/frontend/curies';
 import axios from 'axios';
 import { API_CONFIG } from '../../config';
-import { config } from 'dotenv';
 
 const useMockApi = () => mockApi;
 const useApi = () => api;
@@ -153,7 +151,7 @@ const fetchData = async (url, method = "GET", data: object | null = null) => {
 };
 
 export const elasticSearch = async (query) => {
-  const url = API_CONFIG.BASE_SCICRUNCH_URL + "tvVqyYwrQqolqVfMo45cu31t5uEGx6RZ"
+  const url = API_CONFIG.BASE_SCICRUNCH_URL + import.meta.env.VITE_SCICRUNCH_ELASTIC_KEY;
   try {
     const result = await fetchData(url, "POST", {
       query: {
@@ -173,7 +171,7 @@ export const searchAll = async (term, filters = {}) => {
 
   /** Call Endpoint */
   return searchAll("base", term, filters).then((data) => {
-      let terms = termParser(data.terms, term, filters);
+      let terms = termParser((data as any).terms, term, filters);
       terms?.results?.forEach( result => {
         result.type = TERM;
       })
