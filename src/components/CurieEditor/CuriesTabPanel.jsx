@@ -1,11 +1,12 @@
 import * as React from "react";
-import { Box, TableRow, TableCell, IconButton, TextField, ClickAwayListener, CircularProgress } from "@mui/material";
+import PropTypes from 'prop-types';
 import CustomTable from "../common/CustomTable";
 import { getComparator, stableSort } from "../../utils";
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-import { vars } from "../../theme/variables";
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import { Box, TableRow, TableCell, IconButton, TextField, ClickAwayListener, CircularProgress } from "@mui/material";
 
+import { vars } from "../../theme/variables";
 const { gray600, brand500, gray100, gray300, gray700 } = vars;
 
 const headCells = [
@@ -65,7 +66,7 @@ const CuriesTabPanel = (props) => {
 
     React.useEffect(() => {
         onCurieAmountChange?.(rows.length)
-    }, [rows])
+    }, [rows, onCurieAmountChange]);
 
     const handleExit = () => {
         setRowIndex(-1);
@@ -165,6 +166,19 @@ const CuriesTabPanel = (props) => {
             )}
         </ClickAwayListener>
     )
+}
+
+CuriesTabPanel.propTypes = {
+    curieValue: PropTypes.string.isRequired,
+    error: PropTypes.bool,
+    loading: PropTypes.bool,
+    rows: PropTypes.array,
+    editMode: PropTypes.bool,
+    numberOfVisibleCuries: PropTypes.number,
+    onCurieAmountChange: PropTypes.func,
+    onAddRow: PropTypes.func,
+    onDeleteRow: PropTypes.func,
+    onChangeRow: PropTypes.func
 }
 
 export default CuriesTabPanel;

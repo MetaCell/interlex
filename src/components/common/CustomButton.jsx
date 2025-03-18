@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from 'prop-types';
 import {IconButton} from '@mui/material';
 import {vars} from "../../theme/variables";
 
@@ -23,6 +23,12 @@ const CustomButton = ({sx = {}, onClick, children}) => {
             {children}
         </IconButton>
     )
+}
+
+CustomButton.propTypes = {
+    sx: PropTypes.object,
+    onClick: PropTypes.func,
+    children: PropTypes.node
 }
 
 export default CustomButton;

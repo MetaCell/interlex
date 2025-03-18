@@ -27,7 +27,7 @@ export const getGraphStructure = (pred) => {
   let uniqueObjects = [];
 
   pred?.tableData?.forEach( child => {
-    let newChild = { type : "leaf", name : getName(child.subject), id : child.subject, type : SUBJECT};
+    let newChild = { name : getName(child.subject), id : child.subject, type : SUBJECT};
 
     let getExistingObject = uniqueObjects?.find( c => c.id === child.object );
     if ( getExistingObject ) {
@@ -40,7 +40,7 @@ export const getGraphStructure = (pred) => {
         name : getName(child.predicate),
         id : child.predicate,
         type : PREDICATE,
-        children : [newChild] 
+        children : [newChild]
       }
 
       let newObject = {

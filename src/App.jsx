@@ -7,21 +7,22 @@ import {
 	useLocation,
 } from "react-router-dom";
 import theme from "./theme";
+import PropTypes from 'prop-types';
 import Header from "./components/Header";
-import SearchResults from "./components/SearchResults";
-import SingleTermView from "./components/SingleTermView";
-import HomePage from "./components/HomePage";
 import Footer from "./components/Footer";
-import Organizations from "./components/organizations";
-import CurieEditor from "./components/CurieEditor";
-import TermActivity from "./components/term_activity/TermActivity";
-import { GlobalDataProvider } from "./contexts/DataContext";
-import Dashboard from "./components/Dashboard";
 import Login from "./components/Auth/Login";
+import HomePage from "./components/HomePage";
+import Dashboard from "./components/Dashboard";
 import Register from "./components/Auth/Register";
-import ForgotPassword from "./components/Auth/ForgotPassword";
+import CurieEditor from "./components/CurieEditor";
+import SearchResults from "./components/SearchResults";
+import Organizations from "./components/organizations";
+import SingleTermView from "./components/SingleTermView";
+import { GlobalDataProvider } from "./contexts/DataContext";
 import ResetPassword from "./components/Auth/ResetPassword";
+import ForgotPassword from "./components/Auth/ForgotPassword";
 import SingleOrganization from "./components/SingleOrganization";
+import TermActivity from "./components/term_activity/TermActivity";
 import OrganizationsCurieEditor from "./components/CurieEditor/OrganizationCurieEditor";
 
 const PageContainer = ({ children }) => {
@@ -31,6 +32,7 @@ const PageContainer = ({ children }) => {
 		</Box>
 	);
 };
+
 function MainContent() {
 	return (
 		<Box
@@ -143,5 +145,13 @@ function App() {
 		</ThemeProvider>
 	);
 }
+
+PageContainer.propTypes = {
+	children: PropTypes.node.isRequired,
+};
+
+Layout.propTypes = {
+	children: PropTypes.node.isRequired,
+};
 
 export default App;

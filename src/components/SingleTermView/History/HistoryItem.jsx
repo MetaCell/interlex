@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from "prop-types";
 import {
     Box,
     ListItem,
@@ -107,5 +107,9 @@ const HistoryItem = ({ entry }) => (
         </Stack>
     </ListItem>
 );
+
+HistoryItem.propTypes = {
+    entry: PropTypes.object.isRequired
+};
 
 export default HistoryItem;

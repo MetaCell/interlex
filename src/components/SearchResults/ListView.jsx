@@ -1,11 +1,11 @@
-import { Box, Typography, Grid, Stack, Chip, CircularProgress } from '@mui/material';
+import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 import CustomButton from '../common/CustomButton';
-import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import { vars } from '../../theme/variables';
-import { useLocation, useNavigate } from "react-router-dom";
-import React from "react";
+import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
+import { Box, Typography, Grid, Stack, Chip, CircularProgress } from '@mui/material';
 
+import { vars } from '../../theme/variables';
 const { gray200, gray500, gray700, brand50, brand200, brand600, brand700, error50, error300, error700 } = vars;
 
 
@@ -154,6 +154,23 @@ const ListView = ({ searchResults, loading }) => {
             ))}
         </Box>
     );
+};
+
+Description.propTypes = {
+    description: PropTypes.string
+};
+
+TitleSection.propTypes = {
+    searchResult: PropTypes.object
+};
+
+InfoSection.propTypes = {
+    searchResult: PropTypes.object
+};
+
+ListView.propTypes = {
+    searchResults: PropTypes.array,
+    loading: PropTypes.bool
 };
 
 export default ListView;

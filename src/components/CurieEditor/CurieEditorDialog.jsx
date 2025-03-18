@@ -1,10 +1,10 @@
 import * as React from "react";
-import { Box, Button } from "@mui/material";
-import CustomizedDialog from "../common/CustomizedDialog";
+import PropTypes from 'prop-types';
 import { EditNoteIcon } from "../../Icons";
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { Box, Button } from "@mui/material";
 import StatusDialog from "../common/StatusDialog";
-
+import CustomizedDialog from "../common/CustomizedDialog";
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 const HeaderRightSideContent = ({ handleClose, onSaveCuries }) => {
     return (
@@ -17,6 +17,7 @@ const HeaderRightSideContent = ({ handleClose, onSaveCuries }) => {
         </Box>
     )
 }
+
 
 const CurieEditorDialog = ({ open, handleClose, onSubmit, children, isFromOrganization }) => {
     const [openStatusDialog, setOpenStatusDialog] = React.useState(false);
@@ -61,5 +62,18 @@ const CurieEditorDialog = ({ open, handleClose, onSubmit, children, isFromOrgani
         </>
     )
 }
+
+HeaderRightSideContent.propTypes = {
+    handleClose: PropTypes.func.isRequired,
+    onSaveCuries: PropTypes.func.isRequired,
+};
+
+CurieEditorDialog.propTypes = {
+    open: PropTypes.bool.isRequired,
+    handleClose: PropTypes.func.isRequired,
+    onSubmit: PropTypes.func.isRequired,
+    children: PropTypes.node.isRequired,
+    isFromOrganization: PropTypes.bool,
+};
 
 export default CurieEditorDialog;

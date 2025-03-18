@@ -11,18 +11,19 @@ import {
   List,
   ListItem,
 } from "@mui/material";
-import { vars } from "../../theme/variables";
-import { SEARCH_TYPES } from "../../constants/types";
-import { useEffect, useState, useCallback, forwardRef } from 'react';
-import { searchAll, elasticSearch } from "../../api/endpoints";
-import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
-import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
-import CorporateFareOutlinedIcon from '@mui/icons-material/CorporateFareOutlined';
+import { debounce } from 'lodash';
+import PropTypes from 'prop-types';
+import { useQuery } from "../../helpers";
 import BasicTabs from "../common/CustomTabs";
 import { useNavigate } from "react-router-dom";
-import { debounce } from 'lodash';
-import { useQuery } from "../../helpers";
+import { SEARCH_TYPES } from "../../constants/types";
+import { searchAll, elasticSearch } from "../../api/endpoints";
+import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
+import { useEffect, useState, useCallback, forwardRef } from 'react';
+import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
+import CorporateFareOutlinedIcon from '@mui/icons-material/CorporateFareOutlined';
 
+import { vars } from "../../theme/variables";
 const { gray200, gray100, gray600, gray800, gray500, gray700 } = vars;
 
 const styles = {
@@ -132,6 +133,7 @@ const Search = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await elasticSearch(searchTerm);
     const dataTerms = data?.results?.filter(result => result.type === SEARCH_TYPES.TERM);
@@ -152,8 +154,10 @@ const Search = () => {
     if (storedSearchTerm !== searchTerm) {
       setSearchTerm(storedSearchTerm);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storedSearchTerm]);
 
+  // eslint-disable-next-line no-unused-vars
   const ListboxComponent = forwardRef(function ListboxComponent(props, ref) {
     return (
       <>
@@ -354,6 +358,15 @@ const Search = () => {
       ListboxComponent={ListboxComponent}
     />
   );
+};
+
+Search.propTypes = {
+  open: PropTypes.bool,
+  handleClose: PropTypes.func,
+  onUndoDelete: PropTypes.func,
+  data: PropTypes.object,
+  children: PropTypes.node,
+  key: PropTypes.string
 };
 
 export default Search;

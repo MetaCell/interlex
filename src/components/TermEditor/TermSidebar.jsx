@@ -1,20 +1,24 @@
 import React from 'react';
-import { Box, Typography, IconButton, Tooltip, Stack, Divider, Grid, CircularProgress, Chip } from '@mui/material';
+import PropTypes from 'prop-types';
+import { ListIcon, StartIcon } from '../../Icons';
 import CustomSingleSelect from '../common/CustomSingleSelect';
 import CopyLinkComponent from '../common/CopyLinkComponent';
-import { ListIcon, StartIcon } from '../../Icons';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
+import { Box, Typography, IconButton, Tooltip, Stack, Divider, Grid, CircularProgress, Chip } from '@mui/material';
+
 import { vars } from '../../theme/variables';
-
 const { gray200, gray500, gray600, gray800 } = vars;
-
 
 export default function TermSidebar({ open, loading, onToggle, data }) {
     const [numberOfVisiblePages, setNumberOfVisiblePages] = React.useState(20);
 
     const handleNumberOfPagesChange = (v) => {
         setNumberOfVisiblePages(v);
+    };
+
+    const handleChipClick = (id) => {
+        console.log('Chip clicked', id);
     };
 
     if (loading) {
@@ -209,4 +213,11 @@ export default function TermSidebar({ open, loading, onToggle, data }) {
             )}
         </Box >
     );
+}
+
+TermSidebar.propTypes = {
+    open: PropTypes.bool,
+    loading: PropTypes.bool,
+    onToggle: PropTypes.func,
+    data: PropTypes.object
 }

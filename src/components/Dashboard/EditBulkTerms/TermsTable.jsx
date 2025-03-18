@@ -16,15 +16,16 @@ import {
   Stack, CircularProgress,
   Typography,
 } from "@mui/material";
-import { vars } from "../../../theme/variables";
 import { useState } from "react";
-import CustomTableHead from "../../SingleTermView/Variants/CustomTableHead";
+import PropTypes from 'prop-types';
+import { getMatchTerms } from "../../../api/endpoints";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
-import { getComparator, getSearchTermsFilter, stableSort } from "../../../helpers";
 import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
-import { getMatchTerms } from "../../../api/endpoints";
+import CustomTableHead from "../../SingleTermView/Variants/CustomTableHead";
+import { getComparator, getSearchTermsFilter, stableSort } from "../../../helpers";
 
+import { vars } from "../../../theme/variables";
 const { gray200, gray50, gray700, brand600, gray800 } = vars;
 
 const columns = [
@@ -95,7 +96,7 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, searchCo
       console.log(err)
       setLoading(false);
     });
-  }, []);
+  }, [filters]);
   if (loading) {
     return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1 }}>
       <CircularProgress />
@@ -132,7 +133,7 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, searchCo
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              {columns.map((column) => (
+              {columns.map((column, index) => (
                 <MenuItem
                   key={`${column.id}-${index}`}
                   value={column.id}
@@ -192,6 +193,13 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, searchCo
         <Typography variant="body1">No terms available with the parameters set</Typography>
       </Box>)
   )
+};
+
+TermsTable.propTypes = {
+  setOpenEditAttributes: PropTypes.func,
+  setAttributes: PropTypes.func,
+  attributes: PropTypes.array,
+  searchConditions: PropTypes.object,
 };
 
 export default TermsTable;

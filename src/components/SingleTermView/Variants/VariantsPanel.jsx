@@ -1,4 +1,5 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { Box } from '@mui/material';
 import VariantsTable from './VariantsTable';
 import { getVariants  } from '../../../api/endpoints';
@@ -71,7 +72,8 @@ const headCells = [
     { id: 'action_buttons', label: '' }
 ];
 
-const VariantsPanel = () => {  
+const VariantsPanel = () => {
+    // eslint-disable-next-line no-unused-vars
     const [variants, setVariants] = React.useState([]);
     
     React.useEffect(() => {
@@ -86,4 +88,9 @@ const VariantsPanel = () => {
         </Box>
     )
 }
+
+VariantsPanel.propTypes = {
+    variants: PropTypes.array
+}
+
 export default VariantsPanel;

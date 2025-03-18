@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import {TableHead, TableSortLabel, TableRow, TableCell, Box, IconButton} from '@mui/material';
 import {EditNoteOutlined} from "@mui/icons-material";
+import {TableHead, TableSortLabel, TableRow, TableCell, Box, IconButton} from '@mui/material';
 
 export default function CustomTableHead(props) {
     const { order, orderBy, onRequestSort, headCells, viewEditAttributes = false, setOpenEditAttributes, setAttributes, attributes } = props;
@@ -79,4 +79,5 @@ CustomTableHead.propTypes = {
     viewEditAttributes: PropTypes.bool,
     setOpenEditAttributes: PropTypes.func,
   setAttributes: PropTypes.func,
+  attributes: PropTypes.array
 };

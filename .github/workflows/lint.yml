@@ -1,0 +1,15 @@
+name: Run Unit Tests and Lint Files
+on: push
+
+jobs:
+  unit_test-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@master
+        with:
+          node-version: 18.19
+      - run: |
+              yarn
+              yarn run build
+              yarn run lint

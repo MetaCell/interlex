@@ -1,13 +1,14 @@
 import * as React from "react";
 import { useState } from "react";
-import { Box, Divider, MobileStepper, Stack, Button } from "@mui/material";
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { vars } from "../../theme/variables";
-import CustomizedDialog from "../common/CustomizedDialog";
+import PropTypes from "prop-types";
 import CustomButton from "../common/CustomButton";
 import TermDialogContent from "./TermDialogContent";
+import CustomizedDialog from "../common/CustomizedDialog";
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import AddNewTermDialogContent from "./AddNewTermDialogContent";
+import { Box, Divider, MobileStepper, Stack, Button } from "@mui/material";
 
+import { vars } from "../../theme/variables";
 const { gray100, gray200, gray400, brand700 } = vars;
 
 const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueButtonDisabled }) => (
@@ -99,6 +100,20 @@ const TermDialog = ({ open, handleClose, searchTerm, forwardPredicateStep }) => 
             )}
         </CustomizedDialog>
     );
+};
+
+HeaderRightSideContent.propTypes = {
+    activeStep: PropTypes.number.isRequired,
+    onContinue: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired,
+    isContinueButtonDisabled: PropTypes.bool.isRequired
+};
+
+TermDialog.propTypes = {
+    open: PropTypes.bool.isRequired,
+    handleClose: PropTypes.func.isRequired,
+    searchTerm: PropTypes.string,
+    forwardPredicateStep: PropTypes.bool
 };
 
 export default TermDialog;

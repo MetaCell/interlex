@@ -1,6 +1,9 @@
-import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import { useState } from "react";
+import PropTypes from "prop-types";
+import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
+
+
 const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, index, columnWidth }) => {
   const { id, subject, predicate, object } = data;
   const [isHovered, setIsHovered] = useState(false);
@@ -46,6 +49,16 @@ const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, inde
         }
       </Box>
     </Box>);
+};
+
+TableRow.propTypes = {
+  tableStyles: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
+  onDragStart: PropTypes.func.isRequired,
+  onDragEnter: PropTypes.func.isRequired,
+  onDragEnd: PropTypes.func.isRequired,
+  index: PropTypes.number.isRequired,
+  columnWidth: PropTypes.number.isRequired
 };
 
 export default TableRow;

@@ -7,10 +7,11 @@ import {
     Stack,
     Typography
 } from "@mui/material";
-import { HelpOutlinedIcon } from "../../Icons";
-import { vars } from "../../theme/variables";
+import PropTypes from "prop-types";
 import ListItem from '@mui/material/ListItem';
+import { HelpOutlinedIcon } from "../../Icons";
 
+import { vars } from "../../theme/variables";
 const { white, brand600, gray50, gray200, gray600, gray800, gray300 } = vars;
 
 const CustomAutocompleteBox = ({ label, value, onChange, isRequired, placeholder, isEndAdornmentVisible, helperText, startAdornment, options }) => {
@@ -194,6 +195,19 @@ const CustomAutocompleteBox = ({ label, value, onChange, isRequired, placeholder
             <Typography sx={{ marginTop: "0.5rem", fontSize: "0.875rem", color: gray600 }}>{helperText}</Typography>
         </>
     );
+};
+
+CustomAutocompleteBox.propTypes = {
+    label: PropTypes.string.isRequired,
+    value: PropTypes.object,
+    onChange: PropTypes.func.isRequired,
+    isRequired: PropTypes.bool,
+    placeholder: PropTypes.string,
+    isEndAdornmentVisible: PropTypes.bool,
+    helperText: PropTypes.string,
+    startAdornment: PropTypes.node,
+    options: PropTypes.array,
+    key: PropTypes.string
 };
 
 export default CustomAutocompleteBox;
