@@ -136,9 +136,9 @@ const Search = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await elasticSearch(searchTerm);
-    const dataTerms = data?.results.filter(result => result.type === SEARCH_TYPES.TERM);
-    const dataOrganizations = data?.results.filter(result => result.type === SEARCH_TYPES.ORGANIZATION);
-    const dataOntologies = data?.results.filter(result => result.type === SEARCH_TYPES.ONTOLOGY);
+    const dataTerms = data?.results?.filter(result => result.type === SEARCH_TYPES.TERM);
+    const dataOrganizations = data?.results?.filter(result => result.type === SEARCH_TYPES.ORGANIZATION);
+    const dataOntologies = data?.results?.filter(result => result.type === SEARCH_TYPES.ONTOLOGY);
     setTerms(dataTerms);
     setOrganizations(dataOrganizations);
     setOntologies(dataOntologies);
@@ -359,8 +359,6 @@ const Search = () => {
     />
   );
 };
-
-
 
 Search.propTypes = {
   open: PropTypes.bool,
