@@ -18,7 +18,7 @@ steps:
     tag: "${{CF_SHORT_REVISION}}"
     dockerfile: Dockerfile
     working_directory: ./interlex
-    buildkit: true    
+    buildkit: true
     registry: "${{CODEFRESH_REGISTRY}}"
   deploy:
     stage: "deploy"

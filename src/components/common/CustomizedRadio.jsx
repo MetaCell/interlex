@@ -1,5 +1,7 @@
-import { styled } from '@mui/material/styles';
+import PropTypes from 'prop-types';
 import Radio from '@mui/material/Radio';
+import { styled } from '@mui/material/styles';
+
 import {vars} from "../../theme/variables";
 const {brand600, white, gray300, gray50} = vars
 
@@ -9,7 +11,6 @@ const BpIcon = styled('span')(() => ({
   height: 16,
   backgroundColor: white,
   border: `1px solid ${gray300}`,
-  
   '.Mui-focusVisible &': {
     outline: '2px auto rgba(19,124,189,.6)',
     outlineOffset: 2,
@@ -44,7 +45,6 @@ const BpCheckedIcon = styled(BpIcon)({
   'input:hover ~ &': {
     backgroundColor: brand600,
   },
-  
   'input:disabled ~ &': {
     boxShadow: 'none',
     background: gray50,
@@ -69,5 +69,9 @@ const CustomizedRadio = ({checked}) => {
     <BpRadio checked={checked} />
   );
 }
+
+CustomizedRadio.propTypes = {
+  checked: PropTypes.bool
+};
 
 export default CustomizedRadio;

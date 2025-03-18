@@ -1,16 +1,21 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { Box, Typography, Divider, Grid, Stack } from "@mui/material";
-import CustomButton from "../common/CustomButton";
-import BasicTabs from "../common/CustomTabs";
-import CurieEditorDialog from "./CurieEditorDialog";
-import CuriesTabPanel from "./CuriesTabPanel";
-import { EditNoteIcon } from "../../Icons";
-import { vars } from "../../theme/variables";
-import CustomSingleSelect from "../common/CustomSingleSelect";
-import OntologyTabPanel from "./OntologyTabPanel";
-import { getOrganizationCuries } from "../../api/endpoints";
+import {
+    useState,
+    useEffect,
+    useMemo,
+    useCallback
+} from "react";
 import debounce from 'lodash/debounce';
+import { EditNoteIcon } from "../../Icons";
+import BasicTabs from "../common/CustomTabs";
+import CuriesTabPanel from "./CuriesTabPanel";
+import CustomButton from "../common/CustomButton";
+import OntologyTabPanel from "./OntologyTabPanel";
+import CurieEditorDialog from "./CurieEditorDialog";
+import { getOrganizationCuries } from "../../api/endpoints";
+import CustomSingleSelect from "../common/CustomSingleSelect";
+import { Box, Typography, Divider, Grid, Stack } from "@mui/material";
 
+import { vars } from "../../theme/variables";
 const { gray200, gray600, gray700 } = vars;
 
 const generatePageOptions = (curieAmount) => {
@@ -20,11 +25,11 @@ const generatePageOptions = (curieAmount) => {
 };
 
 const newRowObj = { prefix: '', namespace: '' };
-
 const curiesTabs = ["Organization", "Ontologies"];
 
 const OrganizationsCurieEditor = () => {
     const [loading, setLoading] = useState(true);
+    // eslint-disable-next-line no-unused-vars
     const [error, setError] = useState(null);
     const [curies, setCuries] = useState([]);
     const [tabValue, setTabValue] = useState(0);
@@ -42,8 +47,9 @@ const OrganizationsCurieEditor = () => {
         }).catch((error) => {
             console.log("Error ", error)
         });
-    }, [getOrganizationCuries]);
+    }, [setCuries, setCurieAmount, setLoading]);
 
+    // eslint-disable-next-line no-unused-vars
     const handleAddNewCurieRow = (curieValue) => {
         setCuries(prev => [
             ...prev, newRowObj
@@ -62,6 +68,7 @@ const OrganizationsCurieEditor = () => {
         []
     );
 
+    // eslint-disable-next-line no-unused-vars
     const handleInputChangeCurieRow = (e, rowIndex, columnName, curieValue) => {
         console.log("UPDATE: here connect to update method")
         const updatedRows = curies.map((row, index) => index === rowIndex ? { ...row, [columnName]: e.target.value } : row);

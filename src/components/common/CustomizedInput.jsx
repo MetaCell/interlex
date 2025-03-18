@@ -1,9 +1,10 @@
+import PropTypes from 'prop-types';
+import {Typography} from "@mui/material";
 import { styled } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import FormControl from '@mui/material/FormControl';
-import {vars} from "../../theme/variables";
-import {Typography} from "@mui/material";
 
+import {vars} from "../../theme/variables";
 const { gray800, gray300, gray700, brand600, gray500, gray50 }= vars
 
 const BootstrapInput = styled(InputBase)(() => ({
@@ -59,8 +60,15 @@ const CustomizedInput = (props) => {
         <BootstrapInput value={value} onChange={onChange} id={label} placeholder={placeholder} {...props} />
       </FormControl>
     </>
-    
   );
+}
+
+CustomizedInput.propTypes = {
+  label: PropTypes.string,
+  value: PropTypes.string,
+  onChange: PropTypes.func,
+  placeholder: PropTypes.string,
+  sx: PropTypes.object
 }
 
 export default CustomizedInput;

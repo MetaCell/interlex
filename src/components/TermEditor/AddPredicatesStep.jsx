@@ -1,15 +1,16 @@
 import React from "react";
-import { Box, Typography, Grid, Button } from "@mui/material";
-import PredicateGroupInput from "../SingleTermView/OverView/PredicateGroupInput";
-import CustomizedInput from "../common/CustomizedInput";
-import CustomSingleSelect from "../common/CustomSingleSelect";
+import PropTypes from "prop-types";
 import AddIcon from '@mui/icons-material/Add';
+import CustomizedInput from "../common/CustomizedInput";
+import { Box, Typography, Grid, Button } from "@mui/material";
+import CustomSingleSelect from "../common/CustomSingleSelect";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import PredicateGroupInput from "../SingleTermView/OverView/PredicateGroupInput";
+
 import { vars } from "../../theme/variables";
 const { gray800 } = vars;
 
 const AddPredicatesStep = ({ searchTerm, predicatesOptions }) => {
-
     const [predicates, setPredicates] = React.useState([{ subject: searchTerm, predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
 
     const handleAddPredicate = () => {
@@ -81,5 +82,10 @@ const AddPredicatesStep = ({ searchTerm, predicatesOptions }) => {
         </Box>
     )
 }
+
+AddPredicatesStep.propTypes = {
+    searchTerm: PropTypes.string.isRequired,
+    predicatesOptions: PropTypes.array.isRequired
+};
 
 export default AddPredicatesStep;

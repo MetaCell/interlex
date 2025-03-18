@@ -1,14 +1,14 @@
-import React from "react";
-import { useState, useEffect, useCallback } from "react";
+import { debounce } from 'lodash'
+import PropTypes from "prop-types";
+import { EditNoteIcon } from "../../Icons";
 import { Box, Button } from "@mui/material";
-import CustomizedDialog from "../common/CustomizedDialog";
 import MergePanel from "./MergePanel/MergePanel";
 import StatusDialog from "../common/StatusDialog";
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { EditNoteIcon } from "../../Icons";
 import { getMatchTerms } from "../../api/endpoints";
+import { useState, useEffect, useCallback } from "react";
+import CustomizedDialog from "../common/CustomizedDialog";
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { getVariant } from "../../api/endpoints/swaggerMockMissingEndpoints";
-import { debounce } from 'lodash'
 
 
 const HeaderRightSideContent = ({ handleClose, handleSubmit }) => {
@@ -22,13 +22,19 @@ const HeaderRightSideContent = ({ handleClose, handleSubmit }) => {
     );
 };
 
+HeaderRightSideContent.propTypes = {
+    handleClose: PropTypes.func.isRequired,
+    handleSubmit: PropTypes.func.isRequired,
+};
 
 const RequestMergeChanges = ({ searchTerm, open, handleClose }) => {
     const [data, setData] = useState(null);
     const [modifiedData, setModifiedData] = useState(null);
+    // eslint-disable-next-line
     const [loading, setLoading] = useState(true);
     const [openStatusDialog, setOpenStatusDialog] = useState(false);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const fetchTerms = useCallback(
         debounce((searchTerm) => {
             if (searchTerm) {
@@ -36,7 +42,7 @@ const RequestMergeChanges = ({ searchTerm, open, handleClose }) => {
                     setData(data?.results[0]);
                     setLoading(false);
                 });
-                getVariant("base", "ILX_....").then(data => { 
+                getVariant("base", "ILX_....").then(data => {
                     setModifiedData(data);
                 });
             }
@@ -86,5 +92,11 @@ const RequestMergeChanges = ({ searchTerm, open, handleClose }) => {
         </>
     )
 }
+
+RequestMergeChanges.propTypes = {
+    searchTerm: PropTypes.string.isRequired,
+    open: PropTypes.bool.isRequired,
+    handleClose: PropTypes.func.isRequired,
+};
 
 export default RequestMergeChanges;

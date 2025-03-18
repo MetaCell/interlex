@@ -1,13 +1,19 @@
-import { Box, Chip, Grid, Stack, Typography } from "@mui/material";
+import PropTypes from "prop-types";
 import CustomButton from "../common/CustomButton";
-import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
+import { Box, Chip, Grid, Stack, Typography } from "@mui/material";
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import FolderOpenOutlinedIcon from '@mui/icons-material/FolderOpenOutlined';
-import { vars } from "../../theme/variables";
+import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 
+import { vars } from "../../theme/variables";
 const { gray50, gray500, gray700, gray200, brand600, brand200, brand50 } = vars;
 
 const TermTitleSection = ({ term }) => {
+    const handleClick = (e, label) => {
+        e.stopPropagation();
+        console.log('Add term to active ontology', label);
+    }
+
     return (
         <Box display="flex" justifyContent="space-between" alignItems="center">
             <Stack direction="row" alignItems="center" spacing={'.75rem'}>
@@ -20,7 +26,7 @@ const TermTitleSection = ({ term }) => {
                     visibility: 'hidden',
                     transition: 'opacity 0.3s ease-in-out'
                 }}
-                onClick={(e) => handleClick(e, searchResult.label)}
+                onClick={(e) => handleClick(e, term?.label)}
             >
                 <CreateNewFolderOutlinedIcon fontSize="medium" />
                 Add term to active ontology
@@ -29,7 +35,15 @@ const TermTitleSection = ({ term }) => {
     )
 }
 
+TermTitleSection.propTypes = {
+    term: PropTypes.object.isRequired
+}
+
 const OntologyTitleSection = ({ ontology }) => {
+    const handleClick = (e, label) => {
+        e.stopPropagation();
+        console.log('Download ontology', label);
+    }
     return (
         <Box display="flex" justifyContent="space-between" alignItems="center">
             <Stack direction="row" alignItems="center" spacing={'.75rem'}>
@@ -42,13 +56,17 @@ const OntologyTitleSection = ({ ontology }) => {
                     visibility: 'hidden',
                     transition: 'opacity 0.3s ease-in-out'
                 }}
-                onClick={(e) => handleClick(e, searchResult.label)}
+                onClick={(e) => handleClick(e, ontology?.label)}
             >
                 <DownloadOutlinedIcon fontSize="medium" />
                 Download ontology
             </CustomButton>
         </Box>
     )
+}
+
+OntologyTitleSection.propTypes = {
+    ontology: PropTypes.object.isRequired
 }
 
 const OrganizationCard = ({ data, isOntology }) => {
@@ -102,5 +120,10 @@ const OrganizationCard = ({ data, isOntology }) => {
         </Grid>
     );
 };
+
+OrganizationCard.propTypes = {
+    data: PropTypes.object.isRequired,
+    isOntology: PropTypes.bool
+}
 
 export default OrganizationCard;

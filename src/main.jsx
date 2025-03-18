@@ -1,13 +1,12 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
 import './index.css'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
-import { AuthProvider } from './../mock/mutator/auth.context';
+import React from 'react'
 import worker from './mock'
+import ReactDOM from 'react-dom/client'
+import { AuthProvider } from './../mock/mutator/auth.context';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 const queryClient = new QueryClient();
-import * as serviceWorker from './serviceWorker';
- 
+
 worker.start();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -19,5 +18,3 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </AuthProvider>
   </React.StrictMode>,
 )
-
-

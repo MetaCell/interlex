@@ -1,10 +1,11 @@
-import { Box, Stack, Typography, FormControl, Divider } from "@mui/material";
-import CustomizedInput from "../common/CustomizedInput";
+import PropTypes from "prop-types";
 import ImportFile from "./ImportFile";
-import Checkbox from "../common/CustomCheckbox";
 import { CSVIcon } from "../../Icons";
-import { vars } from "../../theme/variables";
+import Checkbox from "../common/CustomCheckbox";
+import CustomizedInput from "../common/CustomizedInput";
+import { Box, Stack, Typography, FormControl, Divider } from "@mui/material";
 
+import { vars } from "../../theme/variables";
 const { gray300, gray800, gray600, gray700, gray200 } = vars;
 
 const ImportFileTab = ({ files, url, onFilesChange, onChangeUrl }) => {
@@ -66,6 +67,13 @@ const ImportFileTab = ({ files, url, onFilesChange, onChangeUrl }) => {
             </Box>
         </Box>
     )
+}
+
+ImportFileTab.propTypes = {
+    files: PropTypes.array.isRequired,
+    url: PropTypes.string.isRequired,
+    onFilesChange: PropTypes.func.isRequired,
+    onChangeUrl: PropTypes.func.isRequired
 }
 
 export default ImportFileTab;

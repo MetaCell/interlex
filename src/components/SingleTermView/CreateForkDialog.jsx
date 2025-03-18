@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { vars } from "../../theme/variables";
+import PropTypes from "prop-types";
+import StatusDialog from "../common/StatusDialog";
 import CustomizedDialog from "../common/CustomizedDialog";
 import { Box, Button, Grid, Typography } from "@mui/material";
-import StatusDialog from "../common/StatusDialog";
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import SearchTermsData from "../../static/SearchTermsData.json"
 import CustomSingleSelect from "../common/CustomSingleSelect";
+import SearchTermsData from "../../static/SearchTermsData.json"
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
+import { vars } from "../../theme/variables";
 const { gray800, gray600, gray500, gray700 } = vars;
 
 const HeaderRightSideContent = ({ handleClose, onSaveFork }) => {
@@ -21,6 +22,12 @@ const HeaderRightSideContent = ({ handleClose, onSaveFork }) => {
   )
 }
 
+HeaderRightSideContent.propTypes = {
+  handleClose: PropTypes.func,
+  onSaveFork: PropTypes.func
+}
+
+// eslint-disable-next-line no-unused-vars
 const CreateForkDialog = ({ formState, open, handleClose, onInputChange }) => {
   const [openStatusDialog, setOpenStatusDialog] = useState(false);
   const [newTerm, setNewTerm] = useState('label')
@@ -36,11 +43,9 @@ const CreateForkDialog = ({ formState, open, handleClose, onInputChange }) => {
       ...item,
       value: item.id
     }));
-
     const handleCloseStatusDialog = () => {
       setOpenStatusDialog(false)
     }
-    
     const handleStatusDialogActionButtonClick = () => {
       setOpenStatusDialog(false);
     }
@@ -73,7 +78,6 @@ const CreateForkDialog = ({ formState, open, handleClose, onInputChange }) => {
                 }}>
                   Owner
                 </Typography>
-                
                 <Typography variant="body1" sx={{ color: gray600 }}>Required</Typography>
               </Box>
               <CustomSingleSelect
@@ -120,5 +124,12 @@ const CreateForkDialog = ({ formState, open, handleClose, onInputChange }) => {
       </>
     );
 };
+
+CreateForkDialog.propTypes = {
+  formState: PropTypes.object,
+  open: PropTypes.bool,
+  handleClose: PropTypes.func,
+  onInputChange: PropTypes.func
+}
 
 export default CreateForkDialog;

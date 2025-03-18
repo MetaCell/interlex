@@ -1,12 +1,12 @@
-import * as React from 'react';
+import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
+import Button from '@mui/material/Button';
 import { IconButton } from '@mui/material';
+import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
-import { vars } from '../../theme/variables';
 
+import { vars } from '../../theme/variables';
 const { white, gray200, gray600, gray300, gray700, gray50, error600, error700 } = vars;
 
 const commonBtnStyles = {
@@ -65,8 +65,8 @@ const styles = {
     }
 }
 
-const LeaveModal = ({ open, handleClose }) => {
 
+const LeaveModal = ({ open, handleClose }) => {
     const handleLeaveClickButton = () => {
         console.log("Leave button clicked!")
     }
@@ -105,6 +105,11 @@ const LeaveModal = ({ open, handleClose }) => {
             </Box>
         </Modal>
     );
+}
+
+LeaveModal.propTypes = {
+    open: PropTypes.bool.isRequired,
+    handleClose: PropTypes.func.isRequired
 }
 
 export default LeaveModal;

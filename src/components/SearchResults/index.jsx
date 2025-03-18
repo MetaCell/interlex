@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
-import FiltersSidebar from '../Sidebar/FiltersSidebar';
-import SearchResultsBox from './SearchResultsBox';
-import * as mockApi from '../../api/endpoints/swaggerMockMissingEndpoints';
-import termParser from '../../parsers/termParser';
-import { useQuery } from '../../helpers';
 import { debounce } from 'lodash';
+import PropTypes from 'prop-types';
+import { useQuery } from '../../helpers';
+import termParser from '../../parsers/termParser';
+import SearchResultsBox from './SearchResultsBox';
+import { useEffect, useRef, useState } from 'react';
+import FiltersSidebar from '../Sidebar/FiltersSidebar';
+import * as mockApi from '../../api/endpoints/swaggerMockMissingEndpoints';
 
 const useMockApi = () => mockApi;
 
@@ -40,6 +41,7 @@ const SearchResults = () => {
                 })
                 .catch((error) => {
                     setLoading(false);
+                    console.error(error);
                 });
         }, 500)
     ).current;
@@ -75,6 +77,12 @@ const SearchResults = () => {
             <SearchResultsBox terms={filteredResults} searchTerm={searchTerm} loading={loading} />
         </>
     );
+};
+
+SearchResults.propTypes = {
+    terms: PropTypes.object,
+    searchTerm: PropTypes.string,
+    loading: PropTypes.bool
 };
 
 export default SearchResults;

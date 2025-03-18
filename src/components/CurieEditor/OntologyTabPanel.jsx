@@ -1,8 +1,7 @@
-import React from "react"
 import { Grid, Stack } from "@mui/material";
 import CustomAutocompleteBox from "../common/CustomAutocompleteBox";
 import FolderSharedOutlinedIcon from '@mui/icons-material/FolderSharedOutlined';
-import { getOrganizationOntologies } from "../../api/endpoints";
+// import { getOrganizationOntologies } from "../../api/endpoints";
 
 const OntologyTabPanel = () => {
     

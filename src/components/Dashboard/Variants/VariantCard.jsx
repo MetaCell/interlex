@@ -1,7 +1,9 @@
+import PropTypes from 'prop-types';
 import {Box, Chip, Grid, Stack, Typography} from "@mui/material";
-import { vars } from "../../../theme/variables";
 
+import { vars } from "../../../theme/variables";
 const {gray500, gray700, gray200, brand600, brand200, brand50 } = vars;
+
 const VariantCard = ({term}) => {
   return (
     <Grid item xs={12} lg={6} sx={{
@@ -23,16 +25,13 @@ const VariantCard = ({term}) => {
             width: '2px',
             background: brand600
           },
-          
           '& .label': {
             color: brand600
           },
-          
           '& .greenChip': {
             border: `1px solid ${brand200}`,
             background: brand50
           },
-          
           '& .MuiIconButton-root': { opacity: 1, visibility: 'visible' }
         }
       }}>
@@ -54,6 +53,10 @@ const VariantCard = ({term}) => {
       </Stack>
     </Grid>
   );
+};
+
+VariantCard.propTypes = {
+  term: PropTypes.object.isRequired
 };
 
 export default VariantCard;

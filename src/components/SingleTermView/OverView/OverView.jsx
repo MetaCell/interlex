@@ -3,14 +3,15 @@ import {
   Divider,
   Grid,
 } from "@mui/material";
+import Details from "./Details";
+import { debounce } from 'lodash';
+import PropTypes from 'prop-types';
 import Hierarchy from "./Hierarchy";
 import Predicates from "./Predicates";
-import Details from "./Details";
-import RawDataViewer from "./RawDataViewer";
 import {useQuery} from "../../../helpers";
+import RawDataViewer from "./RawDataViewer";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import { getMatchTerms } from "../../../api/endpoints";
-import { debounce } from 'lodash';
 
 const OverView = ({ isCodeViewVisible, selectedDataFormat }) => {
   const query = useQuery();
@@ -18,6 +19,7 @@ const OverView = ({ isCodeViewVisible, selectedDataFormat }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchTerms = useCallback(
     debounce((searchTerm) => {
       if (searchTerm) {
@@ -64,4 +66,9 @@ const OverView = ({ isCodeViewVisible, selectedDataFormat }) => {
   )
 }
 
-export default OverView
+OverView.propTypes = {
+  isCodeViewVisible: PropTypes.bool,
+  selectedDataFormat: PropTypes.string
+}
+
+export default OverView;

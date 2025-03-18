@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import { TableHead, TableSortLabel, TableRow, TableCell } from '@mui/material';
 import Checkbox from './CustomCheckbox';
+import { TableHead, TableSortLabel, TableRow, TableCell } from '@mui/material';
 
 
 export default function CustomTableHead(props) {
@@ -51,7 +51,12 @@ export default function CustomTableHead(props) {
 }
 
 CustomTableHead.propTypes = {
-    onRequestSort: PropTypes.func.isRequired,
-    order: PropTypes.oneOf(['asc', 'desc']).isRequired,
-    orderBy: PropTypes.string.isRequired,
-};
+    onSelectAllClick: PropTypes.func,
+    order: PropTypes.oneOf(['asc', 'desc']),
+    orderBy: PropTypes.string,
+    numSelected: PropTypes.number,
+    rowCount: PropTypes.number,
+    onRequestSort: PropTypes.func,
+    headCells: PropTypes.array,
+    isCheckboxPresent: PropTypes.bool
+}

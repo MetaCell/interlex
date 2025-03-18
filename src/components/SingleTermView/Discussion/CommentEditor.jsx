@@ -1,21 +1,22 @@
 import { useState } from 'react';
-import { Button, Box } from '@mui/material';
+import PropTypes from 'prop-types';
 import RichTextEditor from 'react-rte';
 import {SendComment} from "../../../Icons";
+import { Button, Box } from '@mui/material';
 
 const CommentEditor = ({ onAddComment }) => {
   const [editorState, setEditorState] = useState(RichTextEditor.createEmptyValue());
-  
+
   const handleEditorChange = (value) => {
     setEditorState(value);
   };
-  
+
   const handleAddComment = () => {
     const htmlContent = editorState.toString('html');
     onAddComment(htmlContent);
     setEditorState(RichTextEditor.createEmptyValue());
   };
-  
+
   return (
     <Box position='relative'>
       <RichTextEditor
@@ -46,6 +47,10 @@ const CommentEditor = ({ onAddComment }) => {
       </Button>
     </Box>
   );
+};
+
+CommentEditor.propTypes = {
+  onAddComment: PropTypes.func.isRequired,
 };
 
 export default CommentEditor;

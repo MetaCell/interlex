@@ -848,7 +848,6 @@ const theme = createTheme({
 						border: `1px solid ${gray300}`,
 						fontSize: ".875rem",
 						borderRadius: ".5rem",
-						color: gray800,
 						textTransform: "none",
 						height: "2.5rem",
 

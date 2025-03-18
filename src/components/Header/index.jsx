@@ -1,22 +1,41 @@
 import PropTypes from 'prop-types';
-import { Avatar, Badge, Box, Button, Divider, IconButton, ListItemAvatar, Popover } from "@mui/material";
-import { vars } from "../../theme/variables";
-import { AddIcon, DocumentationIcon, LogoutIcon, NavIcon, OrganizationsIcon, ReleaseNotesIcon, TermActivityIcon, UserIcon, SortIcon } from '../../Icons';
-import Logo from '../../Icons/svg/interlex_logo.svg'
+import {
+    AddIcon,
+    DocumentationIcon,
+    LogoutIcon,
+    NavIcon,
+    OrganizationsIcon,
+    ReleaseNotesIcon,
+    TermActivityIcon,
+    UserIcon,
+    SortIcon
+} from '../../Icons';
+import {
+    Avatar,
+    Badge,
+    Box,
+    Button,
+    Divider,
+    IconButton,
+    ListItemAvatar,
+    Popover
+} from "@mui/material";
 import React from "react";
+import Search from './Search';
+import { useContext } from "react";
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import Search from './Search';
-import EditBulkTermsDialog from "../Dashboard/EditBulkTerms/EditBulkTermsDialog";
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
-import { GlobalDataContext } from "../../contexts/DataContext";
 import TermDialog from '../TermEditor/TermDialog';
+import Logo from '../../Icons/svg/interlex_logo.svg'
+import ListItemText from '@mui/material/ListItemText';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemButton from '@mui/material/ListItemButton';
+import { GlobalDataContext } from "../../contexts/DataContext";
+import EditBulkTermsDialog from "../Dashboard/EditBulkTerms/EditBulkTermsDialog";
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 
+import { vars } from "../../theme/variables";
 const { gray200, white, gray100, gray600 } = vars;
 
 const styles = {
@@ -136,6 +155,7 @@ const Header = ({ isLoggedIn = true }) => {
         setOpenNewTermDialog(true);
     }
 
+    // eslint-disable-next-line no-unused-vars
     const handleSetUserData = (user, organization) => {
         setUserData(user, organization);
     };
@@ -205,6 +225,7 @@ const Header = ({ isLoggedIn = true }) => {
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     React.useEffect(() => {
