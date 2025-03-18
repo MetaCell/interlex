@@ -151,7 +151,7 @@ const fetchData = async (url, method = "GET", data: object | null = null) => {
 };
 
 export const elasticSearch = async (query) => {
-  const url = API_CONFIG.BASE_SCICRUNCH_URL + import.meta.env.VITE_SCICRUNCH_ELASTIC_KEY;
+  const url = API_CONFIG.BASE_SCICRUNCH_URL + API_CONFIG.SCICRUNCH_KEY;
   try {
     const result = await fetchData(url, "POST", {
       query: {

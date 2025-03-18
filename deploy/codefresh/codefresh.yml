@@ -6,16 +6,16 @@ stages:
 steps:
   clone:
     stage: "clone"
-    title: "Cloning Interlex"
+    title: "Cloning interlex"
     type: "git-clone"
     repo: "metacell/interlex"
     revision: "${{CF_BRANCH}}"
   build:
     stage: "build"
-    title: "Building Interlex"
+    title: "Building interlex"
     type: "build"
     image_name: "interlex"
-    tag: "${{CF_BUILD_ID}}"
+    tag: "${{CF_SHORT_REVISION}}"
     dockerfile: Dockerfile
     working_directory: ./interlex
     buildkit: true
@@ -25,14 +25,13 @@ steps:
       - VITE_SCICRUNCH_API_KEY=${{VITE_SCICRUNCH_API_KEY}}
   deploy:
     stage: "deploy"
-    title: "Deploying Interlex"
-    image: codefresh/kubectl
+    title: "Deploying interlex"
+    image: codefresh/cf-deploy-kubernetes
+    tag: latest
     working_directory: ./interlex/deploy/k8s
     commands:
-      - export CLUSTER_NAME="${{CLUSTER_NAME}}"
-      - export NAMESPACE="${{NAMESPACE}}"
-      - export CF_BUILD_ID
-      - export REGISTRY="${{REGISTRY}}/"
-      - export DOMAIN="${{DOMAIN}}"
-      - chmod +x ./deploy.sh
-      - ./deploy.sh
+      - /cf-deploy-kubernetes interlex.yaml
+      - /cf-deploy-kubernetes ingress.yaml
+    environment:
+      - KUBECONTEXT=${{CLUSTER_NAME}}
+      - KUBERNETES_NAMESPACE=${{NAMESPACE}}
