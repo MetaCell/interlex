@@ -15,12 +15,16 @@ import { CheckedIcon, UncheckedIcon, OrcidIcon } from "../../Icons";
 import FormField from "./UI/Formfield";
 import PasswordField from "./UI/PasswordField";
 import { handleLogin } from "../../api/endpoints/index";
+import {GlobalDataContext} from "../../contexts/DataContext";
+import { useContext } from 'react';
 
 const Login = () => {
   const [formData, setFormData] = React.useState({
     email: "",
     password: "",
   });
+
+  const { setUserData } = useContext(GlobalDataContext);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -32,8 +36,9 @@ const Login = () => {
 
   const loginUser = async () => {
     try {
-      await handleLogin(formData.email, formData.password);
-      console.log("Login successful");
+      const response = await handleLogin(formData.email, formData.password);
+      console.log("Login successful ", response);
+      setUserData(response.data)
     } catch (error) {
       console.error("Login error:", error);
     }

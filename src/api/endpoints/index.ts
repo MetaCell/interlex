@@ -14,8 +14,6 @@ const BASE_GROUP = "base";
 const BASE_EXTENSION = "jsonld";
 
 export const getOrganizations = async (group) => {
-    /** Call endpoint for retrieving organizations, this is a mock endpoint
-    created by us */
     const {  getPrivRoleOtherGroup } = useApi();
 
     /** Call Endpoint */
@@ -28,8 +26,6 @@ export const getOrganizations = async (group) => {
 }
 
 export const getOrganization = async (id) => {
-  /** Call endpoint for retrieving organizations, this is a mock endpoint
-  created by us */
   const {  getOrganization } = useMockApi();
 
   /** Call Endpoint */
@@ -42,13 +38,24 @@ export const getOrganization = async (id) => {
 }
 
 export const getOrganizationTerms = async (id) => {
-  /** Call endpoint for retrieving organizations, this is a mock endpoint
-  created by us */
   const {  getOrganizationsTerms } = useMockApi();
 
   /** Call Endpoint */
   return getOrganizationsTerms(id).then((data) => {
       return termParser(data, undefined);
+    })
+    .catch((error) => {
+      return error;
+    });
+}
+
+export const newOrganization = async (organization) => {
+  const {  postPrivOrgNew } = useApi();
+
+  /** Call Endpoint */
+  return postPrivOrgNew(organization).then((response) => {
+      console.log("Post new organization ", response)
+      return response
     })
     .catch((error) => {
       return error;
@@ -192,10 +199,10 @@ export const searchAll = async (term, filters = {}) => {
 }
 
 export const patchTerm = async (group, termID, term) => {
-  const patchEndpointsIlx= "";
+  const {patchEndpointsIlx} = useApi();
 
   /** Call Endpoint */
-  return patchEndpointsIlx(group, termID).then((data) => {
+  return patchEndpointsIlx(group, termID, term).then((data) => {
       let termParsed = getTerm(data.data);
       let response = {
         status : data.status,
@@ -210,10 +217,10 @@ export const patchTerm = async (group, termID, term) => {
 }
 
 export const addTerm = async (group, term) => {
-  const {  addTerm } = useMockApi();
+  const {  postPrivEntityNew } = useApi();
 
   /** Call Endpoint */
-  return addTerm(group, term).then((data) => {
+  return postPrivEntityNew(group, term).then((data) => {
       let termParsed = getTerm(data.data);
       let response = {
         status : data.status,

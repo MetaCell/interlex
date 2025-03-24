@@ -1,5 +1,5 @@
 import {useEffect, useState } from "react";
-import { getOrganizations } from "../../api/endpoints";
+import { getOrganizations, newOrganization } from "../../api/endpoints";
 import OrganizationsList from "../common/OrganizationsList";
 import {Box, Typography, CircularProgress} from "@mui/material";
 
@@ -19,6 +19,7 @@ const Organizations = () => {
   useEffect( () => {
     setLoading(true)
     fetchOrganizations();
+    newOrganization("test");
   }, []);
 
   if (loading) {
@@ -30,7 +31,7 @@ const Organizations = () => {
   return (
     <Box p='2.25rem 5rem' flexGrow={1} overflow='auto'>
       <Typography fontSize='1.5rem' color={gray700} fontWeight={600} mb='1.5rem'>
-        {organizations.length} Organizations
+        {organizations?.length} Organizations
       </Typography>
       <OrganizationsList organizations={organizations} />
     </Box>

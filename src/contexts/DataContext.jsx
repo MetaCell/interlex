@@ -34,6 +34,9 @@ const GlobalDataProvider = ({ children }) => {
     setEditBulkSearchFilters(filters);
   };
 
+  const setUserData = (user) => {
+    setUser(user)
+  }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchUser= useCallback(debounce(async () => {
@@ -47,6 +50,7 @@ const GlobalDataProvider = ({ children }) => {
 
   const dataContextValue = {
     user,
+    setUserData,
     activeOntology,
     setOntologyData,
     searchOrganizationFilters,
@@ -57,7 +61,7 @@ const GlobalDataProvider = ({ children }) => {
     setPredicatesSingleTermData,
     editBulkSearchFilters,
     setEditBulkSearchData
-  };
+  };  
 
   return (
     <GlobalDataContext.Provider value={dataContextValue}>
