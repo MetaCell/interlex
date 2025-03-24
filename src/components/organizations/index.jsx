@@ -11,7 +11,7 @@ const Organizations = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchOrganizations = async() => {
-    const organizations = await getOrganizations()
+    const organizations = await getOrganizations("base")
     setOrganizations(organizations);
     setLoading(false)
   }

@@ -60,7 +60,7 @@ const CreateForkDialog = ({ open, handleClose, onSubmit }) => {
     );
 
     const fetchOrganizations = async () => {
-        const organizations = await getOrganizations()
+        const organizations = await getOrganizations("base")
         setOrganizations(organizations);
         setLoading(false)
     }

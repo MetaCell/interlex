@@ -1058,6 +1058,195 @@ export const useGetEndpointsGroup = <TData = Awaited<ReturnType<typeof getEndpoi
   return query;
 }
 
+export const getEndpointsContributionsExtension = (
+  group: string,
+  options?: SecondParameter<typeof customInstance>, signal?: AbortSignal
+) => {
+  return customInstance<void>(
+      {
+          url: `https://uri.olympiangods.org/${group}/contributions`,
+          method: 'GET',
+          signal
+      },
+      options
+  );
+}
+
+export const getGetEndpointsContributionsQueryKeyExtension = (group: string,) => {
+  return [`https://uri.olympiangods.org/${group}/contributions`] as const;
+}
+
+export const getGetEndpointsContributionsQueryOptionsExtension = <
+  TData = Awaited<ReturnType<typeof getEndpointsContributionsExtension>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsContributionsExtension>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetEndpointsContributionsQueryKeyExtension(group);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getEndpointsContributionsExtension>>> = ({ signal }) =>
+      getEndpointsContributionsExtension(group, requestOptions, signal);
+
+  return {
+      queryKey,
+      queryFn,
+      enabled: !!group,
+      ...queryOptions
+  } as UseQueryOptions<Awaited<ReturnType<typeof getEndpointsContributionsExtension>>, TError, TData> & { queryKey: QueryKey };
+}
+
+export type GetEndpointsContributionsQueryResultExtension = NonNullable<Awaited<ReturnType<typeof getEndpointsContributionsExtension>>>
+export type GetEndpointsContributionsQueryErrorExtension = ErrorType<unknown>
+
+export const useGetEndpointsContributionsExtension = <
+  TData = Awaited<ReturnType<typeof getEndpointsContributionsExtension>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsContributionsExtension>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+  const queryOptions = getGetEndpointsContributionsQueryOptionsExtension(group, options);
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+  query.queryKey = queryOptions.queryKey;
+  return query;
+}
+
+// Second version with `/contributions/interlex`
+export const getEndpointsContributionsExtensionInterlex = (
+  group: string,
+  options?: SecondParameter<typeof customInstance>, signal?: AbortSignal
+) => {
+  return customInstance<void>(
+      {
+          url: `https://uri.olympiangods.org/${group}/contributions/interlex`,
+          method: 'GET',
+          signal
+      },
+      options
+  );
+}
+
+export const getGetEndpointsContributionsQueryKeyExtensionInterlex = (group: string,) => {
+  return [`https://uri.olympiangods.org/${group}/contributions/interlex`] as const;
+}
+
+export const getGetEndpointsContributionsQueryOptionsExtensionInterlex = <
+  TData = Awaited<ReturnType<typeof getEndpointsContributionsExtensionInterlex>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsContributionsExtensionInterlex>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetEndpointsContributionsQueryKeyExtensionInterlex(group);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getEndpointsContributionsExtensionInterlex>>> = ({ signal }) =>
+      getEndpointsContributionsExtensionInterlex(group, requestOptions, signal);
+
+  return {
+      queryKey,
+      queryFn,
+      enabled: !!group,
+      ...queryOptions
+  } as UseQueryOptions<Awaited<ReturnType<typeof getEndpointsContributionsExtensionInterlex>>, TError, TData> & { queryKey: QueryKey };
+}
+
+export type GetEndpointsContributionsQueryResultExtensionInterlex = NonNullable<Awaited<ReturnType<typeof getEndpointsContributionsExtensionInterlex>>>
+export type GetEndpointsContributionsQueryErrorExtensionInterlex = ErrorType<unknown>
+
+export const useGetEndpointsContributionsExtensionInterlex = <
+  TData = Awaited<ReturnType<typeof getEndpointsContributionsExtensionInterlex>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsContributionsExtensionInterlex>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+  const queryOptions = getGetEndpointsContributionsQueryOptionsExtensionInterlex(group, options);
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+  query.queryKey = queryOptions.queryKey;
+  return query;
+}
+
+// ---------------------------------------
+
+export const getEndpointsCuriesExtension = (
+  group: string,
+  options?: SecondParameter<typeof customInstance>, signal?: AbortSignal
+) => {
+  return customInstance<void>(
+      {
+          url: `https://uri.olympiangods.org/${group}/curies`,
+          method: 'GET',
+          signal
+      },
+      options
+  );
+}
+
+export const getGetEndpointsCuriesQueryKeyExtension = (group: string,) => {
+  return [`https://uri.olympiangods.org/${group}/curies`] as const;
+}
+
+export const getGetEndpointsCuriesQueryOptionsExtension = <
+  TData = Awaited<ReturnType<typeof getEndpointsCuriesExtension>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsCuriesExtension>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetEndpointsCuriesQueryKeyExtension(group);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getEndpointsCuriesExtension>>> = ({ signal }) =>
+      getEndpointsCuriesExtension(group, requestOptions, signal);
+
+  return {
+      queryKey,
+      queryFn,
+      enabled: !!group,
+      ...queryOptions
+  } as UseQueryOptions<Awaited<ReturnType<typeof getEndpointsCuriesExtension>>, TError, TData> & { queryKey: QueryKey };
+}
+
+export type GetEndpointsCuriesQueryResultExtension = NonNullable<Awaited<ReturnType<typeof getEndpointsCuriesExtension>>>
+export type GetEndpointsCuriesQueryErrorExtension = ErrorType<unknown>
+
+export const useGetEndpointsCuriesExtension = <
+  TData = Awaited<ReturnType<typeof getEndpointsCuriesExtension>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getEndpointsCuriesExtension>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+  const queryOptions = getGetEndpointsCuriesQueryOptionsExtension(group, options);
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+  query.queryKey = queryOptions.queryKey;
+  return query;
+}
+
 export const postEndpointsCuries = (
     group: string,
  options?: SecondParameter<typeof customInstance>,) => {
@@ -1169,6 +1358,148 @@ export const useGetEndpointsCuries = <TData = Awaited<ReturnType<typeof getEndpo
   return query;
 }
 
+
+
+
+export const getDiffCuries = (
+    group: string,
+    otherGroupDiff: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<void>(
+      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/curies`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getGetDiffCuriesQueryKey = (group: string,
+    otherGroupDiff: string,) => {
+    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/curies`] as const;
+    }
+
+    
+export const getGetDiffCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getDiffCuries>>, TError = ErrorType<unknown>>(group: string,
+    otherGroupDiff: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffCuries>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDiffCuriesQueryKey(group,otherGroupDiff);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDiffCuries>>> = ({ signal }) => getDiffCuries(group,otherGroupDiff, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(group && otherGroupDiff), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDiffCuries>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetDiffCuriesQueryResult = NonNullable<Awaited<ReturnType<typeof getDiffCuries>>>
+export type GetDiffCuriesQueryError = ErrorType<unknown>
+
+export const useGetDiffCuries = <TData = Awaited<ReturnType<typeof getDiffCuries>>, TError = ErrorType<unknown>>(
+ group: string,
+    otherGroupDiff: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffCuries>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetDiffCuriesQueryOptions(group,otherGroupDiff,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+export const getDiffCuriesExtension = (
+  group: string,
+  otherGroupDiff: string,
+  prefixIriCurie: string,
+  extension: string,
+  options?: SecondParameter<typeof customInstance>, signal?: AbortSignal
+) => {
+  return customInstance<void>(
+      {
+          url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/curies/${prefixIriCurie}.${extension}`,
+          method: 'GET',
+          signal
+      },
+      options
+  );
+}
+
+export const getGetDiffCuriesQueryKeyExtension = (
+  group: string,
+  otherGroupDiff: string,
+  prefixIriCurie: string,
+  extension: string,
+) => {
+  return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/curies/${prefixIriCurie}.${extension}`] as const;
+}
+
+export const getGetDiffCuriesQueryOptionsExtension = <
+  TData = Awaited<ReturnType<typeof getDiffCuriesExtension>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  otherGroupDiff: string,
+  prefixIriCurie: string,
+  extension: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffCuriesExtension>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetDiffCuriesQueryKeyExtension(group, otherGroupDiff, prefixIriCurie, extension);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getDiffCuriesExtension>>> = ({ signal }) =>
+      getDiffCuriesExtension(group, otherGroupDiff, prefixIriCurie, extension, requestOptions, signal);
+
+  return {
+      queryKey,
+      queryFn,
+      enabled: !!(group && otherGroupDiff && prefixIriCurie && extension),
+      ...queryOptions
+  } as UseQueryOptions<Awaited<ReturnType<typeof getDiffCuriesExtension>>, TError, TData> & { queryKey: QueryKey };
+}
+
+export type GetDiffCuriesQueryResultExtension = NonNullable<Awaited<ReturnType<typeof getDiffCuriesExtension>>>
+export type GetDiffCuriesQueryErrorExtension = ErrorType<unknown>
+
+export const useGetDiffCuriesExtension = <
+  TData = Awaited<ReturnType<typeof getDiffCuriesExtension>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  otherGroupDiff: string,
+  prefixIriCurie: string,
+  extension: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffCuriesExtension>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetDiffCuriesQueryOptionsExtension(group, otherGroupDiff, prefixIriCurie, extension, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+
 export const getDiffLexical = (
     group: string,
     otherGroupDiff: string,
@@ -1229,6 +1560,75 @@ export const useGetDiffLexical = <TData = Awaited<ReturnType<typeof getDiffLexic
 
   return query;
 }
+
+
+
+
+/**
+ * @summary The terminal ontologies query does go on endpoints
+ */
+export const getDiffOntologies = (
+    group: string,
+    otherGroupDiff: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<void>(
+      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getGetDiffOntologiesQueryKey = (group: string,
+    otherGroupDiff: string,) => {
+    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies`] as const;
+    }
+
+    
+export const getGetDiffOntologiesQueryOptions = <TData = Awaited<ReturnType<typeof getDiffOntologies>>, TError = ErrorType<unknown>>(group: string,
+    otherGroupDiff: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologies>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDiffOntologiesQueryKey(group,otherGroupDiff);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDiffOntologies>>> = ({ signal }) => getDiffOntologies(group,otherGroupDiff, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(group && otherGroupDiff), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologies>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetDiffOntologiesQueryResult = NonNullable<Awaited<ReturnType<typeof getDiffOntologies>>>
+export type GetDiffOntologiesQueryError = ErrorType<unknown>
+
+/**
+ * @summary The terminal ontologies query does go on endpoints
+ */
+export const useGetDiffOntologies = <TData = Awaited<ReturnType<typeof getDiffOntologies>>, TError = ErrorType<unknown>>(
+ group: string,
+    otherGroupDiff: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologies>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetDiffOntologiesQueryOptions(group,otherGroupDiff,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
 
 /**
  * @summary needed because ontologies appear under other routes
@@ -1703,86 +2103,95 @@ export const useGetDiffOntologiesUrisVersion = <TData = Awaited<ReturnType<typeo
   return query;
 }
 
-
-
-
 /**
  * @summary needed because ontologies appear under other routes
  */
-export const getDiffOntologies = (
-    group: string,
-    otherGroupDiff: string,
-    ontPath: string,
-    filename: string,
-    extension: string,
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+export const getDiffOntologiesExtension = (
+  group: string,
+  otherGroupDiff: string,
+  ontPath: string,
+  filename: string,
+  extension: string,
+  options?: SecondParameter<typeof customInstance>, signal?: AbortSignal
 ) => {
-      
-      
-      return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}.${extension}`, method: 'GET', signal
-    },
-      options);
-    }
-  
-
-export const getGetDiffOntologiesQueryKey = (group: string,
-    otherGroupDiff: string,
-    ontPath: string,
-    filename: string,
-    extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}.${extension}`] as const;
-    }
-
-    
-export const getGetDiffOntologiesQueryOptions = <TData = Awaited<ReturnType<typeof getDiffOntologies>>, TError = ErrorType<unknown>>(group: string,
-    otherGroupDiff: string,
-    ontPath: string,
-    filename: string,
-    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologies>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetDiffOntologiesQueryKey(group,otherGroupDiff,ontPath,filename,extension);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDiffOntologies>>> = ({ signal }) => getDiffOntologies(group,otherGroupDiff,ontPath,filename,extension, requestOptions, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(group && otherGroupDiff && ontPath && filename && extension), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologies>>, TError, TData> & { queryKey: QueryKey }
+  return customInstance<void>(
+      {
+          url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}.${extension}`,
+          method: 'GET',
+          signal
+      },
+      options
+  );
 }
 
-export type GetDiffOntologiesQueryResult = NonNullable<Awaited<ReturnType<typeof getDiffOntologies>>>
-export type GetDiffOntologiesQueryError = ErrorType<unknown>
+export const getGetDiffOntologiesQueryKeyExtension = (
+  group: string,
+  otherGroupDiff: string,
+  ontPath: string,
+  filename: string,
+  extension: string,
+) => {
+  return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}.${extension}`] as const;
+}
+
+export const getGetDiffOntologiesQueryOptionsExtension = <
+  TData = Awaited<ReturnType<typeof getDiffOntologiesExtension>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  otherGroupDiff: string,
+  ontPath: string,
+  filename: string,
+  extension: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesExtension>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetDiffOntologiesQueryKeyExtension(group, otherGroupDiff, ontPath, filename, extension);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getDiffOntologiesExtension>>> = ({ signal }) =>
+      getDiffOntologiesExtension(group, otherGroupDiff, ontPath, filename, extension, requestOptions, signal);
+
+  return {
+      queryKey,
+      queryFn,
+      enabled: !!(group && otherGroupDiff && ontPath && filename && extension),
+      ...queryOptions
+  } as UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesExtension>>, TError, TData> & { queryKey: QueryKey };
+}
+
+export type GetDiffOntologiesQueryResultExtension = NonNullable<Awaited<ReturnType<typeof getDiffOntologiesExtension>>>
+export type GetDiffOntologiesQueryErrorExtension = ErrorType<unknown>
 
 /**
- * @summary needed because ontologies appear under other routes
- */
-export const useGetDiffOntologies = <TData = Awaited<ReturnType<typeof getDiffOntologies>>, TError = ErrorType<unknown>>(
- group: string,
-    otherGroupDiff: string,
-    ontPath: string,
-    filename: string,
-    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologies>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+* @summary needed because ontologies appear under other routes
+*/
+export const useGetDiffOntologiesExtension = <
+  TData = Awaited<ReturnType<typeof getDiffOntologiesExtension>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  otherGroupDiff: string,
+  ontPath: string,
+  filename: string,
+  extension: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffOntologiesExtension>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
-  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+  const queryOptions = getGetDiffOntologiesQueryOptionsExtension(group, otherGroupDiff, ontPath, filename, extension, options);
 
-  const queryOptions = getGetDiffOntologiesQueryOptions(group,otherGroupDiff,ontPath,filename,extension,options)
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
-  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
-
-  query.queryKey = queryOptions.queryKey ;
+  query.queryKey = queryOptions.queryKey;
 
   return query;
 }
-
-
-
 
 /**
  * @summary needed because ontologies appear under other routes
@@ -2136,6 +2545,157 @@ export const useGetDiffUris = <TData = Awaited<ReturnType<typeof getDiffUris>>, 
 
   return query;
 }
+
+
+
+
+export const getDiffVersionsCuries = (
+    group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<void>(
+      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getGetDiffVersionsCuriesQueryKey = (group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string,) => {
+    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies`] as const;
+    }
+
+    
+export const getGetDiffVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError = ErrorType<unknown>>(group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDiffVersionsCuriesQueryKey(group,otherGroupDiff,epochVerstrId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDiffVersionsCuries>>> = ({ signal }) => getDiffVersionsCuries(group,otherGroupDiff,epochVerstrId, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(group && otherGroupDiff && epochVerstrId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetDiffVersionsCuriesQueryResult = NonNullable<Awaited<ReturnType<typeof getDiffVersionsCuries>>>
+export type GetDiffVersionsCuriesQueryError = ErrorType<unknown>
+
+export const useGetDiffVersionsCuries = <TData = Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError = ErrorType<unknown>>(
+ group: string,
+    otherGroupDiff: string,
+    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsCuries>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetDiffVersionsCuriesQueryOptions(group,otherGroupDiff,epochVerstrId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+export const getDiffVersionsCuriesExtension = (
+  group: string,
+  otherGroupDiff: string,
+  epochVerstrId: string,
+  prefixIriCurie: string,
+  extension: string,
+  options?: SecondParameter<typeof customInstance>, signal?: AbortSignal
+) => {
+  return customInstance<void>(
+      {
+          url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`,
+          method: 'GET',
+          signal
+      },
+      options
+  );
+}
+
+export const getGetDiffVersionsCuriesQueryKeyExtension = (
+  group: string,
+  otherGroupDiff: string,
+  epochVerstrId: string,
+  prefixIriCurie: string,
+  extension: string,
+) => {
+  return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`] as const;
+}
+
+export const getGetDiffVersionsCuriesQueryOptionsExtension = <
+  TData = Awaited<ReturnType<typeof getDiffVersionsCuriesExtension>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  otherGroupDiff: string,
+  epochVerstrId: string,
+  prefixIriCurie: string,
+  extension: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsCuriesExtension>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetDiffVersionsCuriesQueryKeyExtension(group, otherGroupDiff, epochVerstrId, prefixIriCurie, extension);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getDiffVersionsCuriesExtension>>> = ({ signal }) =>
+      getDiffVersionsCuriesExtension(group, otherGroupDiff, epochVerstrId, prefixIriCurie, extension, requestOptions, signal);
+
+  return {
+      queryKey,
+      queryFn,
+      enabled: !!(group && otherGroupDiff && epochVerstrId && prefixIriCurie && extension),
+      ...queryOptions
+  } as UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsCuriesExtension>>, TError, TData> & { queryKey: QueryKey };
+}
+
+export type GetDiffVersionsCuriesQueryResultExtension = NonNullable<Awaited<ReturnType<typeof getDiffVersionsCuriesExtension>>>
+export type GetDiffVersionsCuriesQueryErrorExtension = ErrorType<unknown>
+
+export const useGetDiffVersionsCuriesExtension = <
+  TData = Awaited<ReturnType<typeof getDiffVersionsCuriesExtension>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  otherGroupDiff: string,
+  epochVerstrId: string,
+  prefixIriCurie: string,
+  extension: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getDiffVersionsCuriesExtension>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetDiffVersionsCuriesQueryOptionsExtension(group, otherGroupDiff, epochVerstrId, prefixIriCurie, extension, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+
+
 
 export const getDiffVersionsReadable = (
     group: string,
@@ -4227,6 +4787,139 @@ const {mutation: mutationOptions, request: requestOptions} = options ?? {};
 
       return useMutation(mutationOptions);
     }
+    
+export const getOwnCuriesExtension = (
+    group: string,
+    otherGroup: string,
+    prefixIriCurie: string,
+    extension: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<void>(
+      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/curies/${prefixIriCurie}.${extension}`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getGetOwnCuriesQueryKeyExtension = (group: string,
+    otherGroup: string,
+    prefixIriCurie: string,
+    extension: string,) => {
+    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/curies/${prefixIriCurie}.${extension}`] as const;
+    }
+
+    
+export const getGetOwnCuriesQueryOptionsExtension = <TData = Awaited<ReturnType<typeof getOwnCuriesExtension>>, TError = ErrorType<unknown>>(group: string,
+    otherGroup: string,
+    prefixIriCurie: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnCuriesExtension>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetOwnCuriesQueryKeyExtension(group,otherGroup,prefixIriCurie,extension);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOwnCuriesExtension>>> = ({ signal }) => getOwnCuriesExtension(group,otherGroup,prefixIriCurie,extension, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(group && otherGroup && prefixIriCurie && extension), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOwnCuries>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetOwnCuriesQueryResultExtension = NonNullable<Awaited<ReturnType<typeof getOwnCuriesExtension>>>
+export type GetOwnCuriesQueryErrorExtension = ErrorType<unknown>
+
+export const useGetOwnCuriesExtension = <TData = Awaited<ReturnType<typeof getOwnCuries>>, TError = ErrorType<unknown>>(
+ group: string,
+    otherGroup: string,
+    prefixIriCurie: string,
+    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnCuries>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetOwnCuriesQueryOptionsExtension(group,otherGroup,prefixIriCurie,extension,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * @summary The terminal ontologies query does go on endpoints
+ */
+export const getOwnOntologies = (
+    group: string,
+    otherGroup: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<void>(
+      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getGetOwnOntologiesQueryKey = (group: string,
+    otherGroup: string,) => {
+    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies`] as const;
+    }
+
+    
+export const getGetOwnOntologiesQueryOptions = <TData = Awaited<ReturnType<typeof getOwnOntologies>>, TError = ErrorType<unknown>>(group: string,
+    otherGroup: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologies>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetOwnOntologiesQueryKey(group,otherGroup);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOwnOntologies>>> = ({ signal }) => getOwnOntologies(group,otherGroup, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(group && otherGroup), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologies>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetOwnOntologiesQueryResult = NonNullable<Awaited<ReturnType<typeof getOwnOntologies>>>
+export type GetOwnOntologiesQueryError = ErrorType<unknown>
+
+/**
+ * @summary The terminal ontologies query does go on endpoints
+ */
+export const useGetOwnOntologies = <TData = Awaited<ReturnType<typeof getOwnOntologies>>, TError = ErrorType<unknown>>(
+ group: string,
+    otherGroup: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologies>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetOwnOntologiesQueryOptions(group,otherGroup,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
 
 
 /**
@@ -5012,82 +5705,95 @@ export const usePostOwnOntologiesUrisVersion = <TError = ErrorType<unknown>,
 
       return useMutation(mutationOptions);
     }
-    
 /**
  * @summary needed because ontologies appear under other routes
  */
-export const getOwnOntologies = (
-    group: string,
-    otherGroup: string,
-    ontPath: string,
-    filename: string,
-    extension: string,
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+export const getOwnOntologiesExtension = (
+  group: string,
+  otherGroup: string,
+  ontPath: string,
+  filename: string,
+  extension: string,
+  options?: SecondParameter<typeof customInstance>, signal?: AbortSignal
 ) => {
-      
-      
-      return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}.${extension}`, method: 'GET', signal
-    },
-      options);
-    }
-  
-
-export const getGetOwnOntologiesQueryKey = (group: string,
-    otherGroup: string,
-    ontPath: string,
-    filename: string,
-    extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}.${extension}`] as const;
-    }
-
-    
-export const getGetOwnOntologiesQueryOptions = <TData = Awaited<ReturnType<typeof getOwnOntologies>>, TError = ErrorType<unknown>>(group: string,
-    otherGroup: string,
-    ontPath: string,
-    filename: string,
-    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologies>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetOwnOntologiesQueryKey(group,otherGroup,ontPath,filename,extension);
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOwnOntologies>>> = ({ signal }) => getOwnOntologies(group,otherGroup,ontPath,filename,extension, requestOptions, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(group && otherGroup && ontPath && filename && extension), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologies>>, TError, TData> & { queryKey: QueryKey }
+  return customInstance<void>(
+      {
+          url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}.${extension}`,
+          method: 'GET',
+          signal
+      },
+      options
+  );
 }
 
-export type GetOwnOntologiesQueryResult = NonNullable<Awaited<ReturnType<typeof getOwnOntologies>>>
-export type GetOwnOntologiesQueryError = ErrorType<unknown>
+export const getGetOwnOntologiesQueryKeyExtension = (
+  group: string,
+  otherGroup: string,
+  ontPath: string,
+  filename: string,
+  extension: string,
+) => {
+  return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}.${extension}`] as const;
+}
+
+export const getGetOwnOntologiesQueryOptionsExtension = <
+  TData = Awaited<ReturnType<typeof getOwnOntologiesExtension>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  otherGroup: string,
+  ontPath: string,
+  filename: string,
+  extension: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesExtension>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetOwnOntologiesQueryKeyExtension(group, otherGroup, ontPath, filename, extension);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getOwnOntologiesExtension>>> = ({ signal }) =>
+      getOwnOntologiesExtension(group, otherGroup, ontPath, filename, extension, requestOptions, signal);
+
+  return {
+      queryKey,
+      queryFn,
+      enabled: !!(group && otherGroup && ontPath && filename && extension),
+      ...queryOptions
+  } as UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesExtension>>, TError, TData> & { queryKey: QueryKey };
+}
+
+export type GetOwnOntologiesQueryResultExtension = NonNullable<Awaited<ReturnType<typeof getOwnOntologiesExtension>>>
+export type GetOwnOntologiesQueryErrorExtension = ErrorType<unknown>
 
 /**
- * @summary needed because ontologies appear under other routes
- */
-export const useGetOwnOntologies = <TData = Awaited<ReturnType<typeof getOwnOntologies>>, TError = ErrorType<unknown>>(
- group: string,
-    otherGroup: string,
-    ontPath: string,
-    filename: string,
-    extension: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologies>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+* @summary needed because ontologies appear under other routes
+*/
+export const useGetOwnOntologiesExtension = <
+  TData = Awaited<ReturnType<typeof getOwnOntologiesExtension>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  otherGroup: string,
+  ontPath: string,
+  filename: string,
+  extension: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnOntologiesExtension>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
 
-  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+  const queryOptions = getGetOwnOntologiesQueryOptionsExtension(group, otherGroup, ontPath, filename, extension, options);
 
-  const queryOptions = getGetOwnOntologiesQueryOptions(group,otherGroup,ontPath,filename,extension,options)
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
-  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
-
-  query.queryKey = queryOptions.queryKey ;
+  query.queryKey = queryOptions.queryKey;
 
   return query;
 }
-
 
 
 
@@ -5554,6 +6260,154 @@ export const useGetOwnUris = <TData = Awaited<ReturnType<typeof getOwnUris>>, TE
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
   query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+export const getOwnVersionsCuries = (
+    group: string,
+    otherGroup: string,
+    epochVerstrId: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<void>(
+      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getGetOwnVersionsCuriesQueryKey = (group: string,
+    otherGroup: string,
+    epochVerstrId: string,) => {
+    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies`] as const;
+    }
+
+    
+export const getGetOwnVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError = ErrorType<unknown>>(group: string,
+    otherGroup: string,
+    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetOwnVersionsCuriesQueryKey(group,otherGroup,epochVerstrId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOwnVersionsCuries>>> = ({ signal }) => getOwnVersionsCuries(group,otherGroup,epochVerstrId, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(group && otherGroup && epochVerstrId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetOwnVersionsCuriesQueryResult = NonNullable<Awaited<ReturnType<typeof getOwnVersionsCuries>>>
+export type GetOwnVersionsCuriesQueryError = ErrorType<unknown>
+
+export const useGetOwnVersionsCuries = <TData = Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError = ErrorType<unknown>>(
+ group: string,
+    otherGroup: string,
+    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsCuries>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetOwnVersionsCuriesQueryOptions(group,otherGroup,epochVerstrId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+export const getOwnVersionsCuriesExtension = (
+  group: string,
+  otherGroup: string,
+  epochVerstrId: string,
+  prefixIriCurie: string,
+  extension: string,
+  options?: SecondParameter<typeof customInstance>, signal?: AbortSignal
+) => {
+  return customInstance<void>(
+      {
+          url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`,
+          method: 'GET',
+          signal
+      },
+      options
+  );
+}
+
+export const getGetOwnVersionsCuriesQueryKeyExtension = (
+  group: string,
+  otherGroup: string,
+  epochVerstrId: string,
+  prefixIriCurie: string,
+  extension: string,
+) => {
+  return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`] as const;
+}
+
+export const getGetOwnVersionsCuriesQueryOptionsExtension = <
+  TData = Awaited<ReturnType<typeof getOwnVersionsCuriesExtension>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  otherGroup: string,
+  epochVerstrId: string,
+  prefixIriCurie: string,
+  extension: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsCuriesExtension>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetOwnVersionsCuriesQueryKeyExtension(group, otherGroup, epochVerstrId, prefixIriCurie, extension);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getOwnVersionsCuriesExtension>>> = ({ signal }) =>
+      getOwnVersionsCuriesExtension(group, otherGroup, epochVerstrId, prefixIriCurie, extension, requestOptions, signal);
+
+  return {
+      queryKey,
+      queryFn,
+      enabled: !!(group && otherGroup && epochVerstrId && prefixIriCurie && extension),
+      ...queryOptions
+  } as UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsCuriesExtension>>, TError, TData> & { queryKey: QueryKey };
+}
+
+export type GetOwnVersionsCuriesQueryResultExtension = NonNullable<Awaited<ReturnType<typeof getOwnVersionsCuriesExtension>>>
+export type GetOwnVersionsCuriesQueryErrorExtension = ErrorType<unknown>
+
+export const useGetOwnVersionsCuriesExtension = <
+  TData = Awaited<ReturnType<typeof getOwnVersionsCuriesExtension>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  otherGroup: string,
+  epochVerstrId: string,
+  prefixIriCurie: string,
+  extension: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getOwnVersionsCuriesExtension>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetOwnVersionsCuriesQueryOptionsExtension(group, otherGroup, epochVerstrId, prefixIriCurie, extension, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
 
   return query;
 }
@@ -7263,6 +8117,184 @@ const {mutation: mutationOptions, request: requestOptions} = options ?? {};
 
       return useMutation(mutationOptions);
     }
+    
+export const getPrivUserRole = (
+    group: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<void>(
+      {url: `https://uri.olympiangods.org/${group}/priv/role`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getGetPrivUserRoleQueryKey = (group: string,) => {
+    return [`https://uri.olympiangods.org/${group}/priv/role`] as const;
+    }
+
+    
+export const getGetPrivUserRoleQueryOptions = <TData = Awaited<ReturnType<typeof getPrivUserRole>>, TError = ErrorType<unknown>>(group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPrivUserRole>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPrivUserRoleQueryKey(group);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPrivUserRole>>> = ({ signal }) => getPrivUserRole(group, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(group), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPrivUserRole>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetPrivUserRoleQueryResult = NonNullable<Awaited<ReturnType<typeof getPrivUserRole>>>
+export type GetPrivUserRoleQueryError = ErrorType<unknown>
+
+export const useGetPrivUserRole = <TData = Awaited<ReturnType<typeof getPrivUserRole>>, TError = ErrorType<unknown>>(
+ group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPrivUserRole>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetPrivUserRoleQueryOptions(group,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+export const getPrivRoleOtherGroup = (
+    group: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<void>(
+      {url: `https://uri.olympiangods.org/${group}/priv/role-other`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getGetPrivRoleOtherGroupQueryKey = (group: string,) => {
+    return [`https://uri.olympiangods.org/${group}/priv/role-other`] as const;
+    }
+
+    
+export const getGetPrivRoleOtherGroupQueryOptions = <TData = Awaited<ReturnType<typeof getPrivRoleOtherGroup>>, TError = ErrorType<unknown>>(group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPrivRoleOtherGroup>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPrivRoleOtherGroupQueryKey(group);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPrivRoleOtherGroup>>> = ({ signal }) => getPrivRoleOtherGroup(group, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(group), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPrivRoleOtherGroup>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetPrivRoleOtherGroupQueryResult = NonNullable<Awaited<ReturnType<typeof getPrivRoleOtherGroup>>>
+export type GetPrivRoleOtherGroupQueryError = ErrorType<unknown>
+
+export const useGetPrivRoleOtherGroup = <TData = Awaited<ReturnType<typeof getPrivRoleOtherGroup>>, TError = ErrorType<unknown>>(
+ group: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPrivRoleOtherGroup>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetPrivRoleOtherGroupQueryOptions(group,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+export const getPrivRoleOtherGroupOther = (
+  group: string,
+  otherRoleGroup: string,
+  options?: SecondParameter<typeof customInstance>, signal?: AbortSignal
+) => {
+  return customInstance<void>(
+      {
+          url: `https://uri.olympiangods.org/${group}/priv/role-other/${otherRoleGroup}`,
+          method: 'GET',
+          signal
+      },
+      options
+  );
+}
+
+export const getGetPrivRoleOtherGroupQueryKeyOther = (
+  group: string,
+  otherRoleGroup: string,
+) => {
+  return [`https://uri.olympiangods.org/${group}/priv/role-other/${otherRoleGroup}`] as const;
+}
+
+export const getGetPrivRoleOtherGroupQueryOptionsOther = <
+  TData = Awaited<ReturnType<typeof getPrivRoleOtherGroupOther>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  otherRoleGroup: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getPrivRoleOtherGroupOther>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetPrivRoleOtherGroupQueryKeyOther(group, otherRoleGroup);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getPrivRoleOtherGroupOther>>> = ({ signal }) =>
+      getPrivRoleOtherGroupOther(group, otherRoleGroup, requestOptions, signal);
+
+  return {
+      queryKey,
+      queryFn,
+      enabled: !!(group && otherRoleGroup),
+      ...queryOptions
+  } as UseQueryOptions<Awaited<ReturnType<typeof getPrivRoleOtherGroupOther>>, TError, TData> & { queryKey: QueryKey };
+}
+
+export type GetPrivRoleOtherGroupQueryResultOther = NonNullable<Awaited<ReturnType<typeof getPrivRoleOtherGroupOther>>>
+export type GetPrivRoleOtherGroupQueryErrorOther = ErrorType<unknown>
+
+export const useGetPrivRoleOtherGroupOther = <
+  TData = Awaited<ReturnType<typeof getPrivRoleOtherGroupOther>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  otherRoleGroup: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getPrivRoleOtherGroupOther>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetPrivRoleOtherGroupQueryOptionsOther(group, otherRoleGroup, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
 
 export const deletePrivRoleOtherGroup = (
     group: string,
@@ -7314,66 +8346,78 @@ const {mutation: mutationOptions, request: requestOptions} = options ?? {};
 
       return useMutation(mutationOptions);
     }
-    
-export const getPrivUserRole = (
-    group: string,
-    user: string,
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
-) => {
-      
-      
+
+    export const getPrivUserRoleUser = (
+      group: string,
+      user: string,
+      options?: SecondParameter<typeof customInstance>, signal?: AbortSignal
+  ) => {
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/role/${user}`, method: 'GET', signal
-    },
-      options);
-    }
+          {
+              url: `https://uri.olympiangods.org/${group}/priv/role/${user}`,
+              method: 'GET',
+              signal
+          },
+          options
+      );
+  }
   
-
-export const getGetPrivUserRoleQueryKey = (group: string,
-    user: string,) => {
-    return [`https://uri.olympiangods.org/${group}/priv/role/${user}`] as const;
-    }
-
-    
-export const getGetPrivUserRoleQueryOptions = <TData = Awaited<ReturnType<typeof getPrivUserRole>>, TError = ErrorType<unknown>>(group: string,
-    user: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPrivUserRole>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetPrivUserRoleQueryKey(group,user);
-
+  export const getGetPrivUserRoleQueryKeyUser = (
+      group: string,
+      user: string,
+  ) => {
+      return [`https://uri.olympiangods.org/${group}/priv/role/${user}`] as const;
+  }
   
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPrivUserRole>>> = ({ signal }) => getPrivUserRole(group,user, requestOptions, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, enabled: !!(group && user), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPrivUserRole>>, TError, TData> & { queryKey: QueryKey }
-}
-
-export type GetPrivUserRoleQueryResult = NonNullable<Awaited<ReturnType<typeof getPrivUserRole>>>
-export type GetPrivUserRoleQueryError = ErrorType<unknown>
-
-export const useGetPrivUserRole = <TData = Awaited<ReturnType<typeof getPrivUserRole>>, TError = ErrorType<unknown>>(
- group: string,
-    user: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getPrivUserRole>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
-
-  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
-
-  const queryOptions = getGetPrivUserRoleQueryOptions(group,user,options)
-
-  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
-
+  export const getGetPrivUserRoleQueryOptionsUser = <
+      TData = Awaited<ReturnType<typeof getPrivUserRoleUser>>,
+      TError = ErrorType<unknown>
+  >(
+      group: string,
+      user: string,
+      options?: {
+          query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getPrivUserRoleUser>>, TError, TData>>,
+          request?: SecondParameter<typeof customInstance>
+      }
+  ) => {
+      const { query: queryOptions, request: requestOptions } = options ?? {};
+  
+      const queryKey = queryOptions?.queryKey ?? getGetPrivUserRoleQueryKeyUser(group, user);
+  
+      const queryFn: QueryFunction<Awaited<ReturnType<typeof getPrivUserRoleUser>>> = ({ signal }) =>
+          getPrivUserRoleUser(group, user, requestOptions, signal);
+  
+      return {
+          queryKey,
+          queryFn,
+          enabled: !!(group && user),
+          ...queryOptions
+      } as UseQueryOptions<Awaited<ReturnType<typeof getPrivUserRoleUser>>, TError, TData> & { queryKey: QueryKey };
+  }
+  
+  export type GetPrivUserRoleQueryResultUser = NonNullable<Awaited<ReturnType<typeof getPrivUserRoleUser>>>
+  export type GetPrivUserRoleQueryErrorUser = ErrorType<unknown>
+  
+  export const useGetPrivUserRoleUser = <
+      TData = Awaited<ReturnType<typeof getPrivUserRoleUser>>,
+      TError = ErrorType<unknown>
+  >(
+      group: string,
+      user: string,
+      options?: {
+          query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getPrivUserRoleUser>>, TError, TData>>,
+          request?: SecondParameter<typeof customInstance>
+      }
+  ): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+  
+      const queryOptions = getGetPrivUserRoleQueryOptionsUser(group, user, options);
+  
+      const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+  
+      query.queryKey = queryOptions.queryKey;
+  
+      return query;
+  }  
 
 export const deletePrivUserRole = (
     group: string,
@@ -8194,6 +9238,148 @@ export const useGetEndpointsUris = <TData = Awaited<ReturnType<typeof getEndpoin
 
   return query;
 }
+
+
+
+
+export const getVersionsCuries = (
+    group: string,
+    epochVerstrId: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<void>(
+      {url: `https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/curies`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getGetVersionsCuriesQueryKey = (group: string,
+    epochVerstrId: string,) => {
+    return [`https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/curies`] as const;
+    }
+
+    
+export const getGetVersionsCuriesQueryOptions = <TData = Awaited<ReturnType<typeof getVersionsCuries>>, TError = ErrorType<unknown>>(group: string,
+    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsCuries>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetVersionsCuriesQueryKey(group,epochVerstrId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getVersionsCuries>>> = ({ signal }) => getVersionsCuries(group,epochVerstrId, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(group && epochVerstrId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getVersionsCuries>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetVersionsCuriesQueryResult = NonNullable<Awaited<ReturnType<typeof getVersionsCuries>>>
+export type GetVersionsCuriesQueryError = ErrorType<unknown>
+
+export const useGetVersionsCuries = <TData = Awaited<ReturnType<typeof getVersionsCuries>>, TError = ErrorType<unknown>>(
+ group: string,
+    epochVerstrId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsCuries>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+
+  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetVersionsCuriesQueryOptions(group,epochVerstrId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+export const getVersionsCuriesExtension = (
+  group: string,
+  epochVerstrId: string,
+  prefixIriCurie: string,
+  extension: string,
+  options?: SecondParameter<typeof customInstance>, signal?: AbortSignal
+) => {
+  return customInstance<void>(
+      {
+          url: `https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`,
+          method: 'GET',
+          signal
+      },
+      options
+  );
+}
+
+export const getGetVersionsCuriesQueryKeyExtension = (
+  group: string,
+  epochVerstrId: string,
+  prefixIriCurie: string,
+  extension: string,
+) => {
+  return [`https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`] as const;
+}
+
+export const getGetVersionsCuriesQueryOptionsExtension = <
+  TData = Awaited<ReturnType<typeof getVersionsCuriesExtension>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  epochVerstrId: string,
+  prefixIriCurie: string,
+  extension: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsCuriesExtension>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetVersionsCuriesQueryKeyExtension(group, epochVerstrId, prefixIriCurie, extension);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getVersionsCuriesExtension>>> = ({ signal }) =>
+      getVersionsCuriesExtension(group, epochVerstrId, prefixIriCurie, extension, requestOptions, signal);
+
+  return {
+      queryKey,
+      queryFn,
+      enabled: !!(group && epochVerstrId && prefixIriCurie && extension),
+      ...queryOptions
+  } as UseQueryOptions<Awaited<ReturnType<typeof getVersionsCuriesExtension>>, TError, TData> & { queryKey: QueryKey };
+}
+
+export type GetVersionsCuriesQueryResultExtension = NonNullable<Awaited<ReturnType<typeof getVersionsCuriesExtension>>>
+export type GetVersionsCuriesQueryErrorExtension = ErrorType<unknown>
+
+export const useGetVersionsCuriesExtension = <
+  TData = Awaited<ReturnType<typeof getVersionsCuriesExtension>>,
+  TError = ErrorType<unknown>
+>(
+  group: string,
+  epochVerstrId: string,
+  prefixIriCurie: string,
+  extension: string,
+  options?: {
+      query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getVersionsCuriesExtension>>, TError, TData>>,
+      request?: SecondParameter<typeof customInstance>
+  }
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+
+  const queryOptions = getGetVersionsCuriesQueryOptionsExtension(group, epochVerstrId, prefixIriCurie, extension, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  query.queryKey = queryOptions.queryKey;
+
+  return query;
+}
+
+
 
 export const getVersionsReadable = (
     group: string,
