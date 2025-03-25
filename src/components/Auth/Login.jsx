@@ -22,6 +22,26 @@ const Login = () => {
     password: "",
   });
 
+  React.useEffect(() => {
+    let eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+    let eventer = window[eventMethod];
+    let messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
+    eventer(messageEvent, function (e) {
+      // For Aigul, this is where you will get the response code/status and the user data
+      console.log(e);
+      // Expect something similar to this object below, you can use this one already to set the user data
+      // eslint-disable-next-line no-unused-vars
+      let response = {
+        code: "200",
+        status: "200",
+        username: "johndoe",
+        email: "johndoe@gmail.com",
+        token: "1234567890",
+        orcid: "0000-0000-0000-0000",
+      };
+    });
+  }, []);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -40,8 +60,10 @@ const Login = () => {
   };
 
   const handleOrcidSignIn = () => {
-    const orcidSignInUrl = `https://uri.olympiangods.org/u/ops/orcid-login`;
-    window.location.href = orcidSignInUrl;
+    // For Aigul, customise the url so that the base url is stored in a setting file,
+    // same for the routes we are calling.
+    const orcidSignInUrl = `http://127.0.0.1:8606/u/ops/orcid-new`;
+    window.open(orcidSignInUrl, "Orcid Sign In", "width=600,height=800").focus();
   };
 
   return (
@@ -103,7 +125,9 @@ const Login = () => {
               </FormControl>
             </Grid>
             <Grid item xs={12}>
-              <Typography variant="body2"> or </Typography>
+              <Typography variant="body2" style={{ textAlign: "center", paddingBottom: '1rem'}}>
+                or
+              </Typography>
             </Grid>
           </Grid>
           <FormControl>
