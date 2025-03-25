@@ -13,6 +13,16 @@ import { Link, useNavigate } from "react-router-dom";
 import FormField from "./UI/Formfield";
 import PasswordField from "./UI/PasswordField";
 import { handleRegister } from "../../api/endpoints/index";
+import * as yup from "yup";
+
+const schema = yup.object().shape({
+  firstName: yup.string().required("First name is a required field"),
+  lastName: yup.string().required("Last name is a required field"),
+  email: yup.string().email().required(),
+  username: yup.string().required().min(3),
+  password: yup.string().required().min(6),
+  organization: yup.string().required()
+});
 
 const Register = () => {
   const [formData, setFormData] = React.useState({
@@ -25,11 +35,13 @@ const Register = () => {
   });
 
   const [errors, setErrors] = React.useState({});
-  const [errorMessage, setErrorMessage] = React.useState("");
   const navigate = useNavigate();
 
   const registerUser = async () => {
     try {
+      await schema.validate(formData, { abortEarly: false })
+      setErrors({})
+
       const response = await handleRegister(
         formData.firstName,
         formData.lastName,
@@ -41,14 +53,24 @@ const Register = () => {
       
       if (response.status === 200) {
         navigate("/");
+      } else if(response.status === 401) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          auth: "Invalid data. Please try again",
+        }));
       } else {
         const errorData = await response.json();
-        setErrors(errorData.errors || {});
-        setErrorMessage(errorData.message || "Something went wrong.");
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          auth: errorData.message || "An unknown error occurred. Please try again",
+        }));
       }
     } catch (error) {
       console.error("Registration error:", error);
-      setErrorMessage("An unexpected error occurred. Please try again.");
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        auth: "An unknown error occurred. Please try again",
+      }));
     }
   };
 
@@ -62,7 +84,7 @@ const Register = () => {
           </Link>
           <Typography variant="h4">Register a new account and join</Typography>
 
-          {errorMessage && <Alert severity="error" sx={{ mt: 2 }}>{errorMessage}</Alert>}
+          {errors.auth && <Alert severity="error" sx={{ mt: 2 }}>{errors.auth}</Alert>}
 
           <form className="authForm">
             <Grid container spacing={2.5}>
@@ -74,8 +96,8 @@ const Register = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, firstName: e.target.value })
                 }
-                error={!!errors.firstName}
-                helperText={errors.firstName}
+                errorMessage={errors.firstName}
+                helperText="Required"
               />
               <FormField
                 xs={6}
@@ -85,8 +107,8 @@ const Register = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, lastName: e.target.value })
                 }
-                error={!!errors.lastName}
-                helperText={errors.lastName}
+                errorMessage={errors.lastName}
+                helperText="Required"
               />
               <FormField
                 label="Username"
@@ -95,8 +117,8 @@ const Register = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, username: e.target.value })
                 }
-                error={!!errors.username}
-                helperText={errors.username}
+                errorMessage={errors.username}
+                helperText="Required"
               />
               <FormField
                 label="Email"
@@ -105,8 +127,8 @@ const Register = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                error={!!errors.email}
-                helperText={errors.email}
+                errorMessage={errors.email}
+                helperText="Required"
               />
               <PasswordField
                 label="Password"
@@ -115,8 +137,8 @@ const Register = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, password: e.target.value })
                 }
-                error={!!errors.password}
-                helperText={errors.password}
+                errorMessage={errors.password}
+                helperText="Required"
               />
               <Grid item xs={12}>
                 <FormField
@@ -126,8 +148,8 @@ const Register = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, organization: e.target.value })
                   }
-                  error={!!errors.organization}
-                  helperText={errors.organization}
+                  errorMessage={errors.organization}
+                  helperText="Required"
                 />
               </Grid>
               <Grid item xs={12}>

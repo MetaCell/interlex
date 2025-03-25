@@ -7,6 +7,7 @@ import {
   Grid,
   Paper,
   Typography,
+  Alert,
 } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
 import Checkbox from "@mui/material/Checkbox";
@@ -77,15 +78,14 @@ const Login = () => {
     try {
       await schema.validate(formData, { abortEarly: false })
       setErrors({})
+
       await handleLogin(formData.username, formData.password)
     } catch (error) {
-      const newErrors = {}
-      error.inner.forEach((e) => {
-        if (e.path) {
-          newErrors[e.path] = e.message
-        }
-      })
-      setErrors(newErrors)
+      console.error("Login error:", error);
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        auth: "An unknown error occurred. Please try again",
+      }));
     }
   };
 
@@ -103,8 +103,8 @@ const Login = () => {
         </Link>
         <Typography variant="h4">Log in to your account</Typography>
         <Typography variant="body1">Welcome! Please enter your details.</Typography>
+        {errors.auth && <Alert severity="error" sx={{ mt: 2 }}>{errors.auth}</Alert>}
         <form className="authForm">
-          {errors.auth && <Typography variant="body2" sx={{ marginBottom: "0.375rem", color: "#F04438" }}>{errors.auth}</Typography>}
           <Grid container spacing={2.5}>
             <FormField
               name="username"
