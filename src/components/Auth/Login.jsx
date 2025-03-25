@@ -15,10 +15,11 @@ import { CheckedIcon, UncheckedIcon, OrcidIcon } from "../../Icons";
 import FormField from "./UI/Formfield";
 import PasswordField from "./UI/PasswordField";
 import { handleLogin } from "../../api/endpoints/index";
+import { API_CONFIG } from "../../config";
 
 const Login = () => {
   const [formData, setFormData] = React.useState({
-    email: "",
+    username: "",
     password: "",
   });
 
@@ -52,7 +53,7 @@ const Login = () => {
 
   const loginUser = async () => {
     try {
-      await handleLogin(formData.email, formData.password);
+      await handleLogin(formData.username, formData.password);
       console.log("Login successful");
     } catch (error) {
       console.error("Login error:", error);
@@ -62,7 +63,7 @@ const Login = () => {
   const handleOrcidSignIn = () => {
     // For Aigul, customise the url so that the base url is stored in a setting file,
     // same for the routes we are calling.
-    const orcidSignInUrl = `http://127.0.0.1:8606/u/ops/orcid-new`;
+    const orcidSignInUrl = API_CONFIG.OLYMPIAN_GODS + API_CONFIG.REAL_API.LOGIN_ORCID;
     window.open(orcidSignInUrl, "Orcid Sign In", "width=600,height=800").focus();
   };
 
@@ -78,11 +79,11 @@ const Login = () => {
         <form className="authForm">
           <Grid container spacing={2.5}>
             <FormField
-              name="email"
-              label="Email"
+              name="username"
+              label="Username"
               helperText="Required"
-              placeholder="Enter your email"
-              value={formData.email}
+              placeholder="Enter your username"
+              value={formData.username}
               onChange={handleInputChange}
             />
             <PasswordField
