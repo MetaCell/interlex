@@ -10,36 +10,27 @@ import {
 } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
 import Checkbox from "@mui/material/Checkbox";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { CheckedIcon, UncheckedIcon, OrcidIcon } from "../../Icons";
 import FormField from "./UI/Formfield";
 import PasswordField from "./UI/PasswordField";
 import { handleLogin } from "../../api/endpoints/index";
 import { API_CONFIG } from "../../config";
-import { GlobalDataContext } from "../../contexts/DataContext";
-import * as yup from "yup";
-
-const schema = yup.object().shape({
-  username: yup.string().required().min(3),
-  password: yup.string().required().min(6),
-});
 
 const Login = () => {
   const [formData, setFormData] = React.useState({
     username: "",
     password: "",
   });
-  const [errors, setErrors] = React.useState({});
-  const { setUserData } = React.useContext(GlobalDataContext);
-  const navigate = useNavigate();
 
   React.useEffect(() => {
     let eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
     let eventer = window[eventMethod];
     let messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
     eventer(messageEvent, function (e) {
+      // For Aigul, this is where you will get the response code/status and the user data
       console.log(e);
-      const { status, message, userData } = e.data;
+      // Expect something similar to this object below, you can use this one already to set the user data
       // eslint-disable-next-line no-unused-vars
       let response = {
         code: "200",
@@ -49,20 +40,6 @@ const Login = () => {
         token: "1234567890",
         orcid: "0000-0000-0000-0000",
       };
-      if(status === 200) {
-        setUserData({ username: response.username, email: response.email, id: orcid })
-        navigate("/")
-      } else if (status === 401) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          auth: "Invalid username or password. Please try again",
-        }));
-      } else {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          auth: message || "An unknown error occurred. Please try again",
-        }));
-      }
     });
   }, []);
 
@@ -76,26 +53,16 @@ const Login = () => {
 
   const loginUser = async () => {
     try {
-      await schema.validate(formData, { abortEarly: false })
-      setErrors({})
-
-      try {
-        await handleLogin(formData.username || "", formData.password || "")
-      } catch (e) {
-        console.log("error: ", e)
-      }
+      await handleLogin(formData.username, formData.password);
+      console.log("Login successful");
     } catch (error) {
-      const newErrors = {}
-      error.inner.forEach((e) => {
-        if (e.path) {
-          newErrors[e.path] = e.message
-        }
-      })
-      setErrors(newErrors)
+      console.error("Login error:", error);
     }
   };
 
   const handleOrcidSignIn = () => {
+    // For Aigul, customise the url so that the base url is stored in a setting file,
+    // same for the routes we are calling.
     const orcidSignInUrl = API_CONFIG.OLYMPIAN_GODS + API_CONFIG.REAL_API.LOGIN_ORCID;
     window.open(orcidSignInUrl, "Orcid Sign In", "width=600,height=800").focus();
   };
@@ -110,7 +77,6 @@ const Login = () => {
         <Typography variant="h4">Log in to your account</Typography>
         <Typography variant="body1">Welcome! Please enter your details.</Typography>
         <form className="authForm">
-          {errors.auth && <Typography variant="body2" sx={{ marginBottom: "0.375rem", color: "#F04438" }}>{errors.auth}</Typography>}
           <Grid container spacing={2.5}>
             <FormField
               name="username"
@@ -119,7 +85,6 @@ const Login = () => {
               placeholder="Enter your username"
               value={formData.username}
               onChange={handleInputChange}
-              errorMessage={errors.username}
             />
             <PasswordField
               name="password"
@@ -128,7 +93,6 @@ const Login = () => {
               helperText="Required"
               value={formData.password}
               onChange={handleInputChange}
-              errorMessage={errors.password}
             />
             <Grid item xs={12}>
               <Box

@@ -1,8 +1,7 @@
 import PropTypes from "prop-types";
-import { Grid, FormControl, Box, FormHelperText, OutlinedInput, InputAdornment, Typography } from "@mui/material";
-import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import { Grid, FormControl, Box, FormHelperText, OutlinedInput } from "@mui/material";
 
-const FormField = ({ xs = 12, label, helperText, placeholder, name, value, onChange, errorMessage }) => {
+const FormField = ({ xs = 12, label, helperText, placeholder, name, value, onChange }) => {
   return (
     <Grid item xs={xs}>
       <FormControl fullWidth>
@@ -15,17 +14,7 @@ const FormField = ({ xs = 12, label, helperText, placeholder, name, value, onCha
           name={name} // Pass the name prop
           value={value}
           onChange={onChange}
-          autoComplete="off"
-          error={errorMessage}
-          endAdornment={
-            errorMessage && (
-              <InputAdornment>
-                <ErrorOutlineOutlinedIcon />
-              </InputAdornment>
-            )
-          }
         />
-        {errorMessage && <Typography variant="body2" sx={{ color: "#F04438", marginTop: "0.375rem" }}>{`${errorMessage.charAt(0).toUpperCase() + errorMessage.slice(1)}`}</Typography>}
       </FormControl>
     </Grid>
   );
@@ -39,7 +28,6 @@ FormField.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
-  errorMessage: PropTypes.string,
 };
 
 FormField.defaultProps = {
