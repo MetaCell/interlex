@@ -489,6 +489,7 @@ export const postOpsUserLogin = (
       
       
       return customInstance<void>(
+        // TODO change this using config url and api route
       {url: `https://uri.olympiangods.org/u/ops/user-login`, method: 'POST'
     },
       options);
@@ -8746,7 +8747,3 @@ export const useGetEndpointsVersions = <TData = Awaited<ReturnType<typeof getEnd
 
   return query;
 }
-
-
-
-

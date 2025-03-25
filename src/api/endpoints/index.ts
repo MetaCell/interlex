@@ -346,15 +346,16 @@ export const addMessateToVariantDiscussion = async (group, variantID, message) =
     });
 }
 
-export const handleLogin = async (email: string, password: string) => {
+export const handleLogin = async (username: string, password: string) => {
   try {
     const { postOpsUserLogin } = useApi()
     const response = await postOpsUserLogin({
-      email,
-      password,
+      data: {
+        username,
+        password,
+      },
     });
     console.log("Login successful:", response);
-    return response.data;
   } catch (error) {
     console.error("Login failed:", error);
     throw error;

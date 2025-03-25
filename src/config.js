@@ -23,6 +23,10 @@ export const API_CONFIG = {
     REAL_API: {
         GET_ENDPOINTS_ILX: "/api/real/endpoints-ilx",
         PATCH_ENDPOINTS_ILX: "/api/real/patch-endpoints-ilx",
+        LOGIN_ILX: "/u/ops/user-login",
+        LOGIN_ORCID: "/u/ops/orcid-login",
+        NEWUSER_ILX: "/u/ops/user-new",
+        NEWUSER_ORCID: "/u/ops/orcid-new",
     },
     OLYMPIAN_GODS : "https://uri.olympiangods.org",
     BASE_SCICRUNCH_URL: "/api/elasticsearch?key=",
