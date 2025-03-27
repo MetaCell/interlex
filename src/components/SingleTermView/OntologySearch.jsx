@@ -2,18 +2,19 @@ import React, { useEffect, useRef } from "react";
 import {
   Box,
   Button,
+  Chip,
   Divider,
   TextField,
   Autocomplete,
   InputAdornment,
-  Chip,
   FormControlLabel,
 } from "@mui/material";
-import { vars } from "../../theme/variables";
+import PropTypes from "prop-types";
 import ListItem from '@mui/material/ListItem';
-import FolderSharedOutlinedIcon from '@mui/icons-material/FolderSharedOutlined';
 import CustomizedRadio from "../common/CustomizedRadio";
+import FolderSharedOutlinedIcon from '@mui/icons-material/FolderSharedOutlined';
 
+import { vars } from "../../theme/variables";
 const { brand600, gray50 } = vars;
 
 const OntologySearch = () => {
@@ -34,6 +35,7 @@ const OntologySearch = () => {
     setOpenList(true);
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleInputChange = (event, value) => {
     setSearchTerm(event.target.value);
   };
@@ -217,6 +219,10 @@ const OntologySearch = () => {
       />
     </div>
   );
+};
+
+OntologySearch.propTypes = {
+  key: PropTypes.string,
 };
 
 export default OntologySearch;

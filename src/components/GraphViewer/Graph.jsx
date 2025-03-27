@@ -1,7 +1,8 @@
-import { useMemo, useEffect, useState } from "react";
-import { getGraphStructure , OBJECT, SUBJECT, PREDICATE, ROOT} from "./GraphStructure";
 import * as d3 from "d3";
+import PropTypes from "prop-types";
 import { Box } from "@mui/material";
+import { useMemo, useEffect } from "react";
+import { getGraphStructure , OBJECT, SUBJECT, PREDICATE, ROOT} from "./GraphStructure";
 
 const MARGIN = { top: 60, right: 60, bottom: 60, left: 60 };
 
@@ -10,19 +11,23 @@ const Graph = ({ width, height, predicate }) => {
   const boundsHeight = height - MARGIN.top - MARGIN.bottom;
 
   // Three function that change the tooltip when user hover / move / leave a cell
+  // eslint-disable-next-line no-unused-vars
   const mouseover = (d) => {
     d3.select("#tooltip")
+      // eslint-disable-next-line no-unused-vars
       .html((c) => {
         return d.currentTarget.id
       }).style("opacity", 1).style("left", (d.pageX) + "px").style("top", (d.pageY) + "px")
   }
+  // eslint-disable-next-line no-unused-vars
   const mousemove = (event, d) => {
     d3.select("#tooltip")
+      // eslint-disable-next-line no-unused-vars
       .html((c) => {
         return event.currentTarget.id
       }).style("opacity", 1).style("left", (event.pageX) + "px").style("top", (event.pageY) + "px")
-
   }
+  // eslint-disable-next-line no-unused-vars
   const mouseleave = (d) => {
     d3.select("#tooltip").style("opacity", 0)
   }
@@ -43,6 +48,7 @@ const Graph = ({ width, height, predicate }) => {
   const dendrogram = useMemo(() => {
     const dendrogramGenerator = d3.cluster().size([boundsHeight, boundsWidth]);
     return dendrogramGenerator(hierarchy);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hierarchy, width, height]);
 
   const allNodes = dendrogram.descendants().map((node) => {
@@ -56,7 +62,6 @@ const Graph = ({ width, height, predicate }) => {
     }
 
     return (
-      
       <g key={node.id} >
         {(
           <text
@@ -144,9 +149,14 @@ const Graph = ({ width, height, predicate }) => {
         m: '1rem 8rem auto',
       }}>
       </Box>
-
     </Box>
   );
+};
+
+Graph.propTypes = {
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired,
+  predicate: PropTypes.string.isRequired,
 };
 
 export default Graph;

@@ -1,7 +1,8 @@
-import { Stack, Typography, TextField, InputAdornment } from "@mui/material";
+import PropTypes from 'prop-types';
 import { HelpOutlinedIcon } from "../../Icons";
-import { vars } from "../../theme/variables";
+import { Stack, Typography, TextField, InputAdornment } from "@mui/material";
 
+import { vars } from "../../theme/variables";
 const { gray50, gray300, gray400, gray600, gray700, gray800, gray900, brand600 } = vars;
 
 const CustomInputBox = ({ id, name, value, onInputChange, label, isRequired, helperText, placeholder, isEndAdornmentVisible, multiline, rows, sx }) => {
@@ -60,4 +61,20 @@ const CustomInputBox = ({ id, name, value, onInputChange, label, isRequired, hel
         </>
     )
 }
+
+CustomInputBox.propTypes = {
+    id: PropTypes.string,
+    name: PropTypes.string,
+    value: PropTypes.string,
+    onInputChange: PropTypes.func,
+    label: PropTypes.string,
+    isRequired: PropTypes.bool,
+    helperText: PropTypes.string,
+    placeholder: PropTypes.string,
+    isEndAdornmentVisible: PropTypes.bool,
+    multiline: PropTypes.bool,
+    rows: PropTypes.number,
+    sx: PropTypes.object
+}
+
 export default CustomInputBox;

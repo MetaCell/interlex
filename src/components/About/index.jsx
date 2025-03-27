@@ -1,10 +1,23 @@
-import { Box, Container, Grid, List, ListItem, ListItemButton, ListItemText, Typography } from "@mui/material";
-import { vars } from "../../theme/variables";
-import { ForwardIcon } from "../../Icons";
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
 import React from "react";
+import PropTypes from 'prop-types';
+import {
+    Box,
+    Container,
+    Grid,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemText,
+    Tab,
+    Tabs,
+    Typography
+} from "@mui/material";
+
+
+import { ForwardIcon } from "../../Icons";
+import { vars } from "../../theme/variables";
 import TabsData from "../../static/AboutTabs.json";
+
 const { gray50, gray700, gray500, brand700 } = vars;
 
 const style = {
@@ -123,8 +136,8 @@ const About = () => {
                                 TabsData.tabs.map((tab, index) => (
                                     <Tab label={tab?.heading} {...a11yProps(index)} key={tab?.heading} />
                                 ))
-                            }                          
-                        </Tabs>      
+                            }
+                        </Tabs>
                         </Grid>
                         <Grid item xs={10}>
                             {
@@ -182,5 +195,11 @@ const About = () => {
         </Box>
     )
 }
+
+TabPanel.propTypes = {
+    children: PropTypes.node,
+    value: PropTypes.any.isRequired,
+    index: PropTypes.any.isRequired,
+};
 
 export default About;

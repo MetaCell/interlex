@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { useState, useEffect } from 'react';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { a11yLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import axios from 'axios';
-import { vars } from '../../../theme/variables';
 import * as mockApi from './../../../api/endpoints/interLexURIStructureAPI';
 
-const useMockApi = () => mockApi;
+import { vars } from '../../../theme/variables';
 const { gray25, gray200, gray500 } = vars;
+
+const useMockApi = () => mockApi;
 
 const customStyle = {
     fontSize: '1rem',
@@ -17,6 +18,7 @@ const customStyle = {
     padding: 0
 };
 
+// eslint-disable-next-line no-unused-vars
 const formatExtensions = {
     'JSON-LD': 'jsonld',
     'Turtle': 'ttl',
@@ -27,6 +29,7 @@ const formatExtensions = {
 
 const RawDataViewer = ({ dataId, dataFormat }) => {
     const [formattedData, setFormattedData] = useState(null);
+    // eslint-disable-next-line no-unused-vars
     const [loading, setLoading] = useState(true);
     const { getEndpointsIlxGet } = useMockApi();
     
@@ -35,6 +38,7 @@ const RawDataViewer = ({ dataId, dataFormat }) => {
         setFormattedData(JSON.stringify(rawResponse, null, 2));
         setLoading(false)
       })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dataId, dataFormat]);
 
     return (
@@ -65,6 +69,11 @@ const RawDataViewer = ({ dataId, dataFormat }) => {
             )}
         </div>
     );
+};
+
+RawDataViewer.propTypes = {
+    dataId: PropTypes.string.isRequired,
+    dataFormat: PropTypes.string.isRequired
 };
 
 export default RawDataViewer;

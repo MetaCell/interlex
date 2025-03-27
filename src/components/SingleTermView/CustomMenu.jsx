@@ -1,13 +1,13 @@
-import * as React from 'react';
+import PropTypes from 'prop-types';
 import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
-import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
+import MenuItem from '@mui/material/MenuItem';
 import ForkRightOutlinedIcon from '@mui/icons-material/ForkRightOutlined';
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import FolderCopyOutlinedIcon from '@mui/icons-material/FolderCopyOutlined';
-import { vars } from '../../theme/variables';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 
+import { vars } from '../../theme/variables';
 const { gray100, gray200, gray600, error700 } = vars;
 
 const menuStyles = {
@@ -120,6 +120,12 @@ const CustomMenu = ({ open, anchorRef, setOpen }) => {
             </MenuItem>
         </Menu>
     );
+};
+
+CustomMenu.propTypes = {
+    open: PropTypes.bool.isRequired,
+    anchorRef: PropTypes.object.isRequired,
+    setOpen: PropTypes.func.isRequired,
 };
 
 export default CustomMenu;

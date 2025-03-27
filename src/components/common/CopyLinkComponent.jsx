@@ -1,9 +1,11 @@
-import { Box, IconButton, Tooltip, Button } from '@mui/material';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import PropTypes from 'prop-types';
 import LinkIcon from '@mui/icons-material/Link';
-import { vars } from "../../theme/variables";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { Box, IconButton, Tooltip, Button } from '@mui/material';
 
+import { vars } from "../../theme/variables";
 const { brand700 } = vars
+
 const CopyLinkComponent = ({ url }) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(url)
@@ -32,5 +34,9 @@ const CopyLinkComponent = ({ url }) => {
     </Box>
   );
 };
+
+CopyLinkComponent.propTypes = {
+  url: PropTypes.string.isRequired
+}
 
 export default CopyLinkComponent;

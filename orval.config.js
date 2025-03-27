@@ -1,6 +1,6 @@
 import { mockOntologies } from "./mock/data/mockOntologies";
 import { mockOrganization, mockOrganizations } from "./mock/data/mockOrganizations";
-import { mockTerms, mockTerm } from "./mock/data/mockTerms";
+import { mockTerms } from "./mock/data/mockTerms";
 import { mockSearch } from "./mock/data/mockSearch";
 import { mockVariants, mockVariant } from "./mock/data/mockVariants";
 import { mockVersions } from "./mock/data/mockVersions";
@@ -10,7 +10,7 @@ import { mockForks } from "./mock/data/mockForks";
 import { mockPatchBulkTermsResponse, mockPatchTermResponse } from "./mock/data/mockPatchTermResponse";
 import { mockDiscussions, mockPostMessage } from "./mock/data/mockDiscussions";
 
-module.exports = {
+export default {
   uri: {
     input: {
       target: "https://uri.olympiangods.org/docs/swagger.json",

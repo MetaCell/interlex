@@ -1,17 +1,18 @@
 import * as React from "react";
-import { useState, useEffect, useCallback } from "react";
-import { Stack, Button, Grid, Box, Typography } from "@mui/material";
-import CustomizedDialog from "../common/CustomizedDialog";
+import { debounce } from 'lodash';
+import PropTypes from "prop-types";
+import termParser from "../../parsers/termParser";
 import CustomInputBox from "../common/CustomInputBox";
+import { getOrganizations } from "../../api/endpoints";
 import CustomSelectBox from "../common/CustomSelectBox";
+import { useState, useEffect, useCallback } from "react";
+import CustomizedDialog from "../common/CustomizedDialog";
 import ForkRightIcon from '@mui/icons-material/ForkRight';
 import CustomAutocompleteBox from "../common/CustomAutocompleteBox";
+import { Stack, Button, Grid, Box, Typography } from "@mui/material";
 import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
-import termParser from "../../parsers/termParser";
-import { getOrganizations } from "../../api/endpoints";
-import { debounce } from 'lodash';
-import { vars } from "../../theme/variables";
 
+import { vars } from "../../theme/variables";
 const { gray800, gray500, gray600 } = vars;
 
 const useMockApi = () => mockApi;
@@ -29,8 +30,14 @@ const HeaderRightSideContent = ({ handleClose, onCreateFork }) => {
     )
 }
 
+HeaderRightSideContent.propTypes = {
+    handleClose: PropTypes.func.isRequired,
+    onCreateFork: PropTypes.func.isRequired
+};
+
 const CreateForkDialog = ({ open, handleClose, onSubmit }) => {
     const { getMatchTerms } = useMockApi();
+    // eslint-disable-next-line no-unused-vars
     const [loading, setLoading] = useState(true);
     const [termResults, setTermResults] = useState([]);
     const [organizations, setOrganizations] = useState([]);
@@ -40,6 +47,7 @@ const CreateForkDialog = ({ open, handleClose, onSubmit }) => {
         name: ""
     });
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const fetchTerms = useCallback(
         debounce((term) => {
             setLoading(true);
@@ -147,4 +155,11 @@ const CreateForkDialog = ({ open, handleClose, onSubmit }) => {
         </CustomizedDialog>
     )
 }
+
+CreateForkDialog.propTypes = {
+    open: PropTypes.bool.isRequired,
+    handleClose: PropTypes.func.isRequired,
+    onSubmit: PropTypes.func.isRequired
+};
+
 export default CreateForkDialog;

@@ -4,12 +4,13 @@ import {
   Typography,
   Box
 } from "@mui/material";
-import { vars } from "../../../theme/variables";
+import PropTypes from "prop-types";
 import CustomizedInput from "../../common/CustomizedInput";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
+import { vars } from "../../../theme/variables";
 const { gray800 } = vars;
 
 const EditBulkAttributesForm = ({columns, attributes, setAttributes, initialAttributesValue}) => {
@@ -18,25 +19,25 @@ const EditBulkAttributesForm = ({columns, attributes, setAttributes, initialAttr
     newAttributes[index][field] = value;
     setAttributes(newAttributes);
   };
-  
+
   const handleDeletePredicate = (index) => {
     const newAttributes = attributes.filter((_, i) => i !== index);
     setAttributes(newAttributes);
   };
-  
+
   const handleAddPredicate = () => {
     setAttributes([...attributes, initialAttributesValue]);
   };
-  
+
   const handleClearAllPredicate = () => {
     setAttributes([initialAttributesValue]);
   };
-  
+
   const updatedColumnsArray = columns.map(item => ({
     ...item,
     value: item.id
   }));
-  
+
   return (
     <Box>
       <Typography sx={{
@@ -123,9 +124,15 @@ const EditBulkAttributesForm = ({columns, attributes, setAttributes, initialAttr
           Clear all
         </Button>
       </Box>
-     
     </Box>
   );
 }
+
+EditBulkAttributesForm.propTypes = {
+  columns: PropTypes.array.isRequired,
+  attributes: PropTypes.array.isRequired,
+  setAttributes: PropTypes.func.isRequired,
+  initialAttributesValue: PropTypes.object.isRequired
+};
 
 export default EditBulkAttributesForm;

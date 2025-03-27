@@ -1,16 +1,18 @@
-import CustomizedDialog from "../../common/CustomizedDialog";
+import { useState } from "react";
+import {useQuery} from "../../../helpers";
 import {Box, Grid, Button} from "@mui/material";
 import Typography from "@mui/material/Typography";
-import PlaylistAddOutlinedIcon from "@mui/icons-material/PlaylistAddOutlined";
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import {vars} from "../../../theme/variables";
-import AddPredicateStatusDialog from "./AddPredicateStatusDialog";
-import { useState} from "react";
-import CustomizedInput from "../../common/CustomizedInput";
 import PredicateGroupInput from "./PredicateGroupInput";
-import {useQuery} from "../../../helpers";
+import CustomizedInput from "../../common/CustomizedInput";
+import CustomizedDialog from "../../common/CustomizedDialog";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import AddPredicateStatusDialog from "./AddPredicateStatusDialog";
+import PlaylistAddOutlinedIcon from "@mui/icons-material/PlaylistAddOutlined";
+import PropTypes from "prop-types";
+
+import {vars} from "../../../theme/variables";
 const {gray800} = vars;
 
 const HeaderRightSideContent = ({handleClose, handleOpenAddPredicateStatusDialog, isAllFieldsFilled}) => {
@@ -30,6 +32,12 @@ const HeaderRightSideContent = ({handleClose, handleOpenAddPredicateStatusDialog
       </Button>
     </Box>
   );
+};
+
+HeaderRightSideContent.propTypes = {
+  handleClose: PropTypes.func.isRequired,
+  handleOpenAddPredicateStatusDialog: PropTypes.func.isRequired,
+  isAllFieldsFilled: PropTypes.bool.isRequired
 };
 
 const AddPredicateDialog = ({ open, handleClose, image, predicates: fetchedPredicated }) => {
@@ -150,6 +158,13 @@ const AddPredicateDialog = ({ open, handleClose, image, predicates: fetchedPredi
       />
     </>
   );
+};
+
+AddPredicateDialog.propTypes = {
+  open: PropTypes.bool.isRequired,
+  handleClose: PropTypes.func.isRequired,
+  image: PropTypes.string,
+  predicates: PropTypes.array.isRequired
 };
 
 export default AddPredicateDialog;

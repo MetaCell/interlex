@@ -1,10 +1,12 @@
-import Breadcrumbs from '@mui/material/Breadcrumbs';
-import Typography from '@mui/material/Typography';
+import PropTypes from 'prop-types';
 import Link from '@mui/material/Link';
+import Typography from '@mui/material/Typography';
+import Breadcrumbs from '@mui/material/Breadcrumbs';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import {vars} from "../../theme/variables";
 
+import {vars} from "../../theme/variables";
 const {gray500, gray300, gray600, brand700, gray700} = vars
+
 const CustomBreadcrumbs = ({breadcrumbItems}) => {
   return (
     <Breadcrumbs
@@ -22,7 +24,6 @@ const CustomBreadcrumbs = ({breadcrumbItems}) => {
             color: gray700
           }
         },
-        
         '& .MuiBreadcrumbs-separator': {
           margin: '0 .75rem'
         }
@@ -42,6 +43,14 @@ const CustomBreadcrumbs = ({breadcrumbItems}) => {
       ))}
     </Breadcrumbs>
   );
+}
+
+CustomBreadcrumbs.propTypes = {
+  breadcrumbItems: PropTypes.arrayOf(PropTypes.shape({
+    label: PropTypes.string.isRequired,
+    href: PropTypes.string,
+    icon: PropTypes.elementType
+  })).isRequired
 }
 
 export default CustomBreadcrumbs

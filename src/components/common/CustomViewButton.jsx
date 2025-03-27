@@ -1,6 +1,7 @@
+import PropTypes from 'prop-types';
 import {Button} from "@mui/material";
-import {vars} from "../../theme/variables";
 
+import {vars} from "../../theme/variables";
 const { gray50, gray300 } = vars;
 
 const CustomViewButton = ({ view, listView, onClick, icon }) => (
@@ -22,5 +23,12 @@ const CustomViewButton = ({ view, listView, onClick, icon }) => (
     {icon}
   </Button>
 );
+
+CustomViewButton.propTypes = {
+  view: PropTypes.string.isRequired,
+  listView: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+  icon: PropTypes.element.isRequired
+};
 
 export default CustomViewButton

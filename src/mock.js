@@ -1,6 +1,5 @@
 import { setupWorker } from 'msw/browser';
 import { getSwaggerMockMissingEndpointsMock } from './api/endpoints/swaggerMockMissingEndpoints.msw';
-import { getInterLexURIStructureAPIMock } from './api/endpoints/interLexURIStructureAPI.msw';
 
 const handlers = [...getSwaggerMockMissingEndpointsMock()];
 const worker = setupWorker(...handlers);

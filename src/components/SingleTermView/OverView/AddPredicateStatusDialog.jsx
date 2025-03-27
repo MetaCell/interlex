@@ -1,11 +1,12 @@
-import CustomizedDialog from "../../common/CustomizedDialog";
+import PropTypes from "prop-types";
 import { Box } from "@mui/material";
-import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import { vars } from "../../../theme/variables";
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {BackgroundPattern} from "../../../Icons";
+import Typography from "@mui/material/Typography";
+import CustomizedDialog from "../../common/CustomizedDialog";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 
+import { vars } from "../../../theme/variables";
 const { gray600, gray900 } = vars;
 
 const HeaderRightSideContent = ({ handleClose, handleCloseAddpredicate }) => {
@@ -19,6 +20,11 @@ const HeaderRightSideContent = ({ handleClose, handleCloseAddpredicate }) => {
       </Button>
     </Box>
   );
+};
+
+HeaderRightSideContent.propTypes = {
+  handleClose: PropTypes.func,
+  handleCloseAddpredicate: PropTypes.func
 };
 
 const AddPredicateStatusDialog = ({ open, handleClose, handleCloseAddpredicate, storedSearchTerm }) => {
@@ -64,6 +70,13 @@ const AddPredicateStatusDialog = ({ open, handleClose, handleCloseAddpredicate, 
       </Box>
     </CustomizedDialog>
   );
+};
+
+AddPredicateStatusDialog.propTypes = {
+  open: PropTypes.bool,
+  handleClose: PropTypes.func,
+  handleCloseAddpredicate: PropTypes.func,
+  storedSearchTerm: PropTypes.string
 };
 
 export default AddPredicateStatusDialog;
