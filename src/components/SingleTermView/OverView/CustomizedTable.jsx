@@ -33,6 +33,7 @@ const tableStyles = {
   root: {
     padding: '.5rem',
     display: 'flex',
+    alignItems: 'center',
     border: '1 solid transparent',
     position: 'relative',
     borderBottom: `1px solid ${gray100}`,
@@ -42,11 +43,9 @@ const tableStyles = {
       color: 'red',
       gap: '0.5rem',
       fontSize: '0.875rem',
-      flexShrink: 0,
       lineHeight: '142.857%',
       fontWeight: 600,
-      display: 'flex',
-      alignItems: 'center'
+      textDecoration: 'none'
     },
     '& .MuiIconButton-root': {
       padding: '0',
@@ -149,7 +148,7 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
   const [tableHeader, setTableHeader] = useState([
     { key: 'subject', label: 'Subject', allowSort: false, direction: 'desc' },
     { key: 'predicate', label: 'Predicates', allowSort: false },
-    { key: 'object', label: 'Objects', allowSort: true, direction: 'desc' }
+    { key: 'object', label: 'Objects', allowSort: true, direction: 'desc' },
   ]);
 
   // eslint-disable-next-line no-unused-vars
