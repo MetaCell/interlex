@@ -19,6 +19,7 @@ import { handleLogin } from "../../api/endpoints/index";
 import { API_CONFIG } from "../../config";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import * as yup from "yup";
+import axios from "axios";
 
 const schema = yup.object().shape({
   username: yup.string().required().min(3),
@@ -39,8 +40,6 @@ const Login = () => {
     let eventer = window[eventMethod];
     let messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
     eventer(messageEvent, function (e) {
-      console.log(e);
-      
       let response = {
         code: "200",
         status: "200",
@@ -74,12 +73,33 @@ const Login = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+
   const loginUser = async () => {
     try {
       await schema.validate(formData, { abortEarly: false })
       setErrors({})
 
-      await handleLogin(formData.username, formData.password)
+      // Aigul this is just an example for the login function that works, in combination with the reverse proxy I just created
+      // in the vite.config.js file. You can use this as a reference to create the login function for the real API.
+      var bodyFormData = new FormData();
+      bodyFormData.append('username', formData.username);
+      bodyFormData.append('password', formData.password);
+      console.log(bodyFormData);
+
+      axios({
+        method: "post",
+        url: `${API_CONFIG.REAL_API.LOGIN_ILX}`,
+        data: bodyFormData,
+        headers: { "Content-Type": "multipart/form-data" }
+      })
+        .then(function (response) {
+          //handle success
+          console.log(response);
+        })
+        .catch(function (response) {
+          //handle error
+          console.log(response);
+        });
     } catch (error) {
       console.error("Login error:", error);
       setErrors((prevErrors) => ({
