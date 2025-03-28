@@ -34,7 +34,7 @@ const tableStyles = {
     padding: '.5rem',
     display: 'flex',
     alignItems: 'center',
-    border: '1 solid transparent',
+    border: '1px solid transparent',
     position: 'relative',
     borderBottom: `1px solid ${gray100}`,
     marginTop: '.25rem',
@@ -43,7 +43,7 @@ const tableStyles = {
       color: 'red',
       gap: '0.5rem',
       fontSize: '0.875rem',
-      lineHeight: '142.857%',
+      lineHeight: '1.25rem',
       fontWeight: 600,
       textDecoration: 'none'
     },
@@ -68,6 +68,9 @@ const tableStyles = {
       display: 'flex',
       alignItems: 'center',
       minWidth: 0,
+      gap: '0.5rem',
+      paddingRight: '0.75rem',
+      paddingLeft: 0
     },
     '&:not(.secondary)': {
       '&:hover': {
@@ -87,13 +90,7 @@ const tableStyles = {
           margin: 'auto 0',
           borderRadius: '0.1875rem'
         },
-      },
-
-      '& > .MuiBox-root': {
-        gap: '0.5rem',
-        paddingRight: '0.75rem',
-        paddingLeft: 0
-      },
+      }
     },
   },
   inputParentBox: {
@@ -259,7 +256,7 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
   }, [objectSearchTerm, fetchTerms]);
 
   const tableWidth = 800;
-  const columnWidth = `${tableWidth / tableHeader.length}px`;
+  const columnWidth = `${Math.round(tableWidth / tableHeader.length)}px`;
 
   return (
     <>
@@ -282,21 +279,20 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
               )}
             </Box>
           ))}
+          <Box sx={{ width: '6.25rem' }}></Box>
         </Box>
-        <Box sx={tableStyles.body}>
-          {tableContent.map((row, index) =>
-            <TableRow
-              key={`${row.id}-${index}`}
-              tableStyles={tableStyles}
-              columnWidth={columnWidth}
-              data={row}
-              index={index}
-              onDragStart={dragStart}
-              onDragEnter={dragEnter}
-              onDragEnd={dragEnd}
-            />
-          )}
-        </Box>
+        {tableContent.map((row, index) =>
+          <TableRow
+            key={`${row.id}-${index}`}
+            tableStyles={tableStyles}
+            columnWidth={columnWidth}
+            data={row}
+            index={index}
+            onDragStart={dragStart}
+            onDragEnter={dragEnter}
+            onDragEnd={dragEnd}
+          />
+        )}
         {isAddButtonVisible && (
           <Box sx={tableStyles.root}>
             <Box sx={{ paddingLeft: '0 !important' }}>

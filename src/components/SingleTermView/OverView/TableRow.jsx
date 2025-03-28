@@ -10,7 +10,6 @@ function isValidURL(value) {
 const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, index, columnWidth }) => {
   const { id, subject, predicate, object } = data;
   const [isHovered, setIsHovered] = useState(false);
-  console.log(isValidURL("owl:Class"))
   return (
     <Box sx={tableStyles.root}
       draggable={true}
@@ -20,7 +19,7 @@ const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, inde
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Box sx={{ paddingLeft: "0 !important", width: columnWidth }}>
+      <Box sx={{ width: columnWidth }}>
         <Tooltip title={subject}>
           {isValidURL(subject) ? (
             <Link href={subject} target="_blank" rel="noopener noreferrer">
@@ -49,7 +48,7 @@ const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, inde
           )}
         </Tooltip>
       </Box>
-      <Box display="flex" sx={{ width: "1rem", height: "1rem" }}>
+      <Box display="flex" sx={{ width: '6.25rem', justifyContent: "flex-end" }}>
         {
           isHovered && (
             <Tooltip placement='right' title={"Help"}>
