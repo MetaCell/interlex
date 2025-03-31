@@ -1,8 +1,11 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { Box, IconButton, Tooltip, Typography } from "@mui/material";
+import { Box, IconButton, Tooltip, Typography, Link } from "@mui/material";
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
 
+function isValidURL(value) {
+  return /^https?:\/\/[\w.-]+(\.[a-z]{2,})(:\d+)?(\/.*)?$/i.test(value);
+}
 
 const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, index, columnWidth }) => {
   const { id, subject, predicate, object } = data;
@@ -16,11 +19,15 @@ const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, inde
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Box sx={{ paddingLeft: "0 !important", width: columnWidth }}>
+      <Box sx={{ width: columnWidth }}>
         <Tooltip title={subject}>
-          <Typography>
-            {subject}
-          </Typography>
+          {isValidURL(subject) ? (
+            <Link href={subject} target="_blank" rel="noopener noreferrer">
+              {subject}
+            </Link>
+          ) : (
+            <Typography>{subject}</Typography>
+          )}
         </Tooltip>
       </Box>
       <Box sx={{ width: columnWidth }}>
@@ -32,12 +39,16 @@ const TableRow = ({ tableStyles, data, onDragStart, onDragEnter, onDragEnd, inde
       </Box>
       <Box sx={{ width: columnWidth }}>
         <Tooltip title={object}>
-          <Typography>
-            {object}
-          </Typography>
+          {isValidURL(object) ? (
+            <Link href={object} target="_blank" rel="noopener noreferrer">
+              {object}
+            </Link>
+          ) : (
+            <Typography>{object}</Typography>
+          )}
         </Tooltip>
       </Box>
-      <Box display="flex" justifyContent="flex-end" sx={{ paddingRight: "0 !important" }}>
+      <Box display="flex" sx={{ width: '6.25rem', justifyContent: "flex-end" }}>
         {
           isHovered && (
             <Tooltip placement='right' title={"Help"}>
