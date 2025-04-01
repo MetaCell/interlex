@@ -1,8 +1,10 @@
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import PropTypes from 'prop-types';
 import {FormControl, InputLabel, MenuItem, Select} from "@mui/material";
-import {vars} from "../../theme/variables";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
+import {vars} from "../../theme/variables";
 const {gray700, gray300, gray500} = vars
+
 const CustomSingleSelect = ({value, onChange, options, FormControlSX, SelectSX, isFormControlFullWidth, placeholder}) => {
   return(
     <FormControl sx={{ minWidth: 75, ...FormControlSX }} fullWidth={isFormControlFullWidth}>
@@ -51,6 +53,16 @@ const CustomSingleSelect = ({value, onChange, options, FormControlSX, SelectSX, 
       </Select>
     </FormControl>
   )
+}
+
+CustomSingleSelect.propTypes = {
+  value: PropTypes.any.isRequired,
+  onChange: PropTypes.func.isRequired,
+  options: PropTypes.array.isRequired,
+  FormControlSX: PropTypes.object,
+  SelectSX: PropTypes.object,
+  isFormControlFullWidth: PropTypes.bool,
+  placeholder: PropTypes.string
 }
 
 export default CustomSingleSelect

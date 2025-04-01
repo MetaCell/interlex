@@ -5,22 +5,23 @@ import {
   Stack,
   Typography
 } from "@mui/material";
-import { vars } from "../../../theme/variables";
+import PropTypes from "prop-types";
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
+
+import { vars } from "../../../theme/variables";
 const { gray800, gray500 } = vars;
 
 const Details = ({loading,  data }) => {
-  
   const handleChipClick = (url) => {
     window.open(url, '_blank');
   };
-  
+
   if (loading) {
     return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <CircularProgress />
     </Box>
   }
-  
+
   if (!data) {
     return <div>No data available</div>;
   }
@@ -148,5 +149,10 @@ const Details = ({loading,  data }) => {
     </>
   );
 }
+
+Details.propTypes = {
+  loading: PropTypes.bool.isRequired,
+  data: PropTypes.object
+};
 
 export default Details;

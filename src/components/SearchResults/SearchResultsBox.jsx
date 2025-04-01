@@ -1,11 +1,12 @@
 import React from 'react';
-import { Box, Typography, Grid, ButtonGroup, Button, Stack, Divider } from '@mui/material';
-import { TableChartIcon, ListIcon } from '../../Icons';
 import ListView from './ListView';
+import PropTypes from 'prop-types';
+import { TableChartIcon, ListIcon } from '../../Icons';
 import OntologySearch from '../SingleTermView/OntologySearch';
-import { vars } from '../../theme/variables';
 import CustomSingleSelect from "../common/CustomSingleSelect";
+import { Box, Typography, Grid, ButtonGroup, Button, Stack, Divider } from '@mui/material';
 
+import { vars } from '../../theme/variables';
 const { gray50, gray200, gray300, gray600 } = vars;
 
 const CustomViewButton = ({ view, listView, onClick, icon }) => (
@@ -78,6 +79,19 @@ const SearchResultsBox = ({ terms, searchTerm, loading }) => {
             )}
         </Box>
     );
+};
+
+CustomViewButton.propTypes = {
+    view: PropTypes.string,
+    listView: PropTypes.string,
+    onClick: PropTypes.func,
+    icon: PropTypes.node
+};
+
+SearchResultsBox.propTypes = {
+    terms: PropTypes.object,
+    searchTerm: PropTypes.string,
+    loading: PropTypes.bool
 };
 
 export default SearchResultsBox;

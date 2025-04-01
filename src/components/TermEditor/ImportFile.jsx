@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import { useEffect, useState } from "react";
 import { Box, IconButton, Typography } from "@mui/material";
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import { vars } from "../../theme/variables";
 
+import { vars } from "../../theme/variables";
 const { white, gray300, brand700, gray600, gray700 } = vars;
 
 const MAX_FILE_SIZE_MB = 800;
@@ -83,6 +84,8 @@ const ImportFile = ({ onFilesSelected }) => {
         }
     };
 
+
+    // eslint-disable-next-line no-unused-vars
     const handleRemoveFile = (index) => {
         setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
     };
@@ -126,6 +129,10 @@ const ImportFile = ({ onFilesSelected }) => {
             </div>
         </Box>
     );
+};
+
+ImportFile.propTypes = {
+    onFilesSelected: PropTypes.func.isRequired,
 };
 
 export default ImportFile;

@@ -1,9 +1,9 @@
 import React from "react";
-import { Box, List } from "@mui/material";
 import HistoryItem from "./HistoryItem";
-import { vars } from "../../../theme/variables";
+import { Box, List } from "@mui/material";
 import { getVersions } from './../../../api/endpoints';
 
+import { vars } from "../../../theme/variables";
 const { gray50 } = vars;
 
 const historyEntries = [
@@ -13,9 +13,10 @@ const historyEntries = [
     { author: "Phoenix Baker", action: "request", date: "Friday 2:05pm" },
 ];
 
-const HistoryPanel = () => {  
+const HistoryPanel = () => {
+    // eslint-disable-next-line no-unused-vars
     const [versions, setVersions] = React.useState([]);
-    
+
     React.useEffect(() => {
         getVersions("base", "ILX_....").then( data => {
             setVersions(data);
@@ -24,7 +25,7 @@ const HistoryPanel = () => {
 
     return <Box p="2.5rem 5rem" sx={{
         overflow: 'auto',
-      }}>
+    }}>
         <List disablePadding width={1} sx={{ maxWidth: '50rem' }}>
             {historyEntries.map((entry, index) => (
                 <Box key={`${entry.author}_${index}`} sx={{

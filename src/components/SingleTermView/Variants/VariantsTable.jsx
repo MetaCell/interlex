@@ -1,19 +1,20 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import {
     Box, Table, TableBody,
     TableCell, TableContainer, TableRow,
     Paper, Chip, Typography, IconButton, Pagination, PaginationItem
 } from '@mui/material';
 import CustomTableHead from './CustomTableHead';
-import { ArrowOutwardIcon, DownloadIcon } from '../../../Icons';
 import DoneIcon from '@mui/icons-material/Done';
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import { vars } from '../../../theme/variables';
 import {getComparator, stableSort} from "../../../helpers";
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { ArrowOutwardIcon, DownloadIcon } from '../../../Icons';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 
+import { vars } from '../../../theme/variables';
 const { gray100, gray200, gray600, gray700, gray900 } = vars;
 
 const paperStyle = {
@@ -70,6 +71,7 @@ const VariantsTable = ({ rows, headCells }) => {
 
     const sortedRows = React.useMemo(
         () => stableSort(rows, getComparator(order, orderBy)),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [order, orderBy]
     );
 
@@ -156,6 +158,11 @@ const VariantsTable = ({ rows, headCells }) => {
             </Paper>
         </Box>
     );
+};
+
+VariantsTable.propTypes = {
+    rows: PropTypes.array.isRequired,
+    headCells: PropTypes.array.isRequired,
 };
 
 export default VariantsTable;

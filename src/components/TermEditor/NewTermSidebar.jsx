@@ -1,14 +1,12 @@
-import React from 'react';
-import { Box, Typography, IconButton, Tooltip, Stack, CircularProgress } from '@mui/material';
+import PropTypes from 'prop-types';
 import { StartIcon, JoinRightIcon } from '../../Icons';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import { vars } from '../../theme/variables';
+import { Box, Typography, IconButton, Tooltip, Stack, CircularProgress } from '@mui/material';
 
+import { vars } from '../../theme/variables';
 const { gray200, gray800, brand600 } = vars;
 
-
 export default function NewTermSidebar({ open, loading, onToggle, results, isResultsEmpty }) {
-
     if (loading) {
         return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32rem' }}>
             <CircularProgress />
@@ -100,3 +98,11 @@ export default function NewTermSidebar({ open, loading, onToggle, results, isRes
         </Box >
     );
 }
+
+NewTermSidebar.propTypes = {
+    open: PropTypes.bool.isRequired,
+    loading: PropTypes.bool.isRequired,
+    onToggle: PropTypes.func.isRequired,
+    results: PropTypes.array.isRequired,
+    isResultsEmpty: PropTypes.bool.isRequired,
+};

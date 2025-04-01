@@ -1,4 +1,3 @@
-import * as React from "react";
 import PropTypes from "prop-types";
 import { Grid, FormControl, Box, FormHelperText, OutlinedInput, InputAdornment, Typography } from "@mui/material";
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
@@ -40,6 +39,7 @@ FormField.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
+  errorMessage: PropTypes.string.isRequired,
 };
 
 FormField.defaultProps = {

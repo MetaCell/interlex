@@ -219,7 +219,7 @@ const SingleTermView = () => {
                 </Stack>
               </Grid>
               <Grid item xs={6}>
-                <CopyLinkComponent url="http://uri.interlex.org/base/ilx_0101901" />
+                <CopyLinkComponent url={`http://uri.interlex.org/base/${searchTerm}`} />
               </Grid>
               <Grid item xs={12} mt="2rem" display='flex' alignItems='center' justifyContent='space-between'>
                 <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["Overview", "Variants", "Version history", "Discussions"]} />

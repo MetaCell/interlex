@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
 import {
   FormControl,
@@ -70,6 +70,7 @@ PasswordField.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
+  errorMessage: PropTypes.string.isRequired,
 };
 
 PasswordField.defaultProps = {

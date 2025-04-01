@@ -1,15 +1,15 @@
-import {Box, MenuItem, Select, Typography, ToggleButton, ToggleButtonGroup} from "@mui/material";
+import { debounce } from 'lodash';
+import PropTypes from 'prop-types';
+import SingleSearch from "../SingleSearch";
 import FormControl from "@mui/material/FormControl";
-import {vars} from "../../../theme/variables";
+import {getMatchTerms} from "../../../api/endpoints";
 import {useCallback, useEffect, useState} from "react";
 import TextFieldsIcon from '@mui/icons-material/TextFields';
+import predicatesData from "../../../static/predicates.json";
 import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
-import SingleSearch from "../SingleSearch";
-import { debounce } from 'lodash';
-import predicatesData from "../../../static/predicates.json"
-import {getMatchTerms} from "../../../api/endpoints";
-import * as mockApi from '../../../api/endpoints/swaggerMockMissingEndpoints';
+import {Box, MenuItem, Select, Typography, ToggleButton, ToggleButtonGroup} from "@mui/material";
 
+import {vars} from "../../../theme/variables";
 const {gray700, gray300, gray800, gray600} = vars
 
 const PredicateGroupInput = ({ predicate, onChange }) => {
@@ -17,14 +17,14 @@ const PredicateGroupInput = ({ predicate, onChange }) => {
   const [objectSearchTerm, setObjectSearchTerm] = useState('');
   const [terms, setTerms] = useState([]);
   const [selectedType, setSelectedType] = useState(predicate.object.type);
-  
+
   const onToggleButtonChange = (event, newValue) => {
     if (newValue) {
       setToggleButtonValue(newValue);
       onChange({ ...predicate.object, isLink: newValue === 'link' });
       }
     };
-  
+
   const handleSelectChange = (e) => {
     const newType = e.target.value;
     setSelectedType(newType);
@@ -37,6 +37,7 @@ const PredicateGroupInput = ({ predicate, onChange }) => {
     setTerms([]);
   }
   
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await getMatchTerms(searchTerm);
     setTerms(data?.results);
@@ -126,6 +127,11 @@ const PredicateGroupInput = ({ predicate, onChange }) => {
       </Box>
     </Box>
   );
+};
+
+PredicateGroupInput.propTypes = {
+  predicate: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired
 };
 
 export default PredicateGroupInput;

@@ -1,13 +1,13 @@
-import {Button, Grid, Typography, Box, ToggleButton, ToggleButtonGroup} from "@mui/material";
-import { useState } from "react";
-import { vars } from "../../../theme/variables";
-import CustomizedInput from "../../common/CustomizedInput";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import PropTypes from "prop-types";
 import DropDownConditions from "./DropDownConditions";
-import SearchTermsData from "../../../static/SearchTermsData.json"
+import CustomizedInput from "../../common/CustomizedInput";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import SearchTermsData from "../../../static/SearchTermsData.json";
+import {Button, Grid, Typography, Box, ToggleButton, ToggleButtonGroup} from "@mui/material";
 
+import { vars } from "../../../theme/variables";
 const { gray800 } = vars;
 
 const SearchTerms = ({searchConditions, setSearchConditions, initialSearchConditions}) => {
@@ -16,27 +16,27 @@ const SearchTerms = ({searchConditions, setSearchConditions, initialSearchCondit
     newTerms[index][field] = value;
     setSearchConditions(newTerms);
   };
-  
+
   const handleDeleteTerm = (index) => {
     const newTerms = searchConditions.filter((_, i) => i !== index);
     setSearchConditions(newTerms);
   };
-  
+
   const handleAddTerm = () => {
     setSearchConditions([...searchConditions, { attribute: '', value: '', condition: 'and', relation: SearchTermsData.objectOptions[0].value }]);
   };
-  
+
   const handleConditionChange = (event, newValue, index) => {
     const value = newValue;
     const newTerms = [...searchConditions];
     newTerms[index].condition = value;
     setSearchConditions(newTerms);
   };
-  
+
   const handleClearAllConditions = () => {
     setSearchConditions([initialSearchConditions]);
   };
-  
+
   const updatedColumnsArray = SearchTermsData.termsColumns.map(item => ({
     ...item,
     value: item.id
@@ -137,5 +137,11 @@ const SearchTerms = ({searchConditions, setSearchConditions, initialSearchCondit
     </Box>
   );
 }
+
+SearchTerms.propTypes = {
+  searchConditions: PropTypes.array.isRequired,
+  setSearchConditions: PropTypes.func.isRequired,
+  initialSearchConditions: PropTypes.object.isRequired,
+};
 
 export default SearchTerms;

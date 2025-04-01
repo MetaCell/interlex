@@ -1,15 +1,16 @@
-import { Box, IconButton, Typography } from "@mui/material";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { debounce } from 'lodash';
 import TableRow from "./TableRow";
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-import { vars } from "../../../theme/variables";
-import _, { debounce } from 'lodash';
-import { getMatchTerms } from "../../../api/endpoints";
+import PropTypes from 'prop-types';
 import CustomSnackbar from "./CustomSnackbar";
 import TermDialog from "../../TermEditor/TermDialog";
+import { getMatchTerms } from "../../../api/endpoints";
+import { Box, IconButton, Typography } from "@mui/material";
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import { useCallback, useEffect, useRef, useState } from "react";
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
+import { vars } from "../../../theme/variables";
 const { gray100, gray50, gray600, gray500, brand600, brand50, brand700, gray700 } = vars;
 
 const tableStyles = {
@@ -32,7 +33,8 @@ const tableStyles = {
   root: {
     padding: '.5rem',
     display: 'flex',
-    border: '1 solid transparent',
+    alignItems: 'center',
+    border: '1px solid transparent',
     position: 'relative',
     borderBottom: `1px solid ${gray100}`,
     marginTop: '.25rem',
@@ -41,11 +43,9 @@ const tableStyles = {
       color: 'red',
       gap: '0.5rem',
       fontSize: '0.875rem',
-      flexShrink: 0,
-      lineHeight: '142.857%',
+      lineHeight: '1.25rem',
       fontWeight: 600,
-      display: 'flex',
-      alignItems: 'center'
+      textDecoration: 'none'
     },
     '& .MuiIconButton-root': {
       padding: '0',
@@ -68,6 +68,9 @@ const tableStyles = {
       display: 'flex',
       alignItems: 'center',
       minWidth: 0,
+      gap: '0.5rem',
+      paddingRight: '0.75rem',
+      paddingLeft: 0
     },
     '&:not(.secondary)': {
       '&:hover': {
@@ -87,13 +90,7 @@ const tableStyles = {
           margin: 'auto 0',
           borderRadius: '0.1875rem'
         },
-      },
-
-      '& > .MuiBox-root': {
-        gap: '0.5rem',
-        paddingRight: '0.75rem',
-        paddingLeft: 0
-      },
+      }
     },
   },
   inputParentBox: {
@@ -148,12 +145,15 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
   const [tableHeader, setTableHeader] = useState([
     { key: 'subject', label: 'Subject', allowSort: false, direction: 'desc' },
     { key: 'predicate', label: 'Predicates', allowSort: false },
-    { key: 'object', label: 'Objects', allowSort: true, direction: 'desc' }
+    { key: 'object', label: 'Objects', allowSort: true, direction: 'desc' },
   ]);
 
+  // eslint-disable-next-line no-unused-vars
   const [terms, setTerms] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [objectSearchTerm, setObjectSearchTerm] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [deletedObj, setDeletedObj] = useState({});
   const [editTermDialogOpen, setEditTermDialogOpen] = useState(false);
 
@@ -243,6 +243,7 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
     setSnackbarOpen(false);
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
     const data = await getMatchTerms(searchTerm);
     setTerms(data?.results[0]);
@@ -255,7 +256,7 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
   }, [objectSearchTerm, fetchTerms]);
 
   const tableWidth = 800;
-  const columnWidth = `${tableWidth / tableHeader.length}px`;
+  const columnWidth = `${Math.round(tableWidth / tableHeader.length)}px`;
 
   return (
     <>
@@ -278,21 +279,20 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
               )}
             </Box>
           ))}
+          <Box sx={{ width: '6.25rem' }}></Box>
         </Box>
-        <Box sx={tableStyles.body}>
-          {tableContent.map((row, index) =>
-            <TableRow
-              key={`${row.id}-${index}`}
-              tableStyles={tableStyles}
-              columnWidth={columnWidth}
-              data={row}
-              index={index}
-              onDragStart={dragStart}
-              onDragEnter={dragEnter}
-              onDragEnd={dragEnd}
-            />
-          )}
-        </Box>
+        {tableContent.map((row, index) =>
+          <TableRow
+            key={`${row.id}-${index}`}
+            tableStyles={tableStyles}
+            columnWidth={columnWidth}
+            data={row}
+            index={index}
+            onDragStart={dragStart}
+            onDragEnter={dragEnter}
+            onDragEnd={dragEnd}
+          />
+        )}
         {isAddButtonVisible && (
           <Box sx={tableStyles.root}>
             <Box sx={{ paddingLeft: '0 !important' }}>
@@ -307,6 +307,12 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
       <CustomSnackbar open={snackbarOpen} handleClose={handleSnackbarClose} onUndoDelete={handleUndoDelete} data={deletedObj} />
     </>
   );
+};
+
+CustomizedTable.propTypes = {
+  data: PropTypes.object,
+  term: PropTypes.string,
+  isAddButtonVisible: PropTypes.bool
 };
 
 export default CustomizedTable;

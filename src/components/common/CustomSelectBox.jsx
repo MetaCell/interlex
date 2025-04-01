@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { Stack, FormControl, MenuItem, Select, Typography } from '@mui/material';
+import PropTypes from 'prop-types';
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { vars } from '../../theme/variables';
+import { Stack, FormControl, MenuItem, Select, Typography } from '@mui/material';
 
+import { vars } from '../../theme/variables';
 const { white, gray200, gray300, gray500, gray600, gray700, gray800 } = vars;
 
 const CustomSelectBox = ({ isRequired, label, value, onChange, options, sx, placeholder }) => {
@@ -70,6 +70,16 @@ const CustomSelectBox = ({ isRequired, label, value, onChange, options, sx, plac
             </FormControl>
         </div>
     );
+}
+
+CustomSelectBox.propTypes = {
+    isRequired: PropTypes.bool,
+    label: PropTypes.string,
+    value: PropTypes.any.isRequired,
+    onChange: PropTypes.func.isRequired,
+    options: PropTypes.array.isRequired,
+    sx: PropTypes.object,
+    placeholder: PropTypes.string
 }
 
 export default CustomSelectBox;

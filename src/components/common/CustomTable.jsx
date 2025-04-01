@@ -1,54 +1,88 @@
-import * as React from 'react';
-import {
-    Box, Table, TableBody, TableContainer, Paper
-} from '@mui/material';
-import CustomTableHead from './CustomTableHead';
-import CustomPagination from './CustomPagination';
-import { vars } from '../../theme/variables';
+import PropTypes from "prop-types";
+import * as React from "react";
+import { Box, Table, TableBody, TableContainer, Paper } from "@mui/material";
+import CustomTableHead from "./CustomTableHead";
+import CustomPagination from "./CustomPagination";
 
+import { vars } from "../../theme/variables";
 const { gray200 } = vars;
 
 const paperStyle = {
-    width: '100%',
-    border: `1px solid ${gray200}`,
-    boxShadow: '0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)',
-    borderRadius: '0.75rem'
+  width: "100%",
+  border: `1px solid ${gray200}`,
+  boxShadow:
+    "0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)",
+  borderRadius: "0.75rem",
 };
 
-
 const CustomTable = React.forwardRef((props, ref) => {
-    const {rows, order, orderBy, setOrder, setOrderBy, 
-        headCells, isCheckboxPresent, selected, handleSelectAllClick, rowsPerPage, page, handlePageChange, children} = props;
+  const {
+    rows,
+    order,
+    orderBy,
+    setOrder,
+    setOrderBy,
+    headCells,
+    isCheckboxPresent,
+    selected,
+    handleSelectAllClick,
+    rowsPerPage,
+    page,
+    handlePageChange,
+    children,
+  } = props;
 
-    const handleRequestSort = (event, property) => {
-        setOrder(order === 'asc' ? 'desc' : 'asc')
-        setOrderBy(property);
-    };
+  const handleRequestSort = (event, property) => {
+    setOrder(order === "asc" ? "desc" : "asc");
+    setOrderBy(property);
+  };
 
-    return (
-        <Box sx={{ width: '100%' }}>
-            <Paper sx={paperStyle}>
-                <TableContainer sx={{ borderRadius: '0.75rem' }}>
-                    <Table aria-labelledby="tableTitle" ref={ref}>
-                        <CustomTableHead
-                            numSelected={selected?.length}
-                            order={order}
-                            orderBy={orderBy}
-                            onSelectAllClick={handleSelectAllClick}
-                            onRequestSort={handleRequestSort}
-                            headCells={headCells}
-                            rowCount={rows.length}
-                            isCheckboxPresent={isCheckboxPresent}
-                        />
-                        <TableBody>
-                            {children}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-                {rowsPerPage !== undefined && <CustomPagination rowCount={rows.length} rowsPerPage={rowsPerPage} page={page} onPageChange={handlePageChange} />}
-            </Paper>
-        </Box>
-    );
+  return (
+    <Box sx={{ width: "100%" }}>
+      <Paper sx={paperStyle}>
+        <TableContainer sx={{ borderRadius: "0.75rem" }}>
+          <Table aria-labelledby="tableTitle" ref={ref}>
+            <CustomTableHead
+              numSelected={selected?.length}
+              order={order}
+              orderBy={orderBy}
+              onSelectAllClick={handleSelectAllClick}
+              onRequestSort={handleRequestSort}
+              headCells={headCells}
+              rowCount={rows.length}
+              isCheckboxPresent={isCheckboxPresent}
+            />
+            <TableBody>{children}</TableBody>
+          </Table>
+        </TableContainer>
+        {rowsPerPage !== undefined && (
+          <CustomPagination
+            rowCount={rows.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handlePageChange}
+          />
+        )}
+      </Paper>
+    </Box>
+  );
 });
+
+CustomTable.displayName = "CustomTable";
+CustomTable.propTypes = {
+  rows: PropTypes.array,
+  order: PropTypes.oneOf(["asc", "desc"]),
+  orderBy: PropTypes.string,
+  setOrder: PropTypes.func,
+  setOrderBy: PropTypes.func,
+  headCells: PropTypes.array,
+  isCheckboxPresent: PropTypes.bool,
+  selected: PropTypes.array,
+  handleSelectAllClick: PropTypes.func,
+  rowsPerPage: PropTypes.number,
+  page: PropTypes.number,
+  handlePageChange: PropTypes.func,
+  children: PropTypes.node,
+};
 
 export default CustomTable;

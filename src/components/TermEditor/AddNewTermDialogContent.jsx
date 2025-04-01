@@ -1,27 +1,27 @@
-import * as React from "react";
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { debounce } from 'lodash';
+import PropTypes from "prop-types";
 import { Box } from "@mui/material";
-import { vars } from "../../theme/variables";
-import BasicTabs from "../common/CustomTabs";
-import ManualImportTab from "./ManualImportTab";
 import ImportFileTab from "./ImportFileTab";
+import BasicTabs from "../common/CustomTabs";
+import { addTerm } from "../../api/endpoints";
 import NewTermSidebar from "./NewTermSidebar";
-import AddPredicatesStep from "./AddPredicatesStep";
 import StatusStep from "../common/StatusStep";
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import { useNavigate } from "react-router-dom";
+import ManualImportTab from "./ManualImportTab";
+import AddPredicatesStep from "./AddPredicatesStep";
 import { getAddTermStatusProps } from "./termStatusProps";
+import { termParser } from "../../../src/parsers/termParser";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import { getExistingIDs, getUser } from "../../api/endpoints";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
 import * as mockApiInterlex from "../../api/endpoints/interLexURIStructureAPI";
-import { termParser } from "../../../src/parsers/termParser";
-import { getExistingIDs, getUser } from "../../api/endpoints";
-import { addTerm } from "../../api/endpoints";
-import { debounce } from 'lodash';
+
+import { vars } from "../../theme/variables";
+const { gray800, gray700 } = vars;
 
 const useMockApi = () => mockApi;
 const useMockApiInterlex = () => mockApiInterlex;
-
-const { gray800, gray700 } = vars;
 
 const initialFormState = {
     label: "",
@@ -68,6 +68,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
 
     const memoData = useMemo(() => data, [data]);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const fetchTerms = useCallback(
         debounce((termValue) => {
             setLoading(true);
@@ -96,6 +97,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
             .catch((error) => {
                 console.log("Error ", error)
             });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [addTerm]);
 
     const handleChangeTabs = (_, newValue) => setTabValue(newValue);
@@ -168,6 +170,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
         }
     }, [memoData]);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const getIds = useCallback(debounce(async () => {
         const ids = await getExistingIDs();
         setIds(ids)
@@ -175,7 +178,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
 
     useEffect(() => {
         getIds();
-    }, [])
+    }, [getIds]);
 
     useEffect(() => {
         if (activeStep === 2) {
@@ -212,6 +215,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
 
     const isResultsEmpty = termResults.length === 0;
     const isLabelEmpty = formState.label === "";
+    // eslint-disable-next-line no-unused-vars
     const isContinueButtonDisabled = !areMatchesChecked || isLabelEmpty
     const formattedNewTermId = formatIdText(newTermId);
 
@@ -253,6 +257,13 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
             />}
         </>
     );
+};
+
+AddNewTermDialogContent.propTypes = {
+    activeStep: PropTypes.number.isRequired,
+    areMatchesChecked: PropTypes.bool.isRequired,
+    onMatchesChange: PropTypes.func.isRequired,
+    onReset: PropTypes.func.isRequired
 };
 
 export default AddNewTermDialogContent;
