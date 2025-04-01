@@ -31,6 +31,8 @@ const Login = () => {
     password: "",
   });
   const [errors, setErrors] = React.useState({});
+  // eslint-disable-next-line no-unused-vars
+  const [isLoading, setIsLoading] = React.useState(false);
   const { setUserData } = React.useContext(GlobalDataContext);
   const navigate = useNavigate();
 
@@ -39,8 +41,6 @@ const Login = () => {
     let eventer = window[eventMethod];
     let messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
     eventer(messageEvent, function (e) {
-      console.log(e);
-      
       let response = {
         code: "200",
         status: "200",
@@ -67,7 +67,7 @@ const Login = () => {
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isLoading]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -76,11 +76,12 @@ const Login = () => {
 
   const loginUser = async () => {
     try {
-      await schema.validate(formData, { abortEarly: false })
-      setErrors({})
+      // await schema.validate(formData, { abortEarly: false })
+      // setErrors({})
 
-      await login({ username: formData.username, password: formData.password })
-      
+      const result = await login({ username: formData.username, password: formData.password })
+      console.log(result);
+
     } catch (error) {
       console.error("Login error:", error);
       setErrors((prevErrors) => ({
