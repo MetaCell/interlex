@@ -16,7 +16,7 @@ export default defineConfig({
           "Content-Type": "application/json",
         },
       },
-      "^/u/ops/.*": {
+      "/u/ops/user-login": {
         target: "https://uri.olympiangods.org",
         changeOrigin: true,
         secure: false,
