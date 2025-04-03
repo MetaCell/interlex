@@ -34,19 +34,24 @@ const GlobalDataProvider = ({ children }) => {
     setEditBulkSearchFilters(filters);
   };
 
+  const setUserData = (user) => {
+    setUser(user);
+  }
+
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchUser= useCallback(debounce(async () => {
-    const data = await getUser("123");
-    setUser(data)
-  }, 500), [getUser]);
+  // const fetchUser= useCallback(debounce(async () => {
+  //   const data = await getUser("123");
+  //   setUser(data)
+  // }, 500), [getUser]);
 
-  useEffect(() => {
-    fetchUser()
-  }, [fetchUser]);
+  // useEffect(() => {
+  //   fetchUser()
+  // }, [fetchUser]);
 
   const dataContextValue = {
     user,
+    setUserData,
     activeOntology,
     setOntologyData,
     searchOrganizationFilters,

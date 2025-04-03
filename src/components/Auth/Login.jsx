@@ -8,6 +8,7 @@ import {
   Paper,
   Typography,
   Alert,
+  CircularProgress
 } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
 import Checkbox from "@mui/material/Checkbox";
@@ -31,7 +32,6 @@ const Login = () => {
     password: "",
   });
   const [errors, setErrors] = React.useState({});
-  // eslint-disable-next-line no-unused-vars
   const [isLoading, setIsLoading] = React.useState(false);
   const { setUserData } = React.useContext(GlobalDataContext);
   const navigate = useNavigate();
@@ -41,30 +41,26 @@ const Login = () => {
     let eventer = window[eventMethod];
     let messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
     eventer(messageEvent, function (e) {
-      let response = {
-        code: "200",
-        status: "200",
-        username: "johndoe",
-        email: "johndoe@gmail.com",
-        token: "1234567890",
-        orcid: "0000-0000-0000-0000",
-      };
+      if (!e.data || !e.data.orcid_meta) return;
+      const { code, orcid_meta } = e.data;
 
-      if(response.code === 200) {
-        setUserData({ username: response.username, email: response.email, id: response.orcid });
-        navigate("/");
-      } else if (response.code === 401) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
+      if (code === 200 || code === 302) {
+        setUserData({ name: orcid_meta.name, id: orcid_meta.orcid });
+        navigate("/")
+      } else if (code === 401) {
+        setErrors((prev) => ({
+          ...prev,
           auth: "Invalid username or password. Please try again",
         }));
       } else {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
+        setErrors((prev) => ({
+          ...prev,
           auth: "An unknown error occurred. Please try again",
         }));
       }
     });
+
+    setIsLoading(false)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
@@ -76,110 +72,118 @@ const Login = () => {
 
   const loginUser = async () => {
     try {
-      // await schema.validate(formData, { abortEarly: false })
-      // setErrors({})
+      setIsLoading(true)
+      await schema.validate(formData, { abortEarly: false })
+      setErrors({})
 
       const result = await login({ username: formData.username, password: formData.password })
-      console.log(result);
-
+      console.log("result: ", result)
+      navigate("/")
     } catch (error) {
       console.error("Login error:", error);
       setErrors((prevErrors) => ({
         ...prevErrors,
         auth: "An unknown error occurred. Please try again",
       }));
+    } finally {
+      setIsLoading(false)
     }
   };
 
   const handleOrcidSignIn = () => {
-    const orcidSignInUrl = API_CONFIG.OLYMPIAN_GODS + API_CONFIG.REAL_API.LOGIN_ORCID;
+    setIsLoading(true)
+    const orcidSignInUrl = `${API_CONFIG.OLYMPIAN_GODS}${API_CONFIG.REAL_API.ORCID_SIGNIN}?aspopup=true`;
     window.open(orcidSignInUrl, "Orcid Sign In", "width=600,height=800").focus();
   };
 
   return (
     <Box className="authArea">
-      <Paper className="authPaper" sx={{ maxWidth: 528, flexGrow: 1 }}>
-        <Link variant="text" to={"/"} className="authLink">
-          <ArrowBack />
-          Return to page
-        </Link>
-        <Typography variant="h4">Log in to your account</Typography>
-        <Typography variant="body1">Welcome! Please enter your details.</Typography>
-        {errors.auth && <Alert severity="error" sx={{ mt: 2 }}>{errors.auth}</Alert>}
-        <form className="authForm">
-          <Grid container spacing={2.5}>
-            <FormField
-              name="username"
-              label="Username"
-              helperText="Required"
-              placeholder="Enter your username"
-              value={formData.username}
-              onChange={handleInputChange}
-              errorMessage={errors.username}
-            />
-            <PasswordField
-              name="password"
-              label="Password"
-              placeholder="Enter your password"
-              helperText="Required"
-              value={formData.password}
-              onChange={handleInputChange}
-              errorMessage={errors.password}
-            />
-            <Grid item xs={12}>
-              <Box
-                className="authRemember"
-                display={"flex"}
-                alignItems={"center"}
-                justifyContent={"space-between"}
+      {isLoading ? <Box sx={{ height: 1, width: 1, display: "flex", alignItems: "center", justifyContent: "center"}}>
+        <CircularProgress />
+      </Box> : (
+        <Paper className="authPaper" sx={{ maxWidth: 528, flexGrow: 1 }}>
+          <Link variant="text" to={"/"} className="authLink">
+            <ArrowBack />
+            Return to page
+          </Link>
+          <Typography variant="h4">Log in to your account</Typography>
+          <Typography variant="body1">Welcome! Please enter your details.</Typography>
+          {errors.auth && <Alert severity="error" sx={{ mt: 2 }}>{errors.auth}</Alert>}
+          <form className="authForm">
+            <Grid container spacing={2.5}>
+              <FormField
+                name="username"
+                label="Username"
+                helperText="Required"
+                placeholder="Enter your username"
+                value={formData.username}
+                onChange={handleInputChange}
+                errorMessage={errors.username}
+              />
+              <PasswordField
+                name="password"
+                label="Password"
+                placeholder="Enter your password"
+                helperText="Required"
+                value={formData.password}
+                onChange={handleInputChange}
+                errorMessage={errors.password}
+              />
+              <Grid item xs={12}>
+                <Box
+                  className="authRemember"
+                  display={"flex"}
+                  alignItems={"center"}
+                  justifyContent={"space-between"}
+                >
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        size="small"
+                        icon={<UncheckedIcon />}
+                        checkedIcon={<CheckedIcon />}
+                        defaultChecked
+                        color="primary"
+                      />
+                    }
+                    label="Remember for 30 days"
+                  />
+                  <Link to={"/forgot"} className="authLink">
+                    Forgot password
+                  </Link>
+                </Box>
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl>
+                  <Button variant="contained" color="primary" onClick={loginUser}>
+                    Sign in
+                  </Button>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant="body2" style={{ textAlign: "center", paddingBottom: '1rem'}}>
+                  or
+                </Typography>
+              </Grid>
+            </Grid>
+            <FormControl>
+              <Button
+                startIcon={<OrcidIcon />}
+                variant="contained"
+                className="authlightButton"
+                onClick={handleOrcidSignIn}
               >
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      size="small"
-                      icon={<UncheckedIcon />}
-                      checkedIcon={<CheckedIcon />}
-                      defaultChecked
-                      color="primary"
-                    />
-                  }
-                  label="Remember for 30 days"
-                />
-                <Link to={"/forgot"} className="authLink">
-                  Forgot password
-                </Link>
-              </Box>
-            </Grid>
-            <Grid item xs={12}>
-              <FormControl>
-                <Button variant="contained" color="primary" onClick={loginUser}>
-                  Sign in
-                </Button>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="body2" style={{ textAlign: "center", paddingBottom: '1rem'}}>
-                or
+                Sign in with ORCID
+              </Button>
+            </FormControl>
+            <Box className="authFooter">
+              <Typography variant="body1">
+                Don’t have an account? <Link to={"/register"}>Register</Link>
               </Typography>
-            </Grid>
-          </Grid>
-          <FormControl>
-            <Button
-              startIcon={<OrcidIcon />}
-              variant="contained"
-              className="authlightButton"
-              onClick={handleOrcidSignIn}
-            >
-              Sign in with ORCID
-            </Button>
-          </FormControl>
-          <Box className="authFooter">
-            <Typography variant="body1">
-              Don’t have an account? <Link to={"/register"}>Register</Link>
-            </Typography>
-          </Box>
-        </form>
-      </Paper>
+            </Box>
+          </form>
+        </Paper>
+      )}
     </Box>
   );
 };
