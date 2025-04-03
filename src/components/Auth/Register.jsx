@@ -20,7 +20,7 @@ const schema = yup.object().shape({
   lastName: yup.string().required("Last name is a required field"),
   email: yup.string().email().required(),
   username: yup.string().required().min(3),
-  password: yup.string().required().min(6),
+  password: yup.string().required().min(10),
   organization: yup.string().required()
 });
 
