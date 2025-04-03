@@ -12,7 +12,7 @@ import { ArrowBack } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import FormField from "./UI/Formfield";
 import PasswordField from "./UI/PasswordField";
-import { handleRegister } from "../../api/endpoints/index";
+import { register } from "../../api/endpoints/apiService";
 import * as yup from "yup";
 
 const schema = yup.object().shape({
@@ -42,14 +42,14 @@ const Register = () => {
       await schema.validate(formData, { abortEarly: false })
       setErrors({})
 
-      const response = await handleRegister(
-        formData.firstName,
-        formData.lastName,
-        formData.username,
-        formData.email,
-        formData.password,
-        formData.organization
-      );
+      const response = await register({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        organization: formData.organization
+      });
       
       if (response.status === 200) {
         navigate("/");
