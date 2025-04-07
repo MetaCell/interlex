@@ -20,6 +20,7 @@ import type {
 } from '@tanstack/react-query'
 import { customInstance } from '../../../mock/mutator/customClient';
 import type { ErrorType } from '../../../mock/mutator/customClient';
+import { API_CONFIG } from '../../config';
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -499,7 +500,7 @@ export const postOpsUserLogin = (
 ) => {
   return customInstance<void>(
     {
-      url: `https://uri.olympiangods.org/u/ops/user-login`,
+      url: `${API_CONFIG.BASE_URL}${API_CONFIG.REAL_API.SIGNIN}`,
       method: 'POST',
       data: userData,
       headers: {

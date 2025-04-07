@@ -150,18 +150,6 @@ const Layout = ({ children }) => {
 };
 
 function App() {
-	const initialized = useRef(false);
-
-	useEffect(() => {
-		if (initialized.current) return
-		initialized.current = true
-
-		const script = document.createElement("script")
-		script.id = "orcid-widget-script"
-		script.src = "/orcid-widget.js"
-		script.async = true
-		document.body.appendChild(script)
-	}, [])
 
 	return (
 		<ThemeProvider theme={theme}>
