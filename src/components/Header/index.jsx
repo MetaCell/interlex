@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import {
     AddIcon,
     DocumentationIcon,
@@ -34,6 +33,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import { GlobalDataContext } from "../../contexts/DataContext";
 import EditBulkTermsDialog from "../Dashboard/EditBulkTerms/EditBulkTermsDialog";
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 
 import { vars } from "../../theme/variables";
 const { gray200, white, gray100, gray600 } = vars;
@@ -101,6 +101,17 @@ const styles = {
 
     keyBoardInfo: {
         borderRadius: '0.25rem', pointerEvents: 'none', background: gray100, color: gray600, fontSize: '0.875rem', lineHeight: '142.857%', p: '0.125rem 0.5rem'
+    },
+
+    avatar: {
+        border: '0.0469rem solid rgba(0,0,0,0.08)', 
+        width: '2.5rem', 
+        height: '2.5rem',
+        '& .MuiSvgIcon-root': {
+            width: '1.5rem',
+            height: '1.5rem',
+            fontSize: '1.5rem'
+        }
     }
 }
 
@@ -139,11 +150,12 @@ const UserNavMenu = [
     }
 ]
 
-const Header = ({ isLoggedIn = true }) => {
+const Header = () => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
     const [openEditBulkTerms, setOpenEditBulkTerms] = React.useState(false);
     const [activeStep, setActiveStep] = React.useState(0);
+    const [isLoggedIn, setIsLoggedIn] = React.useState(false);
     const { user, setUserData } = useContext(GlobalDataContext);
     const [openNewTermDialog, setOpenNewTermDialog] = React.useState(false);
 
@@ -230,6 +242,9 @@ const Header = ({ isLoggedIn = true }) => {
 
     React.useEffect(() => {
         console.log("Stored user in context ", user)
+        if(user) {
+            setIsLoggedIn(true)
+        }
     }, [user])
 
     return (
@@ -297,8 +312,8 @@ const Header = ({ isLoggedIn = true }) => {
                 {!isLoggedIn ? (
                     <Box display='flex' gap='1.25rem'>
                         <Box display='flex' gap='0.25rem'>
-                            <Button>Register</Button>
-                            <Button variant="outlined">Log in</Button>
+                            <Button onClick={() => navigate("/register")}>Register</Button>
+                            <Button variant="outlined" onClick={() => navigate("/login")}>Log in</Button>
                         </Box>
                         <Divider sx={styles.divider} />
                         <Button variant="contained" onClick={handleNewTermDialogOpen}>
@@ -322,7 +337,9 @@ const Header = ({ isLoggedIn = true }) => {
                         }}
                             onClick={handleUserClick} aria-describedby={idUser}
                         >
-                            <Avatar sx={{ border: '0.0469rem solid rgba(0,0,0,0.08)', width: '2.5rem', height: '2.5rem' }} src="https://mui.com/static/images/avatar/1.jpg" />
+                            <Avatar sx={styles.avatar}>
+                                <PersonOutlineIcon />
+                            </Avatar>
                         </IconButton>
                         <Popover
                             sx={{
@@ -379,7 +396,9 @@ const Header = ({ isLoggedIn = true }) => {
                                                 horizontal: 'right',
                                             }}
                                         >
-                                            <Avatar sx={{ border: '0.0469rem solid rgba(0,0,0,0.08)', width: '2.5rem', height: '2.5rem' }} src="https://mui.com/static/images/avatar/1.jpg" />
+                                            <Avatar sx={styles.avatar}>
+                                                <PersonOutlineIcon />
+                                            </Avatar>
                                         </Badge>
                                     </ListItemAvatar>
                                     <ListItemText
@@ -410,10 +429,5 @@ const Header = ({ isLoggedIn = true }) => {
         </>
     )
 }
-
-
-Header.propTypes = {
-    isLoggedIn: PropTypes.bool,
-};
 
 export default Header

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import CssBaseline from "@mui/material/CssBaseline";
 import { Box, ThemeProvider } from "@mui/material";
 import {
@@ -24,6 +25,7 @@ import ForgotPassword from "./components/Auth/ForgotPassword";
 import SingleOrganization from "./components/SingleOrganization";
 import TermActivity from "./components/term_activity/TermActivity";
 import OrganizationsCurieEditor from "./components/CurieEditor/OrganizationCurieEditor";
+import { handleOrcidLogin } from "./api/endpoints";
 
 const PageContainer = ({ children }) => {
 	return (
@@ -116,6 +118,20 @@ const Layout = ({ children }) => {
 	const authPaths = ["/login", "/register", "/forgot", "/reset"];
 	const location = useLocation();
 	const isAuthPath = authPaths.includes(location.pathname);
+
+	useEffect(() => {
+		const params = new URLSearchParams(location.search);
+		const code = params.get("code");
+		if (code) {(async () => {
+			try {
+				const response = await handleOrcidLogin(code);
+				localStorage.setItem("token", response.token);
+			} catch (error) {
+				console.log("error: ", error)
+			}})();
+		}
+	}, [location]);
+
 	// Determine whether to show the footer based on the current route
 	const showFooter = location.pathname !== "/";
 	return (
@@ -134,6 +150,7 @@ const Layout = ({ children }) => {
 };
 
 function App() {
+
 	return (
 		<ThemeProvider theme={theme}>
 			<CssBaseline />

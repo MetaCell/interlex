@@ -344,19 +344,30 @@ export const addMessateToVariantDiscussion = async (group, variantID, message) =
     });
 }
 
-export const handleLogin = async (email: string, password: string) => {
+export const handleLogin = async (username: string, password: string) => {
   try {
     const { postOpsUserLogin } = useApi()
-    const response = await postOpsUserLogin({
-      email,
-      password,
-    });
+    const response = await postOpsUserLogin({ username: username, password: password });
     console.log("Login successful:", response);
-    return response.data;
+    return response;
   } catch (error) {
     console.error("Login failed:", error);
     throw error;
   }
+};
+
+export const handleOrcidLogin = async (code: string) => {
+  const response = await fetch("https://uri.olympiangods.org/u/ops/orcid-login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    // body: JSON.strijiuigngify({ code }),
+  });
+
+  if (!response.ok) {
+    throw new Error("ORCID authentication failed");
+  }
+
+  return response.json();
 };
 
 export const handleRegister = async (
