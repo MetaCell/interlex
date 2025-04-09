@@ -13,14 +13,14 @@ const useApi = () => api;
 const BASE_GROUP = "base";
 const BASE_EXTENSION = "jsonld";
 
-export const getOrganizations = async () => {
+export const getOrganizations = async (group) => {
     /** Call endpoint for retrieving organizations, this is a mock endpoint
     created by us */
-    const {  getOrganizations } = useMockApi();
+    const {  getPrivRoleOtherGroup } = useApi();
 
     /** Call Endpoint */
-    return await getOrganizations().then((data) => {
-        return data as Organizations;
+    return await getPrivRoleOtherGroup(group).then((data) => {
+        return data;
       })
       .catch((error) => {
         return error;
