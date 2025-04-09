@@ -14,7 +14,7 @@ import FormField from "./UI/Formfield";
 import { API_CONFIG } from "../../config";
 import PasswordField from "./UI/PasswordField";
 import { ArrowBack } from "@mui/icons-material";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useHistory } from "react-router-dom";
 import { GlobalDataContext } from "../../contexts/DataContext";
 // import { register } from "../../api/endpoints/apiService";
 
@@ -41,6 +41,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = React.useState(false);
   const { setUserData } = React.useContext(GlobalDataContext);
   const navigate = useNavigate();
+  const history = useHistory();
 
   React.useEffect(() => {
       let eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
@@ -127,7 +128,7 @@ const Register = () => {
       )}
       <Box className="authArea">
         <Paper className="authPaper" sx={{ p: 5, maxWidth: 760, flexGrow: 1 }}>
-          <Link variant="text" to={"/login"} className="authLink">
+          <Link variant="text" onClick={() => history.goBack()} className="authLink">
             <ArrowBack />
             Return to page
           </Link>
