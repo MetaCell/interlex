@@ -33,7 +33,6 @@ const Login = () => {
   });
   const [errors, setErrors] = React.useState({});
   const [isLoading, setIsLoading] = React.useState(false);
-  const { setUserData } = React.useContext(GlobalDataContext);
   const navigate = useNavigate();
 
   React.useEffect(() => {
