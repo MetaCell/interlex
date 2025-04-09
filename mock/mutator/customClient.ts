@@ -1,6 +1,6 @@
 import Axios, { AxiosRequestConfig } from 'axios';
- 
-export const AXIOS_INSTANCE = Axios.create({ baseURL: '.' }); // use your own URL here or environment variable
+import { API_CONFIG } from '../../src/config';
+export const AXIOS_INSTANCE = Axios.create({ baseURL: API_CONFIG.BASE_URL });
 
 // add a second `options` argument here if you want to pass extra options to each generated query
 export const customInstance = <T>(
@@ -12,7 +12,9 @@ export const customInstance = <T>(
     ...config,
     ...options,
     cancelToken: source.token,
-  }).then(({ data }) => data).catch(error => console.log("Error ", error));
+  }).then(({ data }) => data).catch(error => {
+    throw error;
+  });
 
   // @ts-ignore
   promise.cancel = () => {

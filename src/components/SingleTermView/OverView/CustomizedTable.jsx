@@ -33,7 +33,8 @@ const tableStyles = {
   root: {
     padding: '.5rem',
     display: 'flex',
-    border: '1 solid transparent',
+    alignItems: 'center',
+    border: '1px solid transparent',
     position: 'relative',
     borderBottom: `1px solid ${gray100}`,
     marginTop: '.25rem',
@@ -42,11 +43,9 @@ const tableStyles = {
       color: 'red',
       gap: '0.5rem',
       fontSize: '0.875rem',
-      flexShrink: 0,
-      lineHeight: '142.857%',
+      lineHeight: '1.25rem',
       fontWeight: 600,
-      display: 'flex',
-      alignItems: 'center'
+      textDecoration: 'none'
     },
     '& .MuiIconButton-root': {
       padding: '0',
@@ -69,6 +68,9 @@ const tableStyles = {
       display: 'flex',
       alignItems: 'center',
       minWidth: 0,
+      gap: '0.5rem',
+      paddingRight: '0.75rem',
+      paddingLeft: 0
     },
     '&:not(.secondary)': {
       '&:hover': {
@@ -88,13 +90,7 @@ const tableStyles = {
           margin: 'auto 0',
           borderRadius: '0.1875rem'
         },
-      },
-
-      '& > .MuiBox-root': {
-        gap: '0.5rem',
-        paddingRight: '0.75rem',
-        paddingLeft: 0
-      },
+      }
     },
   },
   inputParentBox: {
@@ -149,7 +145,7 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
   const [tableHeader, setTableHeader] = useState([
     { key: 'subject', label: 'Subject', allowSort: false, direction: 'desc' },
     { key: 'predicate', label: 'Predicates', allowSort: false },
-    { key: 'object', label: 'Objects', allowSort: true, direction: 'desc' }
+    { key: 'object', label: 'Objects', allowSort: true, direction: 'desc' },
   ]);
 
   // eslint-disable-next-line no-unused-vars
@@ -260,7 +256,7 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
   }, [objectSearchTerm, fetchTerms]);
 
   const tableWidth = 800;
-  const columnWidth = `${tableWidth / tableHeader.length}px`;
+  const columnWidth = `${Math.round(tableWidth / tableHeader.length)}px`;
 
   return (
     <>
@@ -283,21 +279,20 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
               )}
             </Box>
           ))}
+          <Box sx={{ width: '6.25rem' }}></Box>
         </Box>
-        <Box sx={tableStyles.body}>
-          {tableContent.map((row, index) =>
-            <TableRow
-              key={`${row.id}-${index}`}
-              tableStyles={tableStyles}
-              columnWidth={columnWidth}
-              data={row}
-              index={index}
-              onDragStart={dragStart}
-              onDragEnter={dragEnter}
-              onDragEnd={dragEnd}
-            />
-          )}
-        </Box>
+        {tableContent.map((row, index) =>
+          <TableRow
+            key={`${row.id}-${index}`}
+            tableStyles={tableStyles}
+            columnWidth={columnWidth}
+            data={row}
+            index={index}
+            onDragStart={dragStart}
+            onDragEnter={dragEnter}
+            onDragEnd={dragEnd}
+          />
+        )}
         {isAddButtonVisible && (
           <Box sx={tableStyles.root}>
             <Box sx={{ paddingLeft: '0 !important' }}>

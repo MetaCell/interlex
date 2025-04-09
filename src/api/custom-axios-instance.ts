@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_CONFIG } from "../../config/config.js";
+import { API_CONFIG } from "../config.ts";
 
 export const customAxiosInstance = axios.create({
   baseURL: API_CONFIG.BASE_SCICRUNCH_URL,
