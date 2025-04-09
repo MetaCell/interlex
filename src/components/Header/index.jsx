@@ -219,7 +219,13 @@ const Header = () => {
     };
 
     const handleMenuClick = (e, menu) => {
-        navigate(menu.href)
+        if (menu.label === 'Log out') {
+            setUserData(null, null);
+            navigate('/');
+        }
+        if (menu.href) {
+            navigate(menu.href)
+        }
     }
 
     React.useEffect(() => {
@@ -244,6 +250,8 @@ const Header = () => {
         console.log("Stored user in context ", user)
         if(user) {
             setIsLoggedIn(true)
+        } else {
+            setIsLoggedIn(false)
         }
     }, [user])
 

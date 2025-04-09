@@ -77,13 +77,23 @@ const Login = () => {
       setErrors({})
 
       const result = await login({ username: formData.username, password: formData.password })
-      console.log("result: ", result)
-      navigate("/")
+      if (!result.data || !result.data?.orcid_meta) {
+        setErrors((prev) => ({
+          ...prev,
+          auth: "Interlex API is not returning the user information, please contact the support at support@interlex.org",
+        }));
+      } else {
+        const { code, orcid_meta } = result.data;
+        if (code === 200 || code === 302) {
+          setUserData({ name: orcid_meta.name, id: orcid_meta.orcid });
+        }
+        navigate("/")
+      }
     } catch (error) {
       console.error("Login error:", error);
       setErrors((prevErrors) => ({
         ...prevErrors,
-        auth: "An unknown error occurred. Please try again",
+        auth: error.message + " - " + error.errors?.[0] || " - An unknown error occurred. Please try again",
       }));
     } finally {
       setIsLoading(false)
