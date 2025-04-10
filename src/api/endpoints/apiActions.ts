@@ -21,6 +21,21 @@ export const createPostRequest = <T = any, D = any>(endpoint: string, contentTyp
   }
 }
 
+export const createPostRequestAnother = <T = any, D = any>(endpoint: string, contentType = "application/json") => {
+  return (data?: D, options?: SecondParameter<typeof customInstance>) => {
+    return customInstance<T>(
+      {
+        url: "https://uri.olympiangods.org/aigul/priv/org-new",
+        method: "POST",
+        headers: {
+          "Content-Type": contentType,
+        },
+      },
+      options,
+    )
+  }
+}
+
 export const createGetRequest = <T = any, P = any>(endpoint: string, contentType?: string) => {
   return (params?: P, options?: SecondParameter<typeof customInstance>, signal?: AbortSignal) => {
     const config: AxiosRequestConfig = {

@@ -24,7 +24,7 @@ export const API_CONFIG = {
         GET_ENDPOINTS_ILX: "/api/real/endpoints-ilx",
         PATCH_ENDPOINTS_ILX: "/api/real/patch-endpoints-ilx",
         SIGNIN: "/u/ops/user-login",
-        ORCID_SIGNIN: "/u/ops/orcid-login",
+        ORCID_SIGNIN: "/u/ops/orcid-new",
         NEWUSER_ILX: "/u/ops/user-new",
         NEWUSER_ORCID: "/u/ops/orcid-new",
         GET_ORGANIZATIONS: "/priv/org-new",

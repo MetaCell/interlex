@@ -1,9 +1,10 @@
 import {useEffect, useState } from "react";
-import { getOrganizations, newOrganization } from "../../api/endpoints";
+// import { getOrganizations, newOrganization } from "../../api/endpoints";
 import OrganizationsList from "../common/OrganizationsList";
 import { Box, Typography, CircularProgress, Stack, Button, Link } from "@mui/material";
 import BasicDialog from "../common/BasicDialog";
 import GroupAddOutlinedIcon from "@mui/icons-material/GroupAddOutlined";
+import { getOrganizations } from "../../api/endpoints/apiService";
 
 import { vars } from "../../theme/variables";
 const { gray600, gray700, brand700, brand800 } = vars;
@@ -23,7 +24,8 @@ const Organizations = () => {
   const [open, setOpen] = useState(false);
 
   const fetchOrganizations = async() => {
-    const organizations = await getOrganizations("base")
+    const organizations = await getOrganizations()
+    console.log("organizations: ", organizations)
     setOrganizations(organizations);
     setLoading(false)
   }
@@ -31,7 +33,7 @@ const Organizations = () => {
   useEffect( () => {
     setLoading(true)
     fetchOrganizations();
-    newOrganization("test");
+    // newOrganization("aigul");
   }, []);
 
   const handleOpen = () => {
@@ -51,12 +53,12 @@ const Organizations = () => {
   return (
     <Box p='2.25rem 5rem' flexGrow={1} overflow='auto'>
       <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-        <Typography fontSize='1.5rem' color={gray700} fontWeight={600} mb='1.5rem'>
+        {/* <Typography fontSize='1.5rem' color={gray700} fontWeight={600} mb='1.5rem'>
           {organizations?.length} Organizations
-        </Typography>
+        </Typography> */}
         <Button type="string" startIcon={<GroupAddOutlinedIcon />} onClick={handleOpen}>Create a new organization</Button>
       </Stack>
-      <OrganizationsList organizations={organizations} />
+      {/* <OrganizationsList organizations={organizations} /> */}
       <BasicDialog 
         open={open} 
         handleClose={handleClose} 

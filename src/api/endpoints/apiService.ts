@@ -1,4 +1,4 @@
-import { createPostRequest } from "./apiActions";
+import { createPostRequest, createPostRequestAnother } from "./apiActions";
 import { API_CONFIG } from "../../config";
 
 export interface LoginRequest {
@@ -18,4 +18,4 @@ export interface RegisterRequest {
 export const login = createPostRequest<any, LoginRequest>(API_CONFIG.REAL_API.SIGNIN, "application/x-www-form-urlencoded")
 export const register = createPostRequest<any, RegisterRequest>(API_CONFIG.REAL_API.NEWUSER_ILX, "application/x-www-form-urlencoded")
 
-export const getOrganizations = createPostRequest<any, any>(API_CONFIG.REAL_API.GET_ORGANIZATIONS, "application/json");
+export const getOrganizations = createPostRequestAnother<any, any>(API_CONFIG.REAL_API.GET_ORGANIZATIONS, "application/json");
