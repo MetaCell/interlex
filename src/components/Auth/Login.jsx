@@ -33,6 +33,7 @@ const Login = () => {
   });
   const [errors, setErrors] = React.useState({});
   const [isLoading, setIsLoading] = React.useState(false);
+  const { setUserData } = React.useContext(GlobalDataContext);
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -63,8 +64,6 @@ const Login = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
-
-  const { setUserData } = useContext(GlobalDataContext);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
