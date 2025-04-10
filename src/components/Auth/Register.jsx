@@ -19,22 +19,16 @@ import { GlobalDataContext } from "../../contexts/DataContext";
 // import { register } from "../../api/endpoints/apiService";
 
 const schema = yup.object().shape({
-  firstName: yup.string().required("First name is a required field"),
-  lastName: yup.string().required("Last name is a required field"),
   email: yup.string().email().required(),
   username: yup.string().required().min(3),
   password: yup.string().required().min(10),
-  organization: yup.string().required()
 });
 
 const Register = () => {
   const [formData, setFormData] = React.useState({
-    firstName: "",
-    lastName: "",
     username: "",
     email: "",
     password: "",
-    organization: "",
   });
 
   const [errors, setErrors] = React.useState({});
@@ -138,28 +132,6 @@ const Register = () => {
           <form className="authForm">
             <Grid container spacing={2.5}>
               <FormField
-                xs={6}
-                label="First name"
-                placeholder="Enter your name"
-                value={formData.firstName}
-                onChange={(e) =>
-                  setFormData({ ...formData, firstName: e.target.value })
-                }
-                errorMessage={errors.firstName}
-                helperText="Required"
-              />
-              <FormField
-                xs={6}
-                label="Last name"
-                placeholder="Enter your surname"
-                value={formData.lastName}
-                onChange={(e) =>
-                  setFormData({ ...formData, lastName: e.target.value })
-                }
-                errorMessage={errors.lastName}
-                helperText="Required"
-              />
-              <FormField
                 label="Username"
                 placeholder="Enter your username"
                 value={formData.username}
@@ -189,18 +161,6 @@ const Register = () => {
                 errorMessage={errors.password}
                 helperText="Required"
               />
-              <Grid item xs={12}>
-                <FormField
-                  label="Organization"
-                  placeholder="Enter your organization"
-                  value={formData.organization}
-                  onChange={(e) =>
-                    setFormData({ ...formData, organization: e.target.value })
-                  }
-                  errorMessage={errors.organization}
-                  helperText="Required"
-                />
-              </Grid>
               <Grid item xs={12}>
                 <FormControl>
                   <Button variant="contained" color="primary" onClick={registerUser}>

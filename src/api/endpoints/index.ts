@@ -161,11 +161,25 @@ export const elasticSearch = async (query) => {
   const url = API_CONFIG.BASE_SCICRUNCH_URL + API_CONFIG.SCICRUNCH_KEY;
   try {
     const result = await fetchData(url, "POST", {
-      query: {
-        query_string: {
-          query: query,
-        },
-      },
+      "size": 20,
+      "from": 0,
+      "query": {
+        "bool": {
+            "must": [
+                {
+                    "query_string": {
+                        "fields": [
+                            "*"
+                        ],
+                        "query": query,
+                        "type": "cross_fields",
+                        "default_operator": "and",
+                        "lenient": "true"
+                    }
+                }
+            ]
+        }
+      }
     });
     return elasticSearhParser(result?.hits?.hits)
   } catch (error) {

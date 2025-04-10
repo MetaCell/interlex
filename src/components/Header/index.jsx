@@ -220,6 +220,7 @@ const Header = () => {
 
     const handleMenuClick = (e, menu) => {
         if (menu.label === 'Log out') {
+            window.cookieStore.delete({name: 'session', domain: 'https://uri.olympiangods.org'});
             setUserData(null, null);
             navigate('/');
         }
