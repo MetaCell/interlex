@@ -6,11 +6,11 @@ export default defineConfig({
   server: {
     proxy: {
       "/api/elasticsearch": {
-        target: "https://scicrunch.org",
+        target: "https://api.scicrunch.io",
         changeOrigin: true,
         secure: true, // Ensure HTTPS requests work
         rewrite: (path) =>
-          path.replace(/^\/api\/elasticsearch/, "/api/1/elastic/Interlex_pr/_search"),
+          path.replace(/^\/api\/elasticsearch/, "/elastic/v1/Interlex_pr/_search"),
         headers: {
           // Forward headers correctly
           "Content-Type": "application/json",
