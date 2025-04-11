@@ -42,6 +42,8 @@ const Login = () => {
     let messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
     eventer(messageEvent, function (e) {
       if (!e.data || !e.data.orcid_meta) return;
+      // TODO: get the session cookie when here and add it to our domain.
+      // also store the user info once logged from here in the local storage for future usage.
       const { code, orcid_meta } = e.data;
 
       if (code === 200 || code === 302) {
