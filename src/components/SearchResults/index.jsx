@@ -5,18 +5,13 @@ import SearchResultsBox from './SearchResultsBox';
 import { useEffect, useState, useCallback } from 'react';
 import FiltersSidebar from '../Sidebar/FiltersSidebar';
 import { searchAll, elasticSearch } from '../../api/endpoints';
-import { SEARCH_TYPES } from '../../constants/types';
 
 
 const SearchResults = () => {
     const [loading, setLoading] = useState(true);
     const [filters, setFilters] = useState([]);
     const [checkedLabels, setCheckedLabels] = useState({});
-    const [searchResults, setSearchResults] = useState({
-        terms: [],
-        organizations: [],
-        ontologies: []
-    });
+    const [searchResults, setSearchResults] = useState([]);
     const query = useQuery();
 
     const searchTerm = query.get('searchTerm');
@@ -29,18 +24,13 @@ const SearchResults = () => {
                 [label]: !prev[category]?.[label]
             }
         }));
-        filteredResults()
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const fetchTerms = useCallback(debounce(async (searchTerm) => {
         const data = await elasticSearch(searchTerm);
         setFilters(data.filters)
-        setSearchResults({
-            terms: data?.results?.filter(result => result.type === SEARCH_TYPES.TERM) || [],
-            organizations: data?.results?.filter(result => result.type === SEARCH_TYPES.ORGANIZATION) || [],
-            ontologies: data?.results?.filter(result => result.type === SEARCH_TYPES.ONTOLOGY) || []
-        });
+        setSearchResults(data?.results || []);
         setLoading(false)
     }, 500), [searchAll]);
 
@@ -49,61 +39,34 @@ const SearchResults = () => {
     }, [searchTerm, fetchTerms]);
 
 
-    // const filterResults = (results, checkedLabels) => {
-    //     return results.filter(item => {
-    //         for (let category in checkedLabels) {
-    //             if (!checkedLabels[category]) continue; // Skip empty categories
-    //             for (let label in checkedLabels[category]) {
-    //                 if (checkedLabels[category][label]) {
-    //                     const categoryLower = category.toLowerCase();
-    //                     const itemValue = item[categoryLower] || item[categoryLower === 'type' ? 'Type' : categoryLower]; // Case-insensitive check
-    //                     if (itemValue !== label) {
-    //                         return false;
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //         return true;
-    //     });
-    // };
-    const filterResults = (results, checkedLabels, category) => {
-        const arrayToFilter = results[category] || [];
-        
-        return arrayToFilter.filter(item => {
-            for (let filterCategory in checkedLabels) {
-                if (!checkedLabels[filterCategory]) continue; // Skip empty categories
+    const filterResults = (results, checkedLabels) => {
+        return results.filter(item => {
+            for (let category in checkedLabels) {
+                if (!checkedLabels[category]) continue; // Skip empty categories
                 
-                for (let label in checkedLabels[filterCategory]) {
-                    if (checkedLabels[filterCategory][label]) {
-                        const categoryLower = filterCategory.toLowerCase();
-                        const itemValue = item[categoryLower] || 
-                                         item[categoryLower === 'type' ? 'Type' : categoryLower]; // Case-insensitive check
-                        
-                        if (itemValue !== label) {
-                            return false;
-                        }
-                    }
+                const selectedLabels = Object.entries(checkedLabels[category])
+                    .filter(([_, isChecked]) => isChecked)
+                    .map(([label]) => label);
+                
+                if (selectedLabels.length === 0) continue;
+                
+                const categoryLower = category.toLowerCase();
+                const itemValue = item[categoryLower] || item[categoryLower === 'type' ? 'Type' : categoryLower];
+                
+                if (!selectedLabels.includes(itemValue)) {
+                    return false;
                 }
             }
             return true;
         });
     };
 
-    // const filteredResults = filterResults(searchResults || [], checkedLabels);
-    const filteredResults = () => {
-        setSearchResults({
-            terms: filterResults(searchResults, checkedLabels, 'terms'),
-            organizations: filterResults(searchResults, checkedLabels, 'organizations'),
-            ontologies: filterResults(searchResults, checkedLabels, 'ontologies')
-        });
-    };
-
-    console.log("searchResults: ", searchResults)
+    const filteredResults = filterResults(searchResults || [], checkedLabels);
 
     return (
         <>
             <FiltersSidebar filters={filters} checkedLabels={checkedLabels} handleCheckboxChange={handleCheckboxChange} />
-            <SearchResultsBox searchResults={searchResults} searchTerm={searchTerm} loading={loading} />
+            <SearchResultsBox searchResults={filteredResults} searchTerm={searchTerm} loading={loading} />
         </>
     );
 };

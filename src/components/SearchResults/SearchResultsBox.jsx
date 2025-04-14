@@ -41,7 +41,7 @@ const SearchResultsBox = ({ searchResults, searchTerm, loading }) => {
         <Box width={1} flex={1} display="flex" flexDirection="column" px={4} py={3} gap={3} sx={{ overflowY: 'auto' }}>
             <Grid container justifyContent={{ lg: 'space-between', xs: 'flex-end', md: 'flex-end' }} alignItems="center">
                 <Grid item xs={12} lg={6} sm={6}>
-                    <Typography variant="h5">{searchResults?.results?.length} results for {searchTerm} search</Typography>
+                    <Typography variant="h5">{searchResults?.length} results for {searchTerm} search</Typography>
                 </Grid>
                 <Grid item xs={12} lg={6} sm={6}>
                     <Box display="flex" alignItems="center" gap={2} justifyContent="end">
@@ -72,12 +72,9 @@ const SearchResultsBox = ({ searchResults, searchTerm, loading }) => {
                     </Box>
                 </Grid>
             </Grid>
-            {listView === 'list' ? (<>
-                {Object.entries(searchResults).map(([key, value]) => (
-                    value.length > 0 && (
-                    <ListView key={key} searchResults={value} loading={loading} />
-                )))}
-            </>) : (
+            {listView === 'list' ? (
+                <ListView searchResults={searchResults} loading={loading} />
+            ) : (
                 <p>table</p>
             )}
         </Box>
