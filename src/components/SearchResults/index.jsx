@@ -45,7 +45,7 @@ const SearchResults = () => {
                 if (!checkedLabels[category]) continue; // Skip empty categories
                 
                 const selectedLabels = Object.entries(checkedLabels[category])
-                    .filter(([_, isChecked]) => isChecked)
+                    .filter(([, isChecked]) => isChecked)
                     .map(([label]) => label);
                 
                 if (selectedLabels.length === 0) continue;
