@@ -29,7 +29,7 @@ const CustomViewButton = ({ view, listView, onClick, icon }) => (
     </Button>
 );
 
-const SearchResultsBox = ({ terms, searchTerm, loading }) => {
+const SearchResultsBox = ({ searchResults, searchTerm, loading }) => {
     const [numberOfVisiblePages, setNumberOfVisiblePages] = React.useState(20);
     const [listView, setListView] = React.useState('list');
 
@@ -41,7 +41,7 @@ const SearchResultsBox = ({ terms, searchTerm, loading }) => {
         <Box width={1} flex={1} display="flex" flexDirection="column" px={4} py={3} gap={3} sx={{ overflowY: 'auto' }}>
             <Grid container justifyContent={{ lg: 'space-between', xs: 'flex-end', md: 'flex-end' }} alignItems="center">
                 <Grid item xs={12} lg={6} sm={6}>
-                    <Typography variant="h5">{terms?.results?.length} results for {searchTerm} search</Typography>
+                    <Typography variant="h5">{searchResults?.results?.length} results for {searchTerm} search</Typography>
                 </Grid>
                 <Grid item xs={12} lg={6} sm={6}>
                     <Box display="flex" alignItems="center" gap={2} justifyContent="end">
@@ -72,9 +72,12 @@ const SearchResultsBox = ({ terms, searchTerm, loading }) => {
                     </Box>
                 </Grid>
             </Grid>
-            {listView === 'list' ? (
-                <ListView searchResults={terms} loading={loading} />
-            ) : (
+            {listView === 'list' ? (<>
+                {Object.entries(searchResults).map(([key, value]) => (
+                    value.length > 0 && (
+                    <ListView key={key} searchResults={value} loading={loading} />
+                )))}
+            </>) : (
                 <p>table</p>
             )}
         </Box>
@@ -89,7 +92,7 @@ CustomViewButton.propTypes = {
 };
 
 SearchResultsBox.propTypes = {
-    terms: PropTypes.object,
+    searchResults: PropTypes.object,
     searchTerm: PropTypes.string,
     loading: PropTypes.bool
 };
