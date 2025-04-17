@@ -120,7 +120,7 @@ const Register = () => {
         </Box>
       )}
       <Box className="authArea">
-        <Paper className="authPaper" sx={{ p: 5, maxWidth: 760, flexGrow: 1 }}>
+        <Paper className="authPaper" sx={{ p: 5, maxWidth: 528, flexGrow: 1 }}>
           <Link variant="text" to={"/"} className="authLink">
             <ArrowBack />
             Return to page
