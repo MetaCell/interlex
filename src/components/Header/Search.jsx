@@ -99,6 +99,8 @@ const Search = () => {
   const handleInputChange = (event) => setSearchTerm(event.target.value);
 
   const handleSelectTerm = (event, newInputValue) => {
+    if (!newInputValue) return;
+    
     setSearchTerm("");
     setSelectedValue(newInputValue?.label);
     handleCloseList();
