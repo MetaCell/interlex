@@ -1,21 +1,18 @@
 import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 import { useQuery } from '../../helpers';
-import termParser from '../../parsers/termParser';
 import SearchResultsBox from './SearchResultsBox';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import FiltersSidebar from '../Sidebar/FiltersSidebar';
-import * as mockApi from '../../api/endpoints/swaggerMockMissingEndpoints';
+import { searchAll, elasticSearch } from '../../api/endpoints';
 
-const useMockApi = () => mockApi;
 
 const SearchResults = () => {
-    const [loading, setLoading] = useState(false);
-    const [terms, setTerms] = useState({});
+    const [loading, setLoading] = useState(true);
     const [filters, setFilters] = useState([]);
     const [checkedLabels, setCheckedLabels] = useState({});
+    const [searchResults, setSearchResults] = useState([]);
     const query = useQuery();
-    const { getMatchTerms } = useMockApi();
 
     const searchTerm = query.get('searchTerm');
 
@@ -29,22 +26,13 @@ const SearchResults = () => {
         }));
     };
 
-    const fetchTerms = useRef(
-        debounce((searchTerm) => {
-            setLoading(true);
-            getMatchTerms("i")
-                .then((data) => {
-                    const parsedData = termParser(data, searchTerm);
-                    setTerms(parsedData);
-                    setFilters(parsedData.filters);
-                    setLoading(false);
-                })
-                .catch((error) => {
-                    setLoading(false);
-                    console.error(error);
-                });
-        }, 500)
-    ).current;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const fetchTerms = useCallback(debounce(async (searchTerm) => {
+        const data = await elasticSearch(searchTerm);
+        setFilters(data.filters)
+        setSearchResults(data?.results || []);
+        setLoading(false)
+    }, 500), [searchAll]);
 
     useEffect(() => {
         fetchTerms(searchTerm);
@@ -55,26 +43,30 @@ const SearchResults = () => {
         return results.filter(item => {
             for (let category in checkedLabels) {
                 if (!checkedLabels[category]) continue; // Skip empty categories
-                for (let label in checkedLabels[category]) {
-                    if (checkedLabels[category][label]) {
-                        const categoryLower = category.toLowerCase();
-                        const itemValue = item[categoryLower] || item[categoryLower === 'type' ? 'Type' : categoryLower]; // Case-insensitive check
-                        if (itemValue !== label) {
-                            return false;
-                        }
-                    }
+                
+                const selectedLabels = Object.entries(checkedLabels[category])
+                    .filter(([, isChecked]) => isChecked)
+                    .map(([label]) => label);
+                
+                if (selectedLabels.length === 0) continue;
+                
+                const categoryLower = category.toLowerCase();
+                const itemValue = item[categoryLower] || item[categoryLower === 'type' ? 'Type' : categoryLower];
+                
+                if (!selectedLabels.includes(itemValue)) {
+                    return false;
                 }
             }
             return true;
         });
     };
 
-    const filteredResults = filterResults(terms?.results || [], checkedLabels);
+    const filteredResults = filterResults(searchResults || [], checkedLabels);
 
     return (
         <>
             <FiltersSidebar filters={filters} checkedLabels={checkedLabels} handleCheckboxChange={handleCheckboxChange} />
-            <SearchResultsBox terms={filteredResults} searchTerm={searchTerm} loading={loading} />
+            <SearchResultsBox searchResults={filteredResults} searchTerm={searchTerm} loading={loading} />
         </>
     );
 };

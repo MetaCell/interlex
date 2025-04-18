@@ -20,6 +20,8 @@ import { login } from "../../api/endpoints/apiService";
 import { API_CONFIG } from "../../config";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import * as yup from "yup";
+import { useCookies } from 'react-cookie'
+
 
 const schema = yup.object().shape({
   username: yup.string().required().min(3),
@@ -33,6 +35,9 @@ const Login = () => {
   });
   const [errors, setErrors] = React.useState({});
   const [isLoading, setIsLoading] = React.useState(false);
+  // eslint-disable-next-line no-unused-vars
+  const [cookies, setCookie] = useCookies(['session']);
+
   const { setUserData } = React.useContext(GlobalDataContext);
   const navigate = useNavigate();
 
@@ -42,7 +47,17 @@ const Login = () => {
     let messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
     eventer(messageEvent, function (e) {
       if (!e.data || !e.data.orcid_meta) return;
-      const { code, orcid_meta } = e.data;
+      // TODO: get the session cookie when here and add it to our domain.
+      // also store the user info once logged from here in the local storage for future usage.
+      const { code, orcid_meta, cookies } = e.data;
+      const _cookies = JSON.parse(cookies);
+      // create a cookie with the name "session" and the value of the session cookie
+      const sessionCookie = _cookies.find(cookie => cookie.name === "session");
+      if (sessionCookie) {
+        let expires = new Date()
+        expires.setTime(expires.getTime() + (2 * 24 * 60 * 60 * 1000)); // 2 days
+        setCookie('session', sessionCookie.value, { path: '/', domain: '.localhost', secure: false, sameSite: false, expires, httpOnly: false });
+      }
 
       if (code === 200 || code === 302) {
         setUserData({ name: orcid_meta.name, id: orcid_meta.orcid });
