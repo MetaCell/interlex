@@ -73,7 +73,7 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
         }
       }
     }}>
-      {
+      {organizations.length > 0 && (
         organizations?.map((organization, index) => (
           <ListItem key={index} onClick={() => navigate(`/organizations/${organization.name}`)}>
             <Box display='flex' alignItems='center' justifyContent='space-between' width={1}>
@@ -104,7 +104,7 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
             } secondary={organization.description} />
           </ListItem>
         ))
-      }
+      )}
     </List>
   );
 }

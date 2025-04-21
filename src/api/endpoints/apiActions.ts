@@ -10,34 +10,11 @@ export const createPostRequest = <T = any, D = any>(endpoint: string, contentTyp
   return (data?: D, options?: SecondParameter<typeof customInstance>) => {
     return customInstance<T>(
       {
-        url: API_CONFIG.BASE_URL + endpoint,
+        url: endpoint,
         method: "POST",
         data: data,
         headers: {
           "Content-Type": contentType,
-        },
-      },
-      options,
-    )
-  }
-}
-
-export const createPostRequestAnother = <T = any, D = any>(endpoint: string, contentType = "application/json") => {
-  return (data?: any, options?: SecondParameter<typeof customInstance>) => {
-    console.log("data session: ", data.session)
-    return customInstance<T>(
-      {
-        url: "https://uri.olympiangods.org/aigul/priv/org-new",
-        method: "POST",
-        // data: "a test",
-        headers: {
-          "Content-Type": contentType,
-          "session": data.session,
-          "Access-Control-Allow-Origin": "http://127.0.0.1:5173",
-          // "Access-Control-Allow-Credentials": "true",
-          // "Access-Control-Allow-Headers": "content-type",
-          // "Access-Control-Allow-Methods": "PUT, POST, GET, DELETE, PATCH, OPTIONS",
-          // "Cookie": `session=${data.session}`
         },
         withCredentials: true
       },
@@ -49,10 +26,11 @@ export const createPostRequestAnother = <T = any, D = any>(endpoint: string, con
 export const createGetRequest = <T = any, P = any>(endpoint: string, contentType?: string) => {
   return (params?: P, options?: SecondParameter<typeof customInstance>, signal?: AbortSignal) => {
     const config: AxiosRequestConfig = {
-      url: API_CONFIG.BASE_URL + endpoint,
+      url: endpoint,
       method: "GET",
-      params,
-      signal,
+      // params,
+      // signal,
+      withCredentials: true
     }
     
     if (contentType) {
@@ -61,7 +39,9 @@ export const createGetRequest = <T = any, P = any>(endpoint: string, contentType
         "Content-Type": contentType,
       }
     }
-  
-    return customInstance<T>(config, options)
+
+    return customInstance<T>(config, options).then(response => {
+      return response;
+    });
   }
 }

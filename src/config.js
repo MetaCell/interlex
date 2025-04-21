@@ -27,7 +27,8 @@ export const API_CONFIG = {
         ORCID_SIGNIN: "/u/ops/orcid-new",
         NEWUSER_ILX: "/u/ops/user-new",
         NEWUSER_ORCID: "/u/ops/orcid-new",
-        GET_ORGANIZATIONS: "/priv/org-new",
+        CREATE_NEW_ORGANIZATION: "/priv/org-new",
+        GET_ORGANIZATIONS: "/priv/role-other"
     },
     OLYMPIAN_GODS : "https://uri.olympiangods.org",
     BASE_SCICRUNCH_URL: "/api/elasticsearch?apikey=",
