@@ -1,10 +1,11 @@
 import {useEffect, useState } from "react";
-// import { getOrganizations, newOrganization } from "../../api/endpoints";
+import { newOrganization } from "../../api/endpoints";
 import OrganizationsList from "../common/OrganizationsList";
 import { Box, Typography, CircularProgress, Stack, Button, Link } from "@mui/material";
 import BasicDialog from "../common/BasicDialog";
 import GroupAddOutlinedIcon from "@mui/icons-material/GroupAddOutlined";
 import { getOrganizations } from "../../api/endpoints/apiService";
+import { useCookies } from 'react-cookie'
 
 import { vars } from "../../theme/variables";
 const { gray600, gray700, brand700, brand800 } = vars;
@@ -20,21 +21,20 @@ const linkStyles = {
 
 const Organizations = () => {
   const [organizations, setOrganizations] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [cookies, setCookie] = useCookies(['session']);
 
   const fetchOrganizations = async() => {
     const organizations = await getOrganizations()
-    console.log("organizations: ", organizations)
-    setOrganizations(organizations);
     setLoading(false)
   }
 
-  useEffect( () => {
-    setLoading(true)
-    fetchOrganizations();
-    // newOrganization("aigul");
-  }, []);
+  // useEffect( () => {
+  //   setLoading(true)
+  //   fetchOrganizations();
+  //   newOrganization("aigul");
+  // }, []);
 
   const handleOpen = () => {
     setOpen(true);
@@ -43,6 +43,40 @@ const Organizations = () => {
   const handleClose = () => {
     setOpen(false);
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    // setError(null);
+    
+    try {
+      // Your API URL and cookie details
+      const apiUrl = 'http://127.0.0.1:5173/aigul/priv/org-new';
+      const cookieName = 'authCookie';
+      
+      // const response = await fetch(apiUrl, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   credentials: 'include',
+      //   body: "a test"
+      // });
+      const response = getOrganizations(cookies)
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("data: ", data)
+      // setResponse(data);
+    } catch (err) {
+      console.log('An unknown error occurred: ', err);
+    } finally {
+      setLoading(false);
+    }
+  }
+  console.log("cookies: ", cookies)
 
   if (loading) {
     return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1 }}>
@@ -56,7 +90,7 @@ const Organizations = () => {
         {/* <Typography fontSize='1.5rem' color={gray700} fontWeight={600} mb='1.5rem'>
           {organizations?.length} Organizations
         </Typography> */}
-        <Button type="string" startIcon={<GroupAddOutlinedIcon />} onClick={handleOpen}>Create a new organization</Button>
+        <Button type="string" startIcon={<GroupAddOutlinedIcon />} onClick={handleSubmit}>Create a new organization</Button>
       </Stack>
       {/* <OrganizationsList organizations={organizations} /> */}
       <BasicDialog 
