@@ -23,11 +23,14 @@ const Organizations = () => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState();
 
+  // TODO: change this to be dynamic when we get the response from api call
+  const groupname = "aigul"
+
   const fetchOrganizations = async() => {
     setLoading(true);
   
     try {
-      const response = await getOrganizations("aigul")
+      const response = await getOrganizations(groupname)
       if(response.length > 0){
         setOrganizations(response)
       }
@@ -56,7 +59,7 @@ const Organizations = () => {
     setLoading(true);
 
     try {
-      const response = await createNewOrganization({ group: "aigul", data: "a test" })
+      const response = await createNewOrganization({ group: groupname, data: "a test" })
       console.log("response: ", response)
       
     } catch (err) {
