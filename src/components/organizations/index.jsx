@@ -48,21 +48,21 @@ const Organizations = () => {
     e.preventDefault();
     setLoading(true);
     // setError(null);
-    
+
     try {
       // Your API URL and cookie details
-      const apiUrl = 'http://127.0.0.1:5173/aigul/priv/org-new';
-      const cookieName = 'authCookie';
-      
-      // const response = await fetch(apiUrl, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   credentials: 'include',
-      //   body: "a test"
-      // });
-      const response = getOrganizations(cookies)
+      const apiUrl = '/dariodippi/priv/org-new';
+      // const cookieName = 'authCookie';
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: "a test"
+      });
+      // const response = getOrganizations(cookies)
       
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
@@ -90,7 +90,7 @@ const Organizations = () => {
         {/* <Typography fontSize='1.5rem' color={gray700} fontWeight={600} mb='1.5rem'>
           {organizations?.length} Organizations
         </Typography> */}
-        <Button type="string" startIcon={<GroupAddOutlinedIcon />} onClick={handleSubmit}>Create a new organization</Button>
+        <Button type="string" startIcon={<GroupAddOutlinedIcon />} onClick={handleSubmit}>Create a new organizationzz</Button>
       </Stack>
       {/* <OrganizationsList organizations={organizations} /> */}
       <BasicDialog 
