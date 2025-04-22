@@ -49,7 +49,6 @@ const Login = () => {
       if (!e.data || !e.data.orcid_meta) return;
       // TODO: get the session cookie when here and add it to our domain.
       // also store the user info once logged from here in the local storage for future usage.
-      console.log(e.data);
       const { code, orcid_meta, cookies } = e.data;
       const _cookies = JSON.parse(cookies);
       // create a cookie with the name "session" and the value of the session cookie

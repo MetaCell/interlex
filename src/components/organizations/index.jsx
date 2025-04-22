@@ -35,7 +35,7 @@ const Organizations = () => {
         setOrganizations(response)
       }
     } catch (err) {
-      console.log('An unknown error occurred: ', err);
+      console.error('An unknown error occurred: ', err);
     } finally {
       setLoading(false);
     }
@@ -59,11 +59,11 @@ const Organizations = () => {
     setLoading(true);
 
     try {
+      // eslint-disable-next-line no-unused-vars
       const response = await createNewOrganization({ group: groupname, data: "a test" })
-      console.log("response: ", response)
       
     } catch (err) {
-      console.log('An unknown error occurred: ', err);
+      console.error('An unknown error occurred: ', err);
 
       console.log("error.res.status: ", err.response.status)
       if(err.response.status === 501) {
@@ -88,7 +88,7 @@ const Organizations = () => {
         <Typography fontSize='1.5rem' color={gray700} fontWeight={600} mb='1.5rem'>
           {organizations?.length} Organizations
         </Typography>
-        <Button type="string" startIcon={<GroupAddOutlinedIcon />} onClick={createOrganization}>Create a new organizations</Button>
+        <Button type="string" startIcon={<GroupAddOutlinedIcon />} onClick={createOrganization}>Create a new organization</Button>
       </Stack>
       <OrganizationsList organizations={organizations} />
       {message && (

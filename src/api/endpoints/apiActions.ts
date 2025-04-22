@@ -28,8 +28,8 @@ export const createGetRequest = <T = any, P = any>(endpoint: string, contentType
     const config: AxiosRequestConfig = {
       url: endpoint,
       method: "GET",
-      // params,
-      // signal,
+      params,
+      signal,
       withCredentials: true
     }
     

@@ -25,13 +25,7 @@ export const createNewOrganization = ({group, data} : {group: string, data: any}
   return createPostRequest<any, any>(endpoint, "application/json")(data);
 };
 
-// export const getOrganizations = (group: string) => {
-//   const endpoint = `/${group}${API_CONFIG.REAL_API.GET_ORGANIZATIONS}`;
-//   return createGetRequest<any, void>(endpoint)();
-// };
-
 export const getOrganizations = (group: string) => {
-  console.log("group: ", group)
   const endpoint = `/${group}${API_CONFIG.REAL_API.GET_ORGANIZATIONS}`;
   return createGetRequest<any, any>(endpoint, "application/json")();
 };

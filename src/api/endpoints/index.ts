@@ -54,7 +54,6 @@ export const newOrganization = async (organization) => {
 
   /** Call Endpoint */
   return postPrivOrgNew(organization).then((response) => {
-      console.log("Post new organization ", response)
       return response
     })
     .catch((error) => {
