@@ -101,7 +101,6 @@ const Search = () => {
   const handleSelectTerm = (event, newInputValue) => {
     if (!newInputValue) return;
     
-    setSearchTerm("");
     setSelectedValue(newInputValue?.label);
     handleCloseList();
     navigate(`/view?searchTerm=${newInputValue?.ilx}`);
@@ -119,14 +118,40 @@ const Search = () => {
     }
   }
 
+  const handleEnterKey = (event) => {
+    if (event.key === 'Enter' && searchTerm.trim()) {
+      event.preventDefault();
+      handleSearchTermClick();
+    }
+  };
+
   const handleChangeTabs = (event, newValue) => setTabValue(newValue);
+
+  const resetSearch = () => {
+    setOpenList(true);
+    setSearchTerm("");
+    setSelectedValue(null);
+    setTerms([])
+    setOntologies([])
+    setOrganizations([])
+  };
+
+  const escapeSearch = () => {
+    setOpenList(false);
+    setSearchTerm("");
+    setSelectedValue(null);
+    setTabValue(0);
+    setTerms([])
+    setOntologies([])
+    setOrganizations([])
+  };
 
   const handleKeyDown = useCallback(event => {
     if (event.ctrlKey && event.key === 'k') {
       setOpenList(true);
     }
     if (event.key === 'Escape') {
-      handleCloseList();
+      escapeSearch();
     }
   }, []);
 
@@ -267,10 +292,14 @@ const Search = () => {
     );
   });
 
+  const displayOptions = (tabValue === 0 ? terms : tabValue === 1 ? organizations : ontologies);
+  const options = displayOptions?.length ? displayOptions : [{ hidden: true }];
+
   return (
     <Autocomplete
       sx={{ '& .MuiOutlinedInput-root': { borderRadius: openList ? '0.5rem 0.5rem 0 0' : '0.5rem' } }}
-      options={tabValue === 0 ? terms : tabValue === 1 ? organizations : ontologies}
+      options={options}
+      inputValue={searchTerm || ""}
       onChange={handleSelectTerm}
       filterOptions={(options) => options}
       open={openList}
@@ -278,27 +307,17 @@ const Search = () => {
       onClose={handleCloseList}
       onFocus={handleInputFocus}
       forcePopupIcon={false}
-      getOptionLabel={(option) => option.label || option.name || ''}
+      getOptionLabel={(option) => option?.hidden ? '' : (option.label || option.name || '')}
       renderOption={(props, option, { selected }) => {
+        if (option?.hidden) return null;
+      
         const { key, ...otherProps } = props;
         return (
           <ListItem
             key={key}
-            sx={{
-              display: "flex",
-              gap: "0.5rem",
-              alignItems: "center",
-              "&:hover": {
-                "& .MuiChip-root": {
-                  display: "none",
-                },
-              },
-              "&:not(:hover)": {
-                "& .MuiButton-root": {
-                  display: "none",
-                },
-              },
-            }} {...otherProps}>
+            sx={styles.listItem}
+            {...otherProps}
+          >
             {tabValue === 0 ? <TermsIcon /> : tabValue === 1 ? <CorporateFareOutlinedIcon sx={{ color: gray600 }} /> : <FolderOutlinedIcon sx={{ color: gray600 }} />}
             <Typography variant="body1">{option?.label || option?.name}</Typography>
             <Typography variant="body2">{option?.submittedBy}</Typography>
@@ -310,26 +329,20 @@ const Search = () => {
             <Button
               variant="text"
               id={option?.label}
-              sx={{
-                p: 0,
-                height: "auto",
-                lineHeight: 1,
-                background: "transparent",
-                "&:hover": {
-                  backgroundColor: "transparent",
-                },
-              }}
-            >Go to <ForwardIcon /></Button>
+              sx={styles.searchButton}
+            >
+              Go to <ForwardIcon />
+            </Button>
           </ListItem>
         );
-      }}
+      }}      
       renderInput={(params) => (
         <TextField
           {...params}
           variant="outlined"
           placeholder="Find something..."
-          value={searchTerm || selectedValue}
           onChange={handleInputChange}
+          onKeyDown={handleEnterKey}
           InputProps={{
             ...params.InputProps,
             startAdornment: (
@@ -343,7 +356,7 @@ const Search = () => {
                   <Box display="flex" alignItems="center" gap="0.75rem">
                     <IconButton
                       sx={styles.searchButton}
-                      onClick={() => setOpenList(true)}
+                      onClick={resetSearch}
                     >
                       <CloseIcon />
                     </IconButton>
