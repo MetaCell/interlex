@@ -85,7 +85,7 @@ const styles = {
 const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openList, setOpenList] = useState(false);
-  const [selectedValue, setSelectedValue] = useState(null);
+  const [setSelectedValue] = useState(null);
   const [tabValue, setTabValue] = useState(0);
   const navigate = useNavigate();
   const query = useQuery();
@@ -136,7 +136,7 @@ const Search = () => {
     setOrganizations([])
   };
 
-  const escapeSearch = () => {
+  const escapeSearch = useCallback(() => {
     setOpenList(false);
     setSearchTerm("");
     setSelectedValue(null);
@@ -144,7 +144,7 @@ const Search = () => {
     setTerms([])
     setOntologies([])
     setOrganizations([])
-  };
+  },[setSelectedValue]);
 
   const handleKeyDown = useCallback(event => {
     if (event.ctrlKey && event.key === 'k') {
@@ -153,7 +153,7 @@ const Search = () => {
     if (event.key === 'Escape') {
       escapeSearch();
     }
-  }, []);
+  }, [escapeSearch]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
