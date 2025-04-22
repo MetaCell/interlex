@@ -47,7 +47,7 @@ const GlobalDataProvider = ({ children }) => {
     setPredicatesSingleTermData,
     editBulkSearchFilters,
     setEditBulkSearchData
-  };
+  };  
 
   return (
     <GlobalDataContext.Provider value={dataContextValue}>
