@@ -24,9 +24,11 @@ export const API_CONFIG = {
         GET_ENDPOINTS_ILX: "/api/real/endpoints-ilx",
         PATCH_ENDPOINTS_ILX: "/api/real/patch-endpoints-ilx",
         SIGNIN: "/u/ops/user-login",
-        ORCID_SIGNIN: "/u/ops/orcid-login",
+        ORCID_SIGNIN: "/u/ops/orcid-new",
         NEWUSER_ILX: "/u/ops/user-new",
         NEWUSER_ORCID: "/u/ops/orcid-new",
+        CREATE_NEW_ORGANIZATION: "/priv/org-new",
+        GET_ORGANIZATIONS: "/priv/role-other"
     },
     OLYMPIAN_GODS : "https://uri.olympiangods.org",
     BASE_SCICRUNCH_URL: "/api/elasticsearch?apikey=",
