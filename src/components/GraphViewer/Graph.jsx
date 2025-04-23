@@ -11,14 +11,12 @@ const Graph = ({ width, height, predicate }) => {
   const boundsHeight = height - MARGIN.top - MARGIN.bottom;
 
   // Three function that change the tooltip when user hover / move / leave a cell
-  // eslint-disable-next-line no-unused-vars
   const mouseover = (event) => {
     d3.select("#tooltip")
       .html(event.currentTarget.id)
       .style("opacity", 1)
-    d3.select("#tooltip").style("left", (d.pageX) + "px").style("top", (d.pageY) + "px")
+    d3.select("#tooltip")
   }
-  // eslint-disable-next-line no-unused-vars
   const mousemove = (event) => {
     d3.select("#tooltip")
       .style("left", `${event.clientX + 10}px`)
