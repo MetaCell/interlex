@@ -85,7 +85,6 @@ const styles = {
 const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [openList, setOpenList] = useState(false);
-  const [setSelectedValue] = useState(null);
   const [tabValue, setTabValue] = useState(0);
   const navigate = useNavigate();
   const query = useQuery();
@@ -101,13 +100,11 @@ const Search = () => {
   const handleSelectTerm = (event, newInputValue) => {
     if (!newInputValue) return;
     
-    setSelectedValue(newInputValue?.label);
     handleCloseList();
     navigate(`/view?searchTerm=${newInputValue?.ilx}`);
   };
 
   const handleSearchTermClick = () => {
-    setSelectedValue(searchTerm);
     navigate(`/search?searchTerm=${searchTerm}`);
     handleCloseList();
   };
@@ -128,9 +125,8 @@ const Search = () => {
   const handleChangeTabs = (event, newValue) => setTabValue(newValue);
 
   const resetSearch = () => {
-    setOpenList(true);
+    setOpenList(false);
     setSearchTerm("");
-    setSelectedValue(null);
     setTerms([])
     setOntologies([])
     setOrganizations([])
@@ -139,12 +135,11 @@ const Search = () => {
   const escapeSearch = useCallback(() => {
     setOpenList(false);
     setSearchTerm("");
-    setSelectedValue(null);
     setTabValue(0);
     setTerms([])
     setOntologies([])
     setOrganizations([])
-  },[setSelectedValue]);
+  },[]);
 
   const handleKeyDown = useCallback(event => {
     if (event.ctrlKey && event.key === 'k') {
