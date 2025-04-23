@@ -10,7 +10,7 @@ const { gray800 } = vars;
 
 const Predicates = ({ data, isGraphVisible }) => {
   const [predicates, setPredicates] = React.useState([]);
-  const [toggleButtonValue, setToggleButtonValue] = React.useState('compress')
+  const [toggleButtonValue, setToggleButtonValue] = React.useState('expand')
 
   const onToggleButtonChange = (event, newValue) => {
     if (newValue) {

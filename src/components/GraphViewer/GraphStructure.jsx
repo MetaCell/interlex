@@ -9,16 +9,16 @@ const getName = (nodeName) => {
   let name = nodeName
 
   if ( name == undefined ) {
-    name = nodeName;
+    return "name";
   }
 
-  return "name";
+  return name;
 }
 
 export const getGraphStructure = (pred) => {
   let data = {
-    name : pred.title,
-    id : pred.title,
+    name : pred?.tableData[0]?.subject,
+    id : pred?.tableData[0]?.subject,
     type : ROOT,
     value : pred.count,
     children : []
@@ -27,39 +27,30 @@ export const getGraphStructure = (pred) => {
   let uniqueObjects = [];
 
   pred?.tableData?.forEach( child => {
-    let newChild = { name : getName(child.subject), id : child.subject, type : SUBJECT};
+    let newChild = { name : getName(child.object), id : child.object, type : OBJECT};
 
     let getExistingObject = uniqueObjects?.find( c => c.id === child.object );
     if ( getExistingObject ) {
-      let getExistingPredicate = getExistingObject.children?.find( c => c.id === child.predicate );
+      let getExistingPredicate = data.children?.find( c => c.id === child.predicate );
       if ( getExistingPredicate ) {
         getExistingPredicate.children.push(newChild)
       }
     } else {
-      let newPredicate = {
-        name : getName(child.predicate),
-        id : child.predicate,
-        type : PREDICATE,
-        children : [newChild]
-      }
+      let getExistingPredicate = data?.children?.find( c => c.id === child.predicate );
+      if ( getExistingPredicate ) {
+        getExistingPredicate.children.push(newChild)
+      } else {
+        let newPredicate = {
+          name : getName(child.predicate),
+          id : child.predicate,
+          type : PREDICATE,
+          children : [newChild]
+        }
 
-      let newObject = {
-        name : getName(child.object),
-        id : child.object,
-        type : OBJECT,
-        children : [newPredicate]
+        data.children.push(newPredicate)
       }
-
-      uniqueObjects.push(newObject)
     }
   })
-
-  if ( uniqueObjects.length > 1 ) {
-    data.children = uniqueObjects;
-  } else {
-    data = uniqueObjects[0];
-    data.type = ROOT;
-  }
 
   return data;
 }

@@ -24,7 +24,7 @@ const Organizations = () => {
   const [message, setMessage] = useState();
 
   // TODO: change this to be dynamic when we get the response from api call
-  const groupname = "aigul"
+  const groupname = "dariodippi"
 
   const fetchOrganizations = async() => {
     setLoading(true);

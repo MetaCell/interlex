@@ -124,7 +124,7 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
               <CustomizedTable data={pred} term={term} isAddButtonVisible={isGraphVisible} />
             ) : (
               <Box display='flex' flexDirection='column'>
-                <Graph width={600} height={300} predicate={pred} />
+                <Graph width={800} height={400} predicate={pred} />
                 <Button
                   variant='outlined'
                   onClick={(e) => handleClickViewDiagram(e, pred)}

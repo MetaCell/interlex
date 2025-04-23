@@ -16,6 +16,15 @@ const Details = ({loading,  data }) => {
     window.open(url, '_blank');
   };
 
+  const processExistingIds = (existingID) => {
+    if (Array.isArray(existingID)) {
+      return existingID;
+    } else if (typeof existingID === 'string') {
+      return [existingID];
+    }
+    return [];
+  }
+
   if (loading) {
     return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <CircularProgress />
@@ -25,6 +34,7 @@ const Details = ({loading,  data }) => {
   if (!data) {
     return <div>No data available</div>;
   }
+
   return (
     <>
       <Grid container>
@@ -34,17 +44,17 @@ const Details = ({loading,  data }) => {
               Synonyms
             </Typography>
             <Box display="flex" flexWrap="wrap" gap=".5rem">
-              {data?.synonym && 
+              {data?.synonym && processExistingIds(data?.synonym).map((syn) => (
                 <Chip
                   className="rounded dual-text-chip"
                   variant="outlined"
-                  key={data?.synonym}
+                  key={syn}
                   label={
                     <span>
-                      {data?.synonym} <span>{data?.synonym}</span>
+                      {syn} <span>{syn}</span>
                     </span>
                   }
-                />
+                />))
               }
             </Box>
           </Stack>
@@ -55,7 +65,7 @@ const Details = ({loading,  data }) => {
               Preferred ID
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {data?.hasIlxPreferredId}
+              {data?.id}
             </Typography>
           </Stack>
         </Grid>
@@ -65,9 +75,9 @@ const Details = ({loading,  data }) => {
               Existing IDs
             </Typography>
             <Box display="flex" flexWrap="wrap" gap=".5rem">
-              {data?.existingID && (
-                <Chip className="rounded IDchip-outlined" variant="outlined" key={data?.existingID} label={data?.existingID} icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(data?.existingID)} />
-              )}
+              {data?.existingID && ( processExistingIds(data?.existingID).map((id) =>
+                <Chip className="rounded IDchip-outlined" variant="outlined" key={id} label={id} icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(id)} />
+              ))}
             </Box>
           </Stack>
         </Grid>
