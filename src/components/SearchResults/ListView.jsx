@@ -63,10 +63,10 @@ const Description = ({ description }) => {
 
 const InfoSection = ({ searchResult }) => {
     const infoItems = [
-        { label: 'Preferred ID', value: searchResult.preferredId },
-        { label: 'ID', value: searchResult.id },
+        { label: 'Preferred ID', value: searchResult.ilx.replace('_', ':').toUpperCase() },
+        { label: 'IDs', value: searchResult.existing_ids.flatMap(item => item.curie) },
         { label: 'Type', value: searchResult.type },
-        { label: 'Score', value: searchResult.score },
+        { label: 'Score', value: searchResult.status },
         { label: 'Organization', value: searchResult.organization },
     ];
 
@@ -80,10 +80,11 @@ const InfoSection = ({ searchResult }) => {
             }}
         >
             {infoItems.map(({ label, value }) => (
-                <Stack key={label} direction="column" gap={1} alignItems="start">
+                <Stack key={label} direction="column" gap={1} alignItems="start" sx={{width: '100%'}}>
                     <Typography variant='body1' sx={{ color: gray700, fontWeight: 500 }}>{label}</Typography>
-                    {label === 'ID' ?
-                        <Chip label={value} className='rounded IDchip-outlined' /> : <Typography variant='body2' sx={{ color: gray500 }}>{value}</Typography>
+                    {label === 'IDs'
+                        ? (value.map((val, index) => ( <Chip key={`result${index}`} label={val} className='rounded IDchip-outlined' />)))
+                        : <Typography variant='body2' sx={{ color: gray500 }}>{value}</Typography>
                     }
                 </Stack>
             ))}
