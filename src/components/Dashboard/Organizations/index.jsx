@@ -5,7 +5,7 @@ import { ListIcon, TableChartIcon } from "../../../Icons";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import OrganizationsList from "../../common/OrganizationsList";
 import CustomViewButton from "../../common/CustomViewButton";
-import { createNewOrganization } from "../../../api/endpoints/apiService";
+import { createNewOrganization, getOrganizations } from "../../../api/endpoints/apiService";
 import BasicDialog from "../../common/BasicDialog";
 
 const { gray600, gray200, brand700, brand800 } = vars;
