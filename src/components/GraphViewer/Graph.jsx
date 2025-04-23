@@ -67,8 +67,8 @@ const Graph = ({ width, height, predicate }) => {
       textOffset = 40;
     }
 
-    const truncatedName = node.data.name.length > 20 
-      ? `${node.data.name.substring(0, 20)}...` 
+    const truncatedName = node.data.name.length > 20
+      ? `${node.data.name.substring(0, 20)}...`
       : node.data.name;
 
     return (
@@ -128,7 +128,7 @@ const Graph = ({ width, height, predicate }) => {
   return (
     <Box id="div_template" >
       <Box id="tooltip" style={{
-        position: "fixed", 
+        position: "fixed",
         pointerEvents: "none",
         opacity: 0,
         zIndex: 1000,
