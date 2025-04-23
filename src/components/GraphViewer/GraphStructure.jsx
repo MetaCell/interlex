@@ -9,10 +9,10 @@ const getName = (nodeName) => {
   let name = nodeName
 
   if ( name == undefined ) {
-    name = nodeName;
+    return "name";
   }
 
-  return "name";
+  return name;
 }
 
 export const getGraphStructure = (pred) => {
@@ -53,6 +53,7 @@ export const getGraphStructure = (pred) => {
       uniqueObjects.push(newObject)
     }
   })
+
 
   if ( uniqueObjects.length > 1 ) {
     data.children = uniqueObjects;
