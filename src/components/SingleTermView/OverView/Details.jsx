@@ -34,18 +34,18 @@ const Details = ({loading,  data }) => {
               Synonyms
             </Typography>
             <Box display="flex" flexWrap="wrap" gap=".5rem">
-              {data?.synonym?.map((synonym) => (
+              {data?.synonym && 
                 <Chip
                   className="rounded dual-text-chip"
                   variant="outlined"
-                  key={synonym}
+                  key={data?.synonym}
                   label={
                     <span>
-                      {synonym} <span>{synonym}</span>
+                      {data?.synonym} <span>{data?.synonym}</span>
                     </span>
                   }
                 />
-              ))}
+              }
             </Box>
           </Stack>
         </Grid>
@@ -65,9 +65,9 @@ const Details = ({loading,  data }) => {
               Existing IDs
             </Typography>
             <Box display="flex" flexWrap="wrap" gap=".5rem">
-              {data?.existingID?.map((id) => (
-                <Chip className="rounded IDchip-outlined" variant="outlined" key={id} label={id} icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(id)} />
-              ))}
+              {data?.existingID && (
+                <Chip className="rounded IDchip-outlined" variant="outlined" key={data?.existingID} label={data?.existingID} icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(data?.existingID)} />
+              )}
             </Box>
           </Stack>
         </Grid>
