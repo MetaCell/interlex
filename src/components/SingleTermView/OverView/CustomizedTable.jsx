@@ -256,7 +256,7 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
   }, [objectSearchTerm, fetchTerms]);
 
   const tableWidth = 800;
-  const columnWidth = `${Math.round(tableWidth / tableHeader.length)}px`;
+  const columnWidth = "100%";
 
   return (
     <>

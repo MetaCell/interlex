@@ -7,25 +7,20 @@ import { getGraphStructure , OBJECT, SUBJECT, PREDICATE, ROOT} from "./GraphStru
 const MARGIN = { top: 60, right: 60, bottom: 60, left: 60 };
 
 const Graph = ({ width, height, predicate }) => {
-  const boundsWidth = width - MARGIN.right - MARGIN.left;
+  const boundsWidth = width - (MARGIN.right + MARGIN.left * 4);
   const boundsHeight = height - MARGIN.top - MARGIN.bottom;
 
   // Three function that change the tooltip when user hover / move / leave a cell
-  // eslint-disable-next-line no-unused-vars
-  const mouseover = (d) => {
+  const mouseover = (event) => {
     d3.select("#tooltip")
-      // eslint-disable-next-line no-unused-vars
-      .html((c) => {
-        return d.currentTarget.id
-      }).style("opacity", 1).style("left", (d.pageX) + "px").style("top", (d.pageY) + "px")
+      .html(event.currentTarget.id)
+      .style("opacity", 1)
+    d3.select("#tooltip")
   }
-  // eslint-disable-next-line no-unused-vars
-  const mousemove = (event, d) => {
+  const mousemove = (event) => {
     d3.select("#tooltip")
-      // eslint-disable-next-line no-unused-vars
-      .html((c) => {
-        return event.currentTarget.id
-      }).style("opacity", 1).style("left", (event.pageX) + "px").style("top", (event.pageY) + "px")
+      .style("left", `${event.clientX + 10}px`)
+      .style("top", `${event.clientY + 10}px`);
   }
   // eslint-disable-next-line no-unused-vars
   const mouseleave = (d) => {
@@ -34,10 +29,21 @@ const Graph = ({ width, height, predicate }) => {
 
   useEffect(() => {
     // attach mouse listeners
-    d3.selectAll(".node--leaf-g")
+    const nodes = d3.selectAll(".node--leaf-g");
+    nodes
+      .on("mouseover", mouseover)
       .on("mousemove", mousemove)
-    d3.selectAll(".node--g")
-      .on("mouseleave", mouseleave)
+      .on("mouseleave", mouseleave);
+
+    // Hide tooltip on scroll
+    window.addEventListener("scroll", () => {
+      d3.select("#tooltip").style("opacity", 0);
+    });
+
+    return () => {
+      nodes.on("mouseover", null).on("mousemove", null).on("mouseleave", null);
+      window.removeEventListener("scroll", () => {});
+    };
   }, []);
 
   const hierarchy = useMemo(() => {
@@ -61,6 +67,10 @@ const Graph = ({ width, height, predicate }) => {
       textOffset = 40;
     }
 
+    const truncatedName = node.data.name.length > 25
+      ? `${node.data.name.substring(0, 25)}...`
+      : node.data.name;
+
     return (
       <g key={node.id} >
         {(
@@ -68,17 +78,15 @@ const Graph = ({ width, height, predicate }) => {
             x={(boundsWidth - (node.y) ) - textOffset }
             y={node.x - (node.data.type === ROOT ? 0 : 10)}
             id={node.data.name}
-            width={80}
-            height={20}
             className="node--leaf-g"
             fontSize={12}
             textAnchor="left"
             alignmentBaseline="middle"
             fill="black"
             target="_blank"
-            href="google.com"
+            href={node.data.name}
           >
-            {node.data.name }
+            {truncatedName}
           </text>
         )}
       </g>
@@ -119,7 +127,13 @@ const Graph = ({ width, height, predicate }) => {
 
   return (
     <Box id="div_template" >
-      <Box id="tooltip" style={{ position: "fixed", width: "200px", height: "200px" }}></Box>
+      <Box id="tooltip" style={{
+        position: "fixed",
+        pointerEvents: "none",
+        opacity: 0,
+        zIndex: 1000,
+      }}>
+      </Box>
       <svg width={width} height={height} >
         <defs>
           <marker
