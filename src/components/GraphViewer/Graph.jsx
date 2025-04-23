@@ -7,7 +7,7 @@ import { getGraphStructure , OBJECT, SUBJECT, PREDICATE, ROOT} from "./GraphStru
 const MARGIN = { top: 60, right: 60, bottom: 60, left: 60 };
 
 const Graph = ({ width, height, predicate }) => {
-  const boundsWidth = width - MARGIN.right - MARGIN.left;
+  const boundsWidth = width - (MARGIN.right + MARGIN.left * 4);
   const boundsHeight = height - MARGIN.top - MARGIN.bottom;
 
   // Three function that change the tooltip when user hover / move / leave a cell
@@ -67,8 +67,8 @@ const Graph = ({ width, height, predicate }) => {
       textOffset = 40;
     }
 
-    const truncatedName = node.data.name.length > 20
-      ? `${node.data.name.substring(0, 20)}...`
+    const truncatedName = node.data.name.length > 25
+      ? `${node.data.name.substring(0, 25)}...`
       : node.data.name;
 
     return (

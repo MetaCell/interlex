@@ -31,12 +31,12 @@ export const getGraphStructure = (pred) => {
 
     let getExistingObject = uniqueObjects?.find( c => c.id === child.object );
     if ( getExistingObject ) {
-      let getExistingPredicate = getExistingObject.children?.find( c => c.id === child.predicate );
+      let getExistingPredicate = data.children?.find( c => c.id === child.predicate );
       if ( getExistingPredicate ) {
         getExistingPredicate.children.push(newChild)
       }
     } else {
-      let getExistingPredicate = getExistingObject?.children?.find( c => c.id === child.predicate );
+      let getExistingPredicate = data?.children?.find( c => c.id === child.predicate );
       if ( getExistingPredicate ) {
         getExistingPredicate.children.push(newChild)
       } else {
