@@ -1,80 +1,37 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import OrganizationsList from "../common/OrganizationsList";
 import { Box, Typography, CircularProgress, Stack, Button, Link } from "@mui/material";
-import BasicDialog from "../common/BasicDialog";
+import { useOrganizations } from "../../helpers/useOrganizations";
 import GroupAddOutlinedIcon from "@mui/icons-material/GroupAddOutlined";
-import { createNewOrganization, getOrganizations } from "../../api/endpoints/apiService";
+import MessageDialog from "../common/MessageDialog";
 
 import { vars } from "../../theme/variables";
-const { gray600, gray700, brand700, brand800 } = vars;
+const { gray700 } = vars;
 
-const linkStyles = {
-  color: brand700,
-  fontWeight: 600, 
-  textDecoration: "none", 
-  "&:hover": { 
-    color: brand800 
-  }
-}
 
 const Organizations = () => {
-  const [organizations, setOrganizations] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState();
 
   // TODO: change this to be dynamic when we get the response from api call
-  const groupname = "dariodippi"
+  const groupname = "aigul"
 
-  const fetchOrganizations = async() => {
-    setLoading(true);
-  
-    try {
-      const response = await getOrganizations(groupname)
-      if(response.length > 0){
-        setOrganizations(response)
-      }
-    } catch (err) {
-      console.error('An unknown error occurred: ', err);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const {
+    organizations,
+    loading,
+    message,
+    createOrganization
+  } = useOrganizations(groupname);
 
-  useEffect( () => {
-    setLoading(true)
-    fetchOrganizations();
-  }, []);
-
-  const handleOpen = () => {
+  const handleCreateOrganization = async (e) => {
+    e.preventDefault();
+    // eslint-disable-next-line no-unused-vars
+    const success = await createOrganization();
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
   };
-
-  const createOrganization = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-
-    try {
-      // eslint-disable-next-line no-unused-vars
-      const response = await createNewOrganization({ group: groupname, data: "a test" })
-      
-    } catch (err) {
-      console.error('An unknown error occurred: ', err);
-
-      console.log("error.res.status: ", err.response.status)
-      if(err.response.status === 501) {
-        setMessage(err.response.data)
-      }
-    } finally {
-      setLoading(false);
-    }
-
-    handleOpen()
-  }
 
   if (loading) {
     return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1 }}>
@@ -88,26 +45,11 @@ const Organizations = () => {
         <Typography fontSize='1.5rem' color={gray700} fontWeight={600} mb='1.5rem'>
           {organizations?.length} Organizations
         </Typography>
-        <Button type="string" startIcon={<GroupAddOutlinedIcon />} onClick={createOrganization}>Create a new organization</Button>
+        <Button type="string" startIcon={<GroupAddOutlinedIcon />} onClick={handleCreateOrganization}>Create a new organization</Button>
       </Stack>
       <OrganizationsList organizations={organizations} />
       {message && (
-        <BasicDialog 
-          open={open} 
-          handleClose={handleClose} 
-          title="Create a new organization"
-          sx={{
-            "& .MuiDialogContent-root": {
-              paddingTop: "0.5rem"
-            }
-          }}
-        >
-          <Typography variant="body2" sx={{ color: gray600 }}>
-            {message?.split(/(\S+@\S+\.\S+)/).map((part, i) => 
-              part.match(/\S+@\S+\.\S+/) ? <Link key={i} href={`mailto:${part}`} sx={linkStyles}>{part}</Link> : part
-            )}
-          </Typography>
-        </BasicDialog>
+        <MessageDialog open={open} title="Create a new organization" handleClose={handleClose} message={message} />
       )}
     </Box>
   );

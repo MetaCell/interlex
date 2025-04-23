@@ -1,83 +1,41 @@
-import {Box, Button, ButtonGroup, Divider, Typography, CircularProgress, Link} from "@mui/material";
-import { useState, useEffect } from "react";
+import { Box, Button, ButtonGroup, Divider, Typography, CircularProgress } from "@mui/material";
+import { useState } from "react";
+import { useOrganizations } from "../../../helpers/useOrganizations";
 import { vars } from "../../../theme/variables";
 import { ListIcon, TableChartIcon } from "../../../Icons";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import OrganizationsList from "../../common/OrganizationsList";
 import CustomViewButton from "../../common/CustomViewButton";
-import { createNewOrganization, getOrganizations } from "../../../api/endpoints/apiService";
-import BasicDialog from "../../common/BasicDialog";
+import MessageDialog from "../../common/MessageDialog";
 
-const { gray600, gray200, brand700, brand800 } = vars;
+const { gray600, gray200 } = vars;
 
-const linkStyles = {
-  color: brand700,
-  fontWeight: 600, 
-  textDecoration: "none", 
-  "&:hover": { 
-    color: brand800 
-  }
-}
 
 const Organizations = () => {
-  const [listView, setListView] = useState('list');
-  const [organizations, setOrganizations] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState();
   const [open, setOpen] = useState(false);
 
   // TODO: change this to be dynamic when we get the response from api call
   const groupname = "aigul"
 
-  const handleOpen = () => {
+  const {
+    listView,
+    setListView,
+    organizations,
+    loading,
+    message,
+    createOrganization
+  } = useOrganizations(groupname);
+
+  const handleCreateOrganization = async (e) => {
+    e.preventDefault();
+    // eslint-disable-next-line no-unused-vars
+    const success = await createOrganization();
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
   };
-
-  const fetchOrganizations = async() => {
-    setLoading(true);
-    
-    try {
-      const response = await getOrganizations(groupname)
-      if(response.length > 0){
-        setOrganizations(response)
-      }
-    } catch (err) {
-      console.error('An unknown error occurred: ', err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const createOrganization = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-  
-    try {
-      // eslint-disable-next-line no-unused-vars
-      const response = await createNewOrganization({ group: groupname, data: "a test" })
-        
-    } catch (err) {
-      console.error('An unknown error occurred: ', err);
-  
-      console.log("error.res.status: ", err.response.status)
-      if(err.response.status === 501) {
-        setMessage(err.response.data)
-      }
-    } finally {
-      setLoading(false);
-    }
-  
-    handleOpen()
-  }
-
-  useEffect( () => {
-    setLoading(true)
-    fetchOrganizations();
-  }, []);
 
   if (loading) {
     return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1 }}>
@@ -116,7 +74,7 @@ const Organizations = () => {
             />
           </ButtonGroup>
           <Divider orientation="vertical" flexItem sx={{ borderColor: gray200 }} />
-          <Button type="string" color="secondary" startIcon={<AddOutlinedIcon />} onClick={createOrganization}>
+          <Button type="string" color="secondary" startIcon={<AddOutlinedIcon />} onClick={handleCreateOrganization}>
             Create a new organization
           </Button>
           <Button
@@ -129,22 +87,7 @@ const Organizations = () => {
       </Box>
       <OrganizationsList organizations={organizations} viewJoinButton={false} />
       {message && (
-        <BasicDialog 
-          open={open} 
-          handleClose={handleClose} 
-          title="Create a new organization"
-          sx={{
-            "& .MuiDialogContent-root": {
-              paddingTop: "0.5rem"
-            }
-          }}
-        >
-          <Typography variant="body2" sx={{ color: gray600 }}>
-            {message?.split(/(\S+@\S+\.\S+)/).map((part, i) => 
-              part.match(/\S+@\S+\.\S+/) ? <Link key={i} href={`mailto:${part}`} sx={linkStyles}>{part}</Link> : part
-            )}
-          </Typography>
-        </BasicDialog>
+        <MessageDialog open={open} title="Create a new organization" handleClose={handleClose} message={message} />
       )}
     </Box>
   );

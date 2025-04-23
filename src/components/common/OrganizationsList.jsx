@@ -8,6 +8,7 @@ const { gray700, gray500, gray200, brand600 } = vars;
 
 const OrganizationsList = ({organizations, viewJoinButton = true}) => {
   const navigate = useNavigate();
+  console.log("organizations: ", organizations)
   return (
     <List sx={{
       width: '100%',
