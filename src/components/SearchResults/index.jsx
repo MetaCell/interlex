@@ -43,16 +43,16 @@ const SearchResults = () => {
         return results.filter(item => {
             for (let category in checkedLabels) {
                 if (!checkedLabels[category]) continue; // Skip empty categories
-                
+
                 const selectedLabels = Object.entries(checkedLabels[category])
                     .filter(([, isChecked]) => isChecked)
                     .map(([label]) => label);
-                
+
                 if (selectedLabels.length === 0) continue;
-                
+
                 const categoryLower = category.toLowerCase();
                 const itemValue = item[categoryLower] || item[categoryLower === 'type' ? 'Type' : categoryLower];
-                
+
                 if (!selectedLabels.includes(itemValue)) {
                     return false;
                 }

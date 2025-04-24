@@ -2,7 +2,9 @@ import * as d3 from "d3";
 import PropTypes from "prop-types";
 import { Box } from "@mui/material";
 import { useMemo, useEffect } from "react";
-import { getGraphStructure , OBJECT, SUBJECT, PREDICATE, ROOT} from "./GraphStructure";
+import { getGraphStructure, PREDICATE, ROOT} from "./GraphStructure";
+import { vars } from "../../theme/variables";
+const { gray600, white } = vars;
 
 const MARGIN = { top: 60, right: 60, bottom: 60, left: 60 };
 
@@ -59,67 +61,72 @@ const Graph = ({ width, height, predicate }) => {
 
   const allNodes = dendrogram.descendants().map((node) => {
     let textOffset = 0;
-    if ( node.data.type === OBJECT ) {
-      textOffset = 40;
-    } else if ( node.data.type === SUBJECT ) {
-      textOffset = 40;
-    } else if ( node.data.type === PREDICATE ) {
-      textOffset = 40;
+    if (node.data.type === PREDICATE || node.data.type === ROOT) {
+      textOffset = -40;
+    } else {
+      textOffset = 5;
     }
-
+  
     const truncatedName = node.data.name.length > 25
       ? `${node.data.name.substring(0, 25)}...`
       : node.data.name;
-
+  
     return (
-      <g key={node.id} >
-        {(
-          <text
-            x={(boundsWidth - (node.y) ) - textOffset }
-            y={node.x - (node.data.type === ROOT ? 0 : 10)}
-            id={node.data.name}
-            className="node--leaf-g"
-            fontSize={12}
-            textAnchor="left"
-            alignmentBaseline="middle"
-            fill="black"
-            target="_blank"
-            href={node.data.name}
-          >
-            {truncatedName}
-          </text>
-        )}
+      <g key={node.id}>
+        <text
+          x={node.y + textOffset} // Flip the x-coordinate
+          y={node.x - ((node.data.type === ROOT || node.data.type === PREDICATE) ? 10 : 0)}
+          id={node.data.name}
+          className="node--leaf-g"
+          fontSize={12}
+          textAnchor="start" // Align text to the start
+          alignmentBaseline="middle"
+          fill="black"
+          target="_blank"
+          href={node.data.name}
+        >
+          {truncatedName}
+        </text>
       </g>
     );
   });
 
   const allEdges = dendrogram.descendants().map((node, index) => {
     if (!node.parent) {
-      return;
+      // Add a black circle at the root
+      return (
+        <circle
+          key={`root-circle-${index}`}
+          cx={node.y}
+          cy={node.x}
+          r={5} // Circle radius
+          fill="grey"
+        />
+      );
     }
-
+  
     const line = d3
       .line()
       .x(d => d[0])
       .y(d => d[1])
-      .curve(d3.curveBundle.beta(.75));
-
-    const start = [boundsWidth - node.parent.y, node.parent.x]
-    const end = [boundsWidth - node.y, node.x]
+      .curve(d3.curveBundle.beta(0.75));
+  
+    const start = [node.parent.y, node.parent.x];
+    const end = [node.y, node.x];
     const radius = 5;
-
+  
     const points = [
       start,
-      [start[0] + radius, end[1]],
-      end
+      [start[0] - radius, end[1]],
+      end,
     ];
-
+  
     return (
       <path
         key={`${node.id}-${index}`}
         fill="none"
         stroke="grey"
-        markerStart='url(#head)'
+        markerEnd="url(#arrowhead)" // Add arrowhead at the end
         d={line(points)}
       />
     );
@@ -132,22 +139,27 @@ const Graph = ({ width, height, predicate }) => {
         pointerEvents: "none",
         opacity: 0,
         zIndex: 1000,
+        background: gray600,
+        color: white,
+        padding: "0.5rem",
+        borderRadius: "0.5rem",
       }}>
       </Box>
       <svg width={width} height={height} >
-        <defs>
-          <marker
-            id="head"
-            viewBox="0 0 10 10"
-            refX="10"
-            refY="5"
-            fill="grey"
-            markerWidth="10"
-            markerHeight="10"
-            orient="auto-start">
-            <path d="M 0 0 L 10 5 L 0 10 z" />
-          </marker>
-        </defs>
+      <defs>
+        <marker
+          id="arrowhead"
+          viewBox="0 0 10 10"
+          refX="10"
+          refY="5"
+          fill="grey"
+          markerWidth="10"
+          markerHeight="10"
+          orient="auto"
+        >
+          <path d="M 0 0 L 10 5 L 0 10 z" />
+        </marker>
+      </defs>
         <g
           width={boundsWidth}
           height={boundsHeight}
