@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { Typography, Link } from '@mui/material';
 import BasicDialog from './BasicDialog';
 import { vars } from '../../theme/variables';
@@ -31,5 +32,12 @@ const MessageDialog = ({ title, open, handleClose, message }) => (
     </Typography>
   </BasicDialog>
 )
+
+MessageDialog.propTypes = {
+  title: PropTypes.string, 
+  open: PropTypes.bool, 
+  handleClose: PropTypes.func, 
+  message: PropTypes.string
+};
 
 export default MessageDialog;

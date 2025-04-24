@@ -1,6 +1,6 @@
 import { useState } from "react";
 import OrganizationsList from "../common/OrganizationsList";
-import { Box, Typography, CircularProgress, Stack, Button, Link } from "@mui/material";
+import { Box, Typography, CircularProgress, Stack, Button } from "@mui/material";
 import { useOrganizations } from "../../helpers/useOrganizations";
 import GroupAddOutlinedIcon from "@mui/icons-material/GroupAddOutlined";
 import MessageDialog from "../common/MessageDialog";
