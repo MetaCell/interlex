@@ -1,6 +1,17 @@
 import PropTypes from "prop-types";
 import { useState } from "react";
-import { Button, Grid, Typography, Box, ToggleButton, ToggleButtonGroup, Divider, Stack, FormControlLabel, RadioGroup } from "@mui/material";
+import {
+  Button,
+  Grid,
+  Typography,
+  Box,
+  ToggleButton,
+  ToggleButtonGroup,
+  Divider,
+  Stack,
+  FormControlLabel,
+  RadioGroup
+} from "@mui/material";
 import DropDownConditions from "./DropDownConditions";
 import CustomizedInput from "../../common/CustomizedInput";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
@@ -9,9 +20,14 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import SearchTermsData from "../../../static/SearchTermsData.json";
 import CustomizedRadio from "../../common/CustomizedRadio";
 import OntologySearch from "../../SingleTermView/OntologySearch";
-
 import { vars } from "../../../theme/variables";
+
 const { gray800, gray700 } = vars;
+
+const Confirmation = {
+  Yes: "Yes",
+  No: "No"
+}
 
 const styles = {
   title: {
@@ -27,11 +43,16 @@ const styles = {
       color: gray700, 
       fontWeight: 500
     }
+  },
+  ontologySearch: {
+    '& .MuiOutlinedInput-root': {
+      width: "100%"
+    }
   }
 }
 
 const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchConditions }) => {
-  const [ontologyEditOption, setOntologyEditOption] = useState("no");
+  const [ontologyEditOption, setOntologyEditOption] = useState(Confirmation.No);
 
   const handleTermChange = (index, field, value) => {
     const newTerms = [...searchConditions];
@@ -73,8 +94,18 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
       <Typography sx={{ ...styles.title, fontSize: "1.125rem", mb: 4, ml: 6.5 }}>
         Search terms, selecting their attributes and values.
       </Typography>
+
       <Divider />
-      <Box sx={{ display: "flex", flexDirection: "column", mt: 4, mb: 4, ml: 6.5, gap: 3 }}>
+
+      <Box sx={{ 
+        display: "flex", 
+        flexDirection: "column", 
+        mt: 4, 
+        mb: 4, 
+        ml: 6.5, 
+        gap: 3, 
+        maxWidth: "31.25rem" 
+      }}>
         <Stack direction="row" spacing={5} sx={{ alignItems: "center" }}>
           <Typography sx={styles.subtitle}>Do you want to edit a specific ontology?</Typography>
           <RadioGroup
@@ -84,17 +115,30 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
             value={ontologyEditOption}
             onChange={handleOntologyEditOptionChange}
           >
-            <FormControlLabel control={<CustomizedRadio />} value="yes" label="Yes" sx={styles.radioLabel}/>
-            <FormControlLabel control={<CustomizedRadio />} value="no" label="No" sx={styles.radioLabel} />
+            <FormControlLabel control={<CustomizedRadio />} value={Confirmation.Yes} label="Yes" sx={styles.radioLabel}/>
+            <FormControlLabel control={<CustomizedRadio />} value={Confirmation.No} label="No" sx={styles.radioLabel} />
           </RadioGroup>
         </Stack>
-        {ontologyEditOption === "yes" && <OntologySearch />}
+
+        {ontologyEditOption === Confirmation.Yes && (
+          <OntologySearch placeholder="Enter an Ontology URI" style={styles.ontologySearch} />
+        )}
       </Box>
+
       <Divider />
+
       <Box sx={{ mt: 4, mb: 4, ml: 6.5, mr: 6.5 }}>
         <Typography variant="body1" sx={styles.subtitle}>Add filters</Typography>
+
         {searchConditions.map((term, index) => (
-          <Grid container spacing={1.5} mt={3} mb={3.5} key={index} alignItems='end'>
+          <Grid 
+            container 
+            spacing={1.5} 
+            mt={3} 
+            mb={3.5} 
+            key={index} 
+            alignItems='end'
+          >
             <Grid item xs={12} lg={1}>
               {index === 0 ? (
                 <Box height='2.5rem' display='flex' alignItems='center'>
@@ -120,6 +164,7 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
                 </ToggleButtonGroup>
               )}
             </Grid>
+
             <Grid item xs={12} lg={4}>
               <Typography variant="body1" sx={{ ...styles.subtitle, mb: '.75rem' }}>
                 Search for attribute
@@ -131,6 +176,7 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
                 placeholder='Choose an attribute'
               />
             </Grid>
+
             <Grid item xs={12} lg={3}>
               <DropDownConditions
                 value={term.relation}
@@ -139,6 +185,7 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
                 handleTermChange={handleTermChange}
               />
             </Grid>
+
             <Grid item xs={12} lg={searchConditions.length > 1 ? 3 : 4}>
               <CustomizedInput
                 value={term.value}
@@ -147,6 +194,7 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
                 onChange={(e) => handleTermChange(index, 'value', e.target.value)}
               />
             </Grid>
+            
             {searchConditions.length > 1 && (
               <Grid item lg={searchConditions.length > 1 ? 1 : 0}>
                 <Button sx={{
@@ -159,6 +207,7 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
             )}
           </Grid>
         ))}
+
         <Stack direction="row" spacing={1.5}>
           <Button
             startIcon={<AddOutlinedIcon />}

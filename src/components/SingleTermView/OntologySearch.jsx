@@ -17,7 +17,7 @@ import FolderSharedOutlinedIcon from '@mui/icons-material/FolderSharedOutlined';
 import { vars } from "../../theme/variables";
 const { brand600, gray50 } = vars;
 
-const OntologySearch = () => {
+const OntologySearch = ({ placeholder, style }) => {
   const options = [
     { label: 'Nervous system1', badge: 'My Organization 1', selected: false },
     { label: 'Nervous system2', badge: 'ODC-TBI', selected: false },
@@ -102,6 +102,7 @@ const OntologySearch = () => {
               border: 0,
             },
           },
+          ...style
         }}
         autoHighlight={false}
         componentsProps={{
@@ -168,7 +169,7 @@ const OntologySearch = () => {
           <TextField
             {...params}
             variant="outlined"
-            placeholder="Search for ontology"
+            placeholder={placeholder || "Search for ontology"}
             onChange={handleInputChange}
             InputProps={{
               ...params.InputProps,
@@ -223,6 +224,8 @@ const OntologySearch = () => {
 
 OntologySearch.propTypes = {
   key: PropTypes.string,
+  style: PropTypes.object,
+  placeholder: PropTypes.string
 };
 
 export default OntologySearch;
