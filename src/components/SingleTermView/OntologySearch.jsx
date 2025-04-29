@@ -17,7 +17,7 @@ import FolderSharedOutlinedIcon from '@mui/icons-material/FolderSharedOutlined';
 import { vars } from "../../theme/variables";
 const { brand600, gray50 } = vars;
 
-const OntologySearch = ({ placeholder, style }) => {
+const OntologySearch = ({ placeholder }) => {
   const options = [
     { label: 'Nervous system1', badge: 'My Organization 1', selected: false },
     { label: 'Nervous system2', badge: 'ODC-TBI', selected: false },
@@ -101,8 +101,7 @@ const OntologySearch = ({ placeholder, style }) => {
             '& .MuiOutlinedInput-notchedOutline': {
               border: 0,
             },
-          },
-          ...style
+          }
         }}
         autoHighlight={false}
         componentsProps={{
@@ -224,7 +223,6 @@ const OntologySearch = ({ placeholder, style }) => {
 
 OntologySearch.propTypes = {
   key: PropTypes.string,
-  style: PropTypes.object,
   placeholder: PropTypes.string
 };
 

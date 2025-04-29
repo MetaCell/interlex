@@ -44,11 +44,11 @@ const styles = {
       fontWeight: 500
     }
   },
-  ontologySearch: {
-    '& .MuiOutlinedInput-root': {
-      width: "100%"
-    }
-  }
+  // ontologySearch: {
+  //   '& .MuiOutlinedInput-root': {
+  //     width: "100%"
+  //   }
+  // }
 }
 
 const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchConditions }) => {
@@ -121,7 +121,7 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
         </Stack>
 
         {ontologyEditOption === Confirmation.Yes && (
-          <OntologySearch placeholder="Enter an Ontology URI" style={styles.ontologySearch} />
+          <OntologySearch placeholder="Enter an Ontology URI" />
         )}
       </Box>
 
