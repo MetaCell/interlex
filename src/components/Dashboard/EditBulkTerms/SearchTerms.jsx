@@ -44,11 +44,6 @@ const styles = {
       fontWeight: 500
     }
   },
-  // ontologySearch: {
-  //   '& .MuiOutlinedInput-root': {
-  //     width: "100%"
-  //   }
-  // }
 }
 
 const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchConditions }) => {
