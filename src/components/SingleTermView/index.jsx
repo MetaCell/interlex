@@ -46,7 +46,7 @@ import TermDialog from "../TermEditor/TermDialog";
 
 const { gray200, brand700, gray600 } = vars;
 
-const dataFormats = ['JSON-LD', 'Turtle', 'N3', 'OWL', 'CSV']
+const dataFormats = ['jsonld', 'Turtle', 'N3', 'OWL', 'CSV']
 
 const SingleTermView = () => {
   const [open, setOpen] = React.useState(false);
@@ -56,7 +56,7 @@ const SingleTermView = () => {
   const [tabValue, setTabValue] = React.useState(0);
   const [isCodeViewVisible, setIsCodeViewVisible] = React.useState(false);
   const [toggleButtonValue, setToggleButtonValue] = useState('defaultView');
-  const [selectedDataFormat, setSelectedDataFormat] = React.useState('JSON-LD');
+  const [selectedDataFormat, setSelectedDataFormat] = React.useState('jsonld');
   const [openRequestMergeDialog, setOpenRequestMergeDialog] = React.useState(false);
   const [editTermDialogOpen, setEditTermDialogOpen] = React.useState(false);
   const query = useQuery();
