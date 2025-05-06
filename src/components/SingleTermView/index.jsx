@@ -56,7 +56,7 @@ const SingleTermView = () => {
   const [tabValue, setTabValue] = React.useState(0);
   const [isCodeViewVisible, setIsCodeViewVisible] = React.useState(false);
   const [toggleButtonValue, setToggleButtonValue] = useState('defaultView');
-  const [selectedDataFormat, setSelectedDataFormat] = React.useState('jsonld');
+  const [selectedDataFormat, setSelectedDataFormat] = React.useState('JSON-LD');
   const [openRequestMergeDialog, setOpenRequestMergeDialog] = React.useState(false);
   const [editTermDialogOpen, setEditTermDialogOpen] = React.useState(false);
   const query = useQuery();
