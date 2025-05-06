@@ -46,7 +46,7 @@ import TermDialog from "../TermEditor/TermDialog";
 
 const { gray200, brand700, gray600 } = vars;
 
-const dataFormats = ['jsonld', 'Turtle', 'N3', 'OWL', 'CSV']
+const dataFormats = ['JSON-LD', 'Turtle', 'N3', 'OWL', 'CSV']
 
 const SingleTermView = () => {
   const [open, setOpen] = React.useState(false);
