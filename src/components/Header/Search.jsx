@@ -160,7 +160,7 @@ const Search = () => {
     const data = await elasticSearch(searchTerm, 20, 0);
     const dataTerms = data?.results.results?.filter(result => result.type === SEARCH_TYPES.TERM);
     const dataOrganizations = data?.results.results?.filter(result => result.type === SEARCH_TYPES.ORGANIZATION);
-    const dataOntologies = data?.results?.filter(result => result.type === SEARCH_TYPES.ONTOLOGY);
+    const dataOntologies = data?.results.results?.filter(result => result.type === SEARCH_TYPES.ONTOLOGY);
     setTerms(dataTerms);
     setOrganizations(dataOrganizations);
     setOntologies(dataOntologies);

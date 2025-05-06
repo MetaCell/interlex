@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import ListView from './ListView';
 import PropTypes from 'prop-types';
 import { TableChartIcon, ListIcon } from '../../Icons';
@@ -30,26 +30,75 @@ const CustomViewButton = ({ view, listView, onClick, icon }) => (
     </Button>
 );
 
+const getPaginationSettings = (totalItems) => {
+    const largeDatasetOptions = [20, 50, 100, 200, 500];
+    const smallDatasetOptions = [10, 20, 50, 100];
+
+    const options = totalItems >= 200
+        ? largeDatasetOptions.filter(opt => opt <= totalItems)
+        : smallDatasetOptions.filter(opt => opt <= totalItems);
+
+    if (options.length === 0) {
+        return {
+            options: [totalItems],
+            defaultSize: totalItems
+        };
+    }
+
+    let defaultSize;
+    if (totalItems >= 1000) defaultSize = 100;
+    else if (totalItems >= 500) defaultSize = 100;
+    else if (totalItems >= 200) defaultSize = 50;
+    else if (totalItems >= 100) defaultSize = 50;
+    else if (totalItems >= 50) defaultSize = 20;
+    else defaultSize = 10;
+
+    if (!options.includes(defaultSize)) {
+        defaultSize = options[Math.floor(options.length / 2)];
+    }
+
+    return { options, defaultSize };
+};
+
 const SearchResultsBox = ({
+    allResults,
     pageResults,
     searchTerm,
     loading,
     totalItems,
-    fetchPage
+    fetchPage,
+    hasActiveFilters
 }) => {
+    const { options, defaultSize } = getPaginationSettings(totalItems);
     const [listView, setListView] = useState('list');
     const [page, setPage] = useState(1);
-    const [itemsPerPage, setItemsPerPage] = useState(20);
+    const [itemsPerPage, setItemsPerPage] = useState(defaultSize);
 
     useEffect(() => {
-        const from = (page - 1) * itemsPerPage;
-        const remainingItems = totalItems - from;
-        const size = Math.min(itemsPerPage, remainingItems);
+        if (!hasActiveFilters) {
+            const from = (page - 1) * itemsPerPage;
+            const remainingItems = totalItems - from;
+            const size = Math.min(itemsPerPage, remainingItems);
 
-        if (size > 0) {
-            fetchPage(from, size);
+            if (size > 0) {
+                fetchPage(from, size);
+            }
         }
-    }, [page, itemsPerPage, totalItems, fetchPage]);
+    }, [page, itemsPerPage, totalItems, fetchPage, hasActiveFilters]);
+
+    useEffect(() => {
+        const { defaultSize: newDefault } = getPaginationSettings(totalItems);
+        setItemsPerPage(newDefault);
+        setPage(1);
+    }, [totalItems]);
+
+    const paginatedResults = useMemo(() => {
+        if (!hasActiveFilters) return pageResults;
+
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return pageResults.slice(startIndex, endIndex);
+    }, [pageResults, page, itemsPerPage, hasActiveFilters]);
 
     const handlePageChange = (_, newPage) => {
         setPage(newPage);
@@ -61,20 +110,12 @@ const SearchResultsBox = ({
         setPage(1)
     };
 
-    const getPaginationOptions = () => {
-        const options = [5, 10, 15, 20];
-        if (!options.includes(itemsPerPage)) {
-            options.push(itemsPerPage);
-        }
-        return options.sort((a, b) => a - b);
-    };
-
     return (
         <Box width={1} flex={1} display="flex" flexDirection="column" px={4} py={3} gap={3} sx={{ overflowY: 'auto' }}>
             <Grid container justifyContent={{ lg: 'space-between', xs: 'flex-end', md: 'flex-end' }} alignItems="center">
                 <Grid item xs={12} lg={6} sm={6}>
                     <Typography variant="h5">
-                        {totalItems} results for {searchTerm} search
+                        {allResults.length} results for {searchTerm} search
                     </Typography>
                 </Grid>
                 <Grid item xs={12} lg={6} sm={6}>
@@ -84,7 +125,7 @@ const SearchResultsBox = ({
                             <CustomSingleSelect
                                 value={itemsPerPage}
                                 onChange={handleItemsPerPageChange}
-                                options={getPaginationOptions()}
+                                options={options}
                             />
                         </Stack>
                         <ButtonGroup variant="outlined" aria-label="View mode">
@@ -112,7 +153,7 @@ const SearchResultsBox = ({
             </Grid>
 
             {listView === 'list' ? (
-                <ListView searchResults={pageResults} loading={loading} />
+                <ListView searchResults={paginatedResults} loading={loading} />
             ) : (
                 <p>table</p>
             )}
@@ -135,11 +176,13 @@ CustomViewButton.propTypes = {
 };
 
 SearchResultsBox.propTypes = {
+    allResults: PropTypes.object,
     pageResults: PropTypes.object,
     searchTerm: PropTypes.string,
     loading: PropTypes.bool,
     totalItems: PropTypes.number,
-    fetchPage: PropTypes.func
+    fetchPage: PropTypes.func,
+    hasActiveFilters: PropTypes.bool
 };
 
 export default SearchResultsBox;

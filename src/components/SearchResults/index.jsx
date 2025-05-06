@@ -16,14 +16,21 @@ const SearchResults = () => {
     const query = useQuery();
     const searchTerm = query.get('searchTerm');
 
+    const hasActiveFilters = useMemo(() => {
+        return Object.values(checkedLabels).some(category =>
+            category && Object.values(category).some(Boolean)
+        );
+    }, [checkedLabels]);
+
     useEffect(() => {
         const loadAllResults = async () => {
             setLoading(true);
             try {
-                const data = await elasticSearch(searchTerm, 20, 0);
+                const data = await elasticSearch(searchTerm);
                 setFilters(data.results.filters || []);
                 setAllResults(data?.results.results || []);
                 setTotalItems(data?.total || 0);
+                setPageResults([]);
             } catch (error) {
                 console.error('Search error:', error);
             } finally {
@@ -37,13 +44,17 @@ const SearchResults = () => {
         setLoading(true);
         try {
             const data = await elasticSearch(searchTerm, size, from);
-            setPageResults(data?.results.results || []);
+            const results = data?.results.results || [];
+
+            const filtered = hasActiveFilters ? filterResults(results, checkedLabels) : results;
+
+            setPageResults(filtered);
         } catch (error) {
             console.error('Pagination error:', error);
         } finally {
             setLoading(false);
         }
-    }, [searchTerm]);
+    }, [searchTerm, checkedLabels, hasActiveFilters]);
 
     const fetchPage = useMemo(() => debounce(loadPageData, 500), [loadPageData]);
 
@@ -55,6 +66,8 @@ const SearchResults = () => {
                 [label]: !prev[category]?.[label]
             }
         }));
+
+        setPageResults([]);
     };
 
     const filterResults = (results, checkedLabels) => {
@@ -79,9 +92,9 @@ const SearchResults = () => {
         });
     };
 
-    const filteredResults = filterResults(pageResults || [], checkedLabels);
-
-    console.log("totalItems: ", totalItems)
+    const displayedResults = hasActiveFilters
+        ? filterResults(allResults, checkedLabels)
+        : pageResults;
 
     return (
         <>
@@ -92,12 +105,13 @@ const SearchResults = () => {
             />
             <SearchResultsBox
                 allResults={allResults}
-                pageResults={filteredResults}
+                pageResults={displayedResults}
                 searchTerm={searchTerm}
                 loading={loading}
-                totalItems={totalItems}
+                totalItems={hasActiveFilters ? displayedResults.length : totalItems}
                 fetchPage={fetchPage}
                 checkedLabels={checkedLabels}
+                hasActiveFilters={hasActiveFilters}
             />
         </>
     );
