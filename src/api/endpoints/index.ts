@@ -229,11 +229,11 @@ export const patchTerm = async (group, termID, term) => {
     });
 }
 
-export const getRawData = async (group, termID, term) => {
+export const getRawData = async (group, termID, format) => {
   const {getEndpointsIlx} = useApi();
 
   /** Call Endpoint */
-  return getEndpointsIlx(group, termID, term).then((data) => {
+  return getEndpointsIlx(group, termID, format).then((data) => {
       return data;
     })
     .catch((error) => {
