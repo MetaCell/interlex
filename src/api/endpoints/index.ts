@@ -156,12 +156,12 @@ const fetchData = async (url, method = "GET", data: object | null = null) => {
     }
 };
 
-export const elasticSearch = async (query) => {
+export const elasticSearch = async (query: string, size: number, from: number) => {
   const url = API_CONFIG.BASE_SCICRUNCH_URL + API_CONFIG.SCICRUNCH_KEY;
   try {
     const result = await fetchData(url, "POST", {
-      "size": 20,
-      "from": 0,
+      "size": size,
+      "from": from || 0,
       "query": {
         "bool": {
             "must": [
@@ -180,9 +180,16 @@ export const elasticSearch = async (query) => {
         }
       }
     });
-    return elasticSearhParser(result?.hits?.hits)
+    return {
+      results: elasticSearhParser(result?.hits?.hits),
+      total: 20,
+    };
   } catch (error) {
       console.error("ElasticSearch Query Failed:", error);
+      return {
+        results: [],
+        total: 0
+      };
   }
 }
 
