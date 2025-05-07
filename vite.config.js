@@ -38,7 +38,7 @@ export default defineConfig({
           });
         },
       },
-      '^/([^/]+)/priv/(.*)': {
+      '^/priv/.*': {
         target: "https://uri.olympiangods.org",
         secure: false,
         changeOrigin: true,

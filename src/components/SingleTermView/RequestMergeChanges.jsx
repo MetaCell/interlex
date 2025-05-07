@@ -38,7 +38,7 @@ const RequestMergeChanges = ({ searchTerm, open, handleClose }) => {
     const fetchTerms = useCallback(
         debounce((searchTerm) => {
             if (searchTerm) {
-                getMatchTerms(searchTerm).then(data => {
+                getMatchTerms("base", searchTerm).then(data => {
                     setData(data?.results[0]);
                     setLoading(false);
                 });

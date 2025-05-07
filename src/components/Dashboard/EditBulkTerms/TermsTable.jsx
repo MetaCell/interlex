@@ -89,7 +89,7 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, searchCo
 
   React.useEffect(() => {
     setLoading(true)
-    getMatchTerms("i", { filters }).then(data => {
+    getMatchTerms("base", "i", { filters }).then(data => {
       setTerms(data.results);
       setLoading(false);
     }).catch(err => {

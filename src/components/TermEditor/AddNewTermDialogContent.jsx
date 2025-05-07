@@ -14,14 +14,12 @@ import { termParser } from "../../../src/parsers/termParser";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { getExistingIDs, getUser } from "../../api/endpoints";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
-import * as mockApiInterlex from "../../api/endpoints/interLexURIStructureAPI";
+import { getEndpointsIlx, elasticSearch } from './../../api/endpoints/index';
+import { GlobalDataContext } from "../../contexts/DataContext";
+import { useContext } from "react";
 
 import { vars } from "../../theme/variables";
 const { gray800, gray700 } = vars;
-
-const useMockApi = () => mockApi;
-const useMockApiInterlex = () => mockApiInterlex;
 
 const initialFormState = {
     label: "",
@@ -49,8 +47,6 @@ const formatIdText = (termId) => {
 
 const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChange, onReset }) => {
 
-    const { getMatchTerms } = useMockApi();
-    const { getEndpointsIlx } = useMockApiInterlex();
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
     const [termResults, setTermResults] = useState([]);
@@ -65,6 +61,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     const [url, setUrl] = useState('');
     const [formState, setFormState] = useState(initialFormState);
     const [newTermId, setNewTermId] = useState("");
+    const { user, setUserData } = useContext(GlobalDataContext);
 
     const memoData = useMemo(() => data, [data]);
 
@@ -74,30 +71,29 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
             setLoading(true);
             if (termValue) {
                 getEndpointsIlx("base", termValue).then(data => {
+                    setLoading(false);
                     const parsedData = termParser(data);
                     setData(parsedData?.results[0]);
-                    setLoading(false);
                 });
             } else {
-                getMatchTerms("base", "i", { filter: "", value: "" }).then(data => {
-                    const parsedData = termParser(data, "");
-                    setTermResults(parsedData.results);
+                elasticSearch("a").then(data => {
+                    setTermResults(data.results);
                     setLoading(false);
                 });
             }
         }, 300),
-        [getEndpointsIlx, getMatchTerms]
+        [getEndpointsIlx, elasticSearch]
     );
 
     const addTermRequest = useCallback(async (group, term) => {
-        await addTerm("base", term).then((response) => {
-            console.log("Term added ", response)
+        const token = localStorage.getItem("token")
+        const groupName = user?.name || group
+        await addTerm(groupName, token, term).then((response) => {
             setNewTermId(response.term.id.split("/").pop())
         })
             .catch((error) => {
                 console.log("Error ", error)
             });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [addTerm]);
 
     const handleChangeTabs = (_, newValue) => setTabValue(newValue);
@@ -151,11 +147,11 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     }
 
     useEffect(() => {
-        getMatchTerms("base", "i", { filter: "", value: "" }).then(data => {
-            const parsedData = termParser(data, termValue);
-            setTermResults(parsedData.results);
+        elasticSearch(termValue).then(data => {
+            setTermResults(data.results);
+            setLoading(false);
         });
-    }, [termValue, getMatchTerms]);
+    }, [termValue, elasticSearch]);
 
     useEffect(() => {
         fetchTerms(termValue);
@@ -171,42 +167,20 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     }, [memoData]);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    const getIds = useCallback(debounce(async () => {
-        const ids = await getExistingIDs();
+    const getIds = useCallback(debounce(async (termValue) => {
+        const ids = await getExistingIDs(termValue || "a");
         setIds(ids)
     }), [getUser]);
 
     useEffect(() => {
-        getIds();
-    }, [getIds]);
+        getIds(termValue);
+    }, [termValue,getIds]);
 
     useEffect(() => {
         if (activeStep === 2) {
             addTermRequest("base", formState)
         }
     }, [addTermRequest, formState, activeStep]);
-
-    //can be deleted, use only for testing purposes
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch('/api/some-endpoint');
-                if (!response.ok) {
-                    throw new Error('HTTP error');
-                }
-                const data = await response.json();
-                setResponseStatus({ success: true, data });
-            } catch (error) {
-                // should be success: false, but true for now so we can wee success status message
-                setResponseStatus({ success: true, error: error.message });
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
-
 
     const predicatesOptions = predicates.map(row => ({
         label: row.title,

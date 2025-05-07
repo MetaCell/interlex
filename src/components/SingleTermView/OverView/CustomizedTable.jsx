@@ -245,7 +245,7 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
-    const data = await getMatchTerms(searchTerm);
+    const data = await getMatchTerms("base", searchTerm);
     setTerms(data?.results[0]);
   }, 500), [getMatchTerms]);
 
