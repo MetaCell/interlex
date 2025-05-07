@@ -53,7 +53,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     const [tabValue, setTabValue] = useState(0);
     const [openSidebar, setOpenSidebar] = useState(true);
     const [data, setData] = useState(null);
-    const [responseStatus, setResponseStatus] = useState(null)
+    const [responseStatus] = useState(null)
     const [termValue, setTermValue] = useState('');
     const [ids, setIds] = useState([]);
     const [predicates, setPredicates] = useState([{ subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
@@ -61,7 +61,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     const [url, setUrl] = useState('');
     const [formState, setFormState] = useState(initialFormState);
     const [newTermId, setNewTermId] = useState("");
-    const { user, setUserData } = useContext(GlobalDataContext);
+    const { user } = useContext(GlobalDataContext);
 
     const memoData = useMemo(() => data, [data]);
 
@@ -86,7 +86,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     );
 
     const addTermRequest = useCallback(async (group, term) => {
-        const token = localStorage.getItem("token")
+        const token = localStorage.getItem("appToken")
         const groupName = user?.name || group
         await addTerm(groupName, token, term).then((response) => {
             setNewTermId(response.term.id.split("/").pop())
@@ -94,7 +94,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
             .catch((error) => {
                 console.log("Error ", error)
             });
-    }, [addTerm]);
+    }, [user]);
 
     const handleChangeTabs = (_, newValue) => setTabValue(newValue);
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
@@ -151,7 +151,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
             setTermResults(data.results);
             setLoading(false);
         });
-    }, [termValue, elasticSearch]);
+    }, [termValue]);
 
     useEffect(() => {
         fetchTerms(termValue);
@@ -224,7 +224,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
             {activeStep === 2 && <StatusStep
                 statusProps={statusProps}
                 onAction={handleAddNewTerm}
-                onTryAgain={() => console.log("Try again")}
+                onTryAgain={handleAddNewTerm}
                 onClose={handleGoToTermClick}
                 actionButtonStartIcon={<AddOutlinedIcon />}
                 additionalInfo={formattedNewTermId}
