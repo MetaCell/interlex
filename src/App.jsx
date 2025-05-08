@@ -29,8 +29,6 @@ import { handleOrcidLogin } from "./api/endpoints";
 import { GlobalDataContext } from "./contexts/DataContext";
 import { useCookies } from 'react-cookie'
 import { API_CONFIG } from "./config";
-import { local } from "d3";
-
 
 const PageContainer = ({ children }) => {
 	return (
@@ -41,7 +39,7 @@ const PageContainer = ({ children }) => {
 };
 
 function MainContent() {
-	const [cookies, setCookie, removeCookie] = useCookies(['session'])
+	const [cookies] = useCookies(['session'])
 	const cookiesInfo = JSON.parse(localStorage.getItem(API_CONFIG.SESSION_DATA.COOKIE));
 	const { user, setUserData } = useContext(GlobalDataContext);
 
