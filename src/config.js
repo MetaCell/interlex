@@ -29,7 +29,8 @@ export const API_CONFIG = {
         NEWUSER_ORCID: "/u/ops/orcid-new",
         USER_SETTINGS: "/priv/settings",
         CREATE_NEW_ORGANIZATION: "/priv/org-new",
-        GET_ORGANIZATIONS: "/priv/role-other"
+        GET_ORGANIZATIONS: "/priv/role-other",
+        LOGOUT: "/priv/logout",
     },
     SESSION_DATA: {
         SETTINGS: "settings",

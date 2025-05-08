@@ -106,11 +106,12 @@ const Login = () => {
       if (!result.data || !result.data?.orcid_meta) {
         setErrors((prev) => ({
           ...prev,
-          auth: "Interlex API is not returning the user information, please contact the support at support@interlex.org",
+          auth: "Interlex API is not returning the user information, reminder to ask Tom to send the groupname back so that we can query the priv/setting endpoint to get the rest of the info required",
         }));
       } else {
         const { code, orcid_meta } = result.data;
         if (code === 200 || code === 302) {
+          // TODO: the backend should return the groupname, for now is just returning a message.
           setUserData({ name: orcid_meta.name, id: orcid_meta.orcid });
         }
         navigate("/")

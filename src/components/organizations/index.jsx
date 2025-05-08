@@ -4,6 +4,7 @@ import { Box, Typography, CircularProgress, Stack, Button, Link } from "@mui/mat
 import BasicDialog from "../common/BasicDialog";
 import GroupAddOutlinedIcon from "@mui/icons-material/GroupAddOutlined";
 import { createNewOrganization, getOrganizations } from "../../api/endpoints/apiService";
+import { GlobalDataContext } from "../../contexts/DataContext";
 
 import { vars } from "../../theme/variables";
 const { gray600, gray700, brand700, brand800 } = vars;
@@ -18,13 +19,14 @@ const linkStyles = {
 }
 
 const Organizations = () => {
+  const { user } = GlobalDataContext();
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState();
 
   // TODO: change this to be dynamic when we get the response from api call
-  const groupname = "dariodippi"
+  const groupname = user?.groupname || "base";
 
   const fetchOrganizations = async() => {
     setLoading(true);

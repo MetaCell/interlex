@@ -58,6 +58,8 @@ function MainContent() {
 				groupname: userData['groupname'],
 				settings: userData
 			});
+		} else {
+			setUserData({});
 		}
 	}
 

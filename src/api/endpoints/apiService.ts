@@ -36,3 +36,8 @@ export const getOrganizations = (group: string) => {
   const endpoint = `/${group}${API_CONFIG.REAL_API.GET_ORGANIZATIONS}`;
   return createGetRequest<any, any>(endpoint, "application/json")();
 };
+
+export const userLogout = (group: string) => {
+  const endpoint = `/${group}${API_CONFIG.REAL_API.LOGOUT}`;
+  return createGetRequest<any, any>(endpoint, "application/json")();
+};
