@@ -1,15 +1,47 @@
-import {Box, Button, ButtonGroup, Divider, Typography} from "@mui/material";
+import { Box, Button, ButtonGroup, Divider, Typography, CircularProgress } from "@mui/material";
 import { useState } from "react";
+import { useOrganizations } from "../../../helpers/useOrganizations";
 import { vars } from "../../../theme/variables";
 import { ListIcon, TableChartIcon } from "../../../Icons";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-import organizationss from "../../../static/Organizations.json";
 import OrganizationsList from "../../common/OrganizationsList";
 import CustomViewButton from "../../common/CustomViewButton";
+import MessageDialog from "../../common/MessageDialog";
+import { GlobalDataContext } from "../../../contexts/DataContext";
 
 const { gray600, gray200 } = vars;
+
+
 const Organizations = () => {
-  const [listView, setListView] = useState('list');
+  const [open, setOpen] = useState(false);
+  const { user } = GlobalDataContext();
+  const groupname = user?.groupname || "base";
+
+  const {
+    listView,
+    setListView,
+    organizations,
+    loading,
+    message,
+    createOrganization
+  } = useOrganizations(groupname);
+
+  const handleCreateOrganization = async (e) => {
+    e.preventDefault();
+    // eslint-disable-next-line no-unused-vars
+    const success = await createOrganization();
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  if (loading) {
+    return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1 }}>
+      <CircularProgress />
+    </Box>
+  }
  
   return (
     <Box p='2.5rem 5rem' sx={{
@@ -42,7 +74,7 @@ const Organizations = () => {
             />
           </ButtonGroup>
           <Divider orientation="vertical" flexItem sx={{ borderColor: gray200 }} />
-          <Button type="string" color="secondary" startIcon={<AddOutlinedIcon />}>
+          <Button type="string" color="secondary" startIcon={<AddOutlinedIcon />} onClick={handleCreateOrganization}>
             Create a new organization
           </Button>
           <Button
@@ -53,7 +85,10 @@ const Organizations = () => {
           </Button>
         </Box>
       </Box>
-      <OrganizationsList organizations={organizationss} viewJoinButton={false} />
+      <OrganizationsList organizations={organizations} viewJoinButton={false} />
+      {message && (
+        <MessageDialog open={open} title="Create a new organization" handleClose={handleClose} message={message} />
+      )}
     </Box>
   );
 };

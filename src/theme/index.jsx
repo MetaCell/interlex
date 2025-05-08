@@ -494,6 +494,7 @@ const theme = createTheme({
 				textPrimary: {
 					color: gray600,
 					background: white,
+					padding: "0.625rem 0.875rem",
 					"&:hover": {
 						background: gray100,
 						color: gray700,

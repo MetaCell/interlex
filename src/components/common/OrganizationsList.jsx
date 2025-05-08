@@ -8,6 +8,7 @@ const { gray700, gray500, gray200, brand600 } = vars;
 
 const OrganizationsList = ({organizations, viewJoinButton = true}) => {
   const navigate = useNavigate();
+  console.log("organizations: ", organizations)
   return (
     <List sx={{
       width: '100%',
@@ -73,7 +74,7 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
         }
       }
     }}>
-      {organizations.length > 0 && (
+      {organizations.length > 0 ? (
         organizations?.map((organization, index) => (
           <ListItem key={index} onClick={() => navigate(`/organizations/${organization.name}`)}>
             <Box display='flex' alignItems='center' justifyContent='space-between' width={1}>
@@ -104,6 +105,8 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
             } secondary={organization.description} />
           </ListItem>
         ))
+      ) : (
+        <Typography>There are no organizations</Typography>
       )}
     </List>
   );
