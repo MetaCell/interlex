@@ -30,7 +30,7 @@ const Organizations = () => {
 
   const fetchOrganizations = async() => {
     setLoading(true);
-  
+
     try {
       const response = await getOrganizations(groupname)
       if(response.length > 0){
@@ -46,6 +46,7 @@ const Organizations = () => {
   useEffect( () => {
     setLoading(true)
     fetchOrganizations();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleOpen = () => {
