@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import CssBaseline from "@mui/material/CssBaseline";
 import { Box, ThemeProvider } from "@mui/material";
 import {
@@ -26,6 +26,11 @@ import SingleOrganization from "./components/SingleOrganization";
 import TermActivity from "./components/term_activity/TermActivity";
 import OrganizationsCurieEditor from "./components/CurieEditor/OrganizationCurieEditor";
 import { handleOrcidLogin } from "./api/endpoints";
+import { GlobalDataContext } from "./contexts/DataContext";
+import { useCookies } from 'react-cookie'
+import { API_CONFIG } from "./config";
+import { local } from "d3";
+
 
 const PageContainer = ({ children }) => {
 	return (
@@ -36,6 +41,28 @@ const PageContainer = ({ children }) => {
 };
 
 function MainContent() {
+	const [cookies, setCookie, removeCookie] = useCookies(['session'])
+	const cookiesInfo = JSON.parse(localStorage.getItem(API_CONFIG.SESSION_DATA.COOKIE));
+	const { user, setUserData } = useContext(GlobalDataContext);
+
+	// check if cookie is expired
+	if (!user) {
+		const sessionCookie = cookies.session;
+		const expires = new Date(cookiesInfo.expires);
+		const today = new Date();
+		if (sessionCookie === cookiesInfo?.value && expires > today) {
+			const userData = JSON.parse(localStorage.getItem(API_CONFIG.SESSION_DATA.SETTINGS));
+			setUserData({
+				name: userData['groupname'],
+				id: userData['orcid'],
+				email: userData?.emails[0]?.email,
+				role: userData['own-role'],
+				groupname: userData['groupname'],
+				settings: userData
+			});
+		}
+	}
+
 	return (
 		<Box
 			sx={{

@@ -3,7 +3,7 @@ import * as mockApi from './../../api/endpoints/swaggerMockMissingEndpoints';
 import * as api from "./../../api/endpoints/interLexURIStructureAPI";
 import { TERM, ONTOLOGY, ORGANIZATION } from '../../model/frontend/types'
 import curieParser from '../../parsers/curieParser';
-import termParser, { elasticSearhParser, getTerm } from '../../parsers/termParser';
+import termParser, { elasticSearchParser, getTerm } from '../../parsers/termParser';
 import axios from 'axios';
 import { API_CONFIG } from '../../config';
 
@@ -180,7 +180,7 @@ export const elasticSearch = async (query) => {
         }
       }
     });
-    return elasticSearhParser(result?.hits?.hits)
+    return elasticSearchParser(result?.hits?.hits)
   } catch (error) {
       console.error("ElasticSearch Query Failed:", error);
   }
