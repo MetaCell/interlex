@@ -31,7 +31,7 @@ const CustomViewButton = ({ view, listView, onClick, icon }) => (
 );
 
 const getPaginationSettings = (totalItems) => {
-    const largeDatasetOptions = [20, 50, 100, 200, 500];
+    const largeDatasetOptions = [20, 50, 100, 200];
     const smallDatasetOptions = [10, 20, 50, 100];
 
     const options = totalItems >= 200

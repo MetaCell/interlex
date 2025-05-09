@@ -26,7 +26,7 @@ const OPTIONS = [
 
 const styles = {
   autocomplete: (fullWidth, selectedValue, openList) => ({
-    width: fullWidth ? '100%' : '21.75rem',
+    width: fullWidth ? '100%' : 'auto',
     '& .MuiOutlinedInput-root': {
       minWidth: fullWidth ? '100%' : (selectedValue ? '21.75rem' : '11.75rem'),
       width: fullWidth ? '100%' : 'fit-content',
