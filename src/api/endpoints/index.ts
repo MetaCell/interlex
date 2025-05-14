@@ -188,7 +188,7 @@ export const elasticSearch = async (
     });
 
     return {
-      results: elasticSearhParser(fullResponse?.hits?.hits),
+      results: elasticSearchParser(fullResponse?.hits?.hits),
       total,
     };
   } catch (error) {

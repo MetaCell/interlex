@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import OrganizationsList from "../common/OrganizationsList";
 import { Box, Typography, CircularProgress, Stack, Button } from "@mui/material";
 import { useOrganizations } from "../../helpers/useOrganizations";
@@ -11,7 +11,7 @@ const { gray700 } = vars;
 
 
 const Organizations = () => {
-  const { user } = GlobalDataContext();
+  const { user } = useContext(GlobalDataContext);
   const [open, setOpen] = useState(false);
   const groupname = user?.groupname || "base";
 
