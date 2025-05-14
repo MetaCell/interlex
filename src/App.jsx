@@ -46,7 +46,7 @@ function MainContent() {
 	// check if cookie is expired
 	if (!user) {
 		const sessionCookie = cookies.session;
-		const expires = new Date(cookiesInfo.expires);
+		const expires = new Date(cookiesInfo?.expires);
 		const today = new Date();
 		if (sessionCookie === cookiesInfo?.value && expires > today) {
 			const userData = JSON.parse(localStorage.getItem(API_CONFIG.SESSION_DATA.SETTINGS));
