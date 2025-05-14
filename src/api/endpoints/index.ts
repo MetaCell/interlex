@@ -156,35 +156,64 @@ const fetchData = async (url, method = "GET", data: object | null = null) => {
     }
 };
 
-export const elasticSearch = async (query) => {
+export const elasticSearch = async (
+  query: string,
+  size?: number,
+  from: number = 0
+) => {
   const url = API_CONFIG.BASE_SCICRUNCH_URL + API_CONFIG.SCICRUNCH_KEY;
+
+  let total = size;
+
+  if (!size) {
+    try {
+      const initialResponse = await fetchData(url, "POST", {
+        size: 1,
+        from: 0,
+        query: buildQuery(query),
+      });
+
+      total = initialResponse?.hits?.total ?? 0;
+    } catch (error) {
+      console.error("Failed to fetch total count from Elasticsearch:", error);
+      return { results: [], total: 0 };
+    }
+  }
+
   try {
-    const result = await fetchData(url, "POST", {
-      "size": 20,
-      "from": 0,
-      "query": {
-        "bool": {
-            "must": [
-                {
-                    "query_string": {
-                        "fields": [
-                            "*"
-                        ],
-                        "query": query,
-                        "type": "cross_fields",
-                        "default_operator": "and",
-                        "lenient": "true"
-                    }
-                }
-            ]
+    const fullResponse = await fetchData(url, "POST", {
+      size: total,
+      from,
+      query: buildQuery(query),
+    });
+
+    return {
+      results: elasticSearhParser(fullResponse?.hits?.hits),
+      total,
+    };
+  } catch (error) {
+    console.error("Error when performing elastic search", error);
+    return { results: [], total: 0 };
+  }
+};
+
+const buildQuery = (query: string) => ({
+  "bool": {
+    "must": [
+      {
+        "query_string": {
+          "fields": [
+            "*"
+          ],
+          "query": query,
+          "type": "cross_fields",
+          "default_operator": "and",
+          "lenient": "true"
         }
       }
-    });
-    return elasticSearchParser(result?.hits?.hits)
-  } catch (error) {
-      console.error("ElasticSearch Query Failed:", error);
+    ]
   }
-}
+});
 
 export const searchAll = async (term, filters = {}) => {
   const {  searchAll } = useMockApi();
