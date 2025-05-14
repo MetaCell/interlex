@@ -7,15 +7,15 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import OrganizationsList from "../../common/OrganizationsList";
 import CustomViewButton from "../../common/CustomViewButton";
 import MessageDialog from "../../common/MessageDialog";
+import { GlobalDataContext } from "../../../contexts/DataContext";
 
 const { gray600, gray200 } = vars;
 
 
 const Organizations = () => {
   const [open, setOpen] = useState(false);
-
-  // TODO: change this to be dynamic when we get the response from api call
-  const groupname = "aigul"
+  const { user } = GlobalDataContext();
+  const groupname = user?.groupname || "base";
 
   const {
     listView,

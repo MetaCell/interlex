@@ -34,6 +34,7 @@ import { GlobalDataContext } from "../../contexts/DataContext";
 import EditBulkTermsDialog from "../Dashboard/EditBulkTerms/EditBulkTermsDialog";
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import { userLogout } from "../../api/endpoints/apiService";
 
 import { vars } from "../../theme/variables";
 const { gray200, white, gray100, gray600 } = vars;
@@ -220,9 +221,10 @@ const Header = () => {
 
     const handleMenuClick = (e, menu) => {
         if (menu.label === 'Log out') {
-            // TODO: call logout endpoint {group}/priv/logout also
-            // TODO: flush the userinfo from the localstorage
-            setUserData(null, null);
+            userLogout();
+            localStorage.removeItem('session');
+            localStorage.removeItem('settings');
+            setUserData({});
             navigate('/');
         }
         if (menu.href) {
@@ -250,7 +252,7 @@ const Header = () => {
 
     React.useEffect(() => {
         console.log("Stored user in context ", user)
-        if(user) {
+        if(user !== null && user?.groupname !== undefined) {
             setIsLoggedIn(true)
         } else {
             setIsLoggedIn(false)

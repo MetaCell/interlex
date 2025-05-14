@@ -18,7 +18,14 @@ export interface RegisterRequest {
 }
 
 export const login = createPostRequest<any, LoginRequest>(API_CONFIG.REAL_API.SIGNIN, "application/x-www-form-urlencoded")
+
 export const register = createPostRequest<any, RegisterRequest>(API_CONFIG.REAL_API.NEWUSER_ILX, "application/x-www-form-urlencoded")
+
+
+export const getUserSettings = (group: string) => {
+  const endpoint = `/${group}${API_CONFIG.REAL_API.USER_SETTINGS}`;
+  return createGetRequest<any, any>(endpoint, "application/json")();
+};
 
 export const createNewOrganization = ({group, data} : {group: string, data: any}) => {
   const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ORGANIZATION}`;
@@ -27,5 +34,10 @@ export const createNewOrganization = ({group, data} : {group: string, data: any}
 
 export const getOrganizations = (group: string) => {
   const endpoint = `/${group}${API_CONFIG.REAL_API.GET_ORGANIZATIONS}`;
+  return createGetRequest<any, any>(endpoint, "application/json")();
+};
+
+export const userLogout = (group: string) => {
+  const endpoint = `/${group}${API_CONFIG.REAL_API.LOGOUT}`;
   return createGetRequest<any, any>(endpoint, "application/json")();
 };

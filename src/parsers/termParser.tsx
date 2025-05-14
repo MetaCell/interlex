@@ -155,13 +155,15 @@ export const termParser = (data, searchTerm, start?, end?) => {
     }
 };
 
-export const elasticSearhParser = (data) => {
+export const elasticSearchParser = (data) => {
+    // TODO add the score to the results
     let terms : Terms;
     if ( Array.isArray(data) ){
         terms  = data?.map( term => {
             let newTerm : Term = {} as Term
-            term = term._source
-            return term
+            newTerm = term._source
+            newTerm['score'] = term._score
+            return newTerm
         })
 
         // We are receiving an unknown amout of terms from server, we need to control
