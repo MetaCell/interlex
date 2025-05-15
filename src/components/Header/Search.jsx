@@ -13,15 +13,15 @@ import {
 } from "@mui/material";
 import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
-import { useQuery } from "../../helpers";
 import BasicTabs from "../common/CustomTabs";
 import { useNavigate } from "react-router-dom";
 import { SEARCH_TYPES } from "../../constants/types";
 import { searchAll, elasticSearch } from "../../api/endpoints";
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
-import { useEffect, useState, useCallback, forwardRef } from 'react';
+import { useEffect, useState, useCallback, forwardRef, useContext } from 'react';
 import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
 import CorporateFareOutlinedIcon from '@mui/icons-material/CorporateFareOutlined';
+import { GlobalDataContext } from "../../contexts/DataContext";
 
 import { vars } from "../../theme/variables";
 const { gray200, gray100, gray600, gray800, gray500, gray700 } = vars;
@@ -87,11 +87,10 @@ const Search = () => {
   const [openList, setOpenList] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const navigate = useNavigate();
-  const query = useQuery();
-  const storedSearchTerm = query.get('searchTerm');
   const [terms, setTerms] = useState([]);
   const [organizations, setOrganizations] = useState([]);
   const [ontologies, setOntologies] = useState([]);
+  const { storedSearchTerm, updateStoredSearchTerm } = useContext(GlobalDataContext);
 
   const handleOpenList = () => setOpenList(true);
   const handleCloseList = () => setOpenList(false);
@@ -101,6 +100,7 @@ const Search = () => {
     if (!newInputValue) return;
     
     handleCloseList();
+    updateStoredSearchTerm(newInputValue?.label)
     navigate(`/view?searchTerm=${newInputValue?.ilx}`);
   };
 

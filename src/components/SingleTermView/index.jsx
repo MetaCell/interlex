@@ -23,7 +23,7 @@ import CopyLinkComponent from "../common/CopyLinkComponent";
 import BasicTabs from "../common/CustomTabs";
 import CustomButton from "../common/CustomButton";
 import CustomMenu from "./CustomMenu";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import OverView from "./OverView/OverView";
 import HistoryPanel from "./History/HistoryPanel";
 import VariantsPanel from "./Variants/VariantsPanel";
@@ -43,6 +43,7 @@ import CustomSingleSelect from "../common/CustomSingleSelect";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CreateForkDialog from "./CreateForkDialog";
 import TermDialog from "../TermEditor/TermDialog";
+import { GlobalDataContext } from "../../contexts/DataContext";
 
 const { gray200, brand700, gray600 } = vars;
 
@@ -63,6 +64,7 @@ const SingleTermView = () => {
   const searchTerm = query.get('searchTerm');
   const openDataFormatMenu = Boolean(dataFormatAnchorEl);
 	const [openForkDialog, setOpenForkDialog] = React.useState(false);
+  const { storedSearchTerm } = useContext(GlobalDataContext);
 
     const handleForkDialogClose = () => {
       setOpenForkDialog(false);
@@ -156,7 +158,7 @@ const SingleTermView = () => {
               <Grid item xs={12} lg={2}>
                 <Stack direction="row" spacing=".75rem" alignItems="center">
                   <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
-                    {searchTerm}
+                    {storedSearchTerm}
                   </Typography>
                   <Chip label="Fork" variant="outlined" />
                 </Stack>
