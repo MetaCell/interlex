@@ -8,14 +8,11 @@ import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
 import Hierarchy from "./Hierarchy";
 import Predicates from "./Predicates";
-import {useQuery} from "../../../helpers";
 import RawDataViewer from "./RawDataViewer";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import { getMatchTerms } from "../../../api/endpoints";
 
-const OverView = ({ isCodeViewVisible, selectedDataFormat }) => {
-  const query = useQuery();
-  const searchTerm = query.get('searchTerm');
+const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   
@@ -31,6 +28,8 @@ const OverView = ({ isCodeViewVisible, selectedDataFormat }) => {
     }, 300),
     []
   );
+
+  console.log("searchTerm: ", searchTerm)
   
   useEffect(() => {
     setLoading(true);
@@ -67,6 +66,7 @@ const OverView = ({ isCodeViewVisible, selectedDataFormat }) => {
 }
 
 OverView.propTypes = {
+  searchTerm: PropTypes.string,
   isCodeViewVisible: PropTypes.bool,
   selectedDataFormat: PropTypes.string
 }

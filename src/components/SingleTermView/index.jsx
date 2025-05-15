@@ -158,7 +158,7 @@ const SingleTermView = () => {
               <Grid item xs={12} lg={2}>
                 <Stack direction="row" spacing=".75rem" alignItems="center">
                   <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
-                    {storedSearchTerm}
+                    {storedSearchTerm.label}
                   </Typography>
                   <Chip label="Fork" variant="outlined" />
                 </Stack>
@@ -255,7 +255,7 @@ const SingleTermView = () => {
           </Grid>
         </Box>
         {
-          tabValue === 0 && <OverView isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} />
+          tabValue === 0 && <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} />
         }
         {
           tabValue === 1 && <VariantsPanel />
@@ -268,7 +268,7 @@ const SingleTermView = () => {
         }
       </Box>
       <RequestMergeChanges searchTerm={searchTerm} open={openRequestMergeDialog} handleClose={handleCloseRequestMergeDialog} />
-      <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} searchTerm={searchTerm} />
+      <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} searchTerm={storedSearchTerm.label} />
 			<CreateForkDialog
 				open={openForkDialog}
 				handleClose={handleForkDialogClose}

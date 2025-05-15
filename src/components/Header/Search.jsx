@@ -100,7 +100,7 @@ const Search = () => {
     if (!newInputValue) return;
     
     handleCloseList();
-    updateStoredSearchTerm(newInputValue?.label)
+    updateStoredSearchTerm(newInputValue)
     navigate(`/view?searchTerm=${newInputValue?.ilx}`);
   };
 
@@ -167,14 +167,14 @@ const Search = () => {
   }, 500), [searchAll]);
 
   useEffect(() => {
-    if (searchTerm && storedSearchTerm !== searchTerm) {
+    if (searchTerm && storedSearchTerm.label !== searchTerm) {
       fetchTerms(searchTerm);
     }
   }, [searchTerm, fetchTerms, storedSearchTerm]);
 
   useEffect(() => {
-    if (storedSearchTerm !== searchTerm) {
-      setSearchTerm(storedSearchTerm);
+    if (storedSearchTerm.label !== searchTerm) {
+      setSearchTerm(storedSearchTerm.label);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storedSearchTerm]);

@@ -1,9 +1,11 @@
 import PropTypes from "prop-types";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomButton from '../common/CustomButton';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import { Box, Typography, Grid, Stack, Chip, CircularProgress } from '@mui/material';
+import { GlobalDataContext } from "../../contexts/DataContext";
 
 import { vars } from '../../theme/variables';
 const { gray200, gray500, gray700, brand50, brand200, brand600, brand700, error50, error300, error700 } = vars;
@@ -129,9 +131,11 @@ const InfoSection = ({ searchResult }) => {
 
 const ListView = ({ searchResults, loading }) => {
     const navigate = useNavigate();
+    const { updateStoredSearchTerm } = useContext(GlobalDataContext);
 
     const handleClick = (searchResult) => {
-        navigate(`/view?searchTerm=${searchResult?.label}`);
+        updateStoredSearchTerm(searchResult)
+        navigate(`/view?searchTerm=${searchResult?.ilx}`);
     };
 
 
