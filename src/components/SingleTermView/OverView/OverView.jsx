@@ -28,8 +28,6 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat }) => {
     }, 300),
     []
   );
-
-  console.log("searchTerm: ", searchTerm)
   
   useEffect(() => {
     setLoading(true);

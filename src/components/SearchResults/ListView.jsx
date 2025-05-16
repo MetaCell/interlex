@@ -134,7 +134,7 @@ const ListView = ({ searchResults, loading }) => {
     const { updateStoredSearchTerm } = useContext(GlobalDataContext);
 
     const handleClick = (searchResult) => {
-        updateStoredSearchTerm(searchResult)
+        updateStoredSearchTerm(searchResult?.label)
         navigate(`/view?searchTerm=${searchResult?.ilx}`);
     };
 
