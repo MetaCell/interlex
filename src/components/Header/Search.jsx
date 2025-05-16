@@ -176,6 +176,7 @@ const Search = () => {
     if (storedSearchTerm !== searchTerm) {
       setSearchTerm(storedSearchTerm);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storedSearchTerm]);
 
   //eslint-disable-next-line no-unused-vars

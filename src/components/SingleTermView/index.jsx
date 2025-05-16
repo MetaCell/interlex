@@ -138,7 +138,7 @@ const SingleTermView = () => {
     if (searchTerm) {
       fetchLabel();
     }
-  }, [searchTerm]);
+  }, [searchTerm, updateStoredSearchTerm]);
 
   const isItFork = true;
 
