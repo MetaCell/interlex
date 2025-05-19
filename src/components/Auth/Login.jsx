@@ -55,7 +55,18 @@ const Login = () => {
         let expires = new Date()
         if (sessionCookie) {
           expires.setTime(expires.getTime() + (2 * 24 * 60 * 60 * 1000)); // 2 days
-          setCookie('session', sessionCookie.value, { path: '/', domain: API_CONFIG.BASE_URL, secure: false, sameSite: false, expires, httpOnly: false });
+          setCookie(
+            'session',
+            sessionCookie.value,
+            {
+              path: '/',
+              domain: API_CONFIG.BASE_URL.replace(/^https?:\/\//, '').replace(/:\d+$/, ''),
+              secure: false,
+              sameSite: false,
+              expires,
+              httpOnly: false
+            }
+          );
         }
         const userData = await requestUserSettings(groupname);
         localStorage.setItem(API_CONFIG.SESSION_DATA.SETTINGS, JSON.stringify(userData));
