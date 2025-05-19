@@ -39,5 +39,6 @@ export const API_CONFIG = {
     OLYMPIAN_GODS : "https://uri.olympiangods.org",
     BASE_SCICRUNCH_URL: "/api/elasticsearch?apikey=",
     SCICRUNCH_KEY: import.meta.env.VITE_SCICRUNCH_API_KEY,
-    BASE_URL: import.meta.env.MODE === "production" ? "https://uri.olympiangods.org" : window.location.origin,
+    BASE_URL: window.location.origin,
+    // BASE_URL: import.meta.env.MODE === "production" ? "https://uri.olympiangods.org" : window.location.origin,
 };
