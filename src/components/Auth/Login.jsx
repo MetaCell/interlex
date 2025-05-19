@@ -17,7 +17,7 @@ import { requestUserSettings } from "./utils";
 import Checkbox from "@mui/material/Checkbox";
 import PasswordField from "./UI/PasswordField";
 import { ArrowBack } from "@mui/icons-material";
-import { API_CONFIG, BASE_URL } from "../../config";
+import { API_CONFIG } from "../../config";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../contexts/DataContext";
@@ -55,7 +55,7 @@ const Login = () => {
         let expires = new Date()
         if (sessionCookie) {
           expires.setTime(expires.getTime() + (2 * 24 * 60 * 60 * 1000)); // 2 days
-          setCookie('session', sessionCookie.value, { path: '/', domain: BASE_URL, secure: false, sameSite: false, expires, httpOnly: false });
+          setCookie('session', sessionCookie.value, { path: '/', domain: API_CONFIG.BASE_URL, secure: false, sameSite: false, expires, httpOnly: false });
         }
         const userData = await requestUserSettings(groupname);
         localStorage.setItem(API_CONFIG.SESSION_DATA.SETTINGS, JSON.stringify(userData));
