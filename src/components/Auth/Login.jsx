@@ -37,7 +37,7 @@ const Login = () => {
   const [errors, setErrors] = React.useState({});
   const [isLoading, setIsLoading] = React.useState(false);
   // eslint-disable-next-line no-unused-vars
-  const [cookies, setCookie] = useCookies(['session']);
+  const [existingCookies, setCookie] = useCookies(['session']);
 
   const { setUserData } = React.useContext(GlobalDataContext);
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ const Login = () => {
         const _cookies = JSON.parse(cookies);
         const sessionCookie = _cookies.find(cookie => cookie.name === "session");
         let expires = new Date()
-        if (sessionCookie) {
+        if (sessionCookie && (existingCookies['session'] === undefined)) {
           expires.setTime(expires.getTime() + (2 * 24 * 60 * 60 * 1000)); // 2 days
           setCookie('session', sessionCookie.value, { path: '/', domain: '.localhost', secure: false, sameSite: false, expires, httpOnly: false });
         }
