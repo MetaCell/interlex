@@ -10,6 +10,7 @@ const GlobalDataProvider = ({ children }) => {
   const [searchTypeFilter, setSearchTypeFilter] = useState(null);
   const [predicatesSingleTermState, setPredicatesSingleTermState] = useState(false);
   const [editBulkSearchFilters, setEditBulkSearchFilters] = useState([]);
+  const [storedSearchTerm, setStoredSearchTerm] = useState("");
   const setOntologyData = (ontology) => {
     setActiveOntology(ontology);
   };
@@ -34,6 +35,10 @@ const GlobalDataProvider = ({ children }) => {
     setUser(user);
   }
 
+  const updateStoredSearchTerm = (value) => {
+    setStoredSearchTerm(value)
+  }
+
   const dataContextValue = {
     user,
     setUserData,
@@ -46,7 +51,9 @@ const GlobalDataProvider = ({ children }) => {
     predicatesSingleTermState,
     setPredicatesSingleTermData,
     editBulkSearchFilters,
-    setEditBulkSearchData
+    setEditBulkSearchData,
+    storedSearchTerm,
+    updateStoredSearchTerm
   };  
 
   return (

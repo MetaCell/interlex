@@ -10,17 +10,18 @@ import {
   Alert,
   CircularProgress
 } from "@mui/material";
-import { ArrowBack } from "@mui/icons-material";
-import Checkbox from "@mui/material/Checkbox";
-import { Link, useNavigate } from "react-router-dom";
-import { CheckedIcon, UncheckedIcon, OrcidIcon } from "../../Icons";
-import FormField from "./UI/Formfield";
-import PasswordField from "./UI/PasswordField";
-import { login } from "../../api/endpoints/apiService";
-import { API_CONFIG } from "../../config";
-import { GlobalDataContext } from "../../contexts/DataContext";
 import * as yup from "yup";
-import { useCookies } from 'react-cookie'
+import FormField from "./UI/Formfield";
+import { useCookies } from 'react-cookie';
+import { requestUserSettings } from "./utils";
+import Checkbox from "@mui/material/Checkbox";
+import PasswordField from "./UI/PasswordField";
+import { ArrowBack } from "@mui/icons-material";
+import { API_CONFIG } from "../../config";
+import { Link, useNavigate } from "react-router-dom";
+import { login } from "../../api/endpoints/apiService";
+import { GlobalDataContext } from "../../contexts/DataContext";
+import { CheckedIcon, UncheckedIcon, OrcidIcon } from "../../Icons";
 
 
 const schema = yup.object().shape({
@@ -35,8 +36,7 @@ const Login = () => {
   });
   const [errors, setErrors] = React.useState({});
   const [isLoading, setIsLoading] = React.useState(false);
-  // eslint-disable-next-line no-unused-vars
-  const [cookies, setCookie] = useCookies(['session']);
+  const [existingCookies, setCookie] = useCookies(['session']);
 
   const { setUserData } = React.useContext(GlobalDataContext);
   const navigate = useNavigate();
@@ -45,22 +45,43 @@ const Login = () => {
     let eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
     let eventer = window[eventMethod];
     let messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
-    eventer(messageEvent, function (e) {
+    eventer(messageEvent, async function (e) {
       if (!e.data || !e.data.orcid_meta) return;
-      // TODO: get the session cookie when here and add it to our domain.
-      // also store the user info once logged from here in the local storage for future usage.
-      const { code, orcid_meta, cookies } = e.data;
-      const _cookies = JSON.parse(cookies);
-      // create a cookie with the name "session" and the value of the session cookie
-      const sessionCookie = _cookies.find(cookie => cookie.name === "session");
-      if (sessionCookie) {
-        let expires = new Date()
-        expires.setTime(expires.getTime() + (2 * 24 * 60 * 60 * 1000)); // 2 days
-        setCookie('session', sessionCookie.value, { path: '/', domain: '.localhost', secure: false, sameSite: false, expires, httpOnly: false });
-      }
-
+      const { code, cookies, groupname } = e.data;
       if (code === 200 || code === 302) {
-        setUserData({ name: orcid_meta.name, id: orcid_meta.orcid });
+        const _cookies = JSON.parse(cookies);
+        const sessionCookie = _cookies.find(cookie => cookie.name === "session");
+        let expires = new Date()
+        if (sessionCookie && (existingCookies['session'] === undefined)) {
+          expires.setTime(expires.getTime() + (2 * 24 * 60 * 60 * 1000)); // 2 days
+          setCookie(
+            'session',
+            sessionCookie.value,
+            {
+              path: '/',
+              domain: API_CONFIG.BASE_URL.replace(/^https?:\/\//, '').replace(/:\d+$/, ''),
+              secure: false,
+              sameSite: false,
+              expires,
+              httpOnly: false
+            }
+          );
+        }
+        const userData = await requestUserSettings(groupname);
+        localStorage.setItem(API_CONFIG.SESSION_DATA.SETTINGS, JSON.stringify(userData));
+        localStorage.setItem(API_CONFIG.SESSION_DATA.COOKIE, JSON.stringify({
+          name: 'session',
+          value: sessionCookie.value,
+          expires: expires
+        }));
+        setUserData({
+          name: userData['groupname'],
+          id: userData['orcid'],
+          email: userData?.emails[0]?.email,
+          role: userData['own-role'],
+          groupname: userData['groupname'],
+          settings: userData
+        });
         navigate("/")
       } else if (code === 401) {
         setErrors((prev) => ({
@@ -95,11 +116,12 @@ const Login = () => {
       if (!result.data || !result.data?.orcid_meta) {
         setErrors((prev) => ({
           ...prev,
-          auth: "Interlex API is not returning the user information, please contact the support at support@interlex.org",
+          auth: "Interlex API is not returning the user information, reminder to ask Tom to send the groupname back so that we can query the priv/setting endpoint to get the rest of the info required",
         }));
       } else {
         const { code, orcid_meta } = result.data;
         if (code === 200 || code === 302) {
+          // TODO: the backend should return the groupname, for now is just returning a message.
           setUserData({ name: orcid_meta.name, id: orcid_meta.orcid });
         }
         navigate("/")

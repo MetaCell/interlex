@@ -2,12 +2,12 @@ import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { a11yLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import * as mockApi from './../../../api/endpoints/interLexURIStructureAPI';
+import { getRawData } from "../../../api/endpoints";
+import { GlobalDataContext } from "../../../contexts/DataContext";
+import { useContext } from "react";
 
 import { vars } from '../../../theme/variables';
 const { gray25, gray200, gray500 } = vars;
-
-const useMockApi = () => mockApi;
 
 const customStyle = {
     fontSize: '1rem',
@@ -18,7 +18,6 @@ const customStyle = {
     padding: 0
 };
 
-// eslint-disable-next-line no-unused-vars
 const formatExtensions = {
     'JSON-LD': 'jsonld',
     'Turtle': 'ttl',
@@ -31,10 +30,10 @@ const RawDataViewer = ({ dataId, dataFormat }) => {
     const [formattedData, setFormattedData] = useState(null);
     // eslint-disable-next-line no-unused-vars
     const [loading, setLoading] = useState(true);
-    const { getEndpointsIlxGet } = useMockApi();
-    
+    const { user } = useContext(GlobalDataContext);
+
     useEffect(() => {
-      getEndpointsIlxGet("base",dataId, dataFormat).then( rawResponse => {
+        getRawData(user?.name || "base",dataId, formatExtensions[dataFormat]).then( rawResponse => {
         setFormattedData(JSON.stringify(rawResponse, null, 2));
         setLoading(false)
       })

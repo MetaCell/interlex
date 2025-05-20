@@ -87,6 +87,11 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
           isAllFieldsFilled={isAllFieldsFilled(searchConditions)}
         />
       }
+      sx={{
+        '& .MuiDialogContent-root': {
+          padding: 0
+        }
+      }}
     >
       <>
         {

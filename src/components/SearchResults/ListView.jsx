@@ -1,9 +1,11 @@
 import PropTypes from "prop-types";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomButton from '../common/CustomButton';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import { Box, Typography, Grid, Stack, Chip, CircularProgress } from '@mui/material';
+import { GlobalDataContext } from "../../contexts/DataContext";
 
 import { vars } from '../../theme/variables';
 const { gray200, gray500, gray700, brand50, brand200, brand600, brand700, error50, error300, error700 } = vars;
@@ -20,7 +22,7 @@ const TitleSection = ({ searchResult }) => {
         <Box display="flex" justifyContent="space-between" alignItems="center">
             <Stack direction="row" alignItems="center" gap={1.5}>
                 <Typography variant='h6' sx={{ color: gray700 }}>{searchResult.label || searchResult.name}</Typography>
-                <Chip label="Curated" variant="outlined" />
+                <Chip label={searchResult.type} variant="outlined" />
             </Stack>
             {searchResult.ontologyIsActive ? (
                 <CustomButton
@@ -63,12 +65,49 @@ const Description = ({ description }) => {
 
 const InfoSection = ({ searchResult }) => {
     const infoItems = [
-        { label: 'Preferred ID', value: searchResult.ilx.replace('_', ':').toUpperCase() },
-        { label: 'IDs', value: searchResult.existing_ids.flatMap(item => item.curie) },
-        { label: 'Type', value: searchResult.type },
-        { label: 'Score', value: searchResult.status },
-        { label: 'Organization', value: searchResult.organization },
+        { label: 'ID', value: searchResult.ilx},
+        { label: 'Preferred ID', value: searchResult.existing_ids},
+        { label: 'Synonyms', value: searchResult.synonyms },
+        { label: 'Score', value: searchResult.score },
     ];
+
+    const getText = (value) => {
+        return (<Typography variant='body2' sx={{ color: gray500 }}>{value}</Typography>)
+    }
+
+    const getChip = (value) => {
+        return (<Chip label={value} className='rounded IDchip-outlined' />)
+    }
+
+    const getChips = (value) => {
+        return (
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 1, // Add spacing between chips
+                    width: '100%',
+                }}
+            >
+                {value.map((val, index) => (
+                    <Chip key={`result${index}`} label={val} className='rounded IDchip-outlined' />
+                ))}
+            </Box>
+        );
+    };
+
+    const getValue = (label, value) => {
+        if (label === 'ID') {
+            return getText(value.replace('_', ':').toUpperCase());
+        } else if (label === 'Preferred ID') {
+            const id = value.find((id) => id.preferred === "1");
+            return getChip(id.curie);
+        } else if (label === 'Synonyms') {
+            return getChips(value.map((synonym) => synonym.literal));
+        } else if (label === 'Score') {
+            return getText(value);
+        }
+    }
 
     return (
         <Box
@@ -80,12 +119,9 @@ const InfoSection = ({ searchResult }) => {
             }}
         >
             {infoItems.map(({ label, value }) => (
-                <Stack key={label} direction="column" gap={1} alignItems="start" sx={{width: '100%'}}>
+                <Stack key={label} direction="column" gap={1} alignItems="start" sx={{width: '100%', paddingLeft: "1rem"}}>
                     <Typography variant='body1' sx={{ color: gray700, fontWeight: 500 }}>{label}</Typography>
-                    {label === 'IDs'
-                        ? (value.map((val, index) => ( <Chip key={`result${index}`} label={val} className='rounded IDchip-outlined' />)))
-                        : <Typography variant='body2' sx={{ color: gray500 }}>{value}</Typography>
-                    }
+                    {getValue(label, value)}
                 </Stack>
             ))}
         </Box>
@@ -95,9 +131,11 @@ const InfoSection = ({ searchResult }) => {
 
 const ListView = ({ searchResults, loading }) => {
     const navigate = useNavigate();
+    const { updateStoredSearchTerm } = useContext(GlobalDataContext);
 
     const handleClick = (searchResult) => {
-        navigate(`/view?searchTerm=${searchResult?.label}`);
+        updateStoredSearchTerm(searchResult?.label)
+        navigate(`/view?searchTerm=${searchResult?.ilx}`);
     };
 
 

@@ -64,9 +64,9 @@ function BpRadio(props) {
   );
 }
 
-const CustomizedRadio = ({checked}) => {
+const CustomizedRadio = ({ checked, ...rest }) => {
   return (
-    <BpRadio checked={checked} />
+    <BpRadio checked={checked} {...rest} />
   );
 }
 
