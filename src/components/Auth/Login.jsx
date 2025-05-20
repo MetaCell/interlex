@@ -10,18 +10,18 @@ import {
   Alert,
   CircularProgress
 } from "@mui/material";
-import { ArrowBack } from "@mui/icons-material";
-import Checkbox from "@mui/material/Checkbox";
-import { Link, useNavigate } from "react-router-dom";
-import { CheckedIcon, UncheckedIcon, OrcidIcon } from "../../Icons";
-import FormField from "./UI/Formfield";
-import PasswordField from "./UI/PasswordField";
-import { login } from "../../api/endpoints/apiService";
-import { API_CONFIG } from "../../config";
-import { GlobalDataContext } from "../../contexts/DataContext";
 import * as yup from "yup";
-import { useCookies } from 'react-cookie'
+import FormField from "./UI/Formfield";
+import { useCookies } from 'react-cookie';
 import { requestUserSettings } from "./utils";
+import Checkbox from "@mui/material/Checkbox";
+import PasswordField from "./UI/PasswordField";
+import { ArrowBack } from "@mui/icons-material";
+import { API_CONFIG } from "../../config";
+import { Link, useNavigate } from "react-router-dom";
+import { login } from "../../api/endpoints/apiService";
+import { GlobalDataContext } from "../../contexts/DataContext";
+import { CheckedIcon, UncheckedIcon, OrcidIcon } from "../../Icons";
 
 
 const schema = yup.object().shape({
@@ -55,7 +55,18 @@ const Login = () => {
         let expires = new Date()
         if (sessionCookie) {
           expires.setTime(expires.getTime() + (2 * 24 * 60 * 60 * 1000)); // 2 days
-          setCookie('session', sessionCookie.value, { path: '/', domain: '.localhost', secure: false, sameSite: false, expires, httpOnly: false });
+          setCookie(
+            'session',
+            sessionCookie.value,
+            {
+              path: '/',
+              domain: API_CONFIG.BASE_URL.replace(/^https?:\/\//, '').replace(/:\d+$/, ''),
+              secure: false,
+              sameSite: false,
+              expires,
+              httpOnly: false
+            }
+          );
         }
         const userData = await requestUserSettings(groupname);
         localStorage.setItem(API_CONFIG.SESSION_DATA.SETTINGS, JSON.stringify(userData));
