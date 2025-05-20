@@ -36,7 +36,6 @@ const Login = () => {
   });
   const [errors, setErrors] = React.useState({});
   const [isLoading, setIsLoading] = React.useState(false);
-  // eslint-disable-next-line no-unused-vars
   const [existingCookies, setCookie] = useCookies(['session']);
 
   const { setUserData } = React.useContext(GlobalDataContext);
