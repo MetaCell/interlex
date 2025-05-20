@@ -7565,16 +7565,21 @@ after the label and exact synonyms are done an no matches confirmed the user sho
  * @summary The workflow we want for this is a bit more complex than a simple form
  */
 export const postPrivEntityNew = (
-    group: string,
- options?: SecondParameter<typeof customInstance>,) => {
-      
-      
-      return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/entity-new`, method: 'POST'
+  group: string,
+  data: any,
+  options?: SecondParameter<typeof customInstance> & { headers?: Record<string, string> }
+) => {
+  return customInstance<void>(
+    {
+      url: `https://uri.olympiangods.org/${group}/priv/entity-new`,
+      method: 'POST',
+      data,
+      headers: options?.headers,
     },
-      options);
-    }
-  
+    options
+  );
+};
+
 
 
 export const getPostPrivEntityNewMutationOptions = <TError = ErrorType<unknown>,

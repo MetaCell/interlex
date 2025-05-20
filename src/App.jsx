@@ -44,7 +44,7 @@ function MainContent() {
 	const { user, setUserData } = useContext(GlobalDataContext);
 
 	// check if cookie is expired
-	if (!user) {
+	if (!user && user != null) {
 		const sessionCookie = cookies.session;
 		const expires = new Date(cookiesInfo?.expires);
 		const today = new Date();

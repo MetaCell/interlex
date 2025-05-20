@@ -74,6 +74,7 @@ const Login = () => {
           value: sessionCookie.value,
           expires: expires
         }));
+        localStorage.setItem("token", sessionCookie.value)
         setUserData({
           name: userData['groupname'],
           id: userData['orcid'],

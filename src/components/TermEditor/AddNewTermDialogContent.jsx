@@ -77,7 +77,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
                 });
             } else {
                 elasticSearch("a").then(data => {
-                    setTermResults(data.results);
+                    setTermResults(data.results?.results);
                     setLoading(false);
                 });
             }
@@ -86,8 +86,8 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     );
 
     const addTermRequest = useCallback(async (group, term) => {
-        const token = localStorage.getItem("appToken")
-        const groupName = user?.name || group
+        const token = localStorage.getItem("token")
+        const groupName = user?.groupname || group
         await addTerm(groupName, token, term).then((response) => {
             setNewTermId(response.term.id.split("/").pop())
         })
@@ -147,8 +147,8 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     }
 
     useEffect(() => {
-        elasticSearch(termValue).then(data => {
-            setTermResults(data.results);
+        elasticSearch(termValue, 20, 0).then(data => {
+            setTermResults(data.results?.results);
             setLoading(false);
         });
     }, [termValue]);

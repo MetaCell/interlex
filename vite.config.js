@@ -38,7 +38,7 @@ export default defineConfig({
           });
         },
       },
-      '^/priv/.*': {
+      '^/([^/]+)/priv/(.*)': {
         target: "https://uri.olympiangods.org",
         secure: false,
         changeOrigin: true,
@@ -59,7 +59,7 @@ export default defineConfig({
             console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
           });
         },
-      },
+      }
     },
   },
 });
