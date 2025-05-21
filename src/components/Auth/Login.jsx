@@ -59,7 +59,7 @@ const Login = () => {
             sessionCookie.value,
             {
               path: '/',
-              domain: API_CONFIG.BASE_URL.replace(/^https?:\/\//, '').replace(/:\d+$/, ''),
+              // domain: API_CONFIG.BASE_URL.replace(/^https?:\/\//, '').replace(/:\d+$/, ''),
               secure: false,
               sameSite: false,
               httpOnly: false
