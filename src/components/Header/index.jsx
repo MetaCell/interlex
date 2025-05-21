@@ -35,6 +35,7 @@ import EditBulkTermsDialog from "../Dashboard/EditBulkTerms/EditBulkTermsDialog"
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import { userLogout } from "../../api/endpoints/apiService";
+import { useCookies } from 'react-cookie';
 
 import { vars } from "../../theme/variables";
 const { gray200, white, gray100, gray600 } = vars;
@@ -159,6 +160,8 @@ const Header = () => {
     const [isLoggedIn, setIsLoggedIn] = React.useState(false);
     const { user, setUserData } = useContext(GlobalDataContext);
     const [openNewTermDialog, setOpenNewTermDialog] = React.useState(false);
+    // eslint-disable-next-line no-unused-vars
+    const [existingCookies, setCookie, removeCookie] = useCookies(['session']);
 
     const handleNewTermDialogClose = () => {
         setOpenNewTermDialog(false);
@@ -219,9 +222,16 @@ const Header = () => {
         setOpenList(!openList);
     };
 
-    const handleMenuClick = (e, menu) => {
+    const handleMenuClick = async (e, menu) => {
         if (menu.label === 'Log out') {
-            userLogout(user['groupname']);
+            try {
+                await userLogout(user['groupname']);
+            } catch (error) {
+                console.error("Logout error:", error);
+            } finally {
+                setUserData(null);
+            }
+            removeCookie('session', { path: '/' });
             localStorage.removeItem('session');
             localStorage.removeItem('settings');
             setUserData({});

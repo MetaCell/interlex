@@ -13,11 +13,11 @@ import {
 import * as yup from "yup";
 import FormField from "./UI/Formfield";
 import { useCookies } from 'react-cookie';
+import { API_CONFIG } from "../../config";
 import { requestUserSettings } from "./utils";
 import Checkbox from "@mui/material/Checkbox";
 import PasswordField from "./UI/PasswordField";
 import { ArrowBack } from "@mui/icons-material";
-import { API_CONFIG } from "../../config";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../contexts/DataContext";
@@ -36,10 +36,41 @@ const Login = () => {
   });
   const [errors, setErrors] = React.useState({});
   const [isLoading, setIsLoading] = React.useState(false);
-  const [existingCookies, setCookie] = useCookies(['session']);
+  const [existingCookies, setCookie, removeCookie] = useCookies(['session']);
 
   const { setUserData } = React.useContext(GlobalDataContext);
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    (async () => {
+      const userSettings = JSON.parse(localStorage.getItem(API_CONFIG.SESSION_DATA.SETTINGS));
+      if (userSettings) {
+        try {
+          const userData = await requestUserSettings(userSettings?.groupname);
+          setUserData({
+            name: userData['groupname'],
+            id: userData['orcid'],
+            email: userData?.emails[0]?.email,
+            role: userData['own-role'],
+            groupname: userData['groupname'],
+            settings: userData
+          });
+          navigate("/");
+        } catch (error) {
+          console.error("Error fetching user settings:", error);
+          localStorage.removeItem(API_CONFIG.SESSION_DATA.SETTINGS);
+          localStorage.removeItem(API_CONFIG.SESSION_DATA.COOKIE);
+          removeCookie('session', { path: '/' });
+          setErrors((prev) => ({
+            ...prev,
+            auth: "Session expired. Please log in again.",
+          }));
+        }
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   React.useEffect(() => {
     let eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
@@ -59,29 +90,46 @@ const Login = () => {
             sessionCookie.value,
             {
               path: '/',
-              // domain: API_CONFIG.BASE_URL.replace(/^https?:\/\//, '').replace(/:\d+$/, ''),
               secure: false,
               sameSite: false,
               httpOnly: false
             }
           );
         }
-        const userData = await requestUserSettings(groupname);
-        localStorage.setItem(API_CONFIG.SESSION_DATA.SETTINGS, JSON.stringify(userData));
-        localStorage.setItem(API_CONFIG.SESSION_DATA.COOKIE, JSON.stringify({
-          name: 'session',
-          value: sessionCookie.value,
-          expires: expires
-        }));
-        setUserData({
-          name: userData['groupname'],
-          id: userData['orcid'],
-          email: userData?.emails[0]?.email,
-          role: userData['own-role'],
-          groupname: userData['groupname'],
-          settings: userData
-        });
-        navigate("/")
+        // Check if the session cookie is present
+        if (!sessionCookie) {
+          setErrors((prev) => ({
+            ...prev,
+            auth: "Session cookie not found. Please try again",
+          }));
+          return;
+        }
+        // Retrieve user settings
+        try {
+          const userData = await requestUserSettings(groupname);
+          localStorage.setItem(API_CONFIG.SESSION_DATA.SETTINGS, JSON.stringify(userData));
+          localStorage.setItem(API_CONFIG.SESSION_DATA.COOKIE, JSON.stringify({
+            name: 'session',
+            value: sessionCookie.value,
+            expires: expires
+          }));
+          setUserData({
+            name: userData['groupname'],
+            id: userData['orcid'],
+            email: userData?.emails[0]?.email,
+            role: userData['own-role'],
+            groupname: userData['groupname'],
+            settings: userData
+          });
+          navigate("/")
+        } catch (error) {
+          console.error("Error fetching user settings:", error);
+          removeCookie('session', { path: '/' });
+          setErrors((prev) => ({
+            ...prev,
+            auth: "Failed to fetch user settings. Please try again",
+          }));
+        }
       } else if (code === 401) {
         setErrors((prev) => ({
           ...prev,
@@ -94,9 +142,7 @@ const Login = () => {
         }));
       }
     });
-
     setIsLoading(false)
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 
