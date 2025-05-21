@@ -62,7 +62,6 @@ const Login = () => {
               domain: API_CONFIG.BASE_URL.replace(/^https?:\/\//, '').replace(/:\d+$/, ''),
               secure: false,
               sameSite: false,
-              expires,
               httpOnly: false
             }
           );
