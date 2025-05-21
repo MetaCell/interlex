@@ -15,6 +15,7 @@ export const createPostRequest = <T = any, D = any>(endpoint: string, contentTyp
         data: data,
         headers: {
           "Content-Type": contentType,
+          "Cookie": document.cookie
         },
         withCredentials: true
       },
@@ -37,6 +38,7 @@ export const createGetRequest = <T = any, P = any>(endpoint: string, contentType
       config.headers = {
         ...config.headers,
         "Content-Type": contentType,
+        "Cookie": document.cookie
       }
     }
 
