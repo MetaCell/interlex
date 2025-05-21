@@ -221,7 +221,7 @@ const Header = () => {
 
     const handleMenuClick = (e, menu) => {
         if (menu.label === 'Log out') {
-            userLogout();
+            userLogout(user['groupname']);
             localStorage.removeItem('session');
             localStorage.removeItem('settings');
             setUserData({});
