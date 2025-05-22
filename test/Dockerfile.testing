@@ -1,0 +1,11 @@
+FROM ghcr.io/puppeteer/puppeteer:latest
+
+COPY package.json .
+COPY package-lock.json .
+
+RUN npm ci
+
+USER pptruser
+COPY --chown=pptruser:pptruser test test
+	
+

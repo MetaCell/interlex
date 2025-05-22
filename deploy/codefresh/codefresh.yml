@@ -3,6 +3,8 @@ stages:
   - "clone"
   - "build"
   - "deploy"
+  - "e2e_test"
+
 steps:
   clone:
     stage: "clone"
@@ -10,6 +12,7 @@ steps:
     type: "git-clone"
     repo: "metacell/interlex"
     revision: "${{CF_BRANCH}}"
+
   build:
     stage: "build"
     title: "Building interlex"
@@ -23,6 +26,7 @@ steps:
     build_arguments:
       - VITE_API_URL=${{VITE_API_URL}}
       - VITE_SCICRUNCH_API_KEY=${{VITE_SCICRUNCH_API_KEY}}
+
   deploy:
     stage: "deploy"
     title: "Deploying interlex"
@@ -35,3 +39,15 @@ steps:
     environment:
       - KUBECONTEXT=${{CLUSTER_NAME}}
       - KUBERNETES_NAMESPACE=${{NAMESPACE}}
+
+  e2e_test:
+    stage: "e2e_test"
+    title: "Running E2E Tests"
+    image: node:20
+    working_directory: ./interlex/test
+    environment:
+      - TEST_USERNAME=${{TEST_USERNAME}}
+      - TEST_PASSWORD=${{TEST_PASSWORD}}
+    commands:
+      - npm ci
+      - npm test create  && npm test userInfo && npm test searchInfo

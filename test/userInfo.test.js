@@ -5,7 +5,7 @@ const puppeteer = require("puppeteer");
 // INFO
 const USERNAME = process.env.TEST_USERNAME 
 const PASSWORD = process.env.TEST_PASSWORD 
-const baseURL = 'https://interlex.dev.metacell.us/'
+const baseURL = process.env.DOMAIN || 'https://interlex.dev.metacell.us/'
 
 
 const USER_INFO = [
