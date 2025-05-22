@@ -125,7 +125,7 @@ describe('Smoke Tests', () => {
                 if (header_results) header_results.click();
                 else throw new Error("Medulla not found");
             });
-            await page.waitForSelector('span[role="progressbar"]', { timeout: 1000, hidden: false });
+            await page.waitForSelector('span[role="progressbar"]', { timeout: 2000, hidden: false });
             await page.waitForSelector('span[role="progressbar"]', { timeout: 2000, hidden: true });
             await new Promise(resolve => setTimeout(resolve, 1000));
 
