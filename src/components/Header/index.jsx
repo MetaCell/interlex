@@ -322,7 +322,7 @@ const Header = () => {
                             </ListItem>
                         </List>
                     </Popover>
-                    <a href="/" style={{ cursor: 'pointer' }}>
+                    <a onClick={() => navigate("/")} style={{ cursor: 'pointer' }}>
                         <img src={Logo} alt="Interlex" />
                     </a>
                 </Box>
