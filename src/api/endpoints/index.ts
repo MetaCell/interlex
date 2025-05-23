@@ -270,12 +270,12 @@ export const getRawData = async (group, termID, format) => {
     });
 }
 
-export const addTerm = async (user: string, token: string, term: { label: string; synonyms: string[] }) => {
+export const addTerm = async (user: string, token: string, session: string, term: { label: string; synonyms: string[] }) => {
   const {  postPrivEntityNew } = useApi();
 
   const headers = {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json',
+    'Cookie': `session=${session}`,
+    'Content-Type': 'application/x-www-form-urlencoded',
   };
 
   const body = {

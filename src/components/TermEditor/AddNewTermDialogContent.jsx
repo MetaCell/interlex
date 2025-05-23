@@ -17,6 +17,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { getEndpointsIlx, elasticSearch } from './../../api/endpoints/index';
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { useContext } from "react";
+import { API_CONFIG } from '../../config';
 
 import { vars } from "../../theme/variables";
 const { gray800, gray700 } = vars;
@@ -88,7 +89,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     const addTermRequest = useCallback(async (group, term) => {
         const token = localStorage.getItem("token")
         const groupName = user?.groupname || group
-        await addTerm(groupName, token, term).then((response) => {
+        await addTerm(groupName,  API_CONFIG.SCICRUNCH_KEY, token, term).then((response) => {
             setNewTermId(response.term.id.split("/").pop())
         })
             .catch((error) => {
@@ -187,8 +188,8 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
         value: row.title
     }));
 
-    const isResultsEmpty = termResults.length === 0;
-    const isLabelEmpty = formState.label === "";
+    const isResultsEmpty = termResults?.length === 0;
+    const isLabelEmpty = formState?.label === "";
     // eslint-disable-next-line no-unused-vars
     const isContinueButtonDisabled = !areMatchesChecked || isLabelEmpty
     const formattedNewTermId = formatIdText(newTermId);
