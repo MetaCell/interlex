@@ -44,7 +44,7 @@ steps:
     type: build
     title: Building ILEX test image
     image_name: ilex-test
-    dockerfile: Dockerfile.testing
+    dockerfile: ./interlex/test/Dockerfile.testing
     buildkit: true
     registry: ${{REGISTRY}}
   e2e_test:
