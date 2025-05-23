@@ -28,6 +28,9 @@ import OrganizationsCurieEditor from "./components/CurieEditor/OrganizationCurie
 import { handleOrcidLogin } from "./api/endpoints";
 import { GlobalDataContext } from "./contexts/DataContext";
 import { API_CONFIG } from "./config";
+import { requestUserSettings } from "./components/Auth/utils";
+import { useCookies } from 'react-cookie';
+
 
 const PageContainer = ({ children }) => {
 	return (
@@ -38,7 +41,10 @@ const PageContainer = ({ children }) => {
 };
 
 function MainContent() {
-	const { user, setUserData } = useContext(GlobalDataContext);
+
+	const { setUserData } = useContext(GlobalDataContext);
+	// eslint-disable-next-line no-unused-vars
+	const [existingCookies, setCookie, removeCookie] = useCookies(['session']);
 
 	useEffect(() => {
 		(async () => {
@@ -56,16 +62,11 @@ function MainContent() {
 						groupname: userData["groupname"],
 						settings: userData,
 					});
-					navigate("/");
 				} catch (error) {
 					console.error("Error fetching user settings:", error);
 					localStorage.removeItem(API_CONFIG.SESSION_DATA.SETTINGS);
 					localStorage.removeItem(API_CONFIG.SESSION_DATA.COOKIE);
 					removeCookie("session", { path: "/" });
-					setErrors((prev) => ({
-						...prev,
-						auth: "Session expired. Please log in again.",
-					}));
 				}
 			}
 		})();
