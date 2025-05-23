@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef, useContext } from "react";
 import {
   Box,
   Button,
@@ -23,7 +24,6 @@ import CopyLinkComponent from "../common/CopyLinkComponent";
 import BasicTabs from "../common/CustomTabs";
 import CustomButton from "../common/CustomButton";
 import CustomMenu from "./CustomMenu";
-import React, { useState } from "react";
 import OverView from "./OverView/OverView";
 import HistoryPanel from "./History/HistoryPanel";
 import VariantsPanel from "./Variants/VariantsPanel";
@@ -43,34 +43,37 @@ import CustomSingleSelect from "../common/CustomSingleSelect";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CreateForkDialog from "./CreateForkDialog";
 import TermDialog from "../TermEditor/TermDialog";
+import { getSelectedTermLabel } from "../../api/endpoints/apiService";
+import { GlobalDataContext } from "../../contexts/DataContext";
 
 const { gray200, brand700, gray600 } = vars;
 
 const dataFormats = ['JSON-LD', 'Turtle', 'N3', 'OWL', 'CSV']
 
 const SingleTermView = () => {
-  const [open, setOpen] = React.useState(false);
-  const actionRef = React.useRef(null);
-  const anchorRef = React.useRef(null);
-  const [dataFormatAnchorEl, setDataFormatAnchorEl] = React.useState(null);
-  const [tabValue, setTabValue] = React.useState(0);
-  const [isCodeViewVisible, setIsCodeViewVisible] = React.useState(false);
+  const [open, setOpen] = useState(false);
+  const actionRef = useRef(null);
+  const anchorRef = useRef(null);
+  const [dataFormatAnchorEl, setDataFormatAnchorEl] = useState(null);
+  const [tabValue, setTabValue] = useState(0);
+  const [isCodeViewVisible, setIsCodeViewVisible] = useState(false);
   const [toggleButtonValue, setToggleButtonValue] = useState('defaultView');
-  const [selectedDataFormat, setSelectedDataFormat] = React.useState('JSON-LD');
-  const [openRequestMergeDialog, setOpenRequestMergeDialog] = React.useState(false);
-  const [editTermDialogOpen, setEditTermDialogOpen] = React.useState(false);
+  const [selectedDataFormat, setSelectedDataFormat] = useState('JSON-LD');
+  const [openRequestMergeDialog, setOpenRequestMergeDialog] = useState(false);
+  const [editTermDialogOpen, setEditTermDialogOpen] = useState(false);
   const query = useQuery();
   const searchTerm = query.get('searchTerm');
   const openDataFormatMenu = Boolean(dataFormatAnchorEl);
-	const [openForkDialog, setOpenForkDialog] = React.useState(false);
+  const [openForkDialog, setOpenForkDialog] = useState(false);
+  const { storedSearchTerm, updateStoredSearchTerm } = useContext(GlobalDataContext);
 
-    const handleForkDialogClose = () => {
-      setOpenForkDialog(false);
-    }
+  const handleForkDialogClose = () => {
+    setOpenForkDialog(false);
+  }
 
-    const handleOpenForkDialog = () => {
-      setOpenForkDialog(true);
-    }
+  const handleOpenForkDialog = () => {
+    setOpenForkDialog(true);
+  }
   const handleClickDataFormatMenu = (event) => {
     setDataFormatAnchorEl(event.currentTarget);
   };
@@ -126,6 +129,17 @@ const SingleTermView = () => {
     { label: 'ILX:0101901' },
   ];
 
+  useEffect(() => {
+    const fetchLabel = async () => {
+      const result = await getSelectedTermLabel(searchTerm);
+      updateStoredSearchTerm(result);
+    };
+
+    if (searchTerm) {
+      fetchLabel();
+    }
+  }, [searchTerm, updateStoredSearchTerm]);
+
   const isItFork = true;
 
   return (
@@ -156,7 +170,7 @@ const SingleTermView = () => {
               <Grid item xs={12} lg={2}>
                 <Stack direction="row" spacing=".75rem" alignItems="center">
                   <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
-                    {searchTerm}
+                    {storedSearchTerm}
                   </Typography>
                   <Chip label="Fork" variant="outlined" />
                 </Stack>
@@ -253,7 +267,7 @@ const SingleTermView = () => {
           </Grid>
         </Box>
         {
-          tabValue === 0 && <OverView isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} />
+          tabValue === 0 && <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} />
         }
         {
           tabValue === 1 && <VariantsPanel />
@@ -267,10 +281,10 @@ const SingleTermView = () => {
       </Box>
       <RequestMergeChanges searchTerm={searchTerm} open={openRequestMergeDialog} handleClose={handleCloseRequestMergeDialog} />
       <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} searchTerm={searchTerm} />
-			<CreateForkDialog
-				open={openForkDialog}
-				handleClose={handleForkDialogClose}
-			/>
+      <CreateForkDialog
+        open={openForkDialog}
+        handleClose={handleForkDialogClose}
+      />
     </>
   )
 }

@@ -32,7 +32,7 @@ export const createGetRequest = <T = any, P = any>(endpoint: string, contentType
       signal,
       withCredentials: true
     }
-    
+
     if (contentType) {
       config.headers = {
         ...config.headers,

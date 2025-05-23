@@ -10,18 +10,18 @@ import {
   Alert,
   CircularProgress
 } from "@mui/material";
-import { ArrowBack } from "@mui/icons-material";
-import Checkbox from "@mui/material/Checkbox";
-import { Link, useNavigate } from "react-router-dom";
-import { CheckedIcon, UncheckedIcon, OrcidIcon } from "../../Icons";
-import FormField from "./UI/Formfield";
-import PasswordField from "./UI/PasswordField";
-import { login } from "../../api/endpoints/apiService";
-import { API_CONFIG } from "../../config";
-import { GlobalDataContext } from "../../contexts/DataContext";
 import * as yup from "yup";
-import { useCookies } from 'react-cookie'
+import FormField from "./UI/Formfield";
+import { useCookies } from 'react-cookie';
+import { API_CONFIG } from "../../config";
 import { requestUserSettings } from "./utils";
+import Checkbox from "@mui/material/Checkbox";
+import PasswordField from "./UI/PasswordField";
+import { ArrowBack } from "@mui/icons-material";
+import { Link, useNavigate } from "react-router-dom";
+import { login } from "../../api/endpoints/apiService";
+import { GlobalDataContext } from "../../contexts/DataContext";
+import { CheckedIcon, UncheckedIcon, OrcidIcon } from "../../Icons";
 
 
 const schema = yup.object().shape({
@@ -36,11 +36,41 @@ const Login = () => {
   });
   const [errors, setErrors] = React.useState({});
   const [isLoading, setIsLoading] = React.useState(false);
-  // eslint-disable-next-line no-unused-vars
-  const [cookies, setCookie] = useCookies(['session']);
+  const [existingCookies, setCookie, removeCookie] = useCookies(['session']);
 
   const { setUserData } = React.useContext(GlobalDataContext);
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    (async () => {
+      const userSettings = JSON.parse(localStorage.getItem(API_CONFIG.SESSION_DATA.SETTINGS));
+      if (userSettings) {
+        try {
+          const userData = await requestUserSettings(userSettings?.groupname);
+          setUserData({
+            name: userData['groupname'],
+            id: userData['orcid'],
+            email: userData?.emails[0]?.email,
+            role: userData['own-role'],
+            groupname: userData['groupname'],
+            settings: userData
+          });
+          navigate("/");
+        } catch (error) {
+          console.error("Error fetching user settings:", error);
+          localStorage.removeItem(API_CONFIG.SESSION_DATA.SETTINGS);
+          localStorage.removeItem(API_CONFIG.SESSION_DATA.COOKIE);
+          removeCookie('session', { path: '/' });
+          setErrors((prev) => ({
+            ...prev,
+            auth: "Session expired. Please log in again.",
+          }));
+        }
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   React.useEffect(() => {
     let eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
@@ -53,26 +83,53 @@ const Login = () => {
         const _cookies = JSON.parse(cookies);
         const sessionCookie = _cookies.find(cookie => cookie.name === "session");
         let expires = new Date()
-        if (sessionCookie) {
+        if (sessionCookie && (existingCookies['session'] === undefined)) {
           expires.setTime(expires.getTime() + (2 * 24 * 60 * 60 * 1000)); // 2 days
-          setCookie('session', sessionCookie.value, { path: '/', domain: '.localhost', secure: false, sameSite: false, expires, httpOnly: false });
+          setCookie(
+            'session',
+            sessionCookie.value,
+            {
+              path: '/',
+              secure: false,
+              sameSite: false,
+              httpOnly: false
+            }
+          );
         }
-        const userData = await requestUserSettings(groupname);
-        localStorage.setItem(API_CONFIG.SESSION_DATA.SETTINGS, JSON.stringify(userData));
-        localStorage.setItem(API_CONFIG.SESSION_DATA.COOKIE, JSON.stringify({
-          name: 'session',
-          value: sessionCookie.value,
-          expires: expires
-        }));
-        setUserData({
-          name: userData['groupname'],
-          id: userData['orcid'],
-          email: userData?.emails[0]?.email,
-          role: userData['own-role'],
-          groupname: userData['groupname'],
-          settings: userData
-        });
-        navigate("/")
+        // Check if the session cookie is present
+        if (!sessionCookie) {
+          setErrors((prev) => ({
+            ...prev,
+            auth: "Session cookie not found. Please try again",
+          }));
+          return;
+        }
+        // Retrieve user settings
+        try {
+          const userData = await requestUserSettings(groupname);
+          localStorage.setItem(API_CONFIG.SESSION_DATA.SETTINGS, JSON.stringify(userData));
+          localStorage.setItem(API_CONFIG.SESSION_DATA.COOKIE, JSON.stringify({
+            name: 'session',
+            value: sessionCookie.value,
+            expires: expires
+          }));
+          setUserData({
+            name: userData['groupname'],
+            id: userData['orcid'],
+            email: userData?.emails[0]?.email,
+            role: userData['own-role'],
+            groupname: userData['groupname'],
+            settings: userData
+          });
+          navigate("/")
+        } catch (error) {
+          console.error("Error fetching user settings:", error);
+          removeCookie('session', { path: '/' });
+          setErrors((prev) => ({
+            ...prev,
+            auth: "Failed to fetch user settings. Please try again",
+          }));
+        }
       } else if (code === 401) {
         setErrors((prev) => ({
           ...prev,
@@ -85,9 +142,7 @@ const Login = () => {
         }));
       }
     });
-
     setIsLoading(false)
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 

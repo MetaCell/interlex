@@ -13,13 +13,13 @@ import {
 } from "@mui/material";
 import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
-import { useQuery } from "../../helpers";
 import BasicTabs from "../common/CustomTabs";
 import { useNavigate } from "react-router-dom";
+import { GlobalDataContext } from "../../contexts/DataContext";
 import { SEARCH_TYPES } from "../../constants/types";
 import { searchAll, elasticSearch } from "../../api/endpoints";
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
-import { useEffect, useState, useCallback, forwardRef } from 'react';
+import { useEffect, useState, useCallback, forwardRef, useContext } from 'react';
 import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
 import CorporateFareOutlinedIcon from '@mui/icons-material/CorporateFareOutlined';
 
@@ -87,11 +87,10 @@ const Search = () => {
   const [openList, setOpenList] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const navigate = useNavigate();
-  const query = useQuery();
-  const storedSearchTerm = query.get('searchTerm');
   const [terms, setTerms] = useState([]);
   const [organizations, setOrganizations] = useState([]);
   const [ontologies, setOntologies] = useState([]);
+  const { storedSearchTerm, updateStoredSearchTerm} = useContext(GlobalDataContext)
 
   const handleOpenList = () => setOpenList(true);
   const handleCloseList = () => setOpenList(false);
@@ -99,14 +98,15 @@ const Search = () => {
 
   const handleSelectTerm = (event, newInputValue) => {
     if (!newInputValue) return;
-    
+
     handleCloseList();
     navigate(`/view?searchTerm=${newInputValue?.ilx}`);
+    updateStoredSearchTerm(newInputValue?.label)
   };
 
   const handleSearchTermClick = () => {
-    navigate(`/search?searchTerm=${searchTerm}`);
     handleCloseList();
+    navigate(`/search?searchTerm=${searchTerm}`);
   };
 
   const handleInputFocus = (event) => {
@@ -139,7 +139,7 @@ const Search = () => {
     setTerms([])
     setOntologies([])
     setOrganizations([])
-  },[]);
+  }, []);
 
   const handleKeyDown = useCallback(event => {
     if (event.ctrlKey && event.key === 'k') {
@@ -179,7 +179,7 @@ const Search = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storedSearchTerm]);
 
-  // eslint-disable-next-line no-unused-vars
+  //eslint-disable-next-line no-unused-vars
   const ListboxComponent = forwardRef(function ListboxComponent(props, ref) {
     return (
       <>
@@ -305,7 +305,7 @@ const Search = () => {
       getOptionLabel={(option) => option?.hidden ? '' : (option.label || option.name || '')}
       renderOption={(props, option, { selected }) => {
         if (option?.hidden) return null;
-      
+
         const { key, ...otherProps } = props;
         return (
           <ListItem
@@ -330,7 +330,7 @@ const Search = () => {
             </Button>
           </ListItem>
         );
-      }}      
+      }}
       renderInput={(params) => (
         <TextField
           {...params}
