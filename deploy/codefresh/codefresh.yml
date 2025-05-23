@@ -39,15 +39,33 @@ steps:
     environment:
       - KUBECONTEXT=${{CLUSTER_NAME}}
       - KUBERNETES_NAMESPACE=${{NAMESPACE}}
-
-  e2e_test:
+  test_build:
     stage: "e2e_test"
-    title: "Running E2E Tests"
-    image: node:20
+    type: build
+    title: Building ILEX test image
+    image_name: ilex-test
+    dockerfile: Dockerfile.testing
+    buildkit: true
+    registry: ${{REGISTRY}}
+  e2e_test:
+    type: composition
+    title: Running E2E Tests
+    stage: e2e_test
     working_directory: ./interlex/test
-    environment:
-      - TEST_USERNAME=${{TEST_USERNAME}}
-      - TEST_PASSWORD=${{TEST_PASSWORD}}
-    commands:
-      - npm ci
-      - npm test create  && npm test userInfo && npm test searchInfo
+    composition:
+      version: '2'
+      services:
+        app:
+          image: '${{build}}'
+    composition_candidates:
+      test:
+        image: '${{test_build}}'
+        links:
+        - app
+        working_dir: /home/pptruser
+        environment:
+        - TEST_USERNAME=${{TEST_USERNAME}}
+        - TEST_PASSWORD=${{TEST_PASSWORD}}
+        command: bash -c 'npm ci'
+        command: bash -c 'npm test create  && npm test userInfo && npm test searchInfo'
+ 
