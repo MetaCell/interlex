@@ -27,7 +27,6 @@ import TermActivity from "./components/term_activity/TermActivity";
 import OrganizationsCurieEditor from "./components/CurieEditor/OrganizationCurieEditor";
 import { handleOrcidLogin } from "./api/endpoints";
 import { GlobalDataContext } from "./contexts/DataContext";
-import { useCookies } from "react-cookie";
 import { API_CONFIG } from "./config";
 
 const PageContainer = ({ children }) => {
@@ -41,7 +40,7 @@ const PageContainer = ({ children }) => {
 function MainContent() {
 	const { user, setUserData } = useContext(GlobalDataContext);
 
-	React.useEffect(() => {
+	useEffect(() => {
 		(async () => {
 			const userSettings = JSON.parse(
 				localStorage.getItem(API_CONFIG.SESSION_DATA.SETTINGS)
