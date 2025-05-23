@@ -43,25 +43,27 @@ function MainContent() {
 	const cookiesInfo = JSON.parse(localStorage.getItem(API_CONFIG.SESSION_DATA.COOKIE));
 	const { user, setUserData } = useContext(GlobalDataContext);
 
-	// check if cookie is expired
-	if (!user) {
-		const sessionCookie = cookies.session;
-		const expires = new Date(cookiesInfo?.expires);
-		const today = new Date();
-		if (sessionCookie === cookiesInfo?.value && expires > today) {
-			const userData = JSON.parse(localStorage.getItem(API_CONFIG.SESSION_DATA.SETTINGS));
-			setUserData({
-				name: userData['groupname'],
-				id: userData['orcid'],
-				email: userData?.emails[0]?.email,
-				role: userData['own-role'],
-				groupname: userData['groupname'],
-				settings: userData
-			});
-		} else {
-			setUserData({});
+	useEffect(() => {
+		// check if cookie is expired
+		if (!user) {
+			const sessionCookie = cookies.session;
+			const expires = new Date(cookiesInfo?.expires);
+			const today = new Date();
+			if (sessionCookie === cookiesInfo?.value && expires > today) {
+				const userData = JSON.parse(localStorage.getItem(API_CONFIG.SESSION_DATA.SETTINGS));
+				setUserData({
+					name: userData['groupname'],
+					id: userData['orcid'],
+					email: userData?.emails[0]?.email,
+					role: userData['own-role'],
+					groupname: userData['groupname'],
+					settings: userData
+				});
+			} else {
+				setUserData({});
+			}
 		}
-	}
+	}, [cookies, cookiesInfo, setUserData, user]);
 
 	return (
 		<Box
