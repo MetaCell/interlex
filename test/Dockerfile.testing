@@ -6,6 +6,6 @@ COPY interlex/test/package.json .
 RUN npm ci
 
 USER pptruser
-COPY --chown=pptruser:pptruser test test
+COPY --chown=pptruser:pptruser interlex/test test
 	
 
