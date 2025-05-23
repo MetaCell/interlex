@@ -61,11 +61,9 @@ steps:
       test:
         image: '${{test_build}}'
         links:
-        - app
+          - app
         working_dir: /home/pptruser
         environment:
-        - TEST_USERNAME=${{TEST_USERNAME}}
-        - TEST_PASSWORD=${{TEST_PASSWORD}}
-        command: bash -c 'npm ci'
-        command: bash -c 'npm test create  && npm test userInfo && npm test searchInfo'
- 
+          - TEST_USERNAME=${{TEST_USERNAME}}
+          - TEST_PASSWORD=${{TEST_PASSWORD}}
+        command: bash -c 'npm ci && npm test create && npm test userInfo && npm test searchInfo'
