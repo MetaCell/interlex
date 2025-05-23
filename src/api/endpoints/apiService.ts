@@ -78,3 +78,8 @@ export const getSelectedTermLabel = async (searchTerm: string): Promise<string |
     return undefined;
   }
 };
+
+export const createNewEntity = ({ group, data, session }: { group: string, data: any, session : string }) => {
+  const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ENTITY}`;
+  return createPostRequest<any, any>(endpoint, "application/x-www-form-urlencoded", `session=${session}`)(data);
+};

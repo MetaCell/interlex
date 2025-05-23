@@ -5,7 +5,7 @@ import { StatusErrorBackgroundPattern, AddedSuccessfully } from "../../Icons";
 import { vars } from "../../theme/variables";
 const { gray900, gray600 } = vars;
 
-const StatusBackground = ({ responseStatus }) => (
+const StatusBackground = ({ success }) => (
     <Box
         sx={{
             height: '17.875rem',
@@ -17,12 +17,12 @@ const StatusBackground = ({ responseStatus }) => (
             zIndex: 1,
         }}
     >
-        {responseStatus?.success ? <AddedSuccessfully /> : <StatusErrorBackgroundPattern />}
+        {success ? <AddedSuccessfully /> : <StatusErrorBackgroundPattern />}
     </Box>
 );
 
 StatusBackground.propTypes = {
-    responseStatus: PropTypes.object,
+    success: PropTypes.bool,
 };
 
 const StatusMessage = ({ message, description, additionalInfo }) => (
@@ -38,7 +38,7 @@ const StatusMessage = ({ message, description, additionalInfo }) => (
         <Typography mb='1.25rem' color={gray600} fontSize='1rem' sx={{ textAlign: "center", maxWidth: "22rem" }}>
             {description}
         </Typography>
-        <Typography mb="2rem">{additionalInfo}</Typography>
+        {typeof additionalInfo === 'string' ? <Typography mb="2rem">{additionalInfo}</Typography> : null}
     </Box>
 );
 
@@ -80,7 +80,7 @@ ActionButtons.propTypes = {
 
 const StatusStep = ({ statusProps, onAction, onTryAgain, onClose, actionButtonStartIcon, additionalInfo }) => {
     const {
-        statusResponse,
+        success,
         successMessage,
         successDescription,
         failureMessage,
@@ -90,17 +90,13 @@ const StatusStep = ({ statusProps, onAction, onTryAgain, onClose, actionButtonSt
         isCloseButtonVisible,
     } = statusProps;
 
-    const message = statusResponse?.success
+    const message = success
         ? successMessage
-        : statusResponse?.error
-            ? failureMessage
-            : '';
+        : failureMessage
 
-    const description = statusResponse?.success
+    const description = success
         ? successDescription
-        : statusResponse?.error
-            ? failureDescription
-            : '';
+        : failureDescription
 
     return (
         <Box
@@ -111,7 +107,7 @@ const StatusStep = ({ statusProps, onAction, onTryAgain, onClose, actionButtonSt
             height='100%'
             position='relative'
         >
-            <StatusBackground responseStatus={statusResponse} />
+            <StatusBackground success={success} />
             <Box
                 display='flex'
                 flexDirection='column'

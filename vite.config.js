@@ -42,6 +42,9 @@ export default defineConfig({
         target: "https://uri.olympiangods.org",
         secure: false,
         changeOrigin: true,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
         configure: (proxy, _options) => {
           console.log(_options);
           proxy.on('error', (err, _req, _res) => {
@@ -51,13 +54,24 @@ export default defineConfig({
           });
           proxy.on('proxyReq', (proxyReq, req, _res) => {
             console.log('Sending Request to the Target:', req.method, req.url);
+            console.log('Headers sent to backend:', proxyReq.getHeaders());
             console.log('Response:', _res);
             console.log('Request:', proxyReq);
+            // Forward cookies manually if needed
+            if (req.headers.cookie) {
+              proxyReq.setHeader('cookie', req.headers.cookie);
+            }
           });
-          proxy.on('proxyRes', (proxyRes, req, _res) => {
-            console.log('Received response', _res);
-            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            const location = proxyRes.headers['location'];
+            console.log('Received location', location);
+          
+            if (proxyRes.statusCode === 303 && location) {
+              res.setHeader('X-Redirect-Location', location);
+              res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
+            }
           });
+                
         },
       }
     },

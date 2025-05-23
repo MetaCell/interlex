@@ -3,21 +3,19 @@ import PropTypes from "prop-types";
 import { Box } from "@mui/material";
 import ImportFileTab from "./ImportFileTab";
 import BasicTabs from "../common/CustomTabs";
-import { addTerm } from "../../api/endpoints";
 import NewTermSidebar from "./NewTermSidebar";
 import StatusStep from "../common/StatusStep";
 import { useNavigate } from "react-router-dom";
 import ManualImportTab from "./ManualImportTab";
 import AddPredicatesStep from "./AddPredicatesStep";
 import { getAddTermStatusProps } from "./termStatusProps";
-import { termParser } from "../../../src/parsers/termParser";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { getExistingIDs, getUser } from "../../api/endpoints";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { getEndpointsIlx, elasticSearch } from './../../api/endpoints/index';
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { useContext } from "react";
-import { API_CONFIG } from '../../config';
+import { createNewEntity } from './../../api/endpoints/apiService'
 
 import { vars } from "../../theme/variables";
 const { gray800, gray700 } = vars;
@@ -53,8 +51,8 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     const [termResults, setTermResults] = useState([]);
     const [tabValue, setTabValue] = useState(0);
     const [openSidebar, setOpenSidebar] = useState(true);
-    const [data, setData] = useState(null);
-    const [responseStatus] = useState(null)
+    const [data] = useState(null);
+    const [addTermResponse, setAddTermResponse] = useState(null)
     const [termValue, setTermValue] = useState('');
     const [ids, setIds] = useState([]);
     const [predicates, setPredicates] = useState([{ subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
@@ -70,32 +68,31 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     const fetchTerms = useCallback(
         debounce((termValue) => {
             setLoading(true);
-            if (termValue) {
-                getEndpointsIlx("base", termValue).then(data => {
-                    setLoading(false);
-                    const parsedData = termParser(data);
-                    setData(parsedData?.results[0]);
-                });
-            } else {
-                elasticSearch("a").then(data => {
-                    setTermResults(data.results?.results);
-                    setLoading(false);
-                });
-            }
+            elasticSearch(termValue).then(data => {
+                setTermResults(data.results?.results);
+                setLoading(false);
+            });
         }, 300),
         [getEndpointsIlx, elasticSearch]
     );
 
     const addTermRequest = useCallback(async (group, term) => {
-        const token = localStorage.getItem("token")
-        const groupName = user?.groupname || group
-        await addTerm(groupName,  API_CONFIG.SCICRUNCH_KEY, token, term).then((response) => {
-            setNewTermId(response.term.id.split("/").pop())
-        })
-            .catch((error) => {
-                console.log("Error ", error)
-            });
-    }, [user]);
+        const token = localStorage.getItem("token");
+        const groupName = user?.groupname || group;
+        const body = {
+          'rdf-type': 'owl:Class',
+          label: term.label,
+          exact: term.synonyms,
+        };
+      
+        try {
+          const response = await createNewEntity({ group: groupName, data: body, session: token });
+          setAddTermResponse(response);
+          setNewTermId(response.term.id.split("/").pop());
+        } catch (error) {
+            setAddTermResponse(error.response);
+        }
+      }, [user]);      
 
     const handleChangeTabs = (_, newValue) => setTabValue(newValue);
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
@@ -195,7 +192,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     const formattedNewTermId = formatIdText(newTermId);
 
 
-    const statusProps = getAddTermStatusProps(responseStatus, termValue);
+    const statusProps = getAddTermStatusProps(addTermResponse, termValue);
 
     return (
         <>
