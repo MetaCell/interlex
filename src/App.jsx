@@ -8,7 +8,7 @@ import {
 	useLocation,
 } from "react-router-dom";
 import theme from "./theme";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Login from "./components/Auth/Login";
@@ -27,7 +27,7 @@ import TermActivity from "./components/term_activity/TermActivity";
 import OrganizationsCurieEditor from "./components/CurieEditor/OrganizationCurieEditor";
 import { handleOrcidLogin } from "./api/endpoints";
 import { GlobalDataContext } from "./contexts/DataContext";
-import { useCookies } from 'react-cookie'
+import { useCookies } from "react-cookie";
 import { API_CONFIG } from "./config";
 
 const PageContainer = ({ children }) => {
@@ -39,31 +39,39 @@ const PageContainer = ({ children }) => {
 };
 
 function MainContent() {
-	const [cookies] = useCookies(['session'])
-	const cookiesInfo = JSON.parse(localStorage.getItem(API_CONFIG.SESSION_DATA.COOKIE));
 	const { user, setUserData } = useContext(GlobalDataContext);
 
-	useEffect(() => {
-		// check if cookie is expired
-		if (!user) {
-			const sessionCookie = cookies.session;
-			const expires = new Date(cookiesInfo?.expires);
-			const today = new Date();
-			if (sessionCookie === cookiesInfo?.value && expires > today) {
-				const userData = JSON.parse(localStorage.getItem(API_CONFIG.SESSION_DATA.SETTINGS));
-				setUserData({
-					name: userData['groupname'],
-					id: userData['orcid'],
-					email: userData?.emails[0]?.email,
-					role: userData['own-role'],
-					groupname: userData['groupname'],
-					settings: userData
-				});
-			} else {
-				setUserData({});
+	React.useEffect(() => {
+		(async () => {
+			const userSettings = JSON.parse(
+				localStorage.getItem(API_CONFIG.SESSION_DATA.SETTINGS)
+			);
+			if (userSettings) {
+				try {
+					const userData = await requestUserSettings(userSettings?.groupname);
+					setUserData({
+						name: userData["groupname"],
+						id: userData["orcid"],
+						email: userData?.emails[0]?.email,
+						role: userData["own-role"],
+						groupname: userData["groupname"],
+						settings: userData,
+					});
+					navigate("/");
+				} catch (error) {
+					console.error("Error fetching user settings:", error);
+					localStorage.removeItem(API_CONFIG.SESSION_DATA.SETTINGS);
+					localStorage.removeItem(API_CONFIG.SESSION_DATA.COOKIE);
+					removeCookie("session", { path: "/" });
+					setErrors((prev) => ({
+						...prev,
+						auth: "Session expired. Please log in again.",
+					}));
+				}
 			}
-		}
-	}, [cookies, cookiesInfo, setUserData, user]);
+		})();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<Box
@@ -135,8 +143,22 @@ function MainContent() {
 					<Route path="/register" element={<Register />} />
 					<Route path="/forgot" element={<ForgotPassword />} />
 					<Route path="/reset" element={<ResetPassword />} />
-					<Route path="/organizations/:title" element={<PageContainer><SingleOrganization /></PageContainer>} />
-					<Route path="/organizations/:title/curie-editor" element={<PageContainer><OrganizationsCurieEditor /></PageContainer>} />
+					<Route
+						path="/organizations/:title"
+						element={
+							<PageContainer>
+								<SingleOrganization />
+							</PageContainer>
+						}
+					/>
+					<Route
+						path="/organizations/:title/curie-editor"
+						element={
+							<PageContainer>
+								<OrganizationsCurieEditor />
+							</PageContainer>
+						}
+					/>
 				</Routes>
 			</Layout>
 		</Box>
@@ -151,13 +173,15 @@ const Layout = ({ children }) => {
 	useEffect(() => {
 		const params = new URLSearchParams(location.search);
 		const code = params.get("code");
-		if (code) {(async () => {
-			try {
-				const response = await handleOrcidLogin(code);
-				localStorage.setItem("token", response.token);
-			} catch (error) {
-				console.log("error: ", error)
-			}})();
+		if (code) {
+			(async () => {
+				try {
+					const response = await handleOrcidLogin(code);
+					localStorage.setItem("token", response.token);
+				} catch (error) {
+					console.log("error: ", error);
+				}
+			})();
 		}
 	}, [location]);
 
@@ -179,7 +203,6 @@ const Layout = ({ children }) => {
 };
 
 function App() {
-
 	return (
 		<ThemeProvider theme={theme}>
 			<CssBaseline />
