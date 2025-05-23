@@ -1,30 +1,32 @@
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
-import {Box, Typography, Button, Link, List, ListItem, ListItemText} from "@mui/material";
+import {Box, Typography, Button, List, ListItem, ListItemText} from "@mui/material";
 
 import { vars } from "../../theme/variables";
-const { gray700, gray500, gray200, brand600 } = vars;
+const { gray50, gray700, gray200, brand600 } = vars;
 
 const OrganizationsList = ({organizations, viewJoinButton = true}) => {
   const navigate = useNavigate();
-  console.log("organizations: ", organizations)
+
   return (
     <List sx={{
       width: '100%',
       padding: 0,
       '& .MuiListItem-root': {
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: '0.75rem',
         padding: '1.5rem',
-        gap: '1rem',
         borderBottom: `1px solid ${gray200}`,
         position: 'relative',
+        borderRadius: "0.5rem",
         '&:hover': {
           cursor: 'pointer',
+          backgroundColor: gray50,
           '& .join-button': {
-            display: 'inline-flex',
+            visibility: 'visible'
           },
           '& .MuiListItemText-root': {
             position: 'relative',
@@ -50,59 +52,42 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
       },
       '& .MuiListItemText-root': {
         margin: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-        width: '100%',
         '& .MuiListItemText-primary': {
           '& .MuiTypography-root': {
             color: gray700,
             fontSize: '1.25rem',
-            fontWeight: 500
-          },
-          '& .MuiLink-root': {
-            textDecoration: 'none',
-            color: gray500,
-            fontSize: '1.125rem',
             fontWeight: 500,
+            lineHeight: "1.875rem"
           }
-        },
-        '& .MuiListItemText-secondary': {
-          color: gray500,
-          fontSize: '0.875rem',
-          fontWeight: 400,
         }
       }
     }}>
       {organizations.length > 0 ? (
         organizations?.map((organization, index) => (
-          <ListItem key={index} onClick={() => navigate(`/organizations/${organization.name}`)}>
-            <Box display='flex' alignItems='center' justifyContent='space-between' width={1}>
-              <img src={organization.logo} alt={organization.name} />
+          <ListItem key={index} onClick={() => navigate(`/organizations/${organization}`)}>
+            <ListItemText 
+              primary={
+                <Box display='flex' alignItems='center' justifyContent='space-between'>
+                  <Typography component='span'>{organization}</Typography>
+                </Box>
+              } 
+            />
+            <Box display='flex' alignItems='center' justifyContent='space-between'>
               {
                 viewJoinButton && <Button
                   variant="outlined"
                   className="join-button"
-                  onClick={() => navigate(`/organizations/${organization.name}`)}
+                  onClick={() => navigate(`/organizations/${organization}`)}
                   startIcon={<PersonAddOutlinedIcon />}
                   sx={{
-                    display: 'none',
+                    visibility: 'hidden',
+                    width: 1
                   }}
                 >
                   Join organization
                 </Button>
               }
             </Box>
-            <ListItemText primary={
-              <Box display='flex' alignItems='center' justifyContent='space-between'>
-                <Typography component='span'>{organization.name}</Typography>
-                {organization.link && (
-                  <Link href={organization.link} display='flex'>
-                    {organization.link}
-                  </Link>
-                )}
-              </Box>
-            } secondary={organization.description} />
           </ListItem>
         ))
       ) : (

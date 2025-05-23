@@ -7,7 +7,7 @@ import { GlobalDataContext } from "../../contexts/DataContext";
 import MessageDialog from "../common/MessageDialog";
 
 import { vars } from "../../theme/variables";
-const { gray700 } = vars;
+const { gray600 } = vars;
 
 
 const Organizations = () => {
@@ -41,10 +41,10 @@ const Organizations = () => {
   return (
     <Box p='2.25rem 5rem' flexGrow={1} overflow='auto'>
       <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-        <Typography fontSize='1.5rem' color={gray700} fontWeight={600} mb='1.5rem'>
+        <Typography fontSize='1.5rem' color={gray600} fontWeight={600} mb='1.5rem'>
           {organizations?.length} Organizations
         </Typography>
-        {Object.keys(user).length !== 0 && <Button type="string" startIcon={<GroupAddOutlinedIcon />} onClick={handleCreateOrganization}>Create a new organization</Button>}
+        {user && <Button type="string" startIcon={<GroupAddOutlinedIcon />} onClick={handleCreateOrganization}>Create a new organization</Button>}
       </Stack>
       <OrganizationsList organizations={organizations} />
       {message && (
