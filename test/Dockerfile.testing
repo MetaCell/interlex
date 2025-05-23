@@ -1,7 +1,7 @@
 FROM ghcr.io/puppeteer/puppeteer:latest
 
 COPY interlex/test/package.json .
-COPY interlex/test/package.json .
+COPY interlex/test/package-lock.json .
 
 RUN npm ci
 
