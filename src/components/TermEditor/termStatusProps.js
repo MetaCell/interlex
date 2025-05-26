@@ -3,10 +3,10 @@ export const getAddTermStatusProps = (response, termValue) => ({
     success : response?.status < 400,
     error : response?.status > 400 ,
     successMessage: "Term successfully created",
-    failureMessage: "Unable to create the term",
+    failureMessage: "Unable to create the term : " + response?.data?.error,
     successDescription: `Your term “${termValue.charAt(0).toUpperCase() + termValue.slice(1)}” has been added. Go to your term or add a new one.`,
-    failureDescription: `Your term “${termValue.charAt(0).toUpperCase() + termValue.slice(1)}” has can’t be added. Close or try again.`,
-    actionButtonMessage: response?.success ? "Add a new term" : null,
+    failureDescription: `Your term “${termValue.charAt(0).toUpperCase() + termValue.slice(1)}” has can’t be added. Close or try again.` ,
+    actionButtonMessage: response?.status < 400 ? "Add a new term" : null,
     isCloseButtonVisible: response?.status < 400 ? false : true,
     isTryButtonVisible: response?.status < 400 ? false : true,
 });

@@ -274,7 +274,6 @@ export const addTerm = async (user: string, token: string, session: string, term
   const {  postPrivEntityNew } = useApi();
 
   const headers = {
-    'Cookie': `session=${session}`,
     'Content-Type': 'application/x-www-form-urlencoded',
   };
 

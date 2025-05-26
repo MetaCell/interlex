@@ -79,7 +79,36 @@ export const getSelectedTermLabel = async (searchTerm: string): Promise<string |
   }
 };
 
-export const createNewEntity = ({ group, data, session }: { group: string, data: any, session : string }) => {
+export const createNewEntity = async ({
+  group,
+  data,
+  session,
+}: {
+  group: string;
+  data: any;
+  session: string;
+}) => {
   const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ENTITY}`;
-  return createPostRequest<any, any>(endpoint, "application/x-www-form-urlencoded", `session=${session}`)(data);
+  const response = await createPostRequest<any, any>(
+    endpoint,
+    "application/x-www-form-urlencoded",
+    `session=${session}`
+  )(data);
+
+  // If the response is HTML (a string), extract TMP ID
+  if (typeof response === "string") {
+    const match = response.match(/TMP:\d{9}/);
+    if (match) {
+      return {
+        term: {
+          id: `http://uri.interlex.org/base/${match[0]}`,
+        },
+        raw: response,
+        status: 200,
+      };
+    }
+  }
+
+  // Otherwise, return response as-is
+  return response;
 };

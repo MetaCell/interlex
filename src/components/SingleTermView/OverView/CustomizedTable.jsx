@@ -9,6 +9,8 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { useCallback, useEffect, useRef, useState } from "react";
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import { GlobalDataContext } from "../../../contexts/DataContext";
+import { useContext } from "react";
 
 import { vars } from "../../../theme/variables";
 const { gray100, gray50, gray600, gray500, brand600, brand50, brand700, gray700 } = vars;
@@ -156,6 +158,7 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
   // eslint-disable-next-line no-unused-vars
   const [deletedObj, setDeletedObj] = useState({});
   const [editTermDialogOpen, setEditTermDialogOpen] = useState(false);
+  const { user } = useContext(GlobalDataContext);
 
   const targetRow = useRef();
   const sourceRow = useRef();
@@ -245,7 +248,7 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
-    const data = await getMatchTerms("base", searchTerm);
+    const data = await getMatchTerms(user?.groupname, searchTerm);
     setTerms(data?.results[0]);
   }, 500), [getMatchTerms]);
 

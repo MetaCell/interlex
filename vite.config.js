@@ -57,21 +57,43 @@ export default defineConfig({
             console.log('Headers sent to backend:', proxyReq.getHeaders());
             console.log('Response:', _res);
             console.log('Request:', proxyReq);
-            // Forward cookies manually if needed
-            if (req.headers.cookie) {
-              proxyReq.setHeader('cookie', req.headers.cookie);
-            }
           });
           proxy.on('proxyRes', (proxyRes, req, res) => {
             const location = proxyRes.headers['location'];
             console.log('Received location', location);
           
             if (proxyRes.statusCode === 303 && location) {
+              // Prevent browser from seeing the actual Location
+              delete proxyRes.headers['location'];
+          
+              // Inject the location into a custom header we can use in Axios
               res.setHeader('X-Redirect-Location', location);
-              res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
             }
+            
+            // Required for credentialed CORS
+            const origin = req.headers.origin;
+            if (origin) {
+              res.setHeader('Access-Control-Allow-Origin', origin);
+            }
+            res.setHeader('Access-Control-Allow-Credentials', 'true');
+            res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
           });
                 
+        },
+      },
+      '^/[^/]+/tmp_.*\\.html$': {
+        target: 'https://uri.olympiangods.org',
+        changeOrigin: true,
+        secure: false,
+        rewrite: path => path, // Keep full path intact
+        configure: (proxy, _options) => {
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            const origin = req.headers.origin;
+            if (origin) {
+              res.setHeader('Access-Control-Allow-Origin', origin);
+            }
+            res.setHeader('Access-Control-Allow-Credentials', 'true');
+          });
         },
       }
     },

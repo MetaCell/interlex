@@ -31,7 +31,7 @@ const initialFormState = {
 }
 
 const formatIdText = (termId) => {
-    const [prefix, suffix] = termId.split('_');
+    const [prefix, suffix] = termId.split(':');
     return (
         <div>
             <span style={{ fontSize: '1rem', fontWeight: 500, color: gray800 }}>
@@ -80,9 +80,9 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
         const token = localStorage.getItem("token");
         const groupName = user?.groupname || group;
         const body = {
-          'rdf-type': 'owl:Class',
+          'rdf-type': term.superClass || 'owl:Class',
           label: term.label,
-          exact: term.synonyms,
+          exact: term.synonyms?.map( s => s.label),
         };
       
         try {
@@ -141,7 +141,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     }
 
     const handleGoToTermClick = () => {
-        navigate(`/view?searchTerm=${termValue.charAt(0).toUpperCase() + termValue.slice(1)}`);
+        navigate(`/view?searchTerm=${newTermId}`);
     }
 
     useEffect(() => {
@@ -167,7 +167,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const getIds = useCallback(debounce(async (termValue) => {
         const ids = await getExistingIDs(termValue || "a");
-        setIds(ids)
+        setIds(ids?.results)
     }), [getUser]);
 
     useEffect(() => {
@@ -219,7 +219,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
                 </Box>
             )}
             {activeStep === 1 && <AddPredicatesStep termValue={termValue.charAt(0).toUpperCase() + termValue.slice(1)} predicatesOptions={predicatesOptions} />}
-            {activeStep === 2 && <StatusStep
+            {activeStep === 2 && addTermResponse != null && <StatusStep
                 statusProps={statusProps}
                 onAction={handleAddNewTerm}
                 onTryAgain={handleAddNewTerm}

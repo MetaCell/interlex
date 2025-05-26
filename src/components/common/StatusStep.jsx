@@ -38,7 +38,7 @@ const StatusMessage = ({ message, description, additionalInfo }) => (
         <Typography mb='1.25rem' color={gray600} fontSize='1rem' sx={{ textAlign: "center", maxWidth: "22rem" }}>
             {description}
         </Typography>
-        {typeof additionalInfo === 'string' ? <Typography mb="2rem">{additionalInfo}</Typography> : null}
+        <Typography mb="2rem">{additionalInfo}</Typography>
     </Box>
 );
 
