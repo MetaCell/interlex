@@ -143,6 +143,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
 
     const handleGoToTermClick = () => {
         navigate(`/view?searchTerm=${newTermId}`);
+        onClose()
     }
 
     useEffect(() => {
@@ -224,7 +225,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
                 statusProps={statusProps}
                 onAction={handleAddNewTerm}
                 onTryAgain={handleAddNewTerm}
-                onClose={onClose}
+                onClose={handleGoToTermClick}
                 actionButtonStartIcon={<AddOutlinedIcon />}
                 additionalInfo={formattedNewTermId}
             />}
@@ -236,7 +237,8 @@ AddNewTermDialogContent.propTypes = {
     activeStep: PropTypes.number.isRequired,
     areMatchesChecked: PropTypes.bool.isRequired,
     onMatchesChange: PropTypes.func.isRequired,
-    onReset: PropTypes.func.isRequired
+    onReset: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired,
 };
 
 export default AddNewTermDialogContent;

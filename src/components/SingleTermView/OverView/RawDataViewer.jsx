@@ -3,8 +3,6 @@ import { useState, useEffect } from 'react';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { a11yLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { getRawData } from "../../../api/endpoints";
-import { GlobalDataContext } from "../../../contexts/DataContext";
-import { useContext } from "react";
 
 import { vars } from '../../../theme/variables';
 const { gray25, gray200, gray500 } = vars;
@@ -30,14 +28,12 @@ const RawDataViewer = ({ dataId, dataFormat }) => {
     const [formattedData, setFormattedData] = useState(null);
     // eslint-disable-next-line no-unused-vars
     const [loading, setLoading] = useState(true);
-    const { user } = useContext(GlobalDataContext);
 
     useEffect(() => {
         getRawData("base",dataId, formatExtensions[dataFormat]).then( rawResponse => {
         setFormattedData(JSON.stringify(rawResponse, null, 2));
         setLoading(false)
       })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dataId, dataFormat]);
 
     return (
