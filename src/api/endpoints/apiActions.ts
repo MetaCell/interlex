@@ -6,45 +6,23 @@ import { useCookies } from 'react-cookie'
 
 type SecondParameter<T extends (...args: any) => any> = Parameters<T>[1];
 
-export const createPostRequest = <T = any, D = any>(
-  endpoint: string,
-  contentType = "application/json",
-  cookie?: string
-) => {
-  return async (data?: D, options?: SecondParameter<typeof customInstance>) => {
-    try {
-      const response = await customInstance<T>(
-        {
-          url: endpoint,
-          method: "POST",
-          data: data,
-          headers: {
-            "Content-Type": contentType,
-            ...(cookie ? { "Cookie": cookie } : {}),
-          },
-          withCredentials: true,
-          validateStatus: (status) => status >= 200 && status < 400 // ✅ Allow 3xx
+export const createPostRequest = <T = any, D = any>(endpoint: string, contentType = "application/json", cookie : string) => {
+  return (data?: D, options?: SecondParameter<typeof customInstance>) => {
+    return customInstance<T>(
+      {
+        url: endpoint,
+        method: "POST",
+        data: data,
+        headers: {
+          "Content-Type": contentType,
+          ...(cookie ? { "Cookie": cookie } : {})
         },
-        options
-      );
-
-      return response;
-    } catch (error: any) {
-      const redirectUrl = error?.response?.headers?.['x-redirect-location'];
-
-      if (error?.response?.status === 303 && redirectUrl) {
-        // ✅ Manually follow the redirect
-        return await customInstance<T>({
-          url: redirectUrl,
-          method: "GET",
-          withCredentials: true
-        });
-      }
-
-      throw error;
-    }
-  };
-};
+        withCredentials: true
+      },
+      options,
+    )
+  }
+}
 
 export const createGetRequest = <T = any, P = any>(endpoint: string, contentType?: string) => {
   return (params?: P, options?: SecondParameter<typeof customInstance>, signal?: AbortSignal) => {

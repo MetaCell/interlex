@@ -1,14 +1,14 @@
-import Axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from 'axios';
+import Axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { API_CONFIG } from '../../src/config';
 
 export const AXIOS_INSTANCE = Axios.create({
   baseURL: API_CONFIG.BASE_URL,
-  withCredentials: true, // ✅ Always send cookies
+  withCredentials: true,
 });
 
 export const customInstance = <T>(
   config: AxiosRequestConfig,
-  options?: AxiosRequestConfig,
+  options?: AxiosRequestConfig
 ): Promise<T> => {
   const source = Axios.CancelToken.source();
 
@@ -17,17 +17,22 @@ export const customInstance = <T>(
     ...options,
     cancelToken: source.token,
     withCredentials: true,
-    validateStatus: (status) => status >= 200 && status < 400, // ✅ Accept 3xx
+    validateStatus: (status) => status >= 200 && status < 400,
   })
     .then(async (response: AxiosResponse<T>) => {
       const isRedirect = response.status === 303;
       const redirectUrl = response.headers['x-redirect-location'];
 
       if (isRedirect && redirectUrl) {
-        const redirected = await AXIOS_INSTANCE.get<T>(redirectUrl, {
+        const followUp = await AXIOS_INSTANCE.get<T>(redirectUrl, {
           withCredentials: true,
+          headers: {
+            Accept: 'text/turtle',
+          },
+          validateStatus: (status) => status === 200,
         });
-        return redirected.data;
+
+        return followUp.data;
       }
 
       return response.data;
@@ -45,6 +50,6 @@ export const customInstance = <T>(
   return promise;
 };
 
-// Utility types (unchanged)
+// Error typing helpers
 export type ErrorType<Error> = AxiosError<Error>;
 export type BodyType<BodyData> = BodyData;
