@@ -43,7 +43,7 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat }) => {
     <Box p="2.5rem 5rem" sx={{
       overflow: 'auto',
     }}>
-      {isCodeViewVisible ? <RawDataViewer dataId={"ilx_0101901"} dataFormat={selectedDataFormat} /> :
+      {isCodeViewVisible ? <RawDataViewer dataId={searchTerm} dataFormat={selectedDataFormat} /> :
         <>
           <Details data={memoData} loading={loading} />
           <Box p='5rem 0'>

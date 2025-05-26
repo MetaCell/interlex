@@ -44,7 +44,7 @@ const formatIdText = (termId) => {
     );
 }
 
-const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChange, onReset }) => {
+const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChange, onReset, onClose }) => {
 
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
@@ -90,7 +90,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
           setAddTermResponse(response);
           setNewTermId(response.term.id.split("/").pop());
         } catch (error) {
-            setAddTermResponse(error.response);
+            setAddTermResponse(error);
         }
       }, [user]);      
 
@@ -99,6 +99,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     const handleAddNewTerm = () => {
         onReset();
         setTermValue('');
+        setAddTermResponse(null)
         setIds([]);
         setFormState(initialFormState)
     }
@@ -223,7 +224,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
                 statusProps={statusProps}
                 onAction={handleAddNewTerm}
                 onTryAgain={handleAddNewTerm}
-                onClose={handleGoToTermClick}
+                onClose={onClose}
                 actionButtonStartIcon={<AddOutlinedIcon />}
                 additionalInfo={formattedNewTermId}
             />}

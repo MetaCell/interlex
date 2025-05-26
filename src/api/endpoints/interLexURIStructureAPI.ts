@@ -9732,7 +9732,7 @@ export const getEndpointsIlx = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/${fragPrefId}.${extension}`, method: 'GET', signal
+      {url: `/${group}/${fragPrefId}.${extension}`, method: 'GET', signal
     },
       options);
     }

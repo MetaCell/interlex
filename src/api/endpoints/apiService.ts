@@ -79,36 +79,49 @@ export const getSelectedTermLabel = async (searchTerm: string): Promise<string |
   }
 };
 
-export const createNewEntity = async ({
-  group,
-  data,
-  session,
-}: {
-  group: string;
-  data: any;
-  session: string;
-}) => {
-  const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ENTITY}`;
-  const response = await createPostRequest<any, any>(
-    endpoint,
-    "application/x-www-form-urlencoded",
-    `session=${session}`
-  )(data);
+export const createNewEntity = async ({group,data,session}: { group: string; data: any; session: string }) => {
+  try {
+    const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ENTITY}`;
+    const response = await createPostRequest<any, any>(
+      endpoint,
+      "application/x-www-form-urlencoded",
+      `session=${session}`
+    )(data);
 
-  // If the response is HTML (a string), extract TMP ID
-  if (typeof response === "string") {
-    const match = response.match(/TMP:\d{9}/);
-    if (match) {
-      return {
-        term: {
-          id: `http://uri.interlex.org/base/${match[0]}`,
-        },
-        raw: response,
-        status: 200,
-      };
+    // If the response is HTML (a string), extract TMP ID
+    if (typeof response === "string") {
+      const match = response.match(/TMP:\d{9}/);
+      if (match) {
+        return {
+          term: {
+            id: `${match[0]}`,
+          },
+          raw: response,
+          status: 200,
+        };
+      }
     }
-  }
 
-  // Otherwise, return response as-is
-  return response;
+    // Otherwise, return response as-is
+    return response;
+  } catch (error) {
+    if (error?.response.status === 409) {
+      const match = error?.response?.data?.existing?.[0];
+      if (match) {
+        return {
+          term: {
+            id: `${match}`,
+          },
+          raw: error?.response,
+          status: error?.response?.status,
+        };
+      }
+    }
+
+    return {
+      raw: error?.response,
+      status: error?.response?.status,
+    };
+  }
+  
 };

@@ -69,7 +69,7 @@ export default defineConfig({
               // Inject the location into a custom header we can use in Axios
               res.setHeader('X-Redirect-Location', location);
             }
-            
+
             // Required for credentialed CORS
             const origin = req.headers.origin;
             if (origin) {
@@ -81,12 +81,12 @@ export default defineConfig({
                 
         },
       },
-      '^/[^/]+/tmp_.*\\.html$': {
+      '^/[^/]+/(tmp|ilx)_.*\\.(html|ttl|jsonld|n3|owl|csv)$': {
         target: 'https://uri.olympiangods.org',
         changeOrigin: true,
         secure: false,
         rewrite: path => path, // Keep full path intact
-        configure: (proxy, _options) => {
+        configure: (proxy) => {
           proxy.on('proxyRes', (proxyRes, req, res) => {
             const origin = req.headers.origin;
             if (origin) {

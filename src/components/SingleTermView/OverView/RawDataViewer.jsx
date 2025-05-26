@@ -33,7 +33,7 @@ const RawDataViewer = ({ dataId, dataFormat }) => {
     const { user } = useContext(GlobalDataContext);
 
     useEffect(() => {
-        getRawData(user?.name || "base",dataId, formatExtensions[dataFormat]).then( rawResponse => {
+        getRawData("base",dataId, formatExtensions[dataFormat]).then( rawResponse => {
         setFormattedData(JSON.stringify(rawResponse, null, 2));
         setLoading(false)
       })
