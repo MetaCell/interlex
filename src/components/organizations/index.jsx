@@ -44,7 +44,7 @@ const Organizations = () => {
         <Typography fontSize='1.5rem' color={gray600} fontWeight={600} mb='1.5rem'>
           {organizations?.length} Organizations
         </Typography>
-        {user && <Button type="string" startIcon={<GroupAddOutlinedIcon />} onClick={handleCreateOrganization}>Create a new organization</Button>}
+        {(user && user?.groupname) && <Button type="string" startIcon={<GroupAddOutlinedIcon />} onClick={handleCreateOrganization}>Create a new organization</Button>}
       </Stack>
       <OrganizationsList organizations={organizations} />
       {message && (
