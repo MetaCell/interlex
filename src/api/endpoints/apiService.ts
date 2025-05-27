@@ -28,9 +28,9 @@ interface JsonLdResponse {
   '@graph'?: GraphNode[];
 }
 
-export const login = createPostRequest<any, LoginRequest>(API_CONFIG.REAL_API.SIGNIN, "application/x-www-form-urlencoded")
+export const login = createPostRequest<any, LoginRequest>(API_CONFIG.REAL_API.SIGNIN, {"Content-Type": "application/x-www-form-urlencoded"})
 
-export const register = createPostRequest<any, RegisterRequest>(API_CONFIG.REAL_API.NEWUSER_ILX, "application/x-www-form-urlencoded")
+export const register = createPostRequest<any, RegisterRequest>(API_CONFIG.REAL_API.NEWUSER_ILX, {"Content-Type": "application/x-www-form-urlencoded"})
 
 
 export const getUserSettings = (group: string) => {
@@ -40,7 +40,7 @@ export const getUserSettings = (group: string) => {
 
 export const createNewOrganization = ({ group, data }: { group: string, data: any }) => {
   const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ORGANIZATION}`;
-  return createPostRequest<any, any>(endpoint, "application/json")(data);
+  return createPostRequest<any, any>(endpoint, { "Content-Type" : "application/json" })(data);
 };
 
 export const getOrganizations = (group: string) => {
@@ -84,8 +84,7 @@ export const createNewEntity = async ({ group, data, session }: { group: string;
     const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ENTITY}`;
     const response = await createPostRequest<any, any>(
       endpoint,
-      "application/x-www-form-urlencoded",
-      `session=${session}`
+      { "Content-Type" : "application/x-www-form-urlencoded" }
     )(data);
 
     // If the response is HTML (a string), extract TMP ID
