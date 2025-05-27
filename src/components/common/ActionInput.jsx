@@ -1,14 +1,12 @@
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
-import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import SearchIcon from '@mui/icons-material/Search';
 import PropTypes from "prop-types";
 import { vars } from '../../theme/variables';
 
-const { gray300, inputBoxShadow } = vars;
+const { gray300, brand600, inputBoxShadow } = vars;
 
-const ActionInput = ({ actionButton, placeholder, name, value, onChange, type }) => {
+const ActionInput = ({ name, value, onChange, actionButton, placeholder, type, size, inputIcon }) => {
     return (
         <Paper
             component="div"
@@ -16,13 +14,18 @@ const ActionInput = ({ actionButton, placeholder, name, value, onChange, type })
                 display: 'flex',
                 alignItems: 'center',
                 borderRadius: "0.5rem",
-                border: `1px solid ${gray300}`,
                 boxShadow: inputBoxShadow,
+                maxHeight: size === 'small' ? "2.5rem" : "3rem",
+                height: size === 'small' ? "2.5rem" : "3rem",
                 '& .MuiButton-root': {
-                    border: "none",
+                    border: `1px solid ${gray300}`,
                     borderTopLeftRadius: 0,
                     borderBottomLeftRadius: 0,
-                    height: "auto"
+                    height: "100%",
+                    borderLeftColor: "transparent"
+                },
+                '& .MuiButton-startIcon': {
+                    marginLeft: 0
                 }
             }}
         >
@@ -31,7 +34,17 @@ const ActionInput = ({ actionButton, placeholder, name, value, onChange, type })
                     flex: 1,
                     paddingY: "0.625rem",
                     paddingLeft: "0.875rem",
-                    paddingRight: 0
+                    paddingRight: 0,
+                    borderRadius: "0.5rem",
+                    height: "100%",
+                    borderTopRightRadius: 0,
+                    borderBottomRightRadius: 0,
+                    border: "1px solid",
+                    borderColor: gray300,
+                    '&.Mui-focused': {
+                        borderColor: brand600,
+                        borderWidth: "2px"
+                    }
                 }}
                 type={type}
                 value={value}
@@ -40,10 +53,9 @@ const ActionInput = ({ actionButton, placeholder, name, value, onChange, type })
                 placeholder={placeholder}
                 inputProps={{ 'aria-label': name }}
             />
-            <IconButton type="button" sx={{ py: '0.625rem', px: "0.875rem" }} aria-label="search">
-                <SearchIcon fontSize='small' />
-            </IconButton>
-            <Divider flexItem orientation="vertical" />
+            {inputIcon && (<IconButton type="button" sx={{ py: '0.625rem', px: "0.875rem" }} aria-label="search">
+                {inputIcon}
+            </IconButton>)}
             {actionButton}
         </Paper>
     );
@@ -55,7 +67,9 @@ ActionInput.propTypes = {
     value: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
     type: PropTypes.string,
-    actionButton: PropTypes.node
+    size: PropTypes.string,
+    actionButton: PropTypes.node,
+    inputIcon: PropTypes.element
 };
 
 ActionInput.defaultProps = {
