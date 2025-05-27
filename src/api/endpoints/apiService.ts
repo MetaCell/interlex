@@ -125,7 +125,7 @@ export const createNewEntity = async ({ group, data, session }: { group: string;
 
 };
 
-export const createNewOntology = async ({ user,token,ontologyName,title,subjects }: {
+export const createNewOntology = async ({ user, token , ontologyName , title , subjects }: {
   user: string; token: string; ontologyName: string; title: string; subjects: string[] }) => {
   const endpoint = `/${user}/ontologies/uris/${ontologyName}/spec`;
 
@@ -133,10 +133,15 @@ export const createNewOntology = async ({ user,token,ontologyName,title,subjects
     title,
     subjects,
   };
+
+  const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
   
   const response = await createPostRequest<any, any>(
     endpoint,
-    "application/json")(data);
+    headers )(data);
 
   return response
 };
