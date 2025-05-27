@@ -79,7 +79,7 @@ export const getSelectedTermLabel = async (searchTerm: string): Promise<string |
   }
 };
 
-export const createNewEntity = async ({group,data,session}: { group: string; data: any; session: string }) => {
+export const createNewEntity = async ({ group, data, session }: { group: string; data: any; session: string }) => {
   try {
     const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ENTITY}`;
     const response = await createPostRequest<any, any>(
@@ -123,5 +123,21 @@ export const createNewEntity = async ({group,data,session}: { group: string; dat
       status: error?.response?.status,
     };
   }
+
+};
+
+export const createNewOntology = async ({ user,token,ontologyName,title,subjects }: {
+  user: string; token: string; ontologyName: string; title: string; subjects: string[] }) => {
+  const endpoint = `/${user}/ontologies/uris/${ontologyName}/spec`;
+
+  const data = {
+    title,
+    subjects,
+  };
   
+  const response = await createPostRequest<any, any>(
+    endpoint,
+    "application/json")(data);
+
+  return response
 };
