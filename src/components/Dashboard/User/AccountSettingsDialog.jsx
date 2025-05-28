@@ -1,14 +1,14 @@
 import PropTypes from "prop-types";
 import { useState } from "react";
-import { Dialog, Box, Divider, Button, DialogContent, Typography, Avatar, Stack, Grid, TextField } from "@mui/material";
-import IconButton from "@mui/material/IconButton";
-import CloseIcon from "@mui/icons-material/Close";
+import { Box, Divider, Button, Typography, Avatar, Stack, Grid, TextField, Link } from "@mui/material";
+import CustomizedDialog from "../../common/CustomizedDialog";
 import PasswordField from "./PasswordField";
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 import { vars } from "../../../theme/variables";
-const { gray600, gray200, gray700 } = vars;
+const { gray600, gray700, brand700 } = vars;
 
 const HeaderRightSideContent = ({ handleClose, handleSubmit }) => {
     return (
@@ -55,144 +55,127 @@ const AccountSettingsDialog = ({
     const userGroupname = user?.groupname.charAt(0).toUpperCase() + user?.groupname.slice(1)
 
     return (
-        <Dialog
-            onClose={handleClose}
-            aria-labelledby="accounts-settings-dialog-title"
+        <CustomizedDialog
             open={open}
+            handleClose={handleClose}
+            title="Account settings"
+            aria-labelledby="accounts-settings-dialog-title"
+            fullScreen={false}
+            HeaderRightSideContent={<HeaderRightSideContent handleClose={handleClose} handleSubmit={handleClose} />}
             sx={{
                 '& .MuiDialog-paper': {
                     maxWidth: '62.5rem'
                 }
             }}
         >
-            <Box
-                sx={{
-                    m: 0,
-                    p: "1rem 1.5rem",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    borderBottom: `1px solid ${gray200}`,
-                }}
-                id="accounts-settings-title"
-            >
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                    }}
-                >
-                    <IconButton aria-label="close" onClick={handleClose}>
-                        <CloseIcon />
-                    </IconButton>
-                    <Divider
-                        orientation="vertical"
-                        flexItem
-                        sx={{
-                            margin: "0 1.5rem",
-                        }}
-                    />
-                    <Typography fontWeight={500} fontSize="1.25rem" color={gray600}>
-                        Account settings
-                    </Typography>
-                </Box>
-                <HeaderRightSideContent handleClose={handleClose} handleSubmit={handleClose} />
+            <Box display="flex" sx={{ alignItems: "center" }}>
+                <Avatar sx={{ width: 64, height: 64 }} >
+                    <PersonOutlineIcon fontSize="large" />
+                </Avatar>
+                <Stack sx={{ marginLeft: "1.25rem" }}>
+                    <Typography variant="h6" component="label" sx={{ color: "#3B403F" }}>{userGroupname}</Typography>
+                    <Typography variant="subtitle1" sx={{ color: "#4D4F4F" }}>{user?.email}</Typography>
+                </Stack>
             </Box>
-            <DialogContent sx={{ padding: "2.25rem 3.25rem 2.5rem 3.25rem" }}>
-                <Box display="flex" sx={{ alignItems: "center" }}>
-                    <Avatar sx={{ width: 64, height: 64 }} >
-                        <PersonOutlineIcon fontSize="large" />
-                    </Avatar>
-                    <Stack sx={{ marginLeft: "1.25rem" }}>
-                        <Typography variant="h6" component="label" sx={{ color: "#3B403F" }}>{userGroupname}</Typography>
-                        <Typography variant="subtitle1" sx={{ color: "#4D4F4F" }}>{user?.email}</Typography>
-                    </Stack>
-                </Box>
-                <Divider sx={{ mt: 5, mb: 5 }} />
-                <Box component="form" onSubmit={handleSubmit}>
-                    <Grid container spacing={4}>
-                        <Grid item xs={12}>
-                            <Box>
-                                <Typography variant="subtitle2" component="label" sx={{ color: gray700, marginBottom: "0.375rem" }}>
-                                    Email
-                                </Typography>
-                                <TextField
-                                    fullWidth
-                                    type="email"
-                                    variant="outlined"
-                                    value={formData.email}
-                                    onChange={(e) => handleInputChange("email", e.target.value)}
-                                    disabled
-                                    size="small"
-                                />
-                                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block", fontSize: "0.875rem", color: gray600 }}>
-                                    Email address can't be changed from the interface. Please contact us to make this change.
-                                </Typography>
-                            </Box>
-                        </Grid>
-
-                        {showPasswordField && (
-                            <>
-                                <Grid item xs={12}>
-                                    <Box>
-                                        <Typography variant="subtitle2" component="label" sx={{ color: gray700, marginBottom: "0.375rem" }}>
-                                            Current Password
-                                        </Typography>
-                                        <PasswordField
-                                            name="currentPassword"
-                                            value={formData.currentPassword}
-                                            handleChange={(e) => handleInputChange("currentPassword", e.target.value)}
-                                            placeholder="Enter your current password"
-                                        />
-                                    </Box>
-                                </Grid>
-
-                                <Grid item xs={12} md={6}>
-                                    <Box>
-                                        <Typography variant="subtitle2" component="label" sx={{ color: gray700, marginBottom: "0.375rem" }}>
-                                            Enter New Password
-                                        </Typography>
-                                        <PasswordField
-                                            name="newPassword"
-                                            value={formData.newPassword}
-                                            handleChange={(e) => handleInputChange("newPassword", e.target.value)}
-                                            placeholder="Enter new password"
-                                        />
-                                    </Box>
-                                </Grid>
-
-                                <Grid item xs={12} md={6}>
-                                    <Box>
-                                        <Typography variant="subtitle2" component="label" sx={{ color: gray700, marginBottom: "0.375rem" }}>
-                                            Confirm New Password
-                                        </Typography>
-                                        <PasswordField
-                                            name="confirmPassword"
-                                            value={formData.confirmPassword}
-                                            handleChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-                                            placeholder="Confirm new password"
-                                        />
-                                    </Box>
-                                </Grid>
-                            </>
-                        )}
-
-                        <Grid item xs={12}>
-                            <Box sx={{ pt: 2 }}>
-                                <Button
-                                    type="submit"
-                                    variant="outlined"
-                                    startIcon={<ModeEditOutlineOutlinedIcon />}
-                                    onClick={() => setShowPasswordField(!showPasswordField)}
+            <Divider sx={{ mt: 5, mb: 5 }} />
+            <Box component="form" onSubmit={handleSubmit}>
+                <Grid container spacing={4}>
+                    <Grid item xs={12}>
+                        <Box>
+                            <Typography variant="subtitle2" component="label" sx={{ color: gray700, marginBottom: "0.375rem" }}>
+                                Email
+                            </Typography>
+                            <TextField
+                                fullWidth
+                                type="email"
+                                variant="outlined"
+                                value={formData.email}
+                                onChange={(e) => handleInputChange("email", e.target.value)}
+                                disabled
+                                size="small"
+                            />
+                            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "flex", alignItems: "center", fontSize: "0.875rem", color: gray600 }}>
+                                Email address can't be changed from the interface. Please contact us to make this change.
+                                <Link
+                                    href="mailto:support@interlex.org"
+                                    underline="none"
+                                    sx={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        fontSize: '0.875rem',
+                                        fontWeight: 500,
+                                        color: brand700,
+                                        ml: 0.5
+                                    }}
                                 >
-                                    Change Password
-                                </Button>
-                            </Box>
-                        </Grid>
+                                    Contact support
+                                    <ArrowForwardIcon fontSize="small" sx={{ ml: 0.5 }} />
+                                </Link>
+                            </Typography>
+                        </Box>
                     </Grid>
-                </Box>
-            </DialogContent>
-        </Dialog>
+
+                    {showPasswordField && (
+                        <>
+                            <Grid item xs={12}>
+                                <Box>
+                                    <Typography variant="subtitle2" component="label" sx={{ color: gray700, marginBottom: "0.375rem" }}>
+                                        Current Password
+                                    </Typography>
+                                    <PasswordField
+                                        name="currentPassword"
+                                        value={formData.currentPassword}
+                                        handleChange={(e) => handleInputChange("currentPassword", e.target.value)}
+                                        placeholder="Enter your current password"
+                                    />
+                                </Box>
+                            </Grid>
+
+                            <Grid item xs={12} md={6}>
+                                <Box>
+                                    <Typography variant="subtitle2" component="label" sx={{ color: gray700, marginBottom: "0.375rem" }}>
+                                        Enter New Password
+                                    </Typography>
+                                    <PasswordField
+                                        name="newPassword"
+                                        value={formData.newPassword}
+                                        handleChange={(e) => handleInputChange("newPassword", e.target.value)}
+                                        placeholder="Enter new password"
+                                    />
+                                </Box>
+                            </Grid>
+
+                            <Grid item xs={12} md={6}>
+                                <Box>
+                                    <Typography variant="subtitle2" component="label" sx={{ color: gray700, marginBottom: "0.375rem" }}>
+                                        Confirm New Password
+                                    </Typography>
+                                    <PasswordField
+                                        name="confirmPassword"
+                                        value={formData.confirmPassword}
+                                        handleChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                                        placeholder="Confirm new password"
+                                    />
+                                </Box>
+                            </Grid>
+                        </>
+                    )}
+
+                    <Grid item xs={12}>
+                        <Box sx={{ pt: 2 }}>
+                            <Button
+                                type="submit"
+                                variant="outlined"
+                                startIcon={<ModeEditOutlineOutlinedIcon />}
+                                onClick={() => setShowPasswordField(!showPasswordField)}
+                            >
+                                Change Password
+                            </Button>
+                        </Box>
+                    </Grid>
+                </Grid>
+            </Box>
+        </CustomizedDialog>
     );
 };
 
