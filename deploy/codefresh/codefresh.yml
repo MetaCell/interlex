@@ -45,7 +45,7 @@ steps:
     title: Building ILEX test image
     image_name: ilex-test
     dockerfile: ./interlex/test/Dockerfile.testing
-    context: .
+    working_directory: .
     buildkit: true
     registry: ${{CODEFRESH_REGISTRY}}
   e2e_test:
