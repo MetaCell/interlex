@@ -2,8 +2,6 @@
 const puppeteer = require("puppeteer");
 
 // INFO
-const USERNAME = process.env.TEST_USERNAME 
-const PASSWORD = process.env.TEST_PASSWORD 
 const baseURL = process.env.DOMAIN || 'https://interlex.dev.metacell.us/'
 
 const MEDULLA_URI = "http://uri.interlex.org/base/ilx_0106736"
