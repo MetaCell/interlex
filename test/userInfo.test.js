@@ -1,5 +1,4 @@
 //IMPORTS:
-const selectors = require('./selectors');
 const puppeteer = require("puppeteer");
 
 // INFO
