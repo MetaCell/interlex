@@ -67,4 +67,4 @@ steps:
         environment:
           - TEST_USERNAME=${{TEST_USERNAME}}
           - TEST_PASSWORD=${{TEST_PASSWORD}}
-        command: bash -c 'npm ci && npm test create && npm test userInfo && npm test searchInfo'
+        command: bash -c 'npm test create && npm test userInfo && npm test searchInfo'
