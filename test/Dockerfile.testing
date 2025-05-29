@@ -4,7 +4,7 @@ WORKDIR /home/pptruser/test
 
 COPY interlex/test/package.json .
 COPY interlex/test/package-lock.json .
-RUN ls -l /home/pptruser/test && cat /home/pptruser/test/package-lock.json
+RUN apt-get update && apt-get install -y libnss3 libatk-bridge2.0-0 libx11-xcb1 libxcomposite1 libxdamage1 libxrandr2 libasound2 libgtk-3-0 --no-install-recommends && rm -rf /var/lib/apt/lists/*
 RUN npm ci
 
 COPY . .
