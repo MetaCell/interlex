@@ -2,8 +2,8 @@ FROM node:20
 
 WORKDIR /home/pptruser/test
 
-COPY interlex/test/package.json .
-COPY interlex/test/package-lock.json .
+COPY ./test/package.json .
+COPY ./test/package-lock.json .
 
 RUN npm ci
 
