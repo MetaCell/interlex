@@ -33,7 +33,6 @@ const AccountSettingsDialog = ({
     handleClose
 }) => {
     const [showPasswordField, setShowPasswordField] = useState(false);
-    const [showSavePasswordField, setShowSavePasswordField] = useState(false);
     const [formData, setFormData] = useState({
         email: user?.email,
         currentPassword: "",
