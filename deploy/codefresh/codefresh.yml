@@ -63,7 +63,7 @@ steps:
         image: '${{test_build}}'
         links:
           - app
-        working_dir: /home/pptruser
+        working_dir: /home/pptruser/test
         environment:
           - TEST_USERNAME=${{TEST_USERNAME}}
           - TEST_PASSWORD=${{TEST_PASSWORD}}
