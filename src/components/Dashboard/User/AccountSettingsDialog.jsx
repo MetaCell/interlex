@@ -5,6 +5,7 @@ import CustomizedDialog from "../../common/CustomizedDialog";
 import PasswordField from "./PasswordField";
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 import { vars } from "../../../theme/variables";
@@ -32,7 +33,7 @@ const AccountSettingsDialog = ({
     handleClose
 }) => {
     const [showPasswordField, setShowPasswordField] = useState(false);
-
+    const [showSavePasswordField, setShowSavePasswordField] = useState(false);
     const [formData, setFormData] = useState({
         email: user?.email,
         currentPassword: "",
@@ -53,6 +54,8 @@ const AccountSettingsDialog = ({
     }
 
     const userGroupname = user?.groupname.charAt(0).toUpperCase() + user?.groupname.slice(1)
+    const isPasswordFormValid = formData.currentPassword.trim() !== "" && formData.newPassword.trim() !== "" && formData.confirmPassword.trim() !== "";
+
 
     return (
         <CustomizedDialog
@@ -163,14 +166,29 @@ const AccountSettingsDialog = ({
 
                     <Grid item xs={12}>
                         <Box sx={{ pt: 2 }}>
-                            <Button
-                                type="submit"
-                                variant="outlined"
-                                startIcon={<ModeEditOutlineOutlinedIcon />}
-                                onClick={() => setShowPasswordField(!showPasswordField)}
-                            >
-                                Change Password
-                            </Button>
+                            {!showPasswordField ? (
+                                <Button
+                                    type="submit"
+                                    variant="outlined"
+                                    startIcon={<ModeEditOutlineOutlinedIcon />}
+                                    onClick={() => setShowPasswordField(true)}
+                                >
+                                    Change Password
+                                </Button>
+                            ) : (<>
+                                <Button
+                                    type="submit"
+                                    variant="outlined"
+                                    startIcon={isPasswordFormValid ? <SaveOutlinedIcon /> : <ModeEditOutlineOutlinedIcon />}
+                                    onClick={() => setShowPasswordField(true)}
+                                    disabled={!isPasswordFormValid}
+                                >
+                                    Save new password
+                                </Button>
+                                <Button variant="text" onClick={() => setShowPasswordField(false)}>
+                                    Cancel
+                                </Button>
+                            </>)}
                         </Box>
                     </Grid>
                 </Grid>
