@@ -59,6 +59,8 @@ export default defineConfig({
             console.log('Request:', proxyReq);
           });
           proxy.on('proxyRes', (proxyRes, req, res) => {
+            console.log('Received response', res);
+            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
             const location = proxyRes.headers['location'];
             console.log('Received location', location);
           
@@ -93,6 +95,44 @@ export default defineConfig({
               res.setHeader('Access-Control-Allow-Origin', origin);
             }
             res.setHeader('Access-Control-Allow-Credentials', 'true');
+          });
+        },
+      },
+      '^/[^/]+/ontologies/uris/.*/spec': {
+        target: 'https://uri.olympiangods.org',
+        changeOrigin: true,
+        secure: false,
+        rewrite: path => path, // Keep full path
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('Proxying ontology spec request:', req.method, req.url);
+            console.log('Headers:', proxyReq.getHeaders());
+            if (req.headers.authorization) {
+              proxyReq.setHeader('Authorization', req.headers.authorization);
+            }
+          });
+      
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            console.log('Received response', res);
+            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+            const location = proxyRes.headers['location'];
+            console.log('Received location', location);
+          
+            if (proxyRes.statusCode === 303 && location) {
+              // Prevent browser from seeing the actual Location
+              delete proxyRes.headers['location'];
+          
+              // Inject the location into a custom header we can use in Axios
+              res.setHeader('X-Redirect-Location', location);
+            }
+
+            // Required for credentialed CORS
+            const origin = req.headers.origin;
+            if (origin) {
+              res.setHeader('Access-Control-Allow-Origin', origin);
+            }
+            res.setHeader('Access-Control-Allow-Credentials', 'true');
+            res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
           });
         },
       }

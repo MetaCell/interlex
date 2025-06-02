@@ -125,23 +125,70 @@ export const createNewEntity = async ({ group, data, session }: { group: string;
 
 };
 
-export const createNewOntology = async ({ user, token , ontologyName , title , subjects }: {
-  user: string; token: string; ontologyName: string; title: string; subjects: string[] }) => {
-  const endpoint = `/${user}/ontologies/uris/${ontologyName}/spec`;
+export const createNewOntology = async ({
+  groupname,
+  token,
+  ontologyName,
+  title,
+  subjects,
+}: {
+  groupname: string;
+  token: string;
+  ontologyName: string;
+  title: string;
+  subjects: string[];
+}) => {
+  const endpoint = `/${groupname}/ontologies/uris/${ontologyName}/spec`;
 
   const data = {
-    title,
-    subjects,
+    title : title,
+    subjects : subjects,
   };
 
   const headers = {
-    'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
   };
-  
-  const response = await createPostRequest<any, any>(
-    endpoint,
-    headers )(data);
 
-  return response
+  try {
+    const postResponse = await createPostRequest<any, any>(endpoint, headers)(data);
+
+    // If the POST creates a new location, try fetching it (simulate follow-up GETs from the test)
+    if (postResponse?.location) {
+      const getResponse = await fetch(postResponse.location, {
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+
+      // Optionally fetch HTML if needed (like the .html equivalent in the Python test)
+      const htmlResponse = await fetch(endpoint, {
+        headers: {
+          Accept: 'text/html',
+        },
+      });
+
+      return {
+        created: true,
+        data: postResponse,
+        jsonResponse: await getResponse.json(),
+        htmlAvailable: htmlResponse.ok,
+      };
+    }
+
+    return {
+      created: true,
+      data: postResponse,
+    };
+  } catch (error: any) {
+    return {
+      created: false,
+      error: error?.response?.data || error.message,
+    };
+  }
+};
+
+export const getNewTokenApi = ({ groupname, data }: { groupname: string, data: any }) => {
+  const endpoint = `/${groupname}${API_CONFIG.REAL_API.API_NEW_TOKEN}`;
+  return createPostRequest<any, any>(endpoint, { "Content-Type" : "application/json" })(data);
 };

@@ -72,7 +72,7 @@ const useOrganizationData = (id) => {
             }
         };
 
-        fetchData();
+        //fetchData();
     }, [id]);
 
     return { organization, organizationCuries, organizationTerms, organizationOntologies, loading };
