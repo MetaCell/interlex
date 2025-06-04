@@ -4,9 +4,9 @@ import IconButton from '@mui/material/IconButton';
 import PropTypes from "prop-types";
 import { vars } from '../../theme/variables';
 
-const { gray300, brand600, inputBoxShadow } = vars;
+const { gray300, brand600, error300, inputBoxShadow, inputErrorBoxShadow } = vars;
 
-const ActionInput = ({ name, value, onChange, actionButton, placeholder, type, size, inputIcon }) => {
+const ActionInput = ({ name, value, onChange, error, actionButton, placeholder, type, size, inputIcon }) => {
     return (
         <Paper
             component="div"
@@ -44,6 +44,12 @@ const ActionInput = ({ name, value, onChange, actionButton, placeholder, type, s
                     '&.Mui-focused': {
                         borderColor: brand600,
                         borderWidth: "2px"
+                    },
+                    '&.MuiInputBase-colorError': {
+                        borderColor: error300,
+                        '&.Mui-focused': {
+                            boxShadow: inputErrorBoxShadow
+                        }
                     }
                 }}
                 type={type}
@@ -51,6 +57,7 @@ const ActionInput = ({ name, value, onChange, actionButton, placeholder, type, s
                 onChange={onChange}
                 name={name}
                 placeholder={placeholder}
+                color={error ? 'error' : 'info'}
                 inputProps={{ 'aria-label': name }}
             />
             {inputIcon && (<IconButton type="button" sx={{ py: '0.625rem', px: "0.875rem" }} aria-label="search">
@@ -65,6 +72,7 @@ ActionInput.propTypes = {
     placeholder: PropTypes.string,
     name: PropTypes.string.isRequired,
     value: PropTypes.string.isRequired,
+    error: PropTypes.bool,
     onChange: PropTypes.func.isRequired,
     type: PropTypes.string,
     size: PropTypes.string,

@@ -249,12 +249,6 @@ const theme = createTheme({
 			},
 		},
 
-		MuiTextField: {
-			styleOverrides: {
-				
-			}
-		},
-
 		MuiContainer: {
 			styleOverrides: {
 				maxWidthXl: {
