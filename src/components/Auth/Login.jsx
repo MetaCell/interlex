@@ -42,37 +42,6 @@ const Login = () => {
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    (async () => {
-      const userSettings = JSON.parse(localStorage.getItem(API_CONFIG.SESSION_DATA.SETTINGS));
-      if (userSettings) {
-        try {
-          const userData = await requestUserSettings(userSettings?.groupname);
-          setUserData({
-            name: userData['groupname'],
-            id: userData['orcid'],
-            email: userData?.emails[0]?.email,
-            role: userData['own-role'],
-            groupname: userData['groupname'],
-            settings: userData
-          });
-          navigate("/");
-        } catch (error) {
-          console.error("Error fetching user settings:", error);
-          localStorage.removeItem(API_CONFIG.SESSION_DATA.SETTINGS);
-          localStorage.removeItem(API_CONFIG.SESSION_DATA.COOKIE);
-          removeCookie('session', { path: '/' });
-          setErrors((prev) => ({
-            ...prev,
-            auth: "Session expired. Please log in again.",
-          }));
-        }
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-
-  React.useEffect(() => {
     let eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
     let eventer = window[eventMethod];
     let messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";

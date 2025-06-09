@@ -106,8 +106,8 @@ const styles = {
     },
 
     avatar: {
-        border: '0.0469rem solid rgba(0,0,0,0.08)', 
-        width: '2.5rem', 
+        border: '0.0469rem solid rgba(0,0,0,0.08)',
+        width: '2.5rem',
         height: '2.5rem',
         '& .MuiSvgIcon-root': {
             width: '1.5rem',
@@ -121,7 +121,8 @@ const NavMenu = [
     {
         label: 'Organizations',
         icon: <OrganizationsIcon />,
-        href: '/organizations'
+        href: '/organizations',
+        protected: true
     },
     {
         label: 'Term activity',
@@ -257,17 +258,21 @@ const Header = () => {
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     React.useEffect(() => {
         console.log("Stored user in context ", user)
-        if(user !== null && user?.groupname !== undefined) {
+        if (user !== null && user?.groupname !== undefined) {
             setIsLoggedIn(true)
         } else {
             setIsLoggedIn(false)
         }
     }, [user])
+
+    const filteredNavMenu = NavMenu.filter(menu =>
+        !menu.protected || (menu.protected && isLoggedIn)
+    );
 
     return (
         <>
@@ -293,7 +298,7 @@ const Header = () => {
                         }}
                     >
                         <List>
-                            {NavMenu.map((menu, index) => (
+                            {filteredNavMenu.map((menu, index) => (
                                 <ListItem key={index} disablePadding>
                                     <ListItemButton onClick={(e) => handleMenuClick(e, menu)}>
                                         <ListItemIcon>
@@ -303,23 +308,25 @@ const Header = () => {
                                     </ListItemButton>
                                 </ListItem>
                             ))}
-                            <Divider sx={{ mt: 0.5, mb: 0.5, color: gray200 }} />
-                            <ListItem disablePadding onClick={handleClickCurieEditor}>
-                                <ListItemButton>
-                                    <ListItemIcon>
-                                        <SortIcon />
-                                    </ListItemIcon>
-                                    <ListItemText primary={'Curie Editor'} />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem disablePadding onClick={handleOpenEditBulkTerms}>
-                                <ListItemButton>
-                                    <ListItemIcon>
-                                        <ModeEditOutlineOutlinedIcon fontSize='small' />
-                                    </ListItemIcon>
-                                    <ListItemText primary={'Terms editor'} />
-                                </ListItemButton>
-                            </ListItem>
+                            {isLoggedIn && (<>
+                                <Divider sx={{ mt: 0.5, mb: 0.5, color: gray200 }} />
+                                <ListItem disablePadding onClick={handleClickCurieEditor}>
+                                    <ListItemButton>
+                                        <ListItemIcon>
+                                            <SortIcon />
+                                        </ListItemIcon>
+                                        <ListItemText primary={'Curie Editor'} />
+                                    </ListItemButton>
+                                </ListItem>
+                                <ListItem disablePadding onClick={handleOpenEditBulkTerms}>
+                                    <ListItemButton>
+                                        <ListItemIcon>
+                                            <ModeEditOutlineOutlinedIcon fontSize='small' />
+                                        </ListItemIcon>
+                                        <ListItemText primary={'Terms editor'} />
+                                    </ListItemButton>
+                                </ListItem>
+                            </>)}
                         </List>
                     </Popover>
                     <a onClick={() => navigate("/")} style={{ cursor: 'pointer' }}>

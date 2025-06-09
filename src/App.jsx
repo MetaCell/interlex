@@ -1,11 +1,12 @@
-import { useEffect, useContext } from "react";
+import { useEffect, useContext, useState } from "react";
 import CssBaseline from "@mui/material/CssBaseline";
-import { Box, ThemeProvider } from "@mui/material";
+import { Box, ThemeProvider, CircularProgress } from "@mui/material";
 import {
 	BrowserRouter as Router,
 	Routes,
 	Route,
 	useLocation,
+	useNavigate
 } from "react-router-dom";
 import theme from "./theme";
 import PropTypes from "prop-types";
@@ -40,38 +41,72 @@ const PageContainer = ({ children }) => {
 	);
 };
 
+const ProtectedRoute = ({ children }) => {
+	const { user } = useContext(GlobalDataContext);
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		console.log("user in protected route: ", user)
+		if (!user) {
+			navigate('/login');
+		}
+	}, [user, navigate]);
+
+	return user ? children : null;
+};
+
 function MainContent() {
 
-	const { setUserData } = useContext(GlobalDataContext);
+	const { setUserData, loading } = useContext(GlobalDataContext);
+	const navigate = useNavigate();
 	// eslint-disable-next-line no-unused-vars
 	const [existingCookies, setCookie, removeCookie] = useCookies(['session']);
 
 	useEffect(() => {
 		(async () => {
-			const userSettings = JSON.parse(
-				localStorage.getItem(API_CONFIG.SESSION_DATA.SETTINGS)
-			);
+			const userSettings = JSON.parse(localStorage.getItem(API_CONFIG.SESSION_DATA.SETTINGS));
 			if (userSettings) {
 				try {
 					const userData = await requestUserSettings(userSettings?.groupname);
 					setUserData({
-						name: userData["groupname"],
-						id: userData["orcid"],
+						name: userData['groupname'],
+						id: userData['orcid'],
 						email: userData?.emails[0]?.email,
-						role: userData["own-role"],
-						groupname: userData["groupname"],
-						settings: userData,
+						role: userData['own-role'],
+						groupname: userData['groupname'],
+						settings: userData
 					});
+					navigate("/");
 				} catch (error) {
 					console.error("Error fetching user settings:", error);
 					localStorage.removeItem(API_CONFIG.SESSION_DATA.SETTINGS);
 					localStorage.removeItem(API_CONFIG.SESSION_DATA.COOKIE);
-					removeCookie("session", { path: "/" });
+					removeCookie('session', { path: '/' });
+					// setErrors((prev) => ({
+					// 	...prev,
+					// 	auth: "Session expired. Please log in again.",
+					// }));
 				}
 			}
 		})();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	if (loading) {
+		return (
+			<div
+				style={{
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+					width: "100%",
+					height: "100vh"
+				}}
+			>
+				<CircularProgress />
+			</div>
+		)
+	}
 
 	return (
 		<Box
@@ -110,17 +145,21 @@ function MainContent() {
 					<Route
 						path="/organizations"
 						element={
-							<PageContainer>
-								<Organizations />
-							</PageContainer>
+							<ProtectedRoute>
+								<PageContainer>
+									<Organizations />
+								</PageContainer>
+							</ProtectedRoute>
 						}
 					/>
 					<Route
 						path="/curie-editor"
 						element={
-							<PageContainer>
-								<CurieEditor />
-							</PageContainer>
+							<ProtectedRoute>
+								<PageContainer>
+									<CurieEditor />
+								</PageContainer>
+							</ProtectedRoute>
 						}
 					/>
 					<Route
@@ -146,17 +185,21 @@ function MainContent() {
 					<Route
 						path="/organizations/:title"
 						element={
-							<PageContainer>
-								<SingleOrganization />
-							</PageContainer>
+							<ProtectedRoute>
+								<PageContainer>
+									<SingleOrganization />
+								</PageContainer>
+							</ProtectedRoute>
 						}
 					/>
 					<Route
 						path="/organizations/:title/curie-editor"
 						element={
-							<PageContainer>
-								<OrganizationsCurieEditor />
-							</PageContainer>
+							<ProtectedRoute>
+								<PageContainer>
+									<OrganizationsCurieEditor />
+								</PageContainer>
+							</ProtectedRoute>
 						}
 					/>
 				</Routes>
