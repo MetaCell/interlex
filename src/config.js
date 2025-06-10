@@ -32,6 +32,7 @@ export const API_CONFIG = {
         CREATE_NEW_ENTITY: "/priv/entity-new",
         CREATE_NEW_ONTOLOGY: "/{groupname}/ontologies/uris/{filename}/spec",
         API_NEW_TOKEN: "/priv/api-token-new",
+        API_RETRIEVE_TOKEN: "/priv/api-tokens",
         GET_ORGANIZATIONS: "/priv/role-other",
         LOGOUT: "/priv/logout",
     },

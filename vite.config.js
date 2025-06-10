@@ -104,7 +104,7 @@ export default defineConfig({
         secure: false,
         rewrite: path => path, // Keep full path
         configure: (proxy) => {
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
+          proxy.on('proxyReq', (proxyReq, req) => {
             console.log('Proxying ontology spec request:', req.method, req.url);
             console.log('Headers:', proxyReq.getHeaders());
             if (req.headers.authorization) {

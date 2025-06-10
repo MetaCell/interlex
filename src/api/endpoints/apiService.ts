@@ -192,3 +192,8 @@ export const getNewTokenApi = ({ groupname, data }: { groupname: string, data: a
   const endpoint = `/${groupname}${API_CONFIG.REAL_API.API_NEW_TOKEN}`;
   return createPostRequest<any, any>(endpoint, { "Content-Type" : "application/json" })(data);
 };
+
+export const retrieveTokenApi = ({ groupname }: { groupname: string }) => {
+  const endpoint = `/${groupname}${API_CONFIG.REAL_API.API_RETRIEVE_TOKEN}`;
+  return createGetRequest<any, any>(endpoint, "application/json")();
+};

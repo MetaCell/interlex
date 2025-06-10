@@ -2,7 +2,6 @@ import * as React from "react";
 import { useContext } from "react";
 import { debounce } from 'lodash';
 import PropTypes from "prop-types";
-import termParser from "../../parsers/termParser";
 import CustomInputBox from "../common/CustomInputBox";
 import CustomSelectBox from "../common/CustomSelectBox";
 import { useState, useEffect, useCallback } from "react";
@@ -13,8 +12,6 @@ import { Stack, Button, Grid, Box, Typography } from "@mui/material";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
 import { useOrganizations } from "../../helpers/useOrganizations";
-import { createNewOntology , getNewTokenApi} from "../../api/endpoints/apiService";
-import { API_CONFIG } from '../../config';
 
 import { vars } from "../../theme/variables";
 const { gray800, gray500, gray600 } = vars;
@@ -43,7 +40,7 @@ const CreateForkDialog = ({ open, handleClose, onSubmit }) => {
     const { getMatchTerms } = useMockApi();
     // eslint-disable-next-line no-unused-vars
     const [loading, setLoading] = useState(true);
-    const [termResults, setTermResults] = useState([]);
+    const [termResults] = useState([]);
     const [newFork, setNewFork] = React.useState({
         term: null,
         owner: "",
@@ -55,54 +52,14 @@ const CreateForkDialog = ({ open, handleClose, onSubmit }) => {
         organizations,
     } = useOrganizations(groupname);
 
-
-    const testCreateOntology = async () => {
-        const data = {
-            "token-type": "personal",
-            "scope": "user-all"
-          };
-
-        const token = "localStorage.getItem("token")"
-        const ontologyName = `test-${Math.random().toString(36).substring(2, 10)}`;
-        const title = 'Test New Ontology Title';
-        const subjects = [
-          'http://purl.obolibrary.org/obo/BFO_0000001',
-          'http://purl.obolibrary.org/obo/IAO_0000002',
-        ];
-      
-        const result = await createNewOntology({
-          groupname,
-          token,
-          ontologyName,
-          title,
-          subjects,
-        });
-      
-        if (result.created) {
-          console.log('✅ Ontology created successfully!');
-          console.log('Ontology details:', result.data);
-      
-          if (result.jsonResponse) {
-            console.log('Retrieved JSON:', result.jsonResponse);
-          }
-      
-          if (result.htmlAvailable !== undefined) {
-            console.log('HTML version available:', result.htmlAvailable);
-          }
-        } else {
-          console.error('❌ Failed to create ontology:', result.error);
-        }
-      };
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const fetchTerms = useCallback(
-        debounce((term) => {
+        debounce(() => {
             setLoading(true);
             // getMatchTerms("base", "i", { filter: "", value: "" }).then(data => {
             //     const parsedData = termParser(data, term);
             //     setTermResults(parsedData.results);
             // });
-            testCreateOntology();
         }, 300),
         [getMatchTerms]
     );
