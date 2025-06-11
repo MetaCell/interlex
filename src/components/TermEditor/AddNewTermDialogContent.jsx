@@ -3,25 +3,22 @@ import PropTypes from "prop-types";
 import { Box } from "@mui/material";
 import ImportFileTab from "./ImportFileTab";
 import BasicTabs from "../common/CustomTabs";
-import { addTerm } from "../../api/endpoints";
 import NewTermSidebar from "./NewTermSidebar";
 import StatusStep from "../common/StatusStep";
 import { useNavigate } from "react-router-dom";
 import ManualImportTab from "./ManualImportTab";
 import AddPredicatesStep from "./AddPredicatesStep";
 import { getAddTermStatusProps } from "./termStatusProps";
-import { termParser } from "../../../src/parsers/termParser";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { getExistingIDs, getUser } from "../../api/endpoints";
 import { useState, useEffect, useMemo, useCallback } from "react";
-import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
-import * as mockApiInterlex from "../../api/endpoints/interLexURIStructureAPI";
+import { getEndpointsIlx, elasticSearch } from './../../api/endpoints/index';
+import { GlobalDataContext } from "../../contexts/DataContext";
+import { useContext } from "react";
+import { createNewEntity } from './../../api/endpoints/apiService'
 
 import { vars } from "../../theme/variables";
 const { gray800, gray700 } = vars;
-
-const useMockApi = () => mockApi;
-const useMockApiInterlex = () => mockApiInterlex;
 
 const initialFormState = {
     label: "",
@@ -34,7 +31,7 @@ const initialFormState = {
 }
 
 const formatIdText = (termId) => {
-    const [prefix, suffix] = termId.split('_');
+    const [prefix, suffix] = termId.split(':');
     return (
         <div>
             <span style={{ fontSize: '1rem', fontWeight: 500, color: gray800 }}>
@@ -47,17 +44,15 @@ const formatIdText = (termId) => {
     );
 }
 
-const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChange, onReset }) => {
+const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChange, onReset, onClose }) => {
 
-    const { getMatchTerms } = useMockApi();
-    const { getEndpointsIlx } = useMockApiInterlex();
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
     const [termResults, setTermResults] = useState([]);
     const [tabValue, setTabValue] = useState(0);
     const [openSidebar, setOpenSidebar] = useState(true);
-    const [data, setData] = useState(null);
-    const [responseStatus, setResponseStatus] = useState(null)
+    const [data] = useState(null);
+    const [addTermResponse, setAddTermResponse] = useState(null)
     const [termValue, setTermValue] = useState('');
     const [ids, setIds] = useState([]);
     const [predicates, setPredicates] = useState([{ subject: '', predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
@@ -65,6 +60,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     const [url, setUrl] = useState('');
     const [formState, setFormState] = useState(initialFormState);
     const [newTermId, setNewTermId] = useState("");
+    const { user } = useContext(GlobalDataContext);
 
     const memoData = useMemo(() => data, [data]);
 
@@ -72,39 +68,38 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     const fetchTerms = useCallback(
         debounce((termValue) => {
             setLoading(true);
-            if (termValue) {
-                getEndpointsIlx("base", termValue).then(data => {
-                    const parsedData = termParser(data);
-                    setData(parsedData?.results[0]);
-                    setLoading(false);
-                });
-            } else {
-                getMatchTerms("base", "i", { filter: "", value: "" }).then(data => {
-                    const parsedData = termParser(data, "");
-                    setTermResults(parsedData.results);
-                    setLoading(false);
-                });
-            }
+            elasticSearch(termValue).then(data => {
+                setTermResults(data.results?.results);
+                setLoading(false);
+            });
         }, 300),
-        [getEndpointsIlx, getMatchTerms]
+        [getEndpointsIlx, elasticSearch]
     );
 
     const addTermRequest = useCallback(async (group, term) => {
-        await addTerm("base", term).then((response) => {
-            console.log("Term added ", response)
-            setNewTermId(response.term.id.split("/").pop())
-        })
-            .catch((error) => {
-                console.log("Error ", error)
-            });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [addTerm]);
+        const token = localStorage.getItem("token");
+        const groupName = user?.groupname || group;
+        const body = {
+          'rdf-type': term.superClass || 'owl:Class',
+          label: term.label,
+          exact: term.synonyms?.map( s => s.label),
+        };
+      
+        try {
+          const response = await createNewEntity({ group: groupName, data: body, session: token });
+          setAddTermResponse(response);
+          setNewTermId(response.term.id.split("/").pop());
+        } catch (error) {
+            setAddTermResponse(error);
+        }
+      }, [user]);      
 
     const handleChangeTabs = (_, newValue) => setTabValue(newValue);
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
     const handleAddNewTerm = () => {
         onReset();
         setTermValue('');
+        setAddTermResponse(null)
         setIds([]);
         setFormState(initialFormState)
     }
@@ -147,15 +142,16 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     }
 
     const handleGoToTermClick = () => {
-        navigate(`/view?searchTerm=${termValue.charAt(0).toUpperCase() + termValue.slice(1)}`);
+        navigate(`/view?searchTerm=${newTermId}`);
+        onClose()
     }
 
     useEffect(() => {
-        getMatchTerms("base", "i", { filter: "", value: "" }).then(data => {
-            const parsedData = termParser(data, termValue);
-            setTermResults(parsedData.results);
+        elasticSearch(termValue, 20, 0).then(data => {
+            setTermResults(data.results?.results);
+            setLoading(false);
         });
-    }, [termValue, getMatchTerms]);
+    }, [termValue]);
 
     useEffect(() => {
         fetchTerms(termValue);
@@ -171,14 +167,14 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     }, [memoData]);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    const getIds = useCallback(debounce(async () => {
-        const ids = await getExistingIDs();
-        setIds(ids)
+    const getIds = useCallback(debounce(async (termValue) => {
+        const ids = await getExistingIDs(termValue || "a");
+        setIds(ids?.results)
     }), [getUser]);
 
     useEffect(() => {
-        getIds();
-    }, [getIds]);
+        getIds(termValue);
+    }, [termValue,getIds]);
 
     useEffect(() => {
         if (activeStep === 2) {
@@ -186,41 +182,19 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
         }
     }, [addTermRequest, formState, activeStep]);
 
-    //can be deleted, use only for testing purposes
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch('/api/some-endpoint');
-                if (!response.ok) {
-                    throw new Error('HTTP error');
-                }
-                const data = await response.json();
-                setResponseStatus({ success: true, data });
-            } catch (error) {
-                // should be success: false, but true for now so we can wee success status message
-                setResponseStatus({ success: true, error: error.message });
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
-
-
     const predicatesOptions = predicates.map(row => ({
         label: row.title,
         value: row.title
     }));
 
-    const isResultsEmpty = termResults.length === 0;
-    const isLabelEmpty = formState.label === "";
+    const isResultsEmpty = termResults?.length === 0;
+    const isLabelEmpty = formState?.label === "";
     // eslint-disable-next-line no-unused-vars
     const isContinueButtonDisabled = !areMatchesChecked || isLabelEmpty
     const formattedNewTermId = formatIdText(newTermId);
 
 
-    const statusProps = getAddTermStatusProps(responseStatus, termValue);
+    const statusProps = getAddTermStatusProps(addTermResponse, termValue);
 
     return (
         <>
@@ -247,10 +221,10 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
                 </Box>
             )}
             {activeStep === 1 && <AddPredicatesStep termValue={termValue.charAt(0).toUpperCase() + termValue.slice(1)} predicatesOptions={predicatesOptions} />}
-            {activeStep === 2 && <StatusStep
+            {activeStep === 2 && addTermResponse != null && <StatusStep
                 statusProps={statusProps}
                 onAction={handleAddNewTerm}
-                onTryAgain={() => console.log("Try again")}
+                onTryAgain={handleAddNewTerm}
                 onClose={handleGoToTermClick}
                 actionButtonStartIcon={<AddOutlinedIcon />}
                 additionalInfo={formattedNewTermId}
@@ -263,7 +237,8 @@ AddNewTermDialogContent.propTypes = {
     activeStep: PropTypes.number.isRequired,
     areMatchesChecked: PropTypes.bool.isRequired,
     onMatchesChange: PropTypes.func.isRequired,
-    onReset: PropTypes.func.isRequired
+    onReset: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired,
 };
 
 export default AddNewTermDialogContent;

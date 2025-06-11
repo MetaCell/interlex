@@ -96,6 +96,7 @@ const TermDialog = ({ open, handleClose, searchTerm, forwardPredicateStep }) => 
                     areMatchesChecked={areMatchesChecked}
                     onMatchesChange={handleMatchesChange}
                     onReset={handleReset}
+                    onClose={handleCancelBtnClick}
                 />
             )}
         </CustomizedDialog>

@@ -28,9 +28,9 @@ interface JsonLdResponse {
   '@graph'?: GraphNode[];
 }
 
-export const login = createPostRequest<any, LoginRequest>(API_CONFIG.REAL_API.SIGNIN, "application/x-www-form-urlencoded")
+export const login = createPostRequest<any, LoginRequest>(API_CONFIG.REAL_API.SIGNIN, {"Content-Type": "application/x-www-form-urlencoded"})
 
-export const register = createPostRequest<any, RegisterRequest>(API_CONFIG.REAL_API.NEWUSER_ILX, "application/x-www-form-urlencoded")
+export const register = createPostRequest<any, RegisterRequest>(API_CONFIG.REAL_API.NEWUSER_ILX, {"Content-Type": "application/x-www-form-urlencoded"})
 
 
 export const getUserSettings = (group: string) => {
@@ -40,7 +40,7 @@ export const getUserSettings = (group: string) => {
 
 export const createNewOrganization = ({ group, data }: { group: string, data: any }) => {
   const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ORGANIZATION}`;
-  return createPostRequest<any, any>(endpoint, "application/json")(data);
+  return createPostRequest<any, any>(endpoint, { "Content-Type" : "application/json" })(data);
 };
 
 export const getOrganizations = (group: string) => {
@@ -77,4 +77,50 @@ export const getSelectedTermLabel = async (searchTerm: string): Promise<string |
     console.error(err.message);
     return undefined;
   }
+};
+
+export const createNewEntity = async ({group,data,session}: { group: string; data: any; session: string }) => {
+  try {
+    const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ENTITY}`;
+    const response = await createPostRequest<any, any>(
+      endpoint,
+      { "Content-Type" : "application/x-www-form-urlencoded" }
+    )(data);
+
+    // If the response is HTML (a string), extract TMP ID
+    if (typeof response === "string") {
+      const match = response.match(/TMP:\d{9}/);
+      if (match) {
+        return {
+          term: {
+            id: `${match[0]}`,
+          },
+          raw: response,
+          status: 200,
+        };
+      }
+    }
+
+    // Otherwise, return response as-is
+    return response;
+  } catch (error) {
+    if (error?.response.status === 409) {
+      const match = error?.response?.data?.existing?.[0];
+      if (match) {
+        return {
+          term: {
+            id: `${match}`,
+          },
+          raw: error?.response,
+          status: error?.response?.status,
+        };
+      }
+    }
+
+    return {
+      raw: error?.response,
+      status: error?.response?.status,
+    };
+  }
+  
 };
