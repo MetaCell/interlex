@@ -72,7 +72,6 @@ const useOrganizationData = (id) => {
             }
         };
 
-        //fetchData();
     }, [id]);
 
     return { organization, organizationCuries, organizationTerms, organizationOntologies, loading };
