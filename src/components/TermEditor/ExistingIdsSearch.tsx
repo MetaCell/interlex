@@ -19,7 +19,8 @@ const ExistingIdsSearch = ({ options, value, onChange, label, placeholder }) => 
         <>
             <Typography variant="body1" sx={{ fontWeight: 500, color: gray800, marginBottom: '0.75rem' }}>{label}</Typography>
             <Autocomplete
-                options={options}
+                multiple
+                options={options || []}
                 disableClearable
                 value={value}
                 onChange={onChange}

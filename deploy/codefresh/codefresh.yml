@@ -3,6 +3,8 @@ stages:
   - "clone"
   - "build"
   - "deploy"
+  - "e2e_test"
+
 steps:
   clone:
     stage: "clone"
@@ -10,6 +12,7 @@ steps:
     type: "git-clone"
     repo: "metacell/interlex"
     revision: "${{CF_BRANCH}}"
+
   build:
     stage: "build"
     title: "Building interlex"
@@ -23,6 +26,7 @@ steps:
     build_arguments:
       - VITE_API_URL=${{VITE_API_URL}}
       - VITE_SCICRUNCH_API_KEY=${{VITE_SCICRUNCH_API_KEY}}
+
   deploy:
     stage: "deploy"
     title: "Deploying interlex"
@@ -35,3 +39,32 @@ steps:
     environment:
       - KUBECONTEXT=${{CLUSTER_NAME}}
       - KUBERNETES_NAMESPACE=${{NAMESPACE}}
+  test_build:
+    stage: "e2e_test"
+    type: build
+    title: Building ILEX test image
+    image_name: ilex-test
+    dockerfile: ./interlex/test/Dockerfile.testing
+    working_directory: .
+    buildkit: true
+    registry: ${{CODEFRESH_REGISTRY}}
+  e2e_test:
+    type: composition
+    title: Running E2E Tests
+    stage: e2e_test
+    working_directory: ./interlex/test
+    composition:
+      version: '2'
+      services:
+        app:
+          image: '${{build}}'
+    composition_candidates:
+      test:
+        image: '${{test_build}}'
+        links:
+          - app
+        working_dir: /home/pptruser/test
+        environment:
+          - TEST_USERNAME=${{TEST_USERNAME}}
+          - TEST_PASSWORD=${{TEST_PASSWORD}}
+        command: bash -c 'npm test create && npm test userInfo && npm test searchInfo'

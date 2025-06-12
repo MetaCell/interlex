@@ -39,7 +39,7 @@ const PredicateGroupInput = ({ predicate, onChange }) => {
   
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
-    const data = await getMatchTerms(searchTerm);
+    const data = await getMatchTerms("base", searchTerm);
     setTerms(data?.results);
   }, 500), [getMatchTerms]);
   
