@@ -36,6 +36,7 @@ const RawDataViewer = ({ dataId, dataFormat }) => {
       })
     }, [dataId, dataFormat]);
 
+    console.log("formattedData: ", formattedData)
     return (
         <div style={{ maxWidth: '81.25rem' }}>
             {formattedData ? (

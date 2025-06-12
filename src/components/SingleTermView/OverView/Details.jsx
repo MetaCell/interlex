@@ -35,6 +35,8 @@ const Details = ({loading,  data }) => {
     return <div>No data available</div>;
   }
 
+  console.log("data: ", data)
+
   return (
     <>
       <Grid container>

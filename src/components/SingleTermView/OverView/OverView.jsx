@@ -21,6 +21,7 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat }) => {
     debounce((searchTerm) => {
       if (searchTerm) {
         getMatchTerms("base", searchTerm).then(data => {
+          console.log("data from api call: ", data)
           setData(data?.results?.[0]);
           setLoading(false);
         });
