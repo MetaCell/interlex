@@ -46,7 +46,6 @@ const ProtectedRoute = ({ children }) => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		console.log("user in protected route: ", user)
 		if (!user) {
 			navigate('/login');
 		}
