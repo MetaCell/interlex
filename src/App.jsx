@@ -1,4 +1,4 @@
-import { useEffect, useContext, useState } from "react";
+import { useEffect, useContext } from "react";
 import CssBaseline from "@mui/material/CssBaseline";
 import { Box, ThemeProvider, CircularProgress } from "@mui/material";
 import {
@@ -258,6 +258,10 @@ function App() {
 }
 
 PageContainer.propTypes = {
+	children: PropTypes.node.isRequired,
+};
+
+ProtectedRoute.propTypes = {
 	children: PropTypes.node.isRequired,
 };
 
