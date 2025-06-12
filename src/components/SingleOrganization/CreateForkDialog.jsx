@@ -56,10 +56,7 @@ const CreateForkDialog = ({ open, handleClose, onSubmit }) => {
     const fetchTerms = useCallback(
         debounce(() => {
             setLoading(true);
-            // getMatchTerms("base", "i", { filter: "", value: "" }).then(data => {
-            //     const parsedData = termParser(data, term);
-            //     setTermResults(parsedData.results);
-            // });
+            
         }, 300),
         [getMatchTerms]
     );
