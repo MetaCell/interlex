@@ -8,7 +8,7 @@ import CustomizedDialog from "../common/CustomizedDialog";
 import ImportFileTab from "./../TermEditor/ImportFileTab";
 import BasicTabs from "../common/CustomTabs";
 import { useState } from "react";
-import { createNewOntology, retrieveTokenApi } from "../../api/endpoints/apiService";
+import { createNewOntology, getNewTokenApi, retrieveTokenApi } from "../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { useContext } from "react";
 
@@ -50,7 +50,15 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
         const groupname = user?.groupname
 
         const retrieved_tokens = await retrieveTokenApi({groupname})
-        const token = retrieved_tokens?.[1]?.key
+        let token =  null;
+        if ( retrieved_tokens?.length > 0 ){
+            token = retrieved_tokens?.[retrieved_tokens?.length - 1]?.key;
+        }
+        
+        if ( token === undefined || token === null) {
+            const newToken = await getNewTokenApi({groupname});
+            token = newToken?.key;
+        }
         const ontologyName = newOntology?.title + "_" + Math.random().toString(36).substring(2, 10);
         const title = newOntology?.title;
         const subjects = files?.[0]?.data?.subjects;

@@ -71,7 +71,9 @@ const useOrganizationData = (id) => {
                 setLoading(false);
             }
         };
-
+        if ( id ) {
+            fetchData();
+        }
     }, [id]);
 
     return { organization, organizationCuries, organizationTerms, organizationOntologies, loading };
@@ -92,9 +94,8 @@ const SingleOrganization = () => {
     const [ontologiesPageOptions, setOntologiesPageOptions] = useState([]);
 
     const navigate = useNavigate();
-    const id = "1"; // Hardcoded for now
 
-    const { organization, organizationTerms, organizationOntologies, loading } = useOrganizationData(id);
+    const { organization, organizationTerms, organizationOntologies, loading } = useOrganizationData();
 
     useEffect(() => {
         if (organizationTerms.length > 0) {
