@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
-import {createContext, useState} from "react";
+import {createContext, useState, useEffect} from "react";
+import { API_CONFIG } from '../config';
 
 const GlobalDataContext = createContext();
 
@@ -11,6 +12,7 @@ const GlobalDataProvider = ({ children }) => {
   const [predicatesSingleTermState, setPredicatesSingleTermState] = useState(false);
   const [editBulkSearchFilters, setEditBulkSearchFilters] = useState([]);
   const [storedSearchTerm, setStoredSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
   const setOntologyData = (ontology) => {
     setActiveOntology(ontology);
   };
@@ -39,6 +41,16 @@ const GlobalDataProvider = ({ children }) => {
     setStoredSearchTerm(value)
   }
 
+  useEffect(() => {
+    const userSettings = localStorage.getItem(API_CONFIG.SESSION_DATA.SETTINGS);
+
+    if(userSettings) {
+      setUser(JSON.parse(userSettings))
+    }
+
+    setLoading(false)
+  }, [])
+
   const dataContextValue = {
     user,
     setUserData,
@@ -53,7 +65,8 @@ const GlobalDataProvider = ({ children }) => {
     editBulkSearchFilters,
     setEditBulkSearchData,
     storedSearchTerm,
-    updateStoredSearchTerm
+    updateStoredSearchTerm,
+    loading
   };  
 
   return (
