@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { Box } from "@mui/material";
 import Button from "@mui/material/Button";
-import { BackgroundPattern } from "../../Icons";
+import { BackgroundPattern, StatusErrorBackgroundPattern } from "../../Icons";
 import CustomizedDialog from "./CustomizedDialog";
 import Typography from "@mui/material/Typography";
 
@@ -24,7 +24,7 @@ HeaderRightSideContent.propTypes = {
     finishButtonEndIcon: PropTypes.node,
 };
 
-const StatusDialog = ({ open, handleClose, title, message, subMessage, finishButtonTitle, actionButtonTitle, handleActionButtonClick, finishButtonEndIcon, actionButtonStartIcon }) => {
+const StatusDialog = ({ open, handleClose, title, message, subMessage, finishButtonTitle, actionButtonTitle, handleActionButtonClick, finishButtonEndIcon, actionButtonStartIcon, errored }) => {
     return (
         <CustomizedDialog
             title={title}
@@ -33,7 +33,7 @@ const StatusDialog = ({ open, handleClose, title, message, subMessage, finishBut
             HeaderRightSideContent={<HeaderRightSideContent handleClose={handleClose} finishButtonTitle={finishButtonTitle} finishButtonEndIcon={finishButtonEndIcon} />}
         >
             <Box display='flex' flexDirection='column' justifyContent='center' alignItems='center' height='100%' position='relative'>
-                <Box sx={{
+                { !errored ? <Box sx={{
                     width: '30rem',
                     height: '30rem',
                     objectFit: 'cover',
@@ -45,6 +45,20 @@ const StatusDialog = ({ open, handleClose, title, message, subMessage, finishBut
                 }}>
                     <BackgroundPattern />
                 </Box>
+                :
+                <Box
+                    sx={{
+                        height: '17.875rem',
+                        objectFit: 'cover',
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -60%)',
+                        zIndex: 1,
+                    }}
+                >
+                    <StatusErrorBackgroundPattern/>
+                </Box>}
                 <Box display='flex' flexDirection='column' justifyContent='center' alignItems='center' zIndex={2} padding='2rem' sx={{
                     position: 'absolute',
                     top: '40%',
@@ -82,6 +96,7 @@ StatusDialog.propTypes = {
     handleActionButtonClick: PropTypes.func,
     finishButtonEndIcon: PropTypes.node,
     actionButtonStartIcon: PropTypes.node,
+    errored: PropTypes.bool,
 };
 
 export default StatusDialog;
