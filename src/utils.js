@@ -45,29 +45,29 @@ export const stableSort = (array, comparator) => {
 
 export function compareArrays(originalArray, modifiedArray) {
     if (!Array.isArray(originalArray) || !Array.isArray(modifiedArray)) {
-      console.warn("compareArrays received invalid input", { originalArray, modifiedArray });
-      return [];
+        console.warn("compareArrays received invalid input", { originalArray, modifiedArray });
+        return [];
     }
-  
+
     return originalArray.filter(item => !modifiedArray.includes(item));
 }
 
 export function compareSentences(originalText, modifiedText) {
-  // Split texts into sentences
-  const originalSentences = originalText.match(/[^.!?]+[.!?]+/g) || [];
-  const modifiedSentences = modifiedText.match(/[^.!?]+[.!?]+/g) || [];
-  
-  // Find sentences in original that are not in modified
-  const uniqueSentences = originalSentences.filter(sentence =>
-    !modifiedSentences.some(modSentence =>
-      sentence.trim().toLowerCase() === modSentence.trim().toLowerCase()
-    )
-  );
-  return uniqueSentences;
+    // Split texts into sentences
+    const originalSentences = originalText.match(/[^.!?]+[.!?]+/g) || [];
+    const modifiedSentences = modifiedText.match(/[^.!?]+[.!?]+/g) || [];
+
+    // Find sentences in original that are not in modified
+    const uniqueSentences = originalSentences.filter(sentence =>
+        !modifiedSentences.some(modSentence =>
+            sentence.trim().toLowerCase() === modSentence.trim().toLowerCase()
+        )
+    );
+    return uniqueSentences;
 }
 
 export function compareStrings(originalString, modifiedString) {
-  return originalString !== modifiedString ? [originalString] : []
+    return originalString !== modifiedString ? [originalString] : []
 }
 
 export function compareObjects(originalObject, modifiedObject) {
@@ -75,11 +75,33 @@ export function compareObjects(originalObject, modifiedObject) {
 }
 
 export function getDataType(data) {
-  if (Array.isArray(data)) return "array"
-  if (typeof data === "string") return "string"
-  if (typeof data === "number") return "number"
-  if (typeof data === "boolean") return "boolean"
-  if (data === null) return "null"
-  if (typeof data === "object") return "object"
-  return "unknown"
+    if (Array.isArray(data)) return "array"
+    if (typeof data === "string") return "string"
+    if (typeof data === "number") return "number"
+    if (typeof data === "boolean") return "boolean"
+    if (data === null) return "null"
+    if (typeof data === "object") return "object"
+    return "unknown"
 }
+
+export function formatTimestamp(rawDate) {
+    if (!rawDate || typeof rawDate !== 'string') return 'Invalid date';
+
+    try {
+        const cleanedDateStr = rawDate.replace(',', '.');
+        const date = new Date(cleanedDateStr);
+
+        if (isNaN(date)) return 'Invalid date';
+
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        const hh = String(date.getHours()).padStart(2, '0');
+        const min = String(date.getMinutes()).padStart(2, '0');
+
+        return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+    } catch (e) {
+        return 'Invalid date';
+    }
+}
+

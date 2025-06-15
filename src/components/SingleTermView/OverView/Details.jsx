@@ -7,11 +7,12 @@ import {
 } from "@mui/material";
 import PropTypes from "prop-types";
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
+import { formatTimestamp } from "../../../utils";
 
 import { vars } from "../../../theme/variables";
 const { gray800, gray500 } = vars;
 
-const Details = ({loading,  data }) => {
+const Details = ({ loading, data, jsonData }) => {
   const handleChipClick = (url) => {
     window.open(url, '_blank');
   };
@@ -34,8 +35,10 @@ const Details = ({loading,  data }) => {
   if (!data) {
     return <div>No data available</div>;
   }
-
-  console.log("data: ", data)
+  const graphArray = jsonData["@graph"];
+  const lastGraphItem = graphArray[graphArray.length - 1]
+  const versionIRI = lastGraphItem?.["owl:versionIRI"]?.["@id"];
+  const versionInfo = formatTimestamp(lastGraphItem?.["owl:versionInfo"]);
 
   return (
     <>
@@ -77,7 +80,7 @@ const Details = ({loading,  data }) => {
               Existing IDs
             </Typography>
             <Box display="flex" flexWrap="wrap" gap=".5rem">
-              {data?.existingID && ( processExistingIds(data?.existingID).map((id) =>
+              {data?.existingID && (processExistingIds(data?.existingID).map((id) =>
                 <Chip className="rounded IDchip-outlined" variant="outlined" key={id} label={id} icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(id)} />
               ))}
             </Box>
@@ -113,7 +116,7 @@ const Details = ({loading,  data }) => {
               Version
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {data?.versionInfo}
+              {versionIRI}
             </Typography>
           </Stack>
         </Grid>
@@ -153,7 +156,7 @@ const Details = ({loading,  data }) => {
               Last modify timestamp
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {data?.lastModifyTimestamp}
+              {versionInfo}
             </Typography>
           </Stack>
         </Grid>
@@ -164,7 +167,8 @@ const Details = ({loading,  data }) => {
 
 Details.propTypes = {
   loading: PropTypes.bool.isRequired,
-  data: PropTypes.object
+  data: PropTypes.object,
+  jsonData: PropTypes.object
 };
 
 export default Details;
