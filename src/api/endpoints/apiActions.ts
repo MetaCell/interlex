@@ -43,3 +43,5 @@ export const createGetRequest = <T = any, P = any>(endpoint: string, contentType
     });
   }
 }
+
+export const forgotPassword = () => {}

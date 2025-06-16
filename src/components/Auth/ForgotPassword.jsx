@@ -6,12 +6,12 @@ import { Link } from "react-router-dom";
 import { handleForgotPassword } from "../../api/endpoints/index";
 
 const ForgotPassword = () => {
-  const [email, setEmail] = React.useState("");
+  const [username, setUsername] = React.useState("");
 
   const forgotPassword = async () => {
     try {
-      await handleForgotPassword(email);
-      console.log("Password reset email sent");
+      await handleForgotPassword(username);
+      console.log("Password reset username sent");
     } catch (error) {
       console.error("Error:", error);
     }
@@ -29,10 +29,10 @@ const ForgotPassword = () => {
           <form className="authForm">
             <Grid container spacing={2.5}>
               <FormField
-                label="Email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                label="Username"
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
               <Grid item xs={12}>
                 <FormControl>
