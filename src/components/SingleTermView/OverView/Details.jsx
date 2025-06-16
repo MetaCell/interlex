@@ -116,7 +116,7 @@ const Details = ({ loading, data, jsonData }) => {
               Version
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {versionIRI}
+              {versionIRI.split('/version/')[1].split('/')[0]}
             </Typography>
           </Stack>
         </Grid>
