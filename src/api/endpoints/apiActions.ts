@@ -6,16 +6,14 @@ import { useCookies } from 'react-cookie'
 
 type SecondParameter<T extends (...args: any) => any> = Parameters<T>[1];
 
-export const createPostRequest = <T = any, D = any>(endpoint: string, contentType = "application/json") => {
+export const createPostRequest = <T = any, D = any>(endpoint: string, headers : object) => {
   return (data?: D, options?: SecondParameter<typeof customInstance>) => {
     return customInstance<T>(
       {
         url: endpoint,
         method: "POST",
         data: data,
-        headers: {
-          "Content-Type": contentType,
-        },
+        headers: headers,
         withCredentials: true
       },
       options,

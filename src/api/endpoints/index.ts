@@ -126,11 +126,11 @@ export const getCuries = async (term) => {
     });
 }
 
-export const getMatchTerms = async (term, filters = {}) => {
+export const getMatchTerms = async (group, term, filters = {}) => {
   const {  getEndpointsIlx } = useApi();
 
   /** Call Endpoint */
-  return getEndpointsIlx(BASE_GROUP,term, BASE_EXTENSION).then((data) => {
+  return getEndpointsIlx(group,term, BASE_EXTENSION).then((data) => {
       return termParser(data, term);
     })
     .catch((error) => {
@@ -270,23 +270,22 @@ export const getRawData = async (group, termID, format) => {
     });
 }
 
-export const addTerm = async (group, term) => {
+export const addTerm = async (user: string, token: string, session: string, term: { label: string; synonyms: string[] }) => {
   const {  postPrivEntityNew } = useApi();
 
-  /** Call Endpoint */
-  return postPrivEntityNew(group, term).then((data) => {
-      let termParsed = getTerm(data.data);
-      let response = {
-        status : data.status,
-        term : termParsed
-      }
+  const headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+  };
 
-      return response;
-    })
-    .catch((error) => {
-      return error;
-    });
-}
+  const body = {
+    'rdf-type': 'owl:Class',
+    label: term.label,
+    exact: term.synonyms,
+  };
+
+  return await postPrivEntityNew(user, body, { headers });
+};
+
 
 export const bulkEditTerms = async (group, payload) => {
   const { bulkEditTerms } = useMockApi();
@@ -330,14 +329,11 @@ export const getUser = async (id) => {
     });
 }
 
-export const getExistingIDs = async () => {
-  const {  getMatchTerms } = useMockApi();
-
+export const getExistingIDs = async (searchTerm) => {
   /** Call Endpoint */
-  return getMatchTerms("base", "*").then((data) => {
-      const terms =  termParser(data, undefined);
-      let existingIds = terms?.results?.map( term => term.id?.split("/").pop() );
-      return terms?.results?.[0]?.id != undefined ? existingIds : [];
+  return elasticSearch(searchTerm).then((data) => {
+      const terms =  data?.results;
+      return terms != undefined ? terms : [];
     })
     .catch((error) => {
       return error;

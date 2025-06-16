@@ -114,7 +114,7 @@ const ImportFile = ({ onFilesSelected }) => {
                         hidden
                         id="browse"
                         onChange={handleFileChange}
-                        accept=".csv"
+                        accept=".csv,.json"
                         multiple
                     />
                     <Box display="flex" sx={styles.uploadLabel} gap={0.50}>

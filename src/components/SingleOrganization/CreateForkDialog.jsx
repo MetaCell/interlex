@@ -1,16 +1,17 @@
 import * as React from "react";
+import { useContext } from "react";
 import { debounce } from 'lodash';
 import PropTypes from "prop-types";
-import termParser from "../../parsers/termParser";
 import CustomInputBox from "../common/CustomInputBox";
-import { getOrganizations } from "../../api/endpoints";
 import CustomSelectBox from "../common/CustomSelectBox";
 import { useState, useEffect, useCallback } from "react";
 import CustomizedDialog from "../common/CustomizedDialog";
 import ForkRightIcon from '@mui/icons-material/ForkRight';
 import CustomAutocompleteBox from "../common/CustomAutocompleteBox";
 import { Stack, Button, Grid, Box, Typography } from "@mui/material";
+import { GlobalDataContext } from "../../contexts/DataContext";
 import * as mockApi from "../../api/endpoints/swaggerMockMissingEndpoints";
+import { useOrganizations } from "../../helpers/useOrganizations";
 
 import { vars } from "../../theme/variables";
 const { gray800, gray500, gray600 } = vars;
@@ -39,31 +40,26 @@ const CreateForkDialog = ({ open, handleClose, onSubmit }) => {
     const { getMatchTerms } = useMockApi();
     // eslint-disable-next-line no-unused-vars
     const [loading, setLoading] = useState(true);
-    const [termResults, setTermResults] = useState([]);
-    const [organizations, setOrganizations] = useState([]);
+    const [termResults] = useState([]);
     const [newFork, setNewFork] = React.useState({
         term: null,
         owner: "",
         name: ""
     });
+    const { user } = useContext(GlobalDataContext);
+    const groupname = user?.groupname || "base";
+    const {
+        organizations,
+    } = useOrganizations(groupname);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const fetchTerms = useCallback(
-        debounce((term) => {
+        debounce(() => {
             setLoading(true);
-            getMatchTerms("base", "i", { filter: "", value: "" }).then(data => {
-                const parsedData = termParser(data, term);
-                setTermResults(parsedData.results);
-            });
+            
         }, 300),
         [getMatchTerms]
     );
-
-    const fetchOrganizations = async () => {
-        const organizations = await getOrganizations("base")
-        setOrganizations(organizations);
-        setLoading(false)
-    }
 
     const handleCreateFork = () => {
         onSubmit(newFork);
@@ -90,7 +86,6 @@ const CreateForkDialog = ({ open, handleClose, onSubmit }) => {
 
     useEffect(() => {
         setLoading(true)
-        fetchOrganizations();
     }, []);
     
 

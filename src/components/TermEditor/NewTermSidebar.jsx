@@ -47,7 +47,7 @@ export default function NewTermSidebar({ open, loading, onToggle, results, isRes
                     </Tooltip>
                 </Box>
             )}
-            {open && (
+            {(open && results )&& (
                 <Box width={1} height={1} display="flex" flexDirection="column" alignItems="center" gap={1}>
                     {isResultsEmpty ? (
                         <Box width={1} height={1} display="flex" flexDirection="column" alignItems="center" justifyContent="center" gap={2}>
@@ -60,7 +60,7 @@ export default function NewTermSidebar({ open, loading, onToggle, results, isRes
                             </Stack>
                         </Box>
                     ) : (
-                        <>{results.map((result) => (
+                        <>{results?.map((result) => (
                             <Box width={1} key={result.id} display="flex" flexDirection="column" px={1} py={1.5} gap={1}
                                 sx={{
                                     borderBottom: '1px solid #DADDDC',
