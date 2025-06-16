@@ -137,7 +137,9 @@ const SingleTermView = () => {
       a.download = `data.${formatExtensions[dataFormat]}`;
       a.click();
       URL.revokeObjectURL(url);
-    })
+    }).catch(error => {
+      console.error('Error downloading data:', error);
+    });
   }
 
   const CodeOrTreeIcon = () => {
