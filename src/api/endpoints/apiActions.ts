@@ -1,8 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
 import { customInstance } from '../../../mock/mutator/customClient';
-import { API_CONFIG } from '../../config';
-import { useCookies } from 'react-cookie'
-
 
 type SecondParameter<T extends (...args: any) => any> = Parameters<T>[1];
 
@@ -43,5 +40,3 @@ export const createGetRequest = <T = any, P = any>(endpoint: string, contentType
     });
   }
 }
-
-export const forgotPassword = () => {}
