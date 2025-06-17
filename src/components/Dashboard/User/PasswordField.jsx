@@ -30,6 +30,7 @@ const PasswordField = ({ value, name, placeholder, handleChange, error, helperTe
                     {helperText}
                 </Typography>
             )}
+            {error && <Typography variant="body2" sx={{ color: "#F04438", marginTop: "0.375rem" }}>{`${error.charAt(0).toUpperCase() + error.slice(1)}`}</Typography>}
         </div>
     )
 }

@@ -97,7 +97,7 @@ const AccountSettingsDialog = ({
                                 size="small"
                             />
                             <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "flex", alignItems: "center", fontSize: "0.875rem", color: gray600 }}>
-                                Email address can't be changed from the interface. Please contact us to make this change.
+                                Email address can&apos;t be changed from the interface. Please contact us to make this change.
                                 <Link
                                     href="mailto:support@interlex.org"
                                     underline="none"

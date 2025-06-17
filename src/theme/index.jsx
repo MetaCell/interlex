@@ -643,6 +643,9 @@ const theme = createTheme({
 					height: "1.25rem",
 					fontSize: "1.25rem",
 				},
+				fontSizeLarge: {
+					fontSize: '2rem'
+				}
 			},
 		},
 		MuiAccordion: {
@@ -1061,13 +1064,6 @@ const theme = createTheme({
 					},
 				},
 			},
-		},
-		MuiSvgIcon: {
-			styleOverrides: {
-				fontSizeLarge: {
-					fontSize: '2rem'
-				}
-			}
 		}
 	},
 });
