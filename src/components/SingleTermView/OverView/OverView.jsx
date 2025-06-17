@@ -31,11 +31,11 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat }) => {
     []
   );
 
-  const fetchJSONFile = () => {
+  const fetchJSONFile = useCallback(() => {
     getRawData("base", searchTerm, 'jsonld').then(rawResponse => {
       setJsonData(rawResponse);
     })
-  }
+  }, [searchTerm]);
 
   useEffect(() => {
     setLoading(true);
@@ -44,7 +44,7 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat }) => {
     return () => {
       fetchTerms.cancel();
     };
-  }, [searchTerm, fetchTerms]);
+  }, [searchTerm, fetchTerms, fetchJSONFile]);
 
   const memoData = useMemo(() => data, [data]);
 
