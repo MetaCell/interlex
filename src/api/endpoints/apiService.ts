@@ -141,49 +141,61 @@ export const createNewOntology = async ({
   const endpoint = `/${groupname}/ontologies/uris/${ontologyName}/spec`;
 
   const data = {
-    title : title,
-    subjects : subjects,
+    title: title,
+    subjects: subjects,
   };
 
   const headers = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
+    'Authorization': `Bearer ${token}`,
   };
 
   try {
-    const postResponse = await createPostRequest<any, any>(endpoint, headers)(data);
+    // Use fetch directly for manual redirect handling
+    const postResponse = await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data),
+      redirect: 'manual', // let us handle the 303 ourselves
+    });
 
-    // If the POST creates a new location, try fetching it (simulate follow-up GETs from the test)
-    if (postResponse?.location) {
-      const getResponse = await fetch(postResponse.location, {
-        headers: {
-          Accept: 'application/json',
-        },
-      });
+    if (postResponse.status === 303) {
+      const location = postResponse.headers.get('Location');
+      if (location) {
+        // Fetch the ontology resource at the redirected location (JSON)
+        const getResponse = await fetch(location, {
+          headers: {
+            Accept: 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
 
-      // Optionally fetch HTML if needed (like the .html equivalent in the Python test)
-      const htmlResponse = await fetch(endpoint, {
-        headers: {
-          Accept: 'text/html',
-        },
-      });
+        // Optionally, also fetch the HTML representation
+        const htmlResponse = await fetch(location, {
+          headers: {
+            Accept: 'text/html',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
 
-      return {
-        created: true,
-        data: postResponse,
-        jsonResponse: await getResponse.json(),
-        htmlAvailable: htmlResponse.ok,
-      };
+        return {
+          created: true,
+          location,
+          jsonResponse: getResponse.ok ? await getResponse.json() : null,
+          htmlAvailable: htmlResponse.ok,
+        };
+      } else {
+        throw new Error('No Location header in 303 response');
+      }
+    } else {
+      // If not a 303, handle as error or unexpected case
+      const errorBody = await postResponse.text();
+      throw new Error(`Unexpected response status: ${postResponse.status} - ${errorBody}`);
     }
-
-    return {
-      created: true,
-      data: postResponse,
-    };
   } catch (error: any) {
     return {
       created: false,
-      error: error?.response?.data || error.message,
+      error: error?.message ?? String(error),
     };
   }
 };
