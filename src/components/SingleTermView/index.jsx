@@ -16,7 +16,6 @@ import ToggleButton from '@mui/material/ToggleButton';
 import CustomBreadcrumbs from "../common/CustomBreadcrumbs";
 import ForkRightIcon from '@mui/icons-material/ForkRight';
 import { vars } from "../../theme/variables";
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import OntologySearch from "./OntologySearch";
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
@@ -45,10 +44,18 @@ import CreateForkDialog from "./CreateForkDialog";
 import TermDialog from "../TermEditor/TermDialog";
 import { getSelectedTermLabel } from "../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../contexts/DataContext";
+import { getRawData } from "../../api/endpoints";
 
-const { gray200, brand700, gray600 } = vars;
+const { gray200, gray600 } = vars;
 
-const dataFormats = ['JSON-LD', 'Turtle', 'N3', 'OWL', 'CSV']
+const dataFormats = ['JSON-LD', 'Turtle', 'N3', 'OWL', 'CSV'];
+const formatExtensions = {
+  'JSON-LD': 'jsonld',
+  'Turtle': 'ttl',
+  'N3': 'n3',
+  'OWL': 'owl',
+  'CSV': 'csv'
+};
 
 const SingleTermView = () => {
   const [open, setOpen] = useState(false);
@@ -93,6 +100,8 @@ const SingleTermView = () => {
   const handleDataFormatMenuItemClick = (value) => {
     setSelectedDataFormat(value);
     setDataFormatAnchorEl(null);
+
+    downloadFormattedData(value);
   };
 
   const handleOpenRequestMergeDialog = () => {
@@ -118,15 +127,30 @@ const SingleTermView = () => {
     setTabValue(newValue);
   };
 
+  const downloadFormattedData = (dataFormat) => {
+    getRawData("base", searchTerm, formatExtensions[dataFormat]).then(rawResponse => {
+      const formattedData = JSON.stringify(rawResponse, null, 2);
+      const blob = new Blob([formattedData], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `data.${formatExtensions[dataFormat]}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }).catch(error => {
+      console.error('Error downloading data:', error);
+    });
+  }
+
   const CodeOrTreeIcon = () => {
     return isCodeViewVisible ? <CodeIcon /> : <AccountTreeOutlined />
   }
 
   const breadcrumbItems = [
     { label: '', href: '/', icon: HomeOutlinedIcon },
-    { label: 'Term search', href: `/search?searchTerm=${searchTerm}` },
-    { label: 'My organization 1', href: '#' },
-    { label: 'ILX:0101901' },
+    { label: 'Term search', href: `/search?searchTerm=${storedSearchTerm}` },
+    { label: 'base', href: '#' },
+    { label: searchTerm.toUpperCase().replace("_", ":") },
   ];
 
   useEffect(() => {
@@ -148,19 +172,7 @@ const SingleTermView = () => {
         <Box p="1.5rem 5rem 0rem 5rem">
           <Grid container>
             <Grid container xs={12} lg={12} direction="row" alignItems="center" justifyContent="space-between">
-              <Stack direction="row" spacing=".75rem">
-                <CustomBreadcrumbs breadcrumbItems={breadcrumbItems} />
-                <ForkRightIcon fontSize="medium" htmlColor={brand700} />
-                <Typography color={brand700} fontSize="0.875rem" fontWeight={600}>
-                  fork1
-                </Typography>
-                <Chip
-                  icon={<FiberManualRecordIcon />}
-                  label="Not merged"
-                  variant="outlined"
-                  className="rounded not-merged"
-                />
-              </Stack>
+              <CustomBreadcrumbs breadcrumbItems={breadcrumbItems} />
               <Stack direction="row" alignItems="center" gap={1}>
                 <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Active Ontology:</Typography>
                 <OntologySearch />
