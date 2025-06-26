@@ -9,18 +9,20 @@ import PropTypes from 'prop-types';
 import Hierarchy from "./Hierarchy";
 import Predicates from "./Predicates";
 import RawDataViewer from "./RawDataViewer";
-import {useCallback, useEffect, useMemo, useState} from "react";
-import { getMatchTerms } from "../../../api/endpoints";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { getMatchTerms, getRawData } from "../../../api/endpoints";
 
 const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+  const [jsonData, setJsonData] = useState(null);
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchTerms = useCallback(
     debounce((searchTerm) => {
       if (searchTerm) {
         getMatchTerms("base", searchTerm).then(data => {
+          console.log("data from api call: ", data)
           setData(data?.results?.[0]);
           setLoading(false);
         });
@@ -28,24 +30,31 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat }) => {
     }, 300),
     []
   );
-  
+
+  const fetchJSONFile = useCallback(() => {
+    getRawData("base", searchTerm, 'jsonld').then(rawResponse => {
+      setJsonData(rawResponse);
+    })
+  }, [searchTerm]);
+
   useEffect(() => {
     setLoading(true);
     fetchTerms(searchTerm);
+    fetchJSONFile();
     return () => {
       fetchTerms.cancel();
     };
-  }, [searchTerm, fetchTerms]);
+  }, [searchTerm, fetchTerms, fetchJSONFile]);
 
   const memoData = useMemo(() => data, [data]);
-  
+
   return (
     <Box p="2.5rem 5rem" sx={{
       overflow: 'auto',
     }}>
       {isCodeViewVisible ? <RawDataViewer dataId={searchTerm} dataFormat={selectedDataFormat} /> :
         <>
-          <Details data={memoData} loading={loading} />
+          <Details data={memoData} jsonData={jsonData} loading={loading} />
           <Box p='5rem 0'>
             <Divider />
             <Grid container pt='5.25rem' spacing='2.75rem'>
