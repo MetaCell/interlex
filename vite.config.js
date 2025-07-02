@@ -63,11 +63,9 @@ export default defineConfig({
             console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
             const location = proxyRes.headers['location'];
             console.log('Received location', location);
-          
             if (proxyRes.statusCode === 303 && location) {
               // Prevent browser from seeing the actual Location
               delete proxyRes.headers['location'];
-          
               // Inject the location into a custom header we can use in Axios
               res.setHeader('X-Redirect-Location', location);
             }
@@ -80,7 +78,6 @@ export default defineConfig({
             res.setHeader('Access-Control-Allow-Credentials', 'true');
             res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
           });
-                
         },
       },
       '^/[^/]+/(tmp|ilx)_.*\\.(html|ttl|jsonld|n3|owl|csv)$': {
@@ -111,17 +108,14 @@ export default defineConfig({
               proxyReq.setHeader('Authorization', req.headers.authorization);
             }
           });
-      
           proxy.on('proxyRes', (proxyRes, req, res) => {
             console.log('Received response', res);
             console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
             const location = proxyRes.headers['location'];
             console.log('Received location', location);
-          
             if (proxyRes.statusCode === 303 && location) {
               // Prevent browser from seeing the actual Location
               delete proxyRes.headers['location'];
-          
               // Inject the location into a custom header we can use in Axios
               res.setHeader('X-Redirect-Location', location);
             }
