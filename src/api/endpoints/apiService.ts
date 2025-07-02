@@ -168,12 +168,7 @@ export const createNewOntology = async ({
       const getResponse = await fetch(olympianRedirectLocation, { headers: { Authorization: `Bearer ${token}` } });
       const jsonResponse = await getResponse.json();
 
-      let newOntologyID = null;
-      jsonResponse?.["@graph"]?.forEach((object) => {
-          if (object["@type"] === "owl:Ontology") {
-            newOntologyID = object["@id"];
-          }
-      });
+      const newOntologyID = jsonResponse?.["@graph"]?.find((object) => object["@type"] === "owl:Ontology")?.["@id"] || null;
       
       return {
         created: true,
