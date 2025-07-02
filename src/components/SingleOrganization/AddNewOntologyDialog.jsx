@@ -73,13 +73,7 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
 
         let ontologyResponseMessage = "Ontology created successfully!"
         
-        if (result.created) {
-          console.log('Ontology details:', result.data);
-      
-          if (result.newOntologyID) {
-            console.log('Created new Ontology:', result.newOntologyID);
-          }
-        } else {
+        if (!result.created) {
             ontologyResponseMessage = "Failed to create ontology"
             console.error('❌ Failed to create ontology:', result.error);
         }

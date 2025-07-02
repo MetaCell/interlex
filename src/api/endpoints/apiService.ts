@@ -1,6 +1,5 @@
 import { createPostRequest, createGetRequest } from "./apiActions";
 import { API_CONFIG } from "../../config";
-import { Term } from "../../model/frontend/terms";
 
 export interface LoginRequest {
   username: string
@@ -164,7 +163,7 @@ export const createNewOntology = async ({
     const redirectLocation = postResponse.headers.get('x-redirect-location');
 
     if (redirectLocation) {
-      const olympianRedirectLocation = redirectLocation.replace('http://uri.interlex.org','').replace('html', 'jsonld')
+      const olympianRedirectLocation = redirectLocation.replace('http://uri.interlex.org','').replace(/\.html$/, '.jsonld');
 
       const getResponse = await fetch(olympianRedirectLocation, { headers: { Authorization: `Bearer ${token}` } });
       const jsonResponse = await getResponse.json();

@@ -67,7 +67,6 @@ export default defineConfig({
             if (proxyRes.statusCode === 303 && location) {
               // Prevent browser from seeing the actual Location
               delete proxyRes.headers['location'];
-              console.log('Status code 303 ', proxyRes);
               // Inject the location into a custom header we can use in Axios
               res.setHeader('X-Redirect-Location', location);
             }
@@ -106,9 +105,7 @@ export default defineConfig({
         configure: (proxy) => {
           proxy.on('proxyRes', (proxyRes, req, res) => {
             const origin = req.headers.origin;
-            console.log('Received response for new ontology', res);
             if (origin) {
-              console.log('Setting CORS header for origin:', origin);
               res.setHeader('Access-Control-Allow-Origin', origin);
             }
             res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -122,18 +119,13 @@ export default defineConfig({
         rewrite: path => path, // Keep full path
         configure: (proxy) => {
           proxy.on('proxyReq', (proxyReq, req) => {
-            console.log('Proxying ontology spec request:', req.method, req.url);
-            console.log('Headers:', proxyReq.getHeaders());
             if (req.headers.authorization) {
               proxyReq.setHeader('Authorization', req.headers.authorization);
             }
           });
       
           proxy.on('proxyRes', (proxyRes, req, res) => {
-            console.log('Received response', res);
-            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
             const location = proxyRes.headers['location'];
-            console.log('Received location', location);
           
             if (proxyRes.statusCode === 303 && location) {
               delete proxyRes.headers['location'];
