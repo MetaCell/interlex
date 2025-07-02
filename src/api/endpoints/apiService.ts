@@ -1,5 +1,6 @@
 import { createPostRequest, createGetRequest } from "./apiActions";
 import { API_CONFIG } from "../../config";
+import { Term } from "../../model/frontend/terms";
 
 export interface LoginRequest {
   username: string
@@ -151,51 +152,55 @@ export const createNewOntology = async ({
   };
 
   try {
-    // Use fetch directly for manual redirect handling
     const postResponse = await fetch(endpoint, {
       method: 'POST',
       headers,
+      credentials: "include",
       body: JSON.stringify(data),
-      redirect: 'manual', // let us handle the 303 ourselves
+      redirect: 'manual',
     });
 
-    if (postResponse.status === 303) {
-      const location = postResponse.headers.get('Location');
-      if (location) {
-        // Fetch the ontology resource at the redirected location (JSON)
-        const getResponse = await fetch(location, {
-          headers: {
-            Accept: 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-        });
+    // Check for custom redirect header (all lowercase in fetch)
+    const redirectLocation = postResponse.headers.get('x-redirect-location');
 
-        // Optionally, also fetch the HTML representation
-        const htmlResponse = await fetch(location, {
-          headers: {
-            Accept: 'text/html',
-            'Authorization': `Bearer ${token}`,
-          },
-        });
+    if (redirectLocation) {
+      const olympianRedirectLocation = redirectLocation.replace('http://uri.interlex.org','').replace('html', 'jsonld')
 
-        return {
-          created: true,
-          location,
-          jsonResponse: getResponse.ok ? await getResponse.json() : null,
-          htmlAvailable: htmlResponse.ok,
-        };
-      } else {
-        throw new Error('No Location header in 303 response');
-      }
-    } else {
-      // If not a 303, handle as error or unexpected case
-      const errorBody = await postResponse.text();
-      throw new Error(`Unexpected response status: ${postResponse.status} - ${errorBody}`);
+      const getResponse = await fetch(olympianRedirectLocation, { headers: { Authorization: `Bearer ${token}` } });
+      const jsonResponse = await getResponse.json();
+
+      let newOntologyID = null;
+      jsonResponse?.["@graph"]?.forEach((object) => {
+          if (object["@type"] === "owl:Ontology") {
+            newOntologyID = object["@id"];
+          }
+      });
+      
+      return {
+        created: true,
+        location: olympianRedirectLocation,
+        newOntologyID: newOntologyID
+      };
     }
+
+    // Try to parse the response as JSON (if present)
+    let jsonResponse: any = null;
+    try {
+      jsonResponse = await postResponse.json();
+    } catch (e) {
+      // No JSON body, ignore
+    }
+
+    return {
+      created: postResponse.ok,
+      location: endpoint,
+      jsonResponse,
+    };
   } catch (error: any) {
+    let errMsg = error?.message ?? String(error);
     return {
       created: false,
-      error: error?.message ?? String(error),
+      error: errMsg,
     };
   }
 };

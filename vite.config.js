@@ -67,7 +67,7 @@ export default defineConfig({
             if (proxyRes.statusCode === 303 && location) {
               // Prevent browser from seeing the actual Location
               delete proxyRes.headers['location'];
-          
+              console.log('Status code 303 ', proxyRes);
               // Inject the location into a custom header we can use in Axios
               res.setHeader('X-Redirect-Location', location);
             }
@@ -98,6 +98,23 @@ export default defineConfig({
           });
         },
       },
+      '^/[^/]+/ontologies/uris/.*\\.(html|jsonld)$': {
+        target: 'https://uri.olympiangods.org',
+        changeOrigin: true,
+        secure: false,
+        rewrite: path => path, // Keep the full path
+        configure: (proxy) => {
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            const origin = req.headers.origin;
+            console.log('Received response for new ontology', res);
+            if (origin) {
+              console.log('Setting CORS header for origin:', origin);
+              res.setHeader('Access-Control-Allow-Origin', origin);
+            }
+            res.setHeader('Access-Control-Allow-Credentials', 'true');
+          });
+        },
+      },
       '^/[^/]+/ontologies/uris/.*/spec': {
         target: 'https://uri.olympiangods.org',
         changeOrigin: true,
@@ -119,11 +136,15 @@ export default defineConfig({
             console.log('Received location', location);
           
             if (proxyRes.statusCode === 303 && location) {
-              // Prevent browser from seeing the actual Location
               delete proxyRes.headers['location'];
-          
-              // Inject the location into a custom header we can use in Axios
+              res.statusCode = 200; // Prevent browser redirect
               res.setHeader('X-Redirect-Location', location);
+              res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
+              res.setHeader('Access-Control-Allow-Credentials', 'true');
+              res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
+              // Send a JSON body (for fetch, etc.)
+              res.end(JSON.stringify({ location }));
+              return;
             }
 
             // Required for credentialed CORS
