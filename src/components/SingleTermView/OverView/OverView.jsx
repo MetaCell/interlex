@@ -10,7 +10,7 @@ import Hierarchy from "./Hierarchy";
 import Predicates from "./Predicates";
 import RawDataViewer from "./RawDataViewer";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getMatchTerms, getRawData } from "../../../api/endpoints";
+import { getMatchTerms, getRawData } from "../../../api/endpoints/apiService";
 
 const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat }) => {
   const [data, setData] = useState(null);

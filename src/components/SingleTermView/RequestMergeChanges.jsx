@@ -4,12 +4,10 @@ import { EditNoteIcon } from "../../Icons";
 import { Box, Button } from "@mui/material";
 import MergePanel from "./MergePanel/MergePanel";
 import StatusDialog from "../common/StatusDialog";
-import { getMatchTerms } from "../../api/endpoints";
+import { getMatchTerms, getVariant } from '../../api/endpoints/apiService';
 import { useState, useEffect, useCallback } from "react";
 import CustomizedDialog from "../common/CustomizedDialog";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { getVariant } from "../../api/endpoints/swaggerMockMissingEndpoints";
-
 
 const HeaderRightSideContent = ({ handleClose, handleSubmit }) => {
     return (

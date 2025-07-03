@@ -1,5 +1,6 @@
 import { createPostRequest, createGetRequest } from "./apiActions";
 import { API_CONFIG } from "../../config";
+import termParser from "../../parsers/termParser";
 
 export interface LoginRequest {
   username: string
@@ -28,9 +29,11 @@ interface JsonLdResponse {
   '@graph'?: GraphNode[];
 }
 
-export const login = createPostRequest<any, LoginRequest>(API_CONFIG.REAL_API.SIGNIN, {"Content-Type": "application/x-www-form-urlencoded"})
+const BASE_EXTENSION = "jsonld";
 
-export const register = createPostRequest<any, RegisterRequest>(API_CONFIG.REAL_API.NEWUSER_ILX, {"Content-Type": "application/x-www-form-urlencoded"})
+export const login = createPostRequest<any, LoginRequest>(API_CONFIG.REAL_API.SIGNIN, { "Content-Type": "application/x-www-form-urlencoded" })
+
+export const register = createPostRequest<any, RegisterRequest>(API_CONFIG.REAL_API.NEWUSER_ILX, { "Content-Type": "application/x-www-form-urlencoded" })
 
 
 export const getUserSettings = (group: string) => {
@@ -40,7 +43,7 @@ export const getUserSettings = (group: string) => {
 
 export const createNewOrganization = ({ group, data }: { group: string, data: any }) => {
   const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ORGANIZATION}`;
-  return createPostRequest<any, any>(endpoint, { "Content-Type" : "application/json" })(data);
+  return createPostRequest<any, any>(endpoint, { "Content-Type": "application/json" })(data);
 };
 
 export const getOrganizations = (group: string) => {
@@ -55,11 +58,9 @@ export const userLogout = (group: string) => {
 
 export const getSelectedTermLabel = async (searchTerm: string): Promise<string | undefined> => {
   try {
-    const res = await fetch(`https://uri.olympiangods.org/base/${searchTerm}.jsonld`);
-    if (!res.ok) throw new Error(`Response status: ${res.status}`);
+    const response = await createGetRequest<JsonLdResponse, any>(`/base/${searchTerm}.jsonld`)();
 
-    const data: JsonLdResponse = await res.json();
-    const label = data['@graph']?.[0]?.['rdfs:label'];
+    const label = response['@graph']?.[0]?.['rdfs:label'];
 
     const getLabelValue = (label: LabelType): string => {
       if (typeof label === 'string') return label;
@@ -84,7 +85,7 @@ export const createNewEntity = async ({ group, data, session }: { group: string;
     const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ENTITY}`;
     const response = await createPostRequest<any, any>(
       endpoint,
-      { "Content-Type" : "application/x-www-form-urlencoded" }
+      { "Content-Type": "application/x-www-form-urlencoded" }
     )(data);
 
     // If the response is HTML (a string), extract TMP ID
@@ -141,8 +142,8 @@ export const createNewOntology = async ({
   const endpoint = `/${groupname}/ontologies/uris/${ontologyName}/spec`;
 
   const data = {
-    title : title,
-    subjects : subjects,
+    title: title,
+    subjects: subjects,
   };
 
   const headers = {
@@ -190,10 +191,46 @@ export const createNewOntology = async ({
 
 export const getNewTokenApi = ({ groupname, data }: { groupname: string, data: any }) => {
   const endpoint = `/${groupname}${API_CONFIG.REAL_API.API_NEW_TOKEN}`;
-  return createPostRequest<any, any>(endpoint, { "Content-Type" : "application/json" })(data);
+  return createPostRequest<any, any>(endpoint, { "Content-Type": "application/json" })(data);
 };
 
 export const retrieveTokenApi = ({ groupname }: { groupname: string }) => {
   const endpoint = `/${groupname}${API_CONFIG.REAL_API.API_RETRIEVE_TOKEN}`;
   return createGetRequest<any, any>(endpoint, "application/json")();
+};
+
+export const getMatchTerms = async (group: string, term: string, filters = {}) => {
+  try {
+    const response = await createGetRequest<any, any>(`/${group}/${term}.${BASE_EXTENSION}`, "application/json")();
+    return termParser(response, term);
+  } catch (err: any) {
+    console.error(err.message);
+    return undefined;
+  }
+};
+
+export const getRawData = async (group: string, termID: string, format: string) => {
+  try {
+    const response = await createGetRequest<any, any>(`/${group}/${termID}.${format}`, "application/json")();
+    return response;
+  } catch (err: any) {
+    console.error(err.message);
+    return undefined;
+  }
+};
+
+export const getVariants = async (group: string, term: string) => {
+  return createGetRequest<any, any>(`/${group}/variants/${term}`, "application/json")();
+};
+
+export const getVersions = async (group: string, term: string) => {
+  return createGetRequest<any, any>(`/${group}/versions/${term}`, "application/json")();
+};
+
+export const getTermDiscussions = async (group: string, variantID: string) => {
+  return createGetRequest<any, any>(`/${group}/discussions/term/${variantID}`, "application/json")();
+};
+
+export const getVariant = (group: string, term: string) => {
+  return createGetRequest<any, any>(`/${group}/variant/${term}`, "application/json")();  
 };

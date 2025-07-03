@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { Box } from '@mui/material';
 import VariantsTable from './VariantsTable';
-import { getVariants  } from '../../../api/endpoints';
+import { getVariants } from '../../../api/endpoints/apiService';
 
 const rows = [
     {
@@ -84,7 +84,7 @@ const VariantsPanel = () => {
 
     return (
         <Box flexGrow={1} p="2.5rem 5rem" overflow='auto'>
-            <VariantsTable rows={rows} headCells={headCells} />
+            <VariantsTable rows={variants} headCells={headCells} />
         </Box>
     )
 }
