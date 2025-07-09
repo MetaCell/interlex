@@ -4,7 +4,7 @@ import TimeLine from "./TimeLine";
 import { vars } from "../../../theme/variables";
 import { useState, useRef, useEffect } from "react";
 import CommentEditor from "./CommentEditor";
-import { getTermDiscussions } from "../../../api/endpoints";
+import { getTermDiscussions } from "../../../api/endpoints/apiService";
 
 const { gray25, gray200, gray700 } = vars;
 

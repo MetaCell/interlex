@@ -1,7 +1,7 @@
 import React from "react";
 import HistoryItem from "./HistoryItem";
 import { Box, List } from "@mui/material";
-import { getVersions } from './../../../api/endpoints';
+import { getVersions } from "../../../api/endpoints/apiService";
 
 import { vars } from "../../../theme/variables";
 const { gray50 } = vars;
