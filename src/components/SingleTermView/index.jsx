@@ -168,7 +168,7 @@ const SingleTermView = () => {
 
   return (
     <>
-      <Box display="flex" flexDirection="column">
+      <Box display="flex" flexDirection="column" sx={{ minWidth: "100%" }}>
         <Box p="1.5rem 5rem 0rem 5rem">
           <Grid container>
             <Grid container xs={12} lg={12} direction="row" alignItems="center" justifyContent="space-between">
