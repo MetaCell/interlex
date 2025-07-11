@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { a11yLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
-import { getRawData } from "../../../api/endpoints";
+import { getRawData } from '../../../api/endpoints/apiService';
 
 import { vars } from '../../../theme/variables';
 const { gray25, gray200, gray500 } = vars;

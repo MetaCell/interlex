@@ -1,5 +1,6 @@
 import { createPostRequest, createGetRequest } from "./apiActions";
 import { API_CONFIG } from "../../config";
+import termParser from "../../parsers/termParser";
 
 export interface LoginRequest {
   username: string
@@ -32,6 +33,8 @@ interface JsonLdResponse {
   '@graph'?: GraphNode[];
 }
 
+const BASE_EXTENSION = "jsonld";
+
 export const login = createPostRequest<any, LoginRequest>(API_CONFIG.REAL_API.SIGNIN, { "Content-Type": "application/x-www-form-urlencoded" })
 
 export const register = createPostRequest<any, RegisterRequest>(API_CONFIG.REAL_API.NEWUSER_ILX, { "Content-Type": "application/x-www-form-urlencoded" })
@@ -59,11 +62,9 @@ export const userLogout = (group: string) => {
 
 export const getSelectedTermLabel = async (searchTerm: string): Promise<string | undefined> => {
   try {
-    const res = await fetch(`https://uri.olympiangods.org/base/${searchTerm}.jsonld`);
-    if (!res.ok) throw new Error(`Response status: ${res.status}`);
+    const response = await createGetRequest<JsonLdResponse, any>(`/base/${searchTerm}.jsonld`)();
 
-    const data: JsonLdResponse = await res.json();
-    const label = data['@graph']?.[0]?.['rdfs:label'];
+    const label = response['@graph']?.[0]?.['rdfs:label'];
 
     const getLabelValue = (label: LabelType): string => {
       if (typeof label === 'string') return label;
@@ -151,43 +152,54 @@ export const createNewOntology = async ({
 
   const headers = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
+    'Authorization': `Bearer ${token}`,
   };
 
   try {
-    const postResponse = await createPostRequest<any, any>(endpoint, headers)(data);
+    const postResponse = await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      credentials: "include",
+      body: JSON.stringify(data),
+      redirect: 'manual',
+    });
 
-    // If the POST creates a new location, try fetching it (simulate follow-up GETs from the test)
-    if (postResponse?.location) {
-      const getResponse = await fetch(postResponse.location, {
-        headers: {
-          Accept: 'application/json',
-        },
-      });
+    // Check for custom redirect header (all lowercase in fetch)
+    const redirectLocation = postResponse.headers.get('x-redirect-location');
 
-      // Optionally fetch HTML if needed (like the .html equivalent in the Python test)
-      const htmlResponse = await fetch(endpoint, {
-        headers: {
-          Accept: 'text/html',
-        },
-      });
+    if (redirectLocation) {
+      const olympianRedirectLocation = redirectLocation.replace('http://uri.interlex.org','').replace(/\.html$/, '.jsonld');
 
+      const getResponse = await fetch(olympianRedirectLocation, { headers: { Authorization: `Bearer ${token}` } });
+      const jsonResponse = await getResponse.json();
+
+      const newOntologyID = jsonResponse?.["@graph"]?.find((object) => object["@type"] === "owl:Ontology")?.["@id"] || null;
+      
       return {
         created: true,
-        data: postResponse,
-        jsonResponse: await getResponse.json(),
-        htmlAvailable: htmlResponse.ok,
+        location: olympianRedirectLocation,
+        newOntologyID: newOntologyID
       };
     }
 
+    // Try to parse the response as JSON (if present)
+    let jsonResponse: any = null;
+    try {
+      jsonResponse = await postResponse.json();
+    } catch (e) {
+      // No JSON body, ignore
+    }
+
     return {
-      created: true,
-      data: postResponse,
+      created: postResponse.ok,
+      location: endpoint,
+      jsonResponse,
     };
   } catch (error: any) {
+    let errMsg = error?.message ?? String(error);
     return {
       created: false,
-      error: error?.response?.data || error.message,
+      error: errMsg,
     };
   }
 };
@@ -203,3 +215,39 @@ export const retrieveTokenApi = ({ groupname }: { groupname: string }) => {
 };
 
 export const forgotPassword = createPostRequest<any, ForgotPasswordReguest>(API_CONFIG.REAL_API.USER_RECOVER, { "Content-Type": "application/x-www-form-urlencoded" })
+
+export const getMatchTerms = async (group: string, term: string, filters = {}) => {
+  try {
+    const response = await createGetRequest<any, any>(`/${group}/${term}.${BASE_EXTENSION}`, "application/json")();
+    return termParser(response, term);
+  } catch (err: any) {
+    console.error(err.message);
+    return undefined;
+  }
+};
+
+export const getRawData = async (group: string, termID: string, format: string) => {
+  try {
+    const response = await createGetRequest<any, any>(`/${group}/${termID}.${format}`, "application/json")();
+    return response;
+  } catch (err: any) {
+    console.error(err.message);
+    return undefined;
+  }
+};
+
+export const getVariants = async (group: string, term: string) => {
+  return createGetRequest<any, any>(`/${group}/variants/${term}`, "application/json")();
+};
+
+export const getVersions = async (group: string, term: string) => {
+  return createGetRequest<any, any>(`/${group}/versions/${term}`, "application/json")();
+};
+
+export const getTermDiscussions = async (group: string, variantID: string) => {
+  return createGetRequest<any, any>(`/${group}/discussions/term/${variantID}`, "application/json")();
+};
+
+export const getVariant = (group: string, term: string) => {
+  return createGetRequest<any, any>(`/${group}/variant/${term}`, "application/json")();  
+};
