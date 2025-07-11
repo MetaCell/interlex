@@ -16,6 +16,10 @@ export interface RegisterRequest {
   organization: string
 }
 
+interface ForgotPasswordReguest {
+  username: string;
+}
+
 type LabelType =
   | string
   | { '@value': string; '@language'?: string }
@@ -209,6 +213,8 @@ export const retrieveTokenApi = ({ groupname }: { groupname: string }) => {
   const endpoint = `/${groupname}${API_CONFIG.REAL_API.API_RETRIEVE_TOKEN}`;
   return createGetRequest<any, any>(endpoint, "application/json")();
 };
+
+export const forgotPassword = createPostRequest<any, ForgotPasswordReguest>(API_CONFIG.REAL_API.USER_RECOVER, { "Content-Type": "application/x-www-form-urlencoded" })
 
 export const getMatchTerms = async (group: string, term: string, filters = {}) => {
   try {

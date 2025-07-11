@@ -103,7 +103,7 @@ const CreateForkDialog = ({ open, handleClose, onSubmit }) => {
         >
             <Grid container spacing={8} flexDirection="column">
                 <Grid item xs={12} lg={6}>
-                    <Typography variant="h6" sx={{ color: gray800, fontSize: "1.125rem", fontWeight: 600, marginBottom: "2rem" }}>Add a fork</Typography>
+                    <Typography variant="h6" sx={{ color: gray800, marginBottom: "2rem" }}>Add a fork</Typography>
                     <Stack direction="column" mb={1}>
                         <CustomAutocompleteBox
                             label="Select term"
@@ -117,7 +117,7 @@ const CreateForkDialog = ({ open, handleClose, onSubmit }) => {
                     </Stack>
                 </Grid>
                 <Grid item xs={12} lg={6}>
-                    <Typography variant="h6" sx={{ color: gray800, fontSize: "1.125rem", fontWeight: 600, marginBottom: "2rem" }}>To the organization</Typography>
+                    <Typography variant="h6" sx={{ color: gray800, marginBottom: "2rem" }}>To the organization</Typography>
                     <Box display="flex" alignItems="flex-end" justifyContent="space-between">
                         <Stack direction="column">
                             <CustomSelectBox

@@ -3,17 +3,18 @@ import { Box, Button, FormControl, Grid, Paper, Typography } from "@mui/material
 import { ArrowBack } from "@mui/icons-material";
 import FormField from "./UI/Formfield";
 import { Link } from "react-router-dom";
-import { handleForgotPassword } from "../../api/endpoints/index";
+import { forgotPassword } from "../../api/endpoints/apiService";
 
 const ForgotPassword = () => {
-  const [email, setEmail] = React.useState("");
+  const [username, setUsername] = React.useState("");
+  const [error, setError] = React.useState("");
 
-  const forgotPassword = async () => {
+  const handleForgotPassword = async () => {
     try {
-      await handleForgotPassword(email);
-      console.log("Password reset email sent");
+      await forgotPassword({username: username});
     } catch (error) {
       console.error("Error:", error);
+      setError(error.message);
     }
   };
 
@@ -29,14 +30,15 @@ const ForgotPassword = () => {
           <form className="authForm">
             <Grid container spacing={2.5}>
               <FormField
-                label="Email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                label="Username"
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                errorMessage={error}
               />
               <Grid item xs={12}>
                 <FormControl>
-                  <Button variant="contained" color="primary" onClick={forgotPassword}>
+                  <Button variant="contained" color="primary" onClick={handleForgotPassword}>
                     Reset my password
                   </Button>
                 </FormControl>

@@ -113,6 +113,21 @@ const theme = createTheme({
 				}
             `,
 		},
+		MuiTypography: {
+			styleOverrides: {
+				h6: {
+					fontSize: '1.125rem',
+					fontWeight: 600
+				}
+			}
+		},
+		MuiDivider: {
+			styleOverrides: {
+				root: {
+					borderColor: gray200
+				}
+			}
+		},
 		MuiRichTreeView: {
 			styleOverrides: {
 				backgroundColor: "red",
@@ -197,6 +212,7 @@ const theme = createTheme({
 		MuiOutlinedInput: {
 			styleOverrides: {
 				root: {
+					borderRadius: "0.5rem",
 					"& .MuiOutlinedInput-notchedOutline": {
 						borderColor: gray200,
 					},
@@ -221,6 +237,14 @@ const theme = createTheme({
 							color: error500
 						}
 					},
+					'&.Mui-disabled': {
+						background: gray50,
+						WebkitTextFillColor: `${gray500} !important`
+					}
+				},
+				sizeSmall: {
+					padding: '0.5rem 0.75rem',
+					'& input': { padding: 0 }
 				}
 			},
 		},
@@ -619,6 +643,9 @@ const theme = createTheme({
 					height: "1.25rem",
 					fontSize: "1.25rem",
 				},
+				fontSizeLarge: {
+					fontSize: '2rem'
+				}
 			},
 		},
 		MuiAccordion: {
@@ -1037,7 +1064,7 @@ const theme = createTheme({
 					},
 				},
 			},
-		},
+		}
 	},
 });
 

@@ -1,10 +1,12 @@
-import {Box, Button, Chip, Grid, Stack, Typography} from "@mui/material";
+import { useState } from "react";
+import { Box, Button, Chip, Grid, Stack, Typography } from "@mui/material";
 import { vars } from "../../../theme/variables";
 import CustomBreadcrumbs from "../../common/CustomBreadcrumbs";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import { SettingsOutlined } from "@mui/icons-material";
-import {GlobalDataContext} from "../../../contexts/DataContext";
+import { GlobalDataContext } from "../../../contexts/DataContext";
 import { useContext } from "react";
+import AccountSettingsDialog from "./AccountSettingsDialog";
 
 const { gray25, gray600, gray800, gray500 } = vars;
 
@@ -14,7 +16,8 @@ const breadcrumbItems = [
 ];
 
 const User = () => {
-  const {user} = useContext(GlobalDataContext)
+  const { user } = useContext(GlobalDataContext)
+  const [open, setOpen] = useState(false);
 
   return (
     <Box sx={{
@@ -33,6 +36,7 @@ const User = () => {
         <Button
           startIcon={<SettingsOutlined />}
           variant='outlined'
+          onClick={() => setOpen(true)}
         >
           Account settings
         </Button>
@@ -69,6 +73,7 @@ const User = () => {
           </Stack>
         </Grid>
       </Grid>
+      <AccountSettingsDialog user={user} open={open} handleClose={() => setOpen(false)} />
     </Box>
   );
 };

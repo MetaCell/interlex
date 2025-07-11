@@ -35,6 +35,7 @@ export const API_CONFIG = {
         API_RETRIEVE_TOKEN: "/priv/api-tokens",
         GET_ORGANIZATIONS: "/priv/role-other",
         LOGOUT: "/priv/logout",
+        USER_RECOVER: "/u/ops/user-recover"
     },
     SESSION_DATA: {
         SETTINGS: "settings",
