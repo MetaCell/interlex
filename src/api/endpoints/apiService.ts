@@ -148,43 +148,54 @@ export const createNewOntology = async ({
 
   const headers = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
+    'Authorization': `Bearer ${token}`,
   };
 
   try {
-    const postResponse = await createPostRequest<any, any>(endpoint, headers)(data);
+    const postResponse = await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      credentials: "include",
+      body: JSON.stringify(data),
+      redirect: 'manual',
+    });
 
-    // If the POST creates a new location, try fetching it (simulate follow-up GETs from the test)
-    if (postResponse?.location) {
-      const getResponse = await fetch(postResponse.location, {
-        headers: {
-          Accept: 'application/json',
-        },
-      });
+    // Check for custom redirect header (all lowercase in fetch)
+    const redirectLocation = postResponse.headers.get('x-redirect-location');
 
-      // Optionally fetch HTML if needed (like the .html equivalent in the Python test)
-      const htmlResponse = await fetch(endpoint, {
-        headers: {
-          Accept: 'text/html',
-        },
-      });
+    if (redirectLocation) {
+      const olympianRedirectLocation = redirectLocation.replace('http://uri.interlex.org','').replace(/\.html$/, '.jsonld');
 
+      const getResponse = await fetch(olympianRedirectLocation, { headers: { Authorization: `Bearer ${token}` } });
+      const jsonResponse = await getResponse.json();
+
+      const newOntologyID = jsonResponse?.["@graph"]?.find((object) => object["@type"] === "owl:Ontology")?.["@id"] || null;
+      
       return {
         created: true,
-        data: postResponse,
-        jsonResponse: await getResponse.json(),
-        htmlAvailable: htmlResponse.ok,
+        location: olympianRedirectLocation,
+        newOntologyID: newOntologyID
       };
     }
 
+    // Try to parse the response as JSON (if present)
+    let jsonResponse: any = null;
+    try {
+      jsonResponse = await postResponse.json();
+    } catch (e) {
+      // No JSON body, ignore
+    }
+
     return {
-      created: true,
-      data: postResponse,
+      created: postResponse.ok,
+      location: endpoint,
+      jsonResponse,
     };
   } catch (error: any) {
+    let errMsg = error?.message ?? String(error);
     return {
       created: false,
-      error: error?.response?.data || error.message,
+      error: errMsg,
     };
   }
 };
