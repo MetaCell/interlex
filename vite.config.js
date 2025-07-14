@@ -63,7 +63,6 @@ export default defineConfig({
             console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
             const location = proxyRes.headers['location'];
             console.log('Received location', location);
-          
             if (proxyRes.statusCode === 303 && location) {
               // Prevent browser from seeing the actual Location
               delete proxyRes.headers['location'];
@@ -79,7 +78,6 @@ export default defineConfig({
             res.setHeader('Access-Control-Allow-Credentials', 'true');
             res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
           });
-                
         },
       },
       '^/[^/]+/(tmp|ilx)_.*\\.(html|ttl|jsonld|n3|owl|csv)$': {
@@ -123,13 +121,11 @@ export default defineConfig({
               proxyReq.setHeader('Authorization', req.headers.authorization);
             }
           });
-      
           proxy.on('proxyRes', (proxyRes, req, res) => {
             const location = proxyRes.headers['location'];
           
             if (proxyRes.statusCode === 303 && location) {
               delete proxyRes.headers['location'];
-              res.statusCode = 200; // Prevent browser redirect
               res.setHeader('X-Redirect-Location', location);
               res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
               res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -146,6 +142,21 @@ export default defineConfig({
             }
             res.setHeader('Access-Control-Allow-Credentials', 'true');
             res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
+          });
+        },
+      },
+      '^/[^/]+/[^/]+/versions$': {
+        target: 'https://uri.olympiangods.org',
+        changeOrigin: true,
+        secure: false,
+        rewrite: path => path, // Keep full path
+        configure: (proxy) => {
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            const origin = req.headers.origin;
+            if (origin) {
+              res.setHeader('Access-Control-Allow-Origin', origin);
+            }
+            res.setHeader('Access-Control-Allow-Credentials', 'true');
           });
         },
       }
