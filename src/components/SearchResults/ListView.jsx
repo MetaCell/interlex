@@ -15,7 +15,7 @@ const TitleSection = ({ searchResult }) => {
     const navigate = useNavigate();
 
     const handleClick = (e, term) => {
-        navigate(`/view?searchTerm=${term}`);
+        navigate(`/base/${term}/overview`);
     };
 
     return (
@@ -135,7 +135,7 @@ const ListView = ({ searchResults, loading }) => {
 
     const handleClick = (searchResult) => {
         updateStoredSearchTerm(searchResult?.label)
-        navigate(`/view?searchTerm=${searchResult?.ilx}`);
+        navigate(`/base/${searchResult?.ilx}/overview`);
     };
 
 

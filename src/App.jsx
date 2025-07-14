@@ -134,14 +134,6 @@ function MainContent() {
 						}
 					/>
 					<Route
-						path="/view"
-						element={
-							<PageContainer>
-								<SingleTermView />
-							</PageContainer>
-						}
-					/>
-					<Route
 						path="/organizations"
 						element={
 							<ProtectedRoute>
@@ -199,6 +191,14 @@ function MainContent() {
 									<OrganizationsCurieEditor />
 								</PageContainer>
 							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/:group/:term/:tab?"
+						element={
+							<PageContainer>
+								<SingleTermView />
+							</PageContainer>
 						}
 					/>
 				</Routes>

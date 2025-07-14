@@ -142,7 +142,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     }
 
     const handleGoToTermClick = () => {
-        navigate(`/view?searchTerm=${newTermId}`);
+        navigate(`/base/${newTermId}/overview`);
         onClose()
     }
 

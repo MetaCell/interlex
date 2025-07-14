@@ -100,7 +100,7 @@ const Search = () => {
     if (!newInputValue) return;
 
     handleCloseList();
-    navigate(`/view?searchTerm=${newInputValue?.ilx}`);
+    navigate(`/base/${newInputValue?.ilx}/overview`);
     updateStoredSearchTerm(newInputValue?.label)
   };
 
