@@ -126,7 +126,7 @@ function MainContent() {
 						}
 					/>
 					<Route
-						path="/search"
+						path="/:group/search"
 						element={
 							<PageContainer>
 								<SearchResults />
@@ -162,7 +162,7 @@ function MainContent() {
 						}
 					/>
 					<Route
-						path="/dashboard"
+						path="/:group/dashboard"
 						element={
 							<PageContainer>
 								<Dashboard />

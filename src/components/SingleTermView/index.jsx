@@ -73,6 +73,8 @@ const SingleTermView = () => {
   const [openForkDialog, setOpenForkDialog] = useState(false);
   const [termData, setTermData] = useState(null);
   const [isLoadingTerm, setIsLoadingTerm] = useState(false);
+  const [actualGroup, setActualGroup] = useState(group); // Track the actual group the data comes from
+  const [isUsingFallback, setIsUsingFallback] = useState(false); // Track if we're using fallback data
   
   // Remove redundant query logic - use term from URL params directly
   const searchTerm = term;
@@ -103,7 +105,7 @@ const SingleTermView = () => {
   // Memoize breadcrumb items to prevent unnecessary re-renders
   const breadcrumbItems = useMemo(() => [
     { label: '', href: '/', icon: HomeOutlinedIcon },
-    { label: 'Term search', href: `/search?searchTerm=${storedSearchTerm}` },
+    { label: 'Term search', href: `/${group}/search?searchTerm=${storedSearchTerm}` },
     { label: group, href: '#' },
     { label: displayedTermLabel },
   ], [group, displayedTermLabel, storedSearchTerm]);
@@ -155,7 +157,7 @@ const SingleTermView = () => {
   }, []);
 
   const downloadFormattedData = useCallback((dataFormat) => {
-    getRawData(group, searchTerm, formatExtensions[dataFormat]).then(rawResponse => {
+    getRawData(actualGroup, searchTerm, formatExtensions[dataFormat]).then(rawResponse => {
       const formattedData = JSON.stringify(rawResponse, null, 2);
       const blob = new Blob([formattedData], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -167,7 +169,7 @@ const SingleTermView = () => {
     }).catch(error => {
       console.error('Error downloading data:', error);
     });
-  }, [group, searchTerm]);
+  }, [actualGroup, searchTerm]);
 
   const handleDataFormatMenuItemClick = useCallback((value) => {
     setSelectedDataFormat(value);
@@ -180,14 +182,18 @@ const SingleTermView = () => {
     let isMounted = true;
 
     const fetchTermData = async () => {
-      if (!searchTerm) return;
+      if (!searchTerm || !group) return;
 
       setIsLoadingTerm(true);
       try {
-        const result = await getSelectedTermLabel(searchTerm);
+        const result = await getSelectedTermLabel(searchTerm, group);
         if (isMounted) {
-          setTermData(result);
-          updateStoredSearchTerm(result);
+          setTermData(result.label);
+          setActualGroup(result.actualGroup);
+          setIsUsingFallback(result.actualGroup !== group);
+          if (result.label) {
+            updateStoredSearchTerm(result.label);
+          }
         }
       } catch (error) {
         console.error('Error fetching term data:', error);
@@ -203,7 +209,7 @@ const SingleTermView = () => {
     return () => {
       isMounted = false;
     };
-  }, [searchTerm, updateStoredSearchTerm]); // Removed isLoadingTerm from dependencies
+  }, [searchTerm, group, updateStoredSearchTerm]); // Added group to dependencies
 
   // Optimize tab URL synchronization
   useEffect(() => {
@@ -219,13 +225,13 @@ const SingleTermView = () => {
     }
   }, [tab, tabMapping, navigate, group, term, tabValue]);
 
-  const isItFork = group === 'base' ? false : true; // Adjusted logic for fork check
+  const isItFork = actualGroup === 'base' ? false : true; // Use actualGroup instead of group
 
   // Memoize tab content to prevent unnecessary re-renders
   const tabContent = useMemo(() => {
     switch (tabValue) {
       case 0:
-        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} />;
+        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} />;
       case 1:
         return <VariantsPanel />;
       case 2:
@@ -233,9 +239,9 @@ const SingleTermView = () => {
       case 3:
         return <Discussion term={searchTerm} />;
       default:
-        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} />;
+        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} />;
     }
-  }, [tabValue, searchTerm, isCodeViewVisible, selectedDataFormat]);
+  }, [tabValue, searchTerm, isCodeViewVisible, selectedDataFormat, actualGroup]);
 
   // Memoize the toggle button group for overview tab
   const toggleButtonGroup = useMemo(() => {
@@ -298,6 +304,19 @@ const SingleTermView = () => {
                   </Typography>
                   {isItFork ? <Chip label="Fork" variant="outlined" /> : null}
                 </Stack>
+                {isUsingFallback && (
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      color: 'warning.main', 
+                      fontSize: '0.875rem', 
+                      fontStyle: 'italic',
+                      mt: '0.5rem'
+                    }}
+                  >
+                    Note: This term is not available in &quot;{group}&quot; group. Showing data from &quot;base&quot; group instead.
+                  </Typography>
+                )}
               </Grid>
               <Grid display="flex" justifyContent='end' mt=".56rem" item xs={12} lg={10}>
                 <Stack direction="row" spacing="1rem" alignItems="center">
@@ -357,7 +376,7 @@ const SingleTermView = () => {
                 </Stack>
               </Grid>
               <Grid item xs={6}>
-                <CopyLinkComponent url={`http://uri.interlex.org/${group}/${searchTerm}`} />
+                <CopyLinkComponent url={`http://uri.interlex.org/${actualGroup}/${searchTerm}`} />
               </Grid>
               <Grid item xs={12} mt="2rem" display='flex' alignItems='center' justifyContent='space-between'>
                 <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={tabLabels} />
