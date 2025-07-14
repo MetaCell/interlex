@@ -142,7 +142,8 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     }
 
     const handleGoToTermClick = () => {
-        navigate(`/base/${newTermId}/overview`);
+        const groupName = user?.groupname || 'base';
+        navigate(`/${groupName}/${newTermId}/overview`);
         onClose()
     }
 
