@@ -19,6 +19,7 @@ const CustomizedDialog = ({
   title,
   open,
   handleClose,
+  fullScreen = true,
   HeaderRightSideContent,
   sx,
 }) => {
@@ -27,7 +28,7 @@ const CustomizedDialog = ({
       onClose={handleClose}
       aria-labelledby="customized-dialog-title"
       open={open}
-      fullScreen
+      fullScreen={fullScreen}
       TransitionComponent={Transition}
       sx={sx}
     >
@@ -85,6 +86,7 @@ CustomizedDialog.propTypes = {
   title: PropTypes.string.isRequired,
   open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
+  fullScreen: PropTypes.bool,
   HeaderRightSideContent: PropTypes.node,
   sx: PropTypes.object,
 };
