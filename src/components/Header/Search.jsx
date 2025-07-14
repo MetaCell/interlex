@@ -90,7 +90,12 @@ const Search = () => {
   const [terms, setTerms] = useState([]);
   const [organizations, setOrganizations] = useState([]);
   const [ontologies, setOntologies] = useState([]);
-  const { storedSearchTerm, updateStoredSearchTerm} = useContext(GlobalDataContext)
+  const { storedSearchTerm, updateStoredSearchTerm, user } = useContext(GlobalDataContext);
+
+  // Get the group name based on user login status
+  const getGroupName = () => {
+    return user?.groupname || 'base';
+  };
 
   const handleOpenList = () => setOpenList(true);
   const handleCloseList = () => setOpenList(false);
@@ -100,13 +105,15 @@ const Search = () => {
     if (!newInputValue) return;
 
     handleCloseList();
-    navigate(`/view?searchTerm=${newInputValue?.ilx}`);
+    const groupName = getGroupName();
+    navigate(`/${groupName}/${newInputValue?.ilx}/overview`);
     updateStoredSearchTerm(newInputValue?.label)
   };
 
   const handleSearchTermClick = () => {
     handleCloseList();
-    navigate(`/search?searchTerm=${searchTerm}`);
+    const groupName = getGroupName();
+    navigate(`/${groupName}/search?searchTerm=${searchTerm}`);
   };
 
   const handleInputFocus = (event) => {

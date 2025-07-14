@@ -141,18 +141,6 @@ const NavMenu = [
     }
 ]
 
-const UserNavMenu = [
-    {
-        label: 'My dashboard',
-        icon: <UserIcon />,
-        href: '/dashboard'
-    },
-    {
-        label: 'Log out',
-        icon: <LogoutIcon />
-    }
-]
-
 const Header = () => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
@@ -163,6 +151,23 @@ const Header = () => {
     const [openNewTermDialog, setOpenNewTermDialog] = React.useState(false);
     // eslint-disable-next-line no-unused-vars
     const [existingCookies, setCookie, removeCookie] = useCookies(['session']);
+
+    // Get the group name based on user login status
+    const getGroupName = () => {
+        return user?.groupname || 'base';
+    };
+
+    const UserNavMenu = [
+        {
+            label: 'My dashboard',
+            icon: <UserIcon />,
+            href: `/${getGroupName()}/dashboard`
+        },
+        {
+            label: 'Log out',
+            icon: <LogoutIcon />
+        }
+    ];
 
     const handleNewTermDialogClose = () => {
         setOpenNewTermDialog(false);

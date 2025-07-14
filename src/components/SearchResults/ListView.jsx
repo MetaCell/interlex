@@ -13,9 +13,11 @@ const { gray200, gray500, gray700, brand50, brand200, brand600, brand700, error5
 
 const TitleSection = ({ searchResult }) => {
     const navigate = useNavigate();
+    const { user } = useContext(GlobalDataContext);
 
     const handleClick = (e, term) => {
-        navigate(`/view?searchTerm=${term}`);
+        const groupName = user?.groupname || 'base';
+        navigate(`/${groupName}/${term}/overview`);
     };
 
     return (
@@ -131,11 +133,12 @@ const InfoSection = ({ searchResult }) => {
 
 const ListView = ({ searchResults, loading }) => {
     const navigate = useNavigate();
-    const { updateStoredSearchTerm } = useContext(GlobalDataContext);
+    const { updateStoredSearchTerm, user } = useContext(GlobalDataContext);
 
     const handleClick = (searchResult) => {
-        updateStoredSearchTerm(searchResult?.label)
-        navigate(`/view?searchTerm=${searchResult?.ilx}`);
+        updateStoredSearchTerm(searchResult?.label);
+        const groupName = user?.groupname || 'base';
+        navigate(`/${groupName}/${searchResult?.ilx}/overview`);
     };
 
 

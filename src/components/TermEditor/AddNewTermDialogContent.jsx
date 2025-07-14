@@ -48,6 +48,7 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
 
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const { user } = useContext(GlobalDataContext);
     const [termResults, setTermResults] = useState([]);
     const [tabValue, setTabValue] = useState(0);
     const [openSidebar, setOpenSidebar] = useState(true);
@@ -60,7 +61,6 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     const [url, setUrl] = useState('');
     const [formState, setFormState] = useState(initialFormState);
     const [newTermId, setNewTermId] = useState("");
-    const { user } = useContext(GlobalDataContext);
 
     const memoData = useMemo(() => data, [data]);
 
@@ -142,7 +142,8 @@ const AddNewTermDialogContent = ({ activeStep, areMatchesChecked, onMatchesChang
     }
 
     const handleGoToTermClick = () => {
-        navigate(`/view?searchTerm=${newTermId}`);
+        const groupName = user?.groupname || 'base';
+        navigate(`/${groupName}/${newTermId}/overview`);
         onClose()
     }
 

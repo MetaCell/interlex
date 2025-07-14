@@ -126,18 +126,10 @@ function MainContent() {
 						}
 					/>
 					<Route
-						path="/search"
+						path="/:group/search"
 						element={
 							<PageContainer>
 								<SearchResults />
-							</PageContainer>
-						}
-					/>
-					<Route
-						path="/view"
-						element={
-							<PageContainer>
-								<SingleTermView />
 							</PageContainer>
 						}
 					/>
@@ -170,7 +162,7 @@ function MainContent() {
 						}
 					/>
 					<Route
-						path="/dashboard"
+						path="/:group/dashboard"
 						element={
 							<PageContainer>
 								<Dashboard />
@@ -199,6 +191,14 @@ function MainContent() {
 									<OrganizationsCurieEditor />
 								</PageContainer>
 							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/:group/:term/:tab?"
+						element={
+							<PageContainer>
+								<SingleTermView />
+							</PageContainer>
 						}
 					/>
 				</Routes>
