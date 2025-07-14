@@ -144,6 +144,21 @@ export default defineConfig({
             res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
           });
         },
+      },
+      '^/[^/]+/[^/]+/versions$': {
+        target: 'https://uri.olympiangods.org',
+        changeOrigin: true,
+        secure: false,
+        rewrite: path => path, // Keep full path
+        configure: (proxy) => {
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            const origin = req.headers.origin;
+            if (origin) {
+              res.setHeader('Access-Control-Allow-Origin', origin);
+            }
+            res.setHeader('Access-Control-Allow-Credentials', 'true');
+          });
+        },
       }
     },
   },
