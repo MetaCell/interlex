@@ -16,6 +16,10 @@ export interface RegisterRequest {
   organization: string
 }
 
+interface ForgotPasswordReguest {
+  username: string;
+}
+
 type LabelType =
   | string
   | { '@value': string; '@language'?: string }
@@ -56,9 +60,9 @@ export const userLogout = (group: string) => {
   return createGetRequest<any, any>(endpoint, "application/json")();
 };
 
-export const getSelectedTermLabel = async (searchTerm: string): Promise<string | undefined> => {
+export const getSelectedTermLabel = async (searchTerm: string, group: string = 'base'): Promise<{ label: string | undefined; actualGroup: string }> => {
   try {
-    const response = await createGetRequest<JsonLdResponse, any>(`/base/${searchTerm}.jsonld`)();
+    const response = await createGetRequest<JsonLdResponse, any>(`/${group}/${searchTerm}.jsonld`)();
 
     const label = response['@graph']?.[0]?.['rdfs:label'];
 
@@ -73,10 +77,39 @@ export const getSelectedTermLabel = async (searchTerm: string): Promise<string |
       return label?.['@value'] || '';
     };
 
-    return label ? getLabelValue(label) : undefined
+    return { 
+      label: label ? getLabelValue(label) : undefined, 
+      actualGroup: group 
+    };
   } catch (err: any) {
     console.error(err.message);
-    return undefined;
+    // If the request fails and we're not already trying 'base', try with 'base' as fallback
+    if (group !== 'base') {
+      try {
+        const fallbackResponse = await createGetRequest<JsonLdResponse, any>(`/base/${searchTerm}.jsonld`)();
+        const fallbackLabel = fallbackResponse['@graph']?.[0]?.['rdfs:label'];
+        
+        const getLabelValue = (label: LabelType): string => {
+          if (typeof label === 'string') return label;
+          if (Array.isArray(label)) {
+            const en = label.find(
+              l => typeof l === 'string' || (typeof l === 'object' && l?.['@language'] === 'en')
+            );
+            return typeof en === 'string' ? en : en?.['@value'] || '';
+          }
+          return label?.['@value'] || '';
+        };
+
+        return { 
+          label: fallbackLabel ? getLabelValue(fallbackLabel) : undefined, 
+          actualGroup: 'base' 
+        };
+      } catch (fallbackErr: any) {
+        console.error('Fallback request also failed:', fallbackErr.message);
+        return { label: undefined, actualGroup: group };
+      }
+    }
+    return { label: undefined, actualGroup: group };
   }
 };
 
@@ -148,43 +181,54 @@ export const createNewOntology = async ({
 
   const headers = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
+    'Authorization': `Bearer ${token}`,
   };
 
   try {
-    const postResponse = await createPostRequest<any, any>(endpoint, headers)(data);
+    const postResponse = await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      credentials: "include",
+      body: JSON.stringify(data),
+      redirect: 'manual',
+    });
 
-    // If the POST creates a new location, try fetching it (simulate follow-up GETs from the test)
-    if (postResponse?.location) {
-      const getResponse = await fetch(postResponse.location, {
-        headers: {
-          Accept: 'application/json',
-        },
-      });
+    // Check for custom redirect header (all lowercase in fetch)
+    const redirectLocation = postResponse.headers.get('x-redirect-location');
 
-      // Optionally fetch HTML if needed (like the .html equivalent in the Python test)
-      const htmlResponse = await fetch(endpoint, {
-        headers: {
-          Accept: 'text/html',
-        },
-      });
+    if (redirectLocation) {
+      const olympianRedirectLocation = redirectLocation.replace('http://uri.interlex.org','').replace(/\.html$/, '.jsonld');
 
+      const getResponse = await fetch(olympianRedirectLocation, { headers: { Authorization: `Bearer ${token}` } });
+      const jsonResponse = await getResponse.json();
+
+      const newOntologyID = jsonResponse?.["@graph"]?.find((object) => object["@type"] === "owl:Ontology")?.["@id"] || null;
+      
       return {
         created: true,
-        data: postResponse,
-        jsonResponse: await getResponse.json(),
-        htmlAvailable: htmlResponse.ok,
+        location: olympianRedirectLocation,
+        newOntologyID: newOntologyID
       };
     }
 
+    // Try to parse the response as JSON (if present)
+    let jsonResponse: any = null;
+    try {
+      jsonResponse = await postResponse.json();
+    } catch (e) {
+      // No JSON body, ignore
+    }
+
     return {
-      created: true,
-      data: postResponse,
+      created: postResponse.ok,
+      location: endpoint,
+      jsonResponse,
     };
   } catch (error: any) {
+    let errMsg = error?.message ?? String(error);
     return {
       created: false,
-      error: error?.response?.data || error.message,
+      error: errMsg,
     };
   }
 };
@@ -199,12 +243,24 @@ export const retrieveTokenApi = ({ groupname }: { groupname: string }) => {
   return createGetRequest<any, any>(endpoint, "application/json")();
 };
 
+export const forgotPassword = createPostRequest<any, ForgotPasswordReguest>(API_CONFIG.REAL_API.USER_RECOVER, { "Content-Type": "application/x-www-form-urlencoded" })
+
 export const getMatchTerms = async (group: string, term: string, filters = {}) => {
   try {
     const response = await createGetRequest<any, any>(`/${group}/${term}.${BASE_EXTENSION}`, "application/json")();
     return termParser(response, term);
   } catch (err: any) {
     console.error(err.message);
+    // If the request fails and we're not already trying 'base', try with 'base' as fallback
+    if (group !== 'base') {
+      try {
+        const fallbackResponse = await createGetRequest<any, any>(`/base/${term}.${BASE_EXTENSION}`, "application/json")();
+        return termParser(fallbackResponse, term);
+      } catch (fallbackErr: any) {
+        console.error('Fallback request also failed:', fallbackErr.message);
+        return undefined;
+      }
+    }
     return undefined;
   }
 };
@@ -215,6 +271,16 @@ export const getRawData = async (group: string, termID: string, format: string) 
     return response;
   } catch (err: any) {
     console.error(err.message);
+    // If the request fails and we're not already trying 'base', try with 'base' as fallback
+    if (group !== 'base') {
+      try {
+        const fallbackResponse = await createGetRequest<any, any>(`/base/${termID}.${format}`, "application/json")();
+        return fallbackResponse;
+      } catch (fallbackErr: any) {
+        console.error('Fallback request also failed:', fallbackErr.message);
+        return undefined;
+      }
+    }
     return undefined;
   }
 };

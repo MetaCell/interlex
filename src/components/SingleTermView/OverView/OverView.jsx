@@ -12,7 +12,7 @@ import RawDataViewer from "./RawDataViewer";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getMatchTerms, getRawData } from "../../../api/endpoints/apiService";
 
-const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat }) => {
+const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat, group = "base" }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [jsonData, setJsonData] = useState(null);
@@ -21,21 +21,21 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat }) => {
   const fetchTerms = useCallback(
     debounce((searchTerm) => {
       if (searchTerm) {
-        getMatchTerms("base", searchTerm).then(data => {
+        getMatchTerms(group, searchTerm).then(data => {
           console.log("data from api call: ", data)
           setData(data?.results?.[0]);
           setLoading(false);
         });
       }
     }, 300),
-    []
+    [group]
   );
 
   const fetchJSONFile = useCallback(() => {
-    getRawData("base", searchTerm, 'jsonld').then(rawResponse => {
+    getRawData(group, searchTerm, 'jsonld').then(rawResponse => {
       setJsonData(rawResponse);
     })
-  }, [searchTerm]);
+  }, [searchTerm, group]);
 
   useEffect(() => {
     setLoading(true);
@@ -75,7 +75,8 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat }) => {
 OverView.propTypes = {
   searchTerm: PropTypes.string,
   isCodeViewVisible: PropTypes.bool,
-  selectedDataFormat: PropTypes.string
+  selectedDataFormat: PropTypes.string,
+  group: PropTypes.string
 }
 
 export default OverView;

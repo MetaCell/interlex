@@ -50,13 +50,13 @@ const Login = () => {
       const { code, cookies, groupname } = e.data;
       if (code === 200 || code === 302) {
         const _cookies = JSON.parse(cookies);
-        const sessionCookie = _cookies.find(cookie => cookie.name === "session");
+        const sessionCookie = _cookies && Object.prototype.hasOwnProperty.call(_cookies, 'session') ? _cookies['session'] : undefined;
         let expires = new Date()
         if (sessionCookie && (existingCookies['session'] === undefined)) {
           expires.setTime(expires.getTime() + (2 * 24 * 60 * 60 * 1000)); // 2 days
           setCookie(
             'session',
-            sessionCookie.value,
+            sessionCookie,
             {
               path: '/',
               secure: false,
@@ -79,10 +79,10 @@ const Login = () => {
           localStorage.setItem(API_CONFIG.SESSION_DATA.SETTINGS, JSON.stringify(userData));
           localStorage.setItem(API_CONFIG.SESSION_DATA.COOKIE, JSON.stringify({
             name: 'session',
-            value: sessionCookie.value,
+            value: sessionCookie,
             expires: expires
           }));
-          localStorage.setItem("token", sessionCookie.value)
+          localStorage.setItem("token", sessionCookie)
           setUserData({
             name: userData['groupname'],
             id: userData['orcid'],

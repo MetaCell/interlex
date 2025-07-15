@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef, useContext, useMemo, useCallback } from "react";
 import {
   Box,
   Button,
@@ -9,10 +9,12 @@ import {
   Stack,
   Typography,
   Menu,
-  MenuItem
+  MenuItem,
+  CircularProgress
 } from "@mui/material";
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton';
+import { useParams, useNavigate } from "react-router-dom";
 import CustomBreadcrumbs from "../common/CustomBreadcrumbs";
 import ForkRightIcon from '@mui/icons-material/ForkRight';
 import { vars } from "../../theme/variables";
@@ -37,7 +39,6 @@ import {
 } from "@mui/icons-material";
 import Discussion from "./Discussion";
 import { CodeIcon } from "../../Icons";
-import { useQuery } from "../../helpers";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CreateForkDialog from "./CreateForkDialog";
@@ -58,77 +59,105 @@ const formatExtensions = {
 };
 
 const SingleTermView = () => {
+  const { group, term, tab } = useParams();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const actionRef = useRef(null);
   const anchorRef = useRef(null);
   const [dataFormatAnchorEl, setDataFormatAnchorEl] = useState(null);
-  const [tabValue, setTabValue] = useState(0);
   const [isCodeViewVisible, setIsCodeViewVisible] = useState(false);
   const [toggleButtonValue, setToggleButtonValue] = useState('defaultView');
   const [selectedDataFormat, setSelectedDataFormat] = useState('JSON-LD');
   const [openRequestMergeDialog, setOpenRequestMergeDialog] = useState(false);
   const [editTermDialogOpen, setEditTermDialogOpen] = useState(false);
-  const query = useQuery();
-  const searchTerm = query.get('searchTerm');
-  const openDataFormatMenu = Boolean(dataFormatAnchorEl);
   const [openForkDialog, setOpenForkDialog] = useState(false);
+  const [termData, setTermData] = useState(null);
+  const [isLoadingTerm, setIsLoadingTerm] = useState(false);
+  const [actualGroup, setActualGroup] = useState(group); // Track the actual group the data comes from
+  const [isUsingFallback, setIsUsingFallback] = useState(false); // Track if we're using fallback data
+  
+  // Remove redundant query logic - use term from URL params directly
+  const searchTerm = term;
+  const openDataFormatMenu = Boolean(dataFormatAnchorEl);
   const { storedSearchTerm, updateStoredSearchTerm } = useContext(GlobalDataContext);
 
-  const handleForkDialogClose = () => {
-    setOpenForkDialog(false);
-  }
+  // Tab mapping
+  const tabMapping = useMemo(() => ({
+    'overview': 0,
+    'variants': 1,
+    'history': 2,
+    'discussions': 3
+  }), []);
 
-  const handleOpenForkDialog = () => {
-    setOpenForkDialog(true);
-  }
-  const handleClickDataFormatMenu = (event) => {
-    setDataFormatAnchorEl(event.currentTarget);
-  };
+  const tabNames = useMemo(() => ['overview', 'variants', 'history', 'discussions'], []);
+  const tabLabels = useMemo(() => ["Overview", "Variants", "Version history", "Discussions"], []);
 
-  const handleOpenEditTermDialog = () => {
-    setEditTermDialogOpen(true);
-  };
+  // Set initial tab value based on URL
+  const [tabValue, setTabValue] = useState(() => {
+    return tabMapping[tab] !== undefined ? tabMapping[tab] : 0;
+  });
 
-  const handleCloseEditTermDialog = () => {
-    setEditTermDialogOpen(false);
-  }
+  // Memoize the displayed term label to prevent unnecessary re-renders
+  const displayedTermLabel = useMemo(() => {
+    return termData || storedSearchTerm || searchTerm.toUpperCase().replace("_", ":");
+  }, [termData, storedSearchTerm, searchTerm]);
 
-  const handleCloseDataFormatMenu = () => {
-    setDataFormatAnchorEl(null);
-  };
+  // Memoize breadcrumb items to prevent unnecessary re-renders
+  const breadcrumbItems = useMemo(() => [
+    { label: '', href: '/', icon: HomeOutlinedIcon },
+    { label: 'Term search', href: `/${group}/search?searchTerm=${storedSearchTerm}` },
+    { label: group, href: '#' },
+    { label: displayedTermLabel },
+  ], [group, displayedTermLabel, storedSearchTerm]);
 
-  const handleDataFormatMenuItemClick = (value) => {
-    setSelectedDataFormat(value);
-    setDataFormatAnchorEl(null);
-
-    downloadFormattedData(value);
-  };
-
-  const handleOpenRequestMergeDialog = () => {
-    setOpenRequestMergeDialog(true)
-  };
-
-  const handleCloseRequestMergeDialog = () => {
-    setOpenRequestMergeDialog(false)
-  }
-
-  const onToggleButtonChange = (event, newValue) => {
-    if (newValue) {
-      setToggleButtonValue(newValue)
-      if (newValue === 'codeView') {
-        setIsCodeViewVisible(true)
-      } else {
-        setIsCodeViewVisible(false)
-      }
-    }
-  }
-
-  const handleChangeTabs = (event, newValue) => {
+  // Optimize handlers with useCallback
+  const handleChangeTabs = useCallback((event, newValue) => {
     setTabValue(newValue);
-  };
+    const newTab = tabNames[newValue];
+    navigate(`/${group}/${term}/${newTab}`, { replace: true });
+  }, [navigate, group, term, tabNames]);
 
-  const downloadFormattedData = (dataFormat) => {
-    getRawData("base", searchTerm, formatExtensions[dataFormat]).then(rawResponse => {
+  const handleForkDialogClose = useCallback(() => {
+    setOpenForkDialog(false);
+  }, []);
+
+  const handleOpenForkDialog = useCallback(() => {
+    setOpenForkDialog(true);
+  }, []);
+
+  const handleClickDataFormatMenu = useCallback((event) => {
+    setDataFormatAnchorEl(event.currentTarget);
+  }, []);
+
+  const handleOpenEditTermDialog = useCallback(() => {
+    setEditTermDialogOpen(true);
+  }, []);
+
+  const handleCloseEditTermDialog = useCallback(() => {
+    setEditTermDialogOpen(false);
+  }, []);
+
+  const handleCloseDataFormatMenu = useCallback(() => {
+    setDataFormatAnchorEl(null);
+  }, []);
+
+  const handleOpenRequestMergeDialog = useCallback(() => {
+    setOpenRequestMergeDialog(true);
+  }, []);
+
+  const handleCloseRequestMergeDialog = useCallback(() => {
+    setOpenRequestMergeDialog(false);
+  }, []);
+
+  const onToggleButtonChange = useCallback((event, newValue) => {
+    if (newValue) {
+      setToggleButtonValue(newValue);
+      setIsCodeViewVisible(newValue === 'codeView');
+    }
+  }, []);
+
+  const downloadFormattedData = useCallback((dataFormat) => {
+    getRawData(actualGroup, searchTerm, formatExtensions[dataFormat]).then(rawResponse => {
       const formattedData = JSON.stringify(rawResponse, null, 2);
       const blob = new Blob([formattedData], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -140,31 +169,116 @@ const SingleTermView = () => {
     }).catch(error => {
       console.error('Error downloading data:', error);
     });
-  }
+  }, [actualGroup, searchTerm]);
 
-  const CodeOrTreeIcon = () => {
-    return isCodeViewVisible ? <CodeIcon /> : <AccountTreeOutlined />
-  }
+  const handleDataFormatMenuItemClick = useCallback((value) => {
+    setSelectedDataFormat(value);
+    setDataFormatAnchorEl(null);
+    downloadFormattedData(value);
+  }, [downloadFormattedData]);
 
-  const breadcrumbItems = [
-    { label: '', href: '/', icon: HomeOutlinedIcon },
-    { label: 'Term search', href: `/search?searchTerm=${storedSearchTerm}` },
-    { label: 'base', href: '#' },
-    { label: searchTerm.toUpperCase().replace("_", ":") },
-  ];
-
+  // Optimize data fetching with caching and prevent duplicate calls
   useEffect(() => {
-    const fetchLabel = async () => {
-      const result = await getSelectedTermLabel(searchTerm);
-      updateStoredSearchTerm(result);
+    let isMounted = true;
+
+    const fetchTermData = async () => {
+      if (!searchTerm || !group) return;
+
+      setIsLoadingTerm(true);
+      try {
+        const result = await getSelectedTermLabel(searchTerm, group);
+        if (isMounted) {
+          setTermData(result.label);
+          setActualGroup(result.actualGroup);
+          setIsUsingFallback(result.actualGroup !== group);
+          if (result.label) {
+            updateStoredSearchTerm(result.label);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching term data:', error);
+      } finally {
+        if (isMounted) {
+          setIsLoadingTerm(false);
+        }
+      }
     };
 
-    if (searchTerm) {
-      fetchLabel();
-    }
-  }, [searchTerm, updateStoredSearchTerm]);
+    fetchTermData();
 
-  const isItFork = true;
+    return () => {
+      isMounted = false;
+    };
+  }, [searchTerm, group, updateStoredSearchTerm]); // Added group to dependencies
+
+  // Optimize tab URL synchronization
+  useEffect(() => {
+    const newTabValue = tabMapping[tab] !== undefined ? tabMapping[tab] : 0;
+    
+    if (newTabValue !== tabValue) {
+      setTabValue(newTabValue);
+    }
+    
+    // If no tab is specified in URL, redirect to overview
+    if (!tab && group && term) {
+      navigate(`/${group}/${term}/overview`, { replace: true });
+    }
+  }, [tab, tabMapping, navigate, group, term, tabValue]);
+
+  const isItFork = actualGroup === 'base' ? false : true; // Use actualGroup instead of group
+
+  // Memoize tab content to prevent unnecessary re-renders
+  const tabContent = useMemo(() => {
+    switch (tabValue) {
+      case 0:
+        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} />;
+      case 1:
+        return <VariantsPanel />;
+      case 2:
+        return <HistoryPanel />;
+      case 3:
+        return <Discussion term={searchTerm} />;
+      default:
+        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} />;
+    }
+  }, [tabValue, searchTerm, isCodeViewVisible, selectedDataFormat, actualGroup]);
+
+  // Memoize the toggle button group for overview tab
+  const toggleButtonGroup = useMemo(() => {
+    if (tabValue !== 0) return null;
+    
+    return (
+      <Box display="flex">
+        {isCodeViewVisible && (
+          <>
+            <Stack direction="row" spacing=".5rem" alignItems="center">
+              <Typography color={gray600} fontSize=".875rem" lineHeight="1.25rem">
+                Format to visualize:
+              </Typography>
+              <CustomSingleSelect 
+                value={selectedDataFormat} 
+                onChange={(v) => setSelectedDataFormat(v)} 
+                options={dataFormats} 
+              />
+            </Stack>
+            <Divider sx={{ ml: '0.625rem', mr: '0.625rem', border: `1px solid ${gray200}` }} />
+          </>
+        )}
+        <ToggleButtonGroup
+          value={toggleButtonValue}
+          exclusive
+          onChange={onToggleButtonChange}
+        >
+          <ToggleButton value={'defaultView'}>
+            <List />
+          </ToggleButton>
+          <ToggleButton value={'codeView'}>
+            {isCodeViewVisible ? <CodeIcon /> : <AccountTreeOutlined />}
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
+    );
+  }, [tabValue, isCodeViewVisible, selectedDataFormat, toggleButtonValue, onToggleButtonChange]);
 
   return (
     <>
@@ -182,10 +296,27 @@ const SingleTermView = () => {
               <Grid item xs={12} lg={2}>
                 <Stack direction="row" spacing=".75rem" alignItems="center">
                   <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
-                    {storedSearchTerm}
+                    {isLoadingTerm ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      displayedTermLabel
+                    )}
                   </Typography>
-                  <Chip label="Fork" variant="outlined" />
+                  {isItFork ? <Chip label="Fork" variant="outlined" /> : null}
                 </Stack>
+                {isUsingFallback && (
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      color: 'warning.main', 
+                      fontSize: '0.875rem', 
+                      fontStyle: 'italic',
+                      mt: '0.5rem'
+                    }}
+                  >
+                    Note: This term is not available in &quot;{group}&quot; group. Showing data from &quot;base&quot; group instead.
+                  </Typography>
+                )}
               </Grid>
               <Grid display="flex" justifyContent='end' mt=".56rem" item xs={12} lg={10}>
                 <Stack direction="row" spacing="1rem" alignItems="center">
@@ -245,51 +376,16 @@ const SingleTermView = () => {
                 </Stack>
               </Grid>
               <Grid item xs={6}>
-                <CopyLinkComponent url={`http://uri.interlex.org/base/${searchTerm}`} />
+                <CopyLinkComponent url={`http://uri.interlex.org/${actualGroup}/${searchTerm}`} />
               </Grid>
               <Grid item xs={12} mt="2rem" display='flex' alignItems='center' justifyContent='space-between'>
-                <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["Overview", "Variants", "Version history", "Discussions"]} />
-                {tabValue === 0 && (
-                  <Box display="flex">
-                    {isCodeViewVisible && (<>
-                      <Stack direction="row" spacing=".5rem" alignItems="center">
-                        <Typography color={gray600} fontSize=".875rem" lineHeight="1.25rem">
-                          Format to visualize:
-                        </Typography>
-                        <CustomSingleSelect value={selectedDataFormat} onChange={(v) => setSelectedDataFormat(v)} options={dataFormats} />
-                      </Stack>
-                      <Divider sx={{ ml: '0.625rem', mr: '0.625rem', border: `1px solid ${gray200}` }} /></>)
-                    }
-                    <ToggleButtonGroup
-                      value={toggleButtonValue}
-                      exclusive
-                      onChange={onToggleButtonChange}
-                    >
-                      <ToggleButton value={'defaultView'}>
-                        <List />
-                      </ToggleButton>
-                      <ToggleButton value={'codeView'}>
-                        <CodeOrTreeIcon />
-                      </ToggleButton>
-                    </ToggleButtonGroup>
-                  </Box>
-                )}
+                <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={tabLabels} />
+                {toggleButtonGroup}
               </Grid>
             </Grid>
           </Grid>
         </Box>
-        {
-          tabValue === 0 && <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} />
-        }
-        {
-          tabValue === 1 && <VariantsPanel />
-        }
-        {
-          tabValue === 2 && <HistoryPanel />
-        }
-        {
-          tabValue === 3 && <Discussion term={searchTerm} />
-        }
+        {tabContent}
       </Box>
       <RequestMergeChanges searchTerm={searchTerm} open={openRequestMergeDialog} handleClose={handleCloseRequestMergeDialog} />
       <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} searchTerm={searchTerm} />

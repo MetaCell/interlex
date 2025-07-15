@@ -31,11 +31,15 @@ export const getGraphStructure = (pred) => {
 
     let getExistingObject = uniqueObjects?.find( c => c.id === child.object );
     if ( getExistingObject ) {
+      // Object already exists, just add it to the predicate's children
       let getExistingPredicate = data.children?.find( c => c.id === child.predicate );
       if ( getExistingPredicate ) {
         getExistingPredicate.children.push(newChild)
       }
     } else {
+      // New object, add it to uniqueObjects and process normally
+      uniqueObjects.push(newChild);
+      
       let getExistingPredicate = data?.children?.find( c => c.id === child.predicate );
       if ( getExistingPredicate ) {
         getExistingPredicate.children.push(newChild)
