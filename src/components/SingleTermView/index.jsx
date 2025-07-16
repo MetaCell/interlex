@@ -235,7 +235,7 @@ const SingleTermView = () => {
       case 1:
         return <VariantsPanel />;
       case 2:
-        return <HistoryPanel />;
+        return <HistoryPanel searchTerm={searchTerm} group={group} />;
       case 3:
         return <Discussion term={searchTerm} />;
       default:

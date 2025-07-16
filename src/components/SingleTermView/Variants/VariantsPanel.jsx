@@ -14,12 +14,12 @@ const headCells = [
     { id: 'action_buttons', label: '' }
 ];
 
-const VariantsPanel = () => {
+const VariantsPanel = ({ searchTerm, group = "base" }) => {
     const [variants, setVariants] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
 
     React.useEffect(() => {
-        getVariants("base", "ILX_").then(data => {
+        getVariants(group, searchTerm).then(data => {
             setVariants(data);
             setLoading(false);
         })
@@ -31,8 +31,8 @@ const VariantsPanel = () => {
         </Box>
     }
     if (!variants.length) return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            No variants found
-        </Box>
+        No variants found
+    </Box>
 
     return (
         <Box flexGrow={1} p="2.5rem 5rem" overflow='auto'>
@@ -42,7 +42,8 @@ const VariantsPanel = () => {
 }
 
 VariantsPanel.propTypes = {
-    variants: PropTypes.array
+    searchTerm: PropTypes.string,
+    group: PropTypes.string
 }
 
 export default VariantsPanel;

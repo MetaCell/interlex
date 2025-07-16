@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from 'prop-types';
 import HistoryItem from "./HistoryItem";
 import { Box, List } from "@mui/material";
 import { getVersions } from "../../../api/endpoints/apiService";
@@ -13,15 +14,17 @@ const historyEntries = [
     { author: "Phoenix Baker", action: "request", date: "Friday 2:05pm" },
 ];
 
-const HistoryPanel = () => {
+const HistoryPanel = ({ searchTerm, group = "base" }) => {
     // eslint-disable-next-line no-unused-vars
     const [versions, setVersions] = React.useState([]);
 
     React.useEffect(() => {
-        getVersions("base", "ILX_....").then( data => {
+        getVersions(group, searchTerm).then(data => {
             setVersions(data);
         })
     }, []);
+
+    console.log("versions: ", versions)
 
     return <Box p="2.5rem 5rem" sx={{
         overflow: 'auto',
@@ -44,5 +47,10 @@ const HistoryPanel = () => {
         </List>
     </Box>
 };
+
+HistoryPanel.propTypes = {
+    searchTerm: PropTypes.string,
+    group: PropTypes.string
+}
 
 export default HistoryPanel;
