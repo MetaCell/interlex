@@ -300,3 +300,8 @@ export const getTermDiscussions = async (group: string, variantID: string) => {
 export const getVariant = (group: string, term: string) => {
   return createGetRequest<any, any>(`/${group}/variant/${term}`, "application/json")();  
 };
+
+export const changePassword = ({ group, data }: { group: string, data: any }) => {
+  const endpoint = `/${group}/priv/password-change`;
+  return createPostRequest<any, any>(endpoint, { "Content-Type": "application/json" })(data);
+};

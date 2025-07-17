@@ -1,7 +1,7 @@
+import PropTypes from "prop-types";
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
-import PropTypes from "prop-types";
 import { vars } from '../../theme/variables';
 
 const { gray300, brand600, error300, inputBoxShadow, inputErrorBoxShadow } = vars;

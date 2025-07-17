@@ -238,8 +238,16 @@ const theme = createTheme({
 						}
 					},
 					'&.Mui-disabled': {
-						background: gray50,
-						WebkitTextFillColor: `${gray500} !important`
+						background: gray25,
+						WebkitTextFillColor: `${gray300} !important`,
+
+						'&:hover': {
+							background: gray50
+						},
+
+						"& .MuiOutlinedInput-notchedOutline": {
+							borderColor: gray300,
+						}
 					}
 				},
 				sizeSmall: {
@@ -954,10 +962,10 @@ const theme = createTheme({
 							},
 							"& #orcidAuthButton": {
 								display: "flex",
-								alignItems: "center", 
+								alignItems: "center",
 								justifyContent: "center",
 								gap: "0.25rem",
-								fontSize: "1rem", 
+								fontSize: "1rem",
 								fontWeight: 600,
 								textDecoration: "none",
 								borderRadius: "0.5rem",
