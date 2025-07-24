@@ -613,13 +613,16 @@ const theme = createTheme({
 
 		MuiButtonGroup: {
 			styleOverrides: {
-				outlined: {
+				root: {
 					borderRadius: "0.5rem",
-					boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
 
 					"& .MuiButton-root": {
 						padding: "0.625rem 0.875rem",
-					},
+					}
+				},
+				outlined: {
+					boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
+
 					"& .MuiButton-root:focus": {
 						boxShadow: "none",
 						background: gray50,
@@ -628,6 +631,13 @@ const theme = createTheme({
 						borderRightColor: "transparent",
 					},
 				},
+				contained: {
+					boxShadow: "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
+
+					"& .MuiButtonGroup-firstButton": {
+						borderColor: white,
+					}
+				}
 			},
 		},
 
@@ -850,10 +860,14 @@ const theme = createTheme({
 
 		MuiMobileStepper: {
 			styleOverrides: {
+				dots: {
+					gap: "0.75rem"
+				},
 				dot: {
 					width: ".5rem",
 					height: ".5rem",
 					backgroundColor: gray200,
+					margin: 0
 				},
 				dotActive: {
 					backgroundColor: brand700,

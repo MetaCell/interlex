@@ -20,13 +20,7 @@ const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueBut
                     steps={3}
                     position="static"
                     activeStep={activeStep}
-                    sx={{
-                        maxWidth: 64,
-                        flexGrow: 1,
-                        '& .MuiMobileStepper-dots': { gap: '0.75rem' },
-                        '& .MuiMobileStepper-dot': { margin: 0, backgroundColor: gray200 },
-                        '& .MuiMobileStepper-dotActive': { backgroundColor: brand700 }
-                    }}
+                    sx={{ maxWidth: 64, flexGrow: 1 }}
                 />
                 <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
                 <Stack direction="row" spacing={1.5}>
