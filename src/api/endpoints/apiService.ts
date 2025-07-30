@@ -1,4 +1,4 @@
-import { createPostRequest, createGetRequest } from "./apiActions";
+import { createPostRequest, createGetRequest, createPatchRequest } from "./apiActions";
 import { API_CONFIG } from "../../config";
 import termParser from "../../parsers/termParser";
 
@@ -157,6 +157,54 @@ export const createNewEntity = async ({ group, data, session }: { group: string;
     };
   }
 
+};
+
+export const patchEntity = async ({ group, termID, data, token, contentType = "application/json" }: { group: string; termID: string; data: any; token: string; contentType?: string }) => {
+  try {
+    const endpoint = `/${group}/${termID}`;
+    const response = await createPatchRequest<any, any>(
+      endpoint,
+      {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": contentType,
+      }
+    )(data);
+
+    // If the response is HTML (a string), extract TMP ID
+    if (typeof response === "string") {
+      const match = response.match(/TMP:\d{9}/);
+      if (match) {
+        return {
+          term: {
+            id: `${match[0]}`,
+          },
+          raw: response,
+          status: 200,
+        };
+      }
+    }
+
+    // Otherwise, return response as-is
+    return response;
+  } catch (error: any) {
+    if (error?.response?.status === 409) {
+      const match = error?.response?.data?.existing?.[0];
+      if (match) {
+        return {
+          term: {
+            id: `${match}`,
+          },
+          raw: error?.response,
+          status: error?.response?.status,
+        };
+      }
+    }
+
+    return {
+      raw: error?.response,
+      status: error?.response?.status,
+    };
+  }
 };
 
 export const createNewOntology = async ({

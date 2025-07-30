@@ -18,6 +18,22 @@ export const createPostRequest = <T = any, D = any>(endpoint: string, headers : 
   }
 }
 
+
+export const createPatchRequest = <T = any, D = any>(endpoint: string, headers: object) => {
+  return (data?: D, options?: SecondParameter<typeof customInstance>) => {
+    return customInstance<T>(
+      {
+        url: endpoint,
+        method: "PATCH",
+        data: data,
+        headers: headers,
+        withCredentials: true
+      },
+      options,
+    )
+  }
+}
+
 export const createGetRequest = <T = any, P = any>(endpoint: string, contentType?: string) => {
   return (params?: P, options?: SecondParameter<typeof customInstance>, signal?: AbortSignal) => {
     const config: AxiosRequestConfig = {
