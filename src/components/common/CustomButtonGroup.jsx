@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
@@ -17,7 +18,8 @@ const styles = {
         borderRadius: "0.5rem",
         border: `1px solid ${gray200}`,
         backgroundColor: white,
-        boxShadow: paperShadow
+        boxShadow: paperShadow,
+        width: "100%"
     },
     menu: {
         padding: "0.25rem 0"
@@ -32,7 +34,7 @@ const styles = {
     }
 }
 
-const CustomButtonGroup = ({ 
+const CustomButtonGroup = ({
     buttonTitle,
     buttonIcon = null,
     options = [],
@@ -68,7 +70,7 @@ const CustomButtonGroup = ({
     };
 
     return (
-        <React.Fragment>
+        <Box sx={{ width: 210, position: "relative", display: "flex", justifyContent: "end" }}>
             <ButtonGroup
                 variant="contained"
                 ref={anchorRef}
@@ -80,6 +82,12 @@ const CustomButtonGroup = ({
                 <Button
                     onClick={handleMainButtonClick}
                     startIcon={buttonIcon}
+                    sx={{
+                        pr: "0.75rem !important",
+                        "& .MuiButton-startIcon": {
+                            marginRight: "0.25rem"
+                        }
+                    }}
                 >
                     {buttonTitle}
                 </Button>
@@ -91,6 +99,7 @@ const CustomButtonGroup = ({
                         aria-label="split button with menu"
                         aria-haspopup="menu"
                         onClick={handleToggle}
+                        sx={{ pl: "0.75rem !important" }}
                     >
                         {open ? <KeyboardArrowUp fontSize="medium" /> : <KeyboardArrowDown fontSize="medium" />}
                     </Button>
@@ -98,7 +107,7 @@ const CustomButtonGroup = ({
             </ButtonGroup>
             {options.length > 0 && (
                 <Popper
-                    sx={{ zIndex: 1, marginTop: "0.25rem !important" }}
+                    sx={{ zIndex: 1, marginTop: "0.25rem !important", width: "100%" }}
                     open={open}
                     anchorEl={anchorRef.current}
                     role={undefined}
@@ -133,7 +142,7 @@ const CustomButtonGroup = ({
                     )}
                 </Popper>
             )}
-        </React.Fragment>
+        </Box>
     );
 }
 
