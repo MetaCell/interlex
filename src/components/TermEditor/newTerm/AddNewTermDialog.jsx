@@ -115,7 +115,7 @@ const AddNewTermDialog = ({
                     activeStep={activeStep}
                     onContinue={handleContinueClick}
                     onClose={handleCancelBtnClick}
-                    isContinueButtonDisabled={isContinueButtonDisabled}
+                    isContinueButtonDisabled={false}
                 />
             }
             sx={{ '& .MuiDialogContent-root': { padding: 0, overflowY: "hidden" } }}

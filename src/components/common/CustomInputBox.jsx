@@ -5,7 +5,7 @@ import { Stack, Typography, TextField, InputAdornment } from "@mui/material";
 import { vars } from "../../theme/variables";
 const { gray50, gray300, gray400, gray600, gray700, gray800, gray900, brand600 } = vars;
 
-const CustomInputBox = ({ id, name, value, onInputChange, label, isRequired, helperText, placeholder, isEndAdornmentVisible, multiline, rows, sx }) => {
+const CustomInputBox = ({ id, name, value, onInputChange, label, isRequired, helperText, placeholder, isEndAdornmentVisible, multiline, rows, disabled, sx }) => {
     return (
         <>
             <Stack direction="row" justifyContent="space-between" mb={1.5}>
@@ -23,6 +23,7 @@ const CustomInputBox = ({ id, name, value, onInputChange, label, isRequired, hel
                 placeholder={placeholder}
                 multiline={multiline}
                 rows={rows}
+                disabled={disabled}
                 InputProps={{
                     endAdornment: isEndAdornmentVisible ? (
                         <InputAdornment position="end">
@@ -41,7 +42,12 @@ const CustomInputBox = ({ id, name, value, onInputChange, label, isRequired, hel
                             border: `2px solid ${brand600}`,
                             backgroundColor: gray50,
                             boxShadow: 'none'
-                        }
+                        },
+                        "&.Mui-disabled": {
+                            backgroundColor: gray50,
+                            fontWeight: 400,
+                            opacity: 1,
+                        },
                     },
                     '& input': {
                         padding: 0
@@ -74,6 +80,7 @@ CustomInputBox.propTypes = {
     isEndAdornmentVisible: PropTypes.bool,
     multiline: PropTypes.bool,
     rows: PropTypes.number,
+    disabled: PropTypes.bool,
     sx: PropTypes.object
 }
 

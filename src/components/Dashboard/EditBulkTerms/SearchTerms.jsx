@@ -13,7 +13,7 @@ import {
   RadioGroup
 } from "@mui/material";
 import DropDownConditions from "./DropDownConditions";
-import CustomizedInput from "../../common/CustomizedInput";
+import CustomInputBox from "../../common/CustomInputBox";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -40,7 +40,7 @@ const styles = {
   },
   radioLabel: {
     "& .MuiFormControlLabel-label": {
-      color: gray700, 
+      color: gray700,
       fontWeight: 500
     }
   },
@@ -92,14 +92,14 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
 
       <Divider />
 
-      <Box sx={{ 
-        display: "flex", 
-        flexDirection: "column", 
-        mt: 4, 
-        mb: 4, 
-        ml: 6.5, 
-        gap: 3, 
-        maxWidth: "31.25rem" 
+      <Box sx={{
+        display: "flex",
+        flexDirection: "column",
+        mt: 4,
+        mb: 4,
+        ml: 6.5,
+        gap: 3,
+        maxWidth: "31.25rem"
       }}>
         <Stack direction="row" spacing={5} sx={{ alignItems: "center" }}>
           <Typography sx={styles.subtitle}>Do you want to edit a specific ontology?</Typography>
@@ -110,7 +110,7 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
             value={ontologyEditOption}
             onChange={handleOntologyEditOptionChange}
           >
-            <FormControlLabel control={<CustomizedRadio />} value={Confirmation.Yes} label="Yes" sx={styles.radioLabel}/>
+            <FormControlLabel control={<CustomizedRadio />} value={Confirmation.Yes} label="Yes" sx={styles.radioLabel} />
             <FormControlLabel control={<CustomizedRadio />} value={Confirmation.No} label="No" sx={styles.radioLabel} />
           </RadioGroup>
         </Stack>
@@ -126,12 +126,12 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
         <Typography variant="body1" sx={styles.subtitle}>Add filters</Typography>
 
         {searchConditions.map((term, index) => (
-          <Grid 
-            container 
-            spacing={1.5} 
-            mt={3} 
-            mb={3.5} 
-            key={index} 
+          <Grid
+            container
+            spacing={1.5}
+            mt={3}
+            mb={3.5}
+            key={index}
             alignItems='end'
           >
             <Grid item xs={12} lg={1}>
@@ -182,14 +182,20 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
             </Grid>
 
             <Grid item xs={12} lg={searchConditions.length > 1 ? 3 : 4}>
-              <CustomizedInput
+              {/* <CustomizedInput
                 value={term.value}
                 label='Value'
                 placeholder='Type a value'
                 onChange={(e) => handleTermChange(index, 'value', e.target.value)}
+              /> */}
+              <CustomInputBox
+                value={term.value}
+                label='Value'
+                placeholder='Type a value'
+                onInputChange={(e) => handleTermChange(index, 'value', e.target.value)}
               />
             </Grid>
-            
+
             {searchConditions.length > 1 && (
               <Grid item lg={searchConditions.length > 1 ? 1 : 0}>
                 <Button sx={{

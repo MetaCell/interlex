@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import AddIcon from '@mui/icons-material/Add';
-import CustomizedInput from "../common/CustomizedInput";
+import CustomInputBox from "../common/CustomInputBox";
 import { Box, Typography, Grid, Button } from "@mui/material";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -36,12 +36,19 @@ const AddPredicatesStep = ({ searchTerm, predicatesOptions }) => {
             {predicates.map((predicate, index) => (
                 <Grid container spacing='1.75rem' mb='2rem' key={index} alignItems='end'>
                     <Grid item xs={12} lg={3}>
-                        <CustomizedInput
+                        {/* <CustomizedInput
                             value={predicate.subject}
                             label='Subject'
                             placeholder='Subject term'
                             onChange={(e) => handlePredicateChange(index, 'subject', e.target.value)}
                             disabled={true}
+                        /> */}
+                        <CustomInputBox
+                            value={predicate.subject}
+                            label='Subject'
+                            placeholder='Subject term'
+                            onInputChange={(e) => handlePredicateChange(index, 'subject', e.target.value)}
+                            disabled
                         />
                     </Grid>
                     <Grid item xs={12} lg={3}>

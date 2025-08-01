@@ -1,8 +1,8 @@
+import React from "react"
 import { useState } from "react"
 import { Box, Grid, Typography, FormControl, Autocomplete, Chip, TextField, Divider, Button } from "@mui/material"
 import AddIcon from "@mui/icons-material/Add"
 import CustomInputBox from "../../common/CustomInputBox"
-import CustomizedInput from "../../common/CustomizedInput"
 import PredicateGroupInput from "../../SingleTermView/OverView/PredicateGroupInput"
 import { HelpOutlinedIcon } from "../../../Icons"
 import { vars } from "../../../theme/variables"
@@ -132,10 +132,17 @@ const SecondStepContent = () => {
                         <FormControl sx={{ minWidth: "6.375rem" }}>
                             <Box sx={URI_PREFIX_BOX_STYLES}>{URI_PREFIX}</Box>
                         </FormControl>
-                        <CustomizedInput
+                        {/* <CustomizedInput
                             placeholder="Regional part of nervous system"
                             value={subclassOf}
                             onChange={(e) => setSubclassOf(e.target.value)}
+                            sx={URI_INPUT_STYLES}
+                            isEndAdornmentVisible={true}
+                        /> */}
+                        <CustomInputBox
+                            placeholder="Regional part of nervous system"
+                            value={subclassOf}
+                            onInputChange={(e) => setSubclassOf(e.target.value)}
                             sx={URI_INPUT_STYLES}
                             isEndAdornmentVisible={true}
                         />
@@ -219,7 +226,14 @@ const SecondStepContent = () => {
                 {predicates.map((predicate, index) => (
                     <React.Fragment key={index}>
                         <Grid item xs={4}>
-                            <CustomizedInput
+                            {/* <CustomizedInput
+                                label="Subject"
+                                placeholder="Subject term"
+                                value={predicate.subject}
+                                onChange={(e) => handlePredicateChange(index, "subject", e.target.value)}
+                                helperText="The subject is prefilled."
+                            /> */}
+                            <CustomInputBox
                                 label="Subject"
                                 placeholder="Subject term"
                                 value={predicate.subject}
@@ -228,7 +242,14 @@ const SecondStepContent = () => {
                             />
                         </Grid>
                         <Grid item xs={4}>
-                            <CustomizedInput
+                            {/* <CustomizedInput
+                                label="Predicate"
+                                placeholder="Enter predicate"
+                                value={predicate.predicate}
+                                onChange={(e) => handlePredicateChange(index, "predicate", e.target.value)}
+                                helperText="This is a hint text to help user."
+                            /> */}
+                            <CustomInputBox
                                 label="Predicate"
                                 placeholder="Enter predicate"
                                 value={predicate.predicate}

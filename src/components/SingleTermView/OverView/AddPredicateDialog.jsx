@@ -1,9 +1,9 @@
 import { useState } from "react";
-import {useQuery} from "../../../helpers";
-import {Box, Grid, Button} from "@mui/material";
+import { useQuery } from "../../../helpers";
+import { Box, Grid, Button } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import PredicateGroupInput from "./PredicateGroupInput";
-import CustomizedInput from "../../common/CustomizedInput";
+import CustomInputBox from "../../common/CustomInputBox";
 import CustomizedDialog from "../../common/CustomizedDialog";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
@@ -12,10 +12,10 @@ import AddPredicateStatusDialog from "./AddPredicateStatusDialog";
 import PlaylistAddOutlinedIcon from "@mui/icons-material/PlaylistAddOutlined";
 import PropTypes from "prop-types";
 
-import {vars} from "../../../theme/variables";
-const {gray800} = vars;
+import { vars } from "../../../theme/variables";
+const { gray800 } = vars;
 
-const HeaderRightSideContent = ({handleClose, handleOpenAddPredicateStatusDialog, isAllFieldsFilled}) => {
+const HeaderRightSideContent = ({ handleClose, handleOpenAddPredicateStatusDialog, isAllFieldsFilled }) => {
   return (
     <Box display='flex' alignItems='center' gap='.75rem'>
       <Button variant='outlined' onClick={handleClose}>
@@ -48,26 +48,26 @@ const AddPredicateDialog = ({ open, handleClose, image, predicates: fetchedPredi
   const handleCloseAddPredicateStatusDialog = () => {
     setOpenAddPredicateStatusDialog(false);
   };
-  
+
   const handleOpenAddPredicateStatusDialog = () => {
     setOpenAddPredicateStatusDialog(true);
   };
-  
+
   const handleAddPredicate = () => {
     setPredicates([...predicates, { subject: storedSearchTerm, predicate: '', object: { type: 'Object', value: '', isLink: false } }]);
   };
-  
+
   const handlePredicateChange = (index, field, value) => {
     const newPredicates = [...predicates];
     newPredicates[index][field] = value;
     setPredicates(newPredicates);
   };
-  
+
   const handleDeletePredicate = (index) => {
     const newPredicates = predicates.filter((_, i) => i !== index);
     setPredicates(newPredicates);
   };
-  
+
   const isAllFieldsFilled = (data) => {
     for (const item of data) {
       if (!item.predicate || !item.object.value) {
@@ -98,12 +98,19 @@ const AddPredicateDialog = ({ open, handleClose, image, predicates: fetchedPredi
           {predicates.map((predicate, index) => (
             <Grid container spacing='1.75rem' mb='2rem' key={index} alignItems='end'>
               <Grid item xs={12} lg={3}>
-                <CustomizedInput
+                {/* <CustomizedInput
                   value={predicate.subject}
                   label='Subject'
                   placeholder='Subject term'
                   onChange={(e) => handlePredicateChange(index, 'subject', e.target.value)}
                   disabled={true}
+                /> */}
+                <CustomInputBox
+                  value={predicate.subject}
+                  label='Subject'
+                  placeholder='Subject term'
+                  onInputChange={(e) => handlePredicateChange(index, 'subject', e.target.value)}
+                  disabled
                 />
               </Grid>
               <Grid item xs={12} lg={3}>
