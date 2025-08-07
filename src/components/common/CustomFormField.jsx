@@ -58,6 +58,8 @@ const CustomFormField = ({
     isRequired,
     endAdornment,
     sx,
+    textFontSize = "body2",
+    labelColor = gray700,
     ...otherProps
 }) => {
     const getEndAdornment = () => {
@@ -87,13 +89,13 @@ const CustomFormField = ({
             <FormControl fullWidth>
                 {label && (
                     <Box display="flex" justifyContent="space-between" sx={{ marginBottom: "0.375rem" }}>
-                        <Typography variant="body2" sx={{
+                        <Typography variant={textFontSize} sx={{
                             fontWeight: "500 !important",
-                            color: gray700,
+                            color: labelColor
                         }}>
                             {label}
                         </Typography>
-                        {isRequired && <Typography variant="body2" sx={{ color: gray600 }}>Required</Typography>}
+                        {isRequired && <Typography variant={textFontSize} sx={{ color: gray600 }}>Required</Typography>}
                     </Box>
                 )}
                 <FormControl variant="standard" sx={{
@@ -140,7 +142,9 @@ CustomFormField.propTypes = {
     errorMessage: PropTypes.string,
     isRequired: PropTypes.bool,
     isEndAdornmentVisible: PropTypes.bool,
-    sx: PropTypes.object
+    sx: PropTypes.object,
+    textFontSize: PropTypes.string,
+    labelColor: PropTypes.string,
 };
 
 CustomFormField.defaultProps = {
@@ -149,6 +153,8 @@ CustomFormField.defaultProps = {
     errorMessage: "",
     isRequired: false,
     isEndAdornmentVisible: false,
+    textFontSize: "body2",
+    labelColor: gray700,
 };
 
 export default CustomFormField;

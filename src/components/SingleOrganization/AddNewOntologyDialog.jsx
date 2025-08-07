@@ -2,7 +2,6 @@ import PropTypes from "prop-types";
 import AddIcon from '@mui/icons-material/Add';
 import Checkbox from "../common/CustomCheckbox";
 import StatusDialog from "../common/StatusDialog";
-import CustomInputBox from "../common/CustomInputBox";
 import CustomFormField from "../common/CustomFormField";
 import { Stack, Button, Grid, Box } from "@mui/material";
 import CustomizedDialog from "../common/CustomizedDialog";
@@ -169,19 +168,9 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
                     <Box sx={{ px: '3.25rem', pt: '1.75rem', pb: '2.5rem', flex: 1, overflowY: 'auto' }}>
                         <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["Manually", "Import"]} />
                         {tabValue === 0 && (
-                            <Grid container spacing={5.5}>
+                            <Grid container spacing={5.5} sx={{ marginTop: 0 }}>
                                 <Grid item xs={12} lg={12}>
                                     <Stack direction="column" mb={1}>
-                                        {/* <CustomInputBox
-                                            id="ontology-title-field"
-                                            name="title"
-                                            value={newOntology.title}
-                                            onInputChange={handleNewOntologyChange}
-                                            label="Ontology title"
-                                            isRequired
-                                            placeholder={"Type your Ontology title"}
-                                            isEndAdornmentVisible
-                                        /> */}
                                         <CustomFormField
                                             name="title"
                                             value={newOntology.title}
@@ -190,29 +179,21 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
                                             isRequired
                                             placeholder={"Type your Ontology title"}
                                             isEndAdornmentVisible
+                                            textFontSize="body1"
                                         />
                                     </Stack>
                                     <Checkbox label="Set as active ontology" />
                                 </Grid>
                                 <Grid item xs={12} lg={12}>
-                                    {/* <CustomInputBox
-                                        id="ontology-description-field"
-                                        name="description"
-                                        value={newOntology.description}
-                                        onInputChange={handleNewOntologyChange}
-                                        label="Description"
-                                        placeholder={"Write a description of your ontology"}
-                                        multiline
-                                        rows={4}
-                                    /> */}
                                     <CustomFormField
                                         name="description"
                                         value={newOntology.description}
-                                        onInputChange={handleNewOntologyChange}
+                                        onChange={handleNewOntologyChange}
                                         label="Description"
                                         placeholder={"Write a description of your ontology"}
                                         multiline
                                         rows={4}
+                                        textFontSize="body1"
                                     />
                                 </Grid>
                             </Grid>

@@ -2,7 +2,6 @@ import * as React from "react";
 import { useContext } from "react";
 import { debounce } from 'lodash';
 import PropTypes from "prop-types";
-// import CustomInputBox from "../common/CustomInputBox";
 import CustomFormField from "../common/CustomFormField";
 import CustomSelectBox from "../common/CustomSelectBox";
 import { useState, useEffect, useCallback } from "react";
@@ -131,16 +130,6 @@ const CreateForkDialog = ({ open, handleClose, onSubmit }) => {
                         </Stack>
                         <Typography sx={{ color: gray500, fontSize: "1.875rem" }}>/</Typography>
                         <Stack direction="column">
-                            {/* <CustomInputBox
-                                id="fork-name-field"
-                                name="name"
-                                label="Fork name"
-                                placeholder="Type a value"
-                                isRequired={true}
-                                isEndAdornmentVisible={true}
-                                value={newFork.name}
-                                onInputChange={handleNameChange}
-                            /> */}
                             <CustomFormField
                                 name="name"
                                 label="Fork name"

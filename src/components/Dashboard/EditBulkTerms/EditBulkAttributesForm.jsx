@@ -5,7 +5,6 @@ import {
   Box
 } from "@mui/material";
 import PropTypes from "prop-types";
-// import CustomizedInput from "../../common/CustomizedInput";
 import CustomFormField from "../../common/CustomFormField";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
@@ -83,11 +82,6 @@ const EditBulkAttributesForm = ({ columns, attributes, setAttributes, initialAtt
                 />
               </Grid>
               <Grid item xs={12} lg={12}>
-                {/* <CustomizedInput
-                  value={attributes[index].value}
-                  placeholder='Type a value'
-                  onChange={(e) => handleAttributesChange(index, 'value', e.target.value)}
-                /> */}
                 <CustomFormField
                   value={attributes[index].value}
                   placeholder='Type a value'

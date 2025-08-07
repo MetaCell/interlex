@@ -1,31 +1,19 @@
 import PropTypes from "prop-types";
 import Checkbox from "../common/CustomCheckbox";
 import ExistingIdsSearch from "./ExistingIdsSearch";
-// import CustomInputBox from "../common/CustomInputBox";
 import CustomFormField from "../common/CustomFormField";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Box, Grid, Button, FormControlLabel } from "@mui/material";
 import CustomAutocompleteBox from "../common/CustomAutocompleteBox";
 
 import { vars } from "../../theme/variables";
-const { gray600, brand700, brand800 } = vars;
+const { gray600, brand700, brand800, gray800 } = vars;
 
 const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesChecked, handleMatchesChange, isResultsEmpty, existingIDsOptions, onExistingIDsChange, onSynonymsChange }) => {
     return (
         <Box component="form" sx={{ width: '100%', mt: '2.75rem', display: 'flex', flexDirection: 'column', gap: '2.75rem' }} noValidate autoComplete="off">
             <Grid container spacing={5.5}>
                 <Grid item xs={12}>
-                    {/* <CustomInputBox
-                        id="new-term-label-field"
-                        name="label"
-                        value={formState.label}
-                        onInputChange={onInputChange}
-                        label="Label"
-                        isRequired
-                        helperText={"Label of your term."}
-                        placeholder={"Enter your term label"}
-                        isEndAdornmentVisible
-                    /> */}
                     <CustomFormField
                         name="label"
                         value={formState.label}
@@ -35,6 +23,8 @@ const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesC
                         helperText={"Label of your term."}
                         placeholder={"Enter your term label"}
                         isEndAdornmentVisible
+                        textFontSize="body1"
+                        labelColor={gray800}
                     />
                     <Button
                         variant="text"
@@ -56,15 +46,6 @@ const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesC
             </Box>
             <Grid container spacing={5.5}>
                 <Grid item xs={12} lg={6}>
-                    {/* <CustomInputBox
-                        id="new-term-superclass-field"
-                        name="superClass"
-                        value={formState.superClass}
-                        onInputChange={onInputChange}
-                        label="Superclass"
-                        isEndAdornmentVisible
-                        placeholder={"Add a superclass"}
-                    /> */}
                     <CustomFormField
                         name="superClass"
                         value={formState.superClass}
@@ -72,6 +53,8 @@ const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesC
                         label="Superclass"
                         isEndAdornmentVisible
                         placeholder={"Add a superclass"}
+                        textFontSize="body1"
+                        labelColor={gray800}
                     />
                 </Grid>
                 <Grid item xs={12} lg={6}>
@@ -79,36 +62,17 @@ const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesC
                 </Grid>
             </Grid>
             <Box>
-                {/* <CustomInputBox
-                    id="search-urls"
-                    name="isDefinedBy"
-                    value={formState.isDefinedBy}
-                    onInputChange={onInputChange}
-                    label="Is Defined by"
-                    placeholder={"Search for an URL"}
-                /> */}
                 <CustomFormField
                     name="isDefinedBy"
                     value={formState.isDefinedBy}
                     onChange={onInputChange}
                     label="Is Defined by"
                     placeholder={"Search for an URL"}
+                    textFontSize="body1"
+                    labelColor={gray800}
                 />
             </Box>
             <Box>
-                {/* <CustomInputBox
-                    id="new-term-description-field"
-                    name="description"
-                    value={formState.description}
-                    onInputChange={onInputChange}
-                    label="Description"
-                    placeholder={"Type your term description"}
-                    sx={{
-                        '& .MuiInputBase-root': {
-                            padding: '0.75rem 0.875rem !important'
-                        }
-                    }}
-                /> */}
                 <CustomFormField
                     name="description"
                     value={formState.description}
@@ -120,23 +84,19 @@ const ManualImportTab = ({ formState, onInputChange, handleSidebarOpen, matchesC
                             padding: '0.75rem 0.875rem !important'
                         }
                     }}
+                    textFontSize="body1"
+                    labelColor={gray800}
                 />
             </Box>
             <Box>
-                {/* <CustomInputBox
-                    id="new-term-comment-field"
-                    name="comment"
-                    value={formState.comment}
-                    onInputChange={onInputChange}
-                    placeholder={"Add a comment"}
-                    label="Comment"
-                /> */}
                 <CustomFormField
                     name="comment"
                     value={formState.comment}
                     onInputChange={onInputChange}
                     placeholder={"Add a comment"}
                     label="Comment"
+                    textFontSize="body1"
+                    labelColor={gray800}
                 />
             </Box>
             <Box display="flex" alignItems="center" gap={1.5}>

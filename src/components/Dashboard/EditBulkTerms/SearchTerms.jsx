@@ -13,7 +13,6 @@ import {
   RadioGroup
 } from "@mui/material";
 import DropDownConditions from "./DropDownConditions";
-// import CustomizedInput from "../../common/CustomizedInput";
 import CustomFormField from "../../common/CustomFormField";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
@@ -183,12 +182,6 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
             </Grid>
 
             <Grid item xs={12} lg={searchConditions.length > 1 ? 3 : 4}>
-              {/* <CustomizedInput
-                value={term.value}
-                label='Value'
-                placeholder='Type a value'
-                onChange={(e) => handleTermChange(index, 'value', e.target.value)}
-              /> */}
               <CustomFormField
                 value={term.value}
                 label='Value'
