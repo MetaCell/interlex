@@ -12,6 +12,7 @@ import {
 import * as yup from "yup";
 import CustomFormField from "../common/CustomFormField";
 import { API_CONFIG } from "../../config";
+import { useCookies } from 'react-cookie';
 import PasswordField from "./UI/PasswordField";
 import { ArrowBack } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
@@ -22,6 +23,9 @@ const schema = yup.object().shape({
   email: yup.string().email().required(),
   username: yup.string().required().min(3),
   password: yup.string().required().min(10),
+  confirmPassword: yup.string()
+    .required('Please confirm your password')
+    .oneOf([yup.ref('password'), null], 'Passwords must match'),
 });
 
 const Register = () => {
@@ -29,40 +33,91 @@ const Register = () => {
     username: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
 
   const [errors, setErrors] = React.useState({});
   const [isLoading, setIsLoading] = React.useState(false);
   const { setUserData } = React.useContext(GlobalDataContext);
+  const [existingCookies, setCookie, removeCookie] = useCookies(['session']);
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    let eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
-    let eventer = window[eventMethod];
-    let messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
-    eventer(messageEvent, function (e) {
-      if (!e.data || !e.data.orcid_meta) return;
-      const { code, orcid_meta } = e.data;
+      let eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+      let eventer = window[eventMethod];
+      let messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
+      eventer(messageEvent, function (e) {
+        if (!(e.data?.orcid_meta || e.data?.redirect || e.data?.interlex)) return;
+        const { cookies } = e.data;
+        const { code, orcid_meta, errors, redirect } = e.data.interlex;
 
-      if (code === 200 || code === 302) {
-        setUserData({ name: orcid_meta.name, id: orcid_meta.orcid });
-        navigate("/")
-      } else if (code === 401) {
-        setErrors((prev) => ({
-          ...prev,
-          auth: "Invalid username or password. Please try again",
-        }));
-      } else {
-        setErrors((prev) => ({
-          ...prev,
-          auth: "An unknown error occurred. Please try again",
-        }));
-      }
-    });
+        if (cookies) {
+          const _cookies = JSON.parse(cookies);
+          const sessionCookie = _cookies && Object.prototype.hasOwnProperty.call(_cookies, 'session') ? _cookies['session'] : undefined;
+          let expires = new Date()
+          if (sessionCookie) {
+            if (existingCookies['session']) {
+              removeCookie('session', { path: '/' });
+            }
+            expires.setTime(expires.getTime() + (2 * 24 * 60 * 60 * 1000)); // 2 days
+            setCookie(
+              'session',
+              sessionCookie,
+              {
+                path: '/',
+                secure: false,
+                sameSite: false,
+                httpOnly: false
+              }
+            );
+          }
+        }
+
+        if (redirect) {
+          handleRedirectInPopup(redirect);
+          return;
+        }
+
+        if (code === 200 || code === 302) {
+          setUserData({ name: orcid_meta.name, id: orcid_meta.orcid });
+          navigate("/")
+        } else if (code > 400 && code < 500) {
+          let errorMessage = '';
+          const keys = Object.keys(errors);
+          if (keys.length > 0) {
+            errorMessage = String(keys[0]) + ' ' + errors[keys[0]];
+          }
+          setErrors((prev) => ({
+            ...prev,
+            auth: errorMessage || "Invalid username or password. Please try again",
+          }));
+        } else {
+          setErrors((prev) => ({
+            ...prev,
+            auth: "An unknown error occurred. Please try again",
+          }));
+        }
+      });
 
     setIsLoading(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
+
+  const handleRedirectInPopup = (url) => {
+    setErrors({})
+    setIsLoading(true);
+    const popup = window.open(url.includes('?') ? url + "&aspopup=true" : url + "?aspopup=true", "postPopup", "width=600,height=600");
+    if (popup) {
+      // dataForm.submit();
+      popup.focus();
+    } else {
+      alert("Popup blocked. Please allow popups for this site.");
+      setErrors((prev) => ({
+        ...prev,
+        auth: "Popup blocked. Please allow popups for this site.",
+      }));
+    }
+  }
 
   const registerUser = async () => {
     try {
@@ -72,7 +127,7 @@ const Register = () => {
 
       // send a POST request to the server with the form data in a popup window
       const dataForm = document.createElement("form");
-      dataForm.action = `${API_CONFIG.REAL_API.NEWUSER_ILX}`;
+      dataForm.action = `${API_CONFIG.REAL_API.NEWUSER_ILX}?from=orcid-login&aspopup=true`;
       dataForm.method = "POST";
       dataForm.style.display = "none";
       dataForm.target = "postPopup";
@@ -169,7 +224,12 @@ const Register = () => {
               </Grid>
               <Grid item xs={12}>
                 <FormControl>
-                  <Button variant="contained" color="primary" onClick={registerUser}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={registerUser}
+                    disabled={formData.password !== formData.confirmPassword || !formData.password || !formData.confirmPassword}
+                  >
                     Register
                   </Button>
                 </FormControl>
