@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useContext, useMemo, useCallback } from "r
 import {
   Box,
   Button,
-  ButtonGroup,
   Chip,
   Divider,
   Grid,
@@ -24,7 +23,6 @@ import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import CopyLinkComponent from "../common/CopyLinkComponent";
 import BasicTabs from "../common/CustomTabs";
 import CustomButton from "../common/CustomButton";
-import CustomMenu from "./CustomMenu";
 import OverView from "./OverView/OverView";
 import HistoryPanel from "./History/HistoryPanel";
 import VariantsPanel from "./Variants/VariantsPanel";
@@ -32,8 +30,6 @@ import RequestMergeChanges from "./RequestMergeChanges";
 import {
   CreateNewFolderOutlined,
   DownloadOutlined,
-  KeyboardArrowUp,
-  KeyboardArrowDown,
   List,
   AccountTreeOutlined
 } from "@mui/icons-material";
@@ -67,8 +63,6 @@ const SingleTermView = () => {
   const { group, term, tab } = useParams();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const actionRef = useRef(null);
-  const anchorRef = useRef(null);
   const [dataFormatAnchorEl, setDataFormatAnchorEl] = useState(null);
   const [isCodeViewVisible, setIsCodeViewVisible] = useState(false);
   const [toggleButtonValue, setToggleButtonValue] = useState('defaultView');
@@ -387,40 +381,15 @@ const SingleTermView = () => {
                     buttonIcon={<CreateNewFolderOutlined fontSize="medium" />}
                     variant="outlined"
                     options={menuOptions}
+                    sx={{ 
+                      minWidth: "18.75rem",
+                      "& .MuiList-root > :last-child": {
+                        borderTop: `1px solid ${gray200}`,
+                        color: error700
+                      }
+                    }}
                   />
 
-                  <ButtonGroup
-                    variant="outlined"
-                    ref={anchorRef}
-                    sx={{
-                      boxShadow: open && "0px 0px 0px 4px rgba(50, 129, 115, 0.24)"
-                    }}
-                  >
-                    <Button display="flex" alignItems="center">
-                      <CreateNewFolderOutlined fontSize="medium" />
-                      Add term to active ontology
-                    </Button>
-                    <Button
-                      aria-controls={open ? 'split-button-ontology-menu' : undefined}
-                      aria-expanded={open ? 'true' : undefined}
-                      aria-label="select ontology action"
-                      aria-haspopup="ontology-menu"
-                      onMouseDown={() => {
-                        actionRef.current = () => setOpen(!open);
-                      }}
-                      onKeyDown={() => {
-                        actionRef.current = () => setOpen(!open);
-                      }}
-                      onClick={() => {
-                        actionRef.current?.();
-                      }}
-                    >
-                      {open ? <KeyboardArrowUp fontSize="medium" /> : <KeyboardArrowDown fontSize="medium" />}
-                    </Button>
-                  </ButtonGroup>
-
-
-                  <CustomMenu open={open} anchorRef={anchorRef} setOpen={setOpen} />
                   <CustomButton onClick={handleClickDataFormatMenu}><DownloadOutlined fontSize="medium" />Download as</CustomButton>
                   <Menu
                     anchorEl={dataFormatAnchorEl}

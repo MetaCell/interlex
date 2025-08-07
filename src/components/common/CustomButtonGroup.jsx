@@ -39,7 +39,8 @@ const CustomButtonGroup = ({
     buttonTitle,
     buttonIcon = null,
     options = [],
-    onOptionSelect
+    onOptionSelect,
+    sx
 }) => {
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef(null);
@@ -71,7 +72,7 @@ const CustomButtonGroup = ({
     };
 
     return (
-        <Box sx={{ width: 210, position: "relative", display: "flex", justifyContent: "end" }}>
+        <Box sx={{ width: 210, position: "relative", display: "flex", justifyContent: "end", ...sx }}>
             <ButtonGroup
                 variant={variant}
                 ref={anchorRef}
