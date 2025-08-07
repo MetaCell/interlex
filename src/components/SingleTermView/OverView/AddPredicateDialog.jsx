@@ -3,7 +3,8 @@ import { useQuery } from "../../../helpers";
 import { Box, Grid, Button } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import PredicateGroupInput from "./PredicateGroupInput";
-import CustomInputBox from "../../common/CustomInputBox";
+// import CustomizedInput from "../../common/CustomizedInput";
+import CustomFormField from "../../common/CustomFormField";
 import CustomizedDialog from "../../common/CustomizedDialog";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
@@ -105,11 +106,11 @@ const AddPredicateDialog = ({ open, handleClose, image, predicates: fetchedPredi
                   onChange={(e) => handlePredicateChange(index, 'subject', e.target.value)}
                   disabled={true}
                 /> */}
-                <CustomInputBox
+                <CustomFormField
                   value={predicate.subject}
                   label='Subject'
                   placeholder='Subject term'
-                  onInputChange={(e) => handlePredicateChange(index, 'subject', e.target.value)}
+                  onChange={(e) => handlePredicateChange(index, 'subject', e.target.value)}
                   disabled
                 />
               </Grid>

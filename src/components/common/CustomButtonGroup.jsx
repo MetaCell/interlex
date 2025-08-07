@@ -35,6 +35,7 @@ const styles = {
 }
 
 const CustomButtonGroup = ({
+    variant = "contained",
     buttonTitle,
     buttonIcon = null,
     options = [],
@@ -72,7 +73,7 @@ const CustomButtonGroup = ({
     return (
         <Box sx={{ width: 210, position: "relative", display: "flex", justifyContent: "end" }}>
             <ButtonGroup
-                variant="contained"
+                variant={variant}
                 ref={anchorRef}
                 aria-label="Button group with a nested menu"
                 sx={{

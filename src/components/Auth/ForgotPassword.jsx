@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Box, Button, FormControl, Grid, Paper, Typography } from "@mui/material";
 import { ArrowBack } from "@mui/icons-material";
-import FormField from "./UI/Formfield";
+import CustomFormField from "../common/CustomFormField";
 import { Link } from "react-router-dom";
 import { forgotPassword } from "../../api/endpoints/apiService";
 
@@ -11,7 +11,7 @@ const ForgotPassword = () => {
 
   const handleForgotPassword = async () => {
     try {
-      await forgotPassword({username: username});
+      await forgotPassword({ username: username });
     } catch (error) {
       console.error("Error:", error);
       setError(error.message);
@@ -29,13 +29,15 @@ const ForgotPassword = () => {
           <Typography variant="h4">Forgot password</Typography>
           <form className="authForm">
             <Grid container spacing={2.5}>
-              <FormField
-                label="Username"
-                placeholder="Enter your username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                errorMessage={error}
-              />
+              <Grid item xs={12}>
+                <CustomFormField
+                  label="Username"
+                  placeholder="Enter your username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  errorMessage={error}
+                />
+              </Grid>
               <Grid item xs={12}>
                 <FormControl>
                   <Button variant="contained" color="primary" onClick={handleForgotPassword}>

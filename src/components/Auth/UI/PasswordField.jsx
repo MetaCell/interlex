@@ -1,20 +1,15 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import {
-  FormControl,
-  Box,
-  FormHelperText,
-  OutlinedInput,
   InputAdornment,
-  IconButton,
-  Grid,
-  Typography
+  IconButton
 } from "@mui/material";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import CustomFormField from "../../common/CustomFormField";
 
-const PasswordField = ({ xs = 12, label, placeholder, helperText, name, value, onChange, errorMessage }) => {
+const PasswordField = ({ label, placeholder, isRequired, helperText, name, value, onChange, errorMessage }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -22,51 +17,45 @@ const PasswordField = ({ xs = 12, label, placeholder, helperText, name, value, o
   const handleMouseDownPassword = (event) => event.preventDefault();
 
   return (
-    <Grid item xs={xs}>
-      <FormControl fullWidth>
-        <Box display="flex" justifyContent="space-between">
-          <label>{label}</label>
-          <FormHelperText>{helperText}</FormHelperText>
-        </Box>
-        <OutlinedInput
-          type={showPassword ? "text" : "password"}
-          placeholder={placeholder}
-          name={name} // Pass the name prop
-          value={value}
-          onChange={onChange}
-          error={errorMessage}
-          autoComplete="off"
-          endAdornment={
-          <InputAdornment position="end">
-            <IconButton
+    <CustomFormField
+      label={label}
+      type={showPassword ? "text" : "password"}
+      placeholder={placeholder}
+      name={name} // Pass the name prop
+      value={value}
+      onChange={onChange}
+      error={errorMessage}
+      autoComplete="off"
+      helperText={helperText}
+      isRequired={isRequired}
+      endAdornment={
+        <InputAdornment position="end">
+          <IconButton
             aria-label="toggle password visibility"
             onClick={handleClickShowPassword}
             onMouseDown={handleMouseDownPassword}
-            sx={{ padding: 0 }}
-            >
+            sx={{ padding: 0, background: "transparent", "&:hover": { background: "transparent" } }}
+          >
             {errorMessage ? <ErrorOutlineOutlinedIcon /> : <>
               {showPassword ? (
                 <VisibilityOffOutlinedIcon />
-                ) : (
+              ) : (
                 <VisibilityOutlinedIcon />
               )}
-              </>
+            </>
             }
-            </IconButton>
-          </InputAdornment>
-          }
-        />
-        {errorMessage && <Typography variant="body2" sx={{ color: "#F04438", marginTop: "0.375rem" }}>{`${errorMessage.charAt(0).toUpperCase() + errorMessage.slice(1)}`}</Typography>}
-      </FormControl>
-    </Grid>
+          </IconButton>
+        </InputAdornment>
+      }
+    />
   );
 };
 
 PasswordField.propTypes = {
-  xs: PropTypes.number,
   label: PropTypes.string.isRequired,
   placeholder: PropTypes.string,
   helperText: PropTypes.string,
+  isRequired: PropTypes.bool,
   name: PropTypes.string.isRequired,
   value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,

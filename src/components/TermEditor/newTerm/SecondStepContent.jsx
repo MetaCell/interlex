@@ -2,12 +2,12 @@ import React from "react"
 import { useState } from "react"
 import { Box, Grid, Typography, FormControl, Autocomplete, Chip, TextField, Divider, Button } from "@mui/material"
 import AddIcon from "@mui/icons-material/Add"
-import CustomInputBox from "../../common/CustomInputBox"
+import CustomFormField from "../../common/CustomFormField"
 import PredicateGroupInput from "../../SingleTermView/OverView/PredicateGroupInput"
 import { HelpOutlinedIcon } from "../../../Icons"
 import { vars } from "../../../theme/variables"
 
-const { white, gray300, gray500, gray600, gray800 } = vars
+const { white, gray300, gray500, gray600, gray800, gray700 } = vars
 
 const URI_PREFIX = "http://uri.interlex.org/Interlex/uris/"
 
@@ -38,16 +38,6 @@ const URI_PREFIX_BOX_STYLES = {
     alignItems: "center",
     color: gray600,
     padding: "0.5rem 0.75rem",
-}
-
-const URI_INPUT_STYLES = {
-    width: "auto",
-    flex: 1,
-    height: "2.5rem",
-    "& .MuiInputBase-input": {
-        borderTopLeftRadius: 0,
-        borderBottomLeftRadius: 0,
-    },
 }
 
 const SecondStepContent = () => {
@@ -116,41 +106,38 @@ const SecondStepContent = () => {
                 </Grid>
 
                 <Grid item xs={6}>
-                    <CustomInputBox
-                        id="superclass-field"
+                    <CustomFormField
                         label="Superclass"
                         placeholder="Regional part of nervous system"
                         value={superclass}
-                        onInputChange={(value) => setSuperclass(value)}
+                        onChange={(value) => setSuperclass(value)}
                         isEndAdornmentVisible
                     />
                 </Grid>
 
                 <Grid item xs={6}>
-                    <Typography sx={{ color: gray800, fontWeight: 500, mb: 1.5 }}>Subclass of</Typography>
-                    <Box display="flex">
-                        <FormControl sx={{ minWidth: "6.375rem" }}>
+                    <Typography variant="body2" sx={{ color: gray700, fontWeight: 500, mb: "0.375rem" }}>Subclass of</Typography>
+                    <Box display="flex" sx={{ "& .MuiBox-root": { width: "auto", flex: 1 } }}>
+                        <FormControl sx={{ minWidth: "6.375rem", height: "2.5rem" }}>
                             <Box sx={URI_PREFIX_BOX_STYLES}>{URI_PREFIX}</Box>
                         </FormControl>
-                        {/* <CustomizedInput
+                        <CustomFormField
                             placeholder="Regional part of nervous system"
                             value={subclassOf}
                             onChange={(e) => setSubclassOf(e.target.value)}
-                            sx={URI_INPUT_STYLES}
-                            isEndAdornmentVisible={true}
-                        /> */}
-                        <CustomInputBox
-                            placeholder="Regional part of nervous system"
-                            value={subclassOf}
-                            onInputChange={(e) => setSubclassOf(e.target.value)}
-                            sx={URI_INPUT_STYLES}
-                            isEndAdornmentVisible={true}
+                            sx={{
+                                "& .MuiInputBase-input": {
+                                    borderTopLeftRadius: 0,
+                                    borderBottomLeftRadius: 0
+                                }
+                            }}
+                            isEndAdornmentVisible
                         />
                     </Box>
                 </Grid>
 
                 <Grid item xs={6}>
-                    <Typography sx={{ color: gray800, fontWeight: 500, mb: 1.5 }}>Is Defined by</Typography>
+                    <Typography variant="body2" sx={{ color: gray800, fontWeight: 500, mb: "0.375rem" }}>Is Defined by</Typography>
                     <Autocomplete
                         multiple
                         id="definition-urls-autocomplete"
@@ -176,37 +163,34 @@ const SecondStepContent = () => {
                 </Grid>
 
                 <Grid item xs={6}>
-                    <CustomInputBox
-                        id="transitive-property-field"
+                    <CustomFormField
                         label="Transitive Property"
                         placeholder="i.e. owl:TransitiveProperty"
                         value={transitiveProperty}
-                        onInputChange={(value) => setTransitiveProperty(value)}
+                        onChange={(value) => setTransitiveProperty(value)}
                         isEndAdornmentVisible
                     />
                 </Grid>
 
                 <Grid item xs={12}>
-                    <Typography sx={{ color: gray800, fontWeight: 500, mb: 1.5 }}>Definition</Typography>
-                    <TextField
-                        id="definition-textarea"
+                    <CustomFormField
                         multiline
                         fullWidth
                         minRows={4}
                         value={definition}
+                        label="Definition"
                         onChange={(e) => setDefinition(e.target.value)}
                         placeholder="Enter definition..."
                     />
                 </Grid>
 
                 <Grid item xs={12}>
-                    <Typography sx={{ color: gray800, fontWeight: 500, mb: 1.5 }}>Comment</Typography>
-                    <TextField
-                        id="comment-textarea"
+                    <CustomFormField
                         multiline
                         fullWidth
                         minRows={4}
                         value={comment}
+                        label="Comment"
                         onChange={(e) => setComment(e.target.value)}
                         placeholder="Enter comment..."
                     />
@@ -226,14 +210,7 @@ const SecondStepContent = () => {
                 {predicates.map((predicate, index) => (
                     <React.Fragment key={index}>
                         <Grid item xs={4}>
-                            {/* <CustomizedInput
-                                label="Subject"
-                                placeholder="Subject term"
-                                value={predicate.subject}
-                                onChange={(e) => handlePredicateChange(index, "subject", e.target.value)}
-                                helperText="The subject is prefilled."
-                            /> */}
-                            <CustomInputBox
+                            <CustomFormField
                                 label="Subject"
                                 placeholder="Subject term"
                                 value={predicate.subject}
@@ -242,18 +219,11 @@ const SecondStepContent = () => {
                             />
                         </Grid>
                         <Grid item xs={4}>
-                            {/* <CustomizedInput
+                            <CustomFormField
                                 label="Predicate"
                                 placeholder="Enter predicate"
                                 value={predicate.predicate}
-                                onChange={(e) => handlePredicateChange(index, "predicate", e.target.value)}
-                                helperText="This is a hint text to help user."
-                            /> */}
-                            <CustomInputBox
-                                label="Predicate"
-                                placeholder="Enter predicate"
-                                value={predicate.predicate}
-                                onChange={(e) => handlePredicateChange(index, "predicate", e.target.value)}
+                                onInputChange={(e) => handlePredicateChange(index, "predicate", e.target.value)}
                                 helperText="This is a hint text to help user."
                             />
                         </Grid>

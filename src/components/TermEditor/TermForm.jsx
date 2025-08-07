@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import CloseIcon from '@mui/icons-material/Close';
-import CustomInputBox from "../common/CustomInputBox";
+// import CustomInputBox from "../common/CustomInputBox";
+import CustomFormField from '../common/CustomFormField';
 import { Box, Grid, Autocomplete, Chip, Stack, Typography, TextField } from "@mui/material";
 
 import { vars } from "../../theme/variables";
@@ -72,11 +73,21 @@ const TermForm = ({ formState, data, onInputChange, onAutocompleteChange }) => {
         <Box component="form" sx={{ width: '100%', mt: '2.75rem', display: 'flex', flexDirection: 'column', gap: '2.75rem' }} noValidate autoComplete="off">
             <Grid container spacing={5.5}>
                 <Grid item xs={16} md={6} lg={12}>
-                    <CustomInputBox
+                    {/* <CustomInputBox
                         id="new-term-label-field"
                         name="label"
                         value={formState.label}
                         onInputChange={onInputChange}
+                        label="Label"
+                        isRequired
+                        helperText={"This is a hint text to help user."}
+                        placeholder={"Enter your term label"}
+                        isEndAdornmentVisible
+                    /> */}
+                    <CustomFormField
+                        name="label"
+                        value={formState.label}
+                        onChange={onInputChange}
                         label="Label"
                         isRequired
                         helperText={"This is a hint text to help user."}
@@ -114,11 +125,19 @@ const TermForm = ({ formState, data, onInputChange, onAutocompleteChange }) => {
             </Box>
             <Grid container spacing={5.5}>
                 <Grid item xs={16} lg={6}>
-                    <CustomInputBox
+                    {/* <CustomInputBox
                         id="new-term-superclass-field"
                         name="superclass"
                         value={formState.superclass}
                         onInputChange={onInputChange}
+                        label="Superclass"
+                        isEndAdornmentVisible
+                        placeholder={"Add a superclass"}
+                    /> */}
+                    <CustomFormField
+                        name="superclass"
+                        value={formState.superclass}
+                        onChange={onInputChange}
                         label="Superclass"
                         isEndAdornmentVisible
                         placeholder={"Add a superclass"}
@@ -154,18 +173,37 @@ const TermForm = ({ formState, data, onInputChange, onAutocompleteChange }) => {
                 </Grid>
             </Grid>
             <Box>
-                <CustomInputBox
+                {/* <CustomInputBox
                     id="search-urls"
                     name="urls"
                     value={formState.urls}
                     onInputChange={onInputChange}
                     label="Is Defined by"
                     placeholder={"Search for an URL"}
+                /> */}
+                <CustomFormField
+                    name="urls"
+                    value={formState.urls}
+                    onChange={onInputChange}
+                    label="Is Defined by"
+                    placeholder={"Search for an URL"}
                 />
             </Box>
             <Box>
-                <CustomInputBox
+                {/* <CustomInputBox
                     id="new-term-description-field"
+                    name="description"
+                    value={formState.description}
+                    onInputChange={onInputChange}
+                    label="Description"
+                    placeholder={"Type your term description"}
+                    sx={{
+                        '& .MuiInputBase-root': {
+                            padding: '0.75rem 0.875rem !important'
+                        }
+                    }}
+                /> */}
+                <CustomFormField
                     name="description"
                     value={formState.description}
                     onInputChange={onInputChange}
@@ -179,8 +217,15 @@ const TermForm = ({ formState, data, onInputChange, onAutocompleteChange }) => {
                 />
             </Box>
             <Box>
-                <CustomInputBox
+                {/* <CustomInputBox
                     id="new-term-comment-field"
+                    name="comment"
+                    value={formState.comment}
+                    onInputChange={onInputChange}
+                    placeholder={"Add a comment"}
+                    label="Comment"
+                /> */}
+                <CustomFormField
                     name="comment"
                     value={formState.comment}
                     onInputChange={onInputChange}

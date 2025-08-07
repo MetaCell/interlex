@@ -10,7 +10,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import * as yup from "yup";
-import FormField from "./UI/Formfield";
+import CustomFormField from "../common/CustomFormField";
 import { API_CONFIG } from "../../config";
 import PasswordField from "./UI/PasswordField";
 import { ArrowBack } from "@mui/icons-material";
@@ -37,32 +37,32 @@ const Register = () => {
   const navigate = useNavigate();
 
   React.useEffect(() => {
-      let eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
-      let eventer = window[eventMethod];
-      let messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
-      eventer(messageEvent, function (e) {
-        if (!e.data || !e.data.orcid_meta) return;
-        const { code, orcid_meta } = e.data;
+    let eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+    let eventer = window[eventMethod];
+    let messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
+    eventer(messageEvent, function (e) {
+      if (!e.data || !e.data.orcid_meta) return;
+      const { code, orcid_meta } = e.data;
 
-        if (code === 200 || code === 302) {
-          setUserData({ name: orcid_meta.name, id: orcid_meta.orcid });
-          navigate("/")
-        } else if (code === 401) {
-          setErrors((prev) => ({
-            ...prev,
-            auth: "Invalid username or password. Please try again",
-          }));
-        } else {
-          setErrors((prev) => ({
-            ...prev,
-            auth: "An unknown error occurred. Please try again",
-          }));
-        }
-      });
+      if (code === 200 || code === 302) {
+        setUserData({ name: orcid_meta.name, id: orcid_meta.orcid });
+        navigate("/")
+      } else if (code === 401) {
+        setErrors((prev) => ({
+          ...prev,
+          auth: "Invalid username or password. Please try again",
+        }));
+      } else {
+        setErrors((prev) => ({
+          ...prev,
+          auth: "An unknown error occurred. Please try again",
+        }));
+      }
+    });
 
-      setIsLoading(false)
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isLoading]);
+    setIsLoading(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
 
   const registerUser = async () => {
     try {
@@ -131,36 +131,42 @@ const Register = () => {
 
           <form className="authForm">
             <Grid container spacing={2.5}>
-              <FormField
-                label="Username"
-                placeholder="Enter your username"
-                value={formData.username}
-                onChange={(e) =>
-                  setFormData({ ...formData, username: e.target.value })
-                }
-                errorMessage={errors.username}
-                helperText="Required"
-              />
-              <FormField
-                label="Email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                errorMessage={errors.email}
-                helperText="Required"
-              />
-              <PasswordField
-                label="Password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-                errorMessage={errors.password}
-                helperText="Required"
-              />
+              <Grid item xs={12}>
+                <CustomFormField
+                  label="Username"
+                  placeholder="Enter your username"
+                  value={formData.username}
+                  onChange={(e) =>
+                    setFormData({ ...formData, username: e.target.value })
+                  }
+                  errorMessage={errors.username}
+                  isRequired
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <CustomFormField
+                  label="Email"
+                  placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  errorMessage={errors.email}
+                  isRequired
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <PasswordField
+                  label="Password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  errorMessage={errors.password}
+                  isRequired
+                />
+              </Grid>
               <Grid item xs={12}>
                 <FormControl>
                   <Button variant="contained" color="primary" onClick={registerUser}>

@@ -3,7 +3,7 @@ import { debounce } from "lodash"
 import { Box, Divider, Stack, Typography, Autocomplete, Chip, TextField } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
 import CustomSingleSelect from "../../common/CustomSingleSelect"
-import CustomInputBox from "../../common/CustomInputBox"
+import CustomFormField from "../../common/CustomFormField"
 import NewTermSidebar from "../NewTermSidebar"
 import { HelpOutlinedIcon } from "../../../Icons"
 import { elasticSearch } from "../../../api/endpoints"
@@ -155,17 +155,11 @@ const FirstStepContent = () => {
                             value={selectedType}
                             onChange={handleTypeChange}
                         />
-                        {/* <CustomizedInput
+                        <CustomFormField
                             placeholder="Term label (i.e. Central Nervous System)"
                             value={termValue}
                             onChange={handleTermValueChange}
-                            endAdornment={<HelpOutlinedIcon />}
-                        /> */}
-                        <CustomInputBox
-                            placeholder="Term label (i.e. Central Nervous System)"
-                            value={termValue}
-                            onInputChange={handleTermValueChange}
-                            endAdornment={<HelpOutlinedIcon />}
+                            isEndAdornmentVisible
                         />
                     </Stack>
 

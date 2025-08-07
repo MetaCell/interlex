@@ -11,7 +11,7 @@ import {
   CircularProgress
 } from "@mui/material";
 import * as yup from "yup";
-import FormField from "./UI/Formfield";
+import CustomFormField from "../common/CustomFormField";
 import { useCookies } from 'react-cookie';
 import { API_CONFIG } from "../../config";
 import { requestUserSettings } from "./utils";
@@ -160,7 +160,7 @@ const Login = () => {
 
   return (
     <Box className="authArea">
-      {isLoading ? <Box sx={{ height: 1, width: 1, display: "flex", alignItems: "center", justifyContent: "center"}}>
+      {isLoading ? <Box sx={{ height: 1, width: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <CircularProgress />
       </Box> : (
         <Paper className="authPaper" sx={{ maxWidth: 528, flexGrow: 1 }}>
@@ -173,24 +173,28 @@ const Login = () => {
           {errors.auth && <Alert severity="error" sx={{ mt: 2 }}>{errors.auth}</Alert>}
           <form className="authForm">
             <Grid container spacing={2.5}>
-              <FormField
-                name="username"
-                label="Username"
-                helperText="Required"
-                placeholder="Enter your username"
-                value={formData.username}
-                onChange={handleInputChange}
-                errorMessage={errors.username}
-              />
-              <PasswordField
-                name="password"
-                label="Password"
-                placeholder="Enter your password"
-                helperText="Required"
-                value={formData.password}
-                onChange={handleInputChange}
-                errorMessage={errors.password}
-              />
+              <Grid item xs={12}>
+                <CustomFormField
+                  name="username"
+                  label="Username"
+                  isRequired
+                  placeholder="Enter your username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  errorMessage={errors.username}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <PasswordField
+                  name="password"
+                  label="Password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  isRequired
+                  onChange={handleInputChange}
+                  errorMessage={errors.password}
+                />
+              </Grid>
               <Grid item xs={12}>
                 <Box
                   className="authRemember"
@@ -223,7 +227,7 @@ const Login = () => {
                 </FormControl>
               </Grid>
               <Grid item xs={12}>
-                <Typography variant="body2" style={{ textAlign: "center", paddingBottom: '1rem'}}>
+                <Typography variant="body2" style={{ textAlign: "center", paddingBottom: '1rem' }}>
                   or
                 </Typography>
               </Grid>

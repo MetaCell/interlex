@@ -37,9 +37,14 @@ import {
   List,
   AccountTreeOutlined
 } from "@mui/icons-material";
+import ForkRightOutlinedIcon from '@mui/icons-material/ForkRightOutlined';
+import FolderCopyOutlinedIcon from '@mui/icons-material/FolderCopyOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import Discussion from "./Discussion";
 import { CodeIcon } from "../../Icons";
 import CustomSingleSelect from "../common/CustomSingleSelect";
+import CustomButtonGroup from "../common/CustomButtonGroup";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CreateForkDialog from "./CreateForkDialog";
 import TermDialog from "../TermEditor/TermDialog";
@@ -47,7 +52,7 @@ import { getSelectedTermLabel } from "../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { getRawData } from "../../api/endpoints";
 
-const { gray200, gray600 } = vars;
+const { gray200, gray600, error700 } = vars;
 
 const dataFormats = ['JSON-LD', 'Turtle', 'N3', 'OWL', 'CSV'];
 const formatExtensions = {
@@ -75,7 +80,7 @@ const SingleTermView = () => {
   const [isLoadingTerm, setIsLoadingTerm] = useState(false);
   const [actualGroup, setActualGroup] = useState(group); // Track the actual group the data comes from
   const [isUsingFallback, setIsUsingFallback] = useState(false); // Track if we're using fallback data
-  
+
   // Remove redundant query logic - use term from URL params directly
   const searchTerm = term;
   const openDataFormatMenu = Boolean(dataFormatAnchorEl);
@@ -214,11 +219,11 @@ const SingleTermView = () => {
   // Optimize tab URL synchronization
   useEffect(() => {
     const newTabValue = tabMapping[tab] !== undefined ? tabMapping[tab] : 0;
-    
+
     if (newTabValue !== tabValue) {
       setTabValue(newTabValue);
     }
-    
+
     // If no tab is specified in URL, redirect to overview
     if (!tab && group && term) {
       navigate(`/${group}/${term}/overview`, { replace: true });
@@ -246,7 +251,7 @@ const SingleTermView = () => {
   // Memoize the toggle button group for overview tab
   const toggleButtonGroup = useMemo(() => {
     if (tabValue !== 0) return null;
-    
+
     return (
       <Box display="flex">
         {isCodeViewVisible && (
@@ -255,10 +260,10 @@ const SingleTermView = () => {
               <Typography color={gray600} fontSize=".875rem" lineHeight="1.25rem">
                 Format to visualize:
               </Typography>
-              <CustomSingleSelect 
-                value={selectedDataFormat} 
-                onChange={(v) => setSelectedDataFormat(v)} 
-                options={dataFormats} 
+              <CustomSingleSelect
+                value={selectedDataFormat}
+                onChange={(v) => setSelectedDataFormat(v)}
+                options={dataFormats}
               />
             </Stack>
             <Divider sx={{ ml: '0.625rem', mr: '0.625rem', border: `1px solid ${gray200}` }} />
@@ -279,6 +284,49 @@ const SingleTermView = () => {
       </Box>
     );
   }, [tabValue, isCodeViewVisible, selectedDataFormat, toggleButtonValue, onToggleButtonChange]);
+
+  const handleAddToActiveOntology = () => {
+    console.log('Add term to active ontology');
+    setOpen(false);
+  };
+
+  const handleCreateFork = () => {
+    console.log('Create fork');
+    setOpen(false);
+  };
+
+  const handleAddToAnotherOntology = () => {
+    console.log('Add term to another ontology');
+    setOpen(false);
+  };
+
+  const handleRemoveFromActiveOntology = () => {
+    console.log('Remove from active ontology');
+    setOpen(false);
+  };
+
+  const menuOptions = [
+    {
+      icon: <CreateNewFolderOutlinedIcon fontSize="small" />,
+      label: "Add term to active ontology",
+      action: handleAddToActiveOntology
+    },
+    {
+      icon: <ForkRightOutlinedIcon fontSize="small" />,
+      label: "Create fork",
+      action: handleCreateFork
+    },
+    {
+      icon: <FolderCopyOutlinedIcon fontSize="small" />,
+      label: "Add term to another ontology",
+      action: handleAddToAnotherOntology
+    },
+    {
+      icon: <DeleteOutlineOutlinedIcon fontSize="small" sx={{ color: error700 }} />,
+      label: "Remove from active ontology",
+      action: handleRemoveFromActiveOntology
+    }
+  ]
 
   return (
     <>
@@ -305,11 +353,11 @@ const SingleTermView = () => {
                   {isItFork ? <Chip label="Fork" variant="outlined" /> : null}
                 </Stack>
                 {isUsingFallback && (
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
-                      color: 'warning.main', 
-                      fontSize: '0.875rem', 
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'warning.main',
+                      fontSize: '0.875rem',
                       fontStyle: 'italic',
                       mt: '0.5rem'
                     }}
@@ -333,6 +381,14 @@ const SingleTermView = () => {
                       Create fork
                     </Button>
                   )}
+
+                  <CustomButtonGroup
+                    buttonTitle="Add term to active ontology"
+                    buttonIcon={<CreateNewFolderOutlined fontSize="medium" />}
+                    variant="outlined"
+                    options={menuOptions}
+                  />
+
                   <ButtonGroup
                     variant="outlined"
                     ref={anchorRef}
@@ -362,6 +418,8 @@ const SingleTermView = () => {
                       {open ? <KeyboardArrowUp fontSize="medium" /> : <KeyboardArrowDown fontSize="medium" />}
                     </Button>
                   </ButtonGroup>
+
+
                   <CustomMenu open={open} anchorRef={anchorRef} setOpen={setOpen} />
                   <CustomButton onClick={handleClickDataFormatMenu}><DownloadOutlined fontSize="medium" />Download as</CustomButton>
                   <Menu
