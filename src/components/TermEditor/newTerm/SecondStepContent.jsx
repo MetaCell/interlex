@@ -112,11 +112,13 @@ const SecondStepContent = () => {
                         value={superclass}
                         onChange={(value) => setSuperclass(value)}
                         isEndAdornmentVisible
+                        textFontSize="body1"
+                        labelColor={gray800}
                     />
                 </Grid>
 
                 <Grid item xs={6}>
-                    <Typography variant="body2" sx={{ color: gray700, fontWeight: 500, mb: "0.375rem" }}>Subclass of</Typography>
+                    <Typography variant="body1" sx={{ color: gray800, fontWeight: 500, mb: "0.375rem" }}>Subclass of</Typography>
                     <Box display="flex" sx={{ "& .MuiBox-root": { width: "auto", flex: 1 } }}>
                         <FormControl sx={{ minWidth: "6.375rem", height: "2.5rem" }}>
                             <Box sx={URI_PREFIX_BOX_STYLES}>{URI_PREFIX}</Box>
@@ -137,7 +139,7 @@ const SecondStepContent = () => {
                 </Grid>
 
                 <Grid item xs={6}>
-                    <Typography variant="body2" sx={{ color: gray800, fontWeight: 500, mb: "0.375rem" }}>Is Defined by</Typography>
+                    <Typography variant="body1" sx={{ color: gray800, fontWeight: 500, mb: "0.375rem" }}>Is Defined by</Typography>
                     <Autocomplete
                         multiple
                         id="definition-urls-autocomplete"
@@ -169,6 +171,8 @@ const SecondStepContent = () => {
                         value={transitiveProperty}
                         onChange={(value) => setTransitiveProperty(value)}
                         isEndAdornmentVisible
+                        textFontSize="body1"
+                        labelColor={gray800}
                     />
                 </Grid>
 
@@ -181,6 +185,8 @@ const SecondStepContent = () => {
                         label="Definition"
                         onChange={(e) => setDefinition(e.target.value)}
                         placeholder="Enter definition..."
+                        textFontSize="body1"
+                        labelColor={gray800}
                     />
                 </Grid>
 
@@ -193,6 +199,8 @@ const SecondStepContent = () => {
                         label="Comment"
                         onChange={(e) => setComment(e.target.value)}
                         placeholder="Enter comment..."
+                        textFontSize="body1"
+                        labelColor={gray800}
                     />
                 </Grid>
             </Grid>
@@ -216,6 +224,8 @@ const SecondStepContent = () => {
                                 value={predicate.subject}
                                 onChange={(e) => handlePredicateChange(index, "subject", e.target.value)}
                                 helperText="The subject is prefilled."
+                                textFontSize="body1"
+                                labelColor={gray800}
                             />
                         </Grid>
                         <Grid item xs={4}>
@@ -225,6 +235,8 @@ const SecondStepContent = () => {
                                 value={predicate.predicate}
                                 onInputChange={(e) => handlePredicateChange(index, "predicate", e.target.value)}
                                 helperText="This is a hint text to help user."
+                                textFontSize="body1"
+                                labelColor={gray800}
                             />
                         </Grid>
                         <Grid item xs={4}>
