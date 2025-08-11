@@ -18,15 +18,14 @@ const formatDate = (dateString) => {
     const fixedDateString = dateString.replace(',', '.');
     try {
         const date = new Date(fixedDateString);
-
         const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const weekday = weekdays[date.getDay()];
+        const weekday = weekdays[date.getUTCDay()];
 
-        let hours = date.getHours();
+        let hours = date.getUTCHours();
         const ampm = hours >= 12 ? 'pm' : 'am';
         hours = hours % 12;
         hours = hours ? hours : 12;
-        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const minutes = date.getUTCMinutes().toString().padStart(2, '0');
 
         return `${weekday} ${hours}:${minutes}${ampm}`;
     } catch (e) {

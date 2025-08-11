@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from 'prop-types';
 import HistoryItem from "./HistoryItem";
-import { Box, List } from "@mui/material";
+import { Box, List, CircularProgress } from "@mui/material";
 import { getVersions } from "../../../api/endpoints/apiService";
 import { vars } from "../../../theme/variables";
 
@@ -9,6 +9,7 @@ const { gray50 } = vars;
 
 const HistoryPanel = ({ searchTerm, group = "base" }) => {
     const [versions, setVersions] = React.useState([]);
+    const [loading, setLoading] = React.useState(true);
 
     React.useEffect(() => {
         getVersions(group, searchTerm).then(data => {
@@ -29,8 +30,19 @@ const HistoryPanel = ({ searchTerm, group = "base" }) => {
                 new Date(a.date.replace(',', '.')) - new Date(b.date.replace(',', '.'))
             );
             setVersions(oldestEntries);
+            setLoading(false);
         });
     }, [group, searchTerm]);
+
+    if (loading) {
+        return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            <CircularProgress />
+        </Box>
+    }
+
+    if (!versions.length) return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        No version history found
+    </Box>
 
     return (
         <Box p="2.5rem 5rem" sx={{ overflow: 'auto' }}>
