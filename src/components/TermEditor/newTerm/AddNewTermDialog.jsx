@@ -20,63 +20,73 @@ import { getAddTermStatusProps } from '../termStatusProps';
 import { CheckedIcon, UncheckedIcon } from '../../../Icons';
 import { vars } from "../../../theme/variables";
 
-const { gray100, gray200, gray400 } = vars;
+const { gray100, gray200, gray400, gray600 } = vars;
 
 const HeaderRightSideContent = ({
     activeStep,
     onContinue,
     onClose,
     isContinueButtonDisabled
-}) => (
-    <Box display='flex' alignItems='center'>
-        {activeStep !== 2 ? (
-            <>
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            size="small"
-                            icon={<UncheckedIcon />}
-                            checkedIcon={<CheckedIcon />}
-                        />
-                    }
-                    sx={{ color: "#515252" }}
-                    label="Add to ontology"
-                />
-                <OntologySearch />
-                <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
-                <MobileStepper
-                    variant="dots"
-                    steps={3}
-                    position="static"
-                    activeStep={activeStep}
-                    sx={{ maxWidth: 64, flexGrow: 1 }}
-                />
-                <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
-                <Stack direction="row" spacing={1.5}>
-                    <CustomButton onClick={onClose}>Cancel</CustomButton>
-                    <Button
-                        onClick={onContinue}
-                        disabled={isContinueButtonDisabled}
-                        variant="contained"
-                        endIcon={<ArrowForwardIcon />}
-                        sx={{
-                            padding: '0.625rem 0.875rem',
-                            '&.Mui-disabled': {
-                                border: `1px solid ${gray200}`,
-                                color: gray400,
-                                backgroundColor: gray100
-                            }
-                        }}
-                    >
-                        Continue
-                    </Button>
-                </Stack>
-            </>
-        ) : (
-            <Button variant="contained" onClick={onClose}>Finish</Button>
-        )}
-    </Box>
-);
+}) => {
+    const [ontologyChecked, setOntologyChecked] = useState(false);
+
+    const handleOntologyChange = (event) => {
+        setOntologyChecked(event.target.checked);
+    };
+
+    return (
+        <Box display='flex' alignItems='center'>
+            {activeStep !== 2 ? (
+                <>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                size="small"
+                                icon={<UncheckedIcon />}
+                                checkedIcon={<CheckedIcon />}
+                                checked={ontologyChecked}
+                                onChange={handleOntologyChange}
+                            />
+                        }
+                        sx={{ color: gray600 }}
+                        label="Add to ontology"
+                    />
+                    <OntologySearch disabled={!ontologyChecked} />
+                    <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
+                    <MobileStepper
+                        variant="dots"
+                        steps={3}
+                        position="static"
+                        activeStep={activeStep}
+                        sx={{ maxWidth: 64, flexGrow: 1 }}
+                    />
+                    <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
+                    <Stack direction="row" spacing={1.5}>
+                        <CustomButton onClick={onClose}>Cancel</CustomButton>
+                        <Button
+                            onClick={onContinue}
+                            disabled={isContinueButtonDisabled}
+                            variant="contained"
+                            endIcon={<ArrowForwardIcon />}
+                            sx={{
+                                padding: '0.625rem 0.875rem',
+                                '&.Mui-disabled': {
+                                    border: `1px solid ${gray200}`,
+                                    color: gray400,
+                                    backgroundColor: gray100
+                                }
+                            }}
+                        >
+                            Continue
+                        </Button>
+                    </Stack>
+                </>
+            ) : (
+                <Button variant="contained" onClick={onClose}>Finish</Button>
+            )}
+        </Box>
+    )
+};
 
 HeaderRightSideContent.propTypes = {
     activeStep: PropTypes.number.isRequired,
