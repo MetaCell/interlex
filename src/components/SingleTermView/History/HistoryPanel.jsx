@@ -3,49 +3,55 @@ import PropTypes from 'prop-types';
 import HistoryItem from "./HistoryItem";
 import { Box, List } from "@mui/material";
 import { getVersions } from "../../../api/endpoints/apiService";
-
 import { vars } from "../../../theme/variables";
+
 const { gray50 } = vars;
 
-const historyEntries = [
-    { author: "Phoenix Baker", action: "merge", date: "Friday 2:05pm", fork: "ForkPB-2" },
-    { author: "Phoenix Baker", action: "create", date: "Friday 2:05pm", fork: "ForkPB-2" },
-    { author: "Phoenix Baker", action: "suggest", date: "Friday 2:05pm" },
-    { author: "Phoenix Baker", action: "request", date: "Friday 2:05pm" },
-];
-
 const HistoryPanel = ({ searchTerm, group = "base" }) => {
-    // eslint-disable-next-line no-unused-vars
     const [versions, setVersions] = React.useState([]);
 
     React.useEffect(() => {
         getVersions(group, searchTerm).then(data => {
-            setVersions(data);
-        })
-    }, []);
+            const oldestEntries = data.versions.map(version => {
+                const oldestAppearance = [...version.appears_in].sort((a, b) =>
+                    new Date(a.first_seen.replace(',', '.')) - new Date(b.first_seen.replace(',', '.'))
+                )[0];
 
-    console.log("versions: ", versions)
+                const uriParts = oldestAppearance.uri.split('http://uri.interlex.org/')[1].split('/');
+                const forkName = uriParts[0];
 
-    return <Box p="2.5rem 5rem" sx={{
-        overflow: 'auto',
-    }}>
-        <List disablePadding width={1} sx={{ maxWidth: '50rem' }}>
-            {historyEntries.map((entry, index) => (
-                <Box key={`${entry.author}_${index}`} sx={{
-                    paddingLeft: '1rem',
-                    borderRadius: '0.375rem',
-                    '&:hover': {
-                        backgroundColor: gray50,
-                        '& .MuiIconButton-root': {
-                            display: 'flex'
+                return {
+                    date: oldestAppearance.first_seen,
+                    fork: forkName,
+                    identityGraph: version["identity-graph"]
+                };
+            }).sort((a, b) =>
+                new Date(a.date.replace(',', '.')) - new Date(b.date.replace(',', '.'))
+            );
+            setVersions(oldestEntries);
+        });
+    }, [group, searchTerm]);
+
+    return (
+        <Box p="2.5rem 5rem" sx={{ overflow: 'auto' }}>
+            <List disablePadding width={1} sx={{ maxWidth: '50rem' }}>
+                {versions.map((entry, index) => (
+                    <Box key={`${entry.identityGraph}_${index}`} sx={{
+                        paddingLeft: '1rem',
+                        borderRadius: '0.375rem',
+                        '&:hover': {
+                            backgroundColor: gray50,
+                            '& .MuiIconButton-root': {
+                                display: 'flex'
+                            }
                         }
-                    }
-                }}>
-                    <HistoryItem entry={entry} />
-                </Box>
-            ))}
-        </List>
-    </Box>
+                    }}>
+                        <HistoryItem entry={entry} />
+                    </Box>
+                ))}
+            </List>
+        </Box>
+    );
 };
 
 HistoryPanel.propTypes = {
