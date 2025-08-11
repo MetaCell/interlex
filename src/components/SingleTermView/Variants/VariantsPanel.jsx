@@ -23,7 +23,7 @@ const VariantsPanel = ({ searchTerm, group = "base" }) => {
             setVariants(data);
             setLoading(false);
         })
-    }, []);
+    }, [group, searchTerm]);
 
     if (loading) {
         return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

@@ -241,7 +241,7 @@ const SingleTermView = () => {
       default:
         return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} />;
     }
-  }, [tabValue, searchTerm, isCodeViewVisible, selectedDataFormat, actualGroup]);
+  }, [tabValue, searchTerm, isCodeViewVisible, selectedDataFormat, actualGroup, group]);
 
   // Memoize the toggle button group for overview tab
   const toggleButtonGroup = useMemo(() => {
