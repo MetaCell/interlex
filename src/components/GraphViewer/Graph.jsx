@@ -149,7 +149,13 @@ Graph.propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
   // IMPORTANT: now expects the predicate GROUP object (with rows/values/edges or legacy tableData)
-  predicate: PropTypes.object.isRequired,
+  predicate: PropTypes.shape({
+    title: PropTypes.string,
+    rows: PropTypes.array,
+    values: PropTypes.array,
+    edges: PropTypes.array,
+    tableData: PropTypes.array,
+  }).isRequired,
 };
 
 export default Graph;
