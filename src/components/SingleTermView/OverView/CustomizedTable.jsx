@@ -276,7 +276,7 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
         open={snackbarOpen}
         handleClose={handleSnackbarClose}
         onUndoDelete={handleUndoDelete}
-        data={{}}
+        data={deletedObj}
       />
     </>
   );
