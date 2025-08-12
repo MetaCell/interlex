@@ -20,10 +20,7 @@ const StyledTreeItemBase = (props) => (
             className="rounded"
             variant="outlined"
             label={'Current Item'}
-            sx={{
-              borderColor: brand200,
-              backgroundColor: brand50
-            }}
+            sx={{ borderColor: brand200, backgroundColor: brand50 }}
           />
         )}
       </Box>
@@ -31,17 +28,18 @@ const StyledTreeItemBase = (props) => (
   />
 );
 
+StyledTreeItemBase.propTypes = {
+  label: PropTypes.node,
+  currentId: PropTypes.string,
+  itemId: PropTypes.string, // provided by MUI TreeItem
+};
+
 const StyledTreeItem = styled(StyledTreeItemBase)(() => ({
   color: gray500,
   [`& .${treeItemClasses.content}`]: {
-    [`& .${treeItemClasses.label}`]: {
-      fontSize: '0.875rem',
-      fontWeight: 400,
-    },
+    [`& .${treeItemClasses.label}`]: { fontSize: '0.875rem', fontWeight: 400 },
   },
-  [`& .${treeItemClasses.groupTransition}`]: {
-    marginLeft: 14,
-  },
+  [`& .${treeItemClasses.groupTransition}`]: { marginLeft: 14 },
 }));
 
 const CustomizedTreeView = ({ items = [], loading = false, currentId = null }) => {

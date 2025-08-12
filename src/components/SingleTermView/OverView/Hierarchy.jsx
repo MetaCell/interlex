@@ -7,6 +7,7 @@ import {
 } from "@mui/material";
 import { vars } from "../../../theme/variables";
 import React from "react";
+import PropTypes from "prop-types";
 import { RestartAlt, TargetCross } from "../../../Icons";
 import SingleSearch from "../SingleSearch";
 import CustomizedTreeView from "../../common/CustomizedTreeView";
@@ -19,16 +20,14 @@ function mapsFromTriples(triples) {
   const idLabelMap = {};
   const parentToChildren = {};
 
-  for (const t of triples) {
+  for (const t of triples || []) {
     const pred = (t.predicate?.label || t.predicate?.id || "").toLowerCase();
 
-    // labels
     if (pred.endsWith("label") || pred.includes("rdfs:label")) {
       if (t.subject?.id) idLabelMap[t.subject.id] = t.object?.label || t.object?.id || t.subject.id;
       continue;
     }
 
-    // part-of edges: subject --partOf--> object
     if (pred.endsWith("ilx.partof:") || pred.includes("partof") || pred.includes("is part of")) {
       const child = t.subject?.id;
       const parent = t.object?.id;
@@ -42,19 +41,14 @@ function mapsFromTriples(triples) {
   return { idLabelMap, parentToChildren };
 }
 
-// ---- Build a safe tree (avoid cycles) ----
 function buildTree(rootId, mapping, idLabelMap) {
   const visited = new Set();
-
   const build = (id) => {
-    if (visited.has(id)) {
-      return { id: `${id} (cycle)`, label: idLabelMap[id] || id, children: [] };
-    }
+    if (visited.has(id)) return { id: `${id} (cycle)`, label: idLabelMap[id] || id, children: [] };
     visited.add(id);
     const kids = (mapping[id] || []).map(build);
     return { id, label: idLabelMap[id] || id, children: kids };
   };
-
   return [build(rootId)];
 }
 
@@ -65,11 +59,10 @@ const Hierarchy = ({
   triplesChildren = [],
   triplesSuperclasses = [],
 }) => {
-  const [type, setType] = React.useState("children"); // 'children' | 'superclasses'
+  const [type, setType] = React.useState("children");
   const [treeData, setTreeData] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
 
-  // Recompute tree whenever inputs change
   React.useEffect(() => {
     const triples = type === "children" ? triplesChildren : triplesSuperclasses;
     if (!selectedValue?.handler || !Array.isArray(triples)) {
@@ -79,10 +72,8 @@ const Hierarchy = ({
     setLoading(true);
     try {
       const { idLabelMap, parentToChildren } = mapsFromTriples(triples);
-
       let mapping = parentToChildren;
       if (type === "superclasses") {
-        // invert to show ancestors as children
         const childToParents = {};
         for (const [parent, kids] of Object.entries(parentToChildren)) {
           for (const kid of kids) {
@@ -92,7 +83,6 @@ const Hierarchy = ({
         }
         mapping = childToParents;
       }
-
       const tree = buildTree(selectedValue.handler, mapping, idLabelMap);
       setTreeData(tree);
     } catch (e) {
@@ -151,6 +141,22 @@ const Hierarchy = ({
       </Typography>
     </Box>
   );
+};
+
+Hierarchy.propTypes = {
+  options: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string,
+      handler: PropTypes.string.isRequired,
+    })
+  ),
+  selectedValue: PropTypes.shape({
+    label: PropTypes.string,
+    handler: PropTypes.string,
+  }),
+  onSelect: PropTypes.func,
+  triplesChildren: PropTypes.array,
+  triplesSuperclasses: PropTypes.array,
 };
 
 export default Hierarchy;

@@ -21,10 +21,7 @@ const tableStyles = {
     borderBottom: `1px solid ${gray100}`,
     '& > .MuiBox-root': { paddingRight: '0.75rem', paddingLeft: 0 },
     '& .MuiTypography-root': {
-      color: gray600,
-      fontWeight: 500,
-      fontSize: '.75rem',
-      lineHeight: '1.125rem'
+      color: gray600, fontWeight: 500, fontSize: '.75rem', lineHeight: '1.125rem'
     }
   },
   root: {
@@ -36,91 +33,48 @@ const tableStyles = {
     borderBottom: `1px solid ${gray100}`,
     marginTop: '.25rem',
     '& .MuiLink-root': {
-      color: 'red',
-      gap: '0.5rem',
-      fontSize: '0.875rem',
-      lineHeight: '1.25rem',
-      fontWeight: 600,
-      textDecoration: 'none'
+      color: 'red', gap: '0.5rem', fontSize: '0.875rem', lineHeight: '1.25rem', fontWeight: 600, textDecoration: 'none'
     },
     '& .MuiIconButton-root': {
-      padding: '0',
-      backgroundColor: 'transparent',
+      padding: '0', backgroundColor: 'transparent',
       '& .MuiSvgIcon-root': { fontSize: '1rem', color: gray500 },
     },
     '& .MuiTypography-root': {
-      color: gray700,
-      fontSize: '0.875rem',
-      fontWeight: 400,
-      lineHeight: '1.25rem',
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      whiteSpace: "nowrap"
+      color: gray700, fontSize: '0.875rem', fontWeight: 400, lineHeight: '1.25rem',
+      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"
     },
     '& > .MuiBox-root': {
-      display: 'flex',
-      alignItems: 'center',
-      minWidth: 0,
-      gap: '0.5rem',
-      paddingRight: '0.75rem',
-      paddingLeft: 0
+      display: 'flex', alignItems: 'center', minWidth: 0, gap: '0.5rem', paddingRight: '0.75rem', paddingLeft: 0
     },
     '&:not(.secondary)': {
       '&:hover': {
-        background: gray50,
-        borderColor: gray100,
-        borderRadius: '0.5rem',
+        background: gray50, borderColor: gray100, borderRadius: '0.5rem',
         '&:before': {
-          content: '""',
-          height: '1.5rem',
-          width: '0.125rem',
-          background: brand600,
-          position: 'absolute',
-          left: '0rem',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          margin: 'auto 0',
-          borderRadius: '0.1875rem'
+          content: '""', height: '1.5rem', width: '0.125rem', background: brand600,
+          position: 'absolute', left: '0rem', top: '50%', transform: 'translateY(-50%)',
+          margin: 'auto 0', borderRadius: '0.1875rem'
         },
       }
     },
   },
   inputParentBox: {
-    width: '100%',
-    borderRadius: '0.5rem',
-    background: '#F0F2F2',
+    width: '100%', borderRadius: '0.5rem', background: '#F0F2F2',
     '&:before': {
-      content: '""',
-      height: '1.5rem',
-      width: '0.125rem',
-      background: brand600,
-      position: 'absolute',
-      left: '0rem',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      margin: 'auto 0',
-      borderRadius: '0.1875rem'
+      content: '""', height: '1.5rem', width: '0.125rem', background: brand600,
+      position: 'absolute', left: '0rem', top: '50%', transform: 'translateY(-50%)',
+      margin: 'auto 0', borderRadius: '0.1875rem'
     }
   },
   input: {
     '& .MuiOutlinedInput-root': {
-      borderRadius: '0.5rem',
-      fontSize: '0.875rem',
-      color: '#313534',
-      background: '#fff',
-      boxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)'
+      borderRadius: '0.5rem', fontSize: '0.875rem', color: '#313534',
+      background: '#fff', boxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)'
     },
     '& input': { padding: '0.5rem 0.75rem', height: '2.25rem' },
-    '& .Mui-focused': {
-      border: '2px solid #1C5F54',
-      background: '#F0F2F2',
-      color: '#313534'
-    }
+    '& .Mui-focused': { border: '2px solid #1C5F54', background: '#F0F2F2', color: '#313534' }
   },
   confirmButton: {
-    p: '0.5rem 0.75rem',
-    background: 'transparent',
-    color: brand700,
+    p: '0.5rem 0.75rem', background: 'transparent', color: brand700,
     '&:hover': { background: brand50, color: brand700 }
   }
 };
@@ -128,20 +82,9 @@ const tableStyles = {
 // ---------- helpers ----------
 const safe = (v) => (v == null ? "" : String(v));
 
-/**
- * Normalize incoming `data` to the legacy `tableData` shape the row renderer expects:
- * [{ id, subject, predicate, object }]
- * Supports:
- *  - data.tableData  (legacy)
- *  - data.rows / data.values (groups built from getTermHierarchies)
- *  - data.edges      (fallback)
- */
 function normalizeTableData(data) {
   if (!data) return [];
-
-  // 1) legacy straight-through
   if (Array.isArray(data.tableData) && data.tableData.length) {
-    // ensure id
     return data.tableData.map((r, i) => ({
       id: r.id ?? `${safe(r.subject)}|${safe(r.predicate)}|${safe(r.object)}|${i}`,
       subject: safe(r.subject),
@@ -149,12 +92,9 @@ function normalizeTableData(data) {
       object: safe(r.object),
     }));
   }
-
-  // 2) rows / values from grouped predicates (we inject the group title as predicate)
   const rows = Array.isArray(data.rows) && data.rows.length
     ? data.rows
     : (Array.isArray(data.values) ? data.values : []);
-
   if (rows && rows.length) {
     return rows.map((r, i) => ({
       id: `${safe(r.subjectId || r.subject)}|${safe(data.title)}|${safe(r.objectId || r.object)}|${i}`,
@@ -163,8 +103,6 @@ function normalizeTableData(data) {
       object: safe(r.object || r.objectId),
     }));
   }
-
-  // 3) edges fallback
   if (Array.isArray(data.edges) && data.edges.length) {
     return data.edges.map((e, i) => {
       const subj = e?.from?.label || e?.from?.id;
@@ -178,7 +116,6 @@ function normalizeTableData(data) {
       };
     });
   }
-
   return [];
 }
 
@@ -264,16 +201,17 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
 
   const handleOpenEditTermDialog = () => setEditTermDialogOpen(true);
   const handleCloseEditTermDialog = () => setEditTermDialogOpen(false);
-  const handleUndoDelete = () => { /* no-op for now */ };
+  const handleUndoDelete = () => {};
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") return;
     setSnackbarOpen(false);
   };
 
+  // NOTE: rename inner var to avoid shadowing prop `data` (fixes react/prop-types lint)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
-    const data = await getMatchTerms(user?.groupname, searchTerm);
-    setTerms(data?.results?.[0]);
+    const resp = await getMatchTerms(user?.groupname, searchTerm);
+    setTerms(resp?.results?.[0]);
   }, 500), [user?.groupname]);
 
   useEffect(() => {
@@ -281,7 +219,7 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
   }, [objectSearchTerm, fetchTerms]);
 
   const tableWidth = 800;
-  const columnWidth = "100%"; // keeping your layout; adjust if needed
+  const columnWidth = "100%";
 
   return (
     <>
@@ -338,7 +276,7 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
         open={snackbarOpen}
         handleClose={handleSnackbarClose}
         onUndoDelete={handleUndoDelete}
-        data={deletedObj}
+        data={{}}
       />
     </>
   );
