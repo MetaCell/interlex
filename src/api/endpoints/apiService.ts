@@ -300,3 +300,79 @@ export const getTermDiscussions = async (group: string, variantID: string) => {
 export const getVariant = (group: string, term: string) => {
   return createGetRequest<any, any>(`/${group}/variant/${term}`, "application/json")();  
 };
+
+// Extract [subject, predicate, object] from the HTML table
+function parseTransitiveHtml(html: string) {
+  // Browser-safe: use DOMParser
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const rows = Array.from(doc.querySelectorAll('table tr')).slice(1); // skip header
+
+  const triples = rows
+    .map(tr => {
+      const tds = tr.querySelectorAll('td');
+      if (tds.length < 3) return null;
+
+      const subjLink = tds[0]?.querySelector('a');
+      const predLink = tds[1]?.querySelector('a');
+      const objLink  = tds[2]?.querySelector('a');
+
+      const subject = {
+        id: subjLink?.getAttribute('href') || '',
+        label: (subjLink?.textContent || '').trim(),
+      };
+      const predicate = {
+        id: predLink?.getAttribute('href') || '',
+        label: (predLink?.textContent || '').trim(),
+      };
+      const object = objLink
+        ? { id: objLink.getAttribute('href') || '', label: (objLink.textContent || '').trim() }
+        : { id: '', label: (tds[2]?.textContent || '').trim() };
+
+      return { subject, predicate, object };
+    })
+    .filter(Boolean) as Array<{
+      subject: { id: string; label: string };
+      predicate: { id: string; label: string };
+      object: { id: string; label: string };
+    }>;
+
+  // Optional: filter to just partOf edges
+  const edges = triples.filter(t => t.predicate.label.toLowerCase().includes('part of'))
+                       .map(t => ({ from: t.subject, to: t.object }));
+
+  return { triples, edges };
+}
+
+export const getTermHierarchies = async ({
+  groupname,
+  termId,
+  objToSub = true,
+}: {
+  groupname: string;
+  termId: string;
+  objToSub?: boolean;
+}) => {
+  const base = `/${groupname}/query/transitive/${encodeURIComponent(termId)}/ilx.partOf:`;
+  const url1 = `${base}?obj-to-sub=${objToSub}`;
+  const url2 = `${base}.jsonld?obj-to-sub=${objToSub}`;
+
+  try {
+    // Try JSON-LD first
+    const res1 = await createGetRequest<any, any>(url1, 'application/ld+json')();
+    if (typeof res1 !== 'string') return res1; // got JSON
+
+    // If server ignored Accept and sent HTML, parse it
+    return parseTransitiveHtml(res1);
+  } catch {
+    // Try explicit .jsonld
+    try {
+      const res2 = await createGetRequest<any, any>(url2, 'application/ld+json')();
+      if (typeof res2 !== 'string') return res2;
+      // Still HTML? Parse it.
+      return parseTransitiveHtml(res2);
+    } catch (e2: any) {
+      console.error('Error in getTermHierarchies:', e2);
+      return { error: true, message: e2?.message || String(e2) };
+    }
+  }
+};
