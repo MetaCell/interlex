@@ -338,7 +338,11 @@ function parseTransitiveHtml(html: string) {
 
   // Optional: filter to just partOf edges
   const edges = triples.filter(t => t.predicate.label.toLowerCase().includes('part of'))
-                       .map(t => ({ from: t.subject, to: t.object }));
+  const edges = triples.filter(t =>
+    PART_OF_LABELS.some(label =>
+      t.predicate.label.toLowerCase().includes(label.toLowerCase())
+    )
+  ).map(t => ({ from: t.subject, to: t.object }));
 
   return { triples, edges };
 }
