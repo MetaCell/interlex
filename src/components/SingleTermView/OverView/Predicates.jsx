@@ -11,7 +11,12 @@ const { gray800 } = vars;
 function groupsFromTriples(triples) {
   const byPred = new Map();
   for (const t of triples || []) {
-    const key = (t?.predicate?.label || t?.predicate?.id || "").trim() || "predicate";
+const FALLBACK_PREDICATE = "predicate";
+
+function groupsFromTriples(triples) {
+  const byPred = new Map();
+  for (const t of triples || []) {
+    const key = (t?.predicate?.label || t?.predicate?.id || "").trim() || FALLBACK_PREDICATE;
     if (!byPred.has(key)) byPred.set(key, []);
     byPred.get(key).push(t);
   }
