@@ -3,30 +3,35 @@ export const PREDICATE = "predicate";
 export const SUBJECT = "subject";
 export const ROOT = "root";
 
-// fallback label for empty strings/undefined
-const getName = (name) => (name && String(name).trim()) || "unknown";
+// tiny helpers
+const safe = (v, fallback = "unknown") => {
+  if (v == null) return fallback;
+  const s = String(v).trim();
+  return s.length ? s : fallback;
+};
 
-// Build a single-root tree for a predicate group.
-// Accepts groups shaped like:
-// {
-//   title: "<predicate label>",
-//   count: number,
-//   rows: [{subject, subjectId, object, objectId}],
-//   values: same as rows (alias),
-//   edges: [{from:{id,label}, to:{id,label}, predicate:{id,label}}]
-// }
-export const getGraphStructure = (pred) => {
-  if (!pred) {
-    return { name: "unknown", id: "unknown", type: ROOT, value: 0, children: [] };
+// Normalize predicate group into a rows array:
+// [{ subject, subjectId, object, objectId }]
+function normalizeRows(pred) {
+  if (!pred) return [];
+
+  // 1) new shape from getTermHierarchies grouping
+  if (Array.isArray(pred.rows) && pred.rows.length) return pred.rows;
+  if (Array.isArray(pred.values) && pred.values.length) return pred.values;
+
+  // 2) legacy tableData
+  if (Array.isArray(pred.tableData) && pred.tableData.length) {
+    return pred.tableData.map(r => ({
+      subject: r.subject,
+      subjectId: r.subject, // no id in legacy, use label
+      object: r.object,
+      objectId: r.object,
+    }));
   }
 
-  // Prefer rows/values; fall back to edges.
-  let rows = Array.isArray(pred.rows) && pred.rows.length ? pred.rows
-           : Array.isArray(pred.values) && pred.values.length ? pred.values
-           : [];
-
-  if ((!rows || rows.length === 0) && Array.isArray(pred.edges)) {
-    rows = pred.edges.map((e) => ({
+  // 3) edges fallback
+  if (Array.isArray(pred.edges) && pred.edges.length) {
+    return pred.edges.map(e => ({
       subject: e?.from?.label || e?.from?.id,
       subjectId: e?.from?.id || e?.from?.label,
       object: e?.to?.label || e?.to?.id,
@@ -34,66 +39,72 @@ export const getGraphStructure = (pred) => {
     }));
   }
 
-  if (!rows || rows.length === 0) {
-    return { name: "unknown", id: "unknown", type: ROOT, value: 0, children: [] };
-  }
+  return [];
+}
 
-  // Choose a single root subject: most frequent subject (by subjectId)
+// Pick a root subject (most frequent). Fallback to first row.
+function pickRoot(rows) {
+  if (!rows.length) return { key: "unknown", label: "unknown" };
   const counts = new Map();
   const firstLabelById = new Map();
   for (const r of rows) {
-    const key = r.subjectId || r.subject;
-    if (!key) continue;
-    counts.set(key, (counts.get(key) || 0) + 1);
-    if (!firstLabelById.has(key)) firstLabelById.set(key, r.subject || r.subjectId);
+    const id = r.subjectId || r.subject;
+    if (!id) continue;
+    counts.set(id, (counts.get(id) || 0) + 1);
+    if (!firstLabelById.has(id)) firstLabelById.set(id, r.subject || r.subjectId || id);
   }
-  let rootKey = null;
-  let max = -1;
+  let rootKey = null, max = -1;
   for (const [k, v] of counts.entries()) {
     if (v > max) { max = v; rootKey = k; }
   }
-  const rootLabel = getName(firstLabelById.get(rootKey) || rootKey);
+  if (!rootKey) {
+    const r0 = rows[0];
+    const id = r0.subjectId || r0.subject || "unknown";
+    return { key: id, label: r0.subject || id };
+  }
+  return { key: rootKey, label: firstLabelById.get(rootKey) || rootKey };
+}
 
-  // Keep only rows for the chosen root
-  const rowsForRoot = rows.filter(
-    (r) => (r.subjectId || r.subject) === rootKey
-  );
+// Build Root → Predicate → Unique Objects
+export const getGraphStructure = (pred) => {
+  const rows = normalizeRows(pred);
+  if (!rows.length) {
+    return { name: "No data", id: "no-data", type: ROOT, value: 0, children: [] };
+  }
 
-  // Predicate node (we’re already grouped by predicate)
-  const predicateLabel = getName(pred.title || "predicate");
-  const predicateId = pred.title || "predicate";
+  const { key: rootKey, label: rootLabel } = pickRoot(rows);
+  const forRoot = rows.filter(r => (r.subjectId || r.subject) === rootKey);
 
-  // Unique objects under predicate
-  const seenObjects = new Set();
-  const objectChildren = [];
-  for (const r of rowsForRoot) {
-    const objKey = r.objectId || r.object;
-    if (!objKey) continue;
-    if (seenObjects.has(objKey)) continue;
-    seenObjects.add(objKey);
-    objectChildren.push({
-      name: getName(r.object),
-      id: objKey,
+  const predicateLabel = safe(pred?.title, "predicate");
+  const predicateId = predicateLabel;
+
+  const seen = new Set();
+  const objects = [];
+  for (const r of forRoot) {
+    const oid = r.objectId || r.object;
+    if (!oid) continue;
+    if (seen.has(oid)) continue;
+    seen.add(oid);
+    objects.push({
+      name: safe(r.object),
+      id: safe(oid),
       type: OBJECT,
       children: [],
     });
   }
 
-  // Root -> Predicate -> Objects
-  const data = {
-    name: rootLabel,
-    id: rootKey,
+  return {
+    name: safe(rootLabel),
+    id: safe(rootKey),
     type: ROOT,
-    value: rowsForRoot.length || pred.count || 0,
+    value: forRoot.length || pred?.count || 0,
     children: [
       {
         name: predicateLabel,
         id: predicateId,
         type: PREDICATE,
-        children: objectChildren,
+        children: objects,
       },
     ],
   };
-
-  return data;
 };
