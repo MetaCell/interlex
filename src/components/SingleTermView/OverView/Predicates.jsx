@@ -8,9 +8,6 @@ import { vars } from "../../../theme/variables";
 
 const { gray800 } = vars;
 
-function groupsFromTriples(triples) {
-  const byPred = new Map();
-  for (const t of triples || []) {
 const FALLBACK_PREDICATE = "predicate";
 
 function groupsFromTriples(triples) {
