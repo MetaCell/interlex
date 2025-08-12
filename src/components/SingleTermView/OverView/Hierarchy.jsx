@@ -44,7 +44,7 @@ function mapsFromTriples(triples) {
 function buildTree(rootId, mapping, idLabelMap) {
   const visited = new Set();
   const build = (id) => {
-    if (visited.has(id)) return { id: `${id} (cycle)`, label: idLabelMap[id] || id, children: [] };
+    if (visited.has(id)) return { id, label: idLabelMap[id] || id, children: [], isCycle: true };
     visited.add(id);
     const kids = (mapping[id] || []).map(build);
     return { id, label: idLabelMap[id] || id, children: kids };
