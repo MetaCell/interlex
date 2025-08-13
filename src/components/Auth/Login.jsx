@@ -132,7 +132,9 @@ const Login = () => {
     setIsLoading(true);
     const popup = window.open(url.includes('?') ? url + "&aspopup=true" : url + "?aspopup=true", "postPopup", "width=600,height=600");
     if (popup) {
-      // dataForm.submit();
+      popup.onload = function () {
+        popup.document.cookie = "session=" + existingCookies['session'] + "; path=/; secure; samesite=strict";
+      };
       popup.focus();
     } else {
       alert("Popup blocked. Please allow popups for this site.");
@@ -156,10 +158,6 @@ const Login = () => {
 
       const result = await login({ username: formData.username, password: formData.password })
       if (!result.data || !result.data?.orcid_meta) {
-        // setErrors((prev) => ({
-        //   ...prev,
-        //   auth: "Interlex API is not returning the user information, reminder to ask Tom to send the groupname back so that we can query the priv/setting endpoint to get the rest of the info required",
-        // }));
         try {
           const userData = await requestUserSettings(formData.username);
           localStorage.setItem(API_CONFIG.SESSION_DATA.SETTINGS, JSON.stringify(userData));

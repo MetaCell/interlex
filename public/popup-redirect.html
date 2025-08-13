@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Loading...</title>
+</head>
+
+<body>
+    <script>
+        // Parse query parameters
+        const params = new URLSearchParams(window.location.search);
+        const cookieVal = params.get("cookieVal");
+        const redirectUrl = params.get("redirect");
+
+        if (cookieVal) {
+            // Set the cookie for this domain
+            document.cookie = `session=${cookieVal}; path=/; max-age=3600; Secure; SameSite=Strict`;
+        }
+
+        if (redirectUrl) {
+            // Redirect after setting the cookie
+            window.location.href = redirectUrl;
+        } else {
+            document.body.innerHTML = "<p>No redirect URL provided.</p>";
+        }
+    </script>
+</body>
+
+</html>

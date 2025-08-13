@@ -17,7 +17,7 @@ import PasswordField from "./UI/PasswordField";
 import { ArrowBack } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import { GlobalDataContext } from "../../contexts/DataContext";
-// import { register } from "../../api/endpoints/apiService";
+
 
 const schema = yup.object().shape({
   email: yup.string().email().required(),
@@ -74,7 +74,7 @@ const Register = () => {
         }
 
         if (redirect) {
-          handleRedirectInPopup(redirect);
+          handleRedirectInPopup(redirect, cookies);
           return;
         }
 
@@ -103,12 +103,22 @@ const Register = () => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoading]);
 
-  const handleRedirectInPopup = (url) => {
+  const handleRedirectInPopup = (url, cookies) => {
     setErrors({})
     setIsLoading(true);
-    const popup = window.open(url.includes('?') ? url + "&aspopup=true" : url + "?aspopup=true", "postPopup", "width=600,height=600");
+    // const popup = window.open(url.includes('?') ? url + "&aspopup=true" : url + "?aspopup=true", "postPopup", "width=600,height=600");
+    const popupURL = url.includes('?') ? url + "&aspopup=true" : url + "?aspopup=true";
+    const redirectURL = `${API_CONFIG.OLYMPIAN_GODS}/${popupURL}`;
+    const _cookies = JSON.parse(cookies);
+    const sessionCookie = _cookies && Object.prototype.hasOwnProperty.call(_cookies, 'session') ? _cookies['session'] : undefined;
+    let finalURL = `/popup-redirect.html?redirect=${encodeURIComponent(redirectURL)}`
+    if (sessionCookie) {
+      finalURL = `/popup-redirect.html?redirect=${encodeURIComponent(redirectURL)}&cookieVal=${encodeURIComponent(sessionCookie)}`
+    }
+
+    // open the popup-redirect.html in the public folder and pass the finalURL and cookie values as query parameters
+    const popup = window.open(finalURL, "postPopup", "width=600,height=600");
     if (popup) {
-      // dataForm.submit();
       popup.focus();
     } else {
       alert("Popup blocked. Please allow popups for this site.");
@@ -224,7 +234,7 @@ const Register = () => {
                   setFormData({ ...formData, confirmPassword: e.target.value })
                 }
                 errorMessage={errors.confirmPassword}
-                helperText="Passwords must match"
+                helperText={formData.password !== formData.confirmPassword ? "Passwords must match" : "Password matches"}
               />
               <Grid item xs={12}>
                 <FormControl>
