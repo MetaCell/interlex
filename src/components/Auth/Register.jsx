@@ -8,6 +8,7 @@ import {
   Typography,
   Alert,
   CircularProgress,
+  Snackbar,
 } from "@mui/material";
 import * as yup from "yup";
 import FormField from "./UI/Formfield";
@@ -16,8 +17,19 @@ import { useCookies } from 'react-cookie';
 import PasswordField from "./UI/PasswordField";
 import { ArrowBack } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
-import { GlobalDataContext } from "../../contexts/DataContext";
-// import { register } from "../../api/endpoints/apiService";
+// import { GlobalDataContext } from "../../contexts/DataContext";
+
+const OLYMPIAN_GODS = import.meta.env.MODE === "production" ? "" : API_CONFIG.OLYMPIAN_GODS;
+const popups = []; // Array to keep track of open popups
+
+const closePopups = () => {
+  popups.forEach(popup => {
+    if (popup && !popup.closed) {
+      popup.close();
+    }
+  });
+  popups.length = 0; // Clear the array
+}
 
 const schema = yup.object().shape({
   email: yup.string().email().required(),
@@ -38,9 +50,19 @@ const Register = () => {
 
   const [errors, setErrors] = React.useState({});
   const [isLoading, setIsLoading] = React.useState(false);
-  const { setUserData } = React.useContext(GlobalDataContext);
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
   const [existingCookies, setCookie, removeCookie] = useCookies(['session']);
+  const prevSnackbarOpen = React.useRef(snackbarOpen);
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (prevSnackbarOpen.current && !snackbarOpen) {
+      closePopups();
+      navigate("/login");
+    }
+    prevSnackbarOpen.current = snackbarOpen;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [snackbarOpen]);
 
   React.useEffect(() => {
       let eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
@@ -49,7 +71,7 @@ const Register = () => {
       eventer(messageEvent, function (e) {
         if (!(e.data?.orcid_meta || e.data?.redirect || e.data?.interlex)) return;
         const { cookies } = e.data;
-        const { code, orcid_meta, errors, redirect } = e.data.interlex;
+        const { code, errors, redirect } = e.data.interlex;
 
         if (cookies) {
           const _cookies = JSON.parse(cookies);
@@ -79,8 +101,7 @@ const Register = () => {
         }
 
         if (code === 200 || code === 302) {
-          setUserData({ name: orcid_meta.name, id: orcid_meta.orcid });
-          navigate("/")
+          setSnackbarOpen(true);
         } else if (code > 400 && code < 500) {
           let errorMessage = '';
           const keys = Object.keys(errors);
@@ -106,9 +127,9 @@ const Register = () => {
   const handleRedirectInPopup = (url) => {
     setErrors({})
     setIsLoading(true);
-    const popup = window.open(url.includes('?') ? url + "&aspopup=true" : url + "?aspopup=true", "postPopup", "width=600,height=600");
+    const finalURL = `${OLYMPIAN_GODS}${url.includes('?') ? url + "&aspopup=true" : url + "?aspopup=true"}`;
+    const popup = window.open(finalURL, "registrationRedirect", "width=600,height=600");
     if (popup) {
-      // dataForm.submit();
       popup.focus();
     } else {
       alert("Popup blocked. Please allow popups for this site.");
@@ -127,7 +148,7 @@ const Register = () => {
 
       // send a POST request to the server with the form data in a popup window
       const dataForm = document.createElement("form");
-      dataForm.action = `${API_CONFIG.REAL_API.NEWUSER_ILX}?from=orcid-login&aspopup=true`;
+      dataForm.action = `${OLYMPIAN_GODS}${API_CONFIG.REAL_API.NEWUSER_ILX}?from=orcid-login&aspopup=true`;
       dataForm.method = "POST";
       dataForm.style.display = "none";
       dataForm.target = "postPopup";
@@ -140,7 +161,7 @@ const Register = () => {
         dataForm.appendChild(input);
       }
       document.body.appendChild(dataForm);
-      const popup = window.open("", "postPopup", "width=600,height=600");
+      const popup = window.open("", "registrationPopup", "width=600,height=600");
       if (popup) {
         dataForm.submit();
         popup.focus();
@@ -242,6 +263,13 @@ const Register = () => {
           </form>
         </Paper>
       </Box>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={10000}
+        onClose={() => setSnackbarOpen(false)}
+        message="User Registration successful, please login with your credentials"
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      />
     </>
   );
 };

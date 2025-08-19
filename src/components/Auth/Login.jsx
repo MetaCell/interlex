@@ -23,11 +23,22 @@ import { login } from "../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { CheckedIcon, UncheckedIcon, OrcidIcon } from "../../Icons";
 
+const OLYMPIAN_GODS = import.meta.env.MODE === "production" ? "" : API_CONFIG.OLYMPIAN_GODS;
+const popups = [];
 
 const schema = yup.object().shape({
   username: yup.string().required().min(3),
   password: yup.string().required().min(6),
 });
+
+const closePopups = () => {
+  popups.forEach(popup => {
+    if (popup && !popup.closed) {
+      popup.close();
+    }
+  });
+  popups.length = 0; // Clear the array
+}
 
 const Login = () => {
   const [formData, setFormData] = React.useState({
@@ -97,7 +108,8 @@ const Login = () => {
             groupname: userData['groupname'],
             settings: userData
           });
-          navigate("/")
+          closePopups();
+          navigate("/", { replace: true });
         } catch (error) {
           console.error("Error fetching user settings:", error);
           removeCookie('session', { path: '/' });
@@ -130,9 +142,14 @@ const Login = () => {
   const handleRedirectInPopup = (url) => {
     setErrors({})
     setIsLoading(true);
-    const popup = window.open(url.includes('?') ? url + "&aspopup=true" : url + "?aspopup=true", "postPopup", "width=600,height=600");
+    const finalURL = `${OLYMPIAN_GODS}${url.includes('?') ? url + "&aspopup=true" : url + "?aspopup=true"}`;
+    const popup = window.open(
+      finalURL,
+      "loginRedirect",
+      "width=600,height=600"
+    );
     if (popup) {
-      // dataForm.submit();
+      popups.push(popup);
       popup.focus();
     } else {
       alert("Popup blocked. Please allow popups for this site.");
@@ -156,10 +173,6 @@ const Login = () => {
 
       const result = await login({ username: formData.username, password: formData.password })
       if (!result.data || !result.data?.orcid_meta) {
-        // setErrors((prev) => ({
-        //   ...prev,
-        //   auth: "Interlex API is not returning the user information, reminder to ask Tom to send the groupname back so that we can query the priv/setting endpoint to get the rest of the info required",
-        // }));
         try {
           const userData = await requestUserSettings(formData.username);
           localStorage.setItem(API_CONFIG.SESSION_DATA.SETTINGS, JSON.stringify(userData));
@@ -171,7 +184,8 @@ const Login = () => {
             groupname: userData['groupname'],
             settings: userData
           });
-          navigate("/")
+          closePopups();
+          navigate("/", { replace: true });
         } catch (error) {
           console.error("Error fetching user settings:", error);
           removeCookie('session', { path: '/' });
@@ -186,7 +200,8 @@ const Login = () => {
           // TODO: the backend should return the groupname, for now is just returning a message.
           setUserData({ name: orcid_meta.name, id: orcid_meta.orcid });
         }
-        navigate("/")
+        closePopups();
+        navigate("/", { replace: true });
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -201,8 +216,18 @@ const Login = () => {
 
   const handleOrcidSignIn = () => {
     setIsLoading(true)
-    const orcidSignInUrl = `${API_CONFIG.OLYMPIAN_GODS}${API_CONFIG.REAL_API.ORCID_SIGNIN}?aspopup=true`;
-    window.open(orcidSignInUrl, "Orcid Sign In", "width=600,height=800").focus();
+    const orcidSignInUrl = `${OLYMPIAN_GODS}${API_CONFIG.REAL_API.ORCID_SIGNIN}?aspopup=true`;
+    const popup = window.open(orcidSignInUrl, "orcidPopup", "width=600,height=800");
+    if (popup) {
+      popup.focus();
+      popups.push(popup);
+    } else {
+      alert("Popup blocked. Please allow popups for this site.");
+      setErrors((prev) => ({
+        ...prev,
+        auth: "Popup blocked. Please allow popups for this site.",
+      }));
+    }
   };
 
   return (
