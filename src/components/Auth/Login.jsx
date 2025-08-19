@@ -23,11 +23,22 @@ import { login } from "../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { CheckedIcon, UncheckedIcon, OrcidIcon } from "../../Icons";
 
+const OLYMPIAN_GODS = import.meta.env.MODE === "production" ? "" : API_CONFIG.OLYMPIAN_GODS;
+const popups = [];
 
 const schema = yup.object().shape({
   username: yup.string().required().min(3),
   password: yup.string().required().min(6),
 });
+
+const closePopups = () => {
+  popups.forEach(popup => {
+    if (popup && !popup.closed) {
+      popup.close();
+    }
+  });
+  popups.length = 0; // Clear the array
+}
 
 const Login = () => {
   const [formData, setFormData] = React.useState({
@@ -46,13 +57,19 @@ const Login = () => {
     let eventer = window[eventMethod];
     let messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
     eventer(messageEvent, async function (e) {
-      if (!e.data || !e.data.orcid_meta) return;
-      const { code, cookies, groupname } = e.data;
-      if (code === 200 || code === 302) {
+      if (e.data?.source === "react-devtools-bridge") return; // Ignore messages from React DevTools
+      if (!(e.data?.orcid_meta || e.data?.redirect || e.data?.interlex)) return;
+      const { cookies } = e.data;
+      const { code, errors, redirect, groupname } = e.data.interlex;
+
+      if (cookies) {
         const _cookies = JSON.parse(cookies);
         const sessionCookie = _cookies && Object.prototype.hasOwnProperty.call(_cookies, 'session') ? _cookies['session'] : undefined;
         let expires = new Date()
-        if (sessionCookie && (existingCookies['session'] === undefined)) {
+        if (sessionCookie) {
+          if (existingCookies['session']) {
+            removeCookie('session', { path: '/' });
+          }
           expires.setTime(expires.getTime() + (2 * 24 * 60 * 60 * 1000)); // 2 days
           setCookie(
             'session',
@@ -65,24 +82,24 @@ const Login = () => {
             }
           );
         }
-        // Check if the session cookie is present
-        if (!sessionCookie) {
-          setErrors((prev) => ({
-            ...prev,
-            auth: "Session cookie not found. Please try again",
-          }));
-          return;
-        }
+        localStorage.setItem(API_CONFIG.SESSION_DATA.COOKIE, JSON.stringify({
+          name: 'session',
+          value: sessionCookie,
+          expires: expires
+        }));
+        localStorage.setItem("token", sessionCookie)
+      }
+
+      if (redirect) {
+        handleRedirectInPopup(redirect);
+        return;
+      }
+
+      if (code === 200 || code === 302) {
         // Retrieve user settings
         try {
           const userData = await requestUserSettings(groupname);
           localStorage.setItem(API_CONFIG.SESSION_DATA.SETTINGS, JSON.stringify(userData));
-          localStorage.setItem(API_CONFIG.SESSION_DATA.COOKIE, JSON.stringify({
-            name: 'session',
-            value: sessionCookie,
-            expires: expires
-          }));
-          localStorage.setItem("token", sessionCookie)
           setUserData({
             name: userData['groupname'],
             id: userData['orcid'],
@@ -91,7 +108,8 @@ const Login = () => {
             groupname: userData['groupname'],
             settings: userData
           });
-          navigate("/")
+          closePopups();
+          navigate("/", { replace: true });
         } catch (error) {
           console.error("Error fetching user settings:", error);
           removeCookie('session', { path: '/' });
@@ -100,11 +118,16 @@ const Login = () => {
             auth: "Failed to fetch user settings. Please try again",
           }));
         }
-      } else if (code === 401) {
-        setErrors((prev) => ({
-          ...prev,
-          auth: "Invalid username or password. Please try again",
-        }));
+      } else if (code > 400 && code < 500) {
+          let errorMessage = '';
+          const keys = Object.keys(errors);
+          if (keys.length > 0) {
+            errorMessage = String(keys[0]) + ' ' + errors[keys[0]];
+          }
+          setErrors((prev) => ({
+            ...prev,
+            auth: errorMessage || "Invalid username or password. Please try again",
+          }));
       } else {
         setErrors((prev) => ({
           ...prev,
@@ -115,6 +138,27 @@ const Login = () => {
     setIsLoading(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
+
+  const handleRedirectInPopup = (url) => {
+    setErrors({})
+    setIsLoading(true);
+    const finalURL = `${OLYMPIAN_GODS}${url.includes('?') ? url + "&aspopup=true" : url + "?aspopup=true"}`;
+    const popup = window.open(
+      finalURL,
+      "loginRedirect",
+      "width=600,height=600"
+    );
+    if (popup) {
+      popups.push(popup);
+      popup.focus();
+    } else {
+      alert("Popup blocked. Please allow popups for this site.");
+      setErrors((prev) => ({
+        ...prev,
+        auth: "Popup blocked. Please allow popups for this site.",
+      }));
+    }
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -129,17 +173,35 @@ const Login = () => {
 
       const result = await login({ username: formData.username, password: formData.password })
       if (!result.data || !result.data?.orcid_meta) {
-        setErrors((prev) => ({
-          ...prev,
-          auth: "Interlex API is not returning the user information, reminder to ask Tom to send the groupname back so that we can query the priv/setting endpoint to get the rest of the info required",
-        }));
+        try {
+          const userData = await requestUserSettings(formData.username);
+          localStorage.setItem(API_CONFIG.SESSION_DATA.SETTINGS, JSON.stringify(userData));
+          setUserData({
+            name: userData['groupname'],
+            id: userData['orcid'],
+            email: userData?.emails[0]?.email,
+            role: userData['own-role'],
+            groupname: userData['groupname'],
+            settings: userData
+          });
+          closePopups();
+          navigate("/", { replace: true });
+        } catch (error) {
+          console.error("Error fetching user settings:", error);
+          removeCookie('session', { path: '/' });
+          setErrors((prev) => ({
+            ...prev,
+            auth: "Failed to fetch user settings. Please try again",
+          }));
+        }
       } else {
         const { code, orcid_meta } = result.data;
         if (code === 200 || code === 302) {
           // TODO: the backend should return the groupname, for now is just returning a message.
           setUserData({ name: orcid_meta.name, id: orcid_meta.orcid });
         }
-        navigate("/")
+        closePopups();
+        navigate("/", { replace: true });
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -154,8 +216,18 @@ const Login = () => {
 
   const handleOrcidSignIn = () => {
     setIsLoading(true)
-    const orcidSignInUrl = `${API_CONFIG.OLYMPIAN_GODS}${API_CONFIG.REAL_API.ORCID_SIGNIN}?aspopup=true`;
-    window.open(orcidSignInUrl, "Orcid Sign In", "width=600,height=800").focus();
+    const orcidSignInUrl = `${OLYMPIAN_GODS}${API_CONFIG.REAL_API.ORCID_SIGNIN}?aspopup=true`;
+    const popup = window.open(orcidSignInUrl, "orcidPopup", "width=600,height=800");
+    if (popup) {
+      popup.focus();
+      popups.push(popup);
+    } else {
+      alert("Popup blocked. Please allow popups for this site.");
+      setErrors((prev) => ({
+        ...prev,
+        auth: "Popup blocked. Please allow popups for this site.",
+      }));
+    }
   };
 
   return (

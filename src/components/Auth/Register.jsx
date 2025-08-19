@@ -8,20 +8,36 @@ import {
   Typography,
   Alert,
   CircularProgress,
+  Snackbar,
 } from "@mui/material";
 import * as yup from "yup";
 import FormField from "./UI/Formfield";
 import { API_CONFIG } from "../../config";
+import { useCookies } from 'react-cookie';
 import PasswordField from "./UI/PasswordField";
 import { ArrowBack } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
-import { GlobalDataContext } from "../../contexts/DataContext";
-// import { register } from "../../api/endpoints/apiService";
+// import { GlobalDataContext } from "../../contexts/DataContext";
+
+const OLYMPIAN_GODS = import.meta.env.MODE === "production" ? "" : API_CONFIG.OLYMPIAN_GODS;
+const popups = []; // Array to keep track of open popups
+
+const closePopups = () => {
+  popups.forEach(popup => {
+    if (popup && !popup.closed) {
+      popup.close();
+    }
+  });
+  popups.length = 0; // Clear the array
+}
 
 const schema = yup.object().shape({
   email: yup.string().email().required(),
   username: yup.string().required().min(3),
   password: yup.string().required().min(10),
+  confirmPassword: yup.string()
+    .required('Please confirm your password')
+    .oneOf([yup.ref('password'), null], 'Passwords must match'),
 });
 
 const Register = () => {
@@ -29,28 +45,72 @@ const Register = () => {
     username: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
 
   const [errors, setErrors] = React.useState({});
   const [isLoading, setIsLoading] = React.useState(false);
-  const { setUserData } = React.useContext(GlobalDataContext);
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [existingCookies, setCookie, removeCookie] = useCookies(['session']);
+  const prevSnackbarOpen = React.useRef(snackbarOpen);
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (prevSnackbarOpen.current && !snackbarOpen) {
+      closePopups();
+      navigate("/login");
+    }
+    prevSnackbarOpen.current = snackbarOpen;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [snackbarOpen]);
 
   React.useEffect(() => {
       let eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
       let eventer = window[eventMethod];
       let messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
       eventer(messageEvent, function (e) {
-        if (!e.data || !e.data.orcid_meta) return;
-        const { code, orcid_meta } = e.data;
+        if (!(e.data?.orcid_meta || e.data?.redirect || e.data?.interlex)) return;
+        const { cookies } = e.data;
+        const { code, errors, redirect } = e.data.interlex;
+
+        if (cookies) {
+          const _cookies = JSON.parse(cookies);
+          const sessionCookie = _cookies && Object.prototype.hasOwnProperty.call(_cookies, 'session') ? _cookies['session'] : undefined;
+          let expires = new Date()
+          if (sessionCookie) {
+            if (existingCookies['session']) {
+              removeCookie('session', { path: '/' });
+            }
+            expires.setTime(expires.getTime() + (2 * 24 * 60 * 60 * 1000)); // 2 days
+            setCookie(
+              'session',
+              sessionCookie,
+              {
+                path: '/',
+                secure: false,
+                sameSite: false,
+                httpOnly: false
+              }
+            );
+          }
+        }
+
+        if (redirect) {
+          handleRedirectInPopup(redirect);
+          return;
+        }
 
         if (code === 200 || code === 302) {
-          setUserData({ name: orcid_meta.name, id: orcid_meta.orcid });
-          navigate("/")
-        } else if (code === 401) {
+          setSnackbarOpen(true);
+        } else if (code > 400 && code < 500) {
+          let errorMessage = '';
+          const keys = Object.keys(errors);
+          if (keys.length > 0) {
+            errorMessage = String(keys[0]) + ' ' + errors[keys[0]];
+          }
           setErrors((prev) => ({
             ...prev,
-            auth: "Invalid username or password. Please try again",
+            auth: errorMessage || "Invalid username or password. Please try again",
           }));
         } else {
           setErrors((prev) => ({
@@ -64,6 +124,22 @@ const Register = () => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoading]);
 
+  const handleRedirectInPopup = (url) => {
+    setErrors({})
+    setIsLoading(true);
+    const finalURL = `${OLYMPIAN_GODS}${url.includes('?') ? url + "&aspopup=true" : url + "?aspopup=true"}`;
+    const popup = window.open(finalURL, "registrationRedirect", "width=600,height=600");
+    if (popup) {
+      popup.focus();
+    } else {
+      alert("Popup blocked. Please allow popups for this site.");
+      setErrors((prev) => ({
+        ...prev,
+        auth: "Popup blocked. Please allow popups for this site.",
+      }));
+    }
+  }
+
   const registerUser = async () => {
     try {
       await schema.validate(formData, { abortEarly: false })
@@ -72,7 +148,7 @@ const Register = () => {
 
       // send a POST request to the server with the form data in a popup window
       const dataForm = document.createElement("form");
-      dataForm.action = `${API_CONFIG.REAL_API.NEWUSER_ILX}`;
+      dataForm.action = `${OLYMPIAN_GODS}${API_CONFIG.REAL_API.NEWUSER_ILX}?from=orcid-login&aspopup=true`;
       dataForm.method = "POST";
       dataForm.style.display = "none";
       dataForm.target = "postPopup";
@@ -85,7 +161,7 @@ const Register = () => {
         dataForm.appendChild(input);
       }
       document.body.appendChild(dataForm);
-      const popup = window.open("", "postPopup", "width=600,height=600");
+      const popup = window.open("", "registrationPopup", "width=600,height=600");
       if (popup) {
         dataForm.submit();
         popup.focus();
@@ -161,9 +237,24 @@ const Register = () => {
                 errorMessage={errors.password}
                 helperText="Required"
               />
+              <PasswordField
+                label="Confirm Password"
+                placeholder="Re-enter your password"
+                value={formData.confirmPassword}
+                onChange={(e) =>
+                  setFormData({ ...formData, confirmPassword: e.target.value })
+                }
+                errorMessage={errors.confirmPassword}
+                helperText="Passwords must match"
+              />
               <Grid item xs={12}>
                 <FormControl>
-                  <Button variant="contained" color="primary" onClick={registerUser}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={registerUser}
+                    disabled={formData.password !== formData.confirmPassword || !formData.password || !formData.confirmPassword}
+                  >
                     Register
                   </Button>
                 </FormControl>
@@ -172,6 +263,13 @@ const Register = () => {
           </form>
         </Paper>
       </Box>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={10000}
+        onClose={() => setSnackbarOpen(false)}
+        message="User Registration successful, please login with your credentials"
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      />
     </>
   );
 };
