@@ -290,7 +290,7 @@ export const getVariants = async (group: string, term: string) => {
 };
 
 export const getVersions = async (group: string, term: string) => {
-  return createGetRequest<any, any>(`/${group}/versions/${term}`, "application/json")();
+  return createGetRequest<any, any>(`/${group}/${term}/versions`, "application/json")();
 };
 
 export const getTermDiscussions = async (group: string, variantID: string) => {
