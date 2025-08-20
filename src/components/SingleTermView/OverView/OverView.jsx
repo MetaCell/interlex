@@ -12,21 +12,6 @@ import RawDataViewer from "./RawDataViewer";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getMatchTerms, getRawData, getTermHierarchies } from "../../../api/endpoints/apiService";
 
-
-// ---- Normalize any backend shape -> triples ----
-function extractTriples(result) {
-  if (result?.results?.bindings) {
-    return result.results.bindings.map((b) => ({
-      subject:   { id: b.subject?.value ?? "",   label: b.subject?.value ?? "" },
-      predicate: { id: b.predicate?.value ?? "", label: b.predicate?.value ?? "" },
-      object:    { id: b.object?.value ?? "",    label: b.object?.value ?? "" },
-    }));
-  }
-  if (Array.isArray(result?.triples)) return result.triples;
-  if (Array.isArray(result)) return result;
-  return [];
-}
-
 const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat, group = "base" }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -101,7 +86,7 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat, group = "
   // Fetch hierarchies for selectedValue
   const fetchHierarchies = useCallback(async (curieLike, groupname) => {
     try {
-      const [resChildren, resSupers] = await Promise.all([
+      await Promise.all([
         getTermHierarchies({ groupname, termId: curieLike, objToSub: true }),
         getTermHierarchies({ groupname, termId: curieLike, objToSub: false }),
       ]);
