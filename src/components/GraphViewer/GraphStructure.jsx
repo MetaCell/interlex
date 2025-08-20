@@ -3,58 +3,108 @@ export const PREDICATE = "predicate";
 export const SUBJECT = "subject";
 export const ROOT = "root";
 
-// TODO : Temporary until we get real data for predicates, right now parsing to make URLs
-// fit on Graph
-const getName = (nodeName) => {
-  let name = nodeName
+// tiny helpers
+const safe = (v, fallback = "unknown") => {
+  if (v == null) return fallback;
+  const s = String(v).trim();
+  return s.length ? s : fallback;
+};
 
-  if ( name == undefined ) {
-    return "name";
+// Normalize predicate group into a rows array:
+// [{ subject, subjectId, object, objectId }]
+function normalizeRows(pred) {
+  if (!pred) return [];
+
+  // 1) new shape from getTermHierarchies grouping
+  if (Array.isArray(pred.rows) && pred.rows.length) return pred.rows;
+  if (Array.isArray(pred.values) && pred.values.length) return pred.values;
+
+  // 2) legacy tableData
+  if (Array.isArray(pred.tableData) && pred.tableData.length) {
+    return pred.tableData.map(r => ({
+      subject: r.subject,
+      subjectId: r.subject, // no id in legacy, use label
+      object: r.object,
+      objectId: r.object,
+    }));
   }
 
-  return name;
+  // 3) edges fallback
+  if (Array.isArray(pred.edges) && pred.edges.length) {
+    return pred.edges.map(e => ({
+      subject: e?.from?.label || e?.from?.id,
+      subjectId: e?.from?.id || e?.from?.label,
+      object: e?.to?.label || e?.to?.id,
+      objectId: e?.to?.id || e?.to?.label,
+    }));
+  }
+
+  return [];
 }
 
+// Pick a root subject (most frequent). Fallback to first row.
+function pickRoot(rows) {
+  if (!rows.length) return { key: "unknown", label: "unknown" };
+  const counts = new Map();
+  const firstLabelById = new Map();
+  for (const r of rows) {
+    const id = r.subjectId || r.subject;
+    if (!id) continue;
+    counts.set(id, (counts.get(id) || 0) + 1);
+    if (!firstLabelById.has(id)) firstLabelById.set(id, r.subject || r.subjectId || id);
+  }
+  let rootKey = null, max = -1;
+  for (const [k, v] of counts.entries()) {
+    if (v > max) { max = v; rootKey = k; }
+  }
+  if (!rootKey) {
+    const r0 = rows[0];
+    const id = r0.subjectId || r0.subject || "unknown";
+    return { key: id, label: r0.subject || id };
+  }
+  return { key: rootKey, label: firstLabelById.get(rootKey) || rootKey };
+}
+
+// Build Root → Predicate → Unique Objects
 export const getGraphStructure = (pred) => {
-  let data = {
-    name : pred?.tableData[0]?.subject,
-    id : pred?.tableData[0]?.subject,
-    type : ROOT,
-    value : pred.count,
-    children : []
+  const rows = normalizeRows(pred);
+  if (!rows.length) {
+    return { name: "No data", id: "no-data", type: ROOT, value: 0, children: [] };
   }
 
-  let uniqueObjects = [];
+  const { key: rootKey, label: rootLabel } = pickRoot(rows);
+  const forRoot = rows.filter(r => (r.subjectId || r.subject) === rootKey);
 
-  pred?.tableData?.forEach( child => {
-    let newChild = { name : getName(child.object), id : child.object, type : OBJECT};
+  const predicateLabel = safe(pred?.title, "predicate");
+  const predicateId = predicateLabel;
 
-    let getExistingObject = uniqueObjects?.find( c => c.id === child.object );
-    if ( getExistingObject ) {
-      // Object already exists, just add it to the predicate's children
-      let getExistingPredicate = data.children?.find( c => c.id === child.predicate );
-      if ( getExistingPredicate ) {
-        getExistingPredicate.children.push(newChild)
-      }
-    } else {
-      // New object, add it to uniqueObjects and process normally
-      uniqueObjects.push(newChild);
-      
-      let getExistingPredicate = data?.children?.find( c => c.id === child.predicate );
-      if ( getExistingPredicate ) {
-        getExistingPredicate.children.push(newChild)
-      } else {
-        let newPredicate = {
-          name : getName(child.predicate),
-          id : child.predicate,
-          type : PREDICATE,
-          children : [newChild]
-        }
+  const seen = new Set();
+  const objects = [];
+  for (const r of forRoot) {
+    const oid = r.objectId || r.object;
+    if (!oid) continue;
+    if (seen.has(oid)) continue;
+    seen.add(oid);
+    objects.push({
+      name: safe(r.object),
+      id: safe(oid),
+      type: OBJECT,
+      children: [],
+    });
+  }
 
-        data.children.push(newPredicate)
-      }
-    }
-  })
-
-  return data;
-}
+  return {
+    name: safe(rootLabel),
+    id: safe(rootKey),
+    type: ROOT,
+    value: forRoot.length || pred?.count || 0,
+    children: [
+      {
+        name: predicateLabel,
+        id: predicateId,
+        type: PREDICATE,
+        children: objects,
+      },
+    ],
+  };
+};

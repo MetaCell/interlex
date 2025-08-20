@@ -159,7 +159,27 @@ export default defineConfig({
             res.setHeader('Access-Control-Allow-Credentials', 'true');
           });
         },
-      }
+      },
+      '^/[^/]+/query/transitive/.*': {
+        target: 'https://uri.olympiangods.org',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path, // keep full path
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq, req) => {
+            // pass through auth/cookies if present
+            if (req.headers.authorization) proxyReq.setHeader('Authorization', req.headers.authorization);
+            if (req.headers.cookie) proxyReq.setHeader('Cookie', req.headers.cookie);
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            // helpful CORS for credentialed requests in dev
+            const origin = req.headers.origin;
+            if (origin) res.setHeader('Access-Control-Allow-Origin', origin);
+            res.setHeader('Access-Control-Allow-Credentials', 'true');
+            res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
+          });
+        },
+      },
     },
   },
 });

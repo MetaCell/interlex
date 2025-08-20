@@ -1,180 +1,146 @@
 import * as d3 from "d3";
 import PropTypes from "prop-types";
 import { Box } from "@mui/material";
-import { useMemo, useEffect } from "react";
-import { getGraphStructure, PREDICATE, ROOT} from "./GraphStructure";
+import { useMemo, useEffect, useCallback } from "react";
+import { getGraphStructure, PREDICATE, ROOT } from "./GraphStructure";
 import { vars } from "../../theme/variables";
 const { gray600, white } = vars;
 
 const MARGIN = { top: 60, right: 60, bottom: 60, left: 60 };
 
 const Graph = ({ width, height, predicate }) => {
-  const boundsWidth = width - (MARGIN.right + MARGIN.left * 4);
-  const boundsHeight = height - MARGIN.top - MARGIN.bottom;
+  const boundsWidth = Math.max(0, width - (MARGIN.right + MARGIN.left * 4));
+  const boundsHeight = Math.max(0, height - MARGIN.top - MARGIN.bottom);
 
-  // Three function that change the tooltip when user hover / move / leave a cell
-  const mouseover = (event) => {
-    d3.select("#tooltip")
-      .html(event.currentTarget.id)
-      .style("opacity", 1)
-    d3.select("#tooltip")
-  }
-  const mousemove = (event) => {
+  const mouseover = useCallback((event) => {
+    d3.select("#tooltip").html(event.currentTarget.id).style("opacity", 1);
+  }, []);
+  const mousemove = useCallback((event) => {
     d3.select("#tooltip")
       .style("left", `${event.clientX + 10}px`)
       .style("top", `${event.clientY + 10}px`);
-  }
-  // eslint-disable-next-line no-unused-vars
-  const mouseleave = (d) => {
-    d3.select("#tooltip").style("opacity", 0)
-  }
-
-  useEffect(() => {
-    // attach mouse listeners
-    const nodes = d3.selectAll(".node--leaf-g");
-    nodes
-      .on("mouseover", mouseover)
-      .on("mousemove", mousemove)
-      .on("mouseleave", mouseleave);
-
-    // Hide tooltip on scroll
-    window.addEventListener("scroll", () => {
-      d3.select("#tooltip").style("opacity", 0);
-    });
-
-    return () => {
-      nodes.on("mouseover", null).on("mousemove", null).on("mouseleave", null);
-      window.removeEventListener("scroll", () => {});
-    };
+  }, []);
+  const mouseleave = useCallback(() => {
+    d3.select("#tooltip").style("opacity", 0);
+  }, []);
+  const onScroll = useCallback(() => {
+    d3.select("#tooltip").style("opacity", 0);
   }, []);
 
   const hierarchy = useMemo(() => {
-    const data = getGraphStructure(predicate)
-    return d3.hierarchy(data).sum((d) => d.value);
+    const data = getGraphStructure(predicate);
+    return d3.hierarchy(data).sum((d) => d.value || 1);
   }, [predicate]);
 
   const dendrogram = useMemo(() => {
-    const dendrogramGenerator = d3.cluster().size([boundsHeight, boundsWidth]);
-    return dendrogramGenerator(hierarchy);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hierarchy, width, height]);
+    const gen = d3.cluster().size([boundsHeight, boundsWidth]);
+    return gen(hierarchy);
+  }, [hierarchy, boundsHeight, boundsWidth]);
+
+  useEffect(() => {
+    const nodes = d3.selectAll(".node--leaf-g");
+    nodes.on("mouseover", mouseover).on("mousemove", mousemove).on("mouseleave", mouseleave);
+    window.addEventListener("scroll", onScroll);
+    return () => {
+      nodes.on("mouseover", null).on("mousemove", null).on("mouseleave", null);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, [predicate, mouseover, mousemove, mouseleave, onScroll]);
 
   const allNodes = dendrogram.descendants().map((node) => {
-    let textOffset = 0;
-    if (node.data.type === PREDICATE || node.data.type === ROOT) {
-      textOffset = -40;
-    } else {
-      textOffset = 5;
-    }
-  
-    const truncatedName = node.data.name.length > 25
-      ? `${node.data.name.substring(0, 25)}...`
-      : node.data.name;
-  
+    const isGroup = node.data.type === PREDICATE || node.data.type === ROOT;
+    const textOffset = isGroup ? -40 : 5;
+    const label = String(node.data.name ?? "unknown");
+    const truncated = label.length > 25 ? `${label.slice(0, 25)}...` : label;
+
     return (
-      <g key={node.id}>
+      <g key={`${node.data.id}-${node.x}-${node.y}`}>
         <text
-          x={node.y + textOffset} // Flip the x-coordinate
-          y={node.x - ((node.data.type === ROOT || node.data.type === PREDICATE) ? 10 : 0)}
-          id={node.data.name}
+          x={node.y + textOffset}
+          y={node.x - (isGroup ? 10 : 0)}
+          id={label}
           className="node--leaf-g"
           fontSize={12}
-          textAnchor="start" // Align text to the start
+          textAnchor="start"
           alignmentBaseline="middle"
           fill="black"
-          target="_blank"
-          href={node.data.name}
         >
-          {truncatedName}
+          {truncated}
         </text>
       </g>
     );
   });
 
-  const allEdges = dendrogram.descendants().map((node, index) => {
+  const allEdges = dendrogram.descendants().map((node, i) => {
     if (!node.parent) {
-      // Add a black circle at the root
-      return (
-        <circle
-          key={`root-circle-${index}`}
-          cx={node.y}
-          cy={node.x}
-          r={5} // Circle radius
-          fill="grey"
-        />
-      );
+      return <circle key={`root-${i}`} cx={node.y} cy={node.x} r={5} fill="grey" />;
     }
-  
-    const line = d3
-      .line()
-      .x(d => d[0])
-      .y(d => d[1])
-      .curve(d3.curveBundle.beta(0.75));
-  
+    const line = d3.line().x((d) => d[0]).y((d) => d[1]).curve(d3.curveBundle.beta(0.75));
     const start = [node.parent.y, node.parent.x];
     const end = [node.y, node.x];
-    const radius = 5;
-  
-    const points = [
-      start,
-      [start[0] - radius, end[1]],
-      end,
-    ];
-  
+    const points = [start, [start[0] - 5, end[1]], end];
     return (
       <path
-        key={`${node.id}-${index}`}
+        key={`edge-${i}`}
         fill="none"
         stroke="grey"
-        markerEnd="url(#arrowhead)" // Add arrowhead at the end
+        markerEnd="url(#arrowhead)"
         d={line(points)}
       />
     );
   });
 
+  const hasChildren =
+    hierarchy && hierarchy.data && Array.isArray(hierarchy.data.children) && hierarchy.data.children.length > 0;
+
   return (
-    <Box id="div_template" >
-      <Box id="tooltip" style={{
-        position: "fixed",
-        pointerEvents: "none",
-        opacity: 0,
-        zIndex: 1000,
-        background: gray600,
-        color: white,
-        padding: "0.5rem",
-        borderRadius: "0.5rem",
-      }}>
-      </Box>
-      <svg width={width} height={height} >
-      <defs>
-        <marker
-          id="arrowhead"
-          viewBox="0 0 10 10"
-          refX="10"
-          refY="5"
-          fill="grey"
-          markerWidth="10"
-          markerHeight="10"
-          orient="auto"
-        >
-          <path d="M 0 0 L 10 5 L 0 10 z" />
-        </marker>
-      </defs>
+    <Box>
+      <Box
+        id="tooltip"
+        style={{
+          position: "fixed",
+          pointerEvents: "none",
+          opacity: 0,
+          zIndex: 1000,
+          background: gray600,
+          color: white,
+          padding: "0.5rem",
+          borderRadius: "0.5rem",
+        }}
+      />
+      <svg width={width} height={height}>
+        <defs>
+          <marker
+            id="arrowhead"
+            viewBox="0 0 10 10"
+            refX="10"
+            refY="5"
+            fill="grey"
+            markerWidth="10"
+            markerHeight="10"
+            orient="auto"
+          >
+            <path d="M 0 0 L 10 5 L 0 10 z" />
+          </marker>
+        </defs>
         <g
           width={boundsWidth}
           height={boundsHeight}
           transform={`translate(${[MARGIN.left, MARGIN.top].join(",")})`}
         >
-          {allNodes}
-          {allEdges}
+          {hasChildren ? (
+            <>
+              {allNodes}
+              {allEdges}
+            </>
+          ) : (
+            // fallback: show root only with a hint
+            <text x={0} y={0} fontSize={12} fill="grey">
+              No graph data
+            </text>
+          )}
         </g>
       </svg>
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'end',
-        m: '1rem 8rem auto',
-      }}>
-      </Box>
     </Box>
   );
 };
@@ -182,7 +148,14 @@ const Graph = ({ width, height, predicate }) => {
 Graph.propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
-  predicate: PropTypes.string.isRequired,
+  // IMPORTANT: now expects the predicate GROUP object (with rows/values/edges or legacy tableData)
+  predicate: PropTypes.shape({
+    title: PropTypes.string,
+    rows: PropTypes.array,
+    values: PropTypes.array,
+    edges: PropTypes.array,
+    tableData: PropTypes.array,
+  }).isRequired,
 };
 
 export default Graph;
