@@ -97,15 +97,15 @@ HeaderRightSideContent.propTypes = {
     isCreateButtonDisabled: PropTypes.bool.isRequired
 };
 
-const AddNewTermDialog = ({ open, handleClose, searchTerm }) => {
+const AddNewTermDialog = ({ open, handleClose }) => {
     const [activeStep, setActiveStep] = useState(0);
-    const [addTermResponse, setAddTermResponse] = useState(null);
+    const [addTermResponse] = useState(null);
     const [selectedType, setSelectedType] = useState(null);
     const [termValue, setTermValue] = useState("");
     const [exactSynonyms, setExactSynonyms] = useState([]);
     const [existingIds, setExistingIds] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [hasExactMatch, setHasExactMatch] = useState(false);
+    const [hasExactMatch] = useState(false);
     const { user } = useContext(GlobalDataContext);
     const navigate = useNavigate();
 
@@ -159,7 +159,7 @@ const AddNewTermDialog = ({ open, handleClose, searchTerm }) => {
         } finally {
             setLoading(false);
         }
-    }, [termValue, selectedType, exactSynonyms, existingIds, user, hasExactMatch, navigate]);
+    }, [termValue, selectedType, user, hasExactMatch, navigate]);
 
     if (loading) {
         return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>

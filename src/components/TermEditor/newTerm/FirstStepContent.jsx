@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { useState, useCallback, useEffect, useContext } from "react";
 import { debounce } from "lodash";
 import {
@@ -60,7 +61,6 @@ const FirstStepContent = ({ term, type, existingIds, synonyms, handleTermChange,
     const [openSidebar, setOpenSidebar] = useState(true);
     const [loading, setLoading] = useState(false);
     const [hasExactMatch, setHasExactMatch] = useState(false);
-    const [searchError, setSearchError] = useState(null);
 
     const [synonymOptions] = useState([]);
     const [idOptions] = useState([]);
@@ -76,7 +76,6 @@ const FirstStepContent = ({ term, type, existingIds, synonyms, handleTermChange,
             }
 
             setLoading(true);
-            setSearchError(null);
 
             try {
                 const response = await elasticSearch(searchTerm, 10);
@@ -107,7 +106,6 @@ const FirstStepContent = ({ term, type, existingIds, synonyms, handleTermChange,
 
                 setTermResults(sortedResults);
             } catch (error) {
-                setSearchError("Failed to search for existing terms");
                 setTermResults([]);
                 setHasExactMatch(false);
             } finally {
@@ -252,6 +250,18 @@ const FirstStepContent = ({ term, type, existingIds, synonyms, handleTermChange,
             />
         </Box>
     );
+};
+
+FirstStepContent.propTypes = {
+    term: PropTypes.string,
+    type: PropTypes.string,
+    existingIds: PropTypes.array,
+    synonyms: PropTypes.array,
+    handleTermChange: PropTypes.func,
+    handleTypeChange: PropTypes.func,
+    handleExistingIdChange: PropTypes.func,
+    handleSynonymChange: PropTypes.func,
+    handleDialogClose: PropTypes.func,
 };
 
 export default FirstStepContent;

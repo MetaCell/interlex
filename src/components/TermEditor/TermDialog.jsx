@@ -9,7 +9,7 @@ import AddNewTermDialogContent from "./AddNewTermDialogContent";
 import { Box, Divider, MobileStepper, Stack, Button } from "@mui/material";
 
 import { vars } from "../../theme/variables";
-const { gray100, gray200, gray400, brand700 } = vars;
+const { gray100, gray200, gray400 } = vars;
 
 const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueButtonDisabled }) => (
     <Box display='flex' alignItems='center'>

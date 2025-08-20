@@ -7,7 +7,7 @@ import PredicateGroupInput from "../../SingleTermView/OverView/PredicateGroupInp
 import { HelpOutlinedIcon } from "../../../Icons"
 import { vars } from "../../../theme/variables"
 
-const { white, gray300, gray500, gray600, gray800, gray700 } = vars
+const { white, gray300, gray500, gray600, gray800 } = vars
 
 const URI_PREFIX = "http://uri.interlex.org/Interlex/uris/"
 

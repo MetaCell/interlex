@@ -24,7 +24,7 @@ const {
     inputErrorBoxShadow
 } = vars;
 
-const StyledInput = styled(InputBase)(({ theme, error }) => ({
+const StyledInput = styled(InputBase)(({ error }) => ({
     "& .MuiInputBase-input": {
         borderRadius: ".5rem",
         border: error ? `1px solid ${error300}` : `1px solid ${gray300}`,

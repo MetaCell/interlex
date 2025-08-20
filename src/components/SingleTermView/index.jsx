@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useContext, useMemo, useCallback } from "react";
+import { useState, useEffect, useContext, useMemo, useCallback } from "react";
 import {
   Box,
   Button,
@@ -62,7 +62,6 @@ const formatExtensions = {
 const SingleTermView = () => {
   const { group, term, tab } = useParams();
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
   const [dataFormatAnchorEl, setDataFormatAnchorEl] = useState(null);
   const [isCodeViewVisible, setIsCodeViewVisible] = useState(false);
   const [toggleButtonValue, setToggleButtonValue] = useState('defaultView');
@@ -281,22 +280,18 @@ const SingleTermView = () => {
 
   const handleAddToActiveOntology = () => {
     console.log('Add term to active ontology');
-    setOpen(false);
   };
 
   const handleCreateFork = () => {
     console.log('Create fork');
-    setOpen(false);
   };
 
   const handleAddToAnotherOntology = () => {
     console.log('Add term to another ontology');
-    setOpen(false);
   };
 
   const handleRemoveFromActiveOntology = () => {
     console.log('Remove from active ontology');
-    setOpen(false);
   };
 
   const menuOptions = [
