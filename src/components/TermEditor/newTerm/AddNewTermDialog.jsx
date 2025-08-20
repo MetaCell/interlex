@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useCallback, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import {
     Box,
@@ -16,6 +17,8 @@ import OntologySearch from '../../SingleTermView/OntologySearch';
 import FirstStepContent from "./FirstStepContent";
 import SecondStepContent from "./SecondStepContent";
 import StatusStep from "../../common/StatusStep";
+import { GlobalDataContext } from "../../../contexts/DataContext";
+import { createNewEntity } from "../../../api/endpoints/apiService";
 import { getAddTermStatusProps } from '../termStatusProps';
 import { CheckedIcon, UncheckedIcon } from '../../../Icons';
 import { vars } from "../../../theme/variables";
@@ -26,7 +29,7 @@ const HeaderRightSideContent = ({
     activeStep,
     onContinue,
     onClose,
-    isContinueButtonDisabled
+    isCreateButtonDisabled
 }) => {
     const [ontologyChecked, setOntologyChecked] = useState(false);
 
@@ -65,9 +68,8 @@ const HeaderRightSideContent = ({
                         <CustomButton onClick={onClose}>Cancel</CustomButton>
                         <Button
                             onClick={onContinue}
-                            disabled={isContinueButtonDisabled}
+                            disabled={isCreateButtonDisabled}
                             variant="contained"
-                            endIcon={<ArrowForwardIcon />}
                             sx={{
                                 padding: '0.625rem 0.875rem',
                                 '&.Mui-disabled': {
@@ -77,7 +79,7 @@ const HeaderRightSideContent = ({
                                 }
                             }}
                         >
-                            Continue
+                            Create new
                         </Button>
                     </Stack>
                 </>
@@ -92,28 +94,58 @@ HeaderRightSideContent.propTypes = {
     activeStep: PropTypes.number.isRequired,
     onContinue: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
-    isContinueButtonDisabled: PropTypes.bool.isRequired
+    isCreateButtonDisabled: PropTypes.bool.isRequired
 };
 
-const AddNewTermDialog = ({
-    open,
-    handleClose,
-    searchTerm
-}) => {
+const AddNewTermDialog = ({ open, handleClose, searchTerm }) => {
     const [activeStep, setActiveStep] = useState(0);
     const [addTermResponse, setAddTermResponse] = useState(null);
-    const [termValue, setTermValue] = useState('');
+    const [selectedType, setSelectedType] = useState(null);
+    const [termValue, setTermValue] = useState("");
+    const [exactSynonyms, setExactSynonyms] = useState([]);
+    const [existingIds, setExistingIds] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [hasExactMatch, setHasExactMatch] = useState(false);
+    const [searchError, setSearchError] = useState(null);
+    const { user, updateStoredSearchTerm } = useContext(GlobalDataContext);
+    const navigate = useNavigate();
 
-    const isSearchTermAvailable = Boolean(searchTerm);
-    const isContinueButtonDisabled = !isSearchTermAvailable;
+    const isCreateButtonDisabled = hasExactMatch || termValue === "";
     const statusProps = getAddTermStatusProps(addTermResponse, termValue);
-
-    const handleContinueClick = () => setActiveStep(activeStep + 1);
 
     const handleCancelBtnClick = () => {
         handleClose();
         setActiveStep(0);
     };
+
+    const createNewTerm = useCallback(async () => {
+        if (!termValue || !selectedType || hasExactMatch) return;
+
+        setLoading(true);
+
+        const token = localStorage.getItem("token");
+        const groupName = user?.groupname || "base";
+        const body = {
+            'rdf-type': selectedType || 'owl:Class',
+            label: termValue,
+            exact: exactSynonyms,
+            existingIds: existingIds
+        };
+
+        try {
+            const response = await createNewEntity({
+                group: groupName,
+                data: body,
+                session: token
+            });
+            navigate(`/terms/${response.term.id.split("/").pop()}`);
+        } catch (error) {
+            console.error("Creation failed:", error);
+            setSearchError("Failed to create new term");
+        } finally {
+            setLoading(false);
+        }
+    }, [termValue, selectedType, exactSynonyms, existingIds, user, hasExactMatch, navigate]);
 
     return (
         <CustomizedDialog
@@ -123,14 +155,14 @@ const AddNewTermDialog = ({
             HeaderRightSideContent={
                 <HeaderRightSideContent
                     activeStep={activeStep}
-                    onContinue={handleContinueClick}
                     onClose={handleCancelBtnClick}
-                    isContinueButtonDisabled={false}
+                    onContinue={createNewTerm}
+                    isCreateButtonDisabled={isCreateButtonDisabled}
                 />
             }
             sx={{ '& .MuiDialogContent-root': { padding: 0, overflowY: "hidden" } }}
         >
-            {activeStep === 0 && <FirstStepContent />}
+            {activeStep === 0 && <FirstStepContent handleDialogClose={handleClose} />}
             {activeStep === 1 && <SecondStepContent />}
             {activeStep === 2 && addTermResponse != null && (
                 <StatusStep statusProps={statusProps} />

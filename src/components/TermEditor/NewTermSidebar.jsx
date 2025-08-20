@@ -21,11 +21,9 @@ const {
     brand600,
     gray900,
     gray600,
-    gray700,
     error300,
     error25,
     error500,
-    gray500
 } = vars;
 
 const SIDEBAR_STYLES = {
@@ -129,7 +127,7 @@ const EmptyState = () => (
     </Box>
 );
 
-const ResultItem = ({ result, searchValue }) => {
+const ResultItem = ({ result, searchValue, onResultAction }) => {
     const isExactMatch = result.label.toLowerCase() === searchValue?.toLowerCase();
 
     const getItemStyles = () => ({
@@ -182,6 +180,7 @@ const ResultItem = ({ result, searchValue }) => {
                                 height: "auto",
                                 '&:hover': { backgroundColor: "transparent" }
                             }}
+                            onClick={() => onResultAction(result)}
                         >
                             Go to term
                         </Button>
@@ -201,15 +200,11 @@ const ResultItem = ({ result, searchValue }) => {
             >
                 {result.definition}
             </Typography>
-            <Stack direction="row" spacing={1}>
-                <Typography variant="subtitle2" sx={{ color: gray700 }}>URI</Typography>
-                <Typography variant="body2" sx={{ color: gray500 }}>http://uri.interlex.org/Interlex/uris/ontologies/nervous-system12/</Typography>
-            </Stack>
         </Box>
     );
 };
 
-const ResultsList = ({ results, searchValue, isResultsEmpty }) => (
+const ResultsList = ({ results, searchValue, isResultsEmpty, onResultAction }) => (
     <Box
         width={1}
         height={1}
@@ -227,6 +222,7 @@ const ResultsList = ({ results, searchValue, isResultsEmpty }) => (
                         key={result.id || result.ilx}
                         result={result}
                         searchValue={searchValue}
+                        onResultAction={onResultAction}
                     />
                 ))}
             </>
@@ -240,7 +236,8 @@ export default function NewTermSidebar({
     onToggle,
     results,
     isResultsEmpty,
-    searchValue
+    searchValue,
+    onResultAction
 }) {
     if (loading) {
         return <LoadingSpinner />;
@@ -274,6 +271,7 @@ export default function NewTermSidebar({
                     results={results}
                     searchValue={searchValue}
                     isResultsEmpty={isResultsEmpty}
+                    onResultAction={onResultAction}
                 />
             )}
         </Box>
@@ -286,5 +284,6 @@ NewTermSidebar.propTypes = {
     onToggle: PropTypes.func.isRequired,
     results: PropTypes.array.isRequired,
     isResultsEmpty: PropTypes.bool.isRequired,
-    searchValue: PropTypes.string.isRequired
+    searchValue: PropTypes.string.isRequired,
+    onResultAction: PropTypes.func,
 };

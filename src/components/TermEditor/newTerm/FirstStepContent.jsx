@@ -1,17 +1,27 @@
-import { useState, useCallback, useEffect } from "react"
-import { debounce } from "lodash"
-import { Box, Divider, Stack, Typography, Autocomplete, Chip, TextField } from "@mui/material"
-import CloseIcon from "@mui/icons-material/Close"
-import CustomSingleSelect from "../../common/CustomSingleSelect"
-import CustomFormField from "../../common/CustomFormField"
-import NewTermSidebar from "../NewTermSidebar"
-import { HelpOutlinedIcon } from "../../../Icons"
-import { elasticSearch } from "../../../api/endpoints"
-import { vars } from "../../../theme/variables"
+import { useState, useCallback, useEffect, useContext } from "react";
+import { debounce } from "lodash";
+import {
+    Box,
+    Divider,
+    Stack,
+    Typography,
+    Autocomplete,
+    Chip,
+    TextField
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { GlobalDataContext } from "../../../contexts/DataContext";
+import CloseIcon from "@mui/icons-material/Close";
+import CustomSingleSelect from "../../common/CustomSingleSelect";
+import CustomFormField from "../../common/CustomFormField";
+import NewTermSidebar from "../NewTermSidebar";
+import { HelpOutlinedIcon } from "../../../Icons";
+import { elasticSearch } from "../../../api/endpoints";
+import { vars } from "../../../theme/variables";
 
 const { white, gray300, gray400, gray500, gray600 } = vars;
 
-const TYPES = ["Term", "Relationship", "Ontology"]
+const TYPES = ["Term", "Relationship", "Ontology"];
 
 const AUTOCOMPLETE_STYLES = {
     "& .MuiOutlinedInput-root": {
@@ -28,14 +38,14 @@ const AUTOCOMPLETE_STYLES = {
     "& .MuiAutocomplete-tag": {
         background: "transparent",
     },
-}
+};
 
 const SYNONYM_CHIP_STYLES = {
     flexDirection: "row !important",
     "& .MuiChip-deleteIcon": {
         color: `${gray400} !important`,
     },
-}
+};
 
 const ID_CHIP_STYLES = {
     flexDirection: "row !important",
@@ -43,77 +53,120 @@ const ID_CHIP_STYLES = {
     "& .MuiChip-deleteIcon": {
         color: `${gray400} !important`,
     },
-}
+};
 
-const FirstStepContent = () => {
+const FirstStepContent = ({ handleDialogClose }) => {
     const [termResults, setTermResults] = useState([]);
-    const [exactSynonyms, setExactSynonyms] = useState([])
-    const [existingIds, setExistingIds] = useState([])
-    const [openSidebar, setOpenSidebar] = useState(true)
-    const [selectedType, setSelectedType] = useState(null)
-    const [termValue, setTermValue] = useState("")
+    const [exactSynonyms, setExactSynonyms] = useState([]);
+    const [existingIds, setExistingIds] = useState([]);
+    const [openSidebar, setOpenSidebar] = useState(true);
+    const [selectedType, setSelectedType] = useState(null);
+    const [termValue, setTermValue] = useState("");
     const [loading, setLoading] = useState(false);
+    const [hasExactMatch, setHasExactMatch] = useState(false);
+    const [searchError, setSearchError] = useState(null);
 
-    const [synonymOptions] = useState([])
-    const [idOptions] = useState([])
+    const [synonymOptions] = useState([]);
+    const [idOptions] = useState([]);
+    const { user, updateStoredSearchTerm } = useContext(GlobalDataContext);
+    const navigate = useNavigate();
 
-    const fetchTerms = useCallback(
-        debounce((searchTerm, type) => {
-            if (!searchTerm && !type) {
+    const searchForMatches = useCallback(
+        debounce(async (searchTerm, type) => {
+            if (!searchTerm || !type) {
                 setTermResults([]);
+                setHasExactMatch(false);
                 return;
             }
 
             setLoading(true);
-            // it should be elastiSearch(searchTerm, type)
-            elasticSearch(searchTerm)
-                .then(data => {
-                    setTermResults(data.results?.results || []);
-                })
-                .catch(error => {
-                    console.error("Search error:", error);
-                    setTermResults([]);
-                })
-                .finally(() => {
-                    setLoading(false);
+            setSearchError(null);
+
+            try {
+                const response = await elasticSearch(searchTerm, 10);
+                const rawResults = response.results.results || [];
+
+                const filteredResults = rawResults.filter(result => {
+                    return result.type === type.toLowerCase() ||
+                        (result.type === "term") ||
+                        (result.type === "relationship") ||
+                        (result.type === "ontology");
                 });
+
+                const exactMatch = filteredResults.find(result =>
+                    result.label?.toLowerCase() === searchTerm.toLowerCase() &&
+                    result.type === type.toLowerCase()
+                );
+
+                setHasExactMatch(!!exactMatch);
+
+                const sortedResults = filteredResults.sort((a, b) => {
+                    const aIsExact = a.label?.toLowerCase() === searchTerm.toLowerCase();
+                    const bIsExact = b.label?.toLowerCase() === searchTerm.toLowerCase();
+
+                    if (aIsExact && !bIsExact) return -1;
+                    if (!aIsExact && bIsExact) return 1;
+                    return 0;
+                });
+
+                setTermResults(sortedResults);
+            } catch (error) {
+                setSearchError("Failed to search for existing terms");
+                setTermResults([]);
+                setHasExactMatch(false);
+            } finally {
+                setLoading(false);
+            }
         }, 500),
         []
     );
 
     const handleSynonymChange = (event, newValue) => {
-        setExactSynonyms(newValue)
-    }
+        setExactSynonyms(newValue);
+    };
 
     const handleExistingIdChange = (event, newValue) => {
-        setExistingIds(newValue)
-    }
+        setExistingIds(newValue);
+    };
 
     const handleTermValueChange = (event) => {
         const value = event.target.value;
         setTermValue(value);
-    }
+    };
 
     const handleTypeChange = (newType) => {
         setSelectedType(newType);
-    }
+    };
 
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
 
+    const navigateToExistingTerm = (searchResult) => {
+        updateStoredSearchTerm(searchResult?.label);
+        const groupName = user?.groupname || 'base';
+        navigate(`/${groupName}/${searchResult?.ilx}/overview`);
+        handleDialogClose();
+    };
+
     const renderChips = (values, getTagProps, chipStyles) => {
         return values.map((option, index) => (
-            <Chip key={index} label={option} deleteIcon={<CloseIcon />} sx={chipStyles} {...getTagProps({ index })} />
-        ))
-    }
-
-    const isResultsEmpty = termResults?.length === 0;
+            <Chip
+                key={index}
+                label={option}
+                deleteIcon={<CloseIcon />}
+                sx={chipStyles}
+                {...getTagProps({ index })}
+            />
+        ));
+    };
 
     useEffect(() => {
-        fetchTerms(termValue, selectedType);
+        if (termValue && selectedType) {
+            searchForMatches(termValue, selectedType);
+        }
         return () => {
-            fetchTerms.cancel();
+            searchForMatches.cancel();
         };
-    }, [termValue, selectedType, fetchTerms]);
+    }, [termValue, selectedType, searchForMatches]);
 
     return (
         <Box display="flex" height={1}>
@@ -160,6 +213,7 @@ const FirstStepContent = () => {
                             value={termValue}
                             onChange={handleTermValueChange}
                             isEndAdornmentVisible
+                            errorMessage={hasExactMatch ? "Your label has an exact match." : null}
                         />
                     </Stack>
 
@@ -211,12 +265,15 @@ const FirstStepContent = () => {
                 loading={loading}
                 onToggle={handleSidebarToggle}
                 results={termResults}
-                isResultsEmpty={isResultsEmpty}
+                isResultsEmpty={termResults.length === 0}
                 searchValue={termValue}
                 selectedType={selectedType}
+                onProceedWithCreation={createNewTerm}
+                error={searchError}
+                onResultAction={navigateToExistingTerm}
             />
         </Box>
-    )
-}
+    );
+};
 
 export default FirstStepContent;
