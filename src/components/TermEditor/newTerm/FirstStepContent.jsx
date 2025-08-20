@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useState, useCallback, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { debounce } from "lodash";
 import {
     Box,
@@ -67,53 +67,50 @@ const FirstStepContent = ({ term, type, existingIds, synonyms, handleTermChange,
     const { user, updateStoredSearchTerm } = useContext(GlobalDataContext);
     const navigate = useNavigate();
 
-    const searchForMatches = useCallback(
-        debounce(async (searchTerm, type) => {
-            if (!searchTerm || !type) {
-                setTermResults([]);
-                setHasExactMatch(false);
-                return;
-            }
+    const searchForMatches = debounce(async (searchTerm, type) => {
+        if (!searchTerm || !type) {
+            setTermResults([]);
+            setHasExactMatch(false);
+            return;
+        }
 
-            setLoading(true);
+        setLoading(true);
 
-            try {
-                const response = await elasticSearch(searchTerm, 10);
-                const rawResults = response.results.results || [];
+        try {
+            const response = await elasticSearch(searchTerm, 10);
+            const rawResults = response.results.results || [];
 
-                const filteredResults = rawResults.filter(result => {
-                    return result.type === type.toLowerCase() ||
-                        (result.type === "term") ||
-                        (result.type === "relationship") ||
-                        (result.type === "ontology");
-                });
+            const filteredResults = rawResults.filter(result => {
+                return result.type === type.toLowerCase() ||
+                    (result.type === "term") ||
+                    (result.type === "relationship") ||
+                    (result.type === "ontology");
+            });
 
-                const exactMatch = filteredResults.find(result =>
-                    result.label?.toLowerCase() === searchTerm.toLowerCase() &&
-                    result.type === type.toLowerCase()
-                );
+            const exactMatch = filteredResults.find(result =>
+                result.label?.toLowerCase() === searchTerm.toLowerCase() &&
+                result.type === type.toLowerCase()
+            );
 
-                setHasExactMatch(!!exactMatch);
+            setHasExactMatch(!!exactMatch);
 
-                const sortedResults = filteredResults.sort((a, b) => {
-                    const aIsExact = a.label?.toLowerCase() === searchTerm.toLowerCase();
-                    const bIsExact = b.label?.toLowerCase() === searchTerm.toLowerCase();
+            const sortedResults = filteredResults.sort((a, b) => {
+                const aIsExact = a.label?.toLowerCase() === searchTerm.toLowerCase();
+                const bIsExact = b.label?.toLowerCase() === searchTerm.toLowerCase();
 
-                    if (aIsExact && !bIsExact) return -1;
-                    if (!aIsExact && bIsExact) return 1;
-                    return 0;
-                });
+                if (aIsExact && !bIsExact) return -1;
+                if (!aIsExact && bIsExact) return 1;
+                return 0;
+            });
 
-                setTermResults(sortedResults);
-            } catch (error) {
-                setTermResults([]);
-                setHasExactMatch(false);
-            } finally {
-                setLoading(false);
-            }
-        }, 500),
-        []
-    );
+            setTermResults(sortedResults);
+        } catch (error) {
+            setTermResults([]);
+            setHasExactMatch(false);
+        } finally {
+            setLoading(false);
+        }
+    }, 500);
 
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
 

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -147,5 +148,21 @@ const CustomButtonGroup = ({
         </Box>
     );
 }
+
+CustomButtonGroup.propTypes = {
+    variant: PropTypes.oneOf(['contained', 'outlined', 'text']),
+    buttonTitle: PropTypes.node.isRequired,
+    buttonIcon: PropTypes.node,
+    options: PropTypes.array,
+    onOptionSelect: PropTypes.func,
+    sx: PropTypes.object,
+};
+
+CustomButtonGroup.defaultProps = {
+    variant: 'contained',
+    buttonIcon: null,
+    options: [],
+    sx: {},
+};
 
 export default CustomButtonGroup;

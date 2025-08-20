@@ -204,32 +204,6 @@ const ResultItem = ({ result, searchValue, onResultAction }) => {
     );
 };
 
-const ResultsList = ({ results, searchValue, isResultsEmpty, onResultAction }) => (
-    <Box
-        width={1}
-        height={1}
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        gap={1}
-    >
-        {isResultsEmpty ? (
-            <EmptyState />
-        ) : (
-            <>
-                {results?.map((result) => (
-                    <ResultItem
-                        key={result.id || result.ilx}
-                        result={result}
-                        searchValue={searchValue}
-                        onResultAction={onResultAction}
-                    />
-                ))}
-            </>
-        )}
-    </Box>
-);
-
 export default function NewTermSidebar({
     open,
     loading,
@@ -267,16 +241,48 @@ export default function NewTermSidebar({
             )}
 
             {open && results && (
-                <ResultsList
-                    results={results}
-                    searchValue={searchValue}
-                    isResultsEmpty={isResultsEmpty}
-                    onResultAction={onResultAction}
-                />
+                <Box
+                    width={1}
+                    height={1}
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="center"
+                    gap={1}
+                >
+                    {isResultsEmpty ? (
+                        <EmptyState />
+                    ) : (
+                        <>
+                            {results?.map((result) => (
+                                <ResultItem
+                                    key={result.id || result.ilx}
+                                    result={result}
+                                    searchValue={searchValue}
+                                    onResultAction={onResultAction}
+                                />
+                            ))}
+                        </>
+                    )}
+                </Box>
             )}
         </Box>
     );
 }
+
+
+ExpandedHeader.propTypes = {
+    onToggle: PropTypes.func.isRequired,
+};
+
+CollapsedHeader.propTypes = {
+    onToggle: PropTypes.func.isRequired,
+};
+
+ResultItem.propTypes = {
+    result: PropTypes.object.isRequired,
+    searchValue: PropTypes.string,
+    onResultAction: PropTypes.func,
+};
 
 NewTermSidebar.propTypes = {
     open: PropTypes.bool.isRequired,

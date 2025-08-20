@@ -47,7 +47,7 @@ const SecondStepContent = () => {
     const [transitiveProperty, setTransitiveProperty] = useState("")
     const [definition, setDefinition] = useState("")
     const [comment, setComment] = useState("")
-    const [searchTerm, setSearchTerm] = useState("Central Nervous System")
+    const [searchTerm] = useState("Central Nervous System")
 
     const [predicates, setPredicates] = useState([
         {

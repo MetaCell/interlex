@@ -69,30 +69,6 @@ const StyledInput = styled(InputBase)(({ error }) => ({
     }
 }));
 
-const InputLabelSection = ({ label, isRequired, textFontSize, labelColor }) => (
-    <Box
-        display="flex"
-        justifyContent="space-between"
-        sx={{ marginBottom: "0.375rem" }}
-    >
-        <Typography
-            variant={textFontSize}
-            sx={{
-                fontWeight: "500 !important",
-                color: labelColor
-            }}
-        >
-            {label}
-        </Typography>
-
-        {isRequired && (
-            <Typography variant={textFontSize} sx={{ color: gray600 }}>
-                Required
-            </Typography>
-        )}
-    </Box>
-);
-
 const getEndAdornment = (endAdornment, errorMessage, isEndAdornmentVisible) => {
     if (endAdornment) {
         return endAdornment;
@@ -152,12 +128,27 @@ const CustomFormField = ({
         <Box sx={{ width: 1 }}>
             <FormControl fullWidth>
                 {label && (
-                    <InputLabelSection
-                        label={label}
-                        isRequired={isRequired}
-                        textFontSize={textFontSize}
-                        labelColor={labelColor}
-                    />
+                    <Box
+                        display="flex"
+                        justifyContent="space-between"
+                        sx={{ marginBottom: "0.375rem" }}
+                    >
+                        <Typography
+                            variant={textFontSize}
+                            sx={{
+                                fontWeight: "500 !important",
+                                color: labelColor
+                            }}
+                        >
+                            {label}
+                        </Typography>
+
+                        {isRequired && (
+                            <Typography variant={textFontSize} sx={{ color: gray600 }}>
+                                Required
+                            </Typography>
+                        )}
+                    </Box>
                 )}
 
                 <FormControl
@@ -192,6 +183,15 @@ const CustomFormField = ({
             </FormControl>
         </Box>
     );
+};
+
+InputMessage.propTypes = {
+    message: PropTypes.string,
+    isError: PropTypes.bool,
+};
+
+InputMessage.defaultProps = {
+    isError: false,
 };
 
 CustomFormField.propTypes = {
