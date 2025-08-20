@@ -71,8 +71,7 @@ const VariantsTable = ({ rows, headCells }) => {
 
     const sortedRows = React.useMemo(
         () => stableSort(rows, getComparator(order, orderBy)),
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [order, orderBy]
+        [order, orderBy, rows]
     );
 
     const displayedRows = React.useMemo(
@@ -107,12 +106,12 @@ const VariantsTable = ({ rows, headCells }) => {
                                             />
                                         </TableCell>
                                         <TableCell>
-                                            <Typography variant='body2' sx={{ color: gray900 }}>{row.originated_user}</Typography>
-                                            <Typography variant='body2' sx={{ color: gray600 }}>{row.originated_user_email}</Typography>
+                                            <Typography variant='body2' sx={{ color: gray900 }}>{row.originatingUser.userName}</Typography>
+                                            {/* <Typography variant='body2' sx={{ color: gray600 }}>{row.originated_user_email}</Typography> */}
                                         </TableCell>
                                         <TableCell>
-                                            <Typography variant='body2' sx={{ color: gray900 }}>{row.editing_user}</Typography>
-                                            <Typography variant='body2' sx={{ color: gray600 }}>{row.editing_user_email}</Typography>
+                                            <Typography variant='body2' sx={{ color: gray900 }}>{row.editingUser.userName}</Typography>
+                                            {/* <Typography variant='body2' sx={{ color: gray600 }}>{row.editing_user_email}</Typography> */}
                                         </TableCell>
                                         <TableCell>
                                             <Box display="flex" gap={0.5} justifyContent="flex-end">

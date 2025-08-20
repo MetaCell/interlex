@@ -1,6 +1,7 @@
 import { createPostRequest, createGetRequest } from "./apiActions";
 import { API_CONFIG } from "../../config";
 import termParser from "../../parsers/termParser";
+import { jsonldToTriplesAndEdges, PART_OF_IRI } from './hiearchies-parser'
 
 export interface LoginRequest {
   username: string
@@ -290,7 +291,7 @@ export const getVariants = async (group: string, term: string) => {
 };
 
 export const getVersions = async (group: string, term: string) => {
-  return createGetRequest<any, any>(`/${group}/versions/${term}`, "application/json")();
+  return createGetRequest<any, any>(`/${group}/${term}/versions`, "application/json")();
 };
 
 export const getTermDiscussions = async (group: string, variantID: string) => {
@@ -299,4 +300,31 @@ export const getTermDiscussions = async (group: string, variantID: string) => {
 
 export const getVariant = (group: string, term: string) => {
   return createGetRequest<any, any>(`/${group}/variant/${term}`, "application/json")();  
+};
+
+export const getTermHierarchies = async ({
+  groupname,
+  termId,
+  objToSub = true,
+}: {
+  groupname: string;
+  termId: string;
+  objToSub?: boolean;
+}) => {
+  const base = `/${groupname}/query/transitive/${encodeURIComponent(termId)}/ilx.partOf:`;
+  const url1 = `${base}?obj-to-sub=${objToSub}`;
+  const url2 = `${base}.jsonld?obj-to-sub=${objToSub}`;
+
+  try {
+    const res1 = await createGetRequest<any, any>(url1, 'application/ld+json')();
+    return jsonldToTriplesAndEdges(res1);
+  } catch {
+    try {
+      const res2 = await createGetRequest<any, any>(url2, 'application/ld+json')();
+      return jsonldToTriplesAndEdges(res2);
+    } catch (e2: any) {
+      console.error('getTermHierarchies failed', e2);
+      return { error: true, message: e2?.message || String(e2) };
+    }
+  }
 };

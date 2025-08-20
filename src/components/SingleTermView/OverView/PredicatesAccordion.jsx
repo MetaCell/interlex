@@ -26,13 +26,10 @@ const { gray600 } = vars;
 const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
   const [toggleButtonValues, setToggleButtonValues] = useState(data?.map(() => 'tableView') || []);
   const [openViewDiagram, setOpenViewDiagram] = React.useState(false);
-  const [selectedItem, setSelectedItem] = useState(null)
+  const [selectedItem, setSelectedItem] = useState(null);
   const [expandedItems, setExpandedItems] = useState(data?.map(() => false) || []);
   const query = useQuery();
   const term = query.get('searchTerm');
-
-  const imgStyle = { width: '100%' };
-  const imgPath = '/success.png';
 
   const onToggleButtonChange = (index) => (event, newValue) => {
     if (newValue) {
@@ -43,30 +40,31 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
       setToggleButtonValues(newTabValues);
     }
   };
-  const handleClickViewDiagram = (e, item) => {
-    setSelectedItem(item)
+
+  const handleClickViewDiagram = (_e, item) => {
+    setSelectedItem(item);
     setOpenViewDiagram(true);
   };
-  const handleCloseViewDiagram = () => {
-    setOpenViewDiagram(false);
-  };
+  const handleCloseViewDiagram = () => setOpenViewDiagram(false);
 
-  const handleAccordionChange = (index) => (event, isExpanded) => {
+  const handleAccordionChange = (index) => (_event, isExpanded) => {
     const newExpandedItems = [...expandedItems];
     newExpandedItems[index] = isExpanded;
     setExpandedItems(newExpandedItems);
   };
 
   useEffect(() => {
-    const newToggleButtonValues = data?.map(() => "tableView") || [];
+    const newToggleButtonValues = data?.map((d) => (d.forceGraph ? "graphView" : "tableView")) || [];
     const newExpandedItems = data?.map(() => expandAllPredicates) || [];
-
     setToggleButtonValues(newToggleButtonValues);
     setExpandedItems(newExpandedItems);
   }, [data, expandAllPredicates]);
 
+  // lightweight image for the dialog (existing behavior)
+  const imgStyle = { width: '100%' };
+  const imgPath = '/success.png';
   const image = new Image();
-  image.onload = () => <img style={imgStyle} src={imgPath} alt="preview" />
+  image.onload = () => <img style={imgStyle} src={imgPath} alt="preview" />;
   image.src = imgPath;
 
   return (
@@ -79,11 +77,7 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
           expanded={expandedItems[index] ?? false}
           onChange={handleAccordionChange(index)}
           square
-          sx={{
-            "&.MuiPaper-root": {
-              backgroundColor: "transparent"
-            }
-          }}
+          sx={{ "&.MuiPaper-root": { backgroundColor: "transparent" } }}
         >
           <AccordionSummary
             expandIcon={<ExpandMoreIcon fontSize='medium' />}
@@ -91,9 +85,7 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
             id={`panel${index + 1}-header`}
           >
             <Stack direction='row' spacing='.25rem'>
-              <Typography>
-                {pred.title}
-              </Typography>
+              <Typography>{pred.title}</Typography>
               <CallMadeIcon fontSize='medium' />
             </Stack>
             <Stack direction='row' alignItems='center' spacing='.75rem'>
@@ -116,12 +108,16 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
                     </ToggleButton>
                   </ToggleButtonGroup>
                 </>
-              ) : <></>}
+              ) : null}
             </Stack>
           </AccordionSummary>
           <AccordionDetails>
             {toggleButtonValues[index] === 'tableView' ? (
-              <CustomizedTable data={pred} term={term} isAddButtonVisible={isGraphVisible} />
+              <CustomizedTable
+                data={pred}           // expects object with rows/values
+                term={term}
+                isAddButtonVisible={isGraphVisible}
+              />
             ) : (
               <Box display='flex' flexDirection='column'>
                 <Graph width={800} height={400} predicate={pred} />
@@ -129,10 +125,8 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
                   variant='outlined'
                   onClick={(e) => handleClickViewDiagram(e, pred)}
                   disableRipple
-                  sx={{
-                    minWidth: 'auto',
-                    alignSelf: 'flex-end'
-                  }}>
+                  sx={{ minWidth: 'auto', alignSelf: 'flex-end' }}
+                >
                   <FullscreenOutlined />
                 </Button>
               </Box>
@@ -140,16 +134,15 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
           </AccordionDetails>
         </Accordion>
       ))}
-      {
-        openViewDiagram && <ViewDiagramDialog
+      {openViewDiagram && (
+        <ViewDiagramDialog
           open={openViewDiagram}
           handleClose={handleCloseViewDiagram}
           image={image}
           selectedItem={selectedItem}
           predicates={data}
         />
-      }
-
+      )}
     </>
   );
 };

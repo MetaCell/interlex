@@ -234,13 +234,13 @@ const SingleTermView = () => {
       case 1:
         return <VariantsPanel />;
       case 2:
-        return <HistoryPanel />;
+        return <HistoryPanel searchTerm={searchTerm} group={group} />;
       case 3:
         return <Discussion term={searchTerm} />;
       default:
         return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} />;
     }
-  }, [tabValue, searchTerm, isCodeViewVisible, selectedDataFormat, actualGroup]);
+  }, [tabValue, searchTerm, isCodeViewVisible, selectedDataFormat, actualGroup, group]);
 
   // Memoize the toggle button group for overview tab
   const toggleButtonGroup = useMemo(() => {
@@ -324,7 +324,7 @@ const SingleTermView = () => {
 
   return (
     <>
-      <Box display="flex" flexDirection="column">
+      <Box display="flex" flexDirection="column" sx={{ minWidth: "100%" }}>
         <Box p="1.5rem 5rem 0rem 5rem">
           <Grid container>
             <Grid container xs={12} lg={12} direction="row" alignItems="center" justifyContent="space-between">
