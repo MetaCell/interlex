@@ -55,13 +55,9 @@ const ID_CHIP_STYLES = {
     },
 };
 
-const FirstStepContent = ({ handleDialogClose }) => {
+const FirstStepContent = ({ term, type, existingIds, synonyms, handleTermChange, handleTypeChange, handleExistingIdChange, handleSynonymChange, handleDialogClose }) => {
     const [termResults, setTermResults] = useState([]);
-    const [exactSynonyms, setExactSynonyms] = useState([]);
-    const [existingIds, setExistingIds] = useState([]);
     const [openSidebar, setOpenSidebar] = useState(true);
-    const [selectedType, setSelectedType] = useState(null);
-    const [termValue, setTermValue] = useState("");
     const [loading, setLoading] = useState(false);
     const [hasExactMatch, setHasExactMatch] = useState(false);
     const [searchError, setSearchError] = useState(null);
@@ -121,23 +117,6 @@ const FirstStepContent = ({ handleDialogClose }) => {
         []
     );
 
-    const handleSynonymChange = (event, newValue) => {
-        setExactSynonyms(newValue);
-    };
-
-    const handleExistingIdChange = (event, newValue) => {
-        setExistingIds(newValue);
-    };
-
-    const handleTermValueChange = (event) => {
-        const value = event.target.value;
-        setTermValue(value);
-    };
-
-    const handleTypeChange = (newType) => {
-        setSelectedType(newType);
-    };
-
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
 
     const navigateToExistingTerm = (searchResult) => {
@@ -160,13 +139,15 @@ const FirstStepContent = ({ handleDialogClose }) => {
     };
 
     useEffect(() => {
-        if (termValue && selectedType) {
-            searchForMatches(termValue, selectedType);
+        if (term && type) {
+            searchForMatches(term, type);
         }
         return () => {
             searchForMatches.cancel();
+            setHasExactMatch(false);
+            setTermResults([])
         };
-    }, [termValue, selectedType, searchForMatches]);
+    }, [term, type, searchForMatches]);
 
     return (
         <Box display="flex" height={1}>
@@ -205,13 +186,13 @@ const FirstStepContent = ({ handleDialogClose }) => {
                             isFormControlFullWidth={true}
                             options={TYPES}
                             placeholder="Select object type"
-                            value={selectedType}
+                            value={type}
                             onChange={handleTypeChange}
                         />
                         <CustomFormField
                             placeholder="Term label (i.e. Central Nervous System)"
-                            value={termValue}
-                            onChange={handleTermValueChange}
+                            value={term}
+                            onChange={handleTermChange}
                             isEndAdornmentVisible
                             errorMessage={hasExactMatch ? "Your label has an exact match." : null}
                         />
@@ -220,7 +201,7 @@ const FirstStepContent = ({ handleDialogClose }) => {
                     <Autocomplete
                         multiple
                         id="exact-synonyms-autocomplete"
-                        value={exactSynonyms}
+                        value={synonyms}
                         onChange={handleSynonymChange}
                         popupIcon={<HelpOutlinedIcon />}
                         options={synonymOptions}
@@ -266,10 +247,7 @@ const FirstStepContent = ({ handleDialogClose }) => {
                 onToggle={handleSidebarToggle}
                 results={termResults}
                 isResultsEmpty={termResults.length === 0}
-                searchValue={termValue}
-                selectedType={selectedType}
-                onProceedWithCreation={createNewTerm}
-                error={searchError}
+                searchValue={term}
                 onResultAction={navigateToExistingTerm}
             />
         </Box>

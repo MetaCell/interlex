@@ -8,9 +8,9 @@ import {
     Stack,
     Button,
     FormControlLabel,
-    Checkbox
+    Checkbox,
+    CircularProgress
 } from "@mui/material";
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CustomButton from '../../common/CustomButton';
 import CustomizedDialog from "../../common/CustomizedDialog";
 import OntologySearch from '../../SingleTermView/OntologySearch';
@@ -106,8 +106,7 @@ const AddNewTermDialog = ({ open, handleClose, searchTerm }) => {
     const [existingIds, setExistingIds] = useState([]);
     const [loading, setLoading] = useState(false);
     const [hasExactMatch, setHasExactMatch] = useState(false);
-    const [searchError, setSearchError] = useState(null);
-    const { user, updateStoredSearchTerm } = useContext(GlobalDataContext);
+    const { user } = useContext(GlobalDataContext);
     const navigate = useNavigate();
 
     const isCreateButtonDisabled = hasExactMatch || termValue === "";
@@ -116,6 +115,23 @@ const AddNewTermDialog = ({ open, handleClose, searchTerm }) => {
     const handleCancelBtnClick = () => {
         handleClose();
         setActiveStep(0);
+    };
+
+    const handleTermValueChange = (event) => {
+        const value = event.target.value;
+        setTermValue(value);
+    };
+
+    const handleTypeChange = (newType) => {
+        setSelectedType(newType);
+    };
+
+    const handleSynonymChange = (event, newValue) => {
+        setExactSynonyms(newValue);
+    };
+
+    const handleExistingIdChange = (event, newValue) => {
+        setExistingIds(newValue);
     };
 
     const createNewTerm = useCallback(async () => {
@@ -141,11 +157,16 @@ const AddNewTermDialog = ({ open, handleClose, searchTerm }) => {
             navigate(`/terms/${response.term.id.split("/").pop()}`);
         } catch (error) {
             console.error("Creation failed:", error);
-            setSearchError("Failed to create new term");
         } finally {
             setLoading(false);
         }
     }, [termValue, selectedType, exactSynonyms, existingIds, user, hasExactMatch, navigate]);
+
+    if (loading) {
+        return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+            <CircularProgress />
+        </Box>
+    }
 
     return (
         <CustomizedDialog
@@ -162,7 +183,17 @@ const AddNewTermDialog = ({ open, handleClose, searchTerm }) => {
             }
             sx={{ '& .MuiDialogContent-root': { padding: 0, overflowY: "hidden" } }}
         >
-            {activeStep === 0 && <FirstStepContent handleDialogClose={handleClose} />}
+            {activeStep === 0 && <FirstStepContent
+                term={termValue}
+                type={selectedType}
+                existingIds={existingIds}
+                synonyms={exactSynonyms}
+                handleTermChange={handleTermValueChange}
+                handleTypeChange={handleTypeChange}
+                handleSynonymChange={handleSynonymChange}
+                handleExistingIdChange={handleExistingIdChange}
+                handleDialogClose={handleClose}
+            />}
             {activeStep === 1 && <SecondStepContent />}
             {activeStep === 2 && addTermResponse != null && (
                 <StatusStep statusProps={statusProps} />
