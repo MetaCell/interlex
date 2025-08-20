@@ -144,8 +144,7 @@ const AddNewTermDialog = ({ open, handleClose, searchTerm }) => {
         const body = {
             'rdf-type': selectedType || 'owl:Class',
             label: termValue,
-            exact: exactSynonyms,
-            existingIds: existingIds
+            exact: [],
         };
 
         try {
