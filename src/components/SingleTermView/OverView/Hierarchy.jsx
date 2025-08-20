@@ -15,7 +15,6 @@ import CustomSingleSelect from "../../common/CustomSingleSelect";
 
 const { gray600, gray800 } = vars;
 
-// ---- Build maps from triples ----
 function mapsFromTriples(triples) {
   const idLabelMap = {};
   const parentToChildren = {};

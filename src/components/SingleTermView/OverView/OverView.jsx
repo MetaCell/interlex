@@ -12,36 +12,6 @@ import RawDataViewer from "./RawDataViewer";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getMatchTerms, getRawData, getTermHierarchies } from "../../../api/endpoints/apiService";
 
-// ---- HTML table -> triples (subject, predicate, object) ----
-function parseTransitiveHtml(html) {
-  try {
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    const rows = Array.from(doc.querySelectorAll("table tr")).slice(1);
-    const triples = [];
-    for (const tr of rows) {
-      const tds = tr.querySelectorAll("td");
-      if (tds.length < 3) continue;
-      const subjLink = tds[0]?.querySelector("a");
-      const predLink = tds[1]?.querySelector("a");
-      const objLink  = tds[2]?.querySelector("a");
-      const subject = {
-        id: subjLink?.getAttribute("href") || (subjLink?.textContent || "").trim(),
-        label: (subjLink?.textContent || "").trim(),
-      };
-      const predicate = {
-        id: predLink?.getAttribute("href") || (predLink?.textContent || "").trim(),
-        label: (predLink?.textContent || "").trim(),
-      };
-      const object = objLink
-        ? { id: objLink.getAttribute("href") || "", label: (objLink.textContent || "").trim() }
-        : { id: (tds[2]?.textContent || "").trim(), label: (tds[2]?.textContent || "").trim() };
-      triples.push({ subject, predicate, object });
-    }
-    return triples;
-  } catch {
-    return [];
-  }
-}
 
 // ---- Normalize any backend shape -> triples ----
 function extractTriples(result) {
@@ -53,7 +23,6 @@ function extractTriples(result) {
     }));
   }
   if (Array.isArray(result?.triples)) return result.triples;
-  if (typeof result === "string") return parseTransitiveHtml(result);
   if (Array.isArray(result)) return result;
   return [];
 }
@@ -131,18 +100,11 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat, group = "
 
   // Fetch hierarchies for selectedValue
   const fetchHierarchies = useCallback(async (curieLike, groupname) => {
-    if (!curieLike) {
-      setTriplesChildren([]);
-      setTriplesSuperclasses([]);
-      return;
-    }
     try {
       const [resChildren, resSupers] = await Promise.all([
         getTermHierarchies({ groupname, termId: curieLike, objToSub: true }),
         getTermHierarchies({ groupname, termId: curieLike, objToSub: false }),
       ]);
-      setTriplesChildren(extractTriples(resChildren));
-      setTriplesSuperclasses(extractTriples(resSupers));
     } catch (e) {
       console.error("fetchHierarchies error:", e);
       setTriplesChildren([]);
