@@ -75,7 +75,7 @@ const SingleTermView = () => {
   const [isLoadingTerm, setIsLoadingTerm] = useState(false);
   const [actualGroup, setActualGroup] = useState(group); // Track the actual group the data comes from
   const [isUsingFallback, setIsUsingFallback] = useState(false); // Track if we're using fallback data
-  
+
   // Remove redundant query logic - use term from URL params directly
   const searchTerm = term;
   const openDataFormatMenu = Boolean(dataFormatAnchorEl);
@@ -214,11 +214,11 @@ const SingleTermView = () => {
   // Optimize tab URL synchronization
   useEffect(() => {
     const newTabValue = tabMapping[tab] !== undefined ? tabMapping[tab] : 0;
-    
+
     if (newTabValue !== tabValue) {
       setTabValue(newTabValue);
     }
-    
+
     // If no tab is specified in URL, redirect to overview
     if (!tab && group && term) {
       navigate(`/${group}/${term}/overview`, { replace: true });
@@ -246,7 +246,7 @@ const SingleTermView = () => {
   // Memoize the toggle button group for overview tab
   const toggleButtonGroup = useMemo(() => {
     if (tabValue !== 0) return null;
-    
+
     return (
       <Box display="flex">
         {isCodeViewVisible && (
@@ -255,10 +255,10 @@ const SingleTermView = () => {
               <Typography color={gray600} fontSize=".875rem" lineHeight="1.25rem">
                 Format to visualize:
               </Typography>
-              <CustomSingleSelect 
-                value={selectedDataFormat} 
-                onChange={(v) => setSelectedDataFormat(v)} 
-                options={dataFormats} 
+              <CustomSingleSelect
+                value={selectedDataFormat}
+                onChange={(v) => setSelectedDataFormat(v)}
+                options={dataFormats}
               />
             </Stack>
             <Divider sx={{ ml: '0.625rem', mr: '0.625rem', border: `1px solid ${gray200}` }} />
@@ -305,11 +305,11 @@ const SingleTermView = () => {
                   {isItFork ? <Chip label="Fork" variant="outlined" /> : null}
                 </Stack>
                 {isUsingFallback && (
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
-                      color: 'warning.main', 
-                      fontSize: '0.875rem', 
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'warning.main',
+                      fontSize: '0.875rem',
                       fontStyle: 'italic',
                       mt: '0.5rem'
                     }}
