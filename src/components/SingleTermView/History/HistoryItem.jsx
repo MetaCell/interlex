@@ -5,7 +5,8 @@ import {
     ListItemText,
     ListItemIcon,
     Stack,
-    Typography
+    Typography,
+    Tooltip
 } from "@mui/material";
 import { CreateForkHistoryIcon } from "../../../Icons";
 // import CustomButton from "../../common/CustomButton";
@@ -14,10 +15,20 @@ import { vars } from "../../../theme/variables";
 
 const { gray200, gray600, gray700, brand600 } = vars;
 
-const formatDate = (dateString) => {
+const formatDate = (dateString, includeDayAndTime = false) => {
     const fixedDateString = dateString.replace(',', '.');
     try {
         const date = new Date(fixedDateString);
+        const months = ['January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'];
+        const month = months[date.getUTCMonth()];
+        const day = date.getUTCDate();
+        const year = date.getUTCFullYear();
+
+        if (!includeDayAndTime) {
+            return `${month} ${day}, ${year}`;
+        }
+
         const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const weekday = weekdays[date.getUTCDay()];
 
@@ -27,7 +38,8 @@ const formatDate = (dateString) => {
         hours = hours ? hours : 12;
         const minutes = date.getUTCMinutes().toString().padStart(2, '0');
 
-        return `${weekday} ${hours}:${minutes}${ampm}`;
+        return `${month} ${day}, ${year} ${weekday} ${hours}:${minutes}${ampm}`;
+
     } catch (e) {
         console.error("Error formatting date:", dateString, e);
         return dateString.split('T')[0];
@@ -80,9 +92,11 @@ const HistoryItem = ({ entry }) => (
                 }
                 secondary={
                     <Box component="span" display="flex" alignItems="center" gap={1.5}>
-                        <Typography component="span" sx={{ color: gray600, fontSize: '0.75rem' }}>
-                            {formatDate(entry.date)}
-                        </Typography>
+                        <Tooltip title={formatDate(entry.date, true)}>
+                            <Typography component="span" sx={{ color: gray600, fontSize: '0.75rem', cursor: 'default' }}>
+                                {formatDate(entry.date)}
+                            </Typography>
+                        </Tooltip>
                         {/* <CustomButton sx={visibilityHidden}>
                             <RestoreIcon />
                             Restore version
