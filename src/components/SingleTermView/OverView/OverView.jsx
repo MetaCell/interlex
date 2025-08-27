@@ -10,7 +10,7 @@ import Hierarchy from "./Hierarchy";
 import Predicates from "./Predicates";
 import RawDataViewer from "./RawDataViewer";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getMatchTerms, getRawData, getTermHierarchies } from "../../../api/endpoints/apiService";
+import { getMatchTerms, getRawData, getTermHierarchies, getTermPredicates } from "../../../api/endpoints/apiService";
 
 const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat, group = "base" }) => {
   const [data, setData] = useState(null);
@@ -25,54 +25,65 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat, group = "
   const [triplesChildren, setTriplesChildren] = useState([]);
   const [triplesSuperclasses, setTriplesSuperclasses] = useState([]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // predicates for the Predicates panel (gold-standard shape)
+  const [predicateGroups, setPredicateGroups] = useState([]);
+
+  // Build SingleSearch options from hierarchy triples
+const toHierarchyOptionsFromTriples = (triples = []) => {
+  const toCurie = (id) => {
+    if (!id) return id;
+    // http://uri.interlex.org/base/ilx_0100573 -> ILX:0100573
+    const m = id.match(/\/ilx_(\d+)/i);
+    return m ? `ILX:${m[1]}` : id;
+  };
+
+  const add = (map, node) => {
+    const id = node?.id;
+    const label = node?.label;
+    if (!id || !label) return;
+
+    // skip OWL/property nodes and empty labels
+    if (id === 'owl:Class') return;
+    if (id.startsWith('http://www.w3.org/')) return;
+
+    map.set(id, { label, handler: toCurie(id) });
+  };
+
+  const uniq = new Map();
+  for (const t of triples) {
+    add(uniq, t.subject);
+    add(uniq, t.object);
+  }
+  return Array.from(uniq.values());
+};
+
+  // Debounced search → populate options + default selection
   const fetchTerms = useCallback(
     debounce((term) => {
-      if (term) {
-        getMatchTerms(group, term).then(apiData => {
-          const results = apiData?.results || [];
-          setData(results?.[0] || null);
-
-          // Build options { label, handler }
-          const opts = results
-            .map((r) => {
-              const label =
-                r.label ||
-                r.rdfsLabel ||
-                r.prefLabel ||
-                r.term ||
-                r.name ||
-                r.curie ||
-                r.id;
-              const handler =
-                r.curie || r.ilx || r.id || r.termId || r.identifier;
-              return label && handler ? { label, handler } : null;
-            })
-            .filter(Boolean);
-
-          // de-dupe by handler
-          const seen = new Set();
-          const deduped = opts.filter(o => (seen.has(o.handler) ? false : (seen.add(o.handler), true)));
-
-          setHierarchyOptions(deduped);
-
-          // default selection
-          setSelectedValue(prev =>
-            prev && deduped.some(o => o.handler === prev?.handler) ? prev : deduped[0] || null
-          );
-
-          setLoading(false);
-        });
-      } else {
+      if (!term) {
         setData(null);
         setHierarchyOptions([]);
         setSelectedValue(null);
         setLoading(false);
+        return;
       }
+
+      getMatchTerms(group, term).then(apiData => {
+        const results = apiData?.results || [];
+        setData(results?.[0] || null);
+        
+        // default selection if needed
+        setSelectedValue(prev =>
+          prev && results.some(o => o.id === prev?.id) ? prev : results[0] || null
+        );
+
+        setLoading(false);
+      });
     }, 300),
     [group]
   );
 
+  // JSON-LD for the raw viewer
   const fetchJSONFile = useCallback(() => {
     if (!searchTerm) {
       setJsonData(null);
@@ -83,19 +94,41 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat, group = "
     });
   }, [searchTerm, group]);
 
-  // Fetch hierarchies for selectedValue
+  // Fetch both hierarchy directions for the selected value
   const fetchHierarchies = useCallback(async (curieLike, groupname) => {
     try {
-      await Promise.all([
-        getTermHierarchies({ groupname, termId: curieLike, objToSub: true }),
-        getTermHierarchies({ groupname, termId: curieLike, objToSub: false }),
-      ]);
+      let termId = curieLike.split('/').pop() || curieLike;
+      termId = termId.replace(/^ilx_/, "ILX:");
+
+      const superRes = await getTermHierarchies({ groupname, termId, objToSub: false });
+      setTriplesSuperclasses(superRes.triples || []);
+      const deduped = toHierarchyOptionsFromTriples(superRes?.triples);
+      setHierarchyOptions(deduped);
     } catch (e) {
       console.error("fetchHierarchies error:", e);
       setTriplesChildren([]);
       setTriplesSuperclasses([]);
     }
   }, []);
+
+  // Fetch gold-standard predicate groups for the Predicates UI
+  // Fetch gold-standard predicate groups for the Predicates UI
+const fetchPredicates = useCallback(async (curieLike, groupname) => {
+  try {
+    // Normalize to ILX:NNNNNN form (same normalization you use for hierarchies)
+    let termId = curieLike.split('/').pop() || curieLike; // e.g. 'ilx_0100573' or 'ILX:0100573'
+    termId = termId.replace(/^ilx_/i, 'ILX:');
+
+    // Optional: debug so you can see it’s being called
+    // console.debug('getTermPredicates →', { groupname, termId });
+
+    const groups = await getTermPredicates({ groupname, termId });
+    setPredicateGroups(groups || []);
+  } catch (e) {
+    console.error("fetchPredicates error:", e);
+    setPredicateGroups([]);
+  }
+}, []);
 
   useEffect(() => {
     setLoading(true);
@@ -107,15 +140,15 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat, group = "
   }, [searchTerm, fetchTerms, fetchJSONFile]);
 
   useEffect(() => {
-    // infer groupname from data if you store it in context; fallback to "base"
-    const groupname = group || "base";
-    if (selectedValue?.handler) {
-      fetchHierarchies(selectedValue.handler, groupname);
+    if (selectedValue?.id) {
+      fetchPredicates(selectedValue.id, "base");
+      fetchHierarchies(selectedValue.id, "base");
     } else {
       setTriplesChildren([]);
       setTriplesSuperclasses([]);
+      setPredicateGroups([]);
     }
-  }, [selectedValue, group, fetchHierarchies]);
+  }, [selectedValue, group, fetchHierarchies, fetchPredicates]);
 
   const memoData = useMemo(() => data, [data]);
 
@@ -140,9 +173,7 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat, group = "
               </Grid>
               <Grid item xs={12} lg={8}>
                 <Predicates
-                  basePredicates={memoData?.predicates || []}
-                  triplesChildren={triplesChildren}
-                  triplesSuperclasses={triplesSuperclasses}
+                  data={predicateGroups}
                   isGraphVisible={true}
                 />
               </Grid>

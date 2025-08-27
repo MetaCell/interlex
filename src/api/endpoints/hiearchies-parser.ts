@@ -1,53 +1,47 @@
-// Minimal JSON-LD → { triples, edges } converter used by getTermHierarchies
-
-export const RDF_TYPE  = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 export const RDFS_LABEL = 'http://www.w3.org/2000/01/rdf-schema#label';
+export const RDF_TYPE   = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 export const PART_OF_IRI = 'http://uri.interlex.org/base/ilx_0112785';
 
-type JsonLdNode = {
-  '@id': string;
-  '@type'?: string[] | string;
-  [k: string]: any;
-};
+type NodeRef = { id: string; label: string };
+type Triple = { subject: NodeRef; predicate: { id: string; label: string }; object: NodeRef };
+type Edge = { from: NodeRef; to: NodeRef };
 
-function firstString(o: any): string | undefined {
-  if (o == null) return;
-  if (typeof o === 'string') return o;
-  if (Array.isArray(o)) return firstString(o[0]);
-  if (typeof o === 'object') {
-    if ('@value' in o) return String(o['@value']);
-    if ('@id' in o) return String(o['@id']);
+function firstString(v: any): string | undefined {
+  if (!v) return undefined;
+  if (typeof v === 'string') return v;
+  if (Array.isArray(v)) {
+    for (const x of v) {
+      if (typeof x === 'string') return x;
+      if (x && typeof x === 'object' && typeof x['@value'] === 'string') return x['@value'];
+    }
   }
+  if (typeof v === 'object' && typeof v['@value'] === 'string') return v['@value'];
+  return undefined;
 }
 
-function ids(objs: any): string[] {
-  if (!objs) return [];
-  const arr = Array.isArray(objs) ? objs : [objs];
-  return arr.map(v => (typeof v === 'string' ? v : v?.['@id'])).filter(Boolean);
+function ids(v: any): string[] {
+  if (!v) return [];
+  if (Array.isArray(v)) {
+    return v.flatMap(ids);
+  }
+  if (typeof v === 'object' && typeof v['@id'] === 'string') {
+    return [v['@id']];
+  }
+  if (typeof v === 'string') return [v];
+  return [];
 }
-
-export type Triple = {
-  subject: { id: string; label: string };
-  predicate: { id: string; label: string };
-  object: { id: string; label: string };
-};
-
-export type Edge = {
-  from: { id: string; label: string };
-  to:   { id: string; label: string };
-};
 
 export function jsonldToTriplesAndEdges(jsonld: any): { triples: Triple[]; edges: Edge[] } {
-  const graph: JsonLdNode[] =
+  const graph: any[] =
     Array.isArray(jsonld) ? jsonld :
     Array.isArray(jsonld?.['@graph']) ? jsonld['@graph'] :
     jsonld?.['@id'] ? [jsonld] : [];
 
-  // id → label map (prefer rdfs:label)
+  // Build id → label
   const labelById = new Map<string, string>();
   for (const n of graph) {
     const id = n['@id']; if (!id) continue;
-    const lbl = firstString(n['label']) ?? firstString(n['rdfs:label']) ?? firstString(n[RDFS_LABEL]);
+    const lbl = firstString(n['rdfs:label']) ?? firstString(n['label']);
     if (lbl) labelById.set(id, lbl);
   }
 
@@ -68,11 +62,16 @@ export function jsonldToTriplesAndEdges(jsonld: any): { triples: Triple[]; edges
     for (const t of ids(n['@type'])) addTriple(s, RDF_TYPE, t);
 
     // rdfs:label
-    const lbl = firstString(n['label']) ?? firstString(n['rdfs:label']) ?? firstString(n[RDFS_LABEL]);
+    const lbl = firstString(n['rdfs:label']) ?? firstString(n['label']);
     if (lbl) addTriple(s, RDFS_LABEL, undefined, lbl);
 
-    // ilx.partOf (accept compact or expanded)
-    for (const o of [...ids(n['partOf']), ...ids(n[PART_OF_IRI])]) {
+    // ilx.partOf in ALL its forms
+    const partOfTargets = [
+      ...ids(n['ilx.partOf']),   // compact (what your endpoint returns)
+      ...ids(n['partOf']),       // generic compact
+      ...ids(n[PART_OF_IRI])     // expanded IRI (just in case)
+    ];
+    for (const o of partOfTargets) {
       addTriple(s, PART_OF_IRI, o);
       edges.push({
         from: { id: s, label: labelById.get(s) ?? s },

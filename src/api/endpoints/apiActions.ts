@@ -20,23 +20,27 @@ export const createPostRequest = <T = any, D = any>(endpoint: string, headers : 
 
 export const createGetRequest = <T = any, P = any>(endpoint: string, contentType?: string) => {
   return (params?: P, options?: SecondParameter<typeof customInstance>, signal?: AbortSignal) => {
+    // ✅ normalize to absolute URL so SPA routes don't prefix it
+    const absUrl = endpoint.startsWith('http')
+      ? endpoint
+      : new URL(endpoint.startsWith('/') ? endpoint : `/${endpoint}`, window.location.origin).toString();
+
     const config: AxiosRequestConfig = {
-      url: endpoint,
+      url: absUrl,
       method: "GET",
       params,
       signal,
       withCredentials: true
-    }
+    };
 
+    // ✅ for GET, set Accept header (Content-Type is irrelevant for GET)
     if (contentType) {
       config.headers = {
         ...config.headers,
-        "Content-Type": contentType,
-      }
+        Accept: contentType,
+      };
     }
 
-    return customInstance<T>(config, options).then(response => {
-      return response;
-    });
+    return customInstance<T>(config, options).then(response => response);
   }
 }
