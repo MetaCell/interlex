@@ -180,8 +180,7 @@ export const createNewOntology = async ({
   };
 
   const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
   };
 
   try {
@@ -199,7 +198,7 @@ export const createNewOntology = async ({
     if (redirectLocation) {
       const olympianRedirectLocation = redirectLocation.replace('http://uri.interlex.org','').replace(/\.html$/, '.jsonld');
 
-      const getResponse = await fetch(olympianRedirectLocation, { headers: { Authorization: `Bearer ${token}` } });
+      const getResponse = await fetch(olympianRedirectLocation);
       const jsonResponse = await getResponse.json();
 
       const newOntologyID = jsonResponse?.["@graph"]?.find((object) => object["@type"] === "owl:Ontology")?.["@id"] || null;
