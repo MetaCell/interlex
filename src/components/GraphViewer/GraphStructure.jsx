@@ -1,3 +1,5 @@
+// GraphStructure.jsx (pure JS)
+
 export const OBJECT = "object";
 export const PREDICATE = "predicate";
 export const SUBJECT = "subject";
@@ -15,96 +17,115 @@ const safe = (v, fallback = "unknown") => {
 function normalizeRows(pred) {
   if (!pred) return [];
 
-  // 1) new shape from getTermHierarchies grouping
+  // new shapes
   if (Array.isArray(pred.rows) && pred.rows.length) return pred.rows;
   if (Array.isArray(pred.values) && pred.values.length) return pred.values;
 
-  // 2) legacy tableData
+  // legacy tableData (strings only)
   if (Array.isArray(pred.tableData) && pred.tableData.length) {
-    return pred.tableData.map(r => ({
+    return pred.tableData.map((r) => ({
       subject: r.subject,
-      subjectId: r.subject, // no id in legacy, use label
+      subjectId: r.subject || r.subjectId,
       object: r.object,
-      objectId: r.object,
+      objectId: r.object || r.objectId,
     }));
   }
 
-  // 3) edges fallback
+  // edges fallback
   if (Array.isArray(pred.edges) && pred.edges.length) {
-    return pred.edges.map(e => ({
-      subject: e?.from?.label || e?.from?.id,
-      subjectId: e?.from?.id || e?.from?.label,
-      object: e?.to?.label || e?.to?.id,
-      objectId: e?.to?.id || e?.to?.label,
+    return pred.edges.map((e) => ({
+      subject: (e?.from && (e.from.label || e.from.id)) || "unknown",
+      subjectId: (e?.from && (e.from.id || e.from.label)) || "unknown",
+      object: (e?.to && (e.to.label || e.to.id)) || "unknown",
+      objectId: (e?.to && (e.to.id || e.to.label)) || "unknown",
     }));
   }
 
   return [];
 }
 
-// Pick a root subject (most frequent). Fallback to first row.
-function pickRoot(rows) {
-  if (!rows.length) return { key: "unknown", label: "unknown" };
-  const counts = new Map();
-  const firstLabelById = new Map();
-  for (const r of rows) {
-    const id = r.subjectId || r.subject;
-    if (!id) continue;
-    counts.set(id, (counts.get(id) || 0) + 1);
-    if (!firstLabelById.has(id)) firstLabelById.set(id, r.subject || r.subjectId || id);
-  }
-  let rootKey = null, max = -1;
-  for (const [k, v] of counts.entries()) {
-    if (v > max) { max = v; rootKey = k; }
-  }
-  if (!rootKey) {
-    const r0 = rows[0];
-    const id = r0.subjectId || r0.subject || "unknown";
-    return { key: id, label: r0.subject || id };
-  }
-  return { key: rootKey, label: firstLabelById.get(rootKey) || rootKey };
-}
-
-// Build Root → Predicate → Unique Objects
+/**
+ * Behavior:
+ * - If all rows share the same subject → keep old layout:
+ *   Root(Subject) → Predicate → Unique Objects
+ * - If multiple subjects → show all subjects:
+ *   Root(Predicate) → Subject_1 → Objects
+ *                     Subject_2 → Objects
+ */
 export const getGraphStructure = (pred) => {
   const rows = normalizeRows(pred);
   if (!rows.length) {
     return { name: "No data", id: "no-data", type: ROOT, value: 0, children: [] };
   }
 
-  const { key: rootKey, label: rootLabel } = pickRoot(rows);
-  const forRoot = rows.filter(r => (r.subjectId || r.subject) === rootKey);
+  // Bucket rows by subject
+  const subjMap = new Map(); // subjectId -> { label, rows[] }
+  for (const r of rows) {
+    const sid = safe(r.subjectId || r.subject);
+    const slabel = safe(r.subject);
+    if (!subjMap.has(sid)) subjMap.set(sid, { label: slabel, rows: [] });
+    subjMap.get(sid).rows.push({
+      subject: slabel,
+      subjectId: sid,
+      object: safe(r.object),
+      objectId: safe(r.objectId || r.object),
+    });
+  }
 
+  const uniqueSubjects = Array.from(subjMap.keys());
   const predicateLabel = safe(pred?.title, "predicate");
   const predicateId = predicateLabel;
 
-  const seen = new Set();
-  const objects = [];
-  for (const r of forRoot) {
-    const oid = r.objectId || r.object;
-    if (!oid) continue;
-    if (seen.has(oid)) continue;
-    seen.add(oid);
-    objects.push({
-      name: safe(r.object),
-      id: safe(oid),
-      type: OBJECT,
-      children: [],
+  // SINGLE-SUBJECT layout (backwards-compatible)
+  if (uniqueSubjects.length === 1) {
+    const sid = uniqueSubjects[0];
+    const bucket = subjMap.get(sid);
+    const seen = new Set();
+    const objects = [];
+    for (const r of bucket.rows) {
+      const oid = r.objectId;
+      if (!oid || seen.has(oid)) continue;
+      seen.add(oid);
+      objects.push({ name: safe(r.object), id: oid, type: OBJECT, children: [] });
+    }
+    return {
+      name: bucket.label,
+      id: sid,
+      type: ROOT,
+      value: bucket.rows.length || pred?.count || 0,
+      children: [
+        { name: predicateLabel, id: predicateId, type: PREDICATE, children: objects },
+      ],
+    };
+  }
+
+  // MULTI-SUBJECT layout
+  const subjectNodes = [];
+  for (const sid of uniqueSubjects) {
+    const bucket = subjMap.get(sid);
+    const seen = new Set();
+    const objects = [];
+    for (const r of bucket.rows) {
+      const oid = r.objectId;
+      if (!oid || seen.has(oid)) continue;
+      seen.add(oid);
+      // ensure uniqueness under the predicate root
+      objects.push({ name: safe(r.object), id: `${sid}::${oid}`, type: OBJECT, children: [] });
+    }
+    subjectNodes.push({
+      name: bucket.label,
+      id: sid,
+      type: SUBJECT,
+      value: bucket.rows.length,
+      children: objects,
     });
   }
 
   return {
-    name: safe(rootLabel),
-    id: safe(rootKey),
+    name: predicateLabel,
+    id: predicateId,
     type: ROOT,
-    value: forRoot.length || pred?.count || 0,
-    children: [
-      {
-        name: predicateLabel,
-        id: predicateId,
-        type: PREDICATE,
-        children: objects,
-      },
-    ],
+    value: rows.length || pred?.count || 0,
+    children: subjectNodes,
   };
 };

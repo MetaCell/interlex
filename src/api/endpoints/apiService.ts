@@ -1,7 +1,7 @@
 import { createPostRequest, createGetRequest } from "./apiActions";
 import { API_CONFIG } from "../../config";
 import termParser from "../../parsers/termParser";
-import { jsonldToTriplesAndEdges, PART_OF_IRI } from './hiearchies-parser'
+import { jsonldToTriplesAndEdges, PART_OF_IRI } from '../../parsers/hierarchies-parser'
 import { buildPredicateGroupsForFocus } from "../../parsers/predicateParser";
 
 export interface LoginRequest {

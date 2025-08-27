@@ -148,7 +148,7 @@ const Hierarchy = ({
       </Box>
 
       <SingleSearch onChange={handleSelectChange} selectedValue={selectedValue} options={options} />
-      <CustomizedTreeView items={treeData} loading={loading} currentId={selectedValue?.id + Math.random().toString() || null} />
+      <CustomizedTreeView items={options} loading={loading} currentId={selectedValue?.id || null} />
       <Typography color={gray600} fontSize='.875rem'>
         Total number of first generation {type === 'children' ? 'children' : 'superclasses'}: {childCount}
       </Typography>
@@ -161,6 +161,7 @@ Hierarchy.propTypes = {
     PropTypes.shape({
       label: PropTypes.string,
       handler: PropTypes.string.isRequired,
+      id : PropTypes.string.isRequired,
     })
   ),
   selectedValue: PropTypes.shape({
