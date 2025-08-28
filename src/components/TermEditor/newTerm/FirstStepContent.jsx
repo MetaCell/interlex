@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useMemo, useCallback } from "react";
 import { debounce } from "lodash";
 import {
     Box,
@@ -17,12 +17,13 @@ import CustomSingleSelect from "../../common/CustomSingleSelect";
 import CustomFormField from "../../common/CustomFormField";
 import NewTermSidebar from "../NewTermSidebar";
 import { HelpOutlinedIcon } from "../../../Icons";
-import { elasticSearch } from "../../../api/endpoints";
+import { checkPotentialMatches } from "../../../api/endpoints/apiService";
 import { vars } from "../../../theme/variables";
 
 const { white, gray300, gray400, gray500, gray600 } = vars;
 
-const TYPES = ["Term", "Relationship", "Ontology"];
+const TYPES = ['owl:Class', 'owl:AnnotationProperty', 'owl:ObjectProperty', 'TODO:CDE', 'TODO:FDE', 'TODO:PDE'];
+const DEFAULT_TYPE = TYPES[0];
 
 const AUTOCOMPLETE_STYLES = {
     "& .MuiOutlinedInput-root": {
@@ -56,73 +57,106 @@ const ID_CHIP_STYLES = {
     },
 };
 
-const FirstStepContent = ({ term, type, existingIds, synonyms, handleTermChange, handleTypeChange, handleExistingIdChange, handleSynonymChange, handleDialogClose }) => {
+const FirstStepContent = ({
+    term,
+    type,
+    existingIds,
+    synonyms,
+    handleTermChange,
+    handleTypeChange,
+    handleExistingIdChange,
+    handleSynonymChange,
+    handleDialogClose
+}) => {
+    const safeType = type || DEFAULT_TYPE;
+
     const [termResults, setTermResults] = useState([]);
     const [openSidebar, setOpenSidebar] = useState(true);
     const [loading, setLoading] = useState(false);
     const [hasExactMatch, setHasExactMatch] = useState(false);
 
-    const [synonymOptions] = useState([]);
-    const [idOptions] = useState([]);
+    const synonymOptions = useMemo(() => [], []);
+    const idOptions = useMemo(() => [], []);
+
     const { user, updateStoredSearchTerm } = useContext(GlobalDataContext);
     const navigate = useNavigate();
 
-    const searchForMatches = debounce(async (searchTerm, type) => {
-        if (!searchTerm || !type) {
-            setTermResults([]);
-            setHasExactMatch(false);
-            return;
-        }
+    const searchForMatches = useMemo(() =>
+        debounce(async (searchTerm, searchType) => {
+            if (!searchTerm || !searchType) {
+                setTermResults([]);
+                setHasExactMatch(false);
+                return;
+            }
 
-        setLoading(true);
+            setLoading(true);
 
-        try {
-            const response = await elasticSearch(searchTerm, 10);
-            const rawResults = response.results.results || [];
+            try {
+                const validType = TYPES.includes(searchType) ? searchType : DEFAULT_TYPE;
+                console.log("Using type: ", validType);
+                // const response = await elasticSearch(searchTerm, 10);
+                // const rawResults = response.results.results || [];
 
-            const filteredResults = rawResults.filter(result => {
-                return result.type === type.toLowerCase() ||
-                    (result.type === "term") ||
-                    (result.type === "relationship") ||
-                    (result.type === "ontology");
-            });
+                // const filteredResults = rawResults.filter(result => {
+                //     return result.type === type.toLowerCase() ||
+                //         (result.type === "term") ||
+                //         (result.type === "relationship") ||
+                //         (result.type === "ontology");
+                // });
 
-            const exactMatch = filteredResults.find(result =>
-                result.label?.toLowerCase() === searchTerm.toLowerCase() &&
-                result.type === type.toLowerCase()
-            );
+                // const exactMatch = filteredResults.find(result =>
+                //     result.label?.toLowerCase() === searchTerm.toLowerCase() &&
+                //     result.type === type.toLowerCase()
+                // );
 
-            setHasExactMatch(!!exactMatch);
+                console.log("user: ", user)
 
-            const sortedResults = filteredResults.sort((a, b) => {
-                const aIsExact = a.label?.toLowerCase() === searchTerm.toLowerCase();
-                const bIsExact = b.label?.toLowerCase() === searchTerm.toLowerCase();
+                const entityCheckResponse = await checkPotentialMatches(user?.groupname || 'base', {
+                    "label": searchTerm,
+                    "rdf-type": validType,
+                    "exact": []
+                });
 
-                if (aIsExact && !bIsExact) return -1;
-                if (!aIsExact && bIsExact) return 1;
-                return 0;
-            });
+                console.log("Entity Check Response:", entityCheckResponse);
+                const filteredResults = entityCheckResponse?.matches || [];
+                const exactMatch = entityCheckResponse?.exact_match || null;
 
-            setTermResults(sortedResults);
-        } catch (error) {
-            setTermResults([]);
-            setHasExactMatch(false);
-        } finally {
-            setLoading(false);
-        }
-    }, 500);
+                setHasExactMatch(!!exactMatch);
 
-    const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
+                const sortedResults = filteredResults.sort((a, b) => {
+                    const aIsExact = a.label?.toLowerCase() === searchTerm.toLowerCase();
+                    const bIsExact = b.label?.toLowerCase() === searchTerm.toLowerCase();
 
-    const navigateToExistingTerm = (searchResult) => {
+                    if (aIsExact && !bIsExact) return -1;
+                    if (!aIsExact && bIsExact) return 1;
+                    return 0;
+                });
+
+                setTermResults(sortedResults);
+            } catch (error) {
+                console.error("Search error:", error);
+                setTermResults([]);
+                setHasExactMatch(false);
+            } finally {
+                setLoading(false);
+            }
+        }, 500),
+        [user]
+    );
+
+    const handleSidebarToggle = useCallback(() =>
+        setOpenSidebar(prev => !prev)
+        , []);
+
+    const navigateToExistingTerm = useCallback((searchResult) => {
         updateStoredSearchTerm(searchResult?.label);
         const groupName = user?.groupname || 'base';
         navigate(`/${groupName}/${searchResult?.ilx}/overview`);
         handleDialogClose();
-    };
+    }, [updateStoredSearchTerm, user, navigate, handleDialogClose]);
 
-    const renderChips = (values, getTagProps, chipStyles) => {
-        return values.map((option, index) => (
+    const renderChips = useCallback((values, getTagProps, chipStyles) =>
+        values.map((option, index) => (
             <Chip
                 key={index}
                 label={option}
@@ -130,19 +164,19 @@ const FirstStepContent = ({ term, type, existingIds, synonyms, handleTermChange,
                 sx={chipStyles}
                 {...getTagProps({ index })}
             />
-        ));
-    };
+        ))
+        , []);
 
     useEffect(() => {
-        if (term && type) {
-            searchForMatches(term, type);
+        if (term && safeType) {
+            searchForMatches(term, safeType);
         }
         return () => {
             searchForMatches.cancel();
             setHasExactMatch(false);
-            setTermResults([])
+            setTermResults([]);
         };
-    }, [term, type, searchForMatches]);
+    }, [term, safeType, searchForMatches]);
 
     return (
         <Box display="flex" height={1}>
@@ -181,7 +215,7 @@ const FirstStepContent = ({ term, type, existingIds, synonyms, handleTermChange,
                             isFormControlFullWidth={true}
                             options={TYPES}
                             placeholder="Select object type"
-                            value={type}
+                            value={safeType}
                             onChange={handleTypeChange}
                         />
                         <CustomFormField

@@ -78,9 +78,9 @@ export const getSelectedTermLabel = async (searchTerm: string, group: string = '
       return label?.['@value'] || '';
     };
 
-    return { 
-      label: label ? getLabelValue(label) : undefined, 
-      actualGroup: group 
+    return {
+      label: label ? getLabelValue(label) : undefined,
+      actualGroup: group
     };
   } catch (err: any) {
     console.error(err.message);
@@ -89,7 +89,7 @@ export const getSelectedTermLabel = async (searchTerm: string, group: string = '
       try {
         const fallbackResponse = await createGetRequest<JsonLdResponse, any>(`/base/${searchTerm}.jsonld`)();
         const fallbackLabel = fallbackResponse['@graph']?.[0]?.['rdfs:label'];
-        
+
         const getLabelValue = (label: LabelType): string => {
           if (typeof label === 'string') return label;
           if (Array.isArray(label)) {
@@ -101,9 +101,9 @@ export const getSelectedTermLabel = async (searchTerm: string, group: string = '
           return label?.['@value'] || '';
         };
 
-        return { 
-          label: fallbackLabel ? getLabelValue(fallbackLabel) : undefined, 
-          actualGroup: 'base' 
+        return {
+          label: fallbackLabel ? getLabelValue(fallbackLabel) : undefined,
+          actualGroup: 'base'
         };
       } catch (fallbackErr: any) {
         console.error('Fallback request also failed:', fallbackErr.message);
@@ -198,13 +198,13 @@ export const createNewOntology = async ({
     const redirectLocation = postResponse.headers.get('x-redirect-location');
 
     if (redirectLocation) {
-      const olympianRedirectLocation = redirectLocation.replace('http://uri.interlex.org','').replace(/\.html$/, '.jsonld');
+      const olympianRedirectLocation = redirectLocation.replace('http://uri.interlex.org', '').replace(/\.html$/, '.jsonld');
 
       const getResponse = await fetch(olympianRedirectLocation, { headers: { Authorization: `Bearer ${token}` } });
       const jsonResponse = await getResponse.json();
 
       const newOntologyID = jsonResponse?.["@graph"]?.find((object) => object["@type"] === "owl:Ontology")?.["@id"] || null;
-      
+
       return {
         created: true,
         location: olympianRedirectLocation,
@@ -299,7 +299,7 @@ export const getTermDiscussions = async (group: string, variantID: string) => {
 };
 
 export const getVariant = (group: string, term: string) => {
-  return createGetRequest<any, any>(`/${group}/variant/${term}`, "application/json")();  
+  return createGetRequest<any, any>(`/${group}/variant/${term}`, "application/json")();
 };
 
 export const getTermHierarchies = async ({
@@ -327,4 +327,10 @@ export const getTermHierarchies = async ({
       return { error: true, message: e2?.message || String(e2) };
     }
   }
+};
+
+export const checkPotentialMatches = async (group: string, data: any) => {
+  console.log("data: ", data)
+  console.log("group: ", group)
+  return createPostRequest<any, any>(`/${group}${API_CONFIG.REAL_API.CHECK_ENTITY}`, { "Content-Type": "application/json" })(data);
 };
