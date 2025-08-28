@@ -1,8 +1,8 @@
+// SingleTermView/OverView/OverView.jsx
 import {
   Box,
   Divider,
   Grid,
-  CircularProgress,
 } from "@mui/material";
 import Details from "./Details";
 import { debounce } from "lodash";
@@ -17,35 +17,40 @@ import {
   getTermHierarchies,
   getTermPredicates,
 } from "../../../api/endpoints/apiService";
-import { toHierarchyOptionsFromTriples } from "../../../parsers/hierarchies-parser";
 
-const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat, group = "base" }) => {
+import {
+  toHierarchyOptionsFromTriples,
+  buildChildrenTreeFromTriples,
+  buildSuperclassesTreeFromTriples,
+  dedupePredicateGroups
+} from "../../../parsers/hierarchies-parser";
+
+const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, group = "base" }) => {
   const [data, setData] = useState(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [jsonData, setJsonData] = useState(null);
 
-  // options for Hierarchy’s SingleSearch
-  const [hierarchyOptions, setHierarchyOptions] = useState([]);
-  const [selectedValue, setSelectedValue] = useState(null);
+  // SingleSearch options + selection
+  const [hierarchyOptions, setHierarchyOptions] = useState({});
+  const [selectedValue, setSelectedValue] = useState(null); // {id, label}
 
-  // hierarchies (triples) for the currently selected value
-  const [triplesChildren, setTriplesChildren] = useState([]);
-  const [triplesSuperclasses, setTriplesSuperclasses] = useState([]);
+  // computed trees
+  const [treeChildren, setTreeChildren] = useState([]);
+  const [treeSuperclasses, setTreeSuperclasses] = useState([]);
 
-  // predicates panel data (already gold-standard shaped)
+  // predicates
   const [predicateGroups, setPredicateGroups] = useState([]);
 
-  // fine-grained loading states
-  const [loadingHierarchies, setLoadingHierarchies] = useState(false);
-  const [loadingPredicates, setLoadingPredicates] = useState(false);
+  // loading flags
+  const [loadingHierarchies, setLoadingHierarchies] = useState(true);
+  const [loadingPredicates, setLoadingPredicates] = useState(true);
 
-  // ---------- FIX: debounced search with explicit deps ----------
+  // debounced search (explicit deps to satisfy eslint)
   const debouncedFetchTerms = useMemo(
     () =>
       debounce(async (term, groupname) => {
         if (!term) {
           setData(null);
-          setHierarchyOptions([]);
           setSelectedValue(null);
           setPageLoading(false);
           return;
@@ -53,21 +58,33 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat, group = "
         try {
           const apiData = await getMatchTerms(groupname, term);
           const results = apiData?.results || [];
-          setData(results?.[0] || null);
+          const first = results?.[0] || null;
 
-          // keep selection if still present; else first result
-          setSelectedValue((prev) =>
-            prev && results.some((o) => o.id === prev?.id) ? prev : results[0] || null
-          );
+          // normalize first result -> { id, label }
+          let id =
+            first?.curie ||
+            first?.ilx ||
+            first?.id ||
+            first?.termId ||
+            first?.identifier ||
+            null;
+          let label =
+            first?.label ||
+            first?.rdfsLabel ||
+            first?.prefLabel ||
+            first?.term ||
+            first?.name ||
+            id;
+
+          if (id) setSelectedValue({ id, label });
+          setData(first);
         } finally {
           setPageLoading(false);
         }
       }, 300),
     []
   );
-  // -------------------------------------------------------------
 
-  // JSON-LD for raw viewer
   const fetchJSONFile = useCallback(() => {
     if (!searchTerm) {
       setJsonData(null);
@@ -78,38 +95,48 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat, group = "
     });
   }, [searchTerm, group]);
 
-  // Fetch hierarchies for the selected value (superclasses for now)
+  // normalize ID for API calls
+  const toILX = (curieLike) => {
+    let t = (curieLike || "").split("/").pop() || curieLike;
+    return t.replace(/^ilx_/i, "ILX:");
+  };
+
+  // fetch both directions + compute trees + build options
   const fetchHierarchies = useCallback(async (curieLike, groupname) => {
     setLoadingHierarchies(true);
     try {
-      let termId = curieLike.split("/").pop() || curieLike;
-      termId = termId.replace(/^ilx_/, "ILX:");
+      const termId = toILX(curieLike);
 
-      const superRes = await getTermHierarchies({ groupname, termId, objToSub: false });
-      const triples = superRes?.triples || [];
-      setTriplesSuperclasses(triples);
+      const [childRes, superRes] = await Promise.all([
+        getTermHierarchies({ groupname, termId, objToSub: true }),
+        getTermHierarchies({ groupname, termId, objToSub: false }),
+      ]);
 
-      // Build SingleSearch options from the triples we got back
-      const deduped = toHierarchyOptionsFromTriples(triples);
-      setHierarchyOptions(deduped);
+      const childTriples = childRes?.triples || [];
+      const superTriples = superRes?.triples || [];
+
+      // trees for the currently selected ID
+      setTreeChildren(buildChildrenTreeFromTriples(childTriples, termId));
+      setTreeSuperclasses(buildSuperclassesTreeFromTriples(superTriples, termId));
+
+      // update SingleSearch options (union of both)
+      const children = toHierarchyOptionsFromTriples(childTriples);
+      const superclasses = toHierarchyOptionsFromTriples(superTriples);
+      setHierarchyOptions({children: children, superclasses: superclasses});
+      setLoadingHierarchies(false);
     } catch (e) {
       console.error("fetchHierarchies error:", e);
-      setTriplesChildren([]);
-      setTriplesSuperclasses([]);
+      setTreeChildren([]);
+      setTreeSuperclasses([]);
       setHierarchyOptions([]);
-    } finally {
       setLoadingHierarchies(false);
     }
   }, []);
 
-  // Fetch predicates for the Predicates panel
   const fetchPredicates = useCallback(async (curieLike, groupname) => {
     setLoadingPredicates(true);
     try {
-      // Normalize to ILX:NNNN… for the endpoint
-      let termId = curieLike.split("/").pop() || curieLike;
-      termId = termId.replace(/^ilx_/i, "ILX:");
-
+      const termId = toILX(curieLike);
       const groups = await getTermPredicates({ groupname, termId });
       setPredicateGroups(groups || []);
     } catch (e) {
@@ -120,31 +147,35 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat, group = "
     }
   }, []);
 
-  // bootstrapping on search change
   useEffect(() => {
     setPageLoading(true);
+    setLoadingHierarchies(true);
+    setLoadingPredicates(true);
     debouncedFetchTerms(searchTerm, group);
     fetchJSONFile();
-    return () => {
-      debouncedFetchTerms.cancel();
-    };
+    return () => debouncedFetchTerms.cancel();
   }, [searchTerm, group, debouncedFetchTerms, fetchJSONFile]);
 
-  // react to selection changes
   useEffect(() => {
     if (selectedValue?.id) {
-      // Trigger both in parallel; each has its own loading state
-      fetchPredicates(selectedValue.id, "base");
       fetchHierarchies(selectedValue.id, "base");
+      fetchPredicates(selectedValue.id, "base");
     } else {
-      setTriplesChildren([]);
-      setTriplesSuperclasses([]);
+      setTreeChildren([]);
+      setTreeSuperclasses([]);
       setPredicateGroups([]);
       setHierarchyOptions([]);
     }
-  }, [selectedValue, group, fetchHierarchies, fetchPredicates]);
+  }, [selectedValue, fetchHierarchies, fetchPredicates]);
 
   const memoData = useMemo(() => data, [data]);
+
+  const rawPredicates = [
+    ...(Array.isArray(predicateGroups) ? predicateGroups : []),
+    ...(memoData && Array.isArray(memoData.predicates) ? memoData.predicates : []),
+  ];
+  
+  const predicates = dedupePredicateGroups(rawPredicates);  
 
   return (
     <Box p="2.5rem 5rem" sx={{ overflow: "auto" }}>
@@ -157,28 +188,17 @@ const OverView = ({ searchTerm, isCodeViewVisible, selectedDataFormat, group = "
             <Divider />
             <Grid container pt="5.25rem" spacing="2.75rem">
               <Grid item xs={12} lg={4}>
-                {loadingHierarchies ? (
-                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: 240 }}>
-                    <CircularProgress />
-                  </Box>
-                ) : (
-                  <Hierarchy
-                    options={hierarchyOptions}
-                    selectedValue={selectedValue}
-                    onSelect={setSelectedValue}
-                    triplesChildren={triplesChildren}
-                    triplesSuperclasses={triplesSuperclasses}
-                  />
-                )}
+                <Hierarchy
+                  options={hierarchyOptions}
+                  selectedValue={selectedValue}
+                  onSelect={setSelectedValue}
+                  treeChildren={treeChildren}
+                  treeSuperclasses={treeSuperclasses}
+                  loading={loadingHierarchies}
+                />
               </Grid>
               <Grid item xs={12} lg={8}>
-                {loadingPredicates ? (
-                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: 240 }}>
-                    <CircularProgress />
-                  </Box>
-                ) : (
-                  <Predicates data={predicateGroups} isGraphVisible={true} />
-                )}
+                <Predicates data={predicates} isGraphVisible={true} loading={loadingPredicates}/>
               </Grid>
             </Grid>
           </Box>

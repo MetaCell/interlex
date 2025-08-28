@@ -330,7 +330,7 @@ export const getTermPredicates =  async ({
 
   // Build gold-standard predicate groups for the focus owl:Class
   const predicates = buildPredicateGroupsForFocus(jsonld, termId);
-  return { predicates };
+  return predicates;
 };
 
 export const getTermHierarchies = async ({

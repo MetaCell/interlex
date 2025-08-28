@@ -1,118 +1,79 @@
+// SingleTermView/OverView/Hierarchy.jsx
+import React from "react";
+import PropTypes from "prop-types";
 import {
   Box,
   Button,
   Divider,
   Stack,
-  Typography
+  Typography,
+  CircularProgress
 } from "@mui/material";
 import { vars } from "../../../theme/variables";
-import React from "react";
-import PropTypes from "prop-types";
 import { RestartAlt, TargetCross } from "../../../Icons";
 import SingleSearch from "../SingleSearch";
 import CustomizedTreeView from "../../common/CustomizedTreeView";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
 
 const { gray600, gray800 } = vars;
+const CHILDREN = 'children';
+const SUPERCLASSES = 'superclasses';
 
-/**
- * Extract simple label and containment maps from triples.
- * We detect part-of edges broadly to be resilient to label/id variants.
- */
-function mapsFromTriples(triples) {
-  const idLabelMap = {};
-  const parentToChildren = {};
-
-  for (const t of triples || []) {
-    const pred = (t?.predicate?.label || t?.predicate?.id || '').toLowerCase();
-
-    // collect labels
-    if (pred.endsWith('label') || pred.includes('rdfs:label')) {
-      if (t.subject?.id) {
-        idLabelMap[t.subject.id] = t.subject?.label || t.subject.id;
-      }
-      if (t.object?.id) {
-        idLabelMap[t.object.id] = t.object?.label || t.object.id;
-      }
-      continue;
-    }
-
-    // connect part-of edges: child --partOf--> parent  =>  parent -> child
-    if (pred.includes('partof')) {
-      const child = t?.subject?.id;
-      const parent = t?.object?.id;
-      if (child && parent) {
-        if (!parentToChildren[parent]) parentToChildren[parent] = [];
-        if (!parentToChildren[parent].includes(child)) parentToChildren[parent].push(child);
-      }
-    }
+// Find first tree item whose .iri matches focusIri
+const findFirstRenderedId = (items = [], focusIri) => {
+  const stack = [...items];
+  while (stack.length) {
+    const node = stack.shift();
+    if (node?.iri === focusIri) return node.id;
+    if (Array.isArray(node?.children)) stack.push(...node.children);
   }
+  return null;
+};
 
-  return { idLabelMap, parentToChildren };
-}
-
-function buildTree(rootId, mapping, idLabelMap) {
-  const visited = new Set();
-  const build = (id) => {
-    if (visited.has(id)) {
-      return { id, label: idLabelMap[id] || id, children: [], isCycle: true };
-    }
-    visited.add(id);
-    const kids = (mapping[id] || []).map(build);
-    return { id, label: idLabelMap[id] || id, children: kids };
-  };
-  return [build(rootId)];
-}
+// Normalize "ILX:0100573" -> "http://uri.interlex.org/base/ilx_0100573"
+const toIri = (idLike) => {
+  if (!idLike) return "";
+  if (/^https?:\/\//i.test(idLike)) return idLike;
+  const m = String(idLike).match(/^ILX:(\d+)$/i);
+  if (m) return `http://uri.interlex.org/base/ilx_${m[1]}`;
+  return idLike;
+};
 
 const Hierarchy = ({
-  options = [],
-  selectedValue,
+  options = { children: [], superclasses: [] }, // {children:[{id,label}], superclasses:[...]}
+  selectedValue,                                 // { id, label }
   onSelect,
-  triplesChildren = [],
-  triplesSuperclasses = [],
+  // prebuilt trees (arrays of {id,label,iri,children})
+  treeChildren = [],
+  treeSuperclasses = [],
+  loading = false,
 }) => {
-  const [type, setType] = React.useState("children");
-  const [treeData, setTreeData] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
+  const [type, setType] = React.useState(SUPERCLASSES); // default to superclasses
+  const [currentId, setCurrentId] = React.useState(null);
 
+  // when selection or type changes, recompute which tree + currentId to show
   React.useEffect(() => {
-    const triples = type === "children" ? triplesChildren : triplesSuperclasses;
-    if (!selectedValue?.id || !Array.isArray(triples)) {
-      setTreeData([]);
-      return;
-    }
-    setLoading(true);
-    try {
-      const { idLabelMap, parentToChildren } = mapsFromTriples(triples);
-      let mapping = parentToChildren;
+    const focusIri = toIri(selectedValue?.id);
+    const items = type === CHILDREN ? treeChildren : treeSuperclasses;
+    setCurrentId(findFirstRenderedId(items, focusIri));
+  }, [selectedValue, type, treeChildren, treeSuperclasses]);
 
-      // for superclasses we invert the direction (parent mapping becomes child->parents)
-      if (type === "superclasses") {
-        const childToParents = {};
-        for (const [p, kids] of Object.entries(parentToChildren)) {
-          for (const kid of kids) {
-            if (!childToParents[kid]) childToParents[kid] = [];
-            if (!childToParents[kid].includes(p)) childToParents[kid].push(p);
-          }
-        }
-        mapping = childToParents;
-      }
+  const items = type === CHILDREN ? treeChildren : treeSuperclasses;
+  const childCount = items?.[0]?.children?.length || 0;
 
-      const tree = buildTree(selectedValue.id, mapping, idLabelMap);
-      setTreeData(tree);
-    } catch (e) {
-      console.error(e);
-      setTreeData([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedValue, type, triplesChildren, triplesSuperclasses]);
-
-  const childCount = treeData?.[0]?.children?.length || 0;
-
-  const handleSelectChange = (_event, value) => {
-    onSelect?.(value);
+  const handleSelectChange = (_event, value) => onSelect?.(value);
+  const gotoFirstOption = () => {
+    const opts = type === CHILDREN ? options.children : options.superclasses;
+    if (opts?.length) onSelect?.(opts[0]);
   };
+
+  const singleSearchOptions = type === CHILDREN ? options.children : options.superclasses;
+
+  if (loading) {
+    return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <CircularProgress />
+    </Box>
+  }
 
   return (
     <Box display='flex' flexDirection='column' gap='1rem'>
@@ -124,53 +85,50 @@ const Hierarchy = ({
             value={type}
             onChange={(v) => setType(v)}
             options={[
-              { value: 'children', label: 'Children' },
-              { value: 'superclasses', label: 'Superclasses' },
+              { value: CHILDREN, label: 'Children' },
+              { value: SUPERCLASSES, label: 'Superclasses' },
             ]}
           />
           <Divider orientation="vertical" flexItem />
-          <Button
-            sx={{ p: '0.625rem 0.5625rem', minWidth: '0.0625rem' }}
-            variant='outlined'
-            onClick={() => options?.length && onSelect?.(options[0])}
-            title="Reset to first option"
-          >
+          <Button sx={{ p: '0.625rem 0.5625rem', minWidth: '0.0625rem' }} variant='outlined' onClick={gotoFirstOption}>
             <RestartAlt />
           </Button>
-          <Button
-            sx={{ p: '0.625rem 0.5625rem', minWidth: '0.0625rem' }}
-            variant='outlined'
-            title="Focus (no-op placeholder)"
-          >
+          <Button sx={{ p: '0.625rem 0.5625rem', minWidth: '0.0625rem' }} variant='outlined' title="Focus (no-op placeholder)">
             <TargetCross />
           </Button>
         </Stack>
       </Box>
 
-      <SingleSearch onChange={handleSelectChange} selectedValue={selectedValue} options={options} />
-      <CustomizedTreeView items={options} loading={loading} currentId={selectedValue?.id || null} />
+      <SingleSearch
+        onChange={handleSelectChange}
+        selectedValue={selectedValue}
+        options={singleSearchOptions}
+      />
+
+      <CustomizedTreeView
+        items={items}
+        loading={false}
+        currentId={currentId}
+        defaultExpanded={type === CHILDREN ? false : true}
+      />
+
       <Typography color={gray600} fontSize='.875rem'>
-        Total number of first generation {type === 'children' ? 'children' : 'superclasses'}: {childCount}
+        Total number of first generation {type === CHILDREN ? CHILDREN : SUPERCLASSES}: {childCount}
       </Typography>
     </Box>
   );
 };
 
 Hierarchy.propTypes = {
-  options: PropTypes.arrayOf(
-    PropTypes.shape({
-      label: PropTypes.string,
-      handler: PropTypes.string.isRequired,
-      id : PropTypes.string.isRequired,
-    })
-  ),
-  selectedValue: PropTypes.shape({
-    label: PropTypes.string,
-    id: PropTypes.string,
+  options: PropTypes.shape({
+    children: PropTypes.arrayOf(PropTypes.shape({ id: PropTypes.string, label: PropTypes.string })),
+    superclasses: PropTypes.arrayOf(PropTypes.shape({ id: PropTypes.string, label: PropTypes.string })),
   }),
+  selectedValue: PropTypes.shape({ id: PropTypes.string, label: PropTypes.string }),
   onSelect: PropTypes.func,
-  triplesChildren: PropTypes.array,
-  triplesSuperclasses: PropTypes.array,
+  treeChildren: PropTypes.array,      // array of TreeItem
+  treeSuperclasses: PropTypes.array,  // array of TreeItem
+  loading: PropTypes.bool,
 };
 
 export default Hierarchy;

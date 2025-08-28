@@ -1,5 +1,3 @@
-// GraphStructure.jsx (pure JS)
-
 export const OBJECT = "object";
 export const PREDICATE = "predicate";
 export const SUBJECT = "subject";
