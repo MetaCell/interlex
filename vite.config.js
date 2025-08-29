@@ -38,7 +38,11 @@ export default defineConfig({
           });
         },
       },
+<<<<<<< HEAD
       '^/([^/]+)/priv/entity-check': {
+=======
+      '^/([^/]+)/priv/entity(.*)': {
+>>>>>>> fec7e4ceab50ce6aaecb1c1594d95a888be4f7a4
         target: "https://uri.olympiangods.org",
         secure: false,
         changeOrigin: true,
