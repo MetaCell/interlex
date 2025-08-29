@@ -345,49 +345,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'              
-  /{group}/query/transitive/{property}/{start}?depth:
-    get:
-      summary: Retrieve hierarchy results
-      operationId: get_hierarchy_results
-      tags:
-        - API
-      parameters:
-        - name: group
-          in: path
-          required: true
-          description: base group
-          schema:
-            type: string
-        - name: property
-          in: path
-          required: true
-          description: property
-          schema:
-            type: string
-        - name: start
-          in: path
-          required: true
-          description: start
-          schema:
-            type: string
-      responses:
-        200:
-          description: A paged array of results
-          headers:
-            x-next:
-              description: A link to the next page of responses
-              schema:
-                type: string
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Hierarchies'
-        default:
-          description: unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
   /{group}/addTerm:
     post:
       summary: Used to add a new term
