@@ -60,20 +60,19 @@ const ID_CHIP_STYLES = {
 const FirstStepContent = ({
     term,
     type,
+    hasExactMatch,
     existingIds,
     synonyms,
     handleTermChange,
     handleTypeChange,
+    handleExactMatchChange,
     handleExistingIdChange,
     handleSynonymChange,
     handleDialogClose
 }) => {
-    const safeType = type || DEFAULT_TYPE;
-
     const [termResults, setTermResults] = useState([]);
     const [openSidebar, setOpenSidebar] = useState(true);
     const [loading, setLoading] = useState(false);
-    const [hasExactMatch, setHasExactMatch] = useState(false);
 
     const synonymOptions = useMemo(() => [], []);
     const idOptions = useMemo(() => [], []);
@@ -85,58 +84,47 @@ const FirstStepContent = ({
         debounce(async (searchTerm, searchType) => {
             if (!searchTerm || !searchType) {
                 setTermResults([]);
-                setHasExactMatch(false);
+                handleExactMatchChange(false);
                 return;
             }
 
             setLoading(true);
 
+            const validType = TYPES.includes(searchType) ? searchType : DEFAULT_TYPE;
+
             try {
-                const validType = TYPES.includes(searchType) ? searchType : DEFAULT_TYPE;
-                console.log("Using type: ", validType);
-                // const response = await elasticSearch(searchTerm, 10);
-                // const rawResults = response.results.results || [];
-
-                // const filteredResults = rawResults.filter(result => {
-                //     return result.type === type.toLowerCase() ||
-                //         (result.type === "term") ||
-                //         (result.type === "relationship") ||
-                //         (result.type === "ontology");
-                // });
-
-                // const exactMatch = filteredResults.find(result =>
-                //     result.label?.toLowerCase() === searchTerm.toLowerCase() &&
-                //     result.type === type.toLowerCase()
-                // );
-
-                console.log("user: ", user)
-
-                const entityCheckResponse = await checkPotentialMatches(user?.groupname || 'base', {
+                await checkPotentialMatches(user?.groupname || 'base', {
                     "label": searchTerm,
                     "rdf-type": validType,
                     "exact": []
                 });
-
-                console.log("Entity Check Response:", entityCheckResponse);
-                const filteredResults = entityCheckResponse?.matches || [];
-                const exactMatch = entityCheckResponse?.exact_match || null;
-
-                setHasExactMatch(!!exactMatch);
-
-                const sortedResults = filteredResults.sort((a, b) => {
-                    const aIsExact = a.label?.toLowerCase() === searchTerm.toLowerCase();
-                    const bIsExact = b.label?.toLowerCase() === searchTerm.toLowerCase();
-
-                    if (aIsExact && !bIsExact) return -1;
-                    if (!aIsExact && bIsExact) return 1;
-                    return 0;
-                });
-
-                setTermResults(sortedResults);
             } catch (error) {
-                console.error("Search error:", error);
-                setTermResults([]);
-                setHasExactMatch(false);
+                if (error?.response?.status === 409 && error?.response?.data?.existing) {
+                    const existingTerms = error.response.data.existing;
+                    const results = [];
+
+                    for (const [termUri, matches] of Object.entries(existingTerms)) {
+                        const matchesArray = Array.isArray(matches) ? matches : [matches];
+
+                        matchesArray.forEach(match => {
+                            results.push({
+                                ilx: termUri.split('/').pop(),
+                                label: match.object,
+                                predicateInfo: {
+                                    existing: match.predicate_existing,
+                                    submitted: match.predicate_submitted
+                                }
+                            });
+                        });
+                    }
+
+                    handleExactMatchChange(true);
+                    setTermResults(results);
+                } else {
+                    console.error("Non-conflict error:", error);
+                    setTermResults([]);
+                    handleExactMatchChange(false);
+                }
             } finally {
                 setLoading(false);
             }
@@ -168,15 +156,15 @@ const FirstStepContent = ({
         , []);
 
     useEffect(() => {
-        if (term && safeType) {
-            searchForMatches(term, safeType);
+        if (term && type) {
+            searchForMatches(term, type);
         }
         return () => {
             searchForMatches.cancel();
-            setHasExactMatch(false);
+            handleExactMatchChange(false);
             setTermResults([]);
         };
-    }, [term, safeType, searchForMatches]);
+    }, [term, type, searchForMatches]);
 
     return (
         <Box display="flex" height={1}>
@@ -215,7 +203,7 @@ const FirstStepContent = ({
                             isFormControlFullWidth={true}
                             options={TYPES}
                             placeholder="Select object type"
-                            value={safeType}
+                            value={type}
                             onChange={handleTypeChange}
                         />
                         <CustomFormField
@@ -286,10 +274,12 @@ const FirstStepContent = ({
 FirstStepContent.propTypes = {
     term: PropTypes.string,
     type: PropTypes.string,
+    hasExactMatch: PropTypes.bool,
     existingIds: PropTypes.array,
     synonyms: PropTypes.array,
     handleTermChange: PropTypes.func,
     handleTypeChange: PropTypes.func,
+    handleExactMatchChange: PropTypes.func,
     handleExistingIdChange: PropTypes.func,
     handleSynonymChange: PropTypes.func,
     handleDialogClose: PropTypes.func,

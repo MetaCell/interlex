@@ -330,7 +330,5 @@ export const getTermHierarchies = async ({
 };
 
 export const checkPotentialMatches = async (group: string, data: any) => {
-  console.log("data: ", data)
-  console.log("group: ", group)
   return createPostRequest<any, any>(`/${group}${API_CONFIG.REAL_API.CHECK_ENTITY}`, { "Content-Type": "application/json" })(data);
 };

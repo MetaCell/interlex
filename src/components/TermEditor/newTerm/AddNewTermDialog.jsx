@@ -25,6 +25,9 @@ import { vars } from "../../../theme/variables";
 
 const { gray100, gray200, gray400, gray600 } = vars;
 
+const TYPES = ['owl:Class', 'owl:AnnotationProperty', 'owl:ObjectProperty', 'TODO:CDE', 'TODO:FDE', 'TODO:PDE'];
+const DEFAULT_TYPE = TYPES[0];
+
 const HeaderRightSideContent = ({
     activeStep,
     onContinue,
@@ -100,12 +103,12 @@ HeaderRightSideContent.propTypes = {
 const AddNewTermDialog = ({ open, handleClose }) => {
     const [activeStep, setActiveStep] = useState(0);
     const [addTermResponse] = useState(null);
-    const [selectedType, setSelectedType] = useState(null);
+    const [selectedType, setSelectedType] = useState(DEFAULT_TYPE);
     const [termValue, setTermValue] = useState("");
     const [exactSynonyms, setExactSynonyms] = useState([]);
     const [existingIds, setExistingIds] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [hasExactMatch] = useState(false);
+    const [hasExactMatch, setHasExactMatch] = useState(false);
     const { user } = useContext(GlobalDataContext);
     const navigate = useNavigate();
 
@@ -133,6 +136,10 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const handleExistingIdChange = (event, newValue) => {
         setExistingIds(newValue);
     };
+
+    const handleExactMatchChange = (value) => {
+        setHasExactMatch(value)
+    }
 
     const createNewTerm = useCallback(async () => {
         if (!termValue || !selectedType || hasExactMatch) return;
@@ -185,10 +192,12 @@ const AddNewTermDialog = ({ open, handleClose }) => {
             {activeStep === 0 && <FirstStepContent
                 term={termValue}
                 type={selectedType}
+                hasExactMatch={hasExactMatch}
                 existingIds={existingIds}
                 synonyms={exactSynonyms}
                 handleTermChange={handleTermValueChange}
                 handleTypeChange={handleTypeChange}
+                handleExactMatchChange={handleExactMatchChange}
                 handleSynonymChange={handleSynonymChange}
                 handleExistingIdChange={handleExistingIdChange}
                 handleDialogClose={handleClose}
