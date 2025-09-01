@@ -22,9 +22,11 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import { vars } from "../../../theme/variables";
 const { gray600 } = vars;
+const TABLE_VIEW = 'tableView';
+const GRAPH_VIEW = 'graphView';
 
 const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
-  const [toggleButtonValues, setToggleButtonValues] = useState(data?.map(() => 'tableView') || []);
+  const [toggleButtonValues, setToggleButtonValues] = useState(data?.map(() => TABLE_VIEW) || []);
   const [openViewDiagram, setOpenViewDiagram] = React.useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [expandedItems, setExpandedItems] = useState(data?.map(() => false) || []);
@@ -54,7 +56,7 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
   };
 
   useEffect(() => {
-    const newToggleButtonValues = data?.map((d) => (d.forceGraph ? "graphView" : "tableView")) || [];
+    const newToggleButtonValues = data?.map((d) => (d.forceGraph ? GRAPH_VIEW : TABLE_VIEW)) || [];
     const newExpandedItems = data?.map(() => expandAllPredicates) || [];
     setToggleButtonValues(newToggleButtonValues);
     setExpandedItems(newExpandedItems);
@@ -100,10 +102,10 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
                     exclusive
                     onChange={onToggleButtonChange(index)}
                   >
-                    <ToggleButton value={'tableView'}>
+                    <ToggleButton value={TABLE_VIEW}>
                       <TableChartIcon />
                     </ToggleButton>
-                    <ToggleButton value={'graphView'}>
+                    <ToggleButton value={GRAPH_VIEW}>
                       <GraphIcon />
                     </ToggleButton>
                   </ToggleButtonGroup>
@@ -112,7 +114,7 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
             </Stack>
           </AccordionSummary>
           <AccordionDetails>
-            {toggleButtonValues[index] === 'tableView' ? (
+            {toggleButtonValues[index] === TABLE_VIEW ? (
               <CustomizedTable
                 data={pred}           // expects object with rows/values
                 term={term}
