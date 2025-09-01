@@ -119,12 +119,15 @@ export const createNewEntity = async ({ group, data, session }: { group: string;
     const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ENTITY}`;
     const response = await createPostRequest<any, any>(
       endpoint,
-      { "Content-Type": "application/x-www-form-urlencoded" }
+      { "Content-Type": "application/json" }
     )(data);
 
+    console.log("response: ", response)
     // If the response is HTML (a string), extract TMP ID
     if (typeof response === "string") {
+      console.log("am i here??")
       const match = response.match(/TMP:\d{9}/);
+      console.log("match: ", match)
       if (match) {
         return {
           term: {

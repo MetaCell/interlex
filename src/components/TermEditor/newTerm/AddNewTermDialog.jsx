@@ -150,8 +150,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         const groupName = user?.groupname || "base";
         const body = {
             'rdf-type': selectedType || 'owl:Class',
-            label: termValue,
-            exact: [],
+            label: termValue
         };
 
         try {
@@ -160,6 +159,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                 data: body,
                 session: token
             });
+            console.log("response: ", response)
             navigate(`/terms/${response.term.id.split("/").pop()}`);
         } catch (error) {
             console.error("Creation failed:", error);
