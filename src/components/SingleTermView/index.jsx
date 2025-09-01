@@ -372,8 +372,6 @@ const SingleTermView = () => {
                   )}
 
                   <CustomButtonGroup
-                    buttonTitle="Add term to active ontology"
-                    buttonIcon={<CreateNewFolderOutlined fontSize="medium" />}
                     variant="outlined"
                     options={menuOptions}
                     sx={{ 
