@@ -1,7 +1,8 @@
 import { createPostRequest, createGetRequest } from "./apiActions";
 import { API_CONFIG } from "../../config";
 import termParser from "../../parsers/termParser";
-import { jsonldToTriplesAndEdges, PART_OF_IRI } from './hiearchies-parser'
+import { jsonldToTriplesAndEdges, PART_OF_IRI } from '../../parsers/hierarchies-parser'
+import { buildPredicateGroupsForFocus } from "../../parsers/predicateParser";
 
 export interface LoginRequest {
   username: string
@@ -184,8 +185,7 @@ export const createNewOntology = async ({
   };
 
   const headers = {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
   };
 
   try {
@@ -203,7 +203,7 @@ export const createNewOntology = async ({
     if (redirectLocation) {
       const olympianRedirectLocation = redirectLocation.replace('http://uri.interlex.org', '').replace(/\.html$/, '.jsonld');
 
-      const getResponse = await fetch(olympianRedirectLocation, { headers: { Authorization: `Bearer ${token}` } });
+      const getResponse = await fetch(olympianRedirectLocation);
       const jsonResponse = await getResponse.json();
 
       const newOntologyID = jsonResponse?.["@graph"]?.find((object) => object["@type"] === "owl:Ontology")?.["@id"] || null;
@@ -305,7 +305,7 @@ export const getVariant = (group: string, term: string) => {
   return createGetRequest<any, any>(`/${group}/variant/${term}`, "application/json")();
 };
 
-export const getTermHierarchies = async ({
+export const getTermPredicates =  async ({
   groupname,
   termId,
   objToSub = true,
@@ -314,22 +314,57 @@ export const getTermHierarchies = async ({
   termId: string;
   objToSub?: boolean;
 }) => {
-  const base = `/${groupname}/query/transitive/${encodeURIComponent(termId)}/ilx.partOf:`;
-  const url1 = `${base}?obj-to-sub=${objToSub}`;
-  const url2 = `${base}.jsonld?obj-to-sub=${objToSub}`;
+  const url = new URL(
+    `/${groupname}/query/transitive/${encodeURIComponent(termId)}/ilx.partOf:?obj-to-sub=true`,
+    window.location.origin
+  ).toString();
 
-  try {
-    const res1 = await createGetRequest<any, any>(url1, 'application/ld+json')();
-    return jsonldToTriplesAndEdges(res1);
-  } catch {
-    try {
-      const res2 = await createGetRequest<any, any>(url2, 'application/ld+json')();
-      return jsonldToTriplesAndEdges(res2);
-    } catch (e2: any) {
-      console.error('getTermHierarchies failed', e2);
-      return { error: true, message: e2?.message || String(e2) };
-    }
+  const resp = await fetch(url, {
+    headers: { Accept: "application/ld+json" },
+    credentials: "include",
+  });
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  const ct = resp.headers.get("content-type") || "";
+  if (!/application\/(ld\+json|json)/i.test(ct)) {
+    throw new Error(`Server did not return JSON-LD (content-type: ${ct || "n/a"})`);
   }
+  const jsonld = await resp.json();
+
+  // Build gold-standard predicate groups for the focus owl:Class
+  const predicates = buildPredicateGroupsForFocus(jsonld, termId);
+  return predicates;
+};
+
+export const getTermHierarchies = async ({
+  groupname,
+  termId,
+  objToSub = false,
+}: {
+  groupname: string;
+  termId: string;
+  objToSub?: boolean;
+}) => {
+  const url = new URL(
+    `/${groupname}/query/transitive/${encodeURIComponent(termId)}/ilx.partOf:?obj-to-sub=${objToSub}`,
+    window.location.origin
+  ).toString();
+
+  const resp = await fetch(url, {
+    headers: { Accept: "application/ld+json" },
+    credentials: "include",
+  });
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  const ct = resp.headers.get("content-type") || "";
+  if (!/application\/(ld\+json|json)/i.test(ct)) {
+    throw new Error(`Server did not return JSON-LD (content-type: ${ct || "n/a"})`);
+  }
+  const jsonld = await resp.json();
+
+  // Only what Hierarchy needs
+  const parsed = jsonldToTriplesAndEdges(jsonld);
+  const triples = Array.isArray(parsed) ? parsed : (parsed?.triples || parsed?.edges || []);
+
+  return { triples };
 };
 
 export const checkPotentialMatches = async (group: string, data: any) => {

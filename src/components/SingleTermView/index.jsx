@@ -28,7 +28,6 @@ import HistoryPanel from "./History/HistoryPanel";
 import VariantsPanel from "./Variants/VariantsPanel";
 import RequestMergeChanges from "./RequestMergeChanges";
 import {
-  CreateNewFolderOutlined,
   DownloadOutlined,
   List,
   AccountTreeOutlined
@@ -372,8 +371,6 @@ const SingleTermView = () => {
                   )}
 
                   <CustomButtonGroup
-                    buttonTitle="Add term to active ontology"
-                    buttonIcon={<CreateNewFolderOutlined fontSize="medium" />}
                     variant="outlined"
                     options={menuOptions}
                     sx={{ 

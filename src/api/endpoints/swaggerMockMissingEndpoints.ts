@@ -192,19 +192,6 @@ export const getOrganizationsCuries = (
       options);
     }
   
-/**
- * @summary Retrieve hierarchy results
- */
-export const getHierarchyResults = (
-    group: string,
-    property: string,
-    start: string,
- options?: SecondParameter<typeof customInstance>,) => {
-      return customInstance<Hierarchies>(
-      {url: `/${group}/query/transitive/${property}/${start}?depth`, method: 'GET'
-    },
-      options);
-    }
   
 /**
  * @summary Used to add a new term
@@ -430,7 +417,6 @@ export type GetOrganizationsResult = NonNullable<Awaited<ReturnType<typeof getOr
 export type GetOrganizationsTermsResult = NonNullable<Awaited<ReturnType<typeof getOrganizationsTerms>>>
 export type GetOrganizationsOntologiesResult = NonNullable<Awaited<ReturnType<typeof getOrganizationsOntologies>>>
 export type GetOrganizationsCuriesResult = NonNullable<Awaited<ReturnType<typeof getOrganizationsCuries>>>
-export type GetHierarchyResultsResult = NonNullable<Awaited<ReturnType<typeof getHierarchyResults>>>
 export type AddTermResult = NonNullable<Awaited<ReturnType<typeof addTerm>>>
 export type BulkEditTermsResult = NonNullable<Awaited<ReturnType<typeof bulkEditTerms>>>
 export type GetMatchTermsResult = NonNullable<Awaited<ReturnType<typeof getMatchTerms>>>

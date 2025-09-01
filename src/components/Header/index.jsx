@@ -365,21 +365,11 @@ const Header = () => {
                             <Button variant="outlined" onClick={() => navigate("/login")}>Log in</Button>
                         </Box>
                         <Divider sx={styles.divider} />
-                        <CustomButtonGroup
-                            buttonTitle='Add a new term'
-                            buttonIcon={<AddIcon />}
-                            options={options}
-                            onOptionSelect={(option) => console.log('Selected:', option.label)}
-                        />
+                        <CustomButtonGroup options={options} />
                     </Box>
                 ) : (
                     <Box display='flex' gap='1.25rem'>
-                        <CustomButtonGroup
-                            buttonTitle='Add a new term'
-                            buttonIcon={<AddIcon />}
-                            options={options}
-                            onOptionSelect={(option) => console.log('Selected:', option.label)}
-                        />
+                        <CustomButtonGroup options={options} />
                         <Divider sx={styles.divider} />
                         <IconButton sx={{
                             p: 0,

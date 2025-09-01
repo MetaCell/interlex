@@ -35,31 +35,23 @@ const styles = {
     }
 }
 
-const CustomButtonGroup = ({
-    variant = "contained",
-    buttonTitle,
-    buttonIcon = null,
-    options = [],
-    onOptionSelect,
-    sx
-}) => {
+const CustomButtonGroup = ({ variant = "contained", options = [], sx }) => {
     const [open, setOpen] = React.useState(false);
+    const [selectedIndex, setSelectedIndex] = React.useState(0);
     const anchorRef = React.useRef(null);
 
     const handleMainButtonClick = () => {
-        if (options.length === 0 && onOptionSelect) {
-            onOptionSelect(null);
+        setOpen(false);
+        if (options[selectedIndex]?.action) {
+            options[selectedIndex].action();
         }
     };
 
-    const handleMenuItemClick = (event, option) => {
+    const handleMenuItemClick = (event, index) => {
+        setSelectedIndex(index);
         setOpen(false);
-        if (option.action) {
-            option.action();
-        } else if (onOptionSelect) {
-            onOptionSelect(option);
-        }
     };
+
 
     const handleToggle = () => {
         setOpen((prevOpen) => !prevOpen);
@@ -84,7 +76,7 @@ const CustomButtonGroup = ({
             >
                 <Button
                     onClick={handleMainButtonClick}
-                    startIcon={buttonIcon}
+                    startIcon={options[selectedIndex]?.icon}
                     sx={{
                         pr: "0.75rem !important",
                         "& .MuiButton-startIcon": {
@@ -92,7 +84,7 @@ const CustomButtonGroup = ({
                         }
                     }}
                 >
-                    {buttonTitle}
+                    {options[selectedIndex]?.label}
                 </Button>
                 {options.length > 0 && (
                     <Button
@@ -131,7 +123,7 @@ const CustomButtonGroup = ({
                                         {options.map((option, index) => (
                                             <MenuItem
                                                 key={option.label || index}
-                                                onClick={(event) => handleMenuItemClick(event, option)}
+                                                onClick={(event) => handleMenuItemClick(event, index)}
                                                 sx={styles.menuItem}
                                             >
                                                 {option.icon}
@@ -151,16 +143,12 @@ const CustomButtonGroup = ({
 
 CustomButtonGroup.propTypes = {
     variant: PropTypes.oneOf(['contained', 'outlined', 'text']),
-    buttonTitle: PropTypes.node.isRequired,
-    buttonIcon: PropTypes.node,
     options: PropTypes.array,
-    onOptionSelect: PropTypes.func,
     sx: PropTypes.object,
 };
 
 CustomButtonGroup.defaultProps = {
     variant: 'contained',
-    buttonIcon: null,
     options: [],
     sx: {},
 };

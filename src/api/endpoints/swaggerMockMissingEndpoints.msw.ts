@@ -1910,7 +1910,6 @@ export const getGetOrganizationsCuriesResponseMock = () => ((() => {
   }];
 })())
 
-export const getGetHierarchyResultsResponseMock = (): Hierarchies => (Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() => ([])))
 
 export const getAddTermResponseMock = () => ((() => {
   return {
@@ -4294,20 +4293,6 @@ export const getGetOrganizationsCuriesMockHandler = (overrideResponse?: Curies) 
   })
 }
 
-export const getGetHierarchyResultsMockHandler = (overrideResponse?: Hierarchies) => {
-  return http.get('*/:group/query/transitive/:property/:start?depth', async () => {
-    await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetHierarchyResultsResponseMock()),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      }
-    )
-  })
-}
-
 export const getAddTermMockHandler = (overrideResponse?: Error) => {
   return http.post('*/:group/addTerm', async () => {
     await delay(1000);
@@ -4531,7 +4516,6 @@ export const getSwaggerMockMissingEndpointsMock = () => [
   getGetOrganizationsTermsMockHandler(),
   getGetOrganizationsOntologiesMockHandler(),
   getGetOrganizationsCuriesMockHandler(),
-  getGetHierarchyResultsMockHandler(),
   getAddTermMockHandler(),
   getBulkEditTermsMockHandler(),
   getGetMatchTermsMockHandler(),
