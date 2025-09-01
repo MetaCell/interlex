@@ -58,6 +58,7 @@ function MainContent() {
 
 	const { setUserData, loading } = useContext(GlobalDataContext);
 	const navigate = useNavigate();
+	const location = useLocation();
 	// eslint-disable-next-line no-unused-vars
 	const [existingCookies, setCookie, removeCookie] = useCookies(['session']);
 
@@ -75,7 +76,10 @@ function MainContent() {
 						groupname: userData['groupname'],
 						settings: userData
 					});
-					navigate("/");
+					// Only redirect to home if user is currently on login/register pages
+					if (location.pathname === '/login' || location.pathname === '/register') {
+						navigate("/");
+					}
 				} catch (error) {
 					console.error("Error fetching user settings:", error);
 					localStorage.removeItem(API_CONFIG.SESSION_DATA.SETTINGS);
@@ -89,7 +93,7 @@ function MainContent() {
 			}
 		})();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [location.pathname]);
 
 	if (loading) {
 		return (

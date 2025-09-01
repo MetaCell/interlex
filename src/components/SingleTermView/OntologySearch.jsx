@@ -15,7 +15,7 @@ import CustomizedRadio from "../common/CustomizedRadio";
 import FolderSharedOutlinedIcon from '@mui/icons-material/FolderSharedOutlined';
 import { vars } from "../../theme/variables";
 
-const { brand600, gray50 } = vars;
+const { brand600, gray50, gray300, gray400, white, gray700, gray200, paperShadow } = vars;
 
 const OPTIONS = [
   { label: 'Nervous system1', badge: 'My Organization 1', selected: false },
@@ -31,6 +31,11 @@ const styles = {
       minWidth: fullWidth ? '100%' : (selectedValue ? '21.75rem' : '11.75rem'),
       width: fullWidth ? '100%' : 'fit-content',
       borderRadius: openList ? '0.5rem 0.5rem 0 0' : '0.5rem',
+      background: white,
+      "-webkit-text-fill-color": `${gray700} !important`,
+      "& .MuiSvgIcon-root": {
+        fill: gray700
+      },
     },
     '&.Mui-focused': {
       transition: 'width 0.100s ease-in-out',
@@ -39,7 +44,7 @@ const styles = {
         border: `2px solid ${brand600}`,
         background: gray50,
         boxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)',
-        borderRadius: '.5rem',
+        borderRadius: '.5rem'
       },
       '& .MuiOutlinedInput-notchedOutline': {
         border: 0,
@@ -71,12 +76,12 @@ const styles = {
   },
   popperBox: {
     borderRadius: '0.5rem',
-    border: '1px solid #DADDDC',
-    boxShadow: '0px 12px 16px -4px rgba(16, 24, 40, 0.08), 0px 4px 6px -2px rgba(16, 24, 40, 0.03)'
+    border: `1px solid ${gray200}`,
+    boxShadow: paperShadow
   }
 };
 
-const OntologySearch = ({ placeholder, fullWidth = false }) => {
+const OntologySearch = ({ placeholder, fullWidth = false, disabled }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
   const [openList, setOpenList] = React.useState(false);
   const [selectedValue, setSelectedValue] = React.useState(null);
@@ -115,7 +120,7 @@ const OntologySearch = ({ placeholder, fullWidth = false }) => {
     };
   }, [handleClickOutside]);
 
-  const isOptionEqualToValue = useCallback((option, value) => 
+  const isOptionEqualToValue = useCallback((option, value) =>
     option.label === value?.label && option.badge === value?.badge,
     []
   );
@@ -205,6 +210,18 @@ const OntologySearch = ({ placeholder, fullWidth = false }) => {
           </InputAdornment>
         ),
       }}
+      sx={{
+        "& .MuiOutlinedInput-root.Mui-disabled": {
+          background: white,
+          "-webkit-text-fill-color": `${gray400} !important`,
+          "& .MuiSvgIcon-root": {
+            fill: gray400
+          },
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: gray300
+          }
+        }
+      }}
     />
   ), [handleInputChange, placeholder, selectedValue]);
 
@@ -215,6 +232,7 @@ const OntologySearch = ({ placeholder, fullWidth = false }) => {
         disableClearable
         options={OPTIONS}
         open={openList}
+        disabled={disabled}
         onOpen={handleOpenList}
         forcePopupIcon={false}
         onChange={handleChange}
@@ -239,6 +257,7 @@ OntologySearch.propTypes = {
   fullWidth: PropTypes.bool,
   key: PropTypes.string,
   children: PropTypes.node,
+  disabled: PropTypes.bool
 };
 
 export default OntologySearch;

@@ -11,7 +11,7 @@ import {
   Snackbar,
 } from "@mui/material";
 import * as yup from "yup";
-import FormField from "./UI/Formfield";
+import CustomFormField from "../common/CustomFormField";
 import { API_CONFIG } from "../../config";
 import { useCookies } from 'react-cookie';
 import PasswordField from "./UI/PasswordField";
@@ -120,9 +120,9 @@ const Register = () => {
         }
       });
 
-      setIsLoading(false)
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isLoading]);
+    setIsLoading(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
 
   const handleRedirectInPopup = (url) => {
     setErrors({})
@@ -207,46 +207,42 @@ const Register = () => {
 
           <form className="authForm">
             <Grid container spacing={2.5}>
-              <FormField
-                label="Username"
-                placeholder="Enter your username"
-                value={formData.username}
-                onChange={(e) =>
-                  setFormData({ ...formData, username: e.target.value })
-                }
-                errorMessage={errors.username}
-                helperText="Required"
-              />
-              <FormField
-                label="Email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                errorMessage={errors.email}
-                helperText="Required"
-              />
-              <PasswordField
-                label="Password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-                errorMessage={errors.password}
-                helperText="Required"
-              />
-              <PasswordField
-                label="Confirm Password"
-                placeholder="Re-enter your password"
-                value={formData.confirmPassword}
-                onChange={(e) =>
-                  setFormData({ ...formData, confirmPassword: e.target.value })
-                }
-                errorMessage={errors.confirmPassword}
-                helperText="Passwords must match"
-              />
+              <Grid item xs={12}>
+                <CustomFormField
+                  label="Username"
+                  placeholder="Enter your username"
+                  value={formData.username}
+                  onChange={(e) =>
+                    setFormData({ ...formData, username: e.target.value })
+                  }
+                  errorMessage={errors.username}
+                  isRequired
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <CustomFormField
+                  label="Email"
+                  placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  errorMessage={errors.email}
+                  isRequired
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <PasswordField
+                  label="Password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  errorMessage={errors.password}
+                  isRequired
+                />
+              </Grid>
               <Grid item xs={12}>
                 <FormControl>
                   <Button

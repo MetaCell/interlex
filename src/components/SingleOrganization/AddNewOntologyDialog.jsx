@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import AddIcon from '@mui/icons-material/Add';
 import Checkbox from "../common/CustomCheckbox";
 import StatusDialog from "../common/StatusDialog";
-import CustomInputBox from "../common/CustomInputBox";
+import CustomFormField from "../common/CustomFormField";
 import { Stack, Button, Grid, Box } from "@mui/material";
 import CustomizedDialog from "../common/CustomizedDialog";
 import ImportFileTab from "./../TermEditor/ImportFileTab";
@@ -38,48 +38,48 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
     const [newOntologyResponse, setNewOntologyResponse] = useState({
         title: "",
         description: "",
-        created : false,
-        message : "Your ontology “Nervous system” has been added. Click 'Go to Ontology' to go see the result, or add a new ontology."
+        created: false,
+        message: "Your ontology “Nervous system” has been added. Click 'Go to Ontology' to go see the result, or add a new ontology."
     });
     const [files, setFiles] = useState([]);
     const [url, setUrl] = useState('');
     const [tabValue, setTabValue] = useState(0);
     const { user } = useContext(GlobalDataContext);
 
-    const handleSubmit = async() => {
+    const handleSubmit = async () => {
         const groupname = user?.groupname
 
-        const retrieved_tokens = await retrieveTokenApi({groupname})
-        let token =  null;
-        if ( retrieved_tokens?.length > 0 ){
+        const retrieved_tokens = await retrieveTokenApi({ groupname })
+        let token = null;
+        if (retrieved_tokens?.length > 0) {
             token = retrieved_tokens?.[retrieved_tokens?.length - 1]?.key;
         }
-        
-        if ( token === undefined || token === null) {
-            const newToken = await getNewTokenApi({groupname});
+
+        if (token === undefined || token === null) {
+            const newToken = await getNewTokenApi({ groupname });
             token = newToken?.key;
         }
         const ontologyName = newOntology?.title + "_" + Math.random().toString(36).substring(2, 10);
         const title = newOntology?.title;
         const subjects = files?.[0]?.data?.subjects;
-      
+
         const result = await createNewOntology({
-          groupname,
-          token,
-          ontologyName,
-          title,
-          subjects,
+            groupname,
+            token,
+            ontologyName,
+            title,
+            subjects,
         });
 
         let ontologyResponseMessage = "Ontology created successfully!"
-        
+
         if (!result.created) {
             ontologyResponseMessage = "Failed to create ontology"
             console.error('❌ Failed to create ontology:', result.error);
         }
 
         setOpenStatusDialog(true);
-        setNewOntologyResponse({title : newOntology?.title, description : ontologyResponseMessage, message : ontologyResponseMessage, created : result.created})
+        setNewOntologyResponse({ title: newOntology?.title, description: ontologyResponseMessage, message: ontologyResponseMessage, created: result.created })
     }
 
     const handleNewOntologyChange = (e) => {
@@ -109,14 +109,14 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
 
     const handleFilesSelected = async (newFiles) => {
         const fileArray = Array.from(newFiles);
-    
+
         const readFileContents = (file) => {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
-    
+
                 reader.onload = () => {
                     let content = reader.result;
-    
+
                     // Try parsing JSON if it's a JSON file
                     if (file.name.endsWith('.json')) {
                         try {
@@ -126,7 +126,7 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
                             content = null;
                         }
                     }
-    
+
                     resolve({
                         name: file.name,
                         size: (file.size / 1024).toFixed(2),
@@ -134,20 +134,20 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
                         data: content
                     });
                 };
-    
+
                 reader.onerror = () => reject(reader.error);
                 reader.readAsText(file);
             });
         };
-    
+
         const updatedFiles = await Promise.all(fileArray.map(readFileContents));
-    
+
         setFiles(prevFiles => {
             const prevString = JSON.stringify(prevFiles);
             const newString = JSON.stringify(updatedFiles);
             return prevString !== newString ? updatedFiles : prevFiles;
         });
-    };      
+    };
 
     const handleChangeTabs = (_, newValue) => setTabValue(newValue);
 
@@ -165,41 +165,41 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
                 }
             >
                 <Box display="flex" height={1}>
-                <Box sx={{ px: '3.25rem', pt: '1.75rem', pb: '2.5rem', flex: 1, overflowY: 'auto' }}>
-                <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["Manually", "Import"]} />
-                {tabValue === 0 && (
-                <Grid container spacing={5.5}>
-                    <Grid item xs={12} lg={12}>
-                        <Stack direction="column" mb={1}>
-                            <CustomInputBox
-                                id="ontology-title-field"
-                                name="title"
-                                value={newOntology.title}
-                                onInputChange={handleNewOntologyChange}
-                                label="Ontology title"
-                                isRequired
-                                placeholder={"Type your Ontology title"}
-                                isEndAdornmentVisible
-                            />
-                        </Stack>
-                        <Checkbox label="Set as active ontology" />
-                    </Grid>
-                    <Grid item xs={12} lg={12}>
-                        <CustomInputBox
-                            id="ontology-description-field"
-                            name="description"
-                            value={newOntology.description}
-                            onInputChange={handleNewOntologyChange}
-                            label="Description"
-                            placeholder={"Write a description of your ontology"}
-                            multiline
-                            rows={4}
-                        />
-                    </Grid>
-                </Grid>
-                )}
-                {tabValue === 1 && <ImportFileTab files={files} url={url} onFilesChange={handleFilesSelected} onChangeUrl={handleChangeUrl} />}
-                </Box>
+                    <Box sx={{ px: '3.25rem', pt: '1.75rem', pb: '2.5rem', flex: 1, overflowY: 'auto' }}>
+                        <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["Manually", "Import"]} />
+                        {tabValue === 0 && (
+                            <Grid container spacing={5.5} sx={{ marginTop: 0 }}>
+                                <Grid item xs={12} lg={12}>
+                                    <Stack direction="column" mb={1}>
+                                        <CustomFormField
+                                            name="title"
+                                            value={newOntology.title}
+                                            onChange={handleNewOntologyChange}
+                                            label="Ontology title"
+                                            isRequired
+                                            placeholder={"Type your Ontology title"}
+                                            isEndAdornmentVisible
+                                            textFontSize="body1"
+                                        />
+                                    </Stack>
+                                    <Checkbox label="Set as active ontology" />
+                                </Grid>
+                                <Grid item xs={12} lg={12}>
+                                    <CustomFormField
+                                        name="description"
+                                        value={newOntology.description}
+                                        onChange={handleNewOntologyChange}
+                                        label="Description"
+                                        placeholder={"Write a description of your ontology"}
+                                        multiline
+                                        rows={4}
+                                        textFontSize="body1"
+                                    />
+                                </Grid>
+                            </Grid>
+                        )}
+                        {tabValue === 1 && <ImportFileTab files={files} url={url} onFilesChange={handleFilesSelected} onChangeUrl={handleChangeUrl} />}
+                    </Box>
                 </Box>
             </CustomizedDialog>
             <StatusDialog

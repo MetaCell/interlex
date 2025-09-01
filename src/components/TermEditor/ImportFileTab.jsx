@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import ImportFile from "./ImportFile";
 import { CSVIcon } from "../../Icons";
 import Checkbox from "../common/CustomCheckbox";
-import CustomizedInput from "../common/CustomizedInput";
+import CustomFormField from "../common/CustomFormField";
 import { Box, Stack, Typography, FormControl, Divider } from "@mui/material";
 
 import { vars } from "../../theme/variables";
@@ -36,15 +36,17 @@ const ImportFileTab = ({ files, url, onFilesChange, onChangeUrl }) => {
                             https://
                         </Box>
                     </FormControl>
-                    <CustomizedInput value={url} onChange={onChangeUrl} placeholder='Enter object string' sx={{
-                        width: 'auto',
-                        flex: 1,
-                        height: '2.5rem',
-                        '& .MuiInputBase-input': {
-                            borderTopLeftRadius: 0,
-                            borderBottomLeftRadius: 0
-                        }
-                    }} />
+                    <CustomFormField
+                        value={url} onChange={onChangeUrl} placeholder='Enter object string' sx={{
+                            width: 'auto',
+                            flex: 1,
+                            height: '2.5rem',
+                            '& .MuiInputBase-input': {
+                                borderTopLeftRadius: 0,
+                                borderBottomLeftRadius: 0
+                            }
+                        }}
+                    />
                 </Box>
             </Stack>
             <Divider sx={{ borderColor: gray200, '& .MuiDivider-wrapper': { fontSize: '0.75rem', color: gray600 } }}>or</Divider>

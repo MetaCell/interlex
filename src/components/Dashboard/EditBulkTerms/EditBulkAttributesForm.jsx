@@ -5,7 +5,7 @@ import {
   Box
 } from "@mui/material";
 import PropTypes from "prop-types";
-import CustomizedInput from "../../common/CustomizedInput";
+import CustomFormField from "../../common/CustomFormField";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -13,7 +13,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { vars } from "../../../theme/variables";
 const { gray800 } = vars;
 
-const EditBulkAttributesForm = ({columns, attributes, setAttributes, initialAttributesValue}) => {
+const EditBulkAttributesForm = ({ columns, attributes, setAttributes, initialAttributesValue }) => {
   const handleAttributesChange = (index, field, value) => {
     let newAttributes = [...attributes];
     newAttributes[index][field] = value;
@@ -82,7 +82,7 @@ const EditBulkAttributesForm = ({columns, attributes, setAttributes, initialAttr
                 />
               </Grid>
               <Grid item xs={12} lg={12}>
-                <CustomizedInput
+                <CustomFormField
                   value={attributes[index].value}
                   placeholder='Type a value'
                   onChange={(e) => handleAttributesChange(index, 'value', e.target.value)}

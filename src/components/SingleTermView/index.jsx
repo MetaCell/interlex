@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef, useContext, useMemo, useCallback } from "react";
+import { useState, useEffect, useContext, useMemo, useCallback } from "react";
 import {
   Box,
   Button,
-  ButtonGroup,
   Chip,
   Divider,
   Grid,
@@ -24,22 +23,23 @@ import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import CopyLinkComponent from "../common/CopyLinkComponent";
 import BasicTabs from "../common/CustomTabs";
 import CustomButton from "../common/CustomButton";
-import CustomMenu from "./CustomMenu";
 import OverView from "./OverView/OverView";
 import HistoryPanel from "./History/HistoryPanel";
 import VariantsPanel from "./Variants/VariantsPanel";
 import RequestMergeChanges from "./RequestMergeChanges";
 import {
-  CreateNewFolderOutlined,
   DownloadOutlined,
-  KeyboardArrowUp,
-  KeyboardArrowDown,
   List,
   AccountTreeOutlined
 } from "@mui/icons-material";
+import ForkRightOutlinedIcon from '@mui/icons-material/ForkRightOutlined';
+import FolderCopyOutlinedIcon from '@mui/icons-material/FolderCopyOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import Discussion from "./Discussion";
 import { CodeIcon } from "../../Icons";
 import CustomSingleSelect from "../common/CustomSingleSelect";
+import CustomButtonGroup from "../common/CustomButtonGroup";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CreateForkDialog from "./CreateForkDialog";
 import TermDialog from "../TermEditor/TermDialog";
@@ -47,7 +47,7 @@ import { getSelectedTermLabel } from "../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { getRawData } from "../../api/endpoints";
 
-const { gray200, gray600 } = vars;
+const { gray200, gray600, error700 } = vars;
 
 const dataFormats = ['JSON-LD', 'Turtle', 'N3', 'OWL', 'CSV'];
 const formatExtensions = {
@@ -61,9 +61,6 @@ const formatExtensions = {
 const SingleTermView = () => {
   const { group, term, tab } = useParams();
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const actionRef = useRef(null);
-  const anchorRef = useRef(null);
   const [dataFormatAnchorEl, setDataFormatAnchorEl] = useState(null);
   const [isCodeViewVisible, setIsCodeViewVisible] = useState(false);
   const [toggleButtonValue, setToggleButtonValue] = useState('defaultView');
@@ -280,6 +277,45 @@ const SingleTermView = () => {
     );
   }, [tabValue, isCodeViewVisible, selectedDataFormat, toggleButtonValue, onToggleButtonChange]);
 
+  const handleAddToActiveOntology = () => {
+    console.log('Add term to active ontology');
+  };
+
+  const handleCreateFork = () => {
+    console.log('Create fork');
+  };
+
+  const handleAddToAnotherOntology = () => {
+    console.log('Add term to another ontology');
+  };
+
+  const handleRemoveFromActiveOntology = () => {
+    console.log('Remove from active ontology');
+  };
+
+  const menuOptions = [
+    {
+      icon: <CreateNewFolderOutlinedIcon fontSize="small" />,
+      label: "Add term to active ontology",
+      action: handleAddToActiveOntology
+    },
+    {
+      icon: <ForkRightOutlinedIcon fontSize="small" />,
+      label: "Create fork",
+      action: handleCreateFork
+    },
+    {
+      icon: <FolderCopyOutlinedIcon fontSize="small" />,
+      label: "Add term to another ontology",
+      action: handleAddToAnotherOntology
+    },
+    {
+      icon: <DeleteOutlineOutlinedIcon fontSize="small" sx={{ color: error700 }} />,
+      label: "Remove from active ontology",
+      action: handleRemoveFromActiveOntology
+    }
+  ]
+
   return (
     <>
       <Box display="flex" flexDirection="column" sx={{ minWidth: "100%" }}>
@@ -333,36 +369,19 @@ const SingleTermView = () => {
                       Create fork
                     </Button>
                   )}
-                  <ButtonGroup
+
+                  <CustomButtonGroup
                     variant="outlined"
-                    ref={anchorRef}
-                    sx={{
-                      boxShadow: open && "0px 0px 0px 4px rgba(50, 129, 115, 0.24)"
+                    options={menuOptions}
+                    sx={{ 
+                      minWidth: "18.75rem",
+                      "& .MuiList-root > :last-child": {
+                        borderTop: `1px solid ${gray200}`,
+                        color: error700
+                      }
                     }}
-                  >
-                    <Button display="flex" alignItems="center">
-                      <CreateNewFolderOutlined fontSize="medium" />
-                      Add term to active ontology
-                    </Button>
-                    <Button
-                      aria-controls={open ? 'split-button-ontology-menu' : undefined}
-                      aria-expanded={open ? 'true' : undefined}
-                      aria-label="select ontology action"
-                      aria-haspopup="ontology-menu"
-                      onMouseDown={() => {
-                        actionRef.current = () => setOpen(!open);
-                      }}
-                      onKeyDown={() => {
-                        actionRef.current = () => setOpen(!open);
-                      }}
-                      onClick={() => {
-                        actionRef.current?.();
-                      }}
-                    >
-                      {open ? <KeyboardArrowUp fontSize="medium" /> : <KeyboardArrowDown fontSize="medium" />}
-                    </Button>
-                  </ButtonGroup>
-                  <CustomMenu open={open} anchorRef={anchorRef} setOpen={setOpen} />
+                  />
+
                   <CustomButton onClick={handleClickDataFormatMenu}><DownloadOutlined fontSize="medium" />Download as</CustomButton>
                   <Menu
                     anchorEl={dataFormatAnchorEl}

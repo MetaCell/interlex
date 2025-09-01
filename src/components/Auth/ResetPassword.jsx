@@ -34,18 +34,22 @@ const ResetPassword = () => {
           <Typography variant="h4">Reset your password</Typography>
           <form className="authForm">
             <Grid container spacing={2.5}>
-              <PasswordField
-                label="New password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <PasswordField
-                label="Confirm new password"
-                placeholder="Confirm your new password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
+              <Grid item xs={12}>
+                <PasswordField
+                  label="New password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <PasswordField
+                  label="Confirm new password"
+                  placeholder="Confirm your new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              </Grid>
               <Grid item xs={12}>
                 <FormControl>
                   <Button variant="contained" color="primary" onClick={resetPassword}>

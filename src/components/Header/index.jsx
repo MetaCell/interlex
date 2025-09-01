@@ -1,5 +1,4 @@
 import {
-    AddIcon,
     DocumentationIcon,
     LogoutIcon,
     NavIcon,
@@ -25,7 +24,6 @@ import { useContext } from "react";
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import { useNavigate } from "react-router-dom";
-import TermDialog from '../TermEditor/TermDialog';
 import Logo from '../../Icons/svg/interlex_logo.svg'
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -36,6 +34,10 @@ import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutl
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import { userLogout } from "../../api/endpoints/apiService";
 import { useCookies } from 'react-cookie';
+import CustomButtonGroup from '../common/CustomButtonGroup';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import AddIcon from '@mui/icons-material/Add';
+import AddNewTermDialog from '../TermEditor/newTerm/AddNewTermDialog';
 
 import { vars } from "../../theme/variables";
 const { gray200, white, gray100, gray600 } = vars;
@@ -279,6 +281,19 @@ const Header = () => {
         !menu.protected || (menu.protected && isLoggedIn)
     );
 
+    const options = [
+        {
+            label: 'Add a new term',
+            icon: <AddIcon />,
+            action: handleNewTermDialogOpen
+        },
+        {
+            label: 'Bulk add terms',
+            icon: <PlaylistAddIcon />,
+            action: handleOpenEditBulkTerms
+        }
+    ];
+
     return (
         <>
             <Box sx={styles.root}>
@@ -350,17 +365,11 @@ const Header = () => {
                             <Button variant="outlined" onClick={() => navigate("/login")}>Log in</Button>
                         </Box>
                         <Divider sx={styles.divider} />
-                        <Button variant="contained" onClick={handleNewTermDialogOpen}>
-                            <AddIcon />
-                            Add a new term
-                        </Button>
+                        <CustomButtonGroup options={options} />
                     </Box>
                 ) : (
                     <Box display='flex' gap='1.25rem'>
-                        <Button variant="contained" onClick={handleNewTermDialogOpen}>
-                            <AddIcon />
-                            Add a new term
-                        </Button>
+                        <CustomButtonGroup options={options} />
                         <Divider sx={styles.divider} />
                         <IconButton sx={{
                             p: 0,
@@ -455,10 +464,7 @@ const Header = () => {
                     </Box>
                 )}
             </Box>
-            <TermDialog
-                open={openNewTermDialog}
-                handleClose={handleNewTermDialogClose}
-            />
+            <AddNewTermDialog open={openNewTermDialog} handleClose={handleNewTermDialogClose} />
             <EditBulkTermsDialog handleClose={handleCloseEditBulkTerms} open={openEditBulkTerms} activeStep={activeStep} setActiveStep={setActiveStep} />
         </>
     )
