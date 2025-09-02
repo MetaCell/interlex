@@ -122,20 +122,31 @@ export const createNewEntity = async ({ group, data, session }: { group: string;
       endpoint,
       { "Content-Type": "application/json" }
     )(data);
+    console.log("response from apiService: ", response);
 
-    console.log("response: ", response)
+    // Get the x-redirect-location header from the response
+    const redirectLocation = response?.headers?.['x-redirect-location'];
+    if (redirectLocation) {
+      return {
+        term: {
+          id: redirectLocation
+        },
+        raw: response,
+        status: 200
+      };
+    }
+
     // If the response is HTML (a string), extract TMP ID
     if (typeof response === "string") {
-      console.log("am i here??")
-      const match = response.match(/TMP:\d{9}/);
-      console.log("match: ", match)
+      const match = response.match(/tmp_\d{9}/);
+      console.log("match: ", match);
       if (match) {
         return {
           term: {
-            id: `${match[0]}`,
+            id: `${match[0]}`
           },
           raw: response,
-          status: 200,
+          status: 200
         };
       }
     }
