@@ -87,7 +87,7 @@ const Hierarchy = ({
     const focusIri = toIri(selectedValue?.id);
     const renderedId = findFirstRenderedId(items, focusIri);
     setCurrentId(renderedId);
-  }, [selectedValue, type, treeChildren, treeSuperclasses]); // mirrors your original logic:contentReference[oaicite:1]{index=1}
+  }, [selectedValue, type, treeChildren, treeSuperclasses, items]); // mirrors your original logic:contentReference[oaicite:1]{index=1}
 
   // highlight matches (by id/label/iri) in the rendered tree
   const highlightedIds = React.useMemo(
@@ -123,18 +123,6 @@ const Hierarchy = ({
     }
     setSearchTerm("");
     preSearchSelectionRef.current = null;
-  };
-
-  const gotoFirstOption = () => {
-    const opts = type === CHILDREN ? options.children : options.superclasses;
-    if (opts?.length) {
-      onSelect?.(opts[0]);
-      const iri = toIri(opts[0]?.id);
-      const idInTree = findFirstRenderedId(items, iri);
-      setCurrentId(idInTree);
-    }
-    preSearchSelectionRef.current = null;
-    setSearchTerm("");
   };
 
   // Aim icon should focus the *original* requested node for the hierarchy (not the last searched)
