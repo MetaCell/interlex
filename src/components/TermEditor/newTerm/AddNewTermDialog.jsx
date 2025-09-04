@@ -1,5 +1,4 @@
 import { useState, useCallback, useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import {
     Box,
@@ -22,11 +21,9 @@ import { createNewEntity } from "../../../api/endpoints/apiService";
 import { getAddTermStatusProps } from '../termStatusProps';
 import { CheckedIcon, UncheckedIcon } from '../../../Icons';
 import { vars } from "../../../theme/variables";
+import { DEFAULT_TYPE } from "../../../constants/types";
 
 const { gray100, gray200, gray400, gray600 } = vars;
-
-const TYPES = ['owl:Class', 'owl:AnnotationProperty', 'owl:ObjectProperty', 'TODO:CDE', 'TODO:FDE', 'TODO:PDE'];
-const DEFAULT_TYPE = TYPES[0];
 
 const HeaderRightSideContent = ({
     activeStep,
@@ -102,7 +99,7 @@ HeaderRightSideContent.propTypes = {
 
 const AddNewTermDialog = ({ open, handleClose }) => {
     const [activeStep, setActiveStep] = useState(0);
-    const [addTermResponse] = useState(null);
+    const [addTermResponse, setAddTermResponse] = useState(null);
     const [selectedType, setSelectedType] = useState(DEFAULT_TYPE);
     const [termValue, setTermValue] = useState("");
     const [exactSynonyms, setExactSynonyms] = useState([]);
@@ -110,7 +107,6 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const [loading, setLoading] = useState(false);
     const [hasExactMatch, setHasExactMatch] = useState(false);
     const { user } = useContext(GlobalDataContext);
-    const navigate = useNavigate();
 
     const isCreateButtonDisabled = hasExactMatch || termValue === "";
     const statusProps = getAddTermStatusProps(addTermResponse, termValue);
@@ -159,14 +155,17 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                 data: body,
                 session: token
             });
-            console.log("response: ", response)
-            navigate(`/terms/${response.term.id.split("/").pop()}`);
+
+            if (response.term && response.term.id) {
+                setActiveStep(1);
+                setAddTermResponse(response.term.id);
+            }
         } catch (error) {
             console.error("Creation failed:", error);
         } finally {
             setLoading(false);
         }
-    }, [termValue, selectedType, user, hasExactMatch, navigate]);
+    }, [termValue, selectedType, user, hasExactMatch]);
 
     if (loading) {
         return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
@@ -202,7 +201,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                 handleExistingIdChange={handleExistingIdChange}
                 handleDialogClose={handleClose}
             />}
-            {activeStep === 1 && <SecondStepContent />}
+            {activeStep === 1 && <SecondStepContent searchTerm={addTermResponse} />}
             {activeStep === 2 && addTermResponse != null && (
                 <StatusStep statusProps={statusProps} />
             )}

@@ -18,43 +18,101 @@ import CustomFormField from "../../common/CustomFormField";
 import NewTermSidebar from "../NewTermSidebar";
 import { HelpOutlinedIcon } from "../../../Icons";
 import { checkPotentialMatches } from "../../../api/endpoints/apiService";
+import { elasticSearch } from "../../../api/endpoints";
 import { vars } from "../../../theme/variables";
+import { TYPES, DEFAULT_TYPE } from "../../../constants/types";
 
 const { white, gray300, gray400, gray500, gray600 } = vars;
 
-const TYPES = ['owl:Class', 'owl:AnnotationProperty', 'owl:ObjectProperty', 'TODO:CDE', 'TODO:FDE', 'TODO:PDE'];
-const DEFAULT_TYPE = TYPES[0];
-
-const AUTOCOMPLETE_STYLES = {
-    "& .MuiOutlinedInput-root": {
-        background: white,
-        borderColor: gray300,
+const styles = {
+    autocomplete: {
+        "& .MuiOutlinedInput-root": {
+            background: white,
+            borderColor: gray300,
+        },
+        "& .MuiOutlinedInput-root .MuiAutocomplete-input": {
+            color: gray500,
+            fontWeight: 400,
+        },
+        "& .MuiAutocomplete-popupIndicator": {
+            transform: "none !important",
+        },
+        "& .MuiAutocomplete-tag": {
+            background: "transparent",
+        },
     },
-    "& .MuiOutlinedInput-root .MuiAutocomplete-input": {
-        color: gray500,
-        fontWeight: 400,
+    chip: {
+        synonym: {
+            flexDirection: "row !important",
+            "& .MuiChip-deleteIcon": {
+                color: `${gray400} !important`,
+            },
+        },
+        id: {
+            flexDirection: "row !important",
+            borderRadius: "1rem !important",
+            "& .MuiChip-deleteIcon": {
+                color: `${gray400} !important`,
+            },
+        }
     },
-    "& .MuiAutocomplete-popupIndicator": {
-        transform: "none !important",
-    },
-    "& .MuiAutocomplete-tag": {
-        background: "transparent",
-    },
+    contentBox: {
+        px: "3.25rem",
+        pt: "1.75rem",
+        pb: "2.5rem",
+        flex: 1,
+        overflowY: "auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: "2.75rem",
+    }
 };
 
-const SYNONYM_CHIP_STYLES = {
-    flexDirection: "row !important",
-    "& .MuiChip-deleteIcon": {
-        color: `${gray400} !important`,
-    },
-};
+const useTermSearch = (user, handleExactMatchChange) => {
+    const [termResults, setTermResults] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-const ID_CHIP_STYLES = {
-    flexDirection: "row !important",
-    borderRadius: "1rem !important",
-    "& .MuiChip-deleteIcon": {
-        color: `${gray400} !important`,
-    },
+    const searchForMatches = useMemo(() =>
+        debounce(async (searchTerm, searchType) => {
+            if (!searchTerm || !searchType) {
+                setTermResults([]);
+                handleExactMatchChange(false);
+                return;
+            }
+
+            setLoading(true);
+
+            const validType = TYPES.includes(searchType) ? searchType : DEFAULT_TYPE;
+            const userGroup = user?.groupname || 'base';
+
+            try {
+                await checkPotentialMatches(userGroup, {
+                    label: searchTerm,
+                    'rdf-type': validType,
+                    exact: []
+                });
+
+                // No exact matches found - show similar items from elastic search
+                const { results } = await elasticSearch(searchTerm);
+                setTermResults(results?.results || []);
+                handleExactMatchChange(false);
+            } catch (error) {
+                if (error?.response?.status === 409 && error?.response?.data?.existing) {
+                    handleExactMatchChange(true);
+                    setTermResults([]);
+                } else {
+                    console.error("Term search error:", error);
+                    setTermResults([]);
+                    handleExactMatchChange(false);
+                }
+            } finally {
+                setLoading(false);
+            }
+        }, 500),
+        [user, handleExactMatchChange]
+    );
+
+    return { termResults, loading, searchForMatches };
 };
 
 const FirstStepContent = ({
@@ -70,76 +128,24 @@ const FirstStepContent = ({
     handleSynonymChange,
     handleDialogClose
 }) => {
-    const [termResults, setTermResults] = useState([]);
     const [openSidebar, setOpenSidebar] = useState(true);
-    const [loading, setLoading] = useState(false);
+    const { user, updateStoredSearchTerm } = useContext(GlobalDataContext);
+    const navigate = useNavigate();
+
+    const { termResults, loading, searchForMatches } = useTermSearch(user, handleExactMatchChange);
 
     const synonymOptions = useMemo(() => [], []);
     const idOptions = useMemo(() => [], []);
 
-    const { user, updateStoredSearchTerm } = useContext(GlobalDataContext);
-    const navigate = useNavigate();
-
-    const searchForMatches = useMemo(() =>
-        debounce(async (searchTerm, searchType) => {
-            if (!searchTerm || !searchType) {
-                setTermResults([]);
-                handleExactMatchChange(false);
-                return;
-            }
-
-            setLoading(true);
-
-            const validType = TYPES.includes(searchType) ? searchType : DEFAULT_TYPE;
-
-            try {
-                await checkPotentialMatches(user?.groupname || 'base', {
-                    "label": searchTerm,
-                    "rdf-type": validType,
-                    "exact": []
-                });
-            } catch (error) {
-                if (error?.response?.status === 409 && error?.response?.data?.existing) {
-                    const existingTerms = error.response.data.existing;
-                    const results = [];
-
-                    for (const [termUri, matches] of Object.entries(existingTerms)) {
-                        const matchesArray = Array.isArray(matches) ? matches : [matches];
-
-                        matchesArray.forEach(match => {
-                            results.push({
-                                ilx: termUri.split('/').pop(),
-                                label: match.object,
-                                predicateInfo: {
-                                    existing: match.predicate_existing,
-                                    submitted: match.predicate_submitted
-                                }
-                            });
-                        });
-                    }
-
-                    handleExactMatchChange(true);
-                    setTermResults(results);
-                } else {
-                    console.error("Non-conflict error:", error);
-                    setTermResults([]);
-                    handleExactMatchChange(false);
-                }
-            } finally {
-                setLoading(false);
-            }
-        }, 500),
-        [user]
-    );
-
     const handleSidebarToggle = useCallback(() =>
-        setOpenSidebar(prev => !prev)
-        , []);
+        setOpenSidebar(prev => !prev), []);
 
     const navigateToExistingTerm = useCallback((searchResult) => {
-        updateStoredSearchTerm(searchResult?.label);
+        if (!searchResult?.label || !searchResult?.ilx) return;
+
+        updateStoredSearchTerm(searchResult.label);
         const groupName = user?.groupname || 'base';
-        navigate(`/${groupName}/${searchResult?.ilx}/overview`);
+        navigate(`/${groupName}/${searchResult.ilx}/overview`);
         handleDialogClose();
     }, [updateStoredSearchTerm, user, navigate, handleDialogClose]);
 
@@ -152,8 +158,7 @@ const FirstStepContent = ({
                 sx={chipStyles}
                 {...getTagProps({ index })}
             />
-        ))
-        , []);
+        )), []);
 
     useEffect(() => {
         if (term && type) {
@@ -162,24 +167,12 @@ const FirstStepContent = ({
         return () => {
             searchForMatches.cancel();
             handleExactMatchChange(false);
-            setTermResults([]);
         };
-    }, [term, type, searchForMatches]);
+    }, [term, type, searchForMatches, handleExactMatchChange]);
 
     return (
         <Box display="flex" height={1}>
-            <Box
-                sx={{
-                    px: "3.25rem",
-                    pt: "1.75rem",
-                    pb: "2.5rem",
-                    flex: 1,
-                    overflowY: "auto",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "2.75rem",
-                }}
-            >
+            <Box sx={styles.contentBox}>
                 <Stack spacing={0.5}>
                     <Typography variant="h6">How would you like to proceed?</Typography>
                     <Typography variant="body1" sx={{ color: gray600 }}>
@@ -223,10 +216,10 @@ const FirstStepContent = ({
                         popupIcon={<HelpOutlinedIcon />}
                         options={synonymOptions}
                         freeSolo
-                        renderTags={(values, getTagProps) => renderChips(values, getTagProps, SYNONYM_CHIP_STYLES)}
+                        renderTags={(values, getTagProps) => renderChips(values, getTagProps, styles.chip.synonym)}
                         fullWidth
                         renderInput={(params) => <TextField {...params} placeholder="Enter exact synonym(s)" />}
-                        sx={AUTOCOMPLETE_STYLES}
+                        sx={styles.autocomplete}
                     />
                 </Stack>
 
@@ -250,10 +243,10 @@ const FirstStepContent = ({
                         popupIcon={<HelpOutlinedIcon />}
                         options={idOptions}
                         freeSolo
-                        renderTags={(values, getTagProps) => renderChips(values, getTagProps, ID_CHIP_STYLES)}
+                        renderTags={(values, getTagProps) => renderChips(values, getTagProps, styles.chip.id)}
                         fullWidth
                         renderInput={(params) => <TextField {...params} placeholder="Type existing ID(s)" />}
-                        sx={AUTOCOMPLETE_STYLES}
+                        sx={styles.autocomplete}
                     />
                 </Box>
             </Box>
@@ -273,16 +266,24 @@ const FirstStepContent = ({
 
 FirstStepContent.propTypes = {
     term: PropTypes.string,
-    type: PropTypes.string,
+    type: PropTypes.oneOf(TYPES),
     hasExactMatch: PropTypes.bool,
-    existingIds: PropTypes.array,
-    synonyms: PropTypes.array,
-    handleTermChange: PropTypes.func,
-    handleTypeChange: PropTypes.func,
-    handleExactMatchChange: PropTypes.func,
-    handleExistingIdChange: PropTypes.func,
-    handleSynonymChange: PropTypes.func,
-    handleDialogClose: PropTypes.func,
+    existingIds: PropTypes.arrayOf(PropTypes.string),
+    synonyms: PropTypes.arrayOf(PropTypes.string),
+    handleTermChange: PropTypes.func.isRequired,
+    handleTypeChange: PropTypes.func.isRequired,
+    handleExactMatchChange: PropTypes.func.isRequired,
+    handleExistingIdChange: PropTypes.func.isRequired,
+    handleSynonymChange: PropTypes.func.isRequired,
+    handleDialogClose: PropTypes.func.isRequired,
+};
+
+FirstStepContent.defaultProps = {
+    term: '',
+    type: DEFAULT_TYPE,
+    hasExactMatch: false,
+    existingIds: [],
+    synonyms: [],
 };
 
 export default FirstStepContent;
