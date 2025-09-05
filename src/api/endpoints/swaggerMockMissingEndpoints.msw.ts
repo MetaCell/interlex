@@ -4210,9 +4210,21 @@ export const getGetUserForksMockHandler = (overrideResponse?: Forks) => {
 }
 
 export const getGetOrganizationMockHandler = (overrideResponse?: Organization) => {
-  return http.get('*/operations/getOrganization/:id', async () => {
+  return http.get('*/operations/getOrganization/:id', async ({ params }) => {
     await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetOrganizationResponseMock()),
+    const { id } = params;
+    const originalMock = getGetOrganizationResponseMock();
+    const isRealOrganization = typeof id === 'string' && id !== originalMock.name;
+    
+    const mockResponse = overrideResponse !== undefined ? overrideResponse : {
+      ...originalMock,
+      name: typeof id === 'string' ? id : originalMock.name,
+      description: isRealOrganization ? '' : originalMock.description, // Empty description for real organizations
+      id: isRealOrganization ? '' : originalMock.id,
+      url: isRealOrganization ? '' : originalMock.url,
+      icon: isRealOrganization ? '' : originalMock.icon
+    };
+    return new HttpResponse(JSON.stringify(mockResponse),
       {
         status: 200,
         headers: {

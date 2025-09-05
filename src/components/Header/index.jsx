@@ -202,6 +202,7 @@ const Header = () => {
     };
 
     const handleClickCurieEditor = () => {
+        handleClose();
         navigate('curie-editor')
     };
 
@@ -211,6 +212,7 @@ const Header = () => {
     }
 
     const handleOpenEditBulkTerms = () => {
+        handleClose();
         setOpenEditBulkTerms(true)
     }
 
@@ -231,6 +233,10 @@ const Header = () => {
     };
 
     const handleMenuClick = async (e, menu) => {
+        // Close both popovers
+        handleClose();
+        handleUserClose();
+        
         if (menu.label === 'Log out') {
             try {
                 await userLogout(user['groupname']);
