@@ -22,16 +22,17 @@ import { elasticSearch } from "../../../api/endpoints";
 import { vars } from "../../../theme/variables";
 import { TYPES, DEFAULT_TYPE } from "../../../constants/types";
 
-const { white, gray300, gray400, gray500, gray600 } = vars;
+const { white, gray300, gray400, gray600, gray700 } = vars;
 
 const styles = {
     autocomplete: {
         "& .MuiOutlinedInput-root": {
             background: white,
             borderColor: gray300,
+            padding: "0.5rem 0.75rem !important"
         },
         "& .MuiOutlinedInput-root .MuiAutocomplete-input": {
-            color: gray500,
+            color: gray700,
             fontWeight: 400,
         },
         "& .MuiAutocomplete-popupIndicator": {
@@ -73,7 +74,7 @@ const useTermSearch = (user, handleExactMatchChange) => {
     const [loading, setLoading] = useState(false);
 
     const searchForMatches = useMemo(() =>
-        debounce(async (searchTerm, searchType) => {
+        debounce(async (searchTerm, searchType, synonyms = []) => {
             if (!searchTerm || !searchType) {
                 setTermResults([]);
                 handleExactMatchChange(false);
@@ -82,29 +83,33 @@ const useTermSearch = (user, handleExactMatchChange) => {
 
             setLoading(true);
 
-            const validType = TYPES.includes(searchType) ? searchType : DEFAULT_TYPE;
-            const userGroup = user?.groupname || 'base';
-
             try {
-                await checkPotentialMatches(userGroup, {
-                    label: searchTerm,
-                    'rdf-type': validType,
-                    exact: []
-                });
-
-                // No exact matches found - show similar items from elastic search
-                const { results } = await elasticSearch(searchTerm);
-                setTermResults(results?.results || []);
-                handleExactMatchChange(false);
-            } catch (error) {
-                if (error?.response?.status === 409 && error?.response?.data?.existing) {
-                    handleExactMatchChange(true);
-                    setTermResults([]);
-                } else {
-                    console.error("Term search error:", error);
-                    setTermResults([]);
+                try {
+                    await checkPotentialMatches(user?.groupname || 'base', {
+                        label: searchTerm,
+                        'rdf-type': searchType,
+                        exact: synonyms
+                    });
                     handleExactMatchChange(false);
+                } catch (error) {
+                    if (error?.response?.status === 409 && error?.response?.data?.existing) {
+                        handleExactMatchChange(true);
+                    } else {
+                        handleExactMatchChange(false);
+                    }
                 }
+
+                const { results } = await elasticSearch(searchTerm);
+                const similarResults = (results?.results || []).map(result => ({
+                    ...result,
+                    isExactMatch: false
+                }));
+
+                setTermResults(similarResults);
+            } catch (error) {
+                console.error("Term search error:", error);
+                setTermResults([]);
+                handleExactMatchChange(false);
             } finally {
                 setLoading(false);
             }
@@ -112,7 +117,7 @@ const useTermSearch = (user, handleExactMatchChange) => {
         [user, handleExactMatchChange]
     );
 
-    return { termResults, loading, searchForMatches };
+    return { termResults, loading, searchForMatches, setTermResults };
 };
 
 const FirstStepContent = ({
@@ -132,7 +137,7 @@ const FirstStepContent = ({
     const { user, updateStoredSearchTerm } = useContext(GlobalDataContext);
     const navigate = useNavigate();
 
-    const { termResults, loading, searchForMatches } = useTermSearch(user, handleExactMatchChange);
+    const { termResults, loading, searchForMatches, setTermResults } = useTermSearch(user, handleExactMatchChange);
 
     const synonymOptions = useMemo(() => [], []);
     const idOptions = useMemo(() => [], []);
@@ -161,14 +166,17 @@ const FirstStepContent = ({
         )), []);
 
     useEffect(() => {
-        if (term && type) {
-            searchForMatches(term, type);
-        }
-        return () => {
-            searchForMatches.cancel();
+        if (!term) {
+            setTermResults([]);
             handleExactMatchChange(false);
-        };
-    }, [term, type, searchForMatches, handleExactMatchChange]);
+            return;
+        }
+        if (term && type) {
+            searchForMatches(term, type, synonyms);
+        }
+        return () => searchForMatches.cancel();
+    }, [term, type, synonyms, searchForMatches, handleExactMatchChange, setTermResults]);
+
 
     return (
         <Box display="flex" height={1}>
