@@ -61,59 +61,47 @@ const collectMatchingIds = (items = [], term = "") => {
 };
 
 const Hierarchy = ({
-  options = { children: [], superclasses: [] }, // {children:[{id,label}], superclasses:[...]}
-  selectedValue,                                 // { id, label }
+  options = { children: [], superclasses: [] }, 
+  selectedValue,                                 
   onSelect,
-  // prebuilt trees (arrays of {id,label,iri,children})
   treeChildren = [],
   treeSuperclasses = [],
   loading = false,
 }) => {
-  const [type, setType] = React.useState(SUPERCLASSES); // default to superclasses
+  const [type, setType] = React.useState(SUPERCLASSES); 
   const [currentId, setCurrentId] = React.useState(null);
-
-  // remember the *initial* selected term so the Aim button can always go back to it
+  const [manualHighlightedIds, setManualHighlightedIds] = React.useState([]);
+  const hasSearchedRef = React.useRef(false);
   const initialSelectedRef = React.useRef(selectedValue?.id || null);
 
-  // keep track of what was selected before a search so Refresh can restore it
   const preSearchSelectionRef = React.useRef(null);
   const [searchTerm, setSearchTerm] = React.useState("");
 
   const items = type === CHILDREN ? treeChildren : treeSuperclasses;
   const childCount = items?.[0]?.children?.length || 0;
 
-  // when selection or type changes, recompute which tree + currentId to show
   React.useEffect(() => {
     const focusIri = toIri(selectedValue?.id);
     const renderedId = findFirstRenderedId(items, focusIri);
     setCurrentId(renderedId);
-  }, [selectedValue, type, treeChildren, treeSuperclasses, items]); // mirrors your original logic:contentReference[oaicite:1]{index=1}
+  }, [selectedValue, type, treeChildren, treeSuperclasses, items]); 
 
-  // highlight matches (by id/label/iri) in the rendered tree
-  const highlightedIds = React.useMemo(
-    () => collectMatchingIds(items, searchTerm),
-    [items, searchTerm]
-  );
-
-  // ⬇️ IMPORTANT: selecting from the autocomplete should NOT turn it into a "search mode"
-  // We (1) set upstream selection, (2) clear searchTerm, (3) focus that node in the tree.
   const handleSelectChange = (value) => {
     if (!preSearchSelectionRef.current && selectedValue) {
       preSearchSelectionRef.current = selectedValue;
     }
     onSelect?.(value);
-
-    // clear search highlight so the tree doesn't jump/contract
-    setSearchTerm("");
-
-    // focus the selected item in the *current* tree
+    hasSearchedRef.current = true;
+  
+    setSearchTerm("");               
+    setManualHighlightedIds([]);       
+  
     const focusIri = toIri(value?.id);
     const idInTree = findFirstRenderedId(items, focusIri);
     if (idInTree) setCurrentId(idInTree);
   };
-
+  
   const handleRefresh = () => {
-    // restore selection prior to search; keep hierarchy data intact
     const toRestore = preSearchSelectionRef.current || initialSelectedRef.current || selectedValue;
     if (toRestore) {
       onSelect?.(toRestore);
@@ -122,24 +110,35 @@ const Hierarchy = ({
       setCurrentId(idInTree);
     }
     setSearchTerm("");
+    setManualHighlightedIds([]);
+    hasSearchedRef.current = false;
     preSearchSelectionRef.current = null;
-  };
+  };  
 
-  // Aim icon should focus the *original* requested node for the hierarchy (not the last searched)
   const handleAimFocus = () => {
-    const base = initialSelectedRef.current || selectedValue;
+    const base = hasSearchedRef.current
+      ? (selectedValue || preSearchSelectionRef.current || { id: initialSelectedRef.current })
+      : (preSearchSelectionRef.current || selectedValue || { id: initialSelectedRef.current });
+  
     const focusIri = toIri(base?.id);
     const id = findFirstRenderedId(items, focusIri);
+  
     setCurrentId(id);
-  };
+    setManualHighlightedIds(id ? [id] : []);  // <-- pass to tree as highlight
+  };  
 
   const singleSearchOptions = type === CHILDREN ? options.children : options.superclasses;
+  const highlightedIdsFromSearch = React.useMemo(
+    () => collectMatchingIds(items, searchTerm),
+    [items, searchTerm]
+  );  
 
   if (loading) {
     return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <CircularProgress />
     </Box>
   }
+
 
   return (
     <Box display='flex' flexDirection='column' gap='1rem'>
@@ -186,12 +185,17 @@ const Hierarchy = ({
         options={singleSearchOptions}
       />
 
+      
       <CustomizedTreeView
         items={items}
         loading={false}
         currentId={currentId}
-        highlightedIds={highlightedIds}
-        defaultExpanded={type !== CHILDREN} // superclasses open by default, children collapsed
+        highlightedIds={
+          highlightedIdsFromSearch.length
+            ? highlightedIdsFromSearch
+            : manualHighlightedIds
+        }
+        defaultExpanded={type !== CHILDREN}
       />
 
       <Typography color={gray600} fontSize='.875rem'>
@@ -208,8 +212,8 @@ Hierarchy.propTypes = {
   }),
   selectedValue: PropTypes.shape({ id: PropTypes.string, label: PropTypes.string }),
   onSelect: PropTypes.func,
-  treeChildren: PropTypes.array,      // array of TreeItem
-  treeSuperclasses: PropTypes.array,  // array of TreeItem
+  treeChildren: PropTypes.array,      
+  treeSuperclasses: PropTypes.array,  
   loading: PropTypes.bool,
 };
 

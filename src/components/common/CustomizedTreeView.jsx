@@ -222,7 +222,9 @@ const CustomizedTreeView = ({
       getItemLabel={getItemLabel}
       getItemChildren={getItemChildren}
       expandedItems={expanded}
-      onExpandedItemsChange={(_e, ids) => setExpanded(ids)}  // user can toggle
+      onExpandedItemsChange={(_e, ids) => setExpanded(ids)}
+      selectedItems={currentId ? [currentId] : []}
+      onSelectedItemsChange={() => { /* keep selection controlled by currentId */ }}
       slots={{
         item: StyledTreeItemBase,
         expandIcon: ChevronRightOutlinedIcon,
