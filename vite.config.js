@@ -80,6 +80,48 @@ export default defineConfig({
           });
         },
       },
+      '^/([^/]+)/priv/entity-new': {
+        target: "https://uri.olympiangods.org",
+        secure: false,
+        changeOrigin: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        configure: (proxy, _options) => {
+          console.log(_options);
+          proxy.on('error', (err, _req, _res) => {
+            console.log('proxy error', err);
+            console.log('proxy request', _req);
+            console.log('proxy response', _res);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('Sending Request to the Target:', req.method, req.url);
+            console.log('Headers sent to backend:', proxyReq.getHeaders());
+            console.log('Response:', _res);
+            console.log('Request:', proxyReq);
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            console.log('Received response', res);
+            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
+            const location = proxyRes.headers['location'];
+            console.log('Received location', location);
+            if (proxyRes.statusCode === 303 && location) {
+              // Prevent browser from seeing the actual Location
+              delete proxyRes.headers['location'];
+              // Inject the location into a custom header we can use in Axios
+              res.setHeader('X-Redirect-Location', location);
+            }
+
+            // Required for credentialed CORS
+            const origin = req.headers.origin;
+            if (origin) {
+              res.setHeader('Access-Control-Allow-Origin', origin);
+            }
+            res.setHeader('Access-Control-Allow-Credentials', 'true');
+            res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
+          });
+        },
+      },
       '^/([^/]+)/priv/(.*)': {
         target: "https://uri.olympiangods.org",
         secure: false,

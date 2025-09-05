@@ -142,8 +142,8 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         const token = localStorage.getItem("token");
         const groupName = user?.groupname || "base";
         const body = {
-            'rdf-type': selectedType || 'owl:Class',
-            label: termValue,
+            'rdf-type': 'owl:Class',
+            label: [termValue],
             exact: [],
         };
 

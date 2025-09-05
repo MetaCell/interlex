@@ -120,8 +120,23 @@ export const createNewEntity = async ({ group, data, session }: { group: string;
     const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ENTITY}`;
     const response = await createPostRequest<any, any>(
       endpoint,
-      { "Content-Type": "application/x-www-form-urlencoded" }
+      {
+        'Content-Type': 'application/json'
+      }
     )(data);
+
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+
+    const postResponse = await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      credentials: "include",
+      body: JSON.stringify(data),
+      redirect: 'manual',
+    });
+
 
     // If the response is HTML (a string), extract TMP ID
     if (typeof response === "string") {
