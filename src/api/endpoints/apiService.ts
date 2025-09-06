@@ -77,6 +77,11 @@ export const userLogout = (group: string) => {
   return createGetRequest<any, any>(endpoint, "application/json")();
 };
 
+export const changePassword = (group: string, data: { username: string; currentPassword: string; newPassword: string }) => {
+  const endpoint = `/${group}${API_CONFIG.REAL_API.PASSWORD_CHANGE}`;
+  return createPostRequest<any, any>(endpoint, { "Content-Type": "application/x-www-form-urlencoded" })(data);
+};
+
 export const getSelectedTermLabel = async (searchTerm: string, group: string = 'base'): Promise<{ label: string | undefined; actualGroup: string }> => {
   try {
     const response = await createGetRequest<JsonLdResponse, any>(`/${group}/${searchTerm}.jsonld`)();

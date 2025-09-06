@@ -25,13 +25,19 @@ const TermsChange = () => {
   };
 
   const getFilteredEntries = () => {
+    // Ensure forks is an array before filtering
+    if (!Array.isArray(forks)) {
+      console.warn('forks is not an array:', forks);
+      return [];
+    }
+    
     switch (tabValue) {
       case 0:
-        return forks?.filter(entry => entry.status === "requested");
+        return forks.filter(entry => entry.status === "requested");
       case 1:
-        return forks?.filter(entry => entry.status === "approved");
+        return forks.filter(entry => entry.status === "approved");
       case 2:
-        return forks?.filter(entry => entry.status === "rejected");
+        return forks.filter(entry => entry.status === "rejected");
       default:
         return forks;
     }
@@ -42,11 +48,19 @@ const TermsChange = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchForks = useCallback(
     debounce(async () => {
-      getUserForks("123").then(data => {
-        setForks(data)
-      }).catch(err => {
-        console.log(err);
-      })
+      try {
+        const data = await getUserForks("123");
+        // Ensure we always set an array
+        if (Array.isArray(data)) {
+          setForks(data);
+        } else {
+          console.warn('getUserForks returned non-array data:', data);
+          setForks([]);
+        }
+      } catch (err) {
+        console.error('Error fetching forks:', err);
+        setForks([]); // Set empty array on error - will show "no data" message
+      }
     }, 500),
     [getUserForks]
   );
