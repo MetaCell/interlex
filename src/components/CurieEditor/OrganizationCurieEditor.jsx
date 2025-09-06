@@ -47,20 +47,16 @@ const OrganizationsCurieEditor = () => {
 
     const getOrganizationRequest = useCallback(async (id) => {
         try {
-            console.log("Fetching curies for organization:", id);
             const response = await getOrganizationsCuries(id);
-            console.log("Get Organization curies response:", response);
 
             // Handle both array and object response formats
             let curiesObject;
             if (Array.isArray(response) && response.length > 0) {
                 // If response is an array, take the first item
                 curiesObject = response[0];
-                console.log("Curies object from response[0]:", curiesObject);
             } else if (response && typeof response === 'object') {
                 // If response is a direct object, use it directly
                 curiesObject = response;
-                console.log("Curies object from direct response:", curiesObject);
             }
 
             if (curiesObject && Object.keys(curiesObject).length > 0) {
@@ -69,17 +65,14 @@ const OrganizationsCurieEditor = () => {
                     prefix,
                     namespace
                 }));
-                console.log("Transformed curies array:", curiesArray);
                 setCuries(curiesArray);
                 setCurieAmount(curiesArray.length);
             } else {
-                console.log("No curies data in response, setting empty array");
                 setCuries([]);
                 setCurieAmount(0);
             }
             setLoading(false);
         } catch (error) {
-            console.log("Error fetching curies:", error);
             // TODO: Handle when backend curies endpoint is fully implemented
             if (error?.response?.status === 501) {
                 console.warn("Organization curies endpoint not implemented yet (501), using empty array");
