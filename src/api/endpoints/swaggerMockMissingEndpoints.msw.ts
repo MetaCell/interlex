@@ -3913,7 +3913,7 @@ export const getGetVariantsResponseMock = () => ((() => [
       "userID": "olivia",
       "userName": "Oliviya Rhye"
     },
-    "url": "https://uri.olympiangods.org/base/ilx_0101901.jsonld"
+    "url": "${API_CONFIG.OLYMPIAN_GODS}/base/ilx_0101901.jsonld"
   },
   {
     "id": "variant_ilx_0101431",
@@ -3929,7 +3929,7 @@ export const getGetVariantsResponseMock = () => ((() => [
       "userID": "olivia",
       "userName": "Oliviya Rhye"
     },
-    "url": "https://uri.olympiangods.org/base/ilx_0101431.jsonld"
+    "url": "${API_CONFIG.OLYMPIAN_GODS}/base/ilx_0101431.jsonld"
   }
 ])())
 
@@ -4006,7 +4006,7 @@ export const getGetVersionsResponseMock = () => ((() => [
     "id": "version_ilx_0101901",
     "fork": {
       "name": "ForkPB-2",
-      "url": "https://uri.olympiangods.org/base/versions/ilx_0101901"
+      "url": "${API_CONFIG.OLYMPIAN_GODS}/base/versions/ilx_0101901"
     },
     "action": "Merge",
     "lastModifyBy": "24 March 12:08am",
@@ -4264,9 +4264,16 @@ export const getGetOrganizationsMockHandler = (overrideResponse?: Organizations)
 }
 
 export const getGetOrganizationsTermsMockHandler = (overrideResponse?: Terms) => {
-  return http.get('*/operations/getOrganization/:organization/terms', async () => {
+  return http.get('*/operations/getOrganization/:organization/terms', async ({ params }) => {
     await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetOrganizationsTermsResponseMock()),
+    const { organization } = params;
+    const isRealOrganization = typeof organization === 'string' && organization !== 'SPARC Anatomical Working Group';
+    
+    const mockResponse = overrideResponse !== undefined ? overrideResponse : (
+      isRealOrganization ? [] : getGetOrganizationsTermsResponseMock()
+    );
+    
+    return new HttpResponse(JSON.stringify(mockResponse),
       {
         status: 200,
         headers: {
@@ -4278,9 +4285,16 @@ export const getGetOrganizationsTermsMockHandler = (overrideResponse?: Terms) =>
 }
 
 export const getGetOrganizationsOntologiesMockHandler = (overrideResponse?: Ontologies) => {
-  return http.get('*/operations/getOrganization/:organization/ontologies', async () => {
+  return http.get('*/operations/getOrganization/:organization/ontologies', async ({ params }) => {
     await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetOrganizationsOntologiesResponseMock()),
+    const { organization } = params;
+    const isRealOrganization = typeof organization === 'string' && organization !== 'SPARC Anatomical Working Group';
+    
+    const mockResponse = overrideResponse !== undefined ? overrideResponse : (
+      isRealOrganization ? [] : getGetOrganizationsOntologiesResponseMock()
+    );
+    
+    return new HttpResponse(JSON.stringify(mockResponse),
       {
         status: 200,
         headers: {
@@ -4292,9 +4306,16 @@ export const getGetOrganizationsOntologiesMockHandler = (overrideResponse?: Onto
 }
 
 export const getGetOrganizationsCuriesMockHandler = (overrideResponse?: Curies) => {
-  return http.get('*/operations/getOrganization/:organization/curies', async () => {
+  return http.get('*/operations/getOrganization/:organization/curies', async ({ params }) => {
     await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetOrganizationsCuriesResponseMock()),
+    const { organization } = params;
+    const isRealOrganization = typeof organization === 'string' && organization !== 'SPARC Anatomical Working Group';
+    
+    const mockResponse = overrideResponse !== undefined ? overrideResponse : (
+      isRealOrganization ? {} : getGetOrganizationsCuriesResponseMock()
+    );
+    
+    return new HttpResponse(JSON.stringify(mockResponse),
       {
         status: 200,
         headers: {
