@@ -5,7 +5,9 @@ import {
     useCallback
 } from "react";
 import debounce from 'lodash/debounce';
+import { useParams, useNavigate } from "react-router-dom";
 import { EditNoteIcon } from "../../Icons";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import BasicTabs from "../common/CustomTabs";
 import CuriesTabPanel from "./CuriesTabPanel";
 import CustomButton from "../common/CustomButton";
@@ -30,6 +32,7 @@ const newRowObj = { prefix: '', namespace: '' };
 const curiesTabs = ["Curies", "Ontologies"];
 
 const OrganizationsCurieEditor = () => {
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     // eslint-disable-next-line no-unused-vars
     const [error, setError] = useState(null);
@@ -40,24 +43,54 @@ const OrganizationsCurieEditor = () => {
     const [openCurieEditor, setOpenCurieEditor] = useState(false);
     const [pageOptions, setPageOptions] = useState([]);
 
+    const { title } = useParams(); // Get organization name from URL params
+
     const getOrganizationRequest = useCallback(async (id) => {
         try {
+            console.log("Fetching curies for organization:", id);
             const response = await getOrganizationsCuries(id);
-            console.log("Get Organization curies response ", response);
-            setCuries(response);
-            setCurieAmount(response.length);
+            console.log("Get Organization curies response:", response);
+
+            // Handle both array and object response formats
+            let curiesObject;
+            if (Array.isArray(response) && response.length > 0) {
+                // If response is an array, take the first item
+                curiesObject = response[0];
+                console.log("Curies object from response[0]:", curiesObject);
+            } else if (response && typeof response === 'object') {
+                // If response is a direct object, use it directly
+                curiesObject = response;
+                console.log("Curies object from direct response:", curiesObject);
+            }
+
+            if (curiesObject && Object.keys(curiesObject).length > 0) {
+                // Convert object to array of {prefix, namespace} objects
+                const curiesArray = Object.entries(curiesObject).map(([prefix, namespace]) => ({
+                    prefix,
+                    namespace
+                }));
+                console.log("Transformed curies array:", curiesArray);
+                setCuries(curiesArray);
+                setCurieAmount(curiesArray.length);
+            } else {
+                console.log("No curies data in response, setting empty array");
+                setCuries([]);
+                setCurieAmount(0);
+            }
             setLoading(false);
         } catch (error) {
+            console.log("Error fetching curies:", error);
             // TODO: Handle when backend curies endpoint is fully implemented
             if (error?.response?.status === 501) {
                 console.warn("Organization curies endpoint not implemented yet (501), using empty array");
                 setCuries([]);
                 setCurieAmount(0);
-                setLoading(false);
             } else {
-                console.log("Error ", error);
-                setLoading(false);
+                console.error("Error fetching curies data", error);
+                setCuries([]);
+                setCurieAmount(0);
             }
+            setLoading(false);
         }
     }, [setCuries, setCurieAmount, setLoading]);
 
@@ -92,14 +125,17 @@ const OrganizationsCurieEditor = () => {
     const handleClickCurieEditor = () => setOpenCurieEditor(true);
     const handleCloseCurieEditor = () => setOpenCurieEditor(false);
     const handleChangeTabs = (event, newValue) => setTabValue(newValue);
+    const handleBackToOrganization = () => navigate(`/organizations/${title}`);
 
     const handleSubmit = () => {
         console.log("POST: here connect to post method")
     }
 
     useEffect(() => {
-        getOrganizationRequest("1");
-    }, [getOrganizationRequest]);
+        if (title) {
+            getOrganizationRequest(title);
+        }
+    }, [getOrganizationRequest, title]);
 
     useEffect(() => {
         const options = generatePageOptions(curieAmount);
@@ -125,6 +161,11 @@ const OrganizationsCurieEditor = () => {
                         <CustomButton onClick={handleClickCurieEditor}>
                             <EditNoteIcon sx={{ fill: gray700 }} />
                             Edit curies
+                        </CustomButton>
+                        <Divider sx={{ border: `1px solid ${gray200}`, mx: '1rem' }} />
+                        <CustomButton onClick={handleBackToOrganization}>
+                            <ArrowBackIcon sx={{ fill: gray700 }} />
+                            Back to Organization
                         </CustomButton>
                     </Grid>
                 </Grid>

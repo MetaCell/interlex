@@ -77,7 +77,7 @@ const useOrganizationData = (id) => {
                     getOrganizationsCuries(id).catch(error => {
                         if (error?.response?.status === 501) {
                             console.warn('Curies endpoint not implemented yet (501), using empty array');
-                            return [];
+                            return [{}]; // Return array with empty object to match expected structure
                         }
                         throw error;
                     }),
@@ -95,7 +95,28 @@ const useOrganizationData = (id) => {
                 // For organization data, we'll create a simple object with the name
                 setOrganization({ name: id });
                 setOrganizationTerms(termsRes?.results || []);
-                setOrganizationCuries(curiesRes || []);
+                
+                // Transform curies data: handle both array and object response formats
+                let curiesObject;
+                if (Array.isArray(curiesRes) && curiesRes.length > 0) {
+                    // If response is an array, take the first item
+                    curiesObject = curiesRes[0];
+                } else if (curiesRes && typeof curiesRes === 'object') {
+                    // If response is a direct object, use it directly
+                    curiesObject = curiesRes;
+                }
+
+                if (curiesObject && Object.keys(curiesObject).length > 0) {
+                    // Convert object to array of {prefix, namespace} objects
+                    const curiesArray = Object.entries(curiesObject).map(([prefix, namespace]) => ({
+                        prefix,
+                        namespace
+                    }));
+                    setOrganizationCuries(curiesArray);
+                } else {
+                    setOrganizationCuries([]);
+                }
+                
                 setOrganizationOntologies(ontologiesRes || []);
             } catch (error) {
                 console.error("Error fetching organization data", error);
@@ -109,6 +130,7 @@ const useOrganizationData = (id) => {
             }
         };
         if ( id ) {
+            console.log('useOrganizationData: Fetching data for organization:', id);
             fetchData();
         }
     }, [id]);

@@ -1870,7 +1870,7 @@ export const getGetOrganizationsTermsResponseMock = () => ((() => [
   }
 ])())
 
-export const getGetOrganizationsOntologiesResponseMock = () => ((() => [{
+export const getGetOrganizationsOntologiesResponseMock = () => [{
   name: "Test Ontology 1",
   description: "This file imports all the bridging modules that are relating NIF-Cell with other NIF  modules",
   id: "nif-neuron-bridge-test1",
@@ -1900,7 +1900,7 @@ export const getGetOrganizationsOntologiesResponseMock = () => ((() => [{
   id: "nif-neuron-bridge-test5",
   version_info: "0.1; May 9th, 2012",
   url: "http://ontology.neuinfo.org/NIF/ttl/unused/NIF-Neuron-Bridge.ttl"
-}])())
+}];
 
 export const getGetOrganizationsCuriesResponseMock = () => ((() => {
   return [{
@@ -4285,14 +4285,16 @@ export const getGetOrganizationsTermsMockHandler = (overrideResponse?: Terms) =>
 }
 
 export const getGetOrganizationsOntologiesMockHandler = (overrideResponse?: Ontologies) => {
-  return http.get('*/operations/getOrganization/:organization/ontologies', async ({ params }) => {
+  return http.get('*/:organization/ontologies', async ({ params }) => {
     await delay(1000);
     const { organization } = params;
-    const isRealOrganization = typeof organization === 'string' && organization !== 'SPARC Anatomical Working Group';
+    console.log('MSW: Handling ontologies request for organization:', organization);
     
     const mockResponse = overrideResponse !== undefined ? overrideResponse : (
-      isRealOrganization ? [] : getGetOrganizationsOntologiesResponseMock()
+      getGetOrganizationsOntologiesResponseMock()
     );
+    
+    console.log('MSW: Returning ontologies mock response:', mockResponse);
     
     return new HttpResponse(JSON.stringify(mockResponse),
       {
