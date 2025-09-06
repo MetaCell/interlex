@@ -11,7 +11,9 @@ import CuriesTabPanel from "./CuriesTabPanel";
 import CustomButton from "../common/CustomButton";
 import OntologyTabPanel from "./OntologyTabPanel";
 import CurieEditorDialog from "./CurieEditorDialog";
-import { getOrganizationCuries } from "../../api/endpoints";
+// TODO: This API endpoint may return 501 (Not Implemented) errors
+// Updated to use real API service instead of mock data with proper error handling
+import { getOrganizationsCuries } from "../../api/endpoints/apiService";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import { Box, Typography, Divider, Grid, Stack } from "@mui/material";
 
@@ -25,7 +27,7 @@ const generatePageOptions = (curieAmount) => {
 };
 
 const newRowObj = { prefix: '', namespace: '' };
-const curiesTabs = ["Organization", "Ontologies"];
+const curiesTabs = ["Curies", "Ontologies"];
 
 const OrganizationsCurieEditor = () => {
     const [loading, setLoading] = useState(true);
@@ -39,14 +41,24 @@ const OrganizationsCurieEditor = () => {
     const [pageOptions, setPageOptions] = useState([]);
 
     const getOrganizationRequest = useCallback(async (id) => {
-        await getOrganizationCuries(id).then((response) => {
-            console.log("Get Organization curies response ", response)
-            setCuries(response)
-            setCurieAmount(response.length)
+        try {
+            const response = await getOrganizationsCuries(id);
+            console.log("Get Organization curies response ", response);
+            setCuries(response);
+            setCurieAmount(response.length);
             setLoading(false);
-        }).catch((error) => {
-            console.log("Error ", error)
-        });
+        } catch (error) {
+            // TODO: Handle when backend curies endpoint is fully implemented
+            if (error?.response?.status === 501) {
+                console.warn("Organization curies endpoint not implemented yet (501), using empty array");
+                setCuries([]);
+                setCurieAmount(0);
+                setLoading(false);
+            } else {
+                console.log("Error ", error);
+                setLoading(false);
+            }
+        }
     }, [setCuries, setCurieAmount, setLoading]);
 
     // eslint-disable-next-line no-unused-vars

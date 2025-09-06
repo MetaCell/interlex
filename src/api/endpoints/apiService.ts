@@ -57,6 +57,21 @@ export const getOrganizations = (group: string) => {
   return createGetRequest<any, any>(endpoint, "application/json")();
 };
 
+export const getOrganizationsCuries = (group: string) => {
+  const endpoint = `/${group}${API_CONFIG.REAL_API.ORG_CURIES}`;
+  return createGetRequest<any, any>(endpoint, "application/json")();
+};
+
+export const getOrganizationsTerms = (group: string) => {
+  const endpoint = `/${group}${API_CONFIG.REAL_API.ORG_TERMS}`;
+  return createGetRequest<any, any>(endpoint, "application/json")();
+};
+
+export const getOrganizationsOntologies = (group: string) => {
+  const endpoint = `/${group}${API_CONFIG.REAL_API.ORG_ONTOLOGIES}`;
+  return createGetRequest<any, any>(endpoint, "application/json")();
+};
+
 export const userLogout = (group: string) => {
   const endpoint = `/${group}${API_CONFIG.REAL_API.LOGOUT}`;
   return createGetRequest<any, any>(endpoint, "application/json")();

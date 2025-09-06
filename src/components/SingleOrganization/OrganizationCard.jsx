@@ -44,11 +44,12 @@ const OntologyTitleSection = ({ ontology }) => {
         e.stopPropagation();
         console.log('Download ontology', label);
     }
+    const title = ontology?.uri.split("/").pop() === "spec" ? ontology?.uri.split("/").slice(-2, -1)[0] : ontology?.uri.split("/").slice(-1)[0];
     return (
         <Box display="flex" justifyContent="space-between" alignItems="center">
             <Stack direction="row" alignItems="center" spacing={'.75rem'}>
                 <FolderOpenOutlinedIcon />
-                <Typography variant='h6' color={gray700} className='label'>{ontology?.name}</Typography>
+                <Typography variant='h6' color={gray700} className='label'>{ontology?.title === "" ? title : ontology?.title}</Typography>
             </Stack>
             <CustomButton
                 sx={{
@@ -114,7 +115,7 @@ const OrganizationCard = ({ data, isOntology }) => {
                     WebkitLineClamp: 2,
                     textOverflow: 'ellipsis',
                 }}>
-                    {data?.description ? data?.description : '-'}
+                    {data?.description ? data?.description : (data?.uri || '-')}
                 </Typography>
             </Stack>
         </Grid>
