@@ -29,6 +29,7 @@ import type {
   Variants,
   Versions
 } from '../../model/backend'
+import { API_CONFIG } from '../../config';
 
 export const getLoginResponseMock = () => ((() => ({
                 status: 200,
@@ -3913,7 +3914,7 @@ export const getGetVariantsResponseMock = () => ((() => [
       "userID": "olivia",
       "userName": "Oliviya Rhye"
     },
-    "url": "${API_CONFIG.OLYMPIAN_GODS}/base/ilx_0101901.jsonld"
+    "url": `${API_CONFIG.OLYMPIAN_GODS}/base/ilx_0101901.jsonld`
   },
   {
     "id": "variant_ilx_0101431",
@@ -3929,7 +3930,7 @@ export const getGetVariantsResponseMock = () => ((() => [
       "userID": "olivia",
       "userName": "Oliviya Rhye"
     },
-    "url": "${API_CONFIG.OLYMPIAN_GODS}/base/ilx_0101431.jsonld"
+    "url": `${API_CONFIG.OLYMPIAN_GODS}/base/ilx_0101431.jsonld`
   }
 ])())
 
@@ -4006,7 +4007,7 @@ export const getGetVersionsResponseMock = () => ((() => [
     "id": "version_ilx_0101901",
     "fork": {
       "name": "ForkPB-2",
-      "url": "${API_CONFIG.OLYMPIAN_GODS}/base/versions/ilx_0101901"
+      "url": `${API_CONFIG.OLYMPIAN_GODS}/base/versions/ilx_0101901`
     },
     "action": "Merge",
     "lastModifyBy": "24 March 12:08am",
