@@ -140,15 +140,18 @@ const ResultItemSkeleton = () => (
     </Box>
 );
 
-const ResultItem = ({ result, searchValue, onResultAction }) => {
+const ResultItem = ({ result, searchValue, onResultAction, user }) => {
     const isExactMatch = result.label.toLowerCase() === searchValue?.toLowerCase();
 
     const getItemStyles = () => ({
         borderBottom: `1px solid ${gray200}`,
         position: 'relative',
+        borderRadius: '0.5rem',
+        cursor: isExactMatch ? 'default' : 'pointer',
         ...(isExactMatch && EXACT_MATCH_STYLES),
         '&:hover': {
             ...(!isExactMatch && {
+                backgroundColor: gray200,
                 '&:before': HOVER_INDICATOR_STYLES
             })
         }
@@ -163,6 +166,7 @@ const ResultItem = ({ result, searchValue, onResultAction }) => {
             px={1}
             py={1.5}
             gap={1}
+            onClick={() => !isExactMatch && onResultAction(result)}
             sx={getItemStyles()}
         >
             <Stack
@@ -193,7 +197,7 @@ const ResultItem = ({ result, searchValue, onResultAction }) => {
                                 height: "auto",
                                 '&:hover': { backgroundColor: "transparent" }
                             }}
-                            onClick={() => onResultAction(result)}
+                            onClick={() => window.location.href = `/${user.groupname}/${result.ilx}`}
                         >
                             Go to term
                         </Button>
@@ -224,7 +228,8 @@ export default function NewTermSidebar({
     results,
     isResultsEmpty,
     searchValue,
-    onResultAction
+    onResultAction,
+    user
 }) {
 
     const sidebarStyles = {
@@ -274,6 +279,7 @@ export default function NewTermSidebar({
                                     result={result}
                                     searchValue={searchValue}
                                     onResultAction={onResultAction}
+                                    user={user}
                                 />
                             ))}
                         </>
@@ -297,6 +303,7 @@ ResultItem.propTypes = {
     result: PropTypes.object.isRequired,
     searchValue: PropTypes.string,
     onResultAction: PropTypes.func,
+    user: PropTypes.object,
 };
 
 NewTermSidebar.propTypes = {
@@ -307,4 +314,5 @@ NewTermSidebar.propTypes = {
     isResultsEmpty: PropTypes.bool.isRequired,
     searchValue: PropTypes.string.isRequired,
     onResultAction: PropTypes.func,
+    user: PropTypes.object,
 };

@@ -52,7 +52,7 @@ const SecondStepContent = ({ searchTerm }) => {
         {
             subject: "",
             predicate: "",
-            object: { type: "Object", value: "", isLink: false },
+            object: { type: "Object", value: searchTerm, isLink: false },
         },
     ])
 
@@ -264,7 +264,7 @@ const SecondStepContent = ({ searchTerm }) => {
 }
 
 SecondStepContent.propTypes = {
-  searchTerm: PropTypes.string
+    searchTerm: PropTypes.string
 };
 
 export default SecondStepContent;

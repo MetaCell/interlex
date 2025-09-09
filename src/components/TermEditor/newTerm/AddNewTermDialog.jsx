@@ -29,7 +29,8 @@ const HeaderRightSideContent = ({
     activeStep,
     onContinue,
     onClose,
-    isCreateButtonDisabled
+    isCreateButtonDisabled,
+    isEditing
 }) => {
     const [ontologyChecked, setOntologyChecked] = useState(false);
 
@@ -79,7 +80,7 @@ const HeaderRightSideContent = ({
                                 }
                             }}
                         >
-                            Create new
+                            {isEditing ? 'Edit term' : 'Create new'}
                         </Button>
                     </Stack>
                 </>
@@ -94,7 +95,8 @@ HeaderRightSideContent.propTypes = {
     activeStep: PropTypes.number.isRequired,
     onContinue: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
-    isCreateButtonDisabled: PropTypes.bool.isRequired
+    isCreateButtonDisabled: PropTypes.bool.isRequired,
+    isEditing: PropTypes.bool.isRequired
 };
 
 const AddNewTermDialog = ({ open, handleClose }) => {
@@ -102,13 +104,15 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const [addTermResponse, setAddTermResponse] = useState(null);
     const [selectedType, setSelectedType] = useState(DEFAULT_TYPE);
     const [termValue, setTermValue] = useState("");
+    const [selectedTermValue, setSelectedTermValue] = useState("");
     const [exactSynonyms, setExactSynonyms] = useState([]);
     const [existingIds, setExistingIds] = useState([]);
     const [loading, setLoading] = useState(false);
     const [hasExactMatch, setHasExactMatch] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
     const { user } = useContext(GlobalDataContext);
 
-    const isCreateButtonDisabled = hasExactMatch || termValue === "";
+    const isCreateButtonDisabled = hasExactMatch || termValue === "" || (isEditing && termValue === selectedTermValue);
     const statusProps = getAddTermStatusProps(addTermResponse, termValue);
 
     const handleCancelBtnClick = () => {
@@ -116,9 +120,18 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         setActiveStep(0);
     };
 
-    const handleTermValueChange = (event) => {
-        const value = event.target.value;
-        setTermValue(value);
+    const handleTermValueChange = (value) => {
+        const isEventObject = value && typeof value === 'object' && 'target' in value;
+        const newValue = isEventObject ? value.target.value : value;
+        setTermValue(newValue);
+
+        if (isEventObject && isEditing) {
+            if (newValue !== selectedTermValue) {
+                setIsEditing(true);
+            }
+        } else if (isEventObject) {
+            setIsEditing(false);
+        }
     };
 
     const handleTypeChange = (newType) => {
@@ -136,6 +149,18 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const handleExactMatchChange = (value) => {
         setHasExactMatch(value)
     }
+
+    const handleTermSelection = (result) => {
+        if (result?.label) {
+            setIsEditing(true);
+            setSelectedTermValue(result.label);
+            handleTermValueChange(result.label);
+        }
+    }
+
+    const editTerm = useCallback(() => {
+        console.log("Edit term");
+    }, []);
 
     const createNewTerm = useCallback(async () => {
         if (!termValue || !selectedType || hasExactMatch) return;
@@ -167,6 +192,14 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         }
     }, [termValue, selectedType, user, hasExactMatch]);
 
+    const handleAction = useCallback(() => {
+        if (isEditing) {
+            editTerm();
+        } else {
+            createNewTerm();
+        }
+    }, [isEditing, editTerm, createNewTerm]);
+
     if (loading) {
         return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
             <CircularProgress />
@@ -182,8 +215,9 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                 <HeaderRightSideContent
                     activeStep={activeStep}
                     onClose={handleCancelBtnClick}
-                    onContinue={createNewTerm}
+                    onContinue={handleAction}
                     isCreateButtonDisabled={isCreateButtonDisabled}
+                    isEditing={isEditing}
                 />
             }
             sx={{ '& .MuiDialogContent-root': { padding: 0, overflowY: "hidden" } }}
@@ -194,12 +228,13 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                 hasExactMatch={hasExactMatch}
                 existingIds={existingIds}
                 synonyms={exactSynonyms}
+                isEditing={isEditing}
                 handleTermChange={handleTermValueChange}
                 handleTypeChange={handleTypeChange}
                 handleExactMatchChange={handleExactMatchChange}
                 handleSynonymChange={handleSynonymChange}
                 handleExistingIdChange={handleExistingIdChange}
-                handleDialogClose={handleClose}
+                onTermSelect={handleTermSelection}
             />}
             {activeStep === 1 && <SecondStepContent searchTerm={addTermResponse} />}
             {activeStep === 2 && addTermResponse != null && (

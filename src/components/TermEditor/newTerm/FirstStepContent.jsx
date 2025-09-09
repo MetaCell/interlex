@@ -10,7 +10,6 @@ import {
     Chip,
     TextField
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import { GlobalDataContext } from "../../../contexts/DataContext";
 import CloseIcon from "@mui/icons-material/Close";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
@@ -69,75 +68,24 @@ const styles = {
     }
 };
 
-const useTermSearch = (user, handleExactMatchChange) => {
-    const [termResults, setTermResults] = useState([]);
-    const [loading, setLoading] = useState(false);
-
-    const searchForMatches = useMemo(() =>
-        debounce(async (searchTerm, searchType, synonyms = []) => {
-            if (!searchTerm || !searchType) {
-                setTermResults([]);
-                handleExactMatchChange(false);
-                return;
-            }
-
-            setLoading(true);
-
-            try {
-                try {
-                    await checkPotentialMatches(user?.groupname || 'base', {
-                        label: searchTerm,
-                        'rdf-type': searchType,
-                        exact: synonyms
-                    });
-                    handleExactMatchChange(false);
-                } catch (error) {
-                    if (error?.response?.status === 409 && error?.response?.data?.existing) {
-                        handleExactMatchChange(true);
-                    } else {
-                        handleExactMatchChange(false);
-                    }
-                }
-
-                const { results } = await elasticSearch(searchTerm);
-                const similarResults = (results?.results || []).map(result => ({
-                    ...result,
-                    isExactMatch: false
-                }));
-
-                setTermResults(similarResults);
-            } catch (error) {
-                console.error("Term search error:", error);
-                setTermResults([]);
-                handleExactMatchChange(false);
-            } finally {
-                setLoading(false);
-            }
-        }, 500),
-        [user, handleExactMatchChange]
-    );
-
-    return { termResults, loading, searchForMatches, setTermResults };
-};
-
 const FirstStepContent = ({
     term,
     type,
     hasExactMatch,
     existingIds,
     synonyms,
+    isEditing,
     handleTermChange,
     handleTypeChange,
     handleExactMatchChange,
     handleExistingIdChange,
     handleSynonymChange,
-    handleDialogClose
+    onTermSelect
 }) => {
     const [openSidebar, setOpenSidebar] = useState(true);
-    const { user, updateStoredSearchTerm } = useContext(GlobalDataContext);
-    const navigate = useNavigate();
-
-    const { termResults, loading, searchForMatches, setTermResults } = useTermSearch(user, handleExactMatchChange);
+    const [loading, setLoading] = useState(false);
+    const [searchResults, setSearchResults] = useState([]);
+    const { user } = useContext(GlobalDataContext);
 
     const synonymOptions = useMemo(() => [], []);
     const idOptions = useMemo(() => [], []);
@@ -145,14 +93,72 @@ const FirstStepContent = ({
     const handleSidebarToggle = useCallback(() =>
         setOpenSidebar(prev => !prev), []);
 
-    const navigateToExistingTerm = useCallback((searchResult) => {
-        if (!searchResult?.label || !searchResult?.ilx) return;
+    const searchTerms = useMemo(() => {
+        const searchFunction = async (searchTerm, searchType, synonymList) => {
+            if (!searchTerm || !searchType || isEditing) {
+                setSearchResults([]);
+                return;
+            }
 
-        updateStoredSearchTerm(searchResult.label);
-        const groupName = user?.groupname || 'base';
-        navigate(`/${groupName}/${searchResult.ilx}/overview`);
-        handleDialogClose();
-    }, [updateStoredSearchTerm, user, navigate, handleDialogClose]);
+            setLoading(true);
+            try {
+                await checkPotentialMatches(user?.groupname || 'base', {
+                    label: searchTerm,
+                    'rdf-type': searchType,
+                    exact: synonymList
+                });
+                // If no exact match, search elastic
+                handleExactMatchChange(false);
+                const { results } = await elasticSearch(searchTerm);
+                setSearchResults((results?.results || []).map(result => ({
+                    ...result,
+                    isExactMatch: false
+                })));
+            } catch (error) {
+                if (error?.response?.status === 409 && error?.response?.data?.existing) {
+                    handleExactMatchChange(true);
+                    const exactMatches = Object.entries(error.response.data.existing)
+                        .flatMap(([termUri, matches]) => {
+                            const matchList = Array.isArray(matches) ? matches : [matches];
+                            return matchList.map(match => ({
+                                ilx: termUri.split('/').pop(),
+                                label: match.object,
+                                isExactMatch: true
+                            }));
+                        });
+                    setSearchResults(exactMatches);
+                } else {
+                    handleExactMatchChange(false);
+                    setSearchResults([]);
+                }
+            }
+            setLoading(false);
+        };
+
+        return debounce(searchFunction, 500);
+    }, [user, handleExactMatchChange, isEditing, setLoading, setSearchResults]);
+
+    const handleResultSelect = useCallback((result) => {
+        if (!result?.label) return;
+
+        if (!result.isExactMatch) {
+            handleTermChange(result.label);
+            setSearchResults([]);
+            if (onTermSelect) {
+                onTermSelect({ ...result, isEditing: true });
+            }
+        }
+    }, [handleTermChange, onTermSelect]);
+
+    useEffect(() => {
+        if (!term) {
+            setSearchResults([]);
+            handleExactMatchChange(false);
+            return;
+        }
+        searchTerms(term, type, synonyms);
+        return () => searchTerms.cancel();
+    }, [term, type, synonyms, searchTerms, handleExactMatchChange, setSearchResults]);
 
     const renderChips = useCallback((values, getTagProps, chipStyles) =>
         values.map((option, index) => (
@@ -165,17 +171,7 @@ const FirstStepContent = ({
             />
         )), []);
 
-    useEffect(() => {
-        if (!term) {
-            setTermResults([]);
-            handleExactMatchChange(false);
-            return;
-        }
-        if (term && type) {
-            searchForMatches(term, type, synonyms);
-        }
-        return () => searchForMatches.cancel();
-    }, [term, type, synonyms, searchForMatches, handleExactMatchChange, setTermResults]);
+
 
 
     return (
@@ -259,17 +255,20 @@ const FirstStepContent = ({
                 </Box>
             </Box>
 
-            <NewTermSidebar
-                open={openSidebar}
-                loading={loading}
-                onToggle={handleSidebarToggle}
-                results={termResults}
-                isResultsEmpty={termResults.length === 0}
-                searchValue={term}
-                onResultAction={navigateToExistingTerm}
-            />
+            {!isEditing && (
+                <NewTermSidebar
+                    open={openSidebar}
+                    loading={loading}
+                    onToggle={handleSidebarToggle}
+                    results={searchResults}
+                    isResultsEmpty={searchResults.length === 0}
+                    searchValue={term}
+                    onResultAction={handleResultSelect}
+                    user={user}
+                />
+            )}
         </Box>
-    );
+    )
 };
 
 FirstStepContent.propTypes = {
@@ -278,12 +277,13 @@ FirstStepContent.propTypes = {
     hasExactMatch: PropTypes.bool,
     existingIds: PropTypes.arrayOf(PropTypes.string),
     synonyms: PropTypes.arrayOf(PropTypes.string),
+    isEditing: PropTypes.bool,
     handleTermChange: PropTypes.func.isRequired,
     handleTypeChange: PropTypes.func.isRequired,
     handleExactMatchChange: PropTypes.func.isRequired,
     handleExistingIdChange: PropTypes.func.isRequired,
     handleSynonymChange: PropTypes.func.isRequired,
-    handleDialogClose: PropTypes.func.isRequired,
+    onTermSelect: PropTypes.func
 };
 
 FirstStepContent.defaultProps = {
