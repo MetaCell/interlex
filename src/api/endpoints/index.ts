@@ -7,10 +7,9 @@ import termParser, { elasticSearchParser, getTerm } from '../../parsers/termPars
 import axios from 'axios';
 import { API_CONFIG } from '../../config';
 
-const useMockApi = () => mockApi;
 const useApi = () => api;
+const useMockApi = () => mockApi;
 
-const BASE_GROUP = "base";
 const BASE_EXTENSION = "jsonld";
 
 export const getOrganizations = async (group) => {
@@ -219,7 +218,7 @@ export const searchAll = async (term, filters = {}) => {
   const {  searchAll } = useMockApi();
 
   /** Call Endpoint */
-  return searchAll("base", term, filters).then((data) => {
+  return searchAll("base", term, filters).then((data: any) => {
       let terms = termParser((data as any).terms, term, filters);
       terms?.results?.forEach( result => {
         result.type = TERM;
@@ -244,7 +243,7 @@ export const patchTerm = async (group, termID, term) => {
   const {patchEndpointsIlx} = useApi();
 
   /** Call Endpoint */
-  return patchEndpointsIlx(group, termID, term).then((data) => {
+  return patchEndpointsIlx(group, termID, term).then((data: any) => {
       let termParsed = getTerm(data.data);
       let response = {
         status : data.status,
@@ -291,7 +290,7 @@ export const bulkEditTerms = async (group, payload) => {
   const { bulkEditTerms } = useMockApi();
 
   /** Call Endpoint */
-  return bulkEditTerms(group, payload).then((data) => {
+  return bulkEditTerms(group, payload).then((data: any) => {
       let termsParsed = termParser(data.data, undefined);
       let response = {
         status : data.status,
@@ -309,7 +308,7 @@ export const getEndpointsIlx = async (group, term) => {
   const {  getEndpointsIlx } = useApi();
 
   /** Call Endpoint */
-  return getEndpointsIlx(group,term).then((data) => {
+  return getEndpointsIlx(group, term, BASE_EXTENSION).then((data) => {
       return termParser(data, term);
     })
     .catch((error) => {
@@ -414,7 +413,7 @@ export const handleLogin = async (username: string, password: string) => {
 };
 
 export const handleOrcidLogin = async (code: string) => {
-  const response = await fetch("https://uri.olympiangods.org/u/ops/orcid-login", {
+  const response = await fetch(`${API_CONFIG.OLYMPIAN_GODS}/u/ops/orcid-login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     // body: JSON.strijiuigngify({ code }),

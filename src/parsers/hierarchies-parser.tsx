@@ -1,6 +1,6 @@
 export const ILX_PART_OF = 'Is part of';
 export const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
-export const OWL_OBJECT_PROPERTY = 'owl:ObjectProperty';
+export const OWL_OBJECT_PROPERTY = 'owl:';
 
 export const RDFS_LABEL = 'http://www.w3.org/2000/01/rdf-schema#label';
 export const PART_OF_IRI = 'http://uri.interlex.org/base/ilx_0112785';
@@ -212,8 +212,10 @@ export const toHierarchyOptionsFromTriples = (triples: Triple[] = []) => {
   const labelMap = buildLabelMap(triples);
   const ids = new Set<string>();
   for (const t of triples) {
-    if (t.subject?.id) ids.add(toIri(t.subject.id));
-    if (t.object?.id) ids.add(toIri(t.object.id));
+    if ( t.object?.id !== "" && !t.object?.id?.includes(OWL_OBJECT_PROPERTY)  && !t.subject?.id?.includes(OWL_OBJECT_PROPERTY) ) {
+      if (t.subject?.id) ids.add(toIri(t.subject.id));
+      if (t.object?.id) ids.add(toIri(t.object.id));
+    }
   }
   const out = Array.from(ids).map((iri) => ({ id: iri, label: labelOf(iri, labelMap) }));
   // stable order: label asc

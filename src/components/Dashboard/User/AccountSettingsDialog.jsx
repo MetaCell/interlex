@@ -1,12 +1,14 @@
 import PropTypes from "prop-types";
-import { useState } from "react";
-import { Box, Divider, Button, Typography, Avatar, Stack, Grid, TextField, Link } from "@mui/material";
+import { useState, useContext } from "react";
+import { Box, Divider, Button, Typography, Avatar, Stack, Grid, TextField, Link, Snackbar } from "@mui/material";
 import CustomizedDialog from "../../common/CustomizedDialog";
 import PasswordField from "./PasswordField";
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { GlobalDataContext } from "../../../contexts/DataContext";
+import { changePassword } from "../../../api/endpoints/apiService";
 
 import { vars } from "../../../theme/variables";
 const { gray600, gray700, brand700 } = vars;
@@ -32,7 +34,11 @@ const AccountSettingsDialog = ({
     open,
     handleClose
 }) => {
+    const { user: contextUser } = useContext(GlobalDataContext);
     const [showPasswordField, setShowPasswordField] = useState(false);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         email: user?.email,
         currentPassword: "",
@@ -47,13 +53,63 @@ const AccountSettingsDialog = ({
         }))
     }
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        console.log("Form submitted:", formData)
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        
+        if (!showPasswordField) {
+            return;
+        }
+
+        // Validate passwords match
+        if (formData.newPassword !== formData.confirmPassword) {
+            setSnackbarMessage("New passwords do not match");
+            setSnackbarOpen(true);
+            return;
+        }
+
+        setIsSubmitting(true);
+        
+        try {
+            const groupname = (contextUser || user)?.groupname;
+            if (!groupname) {
+                throw new Error("No groupname available");
+            }
+
+            await changePassword(groupname, {
+                username: (contextUser || user)?.name || (contextUser || user)?.groupname,
+                currentPassword: formData.currentPassword,
+                newPassword: formData.newPassword,
+            });
+
+            setSnackbarMessage("Password changed successfully");
+            setSnackbarOpen(true);
+            setShowPasswordField(false);
+            setFormData(prev => ({
+                ...prev,
+                currentPassword: "",
+                newPassword: "",
+                confirmPassword: "",
+            }));
+        } catch (error) {
+            console.error("Password change error:", error);
+            
+            // Check if it's a 501 error (not implemented)
+            if (error?.response?.status === 501) {
+                setSnackbarMessage("Endpoint not yet implemented, 501");
+            } else {
+                setSnackbarMessage("Failed to change password. Please try again.");
+            }
+            setSnackbarOpen(true);
+        } finally {
+            setIsSubmitting(false);
+        }
     }
 
     const userGroupname = user?.groupname.charAt(0).toUpperCase() + user?.groupname.slice(1)
-    const isPasswordFormValid = formData.currentPassword.trim() !== "" && formData.newPassword.trim() !== "" && formData.confirmPassword.trim() !== "";
+    const isPasswordFormValid = formData.currentPassword.trim() !== "" && 
+                               formData.newPassword.trim() !== "" && 
+                               formData.confirmPassword.trim() !== "" && 
+                               formData.newPassword === formData.confirmPassword;
 
 
     return (
@@ -179,10 +235,10 @@ const AccountSettingsDialog = ({
                                     type="submit"
                                     variant="outlined"
                                     startIcon={isPasswordFormValid ? <SaveOutlinedIcon /> : <ModeEditOutlineOutlinedIcon />}
-                                    onClick={() => setShowPasswordField(true)}
-                                    disabled={!isPasswordFormValid}
+                                    onClick={handleSubmit}
+                                    disabled={!isPasswordFormValid || isSubmitting}
                                 >
-                                    Save new password
+                                    {isSubmitting ? "Saving..." : "Save new password"}
                                 </Button>
                                 <Button variant="text" onClick={() => setShowPasswordField(false)}>
                                     Cancel
@@ -192,6 +248,13 @@ const AccountSettingsDialog = ({
                     </Grid>
                 </Grid>
             </Box>
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={() => setSnackbarOpen(false)}
+                message={snackbarMessage}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            />
         </CustomizedDialog>
     );
 };

@@ -36,7 +36,11 @@ export const API_CONFIG = {
         GET_ORGANIZATIONS: "/priv/role-other",
         LOGOUT: "/priv/logout",
         USER_RECOVER: "/u/ops/user-recover",
-        CHECK_ENTITY: "/priv/entity-check"
+        CHECK_ENTITY: "/priv/entity-check",
+        PASSWORD_CHANGE: "/priv/password_change",
+        ORG_TERMS: "/contributions",
+        ORG_ONTOLOGIES: "/ontologies",
+        ORG_CURIES: "/curies"
     },
     SESSION_DATA: {
         SETTINGS: "settings",

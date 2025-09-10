@@ -13,7 +13,11 @@ export const useOrganizations = (groupname: string) => {
     try {
       const response = await getOrganizations(groupname);
       if (response.length > 0) {
-        setOrganizations(response[0]);
+        // Replace "owner" with the actual username/groupname
+        const processedOrganizations = response[0].map((org: string) => 
+          org === "owner" ? groupname : org
+        );
+        setOrganizations(processedOrganizations);
       }
     } catch (err) {
       console.error('An unknown error occurred: ', err);

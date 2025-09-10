@@ -29,6 +29,7 @@ import type {
   Variants,
   Versions
 } from '../../model/backend'
+import { API_CONFIG } from '../../config';
 
 export const getLoginResponseMock = () => ((() => ({
                 status: 200,
@@ -1870,7 +1871,7 @@ export const getGetOrganizationsTermsResponseMock = () => ((() => [
   }
 ])())
 
-export const getGetOrganizationsOntologiesResponseMock = () => ((() => [{
+export const getGetOrganizationsOntologiesResponseMock = () => [{
   name: "Test Ontology 1",
   description: "This file imports all the bridging modules that are relating NIF-Cell with other NIF  modules",
   id: "nif-neuron-bridge-test1",
@@ -1900,7 +1901,7 @@ export const getGetOrganizationsOntologiesResponseMock = () => ((() => [{
   id: "nif-neuron-bridge-test5",
   version_info: "0.1; May 9th, 2012",
   url: "http://ontology.neuinfo.org/NIF/ttl/unused/NIF-Neuron-Bridge.ttl"
-}])())
+}];
 
 export const getGetOrganizationsCuriesResponseMock = () => ((() => {
   return [{
@@ -3913,7 +3914,7 @@ export const getGetVariantsResponseMock = () => ((() => [
       "userID": "olivia",
       "userName": "Oliviya Rhye"
     },
-    "url": "https://uri.olympiangods.org/base/ilx_0101901.jsonld"
+    "url": `${API_CONFIG.OLYMPIAN_GODS}/base/ilx_0101901.jsonld`
   },
   {
     "id": "variant_ilx_0101431",
@@ -3929,7 +3930,7 @@ export const getGetVariantsResponseMock = () => ((() => [
       "userID": "olivia",
       "userName": "Oliviya Rhye"
     },
-    "url": "https://uri.olympiangods.org/base/ilx_0101431.jsonld"
+    "url": `${API_CONFIG.OLYMPIAN_GODS}/base/ilx_0101431.jsonld`
   }
 ])())
 
@@ -4006,7 +4007,7 @@ export const getGetVersionsResponseMock = () => ((() => [
     "id": "version_ilx_0101901",
     "fork": {
       "name": "ForkPB-2",
-      "url": "https://uri.olympiangods.org/base/versions/ilx_0101901"
+      "url": `${API_CONFIG.OLYMPIAN_GODS}/base/versions/ilx_0101901`
     },
     "action": "Merge",
     "lastModifyBy": "24 March 12:08am",
@@ -4210,9 +4211,21 @@ export const getGetUserForksMockHandler = (overrideResponse?: Forks) => {
 }
 
 export const getGetOrganizationMockHandler = (overrideResponse?: Organization) => {
-  return http.get('*/operations/getOrganization/:id', async () => {
+  return http.get('*/operations/getOrganization/:id', async ({ params }) => {
     await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetOrganizationResponseMock()),
+    const { id } = params;
+    const originalMock = getGetOrganizationResponseMock();
+    const isRealOrganization = typeof id === 'string' && id !== originalMock.name;
+    
+    const mockResponse = overrideResponse !== undefined ? overrideResponse : {
+      ...originalMock,
+      name: typeof id === 'string' ? id : originalMock.name,
+      description: isRealOrganization ? '' : originalMock.description, // Empty description for real organizations
+      id: isRealOrganization ? '' : originalMock.id,
+      url: isRealOrganization ? '' : originalMock.url,
+      icon: isRealOrganization ? '' : originalMock.icon
+    };
+    return new HttpResponse(JSON.stringify(mockResponse),
       {
         status: 200,
         headers: {
@@ -4252,9 +4265,16 @@ export const getGetOrganizationsMockHandler = (overrideResponse?: Organizations)
 }
 
 export const getGetOrganizationsTermsMockHandler = (overrideResponse?: Terms) => {
-  return http.get('*/operations/getOrganization/:organization/terms', async () => {
+  return http.get('*/operations/getOrganization/:organization/terms', async ({ params }) => {
     await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetOrganizationsTermsResponseMock()),
+    const { organization } = params;
+    const isRealOrganization = typeof organization === 'string' && organization !== 'SPARC Anatomical Working Group';
+    
+    const mockResponse = overrideResponse !== undefined ? overrideResponse : (
+      isRealOrganization ? [] : getGetOrganizationsTermsResponseMock()
+    );
+    
+    return new HttpResponse(JSON.stringify(mockResponse),
       {
         status: 200,
         headers: {
@@ -4266,9 +4286,18 @@ export const getGetOrganizationsTermsMockHandler = (overrideResponse?: Terms) =>
 }
 
 export const getGetOrganizationsOntologiesMockHandler = (overrideResponse?: Ontologies) => {
-  return http.get('*/operations/getOrganization/:organization/ontologies', async () => {
+  return http.get('*/:organization/ontologies', async ({ params }) => {
     await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetOrganizationsOntologiesResponseMock()),
+    const { organization } = params;
+    console.log('MSW: Handling ontologies request for organization:', organization);
+    
+    const mockResponse = overrideResponse !== undefined ? overrideResponse : (
+      getGetOrganizationsOntologiesResponseMock()
+    );
+    
+    console.log('MSW: Returning ontologies mock response:', mockResponse);
+    
+    return new HttpResponse(JSON.stringify(mockResponse),
       {
         status: 200,
         headers: {
@@ -4280,9 +4309,16 @@ export const getGetOrganizationsOntologiesMockHandler = (overrideResponse?: Onto
 }
 
 export const getGetOrganizationsCuriesMockHandler = (overrideResponse?: Curies) => {
-  return http.get('*/operations/getOrganization/:organization/curies', async () => {
+  return http.get('*/operations/getOrganization/:organization/curies', async ({ params }) => {
     await delay(1000);
-    return new HttpResponse(JSON.stringify(overrideResponse !== undefined ? overrideResponse : getGetOrganizationsCuriesResponseMock()),
+    const { organization } = params;
+    const isRealOrganization = typeof organization === 'string' && organization !== 'SPARC Anatomical Working Group';
+    
+    const mockResponse = overrideResponse !== undefined ? overrideResponse : (
+      isRealOrganization ? {} : getGetOrganizationsCuriesResponseMock()
+    );
+    
+    return new HttpResponse(JSON.stringify(mockResponse),
       {
         status: 200,
         headers: {

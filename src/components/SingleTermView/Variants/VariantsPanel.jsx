@@ -26,7 +26,7 @@ const VariantsPanel = ({ searchTerm, group = "base" }) => {
     }, [group, searchTerm]);
 
     if (loading) {
-        return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
             <CircularProgress />
         </Box>
     }

@@ -57,9 +57,29 @@ export const getOrganizations = (group: string) => {
   return createGetRequest<any, any>(endpoint, "application/json")();
 };
 
+export const getOrganizationsCuries = (group: string) => {
+  const endpoint = `/${group}${API_CONFIG.REAL_API.ORG_CURIES}`;
+  return createGetRequest<any, any>(endpoint, "application/json")();
+};
+
+export const getOrganizationsTerms = (group: string) => {
+  const endpoint = `/${group}${API_CONFIG.REAL_API.ORG_TERMS}`;
+  return createGetRequest<any, any>(endpoint, "application/json")();
+};
+
+export const getOrganizationsOntologies = (group: string) => {
+  const endpoint = `/${group}${API_CONFIG.REAL_API.ORG_ONTOLOGIES}`;
+  return createGetRequest<any, any>(endpoint, "application/json")();
+};
+
 export const userLogout = (group: string) => {
   const endpoint = `/${group}${API_CONFIG.REAL_API.LOGOUT}`;
   return createGetRequest<any, any>(endpoint, "application/json")();
+};
+
+export const changePassword = (group: string, data: { username: string; currentPassword: string; newPassword: string }) => {
+  const endpoint = `/${group}${API_CONFIG.REAL_API.PASSWORD_CHANGE}`;
+  return createPostRequest<any, any>(endpoint, { "Content-Type": "application/x-www-form-urlencoded" })(data);
 };
 
 export const getSelectedTermLabel = async (searchTerm: string, group: string = 'base'): Promise<{ label: string | undefined; actualGroup: string }> => {

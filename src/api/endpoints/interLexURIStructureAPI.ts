@@ -40,14 +40,14 @@ export const getOpsEmailVerify = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/u/ops/ever`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/u/ops/ever`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetOpsEmailVerifyQueryKey = () => {
-    return [`https://uri.olympiangods.org/u/ops/ever`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/u/ops/ever`] as const;
     }
 
     
@@ -99,14 +99,14 @@ export const getOpsLogin = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/u/ops/login`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/u/ops/login`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetOpsLoginQueryKey = () => {
-    return [`https://uri.olympiangods.org/u/ops/login`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/u/ops/login`] as const;
     }
 
     
@@ -155,14 +155,14 @@ export const getOpsOrcidLandingLogin = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/u/ops/orcid-land-login`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/u/ops/orcid-land-login`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetOpsOrcidLandingLoginQueryKey = () => {
-    return [`https://uri.olympiangods.org/u/ops/orcid-land-login`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/u/ops/orcid-land-login`] as const;
     }
 
     
@@ -211,14 +211,14 @@ export const getOpsOrcidLandingNew = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/u/ops/orcid-land-new`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/u/ops/orcid-land-new`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetOpsOrcidLandingNewQueryKey = () => {
-    return [`https://uri.olympiangods.org/u/ops/orcid-land-new`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/u/ops/orcid-land-new`] as const;
     }
 
     
@@ -267,14 +267,14 @@ export const getOpsOrcidLogin = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/u/ops/orcid-login`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/u/ops/orcid-login`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetOpsOrcidLoginQueryKey = () => {
-    return [`https://uri.olympiangods.org/u/ops/orcid-login`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/u/ops/orcid-login`] as const;
     }
 
     
@@ -323,14 +323,14 @@ export const getOpsOrcidNew = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/u/ops/orcid-new`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/u/ops/orcid-new`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetOpsOrcidNewQueryKey = () => {
-    return [`https://uri.olympiangods.org/u/ops/orcid-new`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/u/ops/orcid-new`] as const;
     }
 
     
@@ -379,14 +379,14 @@ export const getOpsPasswordReset = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/u/ops/pwrs`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/u/ops/pwrs`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetOpsPasswordResetQueryKey = () => {
-    return [`https://uri.olympiangods.org/u/ops/pwrs`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/u/ops/pwrs`] as const;
     }
 
     
@@ -435,14 +435,14 @@ export const getOpsUserLogin = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/u/ops/user-login`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/u/ops/user-login`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetOpsUserLoginQueryKey = () => {
-    return [`https://uri.olympiangods.org/u/ops/user-login`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/u/ops/user-login`] as const;
     }
 
     
@@ -490,7 +490,7 @@ export const useGetOpsUserLogin = <TData = Awaited<ReturnType<typeof getOpsUserL
       
       
 //       return customInstance<void>(
-//       {url: `https://uri.olympiangods.org/u/ops/user-login`, method: 'POST'
+//       {url: `${API_CONFIG.OLYMPIAN_GODS}/u/ops/user-login`, method: 'POST'
 //     },
 //       options);
 //     }
@@ -572,14 +572,14 @@ export const getOpsUserNew = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/u/ops/user-new`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/u/ops/user-new`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetOpsUserNewQueryKey = () => {
-    return [`https://uri.olympiangods.org/u/ops/user-new`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/u/ops/user-new`] as const;
     }
 
     
@@ -645,7 +645,7 @@ export const postOpsUserNew = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/u/ops/user-new`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/u/ops/user-new`, method: 'POST'
     },
       options);
     }
@@ -699,14 +699,14 @@ export const getOpsUserRecover = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/u/ops/user-recover`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/u/ops/user-recover`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetOpsUserRecoverQueryKey = () => {
-    return [`https://uri.olympiangods.org/u/ops/user-recover`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/u/ops/user-recover`] as const;
     }
 
     
@@ -754,7 +754,7 @@ export const postOpsUserRecover = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/u/ops/user-recover`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/u/ops/user-recover`, method: 'POST'
     },
       options);
     }
@@ -805,14 +805,14 @@ export const getPrivuOrcidLandingAssoc = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/u/priv/orcid-land-assoc`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/u/priv/orcid-land-assoc`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPrivuOrcidLandingAssocQueryKey = () => {
-    return [`https://uri.olympiangods.org/u/priv/orcid-land-assoc`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/u/priv/orcid-land-assoc`] as const;
     }
 
     
@@ -861,14 +861,14 @@ export const getPrivuOrcidLandingChange = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/u/priv/orcid-land-change`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/u/priv/orcid-land-change`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPrivuOrcidLandingChangeQueryKey = () => {
-    return [`https://uri.olympiangods.org/u/priv/orcid-land-change`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/u/priv/orcid-land-change`] as const;
     }
 
     
@@ -917,14 +917,14 @@ export const getPrivuUserNew = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/u/priv/user-new`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/u/priv/user-new`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPrivuUserNewQueryKey = () => {
-    return [`https://uri.olympiangods.org/u/priv/user-new`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/u/priv/user-new`] as const;
     }
 
     
@@ -972,7 +972,7 @@ export const postPrivuUserNew = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/u/priv/user-new`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/u/priv/user-new`, method: 'POST'
     },
       options);
     }
@@ -1026,14 +1026,14 @@ export const getEndpointsGroup = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetEndpointsGroupQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}`] as const;
     }
 
     
@@ -1081,7 +1081,7 @@ export const getEndpointsContributionsExtension = (
 ) => {
   return customInstance<void>(
       {
-          url: `https://uri.olympiangods.org/${group}/contributions`,
+          url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/contributions`,
           method: 'GET',
           signal
       },
@@ -1090,7 +1090,7 @@ export const getEndpointsContributionsExtension = (
 }
 
 export const getGetEndpointsContributionsQueryKeyExtension = (group: string,) => {
-  return [`https://uri.olympiangods.org/${group}/contributions`] as const;
+  return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/contributions`] as const;
 }
 
 export const getGetEndpointsContributionsQueryOptionsExtension = <
@@ -1144,7 +1144,7 @@ export const getEndpointsContributionsExtensionInterlex = (
 ) => {
   return customInstance<void>(
       {
-          url: `https://uri.olympiangods.org/${group}/contributions/interlex`,
+          url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/contributions/interlex`,
           method: 'GET',
           signal
       },
@@ -1153,7 +1153,7 @@ export const getEndpointsContributionsExtensionInterlex = (
 }
 
 export const getGetEndpointsContributionsQueryKeyExtensionInterlex = (group: string,) => {
-  return [`https://uri.olympiangods.org/${group}/contributions/interlex`] as const;
+  return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/contributions/interlex`] as const;
 }
 
 export const getGetEndpointsContributionsQueryOptionsExtensionInterlex = <
@@ -1208,7 +1208,7 @@ export const getEndpointsCuriesExtension = (
 ) => {
   return customInstance<void>(
       {
-          url: `https://uri.olympiangods.org/${group}/curies`,
+          url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/curies`,
           method: 'GET',
           signal
       },
@@ -1217,7 +1217,7 @@ export const getEndpointsCuriesExtension = (
 }
 
 export const getGetEndpointsCuriesQueryKeyExtension = (group: string,) => {
-  return [`https://uri.olympiangods.org/${group}/curies`] as const;
+  return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/curies`] as const;
 }
 
 export const getGetEndpointsCuriesQueryOptionsExtension = <
@@ -1270,7 +1270,7 @@ export const postEndpointsCuries = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/curies`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/curies`, method: 'POST'
     },
       options);
     }
@@ -1323,7 +1323,7 @@ export const getEndpointsCuries = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/curies/${prefixIriCurie}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/curies/${prefixIriCurie}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -1332,7 +1332,7 @@ export const getEndpointsCuries = (
 export const getGetEndpointsCuriesQueryKey = (group: string,
     prefixIriCurie: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/curies/${prefixIriCurie}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/curies/${prefixIriCurie}.${extension}`] as const;
     }
 
     
@@ -1386,7 +1386,7 @@ export const getDiffCuries = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/curies`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/curies`, method: 'GET', signal
     },
       options);
     }
@@ -1394,7 +1394,7 @@ export const getDiffCuries = (
 
 export const getGetDiffCuriesQueryKey = (group: string,
     otherGroupDiff: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/curies`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/curies`] as const;
     }
 
     
@@ -1445,7 +1445,7 @@ export const getDiffCuriesExtension = (
 ) => {
   return customInstance<void>(
       {
-          url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/curies/${prefixIriCurie}.${extension}`,
+          url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/curies/${prefixIriCurie}.${extension}`,
           method: 'GET',
           signal
       },
@@ -1459,7 +1459,7 @@ export const getGetDiffCuriesQueryKeyExtension = (
   prefixIriCurie: string,
   extension: string,
 ) => {
-  return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/curies/${prefixIriCurie}.${extension}`] as const;
+  return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/curies/${prefixIriCurie}.${extension}`] as const;
 }
 
 export const getGetDiffCuriesQueryOptionsExtension = <
@@ -1526,7 +1526,7 @@ export const getDiffLexical = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/lexical/${label}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/lexical/${label}`, method: 'GET', signal
     },
       options);
     }
@@ -1535,7 +1535,7 @@ export const getDiffLexical = (
 export const getGetDiffLexicalQueryKey = (group: string,
     otherGroupDiff: string,
     label: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/lexical/${label}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/lexical/${label}`] as const;
     }
 
     
@@ -1592,7 +1592,7 @@ export const getDiffOntologies = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies`, method: 'GET', signal
     },
       options);
     }
@@ -1600,7 +1600,7 @@ export const getDiffOntologies = (
 
 export const getGetDiffOntologiesQueryKey = (group: string,
     otherGroupDiff: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies`] as const;
     }
 
     
@@ -1658,7 +1658,7 @@ export const getDiffOntologiesContributions = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/contributions`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/contributions`, method: 'GET', signal
     },
       options);
     }
@@ -1666,7 +1666,7 @@ export const getDiffOntologiesContributions = (
 
 export const getGetDiffOntologiesContributionsQueryKey = (group: string,
     otherGroupDiff: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/contributions`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/contributions`] as const;
     }
 
     
@@ -1726,7 +1726,7 @@ export const getDiffOntologiesDns = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/dns/${dnsHost}/${ontPath}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/dns/${dnsHost}/${ontPath}`, method: 'GET', signal
     },
       options);
     }
@@ -1736,7 +1736,7 @@ export const getGetDiffOntologiesDnsQueryKey = (group: string,
     otherGroupDiff: string,
     dnsHost: string,
     ontPath: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/dns/${dnsHost}/${ontPath}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/dns/${dnsHost}/${ontPath}`] as const;
     }
 
     
@@ -1803,7 +1803,7 @@ export const getDiffOntologiesDnsVersion = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/dns/${dnsHost}/${ontPath}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/dns/${dnsHost}/${ontPath}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -1816,7 +1816,7 @@ export const getGetDiffOntologiesDnsVersionQueryKey = (group: string,
     epochVerstrOnt: string,
     filenameTerminal: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/dns/${dnsHost}/${ontPath}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/dns/${dnsHost}/${ontPath}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
     }
 
     
@@ -1889,7 +1889,7 @@ export const getDiffOntologiesSpec = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -1902,7 +1902,7 @@ export const getGetDiffOntologiesSpecQueryKey = (group: string,
     epochVerstrOnt: string,
     filenameTerminal: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`] as const;
     }
 
     
@@ -1973,7 +1973,7 @@ export const getDiffOntologiesUris = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/uris/${ontPath}/${filename}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/uris/${ontPath}/${filename}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -1984,7 +1984,7 @@ export const getGetDiffOntologiesUrisQueryKey = (group: string,
     ontPath: string,
     filename: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/uris/${ontPath}/${filename}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/uris/${ontPath}/${filename}.${extension}`] as const;
     }
 
     
@@ -2053,7 +2053,7 @@ export const getDiffOntologiesUrisVersion = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -2066,7 +2066,7 @@ export const getGetDiffOntologiesUrisVersionQueryKey = (group: string,
     epochVerstrOnt: string,
     filenameTerminal: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
     }
 
     
@@ -2133,7 +2133,7 @@ export const getDiffOntologiesExtension = (
 ) => {
   return customInstance<void>(
       {
-          url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}.${extension}`,
+          url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}.${extension}`,
           method: 'GET',
           signal
       },
@@ -2148,7 +2148,7 @@ export const getGetDiffOntologiesQueryKeyExtension = (
   filename: string,
   extension: string,
 ) => {
-  return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}.${extension}`] as const;
+  return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}.${extension}`] as const;
 }
 
 export const getGetDiffOntologiesQueryOptionsExtension = <
@@ -2226,7 +2226,7 @@ export const getDiffOntologiesVersion = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -2239,7 +2239,7 @@ export const getGetDiffOntologiesVersionQueryKey = (group: string,
     epochVerstrOnt: string,
     filenameTerminal: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
     }
 
     
@@ -2306,7 +2306,7 @@ export const getDiffOntologiesIlx = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/${fragPrefId}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/${fragPrefId}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -2316,7 +2316,7 @@ export const getGetDiffOntologiesIlxQueryKey = (group: string,
     otherGroupDiff: string,
     fragPrefId: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/${fragPrefId}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/${fragPrefId}.${extension}`] as const;
     }
 
     
@@ -2377,7 +2377,7 @@ export const getDiffOntologiesIlxSpec = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/${fragPrefId}/spec.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/${fragPrefId}/spec.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -2387,7 +2387,7 @@ export const getGetDiffOntologiesIlxSpecQueryKey = (group: string,
     otherGroupDiff: string,
     fragPrefId: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/ontologies/${fragPrefId}/spec.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/ontologies/${fragPrefId}/spec.${extension}`] as const;
     }
 
     
@@ -2447,7 +2447,7 @@ export const getDiffReadable = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/readable/${word}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/readable/${word}`, method: 'GET', signal
     },
       options);
     }
@@ -2456,7 +2456,7 @@ export const getDiffReadable = (
 export const getGetDiffReadableQueryKey = (group: string,
     otherGroupDiff: string,
     word: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/readable/${word}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/readable/${word}`] as const;
     }
 
     
@@ -2511,7 +2511,7 @@ export const getDiffUris = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/uris/${uriPath}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/uris/${uriPath}`, method: 'GET', signal
     },
       options);
     }
@@ -2520,7 +2520,7 @@ export const getDiffUris = (
 export const getGetDiffUrisQueryKey = (group: string,
     otherGroupDiff: string,
     uriPath: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/uris/${uriPath}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/uris/${uriPath}`] as const;
     }
 
     
@@ -2575,7 +2575,7 @@ export const getDiffVersionsCuries = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies`, method: 'GET', signal
     },
       options);
     }
@@ -2584,7 +2584,7 @@ export const getDiffVersionsCuries = (
 export const getGetDiffVersionsCuriesQueryKey = (group: string,
     otherGroupDiff: string,
     epochVerstrId: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies`] as const;
     }
 
     
@@ -2637,7 +2637,7 @@ export const getDiffVersionsCuriesExtension = (
 ) => {
   return customInstance<void>(
       {
-          url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`,
+          url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`,
           method: 'GET',
           signal
       },
@@ -2652,7 +2652,7 @@ export const getGetDiffVersionsCuriesQueryKeyExtension = (
   prefixIriCurie: string,
   extension: string,
 ) => {
-  return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`] as const;
+  return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`] as const;
 }
 
 export const getGetDiffVersionsCuriesQueryOptionsExtension = <
@@ -2724,7 +2724,7 @@ export const getDiffVersionsReadable = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/readable/${word}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/readable/${word}`, method: 'GET', signal
     },
       options);
     }
@@ -2734,7 +2734,7 @@ export const getGetDiffVersionsReadableQueryKey = (group: string,
     otherGroupDiff: string,
     epochVerstrId: string,
     word: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/readable/${word}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/readable/${word}`] as const;
     }
 
     
@@ -2792,7 +2792,7 @@ export const getDiffVersionsUris = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/uris/${uriPath}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/uris/${uriPath}`, method: 'GET', signal
     },
       options);
     }
@@ -2802,7 +2802,7 @@ export const getGetDiffVersionsUrisQueryKey = (group: string,
     otherGroupDiff: string,
     epochVerstrId: string,
     uriPath: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/uris/${uriPath}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/uris/${uriPath}`] as const;
     }
 
     
@@ -2860,7 +2860,7 @@ export const getDiffVersionsIlx = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/${fragPrefId}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/${fragPrefId}`, method: 'GET', signal
     },
       options);
     }
@@ -2870,7 +2870,7 @@ export const getGetDiffVersionsIlxQueryKey = (group: string,
     otherGroupDiff: string,
     epochVerstrId: string,
     fragPrefId: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/${fragPrefId}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/${fragPrefId}`] as const;
     }
 
     
@@ -2928,7 +2928,7 @@ export const getDiffVersionsOther = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/${fragPrefId}/other`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/${fragPrefId}/other`, method: 'GET', signal
     },
       options);
     }
@@ -2938,7 +2938,7 @@ export const getGetDiffVersionsOtherQueryKey = (group: string,
     otherGroupDiff: string,
     epochVerstrId: string,
     fragPrefId: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/${fragPrefId}/other`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/${fragPrefId}/other`] as const;
     }
 
     
@@ -2996,7 +2996,7 @@ export const getDiffVersionsVersions = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/${fragPrefId}/versions`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/${fragPrefId}/versions`, method: 'GET', signal
     },
       options);
     }
@@ -3006,7 +3006,7 @@ export const getGetDiffVersionsVersionsQueryKey = (group: string,
     otherGroupDiff: string,
     epochVerstrId: string,
     fragPrefId: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/${fragPrefId}/versions`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/versions/${epochVerstrId}/${fragPrefId}/versions`] as const;
     }
 
     
@@ -3063,7 +3063,7 @@ export const getDiffIlx = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/${fragPrefId}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/${fragPrefId}`, method: 'GET', signal
     },
       options);
     }
@@ -3072,7 +3072,7 @@ export const getDiffIlx = (
 export const getGetDiffIlxQueryKey = (group: string,
     otherGroupDiff: string,
     fragPrefId: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/${fragPrefId}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/${fragPrefId}`] as const;
     }
 
     
@@ -3127,7 +3127,7 @@ export const getDiffOther = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/${fragPrefId}/other`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/${fragPrefId}/other`, method: 'GET', signal
     },
       options);
     }
@@ -3136,7 +3136,7 @@ export const getDiffOther = (
 export const getGetDiffOtherQueryKey = (group: string,
     otherGroupDiff: string,
     fragPrefId: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/${fragPrefId}/other`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/${fragPrefId}/other`] as const;
     }
 
     
@@ -3191,7 +3191,7 @@ export const getDiffVersions = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/${fragPrefId}/versions`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/${fragPrefId}/versions`, method: 'GET', signal
     },
       options);
     }
@@ -3200,7 +3200,7 @@ export const getDiffVersions = (
 export const getGetDiffVersionsQueryKey = (group: string,
     otherGroupDiff: string,
     fragPrefId: string,) => {
-    return [`https://uri.olympiangods.org/${group}/diff/${otherGroupDiff}/${fragPrefId}/versions`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/diff/${otherGroupDiff}/${fragPrefId}/versions`] as const;
     }
 
     
@@ -3253,14 +3253,14 @@ export const getEndpointsMapped = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/external/mapped`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/external/mapped`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetEndpointsMappedQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/external/mapped`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/external/mapped`] as const;
     }
 
     
@@ -3308,7 +3308,7 @@ export const postEndpointsMapped = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/external/mapped`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/external/mapped`, method: 'POST'
     },
       options);
     }
@@ -3360,7 +3360,7 @@ export const getEndpointsLexical = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/lexical/${label}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/lexical/${label}`, method: 'GET', signal
     },
       options);
     }
@@ -3368,7 +3368,7 @@ export const getEndpointsLexical = (
 
 export const getGetEndpointsLexicalQueryKey = (group: string,
     label: string,) => {
-    return [`https://uri.olympiangods.org/${group}/lexical/${label}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/lexical/${label}`] as const;
     }
 
     
@@ -3422,14 +3422,14 @@ export const getEndpointsOntologies = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetEndpointsOntologiesQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/ontologies`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies`] as const;
     }
 
     
@@ -3484,14 +3484,14 @@ export const getOntologiesOntologiesContributions = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/contributions`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/contributions`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetOntologiesOntologiesContributionsQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/ontologies/contributions`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/contributions`] as const;
     }
 
     
@@ -3548,7 +3548,7 @@ export const getOntologiesOntologiesDns = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/dns/${dnsHost}/${ontPath}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/dns/${dnsHost}/${ontPath}`, method: 'GET', signal
     },
       options);
     }
@@ -3557,7 +3557,7 @@ export const getOntologiesOntologiesDns = (
 export const getGetOntologiesOntologiesDnsQueryKey = (group: string,
     dnsHost: string,
     ontPath: string,) => {
-    return [`https://uri.olympiangods.org/${group}/ontologies/dns/${dnsHost}/${ontPath}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/dns/${dnsHost}/${ontPath}`] as const;
     }
 
     
@@ -3621,7 +3621,7 @@ export const getOntologiesOntologiesDnsVersion = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/dns/${dnsHost}/${ontPath}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/dns/${dnsHost}/${ontPath}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -3633,7 +3633,7 @@ export const getGetOntologiesOntologiesDnsVersionQueryKey = (group: string,
     epochVerstrOnt: string,
     filenameTerminal: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/ontologies/dns/${dnsHost}/${ontPath}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/dns/${dnsHost}/${ontPath}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
     }
 
     
@@ -3702,7 +3702,7 @@ export const postOntologiesOntologiesDnsVersion = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/dns/${dnsHost}/${ontPath}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/dns/${dnsHost}/${ontPath}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'POST'
     },
       options);
     }
@@ -3764,7 +3764,7 @@ export const getOntologiesOntologiesSpec = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -3776,7 +3776,7 @@ export const getGetOntologiesOntologiesSpecQueryKey = (group: string,
     epochVerstrOnt: string,
     filenameTerminal: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`] as const;
     }
 
     
@@ -3845,7 +3845,7 @@ export const postOntologiesOntologiesSpec = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`, method: 'POST'
     },
       options);
     }
@@ -3906,7 +3906,7 @@ export const patchOntologiesOntologiesSpec = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`, method: 'PATCH'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`, method: 'PATCH'
     },
       options);
     }
@@ -3966,7 +3966,7 @@ export const getOntologiesOntologiesUris = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/uris/${ontPath}/${filename}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/uris/${ontPath}/${filename}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -3976,7 +3976,7 @@ export const getGetOntologiesOntologiesUrisQueryKey = (group: string,
     ontPath: string,
     filename: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/ontologies/uris/${ontPath}/${filename}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/uris/${ontPath}/${filename}.${extension}`] as const;
     }
 
     
@@ -4039,7 +4039,7 @@ export const postOntologiesOntologiesUris = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/uris/${ontPath}/${filename}.${extension}`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/uris/${ontPath}/${filename}.${extension}`, method: 'POST'
     },
       options);
     }
@@ -4101,7 +4101,7 @@ export const getOntologiesOntologiesUrisVersion = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -4113,7 +4113,7 @@ export const getGetOntologiesOntologiesUrisVersionQueryKey = (group: string,
     epochVerstrOnt: string,
     filenameTerminal: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
     }
 
     
@@ -4182,7 +4182,7 @@ export const postOntologiesOntologiesUrisVersion = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'POST'
     },
       options);
     }
@@ -4242,7 +4242,7 @@ export const getOntologiesOntologies = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/${ontPath}/${filename}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/${ontPath}/${filename}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -4252,7 +4252,7 @@ export const getGetOntologiesOntologiesQueryKey = (group: string,
     ontPath: string,
     filename: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/ontologies/${ontPath}/${filename}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/${ontPath}/${filename}.${extension}`] as const;
     }
 
     
@@ -4315,7 +4315,7 @@ export const postOntologiesOntologies = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/${ontPath}/${filename}.${extension}`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/${ontPath}/${filename}.${extension}`, method: 'POST'
     },
       options);
     }
@@ -4377,7 +4377,7 @@ export const getOntologiesOntologiesVersion = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -4389,7 +4389,7 @@ export const getGetOntologiesOntologiesVersionQueryKey = (group: string,
     epochVerstrOnt: string,
     filenameTerminal: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
     }
 
     
@@ -4453,7 +4453,7 @@ export const getOntologiesOntologiesIlx = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/${fragPrefId}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/${fragPrefId}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -4462,7 +4462,7 @@ export const getOntologiesOntologiesIlx = (
 export const getGetOntologiesOntologiesIlxQueryKey = (group: string,
     fragPrefId: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/ontologies/${fragPrefId}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/${fragPrefId}.${extension}`] as const;
     }
 
     
@@ -4520,7 +4520,7 @@ export const getOntologiesOntologiesIlxSpec = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/${fragPrefId}/spec.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/${fragPrefId}/spec.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -4529,7 +4529,7 @@ export const getOntologiesOntologiesIlxSpec = (
 export const getGetOntologiesOntologiesIlxSpecQueryKey = (group: string,
     fragPrefId: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/ontologies/${fragPrefId}/spec.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/${fragPrefId}/spec.${extension}`] as const;
     }
 
     
@@ -4589,7 +4589,7 @@ export const postOntologiesOntologiesIlxSpec = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/${fragPrefId}/spec.${extension}`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/${fragPrefId}/spec.${extension}`, method: 'POST'
     },
       options);
     }
@@ -4647,7 +4647,7 @@ export const patchOntologiesOntologiesIlxSpec = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/ontologies/${fragPrefId}/spec.${extension}`, method: 'PATCH'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/ontologies/${fragPrefId}/spec.${extension}`, method: 'PATCH'
     },
       options);
     }
@@ -4702,7 +4702,7 @@ export const getOwnCuries = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/curies`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/curies`, method: 'GET', signal
     },
       options);
     }
@@ -4710,7 +4710,7 @@ export const getOwnCuries = (
 
 export const getGetOwnCuriesQueryKey = (group: string,
     otherGroup: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/curies`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/curies`] as const;
     }
 
     
@@ -4761,7 +4761,7 @@ export const postOwnCuries = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/curies`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/curies`, method: 'POST'
     },
       options);
     }
@@ -4815,7 +4815,7 @@ export const getOwnCuriesExtension = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/curies/${prefixIriCurie}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/curies/${prefixIriCurie}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -4825,7 +4825,7 @@ export const getGetOwnCuriesQueryKeyExtension = (group: string,
     otherGroup: string,
     prefixIriCurie: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/curies/${prefixIriCurie}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/curies/${prefixIriCurie}.${extension}`] as const;
     }
 
     
@@ -4884,7 +4884,7 @@ export const getOwnOntologies = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies`, method: 'GET', signal
     },
       options);
     }
@@ -4892,7 +4892,7 @@ export const getOwnOntologies = (
 
 export const getGetOwnOntologiesQueryKey = (group: string,
     otherGroup: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies`] as const;
     }
 
     
@@ -4950,7 +4950,7 @@ export const getOwnOntologiesContributions = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/contributions`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/contributions`, method: 'GET', signal
     },
       options);
     }
@@ -4958,7 +4958,7 @@ export const getOwnOntologiesContributions = (
 
 export const getGetOwnOntologiesContributionsQueryKey = (group: string,
     otherGroup: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/contributions`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/contributions`] as const;
     }
 
     
@@ -5018,7 +5018,7 @@ export const getOwnOntologiesDns = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/dns/${dnsHost}/${ontPath}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/dns/${dnsHost}/${ontPath}`, method: 'GET', signal
     },
       options);
     }
@@ -5028,7 +5028,7 @@ export const getGetOwnOntologiesDnsQueryKey = (group: string,
     otherGroup: string,
     dnsHost: string,
     ontPath: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/dns/${dnsHost}/${ontPath}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/dns/${dnsHost}/${ontPath}`] as const;
     }
 
     
@@ -5095,7 +5095,7 @@ export const getOwnOntologiesDnsVersion = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/dns/${dnsHost}/${ontPath}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/dns/${dnsHost}/${ontPath}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -5108,7 +5108,7 @@ export const getGetOwnOntologiesDnsVersionQueryKey = (group: string,
     epochVerstrOnt: string,
     filenameTerminal: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/dns/${dnsHost}/${ontPath}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/dns/${dnsHost}/${ontPath}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
     }
 
     
@@ -5180,7 +5180,7 @@ export const postOwnOntologiesDnsVersion = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/dns/${dnsHost}/${ontPath}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/dns/${dnsHost}/${ontPath}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'POST'
     },
       options);
     }
@@ -5243,7 +5243,7 @@ export const getOwnOntologiesSpec = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -5256,7 +5256,7 @@ export const getGetOwnOntologiesSpecQueryKey = (group: string,
     epochVerstrOnt: string,
     filenameTerminal: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`] as const;
     }
 
     
@@ -5328,7 +5328,7 @@ export const postOwnOntologiesSpec = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`, method: 'POST'
     },
       options);
     }
@@ -5390,7 +5390,7 @@ export const patchOwnOntologiesSpec = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`, method: 'PATCH'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}/spec.${extension}`, method: 'PATCH'
     },
       options);
     }
@@ -5451,7 +5451,7 @@ export const getOwnOntologiesUris = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -5462,7 +5462,7 @@ export const getGetOwnOntologiesUrisQueryKey = (group: string,
     ontPath: string,
     filename: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}.${extension}`] as const;
     }
 
     
@@ -5528,7 +5528,7 @@ export const postOwnOntologiesUris = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}.${extension}`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}.${extension}`, method: 'POST'
     },
       options);
     }
@@ -5591,7 +5591,7 @@ export const getOwnOntologiesUrisVersion = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -5604,7 +5604,7 @@ export const getGetOwnOntologiesUrisVersionQueryKey = (group: string,
     epochVerstrOnt: string,
     filenameTerminal: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
     }
 
     
@@ -5676,7 +5676,7 @@ export const postOwnOntologiesUrisVersion = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/uris/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'POST'
     },
       options);
     }
@@ -5735,7 +5735,7 @@ export const getOwnOntologiesExtension = (
 ) => {
   return customInstance<void>(
       {
-          url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}.${extension}`,
+          url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}.${extension}`,
           method: 'GET',
           signal
       },
@@ -5750,7 +5750,7 @@ export const getGetOwnOntologiesQueryKeyExtension = (
   filename: string,
   extension: string,
 ) => {
-  return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}.${extension}`] as const;
+  return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}.${extension}`] as const;
 }
 
 export const getGetOwnOntologiesQueryOptionsExtension = <
@@ -5827,7 +5827,7 @@ export const postOwnOntologies = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}.${extension}`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}.${extension}`, method: 'POST'
     },
       options);
     }
@@ -5890,7 +5890,7 @@ export const getOwnOntologiesVersion = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -5903,7 +5903,7 @@ export const getGetOwnOntologiesVersionQueryKey = (group: string,
     epochVerstrOnt: string,
     filenameTerminal: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/${ontPath}/${filename}/version/${epochVerstrOnt}/${filenameTerminal}.${extension}`] as const;
     }
 
     
@@ -5970,7 +5970,7 @@ export const getOwnOntologiesIlx = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/${fragPrefId}.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/${fragPrefId}.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -5980,7 +5980,7 @@ export const getGetOwnOntologiesIlxQueryKey = (group: string,
     otherGroup: string,
     fragPrefId: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/${fragPrefId}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/${fragPrefId}.${extension}`] as const;
     }
 
     
@@ -6041,7 +6041,7 @@ export const getOwnOntologiesIlxSpec = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/${fragPrefId}/spec.${extension}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/${fragPrefId}/spec.${extension}`, method: 'GET', signal
     },
       options);
     }
@@ -6051,7 +6051,7 @@ export const getGetOwnOntologiesIlxSpecQueryKey = (group: string,
     otherGroup: string,
     fragPrefId: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/${fragPrefId}/spec.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/${fragPrefId}/spec.${extension}`] as const;
     }
 
     
@@ -6114,7 +6114,7 @@ export const postOwnOntologiesIlxSpec = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/${fragPrefId}/spec.${extension}`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/${fragPrefId}/spec.${extension}`, method: 'POST'
     },
       options);
     }
@@ -6173,7 +6173,7 @@ export const patchOwnOntologiesIlxSpec = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/ontologies/${fragPrefId}/spec.${extension}`, method: 'PATCH'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/ontologies/${fragPrefId}/spec.${extension}`, method: 'PATCH'
     },
       options);
     }
@@ -6229,7 +6229,7 @@ export const getOwnUris = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/uris/${uriPath}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/uris/${uriPath}`, method: 'GET', signal
     },
       options);
     }
@@ -6238,7 +6238,7 @@ export const getOwnUris = (
 export const getGetOwnUrisQueryKey = (group: string,
     otherGroup: string,
     uriPath: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/uris/${uriPath}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/uris/${uriPath}`] as const;
     }
 
     
@@ -6293,7 +6293,7 @@ export const getOwnVersionsCuries = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies`, method: 'GET', signal
     },
       options);
     }
@@ -6302,7 +6302,7 @@ export const getOwnVersionsCuries = (
 export const getGetOwnVersionsCuriesQueryKey = (group: string,
     otherGroup: string,
     epochVerstrId: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies`] as const;
     }
 
     
@@ -6355,7 +6355,7 @@ export const getOwnVersionsCuriesExtension = (
 ) => {
   return customInstance<void>(
       {
-          url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`,
+          url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`,
           method: 'GET',
           signal
       },
@@ -6370,7 +6370,7 @@ export const getGetOwnVersionsCuriesQueryKeyExtension = (
   prefixIriCurie: string,
   extension: string,
 ) => {
-  return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`] as const;
+  return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`] as const;
 }
 
 export const getGetOwnVersionsCuriesQueryOptionsExtension = <
@@ -6439,7 +6439,7 @@ export const getOwnVersionsReadable = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/readable/${word}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/versions/${epochVerstrId}/readable/${word}`, method: 'GET', signal
     },
       options);
     }
@@ -6449,7 +6449,7 @@ export const getGetOwnVersionsReadableQueryKey = (group: string,
     otherGroup: string,
     epochVerstrId: string,
     word: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/readable/${word}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/versions/${epochVerstrId}/readable/${word}`] as const;
     }
 
     
@@ -6507,7 +6507,7 @@ export const getOwnVersionsUris = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/uris/${uriPath}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/versions/${epochVerstrId}/uris/${uriPath}`, method: 'GET', signal
     },
       options);
     }
@@ -6517,7 +6517,7 @@ export const getGetOwnVersionsUrisQueryKey = (group: string,
     otherGroup: string,
     epochVerstrId: string,
     uriPath: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/uris/${uriPath}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/versions/${epochVerstrId}/uris/${uriPath}`] as const;
     }
 
     
@@ -6575,7 +6575,7 @@ export const getOwnVersionsIlx = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/${fragPrefId}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/versions/${epochVerstrId}/${fragPrefId}`, method: 'GET', signal
     },
       options);
     }
@@ -6585,7 +6585,7 @@ export const getGetOwnVersionsIlxQueryKey = (group: string,
     otherGroup: string,
     epochVerstrId: string,
     fragPrefId: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/${fragPrefId}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/versions/${epochVerstrId}/${fragPrefId}`] as const;
     }
 
     
@@ -6643,7 +6643,7 @@ export const getOwnVersionsOther = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/${fragPrefId}/other`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/versions/${epochVerstrId}/${fragPrefId}/other`, method: 'GET', signal
     },
       options);
     }
@@ -6653,7 +6653,7 @@ export const getGetOwnVersionsOtherQueryKey = (group: string,
     otherGroup: string,
     epochVerstrId: string,
     fragPrefId: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/${fragPrefId}/other`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/versions/${epochVerstrId}/${fragPrefId}/other`] as const;
     }
 
     
@@ -6711,7 +6711,7 @@ export const getOwnVersionsVersions = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/${fragPrefId}/versions`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/versions/${epochVerstrId}/${fragPrefId}/versions`, method: 'GET', signal
     },
       options);
     }
@@ -6721,7 +6721,7 @@ export const getGetOwnVersionsVersionsQueryKey = (group: string,
     otherGroup: string,
     epochVerstrId: string,
     fragPrefId: string,) => {
-    return [`https://uri.olympiangods.org/${group}/own/${otherGroup}/versions/${epochVerstrId}/${fragPrefId}/versions`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/own/${otherGroup}/versions/${epochVerstrId}/${fragPrefId}/versions`] as const;
     }
 
     
@@ -6776,14 +6776,14 @@ export const getPrivApiTokenNew = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/api-token-new`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/api-token-new`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPrivApiTokenNewQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/priv/api-token-new`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/api-token-new`] as const;
     }
 
     
@@ -6831,7 +6831,7 @@ export const postPrivApiTokenNew = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/api-token-new`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/api-token-new`, method: 'POST'
     },
       options);
     }
@@ -6882,14 +6882,14 @@ export const getPrivApiTokenRevoke = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/api-token-revoke`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/api-token-revoke`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPrivApiTokenRevokeQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/priv/api-token-revoke`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/api-token-revoke`] as const;
     }
 
     
@@ -6937,7 +6937,7 @@ export const putPrivApiTokenRevoke = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/api-token-revoke`, method: 'PUT'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/api-token-revoke`, method: 'PUT'
     },
       options);
     }
@@ -6988,14 +6988,14 @@ export const getPrivApiTokens = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/api-tokens`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/api-tokens`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPrivApiTokensQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/priv/api-tokens`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/api-tokens`] as const;
     }
 
     
@@ -7044,14 +7044,14 @@ export const getPrivCommitteeNew = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/committee-new`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/committee-new`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPrivCommitteeNewQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/priv/committee-new`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/committee-new`] as const;
     }
 
     
@@ -7100,14 +7100,14 @@ export const getPrivCuration = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/curation`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/curation`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPrivCurationQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/priv/curation`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/curation`] as const;
     }
 
     
@@ -7156,14 +7156,14 @@ export const getPrivEmailAdd = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/email-add`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/email-add`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPrivEmailAddQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/priv/email-add`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/email-add`] as const;
     }
 
     
@@ -7211,7 +7211,7 @@ export const postPrivEmailAdd = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/email-add`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/email-add`, method: 'POST'
     },
       options);
     }
@@ -7261,7 +7261,7 @@ export const postPrivEmailDel = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/email-del`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/email-del`, method: 'POST'
     },
       options);
     }
@@ -7311,7 +7311,7 @@ export const postPrivEmailPrimary = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/email-primary`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/email-primary`, method: 'POST'
     },
       options);
     }
@@ -7362,14 +7362,14 @@ export const getPrivEmailVerify = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/email-verify`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/email-verify`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPrivEmailVerifyQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/priv/email-verify`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/email-verify`] as const;
     }
 
     
@@ -7465,14 +7465,14 @@ export const getPrivEntityNew = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/entity-new`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/entity-new`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPrivEntityNewQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/priv/entity-new`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/entity-new`] as const;
     }
 
     
@@ -7571,7 +7571,7 @@ export const postPrivEntityNew = (
 ) => {
   return customInstance<void>(
     {
-      url: `https://uri.olympiangods.org/${group}/priv/entity-new`,
+      url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/entity-new`,
       method: 'POST',
       data,
       headers: options?.headers,
@@ -7629,14 +7629,14 @@ export const getPrivLogout = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/logout`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/logout`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPrivLogoutQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/priv/logout`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/logout`] as const;
     }
 
     
@@ -7684,7 +7684,7 @@ export const patchPrivModifyAB = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/modify-a-b`, method: 'PATCH'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/modify-a-b`, method: 'PATCH'
     },
       options);
     }
@@ -7734,7 +7734,7 @@ export const patchPrivModifyAddRem = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/modify-add-rem`, method: 'PATCH'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/modify-add-rem`, method: 'PATCH'
     },
       options);
     }
@@ -7785,14 +7785,14 @@ export const getPrivOrcidAssociate = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/orcid-assoc`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/orcid-assoc`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPrivOrcidAssociateQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/priv/orcid-assoc`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/orcid-assoc`] as const;
     }
 
     
@@ -7840,7 +7840,7 @@ export const postPrivOrcidChange = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/orcid-change`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/orcid-change`, method: 'POST'
     },
       options);
     }
@@ -7890,7 +7890,7 @@ export const postPrivOrcidDissociate = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/orcid-dissoc`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/orcid-dissoc`, method: 'POST'
     },
       options);
     }
@@ -7940,7 +7940,7 @@ export const postPrivOrgNew = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/org-new`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/org-new`, method: 'POST'
     },
       options);
     }
@@ -7990,7 +7990,7 @@ export const postPrivPasswordChange = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/password-change`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/password-change`, method: 'POST'
     },
       options);
     }
@@ -8041,14 +8041,14 @@ export const getPrivPullNew = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/pull-new`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/pull-new`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPrivPullNewQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/priv/pull-new`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/pull-new`] as const;
     }
 
     
@@ -8096,7 +8096,7 @@ export const postPrivRequestIngest = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/request-ingest`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/request-ingest`, method: 'POST'
     },
       options);
     }
@@ -8147,14 +8147,14 @@ export const getPrivUserRole = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/role`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/role`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPrivUserRoleQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/priv/role`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/role`] as const;
     }
 
     
@@ -8200,14 +8200,14 @@ export const getPrivRoleOtherGroup = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/role-other`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/role-other`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPrivRoleOtherGroupQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/priv/role-other`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/role-other`] as const;
     }
 
     
@@ -8253,7 +8253,7 @@ export const getPrivRoleOtherGroupOther = (
 ) => {
   return customInstance<void>(
       {
-          url: `https://uri.olympiangods.org/${group}/priv/role-other/${otherRoleGroup}`,
+          url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/role-other/${otherRoleGroup}`,
           method: 'GET',
           signal
       },
@@ -8265,7 +8265,7 @@ export const getGetPrivRoleOtherGroupQueryKeyOther = (
   group: string,
   otherRoleGroup: string,
 ) => {
-  return [`https://uri.olympiangods.org/${group}/priv/role-other/${otherRoleGroup}`] as const;
+  return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/role-other/${otherRoleGroup}`] as const;
 }
 
 export const getGetPrivRoleOtherGroupQueryOptionsOther = <
@@ -8325,7 +8325,7 @@ export const deletePrivRoleOtherGroup = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/role-other/${otherRoleGroup}`, method: 'DELETE'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/role-other/${otherRoleGroup}`, method: 'DELETE'
     },
       options);
     }
@@ -8376,7 +8376,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?? {};
   ) => {
       return customInstance<void>(
           {
-              url: `https://uri.olympiangods.org/${group}/priv/role/${user}`,
+              url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/role/${user}`,
               method: 'GET',
               signal
           },
@@ -8388,7 +8388,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?? {};
       group: string,
       user: string,
   ) => {
-      return [`https://uri.olympiangods.org/${group}/priv/role/${user}`] as const;
+      return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/role/${user}`] as const;
   }
   
   export const getGetPrivUserRoleQueryOptionsUser = <
@@ -8448,7 +8448,7 @@ export const deletePrivUserRole = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/role/${user}`, method: 'DELETE'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/role/${user}`, method: 'DELETE'
     },
       options);
     }
@@ -8499,7 +8499,7 @@ export const putPrivUserRole = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/role/${user}`, method: 'PUT'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/role/${user}`, method: 'PUT'
     },
       options);
     }
@@ -8550,14 +8550,14 @@ export const getPrivSettings = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/settings`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/settings`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPrivSettingsQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/priv/settings`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/settings`] as const;
     }
 
     
@@ -8608,7 +8608,7 @@ export const postPrivUpload = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/upload`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/upload`, method: 'POST'
     },
       options);
     }
@@ -8661,7 +8661,7 @@ export const postPrivUserDeactivate = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/priv/user-deactivate`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/priv/user-deactivate`, method: 'POST'
     },
       options);
     }
@@ -8718,7 +8718,7 @@ export const getEndpointsProv = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/prov/identities/${identity}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/prov/identities/${identity}`, method: 'GET', signal
     },
       options);
     }
@@ -8726,7 +8726,7 @@ export const getEndpointsProv = (
 
 export const getGetEndpointsProvQueryKey = (group: string,
     identity: string,) => {
-    return [`https://uri.olympiangods.org/${group}/prov/identities/${identity}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/prov/identities/${identity}`] as const;
     }
 
     
@@ -8780,14 +8780,14 @@ export const getPullsPulls = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/pulls`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/pulls`, method: 'GET', signal
     },
       options);
     }
   
 
 export const getGetPullsPullsQueryKey = (group: string,) => {
-    return [`https://uri.olympiangods.org/${group}/pulls`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/pulls`] as const;
     }
 
     
@@ -8837,7 +8837,7 @@ export const getPullsPull = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/pulls/${pull}/review`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/pulls/${pull}/review`, method: 'GET', signal
     },
       options);
     }
@@ -8845,7 +8845,7 @@ export const getPullsPull = (
 
 export const getGetPullsPullQueryKey = (group: string,
     pull: string,) => {
-    return [`https://uri.olympiangods.org/${group}/pulls/${pull}/review`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/pulls/${pull}/review`] as const;
     }
 
     
@@ -8896,7 +8896,7 @@ export const postPullsClose = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/pulls/${pull}/ops/close`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/pulls/${pull}/ops/close`, method: 'POST'
     },
       options);
     }
@@ -8947,7 +8947,7 @@ export const postPullsLock = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/pulls/${pull}/ops/lock`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/pulls/${pull}/ops/lock`, method: 'POST'
     },
       options);
     }
@@ -8998,7 +8998,7 @@ export const postPullsMerge = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/pulls/${pull}/ops/merge`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/pulls/${pull}/ops/merge`, method: 'POST'
     },
       options);
     }
@@ -9049,7 +9049,7 @@ export const postPullsReopen = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/pulls/${pull}/ops/reopen`, method: 'POST'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/pulls/${pull}/ops/reopen`, method: 'POST'
     },
       options);
     }
@@ -9101,7 +9101,7 @@ export const getEndpointsReadable = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/readable/${word}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/readable/${word}`, method: 'GET', signal
     },
       options);
     }
@@ -9109,7 +9109,7 @@ export const getEndpointsReadable = (
 
 export const getGetEndpointsReadableQueryKey = (group: string,
     word: string,) => {
-    return [`https://uri.olympiangods.org/${group}/readable/${word}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/readable/${word}`] as const;
     }
 
     
@@ -9160,7 +9160,7 @@ export const patchEndpointsReadable = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/readable/${word}`, method: 'PATCH'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/readable/${word}`, method: 'PATCH'
     },
       options);
     }
@@ -9212,7 +9212,7 @@ export const getEndpointsUris = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/uris/${uriPath}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/uris/${uriPath}`, method: 'GET', signal
     },
       options);
     }
@@ -9220,7 +9220,7 @@ export const getEndpointsUris = (
 
 export const getGetEndpointsUrisQueryKey = (group: string,
     uriPath: string,) => {
-    return [`https://uri.olympiangods.org/${group}/uris/${uriPath}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/uris/${uriPath}`] as const;
     }
 
     
@@ -9272,7 +9272,7 @@ export const getVersionsCuries = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/curies`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/versions/${epochVerstrId}/curies`, method: 'GET', signal
     },
       options);
     }
@@ -9280,7 +9280,7 @@ export const getVersionsCuries = (
 
 export const getGetVersionsCuriesQueryKey = (group: string,
     epochVerstrId: string,) => {
-    return [`https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/curies`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/versions/${epochVerstrId}/curies`] as const;
     }
 
     
@@ -9330,7 +9330,7 @@ export const getVersionsCuriesExtension = (
 ) => {
   return customInstance<void>(
       {
-          url: `https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`,
+          url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`,
           method: 'GET',
           signal
       },
@@ -9344,7 +9344,7 @@ export const getGetVersionsCuriesQueryKeyExtension = (
   prefixIriCurie: string,
   extension: string,
 ) => {
-  return [`https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`] as const;
+  return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/versions/${epochVerstrId}/curies/${prefixIriCurie}.${extension}`] as const;
 }
 
 export const getGetVersionsCuriesQueryOptionsExtension = <
@@ -9412,7 +9412,7 @@ export const getVersionsReadable = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/readable/${word}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/versions/${epochVerstrId}/readable/${word}`, method: 'GET', signal
     },
       options);
     }
@@ -9421,7 +9421,7 @@ export const getVersionsReadable = (
 export const getGetVersionsReadableQueryKey = (group: string,
     epochVerstrId: string,
     word: string,) => {
-    return [`https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/readable/${word}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/versions/${epochVerstrId}/readable/${word}`] as const;
     }
 
     
@@ -9476,7 +9476,7 @@ export const getVersionsUris = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/uris/${uriPath}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/versions/${epochVerstrId}/uris/${uriPath}`, method: 'GET', signal
     },
       options);
     }
@@ -9485,7 +9485,7 @@ export const getVersionsUris = (
 export const getGetVersionsUrisQueryKey = (group: string,
     epochVerstrId: string,
     uriPath: string,) => {
-    return [`https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/uris/${uriPath}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/versions/${epochVerstrId}/uris/${uriPath}`] as const;
     }
 
     
@@ -9540,7 +9540,7 @@ export const getVersionsIlx = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/${fragPrefId}`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/versions/${epochVerstrId}/${fragPrefId}`, method: 'GET', signal
     },
       options);
     }
@@ -9549,7 +9549,7 @@ export const getVersionsIlx = (
 export const getGetVersionsIlxQueryKey = (group: string,
     epochVerstrId: string,
     fragPrefId: string,) => {
-    return [`https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/${fragPrefId}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/versions/${epochVerstrId}/${fragPrefId}`] as const;
     }
 
     
@@ -9604,7 +9604,7 @@ export const getVersionsOther = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/${fragPrefId}/other`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/versions/${epochVerstrId}/${fragPrefId}/other`, method: 'GET', signal
     },
       options);
     }
@@ -9613,7 +9613,7 @@ export const getVersionsOther = (
 export const getGetVersionsOtherQueryKey = (group: string,
     epochVerstrId: string,
     fragPrefId: string,) => {
-    return [`https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/${fragPrefId}/other`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/versions/${epochVerstrId}/${fragPrefId}/other`] as const;
     }
 
     
@@ -9668,7 +9668,7 @@ export const getVersionsVersions = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/${fragPrefId}/versions`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/versions/${epochVerstrId}/${fragPrefId}/versions`, method: 'GET', signal
     },
       options);
     }
@@ -9677,7 +9677,7 @@ export const getVersionsVersions = (
 export const getGetVersionsVersionsQueryKey = (group: string,
     epochVerstrId: string,
     fragPrefId: string,) => {
-    return [`https://uri.olympiangods.org/${group}/versions/${epochVerstrId}/${fragPrefId}/versions`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/versions/${epochVerstrId}/${fragPrefId}/versions`] as const;
     }
 
     
@@ -9741,7 +9741,7 @@ export const getEndpointsIlx = (
 export const getGetEndpointsIlxQueryKey = (group: string,
     fragPrefId: string,
     extension: string,) => {
-    return [`https://uri.olympiangods.org/${group}/${fragPrefId}.${extension}`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/${fragPrefId}.${extension}`] as const;
     }
 
     
@@ -9794,7 +9794,7 @@ export const patchEndpointsIlx = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/${fragPrefId}`, method: 'PATCH'
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/${fragPrefId}`, method: 'PATCH'
     },
       options);
     }
@@ -9846,7 +9846,7 @@ export const getEndpointsOther = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/${fragPrefId}/other`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/${fragPrefId}/other`, method: 'GET', signal
     },
       options);
     }
@@ -9854,7 +9854,7 @@ export const getEndpointsOther = (
 
 export const getGetEndpointsOtherQueryKey = (group: string,
     fragPrefId: string,) => {
-    return [`https://uri.olympiangods.org/${group}/${fragPrefId}/other`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/${fragPrefId}/other`] as const;
     }
 
     
@@ -9906,7 +9906,7 @@ export const getEndpointsVersions = (
       
       
       return customInstance<void>(
-      {url: `https://uri.olympiangods.org/${group}/${fragPrefId}/versions`, method: 'GET', signal
+      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/${fragPrefId}/versions`, method: 'GET', signal
     },
       options);
     }
@@ -9914,7 +9914,7 @@ export const getEndpointsVersions = (
 
 export const getGetEndpointsVersionsQueryKey = (group: string,
     fragPrefId: string,) => {
-    return [`https://uri.olympiangods.org/${group}/${fragPrefId}/versions`] as const;
+    return [`${API_CONFIG.OLYMPIAN_GODS}/${group}/${fragPrefId}/versions`] as const;
     }
 
     
@@ -9954,7 +9954,3 @@ export const useGetEndpointsVersions = <TData = Awaited<ReturnType<typeof getEnd
 
   return query;
 }
-
-
-
-

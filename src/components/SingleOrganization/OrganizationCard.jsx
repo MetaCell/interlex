@@ -44,11 +44,24 @@ const OntologyTitleSection = ({ ontology }) => {
         e.stopPropagation();
         console.log('Download ontology', label);
     }
+    
+    // Safely extract title from URI/URL with proper null checking
+    // Handle both 'uri' and 'url' properties for compatibility
+    let title = 'Unknown';
+    const urlPath = ontology?.uri || ontology?.url;
+    if (urlPath) {
+        const urlParts = urlPath.split("/");
+        title = urlParts.pop() === "spec" ? urlParts.slice(-1)[0] : urlParts.slice(-1)[0];
+    }
+    
+    // Use title/name property if available, otherwise use extracted title
+    const displayTitle = ontology?.title || ontology?.name || title;
+    
     return (
         <Box display="flex" justifyContent="space-between" alignItems="center">
             <Stack direction="row" alignItems="center" spacing={'.75rem'}>
                 <FolderOpenOutlinedIcon />
-                <Typography variant='h6' color={gray700} className='label'>{ontology?.name}</Typography>
+                <Typography variant='h6' color={gray700} className='label'>{displayTitle}</Typography>
             </Stack>
             <CustomButton
                 sx={{
@@ -70,6 +83,16 @@ OntologyTitleSection.propTypes = {
 }
 
 const OrganizationCard = ({ data, isOntology }) => {
+    // Don't render if data is incomplete or missing required properties
+    if (!data) {
+        return null;
+    }
+    
+    // For ontologies, ensure we have at least basic data before rendering
+    if (isOntology && (!data.title && !data.name && !data.uri && !data.url)) {
+        return null;
+    }
+    
     return (
         <Grid item xs={12} lg={6} sx={{
             cursor: 'pointer',
@@ -114,7 +137,7 @@ const OrganizationCard = ({ data, isOntology }) => {
                     WebkitLineClamp: 2,
                     textOverflow: 'ellipsis',
                 }}>
-                    {data?.description ? data?.description : '-'}
+                    {data?.description ? data?.description : (data?.uri || '-')}
                 </Typography>
             </Stack>
         </Grid>
