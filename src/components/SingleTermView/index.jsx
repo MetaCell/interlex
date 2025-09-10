@@ -43,9 +43,9 @@ import CustomButtonGroup from "../common/CustomButtonGroup";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CreateForkDialog from "./CreateForkDialog";
 import TermDialog from "../TermEditor/TermDialog";
-import { getSelectedTermLabel } from "../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { getRawData } from "../../api/endpoints";
+import { useTermData } from "../../hooks/useTermData";
 
 const { gray200, gray600, error700 } = vars;
 
@@ -68,10 +68,9 @@ const SingleTermView = () => {
   const [openRequestMergeDialog, setOpenRequestMergeDialog] = useState(false);
   const [editTermDialogOpen, setEditTermDialogOpen] = useState(false);
   const [openForkDialog, setOpenForkDialog] = useState(false);
-  const [termData, setTermData] = useState(null);
-  const [isLoadingTerm, setIsLoadingTerm] = useState(false);
-  const [actualGroup, setActualGroup] = useState(group); // Track the actual group the data comes from
-  const [isUsingFallback, setIsUsingFallback] = useState(false); // Track if we're using fallback data
+
+  // Use the optimized term data hook instead of manual fetching
+  const { termData, actualGroup, isUsingFallback, isLoadingTerm } = useTermData(term, group);
 
   // Remove redundant query logic - use term from URL params directly
   const searchTerm = term;
@@ -174,39 +173,12 @@ const SingleTermView = () => {
     downloadFormattedData(value);
   }, [downloadFormattedData]);
 
-  // Optimize data fetching with caching and prevent duplicate calls
+  // Update stored search term when term data is available
   useEffect(() => {
-    let isMounted = true;
-
-    const fetchTermData = async () => {
-      if (!searchTerm || !group) return;
-
-      setIsLoadingTerm(true);
-      try {
-        const result = await getSelectedTermLabel(searchTerm, group);
-        if (isMounted) {
-          setTermData(result.label);
-          setActualGroup(result.actualGroup);
-          setIsUsingFallback(result.actualGroup !== group);
-          if (result.label) {
-            updateStoredSearchTerm(result.label);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching term data:', error);
-      } finally {
-        if (isMounted) {
-          setIsLoadingTerm(false);
-        }
-      }
-    };
-
-    fetchTermData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [searchTerm, group, updateStoredSearchTerm]); // Added group to dependencies
+    if (termData) {
+      updateStoredSearchTerm(termData);
+    }
+  }, [termData, updateStoredSearchTerm]);
 
   // Optimize tab URL synchronization
   useEffect(() => {
@@ -230,15 +202,15 @@ const SingleTermView = () => {
       case 0:
         return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} />;
       case 1:
-        return <VariantsPanel />;
+        return <VariantsPanel searchTerm={searchTerm} group={actualGroup} />;
       case 2:
-        return <HistoryPanel searchTerm={searchTerm} group={group} />;
+        return <HistoryPanel searchTerm={searchTerm} group={actualGroup} />;
       case 3:
         return <Discussion term={searchTerm} />;
       default:
         return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} />;
     }
-  }, [tabValue, searchTerm, isCodeViewVisible, selectedDataFormat, actualGroup, group]);
+  }, [tabValue, searchTerm, isCodeViewVisible, selectedDataFormat, actualGroup]);
 
   // Memoize the toggle button group for overview tab
   const toggleButtonGroup = useMemo(() => {

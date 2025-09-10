@@ -14,7 +14,7 @@ import {
 } from "@mui/icons-material";
 import LeaveModal from "./LeaveModal";
 import AddIcon from '@mui/icons-material/Add';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import CustomButton from "../common/CustomButton";
 import OrganizationCard from "./OrganizationCard";
 import CreateForkDialog from "./CreateForkDialog";
@@ -28,19 +28,28 @@ import EditBulkTermsDialog from "../Dashboard/EditBulkTerms/EditBulkTermsDialog"
 import { ListIcon, TableChartIcon, EditNoteIcon } from "../../Icons";
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
-import { getOrganization, getOrganizationCuries, getOrganizationTerms, getOrganizationOntologies } from "../../api/endpoints";
+// TODO: These API endpoints are currently returning 501 (Not Implemented) errors
+// They have been updated to use real API service instead of mock data
+// Error handling is in place to gracefully handle 501 responses
+import { getOrganizationsCuries, getOrganizationsTerms, getOrganizationsOntologies } from "../../api/endpoints/apiService";
 
 import { vars } from "../../theme/variables";
 const { gray25, gray200, gray500, gray600 } = vars;
 
 const generatePageOptions = (totalItems) => {
-    const options = new Set([5, 10].filter(n => n < totalItems));
+    // Generate options that work well with 2-items-per-row layout
+    // Using multiples of 2 for even rows: 6, 12, 18, 24, etc.
+    const options = new Set([6, 12].filter(n => n < totalItems));
 
-    for (let i = 20; i <= totalItems; i += 10) {
+    for (let i = 18; i <= totalItems; i += 6) {
         options.add(i);
     }
 
-    options.add(totalItems);
+    // Always include the total if it's reasonable
+    if (totalItems <= 50) {
+        options.add(totalItems);
+    }
+    
     return Array.from(options).sort((a, b) => a - b);
 };
 
@@ -55,23 +64,73 @@ const useOrganizationData = (id) => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const [orgRes, termsRes, curiesRes, ontologiesRes] = await Promise.all([
-                    getOrganization(id),
-                    getOrganizationTerms(id),
-                    getOrganizationCuries(id),
-                    getOrganizationOntologies(id),
-                ]);
-                setOrganization(orgRes);
-                setOrganizationTerms(termsRes.results);
-                setOrganizationCuries(curiesRes);
-                setOrganizationOntologies(ontologiesRes);
+                // TODO: Replace with real backend endpoints when they are implemented
+                // Currently handling 501 errors gracefully for unimplemented endpoints
+                const apiCalls = [
+                    getOrganizationsTerms(id).catch(error => {
+                        if (error?.response?.status === 501) {
+                            console.warn('Terms endpoint not implemented yet (501), using empty array');
+                            return { results: [] };
+                        }
+                        throw error;
+                    }),
+                    getOrganizationsCuries(id).catch(error => {
+                        if (error?.response?.status === 501) {
+                            console.warn('Curies endpoint not implemented yet (501), using empty array');
+                            return [{}]; // Return array with empty object to match expected structure
+                        }
+                        throw error;
+                    }),
+                    getOrganizationsOntologies(id).catch(error => {
+                        if (error?.response?.status === 501) {
+                            console.warn('Ontologies endpoint not implemented yet (501), using empty array');
+                            return [];
+                        }
+                        throw error;
+                    }),
+                ];
+
+                const [termsRes, curiesRes, ontologiesRes] = await Promise.all(apiCalls);
+                
+                // For organization data, we'll create a simple object with the name
+                setOrganization({ name: id });
+                setOrganizationTerms(termsRes?.results || []);
+                
+                // Transform curies data: handle both array and object response formats
+                let curiesObject;
+                if (Array.isArray(curiesRes) && curiesRes.length > 0) {
+                    // If response is an array, take the first item
+                    curiesObject = curiesRes[0];
+                } else if (curiesRes && typeof curiesRes === 'object') {
+                    // If response is a direct object, use it directly
+                    curiesObject = curiesRes;
+                }
+
+                if (curiesObject && Object.keys(curiesObject).length > 0) {
+                    // Convert object to array of {prefix, namespace} objects
+                    const curiesArray = Object.entries(curiesObject).map(([prefix, namespace]) => ({
+                        prefix,
+                        namespace
+                    }));
+                    setOrganizationCuries(curiesArray);
+                } else {
+                    setOrganizationCuries([]);
+                }
+                
+                setOrganizationOntologies(ontologiesRes || []);
             } catch (error) {
                 console.error("Error fetching organization data", error);
+                // Set empty data on error to prevent UI issues
+                setOrganization({ name: id });
+                setOrganizationTerms([]);
+                setOrganizationCuries([]);
+                setOrganizationOntologies([]);
             } finally {
                 setLoading(false);
             }
         };
         if ( id ) {
+            console.log('useOrganizationData: Fetching data for organization:', id);
             fetchData();
         }
     }, [id]);
@@ -94,38 +153,66 @@ const SingleOrganization = () => {
     const [ontologiesPageOptions, setOntologiesPageOptions] = useState([]);
 
     const navigate = useNavigate();
+    const { title } = useParams(); // Get organization name from URL params
 
-    const { organization, organizationTerms, organizationOntologies, loading } = useOrganizationData();
+    const { organization, organizationTerms, organizationOntologies, loading } = useOrganizationData(title);
 
     useEffect(() => {
-        if (organizationTerms.length > 0) {
+        if (Array.isArray(organizationTerms) && organizationTerms.length > 0) {
             const options = generatePageOptions(organizationTerms.length);
             setTermPageOptions(options);
-            setNumberOfTermsVisiblePages(options[0]);
+            if (!numberOfTermsVisiblePages) {
+                setNumberOfTermsVisiblePages(options[0]);
+            }
+            
+            // Ensure current page is valid for the new pagination
+            const itemsPerPage = numberOfTermsVisiblePages || options[0];
+            const maxPage = Math.ceil(organizationTerms.length / itemsPerPage);
+            if (termsPage > maxPage && maxPage > 0) {
+                setTermsPage(maxPage);
+            }
         }
-    }, [organizationTerms]);
+    }, [organizationTerms, numberOfTermsVisiblePages, termsPage]);
 
     useEffect(() => {
-        if (organizationOntologies.length > 0) {
+        if (Array.isArray(organizationOntologies) && organizationOntologies.length > 0) {
             const options = generatePageOptions(organizationOntologies.length);
             setOntologiesPageOptions(options);
-            setNumberOfOntologiesVisiblePages(options[0]);
+            if (!numberOfOntologiesVisiblePages) {
+                setNumberOfOntologiesVisiblePages(options[0]);
+            }
+            
+            // Ensure current page is valid for the new pagination
+            const itemsPerPage = numberOfOntologiesVisiblePages || options[0];
+            const maxPage = Math.ceil(organizationOntologies.length / itemsPerPage);
+            if (ontologiesPage > maxPage && maxPage > 0) {
+                setOntologiesPage(maxPage);
+            }
         }
-    }, [organizationOntologies]);
+    }, [organizationOntologies, numberOfOntologiesVisiblePages, ontologiesPage]);
 
     const handlePageTermsOptionsChange = (v) => {
         setNumberOfTermsVisiblePages(v);
-        setTermsPage(1);
+        setTermsPage(1); // Reset to first page when changing items per page
     };
 
     const handlePageOntologiesOptionsChange = (v) => {
         setNumberOfOntologiesVisiblePages(v);
-        setOntologiesPage(1);
+        setOntologiesPage(1); // Reset to first page when changing items per page
     };
 
-    const handleTermsPageChange = (event, value) => setTermsPage(value);
-    const handleOntologiesPageChange = (event, value) => setOntologiesPage(value);
-    const handleViewOrganizationsClick = () => navigate(`/organizations/${organization?.name}/curie-editor`);
+    const handleTermsPageChange = (event, value) => {
+        setTermsPage(value);
+    };
+    
+    const handleOntologiesPageChange = (event, value) => {
+        setOntologiesPage(value);
+    };
+
+    // Calculate pagination values safely
+    const termsPerPage = numberOfTermsVisiblePages || 6;
+    const ontologiesPerPage = numberOfOntologiesVisiblePages || 6;
+    const handleViewOrganizationsClick = () => navigate(`/organizations/${title}/curie-editor`);
     const handleOpenEditBulkTerms = () => setOpenEditBulkTerms(true);
     const handleCloseEditBulkTerms = () => {
         setOpenEditBulkTerms(false);
@@ -143,12 +230,9 @@ const SingleOrganization = () => {
             <Box flex={1} display='flex' flexDirection='column'>
                 <Box sx={{ p: "2.25rem 5rem", backgroundColor: gray25, width: '100%', gap: '1.75rem', display: 'flex', flexDirection: 'column' }}>
                     <Box display='flex' alignItems='center' justifyContent='space-between'>
-                        <Box
-                            component="img"
-                            src={organization?.icon}
-                            alt="organization logo"
-                            sx={{ objectFit: 'contain', width: 'auto', height: 'auto' }}
-                        />
+                        <Typography variant="h4" component="h1" sx={{ fontWeight: 600, color: gray600 }}>
+                            {organization?.name || title}
+                        </Typography>
                         <Stack direction="row" spacing="1rem" alignItems="center">
                             <Button type="string" color="secondary" startIcon={<EditNoteIcon />} onClick={handleViewOrganizationsClick}>
                                 View organization curies
@@ -170,15 +254,12 @@ const SingleOrganization = () => {
                         </Stack>
                     </Box>
                     <Grid container spacing={4.5}>
-                        <Grid item xs={12} lg={12}>
-                            <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
-                                {organization?.name}
-                            </Typography>
-                        </Grid>
                         <Grid item xs={12} lg={10}>
-                            <Typography color={gray500} fontSize="0.875rem">
-                                {organization?.description}
-                            </Typography>
+                            {organization?.description && (
+                                <Typography color={gray500} fontSize="0.875rem">
+                                    {organization.description}
+                                </Typography>
+                            )}
                         </Grid>
                     </Grid>
                 </Box>
@@ -224,12 +305,38 @@ const SingleOrganization = () => {
                             </Box>
                         ) : (
                             <Grid container spacing='2.75rem'>
-                                {organizationTerms?.slice(0, numberOfTermsVisiblePages).map((data, index) => (
-                                    <OrganizationCard data={data} key={index} />
-                                ))}
+                                {Array.isArray(organizationTerms) && organizationTerms.length > 0 ? (
+                                    organizationTerms
+                                        .slice(
+                                            (termsPage - 1) * termsPerPage, 
+                                            termsPage * termsPerPage
+                                        )
+                                        .map((data, index) => (
+                                            <OrganizationCard data={data} key={index} />
+                                        ))
+                                ) : (
+                                    <Typography 
+                                        sx={{ 
+                                            textAlign: 'center', 
+                                            width: '100%', 
+                                            my: '5rem',
+                                            color: gray500,
+                                            fontSize: '1rem'
+                                        }}
+                                    >
+                                        No terms found for this organization.
+                                    </Typography>
+                                )}
                             </Grid>
                         )}
-                        <CustomPagination rowCount={organizationTerms?.length} rowsPerPage={numberOfTermsVisiblePages || 10} page={termsPage} onPageChange={handleTermsPageChange} />
+                        {Array.isArray(organizationTerms) && organizationTerms.length > 0 && (
+                            <CustomPagination 
+                                rowCount={organizationTerms.length} 
+                                rowsPerPage={termsPerPage} 
+                                page={termsPage} 
+                                onPageChange={handleTermsPageChange} 
+                            />
+                        )}
                     </Box>
                     <Box p='2.5rem 5rem' sx={{ display: 'flex', flexDirection: 'column', gap: '1.75rem', backgroundColor: gray25 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -272,12 +379,38 @@ const SingleOrganization = () => {
                             </Box>
                         ) : (
                             <Grid container spacing='2.75rem'>
-                                {organizationOntologies?.slice(0, numberOfOntologiesVisiblePages).map((data, index) => (
-                                    <OrganizationCard data={data} key={index} isOntology={true} />
-                                ))}
+                                {Array.isArray(organizationOntologies) && organizationOntologies.length > 0 ? (
+                                    organizationOntologies
+                                        .slice(
+                                            (ontologiesPage - 1) * ontologiesPerPage, 
+                                            ontologiesPage * ontologiesPerPage
+                                        )
+                                        .map((data, index) => (
+                                            <OrganizationCard data={data} key={index} isOntology={true} />
+                                        ))
+                                ) : (
+                                    <Typography 
+                                        sx={{ 
+                                            textAlign: 'center', 
+                                            width: '100%', 
+                                            my: '5rem',
+                                            color: gray500,
+                                            fontSize: '1rem'
+                                        }}
+                                    >
+                                        No ontologies found for this organization.
+                                    </Typography>
+                                )}
                             </Grid>
                         )}
-                        <CustomPagination rowCount={organizationOntologies?.length} rowsPerPage={numberOfOntologiesVisiblePages || 10} page={ontologiesPage} onPageChange={handleOntologiesPageChange} />
+                        {Array.isArray(organizationOntologies) && organizationOntologies.length > 0 && (
+                            <CustomPagination 
+                                rowCount={organizationOntologies.length} 
+                                rowsPerPage={ontologiesPerPage} 
+                                page={ontologiesPage} 
+                                onPageChange={handleOntologiesPageChange} 
+                            />
+                        )}
                     </Box>
                 </Box>
             </Box>

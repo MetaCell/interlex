@@ -3,6 +3,7 @@ import {
   Box,
   Divider,
   Grid,
+  CircularProgress,
 } from "@mui/material";
 import Details from "./Details";
 import { debounce } from "lodash";
@@ -44,6 +45,11 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
   // loading flags
   const [loadingHierarchies, setLoadingHierarchies] = useState(true);
   const [loadingPredicates, setLoadingPredicates] = useState(true);
+
+  // Determine if we should show individual loaders or a single global loader
+  const allSectionsLoading = pageLoading && loadingHierarchies && loadingPredicates;
+  const hasAnyData = data !== null || !loadingHierarchies || !loadingPredicates;
+  const showIndividualLoaders = hasAnyData && !allSectionsLoading;
 
   // debounced search (explicit deps to satisfy eslint)
   const debouncedFetchTerms = useMemo(
@@ -183,25 +189,34 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
         <RawDataViewer dataId={searchTerm} dataFormat={selectedDataFormat} />
       ) : (
         <>
-          <Details data={memoData} jsonData={jsonData} loading={pageLoading} />
-          <Box p="5rem 0">
-            <Divider />
-            <Grid container pt="5.25rem" spacing="2.75rem">
-              <Grid item xs={12} lg={4}>
-                <Hierarchy
-                  options={hierarchyOptions}
-                  selectedValue={selectedValue}
-                  onSelect={setSelectedValue}
-                  treeChildren={treeChildren}
-                  treeSuperclasses={treeSuperclasses}
-                  loading={loadingHierarchies}
-                />
-              </Grid>
-              <Grid item xs={12} lg={8}>
-                <Predicates data={predicates} isGraphVisible={true} loading={loadingPredicates}/>
-              </Grid>
-            </Grid>
-          </Box>
+          {/* Show single global loader when all sections are loading */}
+          {allSectionsLoading ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <>
+              <Details data={memoData} jsonData={jsonData} loading={showIndividualLoaders ? pageLoading : false} />
+              <Box p="5rem 0">
+                <Divider />
+                <Grid container pt="5.25rem" spacing="2.75rem">
+                  <Grid item xs={12} lg={4}>
+                    <Hierarchy
+                      options={hierarchyOptions}
+                      selectedValue={selectedValue}
+                      onSelect={setSelectedValue}
+                      treeChildren={treeChildren}
+                      treeSuperclasses={treeSuperclasses}
+                      loading={showIndividualLoaders ? loadingHierarchies : false}
+                    />
+                  </Grid>
+                  <Grid item xs={12} lg={8}>
+                    <Predicates data={predicates} isGraphVisible={true} loading={showIndividualLoaders ? loadingPredicates : false}/>
+                  </Grid>
+                </Grid>
+              </Box>
+            </>
+          )}
         </>
       )}
     </Box>
