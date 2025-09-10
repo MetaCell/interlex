@@ -147,7 +147,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
       setPredicateGroups(groups || []);
     } catch (e) {
       console.error("fetchPredicates error:", e);
-      setPredicateGroups([]);
+      setLoadingPredicates(false);
     } finally {
       setLoadingPredicates(false);
     }

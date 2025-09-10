@@ -39,41 +39,106 @@ const toIri = (idLike) => {
   return idLike;
 };
 
+// Collect all item ids that match a filter (id | label | iri)
+const collectMatchingIds = (items = [], term = "") => {
+  if (!term) return [];
+  const q = String(term).toLowerCase();
+  const out = new Set();
+  const stack = [...items];
+  while (stack.length) {
+    const node = stack.pop();
+    const id = String(node?.id ?? "");
+    const label = String(node?.label ?? "");
+    const iri = String(node?.iri ?? "");
+    if (
+      id.toLowerCase().includes(q) ||
+      label.toLowerCase().includes(q) ||
+      iri.toLowerCase().includes(q)
+    ) out.add(id);
+    if (Array.isArray(node?.children)) stack.push(...node.children);
+  }
+  return [...out];
+};
+
 const Hierarchy = ({
-  options = { children: [], superclasses: [] }, // {children:[{id,label}], superclasses:[...]}
-  selectedValue,                                 // { id, label }
+  options = { children: [], superclasses: [] }, 
+  selectedValue,                                 
   onSelect,
-  // prebuilt trees (arrays of {id,label,iri,children})
   treeChildren = [],
   treeSuperclasses = [],
   loading = false,
 }) => {
-  const [type, setType] = React.useState(SUPERCLASSES); // default to superclasses
+  const [type, setType] = React.useState(SUPERCLASSES); 
   const [currentId, setCurrentId] = React.useState(null);
+  const [manualHighlightedIds, setManualHighlightedIds] = React.useState([]);
+  const hasSearchedRef = React.useRef(false);
+  const initialSelectedRef = React.useRef(selectedValue?.id || null);
 
-  // when selection or type changes, recompute which tree + currentId to show
-  React.useEffect(() => {
-    const focusIri = toIri(selectedValue?.id);
-    const items = type === CHILDREN ? treeChildren : treeSuperclasses;
-    setCurrentId(findFirstRenderedId(items, focusIri));
-  }, [selectedValue, type, treeChildren, treeSuperclasses]);
+  const preSearchSelectionRef = React.useRef(null);
+  const [searchTerm, setSearchTerm] = React.useState("");
 
   const items = type === CHILDREN ? treeChildren : treeSuperclasses;
   const childCount = items?.[0]?.children?.length || 0;
 
-  const handleSelectChange = (_event, value) => onSelect?.(value);
-  const gotoFirstOption = () => {
-    const opts = type === CHILDREN ? options.children : options.superclasses;
-    if (opts?.length) onSelect?.(opts[0]);
+  React.useEffect(() => {
+    const focusIri = toIri(selectedValue?.id);
+    const renderedId = findFirstRenderedId(items, focusIri);
+    setCurrentId(renderedId);
+  }, [selectedValue, type, treeChildren, treeSuperclasses, items]); 
+
+  const handleSelectChange = (value) => {
+    if (!preSearchSelectionRef.current && selectedValue) {
+      preSearchSelectionRef.current = selectedValue;
+    }
+    onSelect?.(value);
+    hasSearchedRef.current = true;
+  
+    setSearchTerm("");               
+    setManualHighlightedIds([]);       
+  
+    const focusIri = toIri(value?.id);
+    const idInTree = findFirstRenderedId(items, focusIri);
+    if (idInTree) setCurrentId(idInTree);
   };
+  
+  const handleRefresh = () => {
+    const toRestore = preSearchSelectionRef.current || initialSelectedRef.current || selectedValue;
+    if (toRestore) {
+      onSelect?.(toRestore);
+      const iri = toIri(toRestore?.id);
+      const idInTree = findFirstRenderedId(items, iri);
+      setCurrentId(idInTree);
+    }
+    setSearchTerm("");
+    setManualHighlightedIds([]);
+    hasSearchedRef.current = false;
+    preSearchSelectionRef.current = null;
+  };  
+
+  const handleAimFocus = () => {
+    const base = hasSearchedRef.current
+      ? (selectedValue || preSearchSelectionRef.current || { id: initialSelectedRef.current })
+      : (preSearchSelectionRef.current || selectedValue || { id: initialSelectedRef.current });
+  
+    const focusIri = toIri(base?.id);
+    const id = findFirstRenderedId(items, focusIri);
+  
+    setCurrentId(id);
+    setManualHighlightedIds(id ? [id] : []);  // <-- pass to tree as highlight
+  };  
 
   const singleSearchOptions = type === CHILDREN ? options.children : options.superclasses;
+  const highlightedIdsFromSearch = React.useMemo(
+    () => collectMatchingIds(items, searchTerm),
+    [items, searchTerm]
+  );  
 
   if (loading) {
     return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <CircularProgress />
     </Box>
   }
+
 
   return (
     <Box display='flex' flexDirection='column' gap='1rem'>
@@ -83,17 +148,32 @@ const Hierarchy = ({
           <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Type:</Typography>
           <CustomSingleSelect
             value={type}
-            onChange={(v) => setType(v)}
+            onChange={(v) => {
+              setType(v);
+              // reset only the visual search highlight when switching trees
+              setSearchTerm("");
+            }}
             options={[
               { value: CHILDREN, label: 'Children' },
               { value: SUPERCLASSES, label: 'Superclasses' },
             ]}
           />
           <Divider orientation="vertical" flexItem />
-          <Button sx={{ p: '0.625rem 0.5625rem', minWidth: '0.0625rem' }} variant='outlined' onClick={gotoFirstOption}>
+          <Button
+            sx={{ p: '0.625rem 0.5625rem', minWidth: '0.0625rem' }}
+            variant='outlined'
+            onClick={handleRefresh}
+            title="Restore to the state before search"
+          >
             <RestartAlt />
           </Button>
-          <Button sx={{ p: '0.625rem 0.5625rem', minWidth: '0.0625rem' }} variant='outlined' title="Focus (no-op placeholder)">
+          {/* Previously a no-op placeholder — now focuses the originally requested node:contentReference[oaicite:2]{index=2} */}
+          <Button
+            sx={{ p: '0.625rem 0.5625rem', minWidth: '0.0625rem' }}
+            variant='outlined'
+            onClick={handleAimFocus}
+            title="Highlight original current term"
+          >
             <TargetCross />
           </Button>
         </Stack>
@@ -105,11 +185,17 @@ const Hierarchy = ({
         options={singleSearchOptions}
       />
 
+      
       <CustomizedTreeView
         items={items}
         loading={false}
         currentId={currentId}
-        defaultExpanded={type === CHILDREN ? false : true}
+        highlightedIds={
+          highlightedIdsFromSearch.length
+            ? highlightedIdsFromSearch
+            : manualHighlightedIds
+        }
+        defaultExpanded={type !== CHILDREN}
       />
 
       <Typography color={gray600} fontSize='.875rem'>
@@ -126,8 +212,8 @@ Hierarchy.propTypes = {
   }),
   selectedValue: PropTypes.shape({ id: PropTypes.string, label: PropTypes.string }),
   onSelect: PropTypes.func,
-  treeChildren: PropTypes.array,      // array of TreeItem
-  treeSuperclasses: PropTypes.array,  // array of TreeItem
+  treeChildren: PropTypes.array,      
+  treeSuperclasses: PropTypes.array,  
   loading: PropTypes.bool,
 };
 
