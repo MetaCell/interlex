@@ -1,4 +1,4 @@
-import { useState, useCallback, useContext } from "react";
+import { useState, useCallback, useContext, useMemo } from "react";
 import PropTypes from "prop-types";
 import {
     Box,
@@ -112,7 +112,16 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const [isEditing, setIsEditing] = useState(false);
     const { user } = useContext(GlobalDataContext);
 
-    const isCreateButtonDisabled = hasExactMatch || termValue === "" || (isEditing && termValue === selectedTermValue);
+    const isCreateButtonDisabled = useMemo(() => {
+        if (hasExactMatch) return true;
+
+        if (termValue === "") return true;
+
+        if (isEditing && termValue === selectedTermValue) return true;
+
+        return false;
+    }, [hasExactMatch, termValue, isEditing, selectedTermValue]);
+
     const statusProps = getAddTermStatusProps(addTermResponse, termValue);
 
     const handleCancelBtnClick = () => {
@@ -152,7 +161,6 @@ const AddNewTermDialog = ({ open, handleClose }) => {
 
     const handleTermSelection = (result) => {
         if (result?.label) {
-            setIsEditing(true);
             setSelectedTermValue(result.label);
             handleTermValueChange(result.label);
         }

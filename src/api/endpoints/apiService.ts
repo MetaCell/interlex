@@ -137,84 +137,7 @@ export const getSelectedTermLabel = async (searchTerm: string, group: string = '
 
 export const createNewEntity = async ({ group, data, session }: { group: string; data: any; session: string }) => {
   const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ENTITY}`;
-  
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    
-    xhr.open('POST', endpoint, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.withCredentials = true;
-
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState === XMLHttpRequest.HEADERS_RECEIVED) {
-        if (xhr.status === 303) {
-          const redirectUrl = xhr.getResponseHeader('x-redirect-location') || xhr.getResponseHeader('Location');          
-          if (redirectUrl) {
-            const tmpMatch = redirectUrl.match(/tmp_\d{9}/);
-            console.log("Found tmp ID:", tmpMatch?.[0]);
-            
-            if (tmpMatch) {
-              resolve({
-                term: {
-                  id: tmpMatch[0]
-                }
-              });
-              return;
-            }
-          }
-        }
-      }
-
-      if (xhr.readyState === XMLHttpRequest.DONE) {
-        if (xhr.status === 0) {
-          // Try to find tmp ID in the response text
-          const tmpMatch = xhr.responseText?.match(/tmp_\d{9}/);
-          if (tmpMatch) {
-            resolve({
-              term: {
-                id: tmpMatch[0]
-              },
-              raw: xhr.responseText,
-              status: 303
-            });
-            return;
-          }
-        }
-        
-        // Handle 409 Conflict
-        if (xhr.status === 409) {
-          try {
-            const responseData = JSON.parse(xhr.responseText);
-            const match = responseData?.existing?.[0];
-            if (match) {
-              resolve({
-                term: {
-                  id: match
-                },
-                raw: responseData,
-                status: xhr.status
-              });
-              return;
-            }
-          } catch (e) {
-            console.error("Error parsing 409 response:", e);
-          }
-        }
-        
-        resolve({
-          raw: xhr.responseText,
-          status: xhr.status
-        });
-      }
-    };
-
-    xhr.onerror = function() {
-      console.error("XHR Error:", xhr.status, xhr.statusText);
-      reject(new Error('Network request failed'));
-    };
-
-    xhr.send(JSON.stringify(data));
-  });
+  return createPostRequest(endpoint, { 'Content-Type': 'application/json' })(data, { handleRedirect: true });
 }
 
 export const createNewOntology = async ({
@@ -259,7 +182,7 @@ export const createNewOntology = async ({
       const getResponse = await fetch(olympianRedirectLocation);
       const jsonResponse = await getResponse.json();
 
-      const newOntologyID = jsonResponse?.["@graph"]?.find((object) => object["@type"] === "owl:Ontology")?.["@id"] || null;
+      const newOntologyID = jsonResponse?.["@graph"]?.find((object: { "@type": string; "@id": string }) => object["@type"] === "owl:Ontology")?.["@id"] || null;
 
       return {
         created: true,

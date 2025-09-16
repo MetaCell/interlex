@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 import { StartIcon, JoinRightIcon } from '../../Icons';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
@@ -142,6 +143,7 @@ const ResultItemSkeleton = () => (
 
 const ResultItem = ({ result, searchValue, onResultAction, user }) => {
     const isExactMatch = result.label.toLowerCase() === searchValue?.toLowerCase();
+    const navigate = useNavigate();
 
     const getItemStyles = () => ({
         borderBottom: `1px solid ${gray200}`,
@@ -197,7 +199,7 @@ const ResultItem = ({ result, searchValue, onResultAction, user }) => {
                                 height: "auto",
                                 '&:hover': { backgroundColor: "transparent" }
                             }}
-                            onClick={() => window.location.href = `/${user.groupname}/${result.ilx}`}
+                            onClick={() => navigate(`/${user.groupname}/${result.ilx}`)}
                         >
                             Go to term
                         </Button>

@@ -1,25 +1,21 @@
 import PropTypes from "prop-types";
-import { useState, useEffect, useContext, useMemo, useCallback } from "react";
-import { debounce } from "lodash";
+import { useState, useCallback, useContext } from "react";
 import {
     Box,
     Divider,
     Stack,
     Typography,
     Autocomplete,
-    Chip,
     TextField
 } from "@mui/material";
 import { GlobalDataContext } from "../../../contexts/DataContext";
-import CloseIcon from "@mui/icons-material/Close";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
 import CustomFormField from "../../common/CustomFormField";
 import NewTermSidebar from "../NewTermSidebar";
 import { HelpOutlinedIcon } from "../../../Icons";
-import { checkPotentialMatches } from "../../../api/endpoints/apiService";
-import { elasticSearch } from "../../../api/endpoints";
 import { vars } from "../../../theme/variables";
 import { TYPES, DEFAULT_TYPE } from "../../../constants/types";
+import { useTermSearch } from "../../../hooks/useTermSearch";
 
 const { white, gray300, gray400, gray600, gray700 } = vars;
 
@@ -80,99 +76,34 @@ const FirstStepContent = ({
     handleExactMatchChange,
     handleExistingIdChange,
     handleSynonymChange,
-    onTermSelect
+    onTermSelect,
 }) => {
-    const [openSidebar, setOpenSidebar] = useState(true);
-    const [loading, setLoading] = useState(false);
-    const [searchResults, setSearchResults] = useState([]);
-    const { user } = useContext(GlobalDataContext);
+    const [openSidebar, setOpenSidebar] = useState(true)
+    const { user } = useContext(GlobalDataContext)
 
-    const synonymOptions = useMemo(() => [], []);
-    const idOptions = useMemo(() => [], []);
+    const { loading, searchResults } = useTermSearch({
+        term,
+        type,
+        synonyms,
+        isEditing,
+        onExactMatchChange: handleExactMatchChange,
+    })
 
-    const handleSidebarToggle = useCallback(() =>
-        setOpenSidebar(prev => !prev), []);
+    const handleSidebarToggle = useCallback(() => {
+        setOpenSidebar((prev) => !prev)
+    }, [])
 
-    const searchTerms = useMemo(() => {
-        const searchFunction = async (searchTerm, searchType, synonymList) => {
-            if (!searchTerm || !searchType || isEditing) {
-                setSearchResults([]);
-                return;
-            }
+    const handleResultSelect = useCallback(
+        (result) => {
+            if (!result?.label) return
 
-            setLoading(true);
-            try {
-                await checkPotentialMatches(user?.groupname || 'base', {
-                    label: searchTerm,
-                    'rdf-type': searchType,
-                    exact: synonymList
-                });
-                // If no exact match, search elastic
-                handleExactMatchChange(false);
-                const { results } = await elasticSearch(searchTerm);
-                setSearchResults((results?.results || []).map(result => ({
-                    ...result,
-                    isExactMatch: false
-                })));
-            } catch (error) {
-                if (error?.response?.status === 409 && error?.response?.data?.existing) {
-                    handleExactMatchChange(true);
-                    const exactMatches = Object.entries(error.response.data.existing)
-                        .flatMap(([termUri, matches]) => {
-                            const matchList = Array.isArray(matches) ? matches : [matches];
-                            return matchList.map(match => ({
-                                ilx: termUri.split('/').pop(),
-                                label: match.object,
-                                isExactMatch: true
-                            }));
-                        });
-                    setSearchResults(exactMatches);
-                } else {
-                    handleExactMatchChange(false);
-                    setSearchResults([]);
-                }
-            }
-            setLoading(false);
-        };
-
-        return debounce(searchFunction, 500);
-    }, [user, handleExactMatchChange, isEditing, setLoading, setSearchResults]);
-
-    const handleResultSelect = useCallback((result) => {
-        if (!result?.label) return;
-
-        if (!result.isExactMatch) {
-            handleTermChange(result.label);
-            setSearchResults([]);
+            handleTermChange(result.label)
             if (onTermSelect) {
-                onTermSelect({ ...result, isEditing: true });
+                onTermSelect(result)
             }
-        }
-    }, [handleTermChange, onTermSelect]);
-
-    useEffect(() => {
-        if (!term) {
-            setSearchResults([]);
-            handleExactMatchChange(false);
-            return;
-        }
-        searchTerms(term, type, synonyms);
-        return () => searchTerms.cancel();
-    }, [term, type, synonyms, searchTerms, handleExactMatchChange, setSearchResults]);
-
-    const renderChips = useCallback((values, getTagProps, chipStyles) =>
-        values.map((option, index) => (
-            <Chip
-                key={index}
-                label={option}
-                deleteIcon={<CloseIcon />}
-                sx={chipStyles}
-                {...getTagProps({ index })}
-            />
-        )), []);
-
-
-
+        },
+        [handleTermChange, onTermSelect],
+    )
 
     return (
         <Box display="flex" height={1}>
@@ -218,7 +149,7 @@ const FirstStepContent = ({
                         value={synonyms}
                         onChange={handleSynonymChange}
                         popupIcon={<HelpOutlinedIcon />}
-                        options={synonymOptions}
+                        options={[]}
                         freeSolo
                         renderTags={(values, getTagProps) => renderChips(values, getTagProps, styles.chip.synonym)}
                         fullWidth
@@ -245,7 +176,7 @@ const FirstStepContent = ({
                         value={existingIds}
                         onChange={handleExistingIdChange}
                         popupIcon={<HelpOutlinedIcon />}
-                        options={idOptions}
+                        options={[]}
                         freeSolo
                         renderTags={(values, getTagProps) => renderChips(values, getTagProps, styles.chip.id)}
                         fullWidth
@@ -255,21 +186,20 @@ const FirstStepContent = ({
                 </Box>
             </Box>
 
-            {!isEditing && (
-                <NewTermSidebar
-                    open={openSidebar}
-                    loading={loading}
-                    onToggle={handleSidebarToggle}
-                    results={searchResults}
-                    isResultsEmpty={searchResults.length === 0}
-                    searchValue={term}
-                    onResultAction={handleResultSelect}
-                    user={user}
-                />
-            )}
+            <NewTermSidebar
+                open={openSidebar}
+                loading={loading}
+                onToggle={handleSidebarToggle}
+                results={searchResults}
+                isResultsEmpty={searchResults.length === 0}
+                searchValue={term}
+                onResultAction={handleResultSelect}
+                user={user}
+                selectedTerm={term}
+            />
         </Box>
     )
-};
+}
 
 FirstStepContent.propTypes = {
     term: PropTypes.string,
@@ -283,15 +213,15 @@ FirstStepContent.propTypes = {
     handleExactMatchChange: PropTypes.func.isRequired,
     handleExistingIdChange: PropTypes.func.isRequired,
     handleSynonymChange: PropTypes.func.isRequired,
-    onTermSelect: PropTypes.func
-};
+    onTermSelect: PropTypes.func,
+}
 
 FirstStepContent.defaultProps = {
-    term: '',
+    term: "",
     type: DEFAULT_TYPE,
     hasExactMatch: false,
     existingIds: [],
     synonyms: [],
-};
+}
 
-export default FirstStepContent;
+export default FirstStepContent
