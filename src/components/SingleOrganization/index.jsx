@@ -135,7 +135,25 @@ const useOrganizationData = (id) => {
         }
     }, [id]);
 
-    return { organization, organizationCuries, organizationTerms, organizationOntologies, loading };
+    // Function to refresh only ontologies
+    const refreshOntologies = async () => {
+        try {
+            const ontologiesRes = await getOrganizationsOntologies(id).catch(error => {
+                if (error?.response?.status === 501) {
+                    console.warn('Ontologies endpoint not implemented yet (501), using empty array');
+                    return [];
+                }
+                throw error;
+            });
+            setOrganizationOntologies(ontologiesRes || []);
+            return ontologiesRes || [];
+        } catch (error) {
+            console.error("Error refreshing ontologies", error);
+            return [];
+        }
+    };
+
+    return { organization, organizationCuries, organizationTerms, organizationOntologies, loading, refreshOntologies };
 };
 
 const SingleOrganization = () => {
@@ -155,7 +173,7 @@ const SingleOrganization = () => {
     const navigate = useNavigate();
     const { title } = useParams(); // Get organization name from URL params
 
-    const { organization, organizationTerms, organizationOntologies, loading } = useOrganizationData(title);
+    const { organization, organizationTerms, organizationOntologies, loading, refreshOntologies } = useOrganizationData(title);
 
     useEffect(() => {
         if (Array.isArray(organizationTerms) && organizationTerms.length > 0) {
@@ -221,6 +239,23 @@ const SingleOrganization = () => {
 
     const handleOpenOntologyDialog = () => setOpenAddOntology(true);
     const handleCloseOntologyDialog = () => setOpenAddOntology(false);
+    
+    const handleOntologyAdded = async () => {
+        // Refresh the ontologies list and get the updated data
+        const updatedOntologies = await refreshOntologies();
+        
+        // Use a small delay to ensure the state is updated, then navigate to last page
+        setTimeout(() => {
+            const totalOntologies = updatedOntologies.length;
+            const itemsPerPage = ontologiesPerPage;
+            const lastPage = Math.ceil(totalOntologies / itemsPerPage);
+            
+            // Navigate to the last page to show the newly added ontology
+            if (lastPage > 0) {
+                setOntologiesPage(lastPage);
+            }
+        }, 100); // Small delay to ensure state propagation
+    };
     const handleOpenForkDialog = () => setOpenFork(true);
     const handleCloseForkDialog = () => setOpenFork(false);
     const handleOpenLeaveModal = () => setOpenLeaveModal(true);
@@ -415,7 +450,11 @@ const SingleOrganization = () => {
                 </Box>
             </Box>
             <EditBulkTermsDialog handleClose={handleCloseEditBulkTerms} open={openEditBulkTerms} activeStep={activeStep} setActiveStep={setActiveStep} />
-            <AddNewOntologyDialog open={openAddOntology} handleClose={handleCloseOntologyDialog} />
+            <AddNewOntologyDialog 
+                open={openAddOntology} 
+                handleClose={handleCloseOntologyDialog} 
+                onOntologyAdded={handleOntologyAdded}
+            />
             <CreateForkDialog open={openFork} handleClose={handleCloseForkDialog} onSubmit={() => console.log("Create a new fork!")} />
             <LeaveModal open={openLeaveModal} handleClose={handleCloseLeaveModal} />
         </>

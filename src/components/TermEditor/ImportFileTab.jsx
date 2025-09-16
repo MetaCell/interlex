@@ -3,12 +3,13 @@ import ImportFile from "./ImportFile";
 import { CSVIcon } from "../../Icons";
 import Checkbox from "../common/CustomCheckbox";
 import CustomFormField from "../common/CustomFormField";
-import { Box, Stack, Typography, FormControl, Divider } from "@mui/material";
+import { Box, Stack, Typography, FormControl, Divider, IconButton } from "@mui/material";
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 import { vars } from "../../theme/variables";
 const { gray300, gray800, gray600, gray700, gray200 } = vars;
 
-const ImportFileTab = ({ files, url, onFilesChange, onChangeUrl }) => {
+const ImportFileTab = ({ files, url, onFilesChange, onChangeUrl, onFileDelete }) => {
 
     return (
         <Box sx={{ width: '100%', mt: '2.75rem', display: 'flex', flexDirection: 'column', gap: '2.75rem' }}>
@@ -54,7 +55,7 @@ const ImportFileTab = ({ files, url, onFilesChange, onChangeUrl }) => {
                 <ImportFile onFilesSelected={onFilesChange} />
                 <Box mt={2.5}>
                     {files.map((file, index) => (
-                        <Box key={index} sx={{ border: `1px solid ${gray300}`, borderRadius: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '1rem', mb: 2 }}>
+                        <Box key={file.id || `${file.name}-${index}`} sx={{ border: `1px solid ${gray300}`, borderRadius: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '1rem', mb: 2 }}>
                             <Box display="flex" gap={1.5}>
                                 <CSVIcon />
                                 <Stack>
@@ -62,7 +63,23 @@ const ImportFileTab = ({ files, url, onFilesChange, onChangeUrl }) => {
                                     <Typography variant="body2" sx={{ color: gray600 }}>{file.size} KB – {file.progress}% uploaded</Typography>
                                 </Stack>
                             </Box>
-                            <Checkbox />
+                            <Box display="flex" alignItems="center" gap={1}>
+                                <Checkbox />
+                                {onFileDelete && (
+                                    <IconButton 
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            onFileDelete(index);
+                                        }}
+                                        size="small"
+                                        sx={{ color: gray600, '&:hover': { color: 'error.main' } }}
+                                        aria-label="Delete file"
+                                    >
+                                        <DeleteOutlineIcon fontSize="small" />
+                                    </IconButton>
+                                )}
+                            </Box>
                         </Box>
                     ))}
                 </Box>
@@ -75,7 +92,8 @@ ImportFileTab.propTypes = {
     files: PropTypes.array.isRequired,
     url: PropTypes.string.isRequired,
     onFilesChange: PropTypes.func.isRequired,
-    onChangeUrl: PropTypes.func.isRequired
+    onChangeUrl: PropTypes.func.isRequired,
+    onFileDelete: PropTypes.func
 }
 
 export default ImportFileTab;

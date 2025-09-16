@@ -7,7 +7,7 @@ import { Stack, Button, Grid, Box } from "@mui/material";
 import CustomizedDialog from "../common/CustomizedDialog";
 import ImportFileTab from "./../TermEditor/ImportFileTab";
 import BasicTabs from "../common/CustomTabs";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { createNewOntology, getNewTokenApi, retrieveTokenApi } from "../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { useContext } from "react";
@@ -29,7 +29,7 @@ HeaderRightSideContent.propTypes = {
     onAddNewOntology: PropTypes.func
 }
 
-const AddNewOntologyDialog = ({ open, handleClose }) => {
+const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded }) => {
     const [openStatusDialog, setOpenStatusDialog] = useState(false);
     const [newOntology, setNewOntology] = useState({
         title: "",
@@ -83,7 +83,12 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
         }
 
         setOpenStatusDialog(true);
-        setNewOntologyResponse({ title: newOntology?.title, description: ontologyResponseMessage, message: ontologyResponseMessage, created: result.created })
+        setNewOntologyResponse({ title: newOntology?.title, description: ontologyResponseMessage, message: ontologyResponseMessage, created: result.created });
+        
+        // If ontology was created successfully, trigger refresh
+        if (result.created && onOntologyAdded) {
+            onOntologyAdded();
+        }
     }
 
     const handleNewOntologyChange = (e) => {
@@ -107,53 +112,84 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
         setOpenStatusDialog(false);
     }
 
-    const handleChangeUrl = (event) => {
+    const handleChangeUrl = useCallback((event) => {
         setUrl(event.target.value);
-    }
+    }, []);
 
-    const handleFilesSelected = async (newFiles) => {
-        const fileArray = Array.from(newFiles);
+    const handleFilesSelected = useCallback((newFiles) => {
+        // Process each file to extract data
+        const processFiles = async () => {
+            const processedFiles = await Promise.all(
+                newFiles.map(async (file) => {
+                    const fileWithId = {
+                        ...file,
+                        id: `${file.name}-${Date.now()}-${Math.random().toString(36).substring(2)}`,
+                        progress: 100, // Assume upload is complete
+                        data: null
+                    };
 
-        const readFileContents = (file) => {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-
-                reader.onload = () => {
-                    let content = reader.result;
-
-                    // Try parsing JSON if it's a JSON file
-                    if (file.name.endsWith('.json')) {
+                    // Only process JSON and JSON-LD files
+                    if (file.name.endsWith('.json') || file.name.endsWith('.jsonld')) {
                         try {
-                            content = JSON.parse(content);
-                        } catch (e) {
-                            console.error(`Invalid JSON in file ${file.name}`, e);
-                            content = null;
+                            // TODO: TEMPORARY TEST - File reading commented out for testing
+                            // const text = await new Promise((resolve, reject) => {
+                            //     const reader = new FileReader();
+                            //     reader.onload = (e) => resolve(e.target.result);
+                            //     reader.onerror = reject;
+                            //     reader.readAsText(file);
+                            // });
+
+                            // const jsonData = JSON.parse(text); // Commented out for testing
+                            
+                            // Extract subjects from JSON-LD or JSON structure
+                            let subjects = [];
+                            
+                            // TODO: TEMPORARY TEST - Using hardcoded subjects for testing
+                            subjects = [
+                                'http://uri.interlex.org/base/ilx_0101431',
+                                'http://uri.interlex.org/base/ilx_0101432'
+                            ];
+                            
+                            // ORIGINAL LOGIC (commented out for testing):
+                            // // Handle JSON-LD format
+                            // if (jsonData['@graph'] && Array.isArray(jsonData['@graph'])) {
+                            //     // Extract subjects from @graph array
+                            //     subjects = jsonData['@graph']
+                            //         .filter(item => item['@type'])
+                            //         .map(item => item['@type'])
+                            //         .flat()
+                            //         .filter((subject, index, array) => array.indexOf(subject) === index); // Remove duplicates
+                            // }
+                            // // Handle simple JSON format
+                            // else if (jsonData.subjects && Array.isArray(jsonData.subjects)) {
+                            //     subjects = jsonData.subjects;
+                            // }
+                            // // Try to extract from other common structures
+                            // else if (jsonData.data && jsonData.data.subjects) {
+                            //     subjects = jsonData.data.subjects;
+                            // }
+
+                            fileWithId.data = { subjects };
+                        } catch (error) {
+                            console.error('Error processing file:', file.name, error);
+                            fileWithId.data = { subjects: [] };
                         }
                     }
 
-                    resolve({
-                        name: file.name,
-                        size: (file.size / 1024).toFixed(2),
-                        progress: 100,
-                        data: content
-                    });
-                };
+                    return fileWithId;
+                })
+            );
 
-                reader.onerror = () => reject(reader.error);
-                reader.readAsText(file);
-            });
+            // Add processed files to existing files
+            setFiles(prevFiles => [...prevFiles, ...processedFiles]);
         };
 
-        const updatedFiles = await Promise.all(fileArray.map(readFileContents));
+        processFiles();
+    }, []);    const handleChangeTabs = useCallback((_, newValue) => setTabValue(newValue), []);
 
-        setFiles(prevFiles => {
-            const prevString = JSON.stringify(prevFiles);
-            const newString = JSON.stringify(updatedFiles);
-            return prevString !== newString ? updatedFiles : prevFiles;
-        });
-    };
-
-    const handleChangeTabs = (_, newValue) => setTabValue(newValue);
+    const handleFileDelete = useCallback((index) => {
+        setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+    }, []);
 
     return (
         <>
@@ -202,7 +238,7 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
                                 </Grid>
                             </Grid>
                         )}
-                        {tabValue === 1 && <ImportFileTab files={files} url={url} onFilesChange={handleFilesSelected} onChangeUrl={handleChangeUrl} />}
+                        {tabValue === 1 && <ImportFileTab files={files} url={url} onFilesChange={handleFilesSelected} onChangeUrl={handleChangeUrl} onFileDelete={handleFileDelete} />}
                     </Box>
                 </Box>
             </CustomizedDialog>
@@ -223,7 +259,8 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
 
 AddNewOntologyDialog.propTypes = {
     open: PropTypes.bool,
-    handleClose: PropTypes.func
+    handleClose: PropTypes.func,
+    onOntologyAdded: PropTypes.func
 }
 
 export default AddNewOntologyDialog;

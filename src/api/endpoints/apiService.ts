@@ -221,7 +221,7 @@ export const createNewOntology = async ({
     const isCreated = postResponse.ok || !!redirectLocation;
 
     if (redirectLocation) {
-      const olympianRedirectLocation = redirectLocation.replace('http://uri.interlex.org', API_CONFIG.BASE_URL).replace(/\.html$/, '.jsonld');
+      const olympianRedirectLocation = redirectLocation.replace(API_CONFIG.INTERLEX_URL, API_CONFIG.BASE_URL).replace(/\.html$/, '.jsonld');
 
       // Try to fetch JSONLD for additional info, but don't let it determine success
       try {
