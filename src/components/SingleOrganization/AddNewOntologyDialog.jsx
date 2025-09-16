@@ -59,7 +59,7 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
             const newToken = await getNewTokenApi({ groupname });
             token = newToken?.key;
         }
-        const ontologyName = newOntology?.title + "_" + Math.random().toString(36).substring(2, 10);
+        const ontologyName = newOntology?.title.replace(/\s+/g, '_') + "_" + Math.random().toString(36).substring(2, 10);
         const title = newOntology?.title;
         const subjects = files?.[0]?.data?.subjects;
 
@@ -72,8 +72,12 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
         });
 
         let ontologyResponseMessage = "Ontology created successfully!"
-
-        if (!result.created) {
+        
+        if (result.created) {
+            if (result.jsonldAvailable === false) {
+                ontologyResponseMessage += " Note: Ontology viewing is currently disabled as the backend implementation is not yet available."
+            }
+        } else {
             ontologyResponseMessage = "Failed to create ontology"
             console.error('❌ Failed to create ontology:', result.error);
         }
