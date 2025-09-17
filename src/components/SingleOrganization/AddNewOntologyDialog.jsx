@@ -29,7 +29,7 @@ HeaderRightSideContent.propTypes = {
     onAddNewOntology: PropTypes.func
 }
 
-const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded }) => {
+const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organizationName }) => {
     const [openStatusDialog, setOpenStatusDialog] = useState(false);
     const [newOntology, setNewOntology] = useState({
         title: "",
@@ -69,7 +69,8 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded }) => {
     };
 
     const handleSubmit = async () => {
-        const groupname = user?.groupname
+        // Use organization name as groupname, fallback to user's groupname if not available
+        const groupname = organizationName || user?.groupname
 
         const ontologyName = newOntology?.title.replace(/\s+/g, '_') + "_" + Math.random().toString(36).substring(2, 10);
         const title = newOntology?.title || files?.[0]?.data?.title || "";
@@ -326,7 +327,8 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded }) => {
 AddNewOntologyDialog.propTypes = {
     open: PropTypes.bool,
     handleClose: PropTypes.func,
-    onOntologyAdded: PropTypes.func
+    onOntologyAdded: PropTypes.func,
+    organizationName: PropTypes.string
 }
 
 export default AddNewOntologyDialog;
