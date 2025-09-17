@@ -33,7 +33,7 @@ export const useTermSearch = ({ term, type, synonyms, isEditing, onExactMatchCha
 
         // No exact matches found, search in elastic
         onExactMatchChange(false)
-        const { results } = await elasticSearch(searchTerm)
+        const { results } = await elasticSearch(searchTerm, 30, 0)
 
         const searchResults =
           results?.results?.map((result) => ({
