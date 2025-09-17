@@ -21,7 +21,7 @@ const OPTIONS = [
   { label: 'Nervous system1', badge: 'My Organization 1', selected: false },
   { label: 'Nervous system2', badge: 'ODC-TBI', selected: false },
   { label: 'Nervous system3', badge: 'Dk-net', selected: false },
-  { label: 'Nervous system4', badge: 'My Organization 2', selected: false }
+  { label: 'Nervous system666', badge: 'My Organization 2', selected: false }
 ];
 
 const styles = {
@@ -81,7 +81,7 @@ const styles = {
   }
 };
 
-const OntologySearch = ({ placeholder, fullWidth = false, disabled }) => {
+const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra }) => {
   const [searchTerm, setSearchTerm] = React.useState('');
   const [openList, setOpenList] = React.useState(false);
   const [selectedValue, setSelectedValue] = React.useState(null);
@@ -141,7 +141,7 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled }) => {
 
   const PaperComponent = useMemo(() => {
     const Component = ({ children }) => (
-      <Box sx={styles.popperBox}>
+      <Box sx={{ ...styles.popperBox, ...extra }}>
         {children}
         <Divider sx={{ marginTop: '.31rem' }} />
         <Box p='.75rem 1rem'>
@@ -257,7 +257,8 @@ OntologySearch.propTypes = {
   fullWidth: PropTypes.bool,
   key: PropTypes.string,
   children: PropTypes.node,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
+  extra: PropTypes.object
 };
 
 export default OntologySearch;

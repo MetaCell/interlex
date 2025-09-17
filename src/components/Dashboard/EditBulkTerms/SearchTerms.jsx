@@ -116,7 +116,7 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
         </Stack>
 
         {ontologyEditOption === Confirmation.Yes && (
-          <OntologySearch placeholder="Enter an Ontology URI" fullWidth />
+          <OntologySearch placeholder="Enter an Ontology URI" fullWidth extra={{ width: '500px !important' }}/>
         )}
       </Box>
 
