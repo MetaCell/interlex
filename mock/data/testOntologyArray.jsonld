@@ -1,0 +1,22 @@
+[
+  {
+    "@type": "Organism",
+    "@id": "http://uri.interlex.org/base/ilx_0101449",
+    "rdfs:label": "Homo sapiens"
+  },
+  {
+    "@type": "Organism",
+    "@id": "http://uri.interlex.org/base/ilx_0101450",
+    "rdfs:label": "Mus musculus"
+  },
+  {
+    "@type": "Organism",
+    "@id": "http://uri.interlex.org/base/ilx_0101451",
+    "rdfs:label": "Rattus norvegicus"
+  },
+  {
+    "@type": "Organism",
+    "@id": "http://uri.interlex.org/base/ilx_0101452",
+    "rdfs:label": "Drosophila melanogaster"
+  }
+]

@@ -1,7 +1,6 @@
 import PropTypes from "prop-types";
 import ImportFile from "./ImportFile";
-import { CSVIcon } from "../../Icons";
-import Checkbox from "../common/CustomCheckbox";
+import { CSVIcon, CodeIcon } from "../../Icons";
 import CustomFormField from "../common/CustomFormField";
 import { Box, Stack, Typography, FormControl, Divider, IconButton } from "@mui/material";
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -9,7 +8,38 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { vars } from "../../theme/variables";
 const { gray300, gray800, gray600, gray700, gray200 } = vars;
 
+const getFileIcon = (fileName) => {
+    if (!fileName || typeof fileName !== 'string') {
+        return <CSVIcon />; // fallback for undefined/null/non-string
+    }
+    
+    const lowerFileName = fileName.toLowerCase();
+    if (lowerFileName.endsWith('.csv')) {
+        return <CSVIcon />;
+    } else if (lowerFileName.endsWith('.json') || lowerFileName.endsWith('.jsonld')) {
+        return <CodeIcon />;
+    }
+    return <CSVIcon />; // fallback
+};
+
+const formatFileSize = (sizeBytes) => {
+    if (!sizeBytes && sizeBytes !== 0) return '0';
+    
+    // If it's already a string (pre-formatted), return as is
+    if (typeof sizeBytes === 'string') return sizeBytes;
+    
+    // If it's not a number, return '0'
+    if (typeof sizeBytes !== 'number') return '0';
+    
+    // Convert bytes to KB
+    const kb = sizeBytes / 1024;
+    return kb.toFixed(1);
+};
+
 const ImportFileTab = ({ files, url, onFilesChange, onChangeUrl, onFileDelete }) => {
+    const hasFiles = files && files.length > 0;
+
+
 
     return (
         <Box sx={{ width: '100%', mt: '2.75rem', display: 'flex', flexDirection: 'column', gap: '2.75rem' }}>
@@ -38,7 +68,11 @@ const ImportFileTab = ({ files, url, onFilesChange, onChangeUrl, onFileDelete })
                         </Box>
                     </FormControl>
                     <CustomFormField
-                        value={url} onChange={onChangeUrl} placeholder='Enter object string' sx={{
+                        value={url} 
+                        onChange={onChangeUrl} 
+                        placeholder={hasFiles ? 'Remove files to enable URL import' : 'Enter object string'}
+                        disabled={hasFiles}
+                        sx={{
                             width: 'auto',
                             flex: 1,
                             height: '2.5rem',
@@ -57,14 +91,17 @@ const ImportFileTab = ({ files, url, onFilesChange, onChangeUrl, onFileDelete })
                     {files.map((file, index) => (
                         <Box key={file.id || `${file.name}-${index}`} sx={{ border: `1px solid ${gray300}`, borderRadius: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '1rem', mb: 2 }}>
                             <Box display="flex" gap={1.5}>
-                                <CSVIcon />
+                                {getFileIcon(file.name)}
                                 <Stack>
-                                    <Typography variant="body2" sx={{ color: gray700, fontWeight: 500 }}>{file.name}</Typography>
-                                    <Typography variant="body2" sx={{ color: gray600 }}>{file.size} KB – {file.progress}% uploaded</Typography>
+                                    <Typography variant="body2" sx={{ color: gray700, fontWeight: 500 }}>
+                                        {file.name || 'Unknown file'}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ color: gray600 }}>
+                                        {formatFileSize(file.size)} KB – {file.progress || 100}% uploaded
+                                    </Typography>
                                 </Stack>
                             </Box>
                             <Box display="flex" alignItems="center" gap={1}>
-                                <Checkbox />
                                 {onFileDelete && (
                                     <IconButton 
                                         onClick={(e) => {

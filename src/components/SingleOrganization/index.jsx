@@ -454,6 +454,7 @@ const SingleOrganization = () => {
                 open={openAddOntology} 
                 handleClose={handleCloseOntologyDialog} 
                 onOntologyAdded={handleOntologyAdded}
+                organizationName={title}
             />
             <CreateForkDialog open={openFork} handleClose={handleCloseForkDialog} onSubmit={() => console.log("Create a new fork!")} />
             <LeaveModal open={openLeaveModal} handleClose={handleCloseLeaveModal} />

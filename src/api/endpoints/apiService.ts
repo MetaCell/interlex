@@ -183,13 +183,11 @@ export const createNewEntity = async ({ group, data, session }: { group: string;
 
 export const createNewOntology = async ({
   groupname,
-  token,
   ontologyName,
   title,
   subjects,
 }: {
   groupname: string;
-  token: string;
   ontologyName: string;
   title: string;
   subjects: string[];
