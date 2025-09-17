@@ -6,13 +6,15 @@ import {
     Stack,
     Typography,
     Autocomplete,
-    TextField
+    TextField,
+    Chip
 } from "@mui/material";
 import { GlobalDataContext } from "../../../contexts/DataContext";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
 import CustomFormField from "../../common/CustomFormField";
 import NewTermSidebar from "../NewTermSidebar";
 import { HelpOutlinedIcon } from "../../../Icons";
+import CloseIcon from "@mui/icons-material/Close";
 import { vars } from "../../../theme/variables";
 import { TYPES, DEFAULT_TYPE } from "../../../constants/types";
 import { useTermSearch } from "../../../hooks/useTermSearch";
@@ -104,6 +106,17 @@ const FirstStepContent = ({
         },
         [handleTermChange, onTermSelect],
     )
+
+    const renderChips = useCallback((values, getTagProps, chipStyles) =>
+        values.map((option, index) => (
+            <Chip
+                key={index}
+                label={option}
+                deleteIcon={<CloseIcon />}
+                sx={chipStyles}
+                {...getTagProps({ index })}
+            />
+        )), []);
 
     return (
         <Box display="flex" height={1}>
