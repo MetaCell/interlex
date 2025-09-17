@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useState } from "react";
+import { useState, useContext, useMemo } from "react";
 import {
   Button,
   Grid,
@@ -21,6 +21,7 @@ import SearchTermsData from "../../../static/SearchTermsData.json";
 import CustomizedRadio from "../../common/CustomizedRadio";
 import OntologySearch from "../../SingleTermView/OntologySearch";
 import { vars } from "../../../theme/variables";
+import { GlobalDataContext } from "../../../contexts/DataContext";
 
 const { gray800, gray700 } = vars;
 
@@ -48,6 +49,11 @@ const styles = {
 
 const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchConditions }) => {
   const [ontologyEditOption, setOntologyEditOption] = useState(Confirmation.No);
+  const { user } = useContext(GlobalDataContext);
+  
+  const ontologySearchExtraStyles = useMemo(() => ({
+    width: '500px !important' 
+  }), []);
 
   const handleTermChange = (index, field, value) => {
     const newTerms = [...searchConditions];
@@ -116,7 +122,7 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
         </Stack>
 
         {ontologyEditOption === Confirmation.Yes && (
-          <OntologySearch placeholder="Enter an Ontology URI" fullWidth extra={{ width: '500px !important' }}/>
+          <OntologySearch placeholder="Enter an Ontology URI" fullWidth extra={ontologySearchExtraStyles} userGroupname={user?.groupname}/>
         )}
       </Box>
 

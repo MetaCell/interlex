@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useContext } from 'react';
 import ListView from './ListView';
 import PropTypes from 'prop-types';
 import { TableChartIcon, ListIcon } from '../../Icons';
@@ -7,6 +7,7 @@ import CustomSingleSelect from '../common/CustomSingleSelect';
 import { Box, Typography, Grid, ButtonGroup, Button, Stack, Divider } from '@mui/material';
 import CustomPagination from '../common/CustomPagination';
 import { vars } from '../../theme/variables';
+import { GlobalDataContext } from '../../contexts/DataContext';
 
 const { gray50, gray200, gray300, gray600 } = vars;
 
@@ -73,6 +74,7 @@ const SearchResultsBox = ({
     const [listView, setListView] = useState('list');
     const [page, setPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(defaultSize);
+    const { user } = useContext(GlobalDataContext);
 
     useEffect(() => {
         if (!hasActiveFilters) {
@@ -146,7 +148,7 @@ const SearchResultsBox = ({
                         <Divider orientation="vertical" flexItem sx={{ borderColor: gray200 }} />
                         <Stack direction="row" alignItems="center" gap={1}>
                             <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Active Ontology:</Typography>
-                            <OntologySearch />
+                            <OntologySearch userGroupname={user?.groupname} />
                         </Stack>
                     </Box>
                 </Grid>

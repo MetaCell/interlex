@@ -29,7 +29,8 @@ const HeaderRightSideContent = ({
     activeStep,
     onContinue,
     onClose,
-    isCreateButtonDisabled
+    isCreateButtonDisabled,
+    userGroupname
 }) => {
     const [ontologyChecked, setOntologyChecked] = useState(false);
 
@@ -54,7 +55,7 @@ const HeaderRightSideContent = ({
                         sx={{ color: gray600 }}
                         label="Add to ontology"
                     />
-                    <OntologySearch disabled={!ontologyChecked} />
+                    <OntologySearch disabled={!ontologyChecked} userGroupname={userGroupname} />
                     <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
                     <MobileStepper
                         variant="dots"
@@ -94,7 +95,8 @@ HeaderRightSideContent.propTypes = {
     activeStep: PropTypes.number.isRequired,
     onContinue: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
-    isCreateButtonDisabled: PropTypes.bool.isRequired
+    isCreateButtonDisabled: PropTypes.bool.isRequired,
+    userGroupname: PropTypes.string
 };
 
 const AddNewTermDialog = ({ open, handleClose }) => {
@@ -178,6 +180,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                     onClose={handleCancelBtnClick}
                     onContinue={createNewTerm}
                     isCreateButtonDisabled={isCreateButtonDisabled}
+                    userGroupname={user?.groupname}
                 />
             }
             sx={{ '& .MuiDialogContent-root': { padding: 0, overflowY: "hidden" } }}

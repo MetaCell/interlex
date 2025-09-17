@@ -1,21 +1,36 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { Box, Typography, Divider, Grid, Stack } from "@mui/material";
+import React, { useState, useEffect, useMemo, useContext, useCallback } from "react";
+import { Box, Typography, Grid } from "@mui/material";
 import CustomButton from "../common/CustomButton";
 import BasicTabs from "../common/CustomTabs";
 import CurieEditorDialog from "./CurieEditorDialog";
 import CuriesTabPanel from "./CuriesTabPanel";
 import { EditNoteIcon } from "../../Icons";
 import { vars } from "../../theme/variables";
-import CustomSingleSelect from "../common/CustomSingleSelect";
-import { getCuries } from '../../api/endpoints';
+import { getOrganizationsCuries } from "../../api/endpoints/apiService";
+import { GlobalDataContext } from "../../contexts/DataContext";
 import debounce from 'lodash/debounce';
 
-const { gray200, gray600, gray700 } = vars;
+const { gray600, gray700 } = vars;
 
-const generatePageOptions = (curieAmount) => {
-    if (curieAmount <= 5) return [curieAmount];
-    const step = [5, 3, 2].find(step => curieAmount % step === 0) || curieAmount;
-    return Array.from({ length: Math.floor(curieAmount / step) }, (_, i) => (i + 1) * step);
+// Helper function to transform curies response similar to SingleOrganization
+const transformCuriesResponse = (response) => {
+    let curiesObject;
+    if (Array.isArray(response) && response.length > 0) {
+        // If response is an array, take the first item
+        curiesObject = response[0];
+    } else if (response && typeof response === 'object') {
+        // If response is a direct object, use it directly
+        curiesObject = response;
+    }
+
+    if (curiesObject && Object.keys(curiesObject).length > 0) {
+        // Convert object to array of {prefix, namespace} objects
+        return Object.entries(curiesObject).map(([prefix, namespace]) => ({
+            prefix,
+            namespace
+        }));
+    }
+    return [];
 };
 
 const newRowObj = { prefix: '', namespace: '' };
@@ -29,20 +44,51 @@ const CurieEditor = () => {
     const [curies, setCuries] = useState({ base: [], curated: [], latest: [] });
     const [tabValue, setTabValue] = useState(0);
     const [curieAmount, setCurieAmount] = useState(0);
-    const [numberOfVisibleCuries, setNumberOfVisibleCuries] = React.useState('');
     const [openCurieEditor, setOpenCurieEditor] = React.useState(false);
-    const [pageOptions, setPageOptions] = useState([]);
+    
+    const { user } = useContext(GlobalDataContext);
 
-    const fetchCuries = async (type) => {
+    const fetchCuries = useCallback(async (type) => {
         try {
-            const data = await getCuries(type);
+            let data = [];
+            
+            if (type === 'base') {
+                // "My curies" tab - get curies from user's groupname
+                if (user?.groupname) {
+                    const response = await getOrganizationsCuries(user.groupname).catch(error => {
+                        if (error?.response?.status === 501) {
+                            console.warn(`Curies endpoint not implemented yet (501) for ${user.groupname}, using empty array`);
+                            return [{}]; // Return array with empty object to match expected structure
+                        }
+                        throw error;
+                    });
+                    data = transformCuriesResponse(response);
+                }
+            } else if (type === 'curated') {
+                // "Curated" tab - get curies from "base" groupname
+                const response = await getOrganizationsCuries('base').catch(error => {
+                    if (error?.response?.status === 501) {
+                        console.warn('Curies endpoint not implemented yet (501) for base, using empty array');
+                        return [{}]; // Return array with empty object to match expected structure
+                    }
+                    throw error;
+                });
+                data = transformCuriesResponse(response);
+            } else if (type === 'latest') {
+                // "Latest" tab - stay empty for now
+                data = [];
+            }
+            
             setCuries(prev => ({ ...prev, [type]: data }));
         } catch (error) {
+            console.error(`Error fetching curies for ${type}:`, error);
             setError(error);
+            // Set empty array on error to prevent UI issues
+            setCuries(prev => ({ ...prev, [type]: [] }));
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
 
     const handleAddNewCurieRow = (curieValue) => {
         setCuries(prev => ({ ...prev, [curieValue]: [...prev[curieValue], newRowObj] }));
@@ -70,7 +116,6 @@ const CurieEditor = () => {
     };
 
     const handleCurieAmountChange = (value) => setCurieAmount(value);
-    const handleNumberOfVisibleCuriesChange = (value) => setNumberOfVisibleCuries(value);
     const handleClickCurieEditor = () => setOpenCurieEditor(true);
     const handleCloseCurieEditor = () => setOpenCurieEditor(false);
     const handleChangeTabs = (event, newValue) => setTabValue(newValue);
@@ -83,15 +128,7 @@ const CurieEditor = () => {
         fetchCuries('base');
         fetchCuries('curated');
         fetchCuries('latest');
-    }, []);
-
-    useEffect(() => {
-        const options = generatePageOptions(curieAmount);
-        setPageOptions(options);
-        if (options.length > 0) {
-            setNumberOfVisibleCuries(options[0]);
-        }
-    }, [curieAmount]);
+    }, [fetchCuries]);
 
     return (
         <>
@@ -103,11 +140,6 @@ const CurieEditor = () => {
                         </Typography>
                     </Grid>
                     <Grid item xs={12} lg={8} display="flex" justifyContent="end">
-                        <Stack direction="row" alignItems="center" gap={1}>
-                            <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Show on page:</Typography>
-                            <CustomSingleSelect value={numberOfVisibleCuries} onChange={handleNumberOfVisibleCuriesChange} options={pageOptions} />
-                        </Stack>
-                        <Divider sx={{ border: `1px solid ${gray200}`, mx: '1rem' }} />
                         <CustomButton onClick={handleClickCurieEditor}>
                             <EditNoteIcon sx={{ fill: gray700 }} />
                             Edit curies
@@ -124,7 +156,6 @@ const CurieEditor = () => {
                                     error={error}
                                     loading={loading}
                                     rows={curies[tab]}
-                                    numberOfVisibleCuries={numberOfVisibleCuries}
                                     onCurieAmountChange={handleCurieAmountChange}
                                 />
                             )
@@ -145,7 +176,6 @@ const CurieEditor = () => {
                                     loading={loading}
                                     editMode
                                     rows={curies[tab]}
-                                    numberOfVisibleCuries={numberOfVisibleCuries}
                                     onCurieAmountChange={handleCurieAmountChange}
                                     onAddRow={handleAddNewCurieRow}
                                     onDeleteRow={handleDeleteCurieRow}

@@ -75,7 +75,7 @@ const SingleTermView = () => {
   // Remove redundant query logic - use term from URL params directly
   const searchTerm = term;
   const openDataFormatMenu = Boolean(dataFormatAnchorEl);
-  const { storedSearchTerm, updateStoredSearchTerm } = useContext(GlobalDataContext);
+  const { storedSearchTerm, updateStoredSearchTerm, user } = useContext(GlobalDataContext);
 
   // Tab mapping
   const tabMapping = useMemo(() => ({
@@ -297,7 +297,7 @@ const SingleTermView = () => {
               <CustomBreadcrumbs breadcrumbItems={breadcrumbItems} />
               <Stack direction="row" alignItems="center" gap={1}>
                 <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Active Ontology:</Typography>
-                <OntologySearch />
+                <OntologySearch userGroupname={user?.groupname} />
               </Stack>
             </Grid>
             <Grid container mt="1.75rem">
