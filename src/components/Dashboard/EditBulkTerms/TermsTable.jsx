@@ -15,41 +15,59 @@ import {
   Chip,
   Stack, CircularProgress,
   Typography,
+  TextField,
 } from "@mui/material";
 import { useState } from "react";
 import PropTypes from 'prop-types';
-import { getMatchTerms } from "../../../api/endpoints";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
 import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
 import CustomTableHead from "../../SingleTermView/Variants/CustomTableHead";
-import { getComparator, getSearchTermsFilter, stableSort } from "../../../helpers";
+import { getComparator, stableSort } from "../../../helpers";
 
 import { vars } from "../../../theme/variables";
 const { gray200, gray50, gray700, brand600, gray800 } = vars;
 
-const columns = [
-  { "id": "label", "label": "Label", "minWidth": 300, "visibility": true },
-  { "id": "organization", "label": "Organization", "minWidth": 150, "visibility": false },
-  { "id": "description", "label": "Description", "minWidth": 300, "visibility": true, "sortable": false },
-  { "id": "existingIDs", "label": "Existing IDs", "minWidth": 300, "visibility": false },
-  { "id": "type", "label": "Type", "minWidth": 150, "visibility": false },
-  { "id": "subClassOf", "label": "Superclass", "minWidth": 150, "visibility": false },
-  { "id": "synonym", "label": "Has exact synonym", "minWidth": 300, "visibility": false },
-  { "id": "type", "label": "OWL equivalent", "minWidth": 300, "visibility": false }
-];
-
-const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, searchConditions }) => {
-  const [visibleColumns, setVisibleColumns] = useState(
-    columns.filter(column => column.visibility).map(column => column.id)
-  );
+const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, ontologyTerms, dynamicColumns }) => {
+  // Memoize the static columns
+  const interlexIdColumn = React.useMemo(() => ({ 
+    "id": "@id", 
+    "label": "Interlex ID", 
+    "minWidth": 200, 
+    "visibility": true,
+    "readOnly": true,
+    "sortable": false
+  }), []);
+  
+  const defaultColumns = React.useMemo(() => [
+    { "id": "label", "label": "Label", "minWidth": 300, "visibility": true },
+    { "id": "organization", "label": "Organization", "minWidth": 150, "visibility": false },
+    { "id": "description", "label": "Description", "minWidth": 300, "visibility": true, "sortable": false },
+    { "id": "existingIDs", "label": "Existing IDs", "minWidth": 300, "visibility": false },
+    { "id": "type", "label": "Type", "minWidth": 150, "visibility": false },
+    { "id": "subClassOf", "label": "Superclass", "minWidth": 150, "visibility": false },
+    { "id": "synonym", "label": "Has exact synonym", "minWidth": 300, "visibility": false },
+    { "id": "type", "label": "OWL equivalent", "minWidth": 300, "visibility": false }
+  ], []);
+  
+  const baseColumns = dynamicColumns || defaultColumns;
+  
+  // Always add Interlex ID column as the first column
+  const columns = React.useMemo(() => [interlexIdColumn, ...baseColumns], [interlexIdColumn, baseColumns]);
+  const [visibleColumns, setVisibleColumns] = useState(['@id']); // Start with just the ID column
   const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState('label'); // Set a valid initial orderBy value
+  const [orderBy, setOrderBy] = useState('@id'); // Set a valid initial orderBy value
   const [anchorEl, setAnchorEl] = useState(null);
   const [terms, setTerms] = useState([]);
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [editingCell, setEditingCell] = useState(null); // { rowIndex, columnId }
+  const [editValue, setEditValue] = useState('');
 
-  const filters = getSearchTermsFilter(searchConditions);
+  // Update visible columns when columns change
+  React.useEffect(() => {
+    const newVisibleColumns = columns.filter(column => column.visibility).map(column => column.id);
+    setVisibleColumns(newVisibleColumns);
+  }, [columns, dynamicColumns]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -57,8 +75,44 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, searchCo
     setOrderBy(property);
   };
 
+  const handleCellDoubleClick = (rowIndex, columnId, currentValue) => {
+    // Don't allow editing read-only columns
+    if (columnId === 'interlex_id') return;
+    
+    setEditingCell({ rowIndex, columnId });
+    setEditValue(currentValue || '');
+  };
+
+  const handleEditSave = () => {
+    if (!editingCell) return;
+
+    const { rowIndex, columnId } = editingCell;
+    const updatedTerms = [...terms];
+    updatedTerms[rowIndex] = {
+      ...updatedTerms[rowIndex],
+      [columnId]: editValue
+    };
+    
+    setTerms(updatedTerms);
+    setEditingCell(null);
+    setEditValue('');
+  };
+
+  const handleEditCancel = () => {
+    setEditingCell(null);
+    setEditValue('');
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      handleEditSave();
+    } else if (event.key === 'Escape') {
+      handleEditCancel();
+    }
+  };
+
   const sortedRows = React.useMemo(
-    () => stableSort(terms, getComparator(order, orderBy)),
+    () => stableSort(terms || [], getComparator(order, orderBy)),
     [order, orderBy, terms]
   );
 
@@ -88,15 +142,14 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, searchCo
   const filteredColumns = columns.filter(column => visibleColumns.includes(column.id));
 
   React.useEffect(() => {
-    setLoading(true)
-    getMatchTerms("base", "i", { filters }).then(data => {
-      setTerms(data.results);
+    if (ontologyTerms && ontologyTerms.length > 0) {
+      setTerms(ontologyTerms);
       setLoading(false);
-    }).catch(err => {
-      console.log(err)
+    } else {
+      setTerms([]);
       setLoading(false);
-    });
-  }, [filters]);
+    }
+  }, [ontologyTerms]);
   if (loading) {
     return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 1 }}>
       <CircularProgress />
@@ -104,16 +157,19 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, searchCo
   }
   return (
     terms.length > 0 ? (
-      <>
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <Typography color={gray800} fontSize='1.125rem' fontWeight={600} mb='2.75rem'>
           Edit your terms or select an header to bulk edit that property
         </Typography>
-        <Box>
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <Paper sx={{
             width: '100%',
             border: `1px solid ${gray200}`,
             boxShadow: '0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)',
             borderRadius: '0.75rem',
+            display: 'flex',
+            flexDirection: 'column',
+            flex: 1,
             position: 'relative',
           }}>
             <IconButton aria-label="columns-menu" onClick={handleClick} sx={{
@@ -153,8 +209,29 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, searchCo
                 </MenuItem>
               ))}
             </Menu>
-            <TableContainer sx={{ borderRadius: '0.75rem' }}>
-              <Table aria-labelledby="tableTitle">
+            <TableContainer sx={{ 
+              borderRadius: '0.75rem', 
+              overflowX: 'auto',
+              overflowY: 'auto',
+              maxHeight: 'calc(100vh - 14rem)', // Adjust based on your layout
+              flex: 1, // Take remaining space
+              '&::-webkit-scrollbar': {
+                height: 8,
+                width: 8,
+              },
+              '&::-webkit-scrollbar-track': {
+                backgroundColor: '#f1f1f1',
+                borderRadius: 4,
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: '#c1c1c1',
+                borderRadius: 4,
+                '&:hover': {
+                  backgroundColor: '#a8a8a8',
+                },
+              },
+            }}>
+              <Table aria-labelledby="tableTitle" stickyHeader sx={{ minWidth: 1200 }}>
                 <CustomTableHead
                   onRequestSort={handleRequestSort}
                   order={order}
@@ -168,19 +245,53 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, searchCo
                 <TableBody>
                   {sortedRows.map((row, index) => (
                     <TableRow key={index}>
-                      {filteredColumns.map((column) => (
-                        <TableCell key={`${column.id}-${index}`} style={{ minWidth: column.minWidth }}>
-                          {Array.isArray(row[column.id]) ? (
-                            <Stack gap='.25rem' direction="row" alignItems="center" maxWidth='20rem' flexWrap='wrap'>
-                              {row[column.id].map((chip, chipIndex) => (
-                                <Chip key={`${chip}-${chipIndex}`} label={chip} className='rounded IDchip-outlined' icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(chip)} />
-                              ))}
-                            </Stack>
-                          ) : (
-                            row[column.id]
-                          )}
-                        </TableCell>
-                      ))}
+                      {filteredColumns.map((column) => {
+                        const isEditing = editingCell?.rowIndex === index && editingCell?.columnId === column.id;
+                        const cellValue = row[column.id];
+                        
+                        return (
+                          <TableCell 
+                            key={`${column.id}-${index}`} 
+                            title={column.readOnly ? 'This column is read-only and cannot be edited' : 'Double-click to edit'}
+                            style={{ 
+                              minWidth: column.minWidth,
+                              backgroundColor: column.readOnly ? gray50 : 'transparent',
+                              fontFamily: column.id === '@id' ? 'monospace' : 'inherit',
+                              cursor: column.readOnly ? 'default' : 'pointer'
+                            }}
+                            onDoubleClick={() => !column.readOnly && handleCellDoubleClick(index, column.id, cellValue)}
+                          >
+                            {isEditing ? (
+                              <TextField
+                                value={editValue}
+                                onChange={(e) => setEditValue(e.target.value)}
+                                onKeyDown={handleKeyPress}
+                                onBlur={handleEditCancel}
+                                autoFocus
+                                size="small"
+                                variant="outlined"
+                                fullWidth
+                                sx={{ minWidth: 0 }}
+                              />
+                            ) : Array.isArray(cellValue) ? (
+                              <Stack gap='.25rem' direction="row" alignItems="center" maxWidth='20rem' flexWrap='wrap'>
+                                {cellValue.map((chip, chipIndex) => (
+                                  <Chip key={`${chip}-${chipIndex}`} label={chip} className='rounded IDchip-outlined' icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(chip)} />
+                                ))}
+                              </Stack>
+                            ) : column.id === '@id' ? (
+                              // Format the Interlex ID to show just the ID part - read-only display
+                              <span style={{ color: gray700, fontWeight: 500 }}>
+                                {cellValue?.split('/').pop() || cellValue}
+                              </span>
+                            ) : (
+                              <span>
+                                {cellValue}
+                              </span>
+                            )}
+                          </TableCell>
+                        );
+                      })}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -188,7 +299,7 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, searchCo
             </TableContainer>
           </Paper>
         </Box>
-      </>) : (
+      </Box>) : (
       <Box className="messageArea">
         <Typography variant="body1">No terms available with the parameters set</Typography>
       </Box>)
@@ -199,7 +310,8 @@ TermsTable.propTypes = {
   setOpenEditAttributes: PropTypes.func,
   setAttributes: PropTypes.func,
   attributes: PropTypes.array,
-  searchConditions: PropTypes.object,
+  ontologyTerms: PropTypes.array,
+  dynamicColumns: PropTypes.array,
 };
 
 export default TermsTable;

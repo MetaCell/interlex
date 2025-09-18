@@ -8,11 +8,15 @@ import {
     Stack,
     Typography,
     CircularProgress,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
 } from "@mui/material";
 import {
     CreateNewFolderOutlined,
 } from "@mui/icons-material";
-import LeaveModal from "./LeaveModal";
+// import LeaveModal from "./LeaveModal";
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate, useParams } from "react-router-dom";
 import CustomButton from "../common/CustomButton";
@@ -22,7 +26,7 @@ import ForkRightIcon from '@mui/icons-material/ForkRight';
 import CustomPagination from "../common/CustomPagination";
 import CustomViewButton from "../common/CustomViewButton";
 import AddNewOntologyDialog from "./AddNewOntologyDialog";
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+// import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import EditBulkTermsDialog from "../Dashboard/EditBulkTerms/EditBulkTermsDialog";
 import { ListIcon, TableChartIcon, EditNoteIcon } from "../../Icons";
@@ -135,7 +139,25 @@ const useOrganizationData = (id) => {
         }
     }, [id]);
 
-    return { organization, organizationCuries, organizationTerms, organizationOntologies, loading };
+    // Function to refresh only ontologies
+    const refreshOntologies = async () => {
+        try {
+            const ontologiesRes = await getOrganizationsOntologies(id).catch(error => {
+                if (error?.response?.status === 501) {
+                    console.warn('Ontologies endpoint not implemented yet (501), using empty array');
+                    return [];
+                }
+                throw error;
+            });
+            setOrganizationOntologies(ontologiesRes || []);
+            return ontologiesRes || [];
+        } catch (error) {
+            console.error("Error refreshing ontologies", error);
+            return [];
+        }
+    };
+
+    return { organization, organizationCuries, organizationTerms, organizationOntologies, loading, refreshOntologies };
 };
 
 const SingleOrganization = () => {
@@ -148,14 +170,15 @@ const SingleOrganization = () => {
     const [openEditBulkTerms, setOpenEditBulkTerms] = useState(false);
     const [openAddOntology, setOpenAddOntology] = useState(false);
     const [openFork, setOpenFork] = useState(false);
-    const [openLeaveModal, setOpenLeaveModal] = useState(false);
+    // const [openLeaveModal, setOpenLeaveModal] = useState(false);
+    const [openManageOrgModal, setOpenManageOrgModal] = useState(false);
     const [termsPageOptions, setTermPageOptions] = useState([]);
     const [ontologiesPageOptions, setOntologiesPageOptions] = useState([]);
 
     const navigate = useNavigate();
     const { title } = useParams(); // Get organization name from URL params
 
-    const { organization, organizationTerms, organizationOntologies, loading } = useOrganizationData(title);
+    const { organization, organizationTerms, organizationOntologies, loading, refreshOntologies } = useOrganizationData(title);
 
     useEffect(() => {
         if (Array.isArray(organizationTerms) && organizationTerms.length > 0) {
@@ -221,10 +244,29 @@ const SingleOrganization = () => {
 
     const handleOpenOntologyDialog = () => setOpenAddOntology(true);
     const handleCloseOntologyDialog = () => setOpenAddOntology(false);
+    
+    const handleOntologyAdded = async () => {
+        // Refresh the ontologies list and get the updated data
+        const updatedOntologies = await refreshOntologies();
+        
+        // Use a small delay to ensure the state is updated, then navigate to last page
+        setTimeout(() => {
+            const totalOntologies = updatedOntologies.length;
+            const itemsPerPage = ontologiesPerPage;
+            const lastPage = Math.ceil(totalOntologies / itemsPerPage);
+            
+            // Navigate to the last page to show the newly added ontology
+            if (lastPage > 0) {
+                setOntologiesPage(lastPage);
+            }
+        }, 100); // Small delay to ensure state propagation
+    };
     const handleOpenForkDialog = () => setOpenFork(true);
     const handleCloseForkDialog = () => setOpenFork(false);
-    const handleOpenLeaveModal = () => setOpenLeaveModal(true);
-    const handleCloseLeaveModal = () => setOpenLeaveModal(false);
+    const handleOpenManageOrgModal = () => setOpenManageOrgModal(true);
+    const handleCloseManageOrgModal = () => setOpenManageOrgModal(false);
+    // const handleOpenLeaveModal = () => setOpenLeaveModal(true);
+    // const handleCloseLeaveModal = () => setOpenLeaveModal(false);
     return (
         <>
             <Box flex={1} display='flex' flexDirection='column'>
@@ -238,7 +280,7 @@ const SingleOrganization = () => {
                                 View organization curies
                             </Button>
                             <Divider orientation="vertical" flexItem sx={{ borderColor: gray200 }} />
-                            <Button
+                            {/* <Button
                                 type="string"
                                 color="error"
                                 startIcon={<ExitToAppIcon />}
@@ -246,8 +288,8 @@ const SingleOrganization = () => {
                                 onClick={handleOpenLeaveModal}
                             >
                                 Leave
-                            </Button>
-                            <CustomButton variant="outlined" display="flex" alignItems="center">
+                            </Button> */}
+                            <CustomButton variant="outlined" display="flex" alignItems="center" onClick={handleOpenManageOrgModal}>
                                 <SettingsOutlinedIcon />
                                 Manage organization
                             </CustomButton>
@@ -415,9 +457,40 @@ const SingleOrganization = () => {
                 </Box>
             </Box>
             <EditBulkTermsDialog handleClose={handleCloseEditBulkTerms} open={openEditBulkTerms} activeStep={activeStep} setActiveStep={setActiveStep} />
-            <AddNewOntologyDialog open={openAddOntology} handleClose={handleCloseOntologyDialog} />
+            <AddNewOntologyDialog 
+                open={openAddOntology} 
+                handleClose={handleCloseOntologyDialog} 
+                onOntologyAdded={handleOntologyAdded}
+                organizationName={title}
+            />
             <CreateForkDialog open={openFork} handleClose={handleCloseForkDialog} onSubmit={() => console.log("Create a new fork!")} />
-            <LeaveModal open={openLeaveModal} handleClose={handleCloseLeaveModal} />
+            {/* <LeaveModal open={openLeaveModal} handleClose={handleCloseLeaveModal} /> */}
+            
+            {/* Manage Organization Modal */}
+            <Dialog 
+                open={openManageOrgModal} 
+                onClose={handleCloseManageOrgModal}
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle sx={{ fontWeight: 600, color: gray600 }}>
+                    Manage Organization
+                </DialogTitle>
+                <DialogContent>
+                    <Typography color={gray500} sx={{ mt: 1 }}>
+                        This functionality is not supported yet. Please check back later for organization management features.
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{ p: 3, pt: 2 }}>
+                    <Button 
+                        onClick={handleCloseManageOrgModal} 
+                        variant="contained"
+                        sx={{ minWidth: 100 }}
+                    >
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 };

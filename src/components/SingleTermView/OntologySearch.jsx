@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback, useMemo } from "react";
+import { useEffect, useRef, useCallback, useMemo, useState, useContext } from "react";
 import {
   Box,
   Button,
@@ -8,21 +8,19 @@ import {
   Autocomplete,
   InputAdornment,
   FormControlLabel,
+  CircularProgress,
 } from "@mui/material";
 import PropTypes from "prop-types";
 import ListItem from '@mui/material/ListItem';
 import CustomizedRadio from "../common/CustomizedRadio";
 import FolderSharedOutlinedIcon from '@mui/icons-material/FolderSharedOutlined';
 import { vars } from "../../theme/variables";
+import { getOrganizationsOntologies } from "../../api/endpoints/apiService";
+import { GlobalDataContext } from "../../contexts/DataContext";
 
 const { brand600, gray50, gray300, gray400, white, gray700, gray200, paperShadow } = vars;
 
-const OPTIONS = [
-  { label: 'Nervous system1', badge: 'My Organization 1', selected: false },
-  { label: 'Nervous system2', badge: 'ODC-TBI', selected: false },
-  { label: 'Nervous system3', badge: 'Dk-net', selected: false },
-  { label: 'Nervous system4', badge: 'My Organization 2', selected: false }
-];
+
 
 const styles = {
   autocomplete: (fullWidth, selectedValue, openList) => ({
@@ -53,6 +51,11 @@ const styles = {
   }),
   paper: {
     borderRadius: '0.5rem',
+    '& .MuiAutocomplete-listbox': {
+      maxHeight: '200px',
+      overflow: 'auto',
+      padding: 0
+    },
     '& .MuiAutocomplete-option': {
       padding: '.06rem .38rem',
       height: 'initial',
@@ -81,12 +84,98 @@ const styles = {
   }
 };
 
-const OntologySearch = ({ placeholder, fullWidth = false, disabled }) => {
-  const [searchTerm, setSearchTerm] = React.useState('');
-  const [openList, setOpenList] = React.useState(false);
-  const [selectedValue, setSelectedValue] = React.useState(null);
+const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userGroupname, onOntologySelect }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [openList, setOpenList] = useState(false);
+  const [selectedValue, setSelectedValue] = useState(null);
+  const [ontologies, setOntologies] = useState([]);
+  const [loading, setLoading] = useState(false);
   const autocompleteRef = useRef(null);
   const popperRef = useRef(null);
+  
+  const { activeOntology, setOntologyData } = useContext(GlobalDataContext);
+
+  // Initialize selectedValue from context immediately if available
+  useEffect(() => {
+    if (activeOntology && !selectedValue) {
+      console.log('Pre-initializing selectedValue from context before ontologies load:', activeOntology);
+      setSelectedValue({ ...activeOntology, selected: true });
+    }
+  }, [activeOntology, selectedValue]);
+
+  // Fetch ontologies when userGroupname changes
+  useEffect(() => {
+    const fetchOntologies = async () => {
+      if (!userGroupname) {
+        setOntologies([]);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const data = await getOrganizationsOntologies(userGroupname);
+        // Transform the ontologies data to match the expected format
+        const transformedOntologies = Array.isArray(data) ? data.map((ontology, index) => {
+          // Extract identifier from URI for fallback label
+          let fallbackLabel = `Unknown Ontology ${ontology.id || index + 1}`;
+          if (ontology.uri) {
+            const uriParts = ontology.uri.split('/');
+            const specIndex = uriParts.findIndex(part => part === 'spec');
+            if (specIndex > 0) {
+              const identifier = uriParts[specIndex - 1];
+              fallbackLabel = `Ontology ${identifier}`;
+            }
+          }
+          
+          return {
+            label: ontology.title || fallbackLabel,
+            badge: userGroupname,
+            selected: false,
+            id: ontology.id || `ontology-${index}`,
+            description: ontology.uri,
+            url: ontology.url
+          };
+        }) : [];
+        
+        setOntologies(transformedOntologies);
+      } catch (error) {
+        console.error('Error fetching ontologies:', error);
+        setOntologies([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOntologies();
+  }, [userGroupname]);
+
+  // Initialize selectedValue from context when ontologies are loaded
+  useEffect(() => {
+    console.log('Context initialization check:', { 
+      activeOntology, 
+      ontologiesLength: ontologies.length,
+      ontologies: ontologies.map(o => ({ id: o.id, label: o.label }))
+    });
+    
+    if (activeOntology && ontologies.length > 0) {
+      // Try to find by ID first, then by label as fallback
+      let contextOntology = ontologies.find(ont => ont.id === activeOntology.id);
+      
+      if (!contextOntology && activeOntology.label) {
+        contextOntology = ontologies.find(ont => ont.label === activeOntology.label);
+      }
+      
+      if (contextOntology) {
+        console.log('Initializing selectedValue from context (matched):', contextOntology);
+        setSelectedValue({ ...contextOntology, selected: true });
+      } else {
+        console.log('Context ontology not found in loaded ontologies. Context:', activeOntology);
+        console.log('Available ontologies:', ontologies);
+        // If we still can't find it, keep the context ontology as selected
+        setSelectedValue({ ...activeOntology, selected: true });
+      }
+    }
+  }, [activeOntology, ontologies]);
 
   const handleOpenList = useCallback(() => {
     setOpenList(true);
@@ -99,8 +188,17 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled }) => {
   const onSetActive = useCallback((event) => {
     event.stopPropagation();
     setOpenList(false);
-    setSelectedValue(prev => prev ? { ...prev, selected: true } : null);
-  }, []);
+    setSelectedValue(prev => {
+      if (prev) {
+        const updatedOntology = { ...prev, selected: true };
+        // Save to context
+        setOntologyData(updatedOntology);
+        console.log('Active ontology saved to context:', updatedOntology);
+        return updatedOntology;
+      }
+      return null;
+    });
+  }, [setOntologyData]);
 
   const handleClickOutside = useCallback((event) => {
     if (
@@ -121,14 +219,19 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled }) => {
   }, [handleClickOutside]);
 
   const isOptionEqualToValue = useCallback((option, value) =>
-    option.label === value?.label && option.badge === value?.badge,
+    option.id === value?.id,
     []
   );
 
   const handleChange = useCallback((event, value) => {
     setSearchTerm('');
     setSelectedValue(value);
-  }, []);
+
+    // Call the callback if provided
+    if (onOntologySelect) {
+      onOntologySelect(value);
+    }
+  }, [onOntologySelect]);
 
   const popperProps = useMemo(() => ({
     sx: {
@@ -139,10 +242,21 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled }) => {
     ref: popperRef
   }), [fullWidth]);
 
+  const paperStyles = useMemo(() => ({
+    ...styles.paper,
+    ...extra
+  }), [extra]);
+
   const PaperComponent = useMemo(() => {
     const Component = ({ children }) => (
-      <Box sx={styles.popperBox}>
-        {children}
+      <Box sx={{ ...styles.popperBox, ...extra }}>
+        {loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" p={2}>
+            <CircularProgress size={24} />
+          </Box>
+        ) : (
+          children
+        )}
         <Divider sx={{ marginTop: '.31rem' }} />
         <Box p='.75rem 1rem'>
           <Button
@@ -150,6 +264,7 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled }) => {
             size="small"
             fullWidth
             onClick={onSetActive}
+            disabled={loading || !selectedValue}
           >
             Set as active ontology
           </Button>
@@ -158,7 +273,8 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled }) => {
     );
     Component.displayName = 'PaperComponent';
     return Component;
-  }, [onSetActive]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onSetActive, loading, selectedValue]);
 
   const renderOption = useCallback((props, option) => {
     const { key, ...otherProps } = props;
@@ -175,7 +291,7 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled }) => {
           <FormControlLabel
             control={
               <CustomizedRadio
-                checked={selectedValue?.label === option.label}
+                checked={selectedValue?.id === option.id}
               />
             }
             label={option.label}
@@ -230,18 +346,19 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled }) => {
       <Autocomplete
         disableCloseOnSelect
         disableClearable
-        options={OPTIONS}
+        options={ontologies}
         open={openList}
         disabled={disabled}
         onOpen={handleOpenList}
         forcePopupIcon={false}
         onChange={handleChange}
         isOptionEqualToValue={isOptionEqualToValue}
+        getOptionKey={(option) => option.id}
         sx={styles.autocomplete(fullWidth, selectedValue, openList)}
         autoHighlight={false}
         componentsProps={{
           popper: popperProps,
-          paper: { sx: styles.paper },
+          paper: { sx: paperStyles },
         }}
         inputValue={searchTerm ? searchTerm : selectedValue?.selected ? selectedValue?.label : ''}
         renderOption={renderOption}
@@ -257,7 +374,10 @@ OntologySearch.propTypes = {
   fullWidth: PropTypes.bool,
   key: PropTypes.string,
   children: PropTypes.node,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
+  extra: PropTypes.object,
+  userGroupname: PropTypes.string,
+  onOntologySelect: PropTypes.func
 };
 
 export default OntologySearch;

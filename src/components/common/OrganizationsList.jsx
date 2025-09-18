@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
-import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
+import Groups from '@mui/icons-material/Groups';
 import {Box, Typography, Button, List, ListItem, ListItemText} from "@mui/material";
 
 import { vars } from "../../theme/variables";
@@ -78,13 +78,13 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
                   variant="outlined"
                   className="join-button"
                   onClick={() => navigate(`/organizations/${organization}`)}
-                  startIcon={<PersonAddOutlinedIcon />}
+                  startIcon={<Groups />}
                   sx={{
                     visibility: 'hidden',
                     width: 1
                   }}
                 >
-                  Join organization
+                  View organization
                 </Button>
               }
             </Box>
