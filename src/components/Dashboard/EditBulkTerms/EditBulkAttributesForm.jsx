@@ -13,7 +13,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { vars } from "../../../theme/variables";
 const { gray800 } = vars;
 
-const EditBulkAttributesForm = ({ columns, attributes, setAttributes, initialAttributesValue }) => {
+const EditBulkAttributesForm = ({ columns, attributes, setAttributes, initialAttributesValue, onApplyChanges, onUndo, canUndo }) => {
   const handleAttributesChange = (index, field, value) => {
     let newAttributes = [...attributes];
     newAttributes[index][field] = value;
@@ -108,7 +108,7 @@ const EditBulkAttributesForm = ({ columns, attributes, setAttributes, initialAtt
           )}
         </Grid>
       ))}
-      <Box display='flex' alignItems='center' justifyContent='space-between'>
+      <Box display='flex' alignItems='center' justifyContent='space-between' mb='1rem'>
         <Button
           startIcon={<AddOutlinedIcon />}
           type="string"
@@ -124,6 +124,26 @@ const EditBulkAttributesForm = ({ columns, attributes, setAttributes, initialAtt
           Clear all
         </Button>
       </Box>
+      <Box display='flex' justifyContent='flex-end' gap={1}>
+        <Button
+
+          type="string"
+          onClick={onUndo}
+          disabled={!canUndo}
+          sx={{ minWidth: '100px' }}
+        >
+          Undo
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={onApplyChanges}
+          disabled={!attributes.some(attr => attr.attribute && attr.value)}
+          sx={{ minWidth: '120px' }}
+        >
+          Apply Changes
+        </Button>
+      </Box>
     </Box>
   );
 }
@@ -132,7 +152,10 @@ EditBulkAttributesForm.propTypes = {
   columns: PropTypes.array.isRequired,
   attributes: PropTypes.array.isRequired,
   setAttributes: PropTypes.func.isRequired,
-  initialAttributesValue: PropTypes.object.isRequired
+  initialAttributesValue: PropTypes.object.isRequired,
+  onApplyChanges: PropTypes.func.isRequired,
+  onUndo: PropTypes.func.isRequired,
+  canUndo: PropTypes.bool.isRequired
 };
 
 export default EditBulkAttributesForm;

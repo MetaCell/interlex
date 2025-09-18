@@ -142,13 +142,11 @@ export const createNewEntity = async ({ group, data, session }: { group: string;
 
 export const createNewOntology = async ({
   groupname,
-  token,
   ontologyName,
   title,
   subjects,
 }: {
   groupname: string;
-  token: string;
   ontologyName: string;
   title: string;
   subjects: string[];
@@ -176,19 +174,35 @@ export const createNewOntology = async ({
     // Check for custom redirect header (all lowercase in fetch)
     const redirectLocation = postResponse.headers.get('x-redirect-location');
 
+    // Base success on the POST response, not on the JSONLD fetch
+    const isCreated = postResponse.ok || !!redirectLocation;
+
     if (redirectLocation) {
-      const olympianRedirectLocation = redirectLocation.replace('http://uri.interlex.org', '').replace(/\.html$/, '.jsonld');
+      const olympianRedirectLocation = redirectLocation.replace(API_CONFIG.INTERLEX_URL, API_CONFIG.BASE_URL).replace(/\.html$/, '.jsonld');
 
-      const getResponse = await fetch(olympianRedirectLocation);
-      const jsonResponse = await getResponse.json();
+      // Try to fetch JSONLD for additional info, but don't let it determine success
+      try {
+        const getResponse = await fetch(olympianRedirectLocation);
+        const jsonResponse = await getResponse.json();
+        const newOntologyID = jsonResponse?.["@graph"]?.find((object: { [x: string]: string; }) => object["@type"] === "owl:Ontology")?.["@id"] || null;
 
-      const newOntologyID = jsonResponse?.["@graph"]?.find((object: { "@type": string; "@id": string }) => object["@type"] === "owl:Ontology")?.["@id"] || null;
-
-      return {
-        created: true,
-        location: olympianRedirectLocation,
-        newOntologyID: newOntologyID
-      };
+        return {
+          created: isCreated,
+          location: olympianRedirectLocation,
+          newOntologyID: newOntologyID,
+          jsonldAvailable: true
+        };
+      } catch (jsonldError: any) {
+        // JSONLD fetch failed, but ontology creation was successful
+        console.warn('JSONLD fetch failed, but ontology was created successfully:', jsonldError);
+        return {
+          created: isCreated,
+          location: olympianRedirectLocation,
+          newOntologyID: null,
+          jsonldAvailable: false,
+          jsonldError: jsonldError?.message || String(jsonldError)
+        };
+      }
     }
 
     // Try to parse the response as JSON (if present)
@@ -200,9 +214,10 @@ export const createNewOntology = async ({
     }
 
     return {
-      created: postResponse.ok,
+      created: isCreated,
       location: endpoint,
       jsonResponse,
+      jsonldAvailable: false
     };
   } catch (error: any) {
     let errMsg = error?.message ?? String(error);

@@ -1,0 +1,43 @@
+{
+  "@context": {
+    "@vocab": "http://uri.interlex.org/base/",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "dc": "http://purl.org/dc/terms/"
+  },
+  "@graph": [
+    {
+      "@type": "owl:Ontology",
+      "@id": "http://uri.interlex.org/base/test-neuroscience-ontology",
+      "rdfs:label": "Test Brain Structure Ontology",
+      "dc:title": "Test Brain Structure Ontology",
+      "dc:description": "A test ontology containing brain structure classifications"
+    },
+    {
+      "@type": ["owl:Class", "BrainStructure"],
+      "@id": "http://uri.interlex.org/base/ilx_0101431",
+      "rdfs:label": "Cerebral cortex"
+    },
+    {
+      "@type": ["owl:Class", "BrainStructure"],
+      "@id": "http://uri.interlex.org/base/ilx_0101432",
+      "rdfs:label": "Hippocampus"
+    },
+    {
+      "@type": ["owl:Class", "BrainStructure"],
+      "@id": "http://uri.interlex.org/base/ilx_0101433",
+      "rdfs:label": "Amygdala"
+    },
+    {
+      "@type": ["owl:Class", "Neuron"],
+      "@id": "http://uri.interlex.org/base/ilx_0101434",
+      "rdfs:label": "Pyramidal neuron"
+    },
+    {
+      "@type": ["owl:Class", "Neuron"],
+      "@id": "http://uri.interlex.org/base/ilx_0101435",
+      "rdfs:label": "Interneuron"
+    }
+  ]
+}

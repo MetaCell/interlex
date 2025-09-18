@@ -14,6 +14,7 @@ import { RestartAlt, TargetCross } from "../../../Icons";
 import SingleSearch from "../SingleSearch";
 import CustomizedTreeView from "../../common/CustomizedTreeView";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
+import { API_CONFIG } from "../../../config";
 
 const { gray600, gray800 } = vars;
 const CHILDREN = 'children';
@@ -35,7 +36,8 @@ const toIri = (idLike) => {
   if (!idLike) return "";
   if (/^https?:\/\//i.test(idLike)) return idLike;
   const m = String(idLike).match(/^ILX:(\d+)$/i);
-  if (m) return `http://uri.interlex.org/base/ilx_${m[1]}`;
+  // TODO replace base to point to groupname when the API supports it
+  if (m) return `${API_CONFIG.INTERLEX_URL}base/ilx_${m[1]}`;
   return idLike;
 };
 
@@ -61,14 +63,14 @@ const collectMatchingIds = (items = [], term = "") => {
 };
 
 const Hierarchy = ({
-  options = { children: [], superclasses: [] }, 
-  selectedValue,                                 
+  options = { children: [], superclasses: [] },
+  selectedValue,
   onSelect,
   treeChildren = [],
   treeSuperclasses = [],
   loading = false,
 }) => {
-  const [type, setType] = React.useState(SUPERCLASSES); 
+  const [type, setType] = React.useState(SUPERCLASSES);
   const [currentId, setCurrentId] = React.useState(null);
   const [manualHighlightedIds, setManualHighlightedIds] = React.useState([]);
   const hasSearchedRef = React.useRef(false);
@@ -84,7 +86,7 @@ const Hierarchy = ({
     const focusIri = toIri(selectedValue?.id);
     const renderedId = findFirstRenderedId(items, focusIri);
     setCurrentId(renderedId);
-  }, [selectedValue, type, treeChildren, treeSuperclasses, items]); 
+  }, [selectedValue, type, treeChildren, treeSuperclasses, items]);
 
   const handleSelectChange = (value) => {
     if (!preSearchSelectionRef.current && selectedValue) {
@@ -92,15 +94,15 @@ const Hierarchy = ({
     }
     onSelect?.(value);
     hasSearchedRef.current = true;
-  
-    setSearchTerm("");               
-    setManualHighlightedIds([]);       
-  
+
+    setSearchTerm("");
+    setManualHighlightedIds([]);
+
     const focusIri = toIri(value?.id);
     const idInTree = findFirstRenderedId(items, focusIri);
     if (idInTree) setCurrentId(idInTree);
   };
-  
+
   const handleRefresh = () => {
     const toRestore = preSearchSelectionRef.current || initialSelectedRef.current || selectedValue;
     if (toRestore) {
@@ -113,25 +115,25 @@ const Hierarchy = ({
     setManualHighlightedIds([]);
     hasSearchedRef.current = false;
     preSearchSelectionRef.current = null;
-  };  
+  };
 
   const handleAimFocus = () => {
     const base = hasSearchedRef.current
       ? (selectedValue || preSearchSelectionRef.current || { id: initialSelectedRef.current })
       : (preSearchSelectionRef.current || selectedValue || { id: initialSelectedRef.current });
-  
+
     const focusIri = toIri(base?.id);
     const id = findFirstRenderedId(items, focusIri);
-  
+
     setCurrentId(id);
     setManualHighlightedIds(id ? [id] : []);  // <-- pass to tree as highlight
-  };  
+  };
 
   const singleSearchOptions = type === CHILDREN ? options.children : options.superclasses;
   const highlightedIdsFromSearch = React.useMemo(
     () => collectMatchingIds(items, searchTerm),
     [items, searchTerm]
-  );  
+  );
 
   if (loading) {
     return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

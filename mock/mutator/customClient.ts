@@ -59,7 +59,7 @@ export const customInstance = <T>(
 ): Promise<T> => {
   const source = Axios.CancelToken.source();
 
-  const promise = AXIOS_INSTANCE({
+  const axiosPromise = AXIOS_INSTANCE({
     ...config,
     ...options,
     cancelToken: source.token,
@@ -69,16 +69,20 @@ export const customInstance = <T>(
       throw error;
     });
 
-  promise.cancel = () => {
+  const cancel = () => {
     console.log('Query was cancelled');
     source.cancel('Query was cancelled');
   };
 
-  return promise;
+  return Object.assign(axiosPromise, { cancel });
 };
 
 export type ErrorType<Error> = AxiosError<Error>;
 
-export type BodyType<BodyData> = BodyData;
+// If you want to keep the type, import or define CamelCase, for example:
+// import { CamelCase } from 'type-fest'; // Uncomment if using type-fest
+
+// Or define a placeholder type:
+type CamelCase<T> = T; // Replace with actual implementation if needed
 
 export type BodyType<BodyData> = CamelCase<BodyData>;

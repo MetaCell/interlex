@@ -39,30 +39,22 @@ const tableCellStyle = {
 };
 
 const CuriesTabPanel = (props) => {
-    const { curieValue, error, loading, rows, editMode, numberOfVisibleCuries, onCurieAmountChange, onAddRow, onDeleteRow, onChangeRow } = props;
+    const { curieValue, error, loading, rows, editMode, onCurieAmountChange, onAddRow, onDeleteRow, onChangeRow } = props;
     const [rowIndex, setRowIndex] = React.useState(-1);
     const [columnIndex, setColumnIndex] = React.useState(-1);
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('prefix');
-    const [page, setPage] = React.useState(1);
     const [sortTriggered, setSortTriggered] = React.useState(false);
 
     const sortedRows = React.useMemo(() => {
+        // Ensure rows is always an array
+        const safeRows = Array.isArray(rows) ? rows : [];
+        
         if (sortTriggered) {
-            const sorted = stableSort(rows, getComparator(order, orderBy));
-            if (numberOfVisibleCuries !== undefined) {
-                const startIndex = (page - 1) * numberOfVisibleCuries;
-                const endIndex = startIndex + numberOfVisibleCuries;
-                return sorted.slice(startIndex, endIndex);
-            }
-            return sorted;
+            return stableSort(safeRows, getComparator(order, orderBy));
         }
-        return rows;
-    }, [rows, order, orderBy, page, numberOfVisibleCuries, sortTriggered]);
-
-    const handlePageChange = (event, value) => {
-        setPage(value);
-    };
+        return safeRows;
+    }, [rows, order, orderBy, sortTriggered]);
 
     React.useEffect(() => {
         onCurieAmountChange?.(rows.length)
@@ -95,10 +87,8 @@ const CuriesTabPanel = (props) => {
                     setOrder={handleSort}
                     setOrderBy={setOrderBy}
                     headCells={editMode ? headCellsEditMode : headCells}
-                    rowsPerPage={numberOfVisibleCuries}
-                    handlePageChange={handlePageChange}
                 >
-                    {sortedRows?.map((row, index) => {
+                    {Array.isArray(sortedRows) && sortedRows.map((row, index) => {
                         return (
                             <TableRow tabIndex={-1} key={`${row.prefix}_${row.namespace}`}>
                                 <TableCell
@@ -174,7 +164,6 @@ CuriesTabPanel.propTypes = {
     loading: PropTypes.bool,
     rows: PropTypes.array,
     editMode: PropTypes.bool,
-    numberOfVisibleCuries: PropTypes.number,
     onCurieAmountChange: PropTypes.func,
     onAddRow: PropTypes.func,
     onDeleteRow: PropTypes.func,
