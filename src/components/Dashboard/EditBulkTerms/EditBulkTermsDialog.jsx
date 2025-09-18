@@ -14,7 +14,7 @@ import SearchTermsData from "../../../static/SearchTermsData.json";
 
 const initialSearchConditions = { attribute: '', value: '', condition: 'where', relation: SearchTermsData.objectOptions[0].value }
 
-const HeaderRightSideContent = ({ handleClose, activeStep, handleNext, handleBack, setActiveStep, isAllFieldsFilled }) => {
+const HeaderRightSideContent = ({ handleClose, activeStep, handleNext, handleBack, setActiveStep, isAllFieldsFilled, selectedOntology }) => {
   return (
     <Box display='flex' alignItems='center' gap='.75rem'>
       <MobileStepper
@@ -41,7 +41,7 @@ const HeaderRightSideContent = ({ handleClose, activeStep, handleNext, handleBac
               Previous
             </Button>
           }
-          <Button endIcon={<ArrowForwardIcon />} variant='contained' color='primary' onClick={handleNext} disabled={activeStep === 0 && !isAllFieldsFilled}>
+          <Button endIcon={<ArrowForwardIcon />} variant='contained' color='primary' onClick={handleNext} disabled={activeStep === 0 && !isAllFieldsFilled && !selectedOntology}>
             Continue
           </Button>
         </>
@@ -50,8 +50,21 @@ const HeaderRightSideContent = ({ handleClose, activeStep, handleNext, handleBac
   );
 };
 
+HeaderRightSideContent.propTypes = {
+  handleClose: PropTypes.func.isRequired,
+  activeStep: PropTypes.number.isRequired,
+  handleNext: PropTypes.func.isRequired,
+  handleBack: PropTypes.func.isRequired,
+  setActiveStep: PropTypes.func.isRequired,
+  isAllFieldsFilled: PropTypes.bool.isRequired,
+  selectedOntology: PropTypes.object,
+};
+
 const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) => {
   const [searchConditions, setSearchConditions] = useState([initialSearchConditions]);
+  const [ontologyTerms, setOntologyTerms] = useState([]);
+  const [ontologyAttributes, setOntologyAttributes] = useState([]);
+  const [selectedOntology, setSelectedOntology] = useState(null);
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
@@ -85,6 +98,7 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
           handleBack={handleBack}
           setActiveStep={setActiveStep}
           isAllFieldsFilled={isAllFieldsFilled(searchConditions)}
+          selectedOntology={selectedOntology}
         />
       }
       sx={{
@@ -95,10 +109,24 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
     >
       <>
         {
-          activeStep === 0 && <SearchTerms searchConditions={searchConditions} setSearchConditions={setSearchConditions} initialSearchConditions={initialSearchConditions} />
+          activeStep === 0 && <SearchTerms 
+            searchConditions={searchConditions} 
+            setSearchConditions={setSearchConditions} 
+            initialSearchConditions={initialSearchConditions}
+            ontologyTerms={ontologyTerms}
+            setOntologyTerms={setOntologyTerms}
+            ontologyAttributes={ontologyAttributes}
+            setOntologyAttributes={setOntologyAttributes}
+            selectedOntology={selectedOntology}
+            setSelectedOntology={setSelectedOntology}
+          />
         }
         {
-          activeStep === 1 && <EditTerms searchConditions={searchConditions} />
+          activeStep === 1 && <EditTerms 
+            searchConditions={searchConditions}
+            ontologyTerms={ontologyTerms}
+            ontologyAttributes={ontologyAttributes}
+          />
         }
         {
           activeStep === 2 && <StatusStep statusProps={statusProps} onAction={() => setActiveStep(0)} actionButtonStartIcon={<EditOutlinedIcon />} />

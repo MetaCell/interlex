@@ -84,7 +84,7 @@ const styles = {
   }
 };
 
-const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userGroupname }) => {
+const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userGroupname, onOntologySelect }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [openList, setOpenList] = useState(false);
   const [selectedValue, setSelectedValue] = useState(null);
@@ -226,7 +226,12 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userG
   const handleChange = useCallback((event, value) => {
     setSearchTerm('');
     setSelectedValue(value);
-  }, []);
+    
+    // Call the callback if provided
+    if (onOntologySelect) {
+      onOntologySelect(value);
+    }
+  }, [onOntologySelect]);
 
   const popperProps = useMemo(() => ({
     sx: {
@@ -244,7 +249,7 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userG
 
   const PaperComponent = useMemo(() => {
     const Component = ({ children }) => (
-      <Box sx={styles.popperBox}>
+      <Box sx={{ ...styles.popperBox, ...extra }}>
         {loading ? (
           <Box display="flex" justifyContent="center" alignItems="center" p={2}>
             <CircularProgress size={24} />
@@ -370,7 +375,8 @@ OntologySearch.propTypes = {
   children: PropTypes.node,
   disabled: PropTypes.bool,
   extra: PropTypes.object,
-  userGroupname: PropTypes.string
+  userGroupname: PropTypes.string,
+  onOntologySelect: PropTypes.func
 };
 
 export default OntologySearch;

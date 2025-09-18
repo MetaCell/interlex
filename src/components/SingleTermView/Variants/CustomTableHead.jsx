@@ -17,12 +17,23 @@ export default function CustomTableHead(props) {
                 sortDirection={orderBy === headCell.id ? order : false}
                 sx={{
                   padding: (index === headCells.length - 1 && viewEditAttributes) ? '.75rem 3.5rem .75rem 1.5rem !important' : 'default',
+                  backgroundColor: headCell.readOnly ? '#f8f9fa' : '#ffffff',
+                  borderBottom: headCell.readOnly ? '2px solid #e9ecef' : '1px solid #e0e0e0',
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 10,
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
                 }}
               >
                 <Box display="flex" justifyContent="space-between" alignItems="center" gap='.75rem'>
-                  <span>{headCell.label}</span>
+                  <span style={{ 
+                    fontWeight: headCell.readOnly ? 500 : 'inherit',
+                    color: headCell.readOnly ? '#6c757d' : 'inherit'
+                  }}>
+                    {headCell.readOnly && '🔒 '}{headCell.label}
+                  </span>
                   <Box display="flex" alignItems="center">
-                    {headCell.sortable !== false && (
+                    {headCell.sortable !== false && !headCell.readOnly && (
                       <TableSortLabel
                         active={orderBy === headCell.id}
                         direction={orderBy === headCell.id ? order : 'asc'}
@@ -34,7 +45,7 @@ export default function CustomTableHead(props) {
                         }}
                       />
                     )}
-                    {viewEditAttributes && (headCell.sortable !== false) && (
+                    {viewEditAttributes && (headCell.sortable !== false) && !headCell.readOnly && (
                       <IconButton
                         variant="contained"
                         size="small"
