@@ -48,13 +48,13 @@ const styles = {
   },
 }
 
-const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchConditions, ontologyTerms, setOntologyTerms, ontologyAttributes, setOntologyAttributes, selectedOntology, setSelectedOntology, setOriginalTerms }) => {
+const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchConditions, setOntologyTerms, ontologyAttributes, setOntologyAttributes, selectedOntology, setSelectedOntology, setOriginalTerms }) => {
   const [ontologyEditOption, setOntologyEditOption] = useState(Confirmation.Yes);
   const [attributesLoading, setAttributesLoading] = useState(false);
   const { user } = useContext(GlobalDataContext);
   
   const ontologySearchExtraStyles = useMemo(() => ({
-    width: '500px !important' 
+    width: '500px !important'
   }), []);
 
   const handleTermChange = (index, field, value) => {

@@ -72,6 +72,7 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
   const [ontologyTerms, setOntologyTerms] = useState([]);
   const [ontologyAttributes, setOntologyAttributes] = useState([]);
   const [selectedOntology, setSelectedOntology] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [originalTerms, setOriginalTerms] = useState([]);
   const [batchUpdateResults, setBatchUpdateResults] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);

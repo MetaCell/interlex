@@ -226,7 +226,7 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userG
   const handleChange = useCallback((event, value) => {
     setSearchTerm('');
     setSelectedValue(value);
-    
+
     // Call the callback if provided
     if (onOntologySelect) {
       onOntologySelect(value);
@@ -273,6 +273,7 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userG
     );
     Component.displayName = 'PaperComponent';
     return Component;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onSetActive, loading, selectedValue]);
 
   const renderOption = useCallback((props, option) => {

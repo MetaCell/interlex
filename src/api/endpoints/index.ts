@@ -436,14 +436,16 @@ export const handleRegister = async (
   try {
     const { postOpsUserNew } = useApi()
     const response = await postOpsUserNew({
-      firstName,
-      lastName,
-      email,
-      password,
-      organization,
+      data: {
+        firstName,
+        lastName,
+        email,
+        password,
+        organization,
+      }
     });
     console.log("Registration successful:", response);
-    return response.data;
+    return response;
   } catch (error) {
     console.error("Registration failed:", error);
     throw error;
@@ -454,7 +456,7 @@ export const handleForgotPassword = async (email : string) => {
   try {
     const { getOpsPasswordReset } = useApi()
     const response = await getOpsPasswordReset({
-      email,
+      data: { email },
     });
     console.log("Password reset successful:", response);
     return response;
@@ -468,7 +470,7 @@ export const handleRecoverUser = async (email: string) => {
   try {
     const { postOpsUserRecover } = useApi()
     const response = await postOpsUserRecover({
-      email
+      data: { email },
     });
     console.log("Recover User :", response);
     return response;
