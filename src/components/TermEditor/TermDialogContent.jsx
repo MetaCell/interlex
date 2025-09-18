@@ -33,23 +33,19 @@ const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
         comment: ''
     });
 
-    const getMatchTerms = (searchTerm) => {
-        return searchTerm;
-    }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const fetchTerms = useCallback(
         debounce(async(searchTerm) => {
             setLoading(true);
-            // eslint-disable-next-line no-unused-vars
-            const data = await elasticSearch(searchTerm);
             if (searchTerm) {
                 const data = await elasticSearch(searchTerm);
                 setData(data);
                 setLoading(false);
+            } else {
+                setLoading(false);
             }
         }, 300),
-        [getMatchTerms]
+        []
     );
 
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);

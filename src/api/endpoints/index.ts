@@ -243,7 +243,7 @@ export const patchTerm = async (group, termID, term) => {
   const {patchEndpointsIlx} = useApi();
 
   /** Call Endpoint */
-  return patchEndpointsIlx(group, termID, term).then((data: any) => {
+  return patchEndpointsIlx(group, termID, { data: term }).then((data: any) => {
       let termParsed = getTerm(data.data);
       let response = {
         status : data.status,

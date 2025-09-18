@@ -48,7 +48,7 @@ const styles = {
   },
 }
 
-const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchConditions, ontologyTerms, setOntologyTerms, ontologyAttributes, setOntologyAttributes, selectedOntology, setSelectedOntology }) => {
+const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchConditions, ontologyTerms, setOntologyTerms, ontologyAttributes, setOntologyAttributes, selectedOntology, setSelectedOntology, setOriginalTerms }) => {
   const [ontologyEditOption, setOntologyEditOption] = useState(Confirmation.Yes);
   const [attributesLoading, setAttributesLoading] = useState(false);
   const { user } = useContext(GlobalDataContext);
@@ -232,6 +232,7 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
       }
       
       setOntologyTerms(termsData);
+      setOriginalTerms([...termsData]); // Store original terms for undo functionality
     } catch (error) {
       console.error('Error fetching ontology attributes:', error);
       setOntologyAttributes([]);
@@ -239,7 +240,7 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
     } finally {
       setAttributesLoading(false);
     }
-  }, [setOntologyAttributes, setOntologyTerms, setSelectedOntology]);
+  }, [setOntologyAttributes, setOntologyTerms, setSelectedOntology, setOriginalTerms]);
 
   const updatedColumnsArray = useMemo(() => {
     // If an ontology is selected and we have attributes, use those
@@ -432,6 +433,7 @@ SearchTerms.propTypes = {
   setOntologyAttributes: PropTypes.func.isRequired,
   selectedOntology: PropTypes.object,
   setSelectedOntology: PropTypes.func.isRequired,
+  setOriginalTerms: PropTypes.func.isRequired,
 };
 
 export default SearchTerms;

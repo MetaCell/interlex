@@ -282,6 +282,38 @@ export default defineConfig({
           });
         },
       },
+      // Pattern for ilx_ endpoints (bulk term editing) - matches any group
+      '^/[^/]+/ilx_[^/]+$': {
+        target: 'https://uri.olympiangods.org',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path, // keep full path
+        configure: (proxy) => {
+          proxy.on('error', (err) => {
+            console.log('Proxy error for ilx endpoint:', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req) => {
+            console.log('Proxying request to ilx endpoint:', req.method, req.url);
+            // pass through auth/cookies if present
+            if (req.headers.authorization) proxyReq.setHeader('Authorization', req.headers.authorization);
+            if (req.headers.cookie) proxyReq.setHeader('Cookie', req.headers.cookie);
+            // Ensure proper content type for PATCH requests
+            if (req.method === 'PATCH') {
+              proxyReq.setHeader('Content-Type', 'application/json');
+            }
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            console.log('Received response from ilx endpoint:', proxyRes.statusCode, req.url);
+            // helpful CORS for credentialed requests in dev
+            const origin = req.headers.origin;
+            if (origin) res.setHeader('Access-Control-Allow-Origin', origin);
+            res.setHeader('Access-Control-Allow-Credentials', 'true');
+            res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
+            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+            res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
+          });
+        },
+      },
     },
   },
 });

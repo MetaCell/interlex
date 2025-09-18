@@ -9794,7 +9794,7 @@ export const patchEndpointsIlx = (
       
       
       return customInstance<void>(
-      {url: `${API_CONFIG.OLYMPIAN_GODS}/${group}/${fragPrefId}`, method: 'PATCH'
+      {url: `${group}/${fragPrefId}`, method: 'PATCH'
     },
       options);
     }

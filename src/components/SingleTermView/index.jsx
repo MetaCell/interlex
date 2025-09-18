@@ -9,7 +9,12 @@ import {
   Typography,
   Menu,
   MenuItem,
-  CircularProgress
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText
 } from "@mui/material";
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton';
@@ -26,6 +31,7 @@ import CustomButton from "../common/CustomButton";
 import OverView from "./OverView/OverView";
 import HistoryPanel from "./History/HistoryPanel";
 import VariantsPanel from "./Variants/VariantsPanel";
+// TODO: Re-enable when merge request feature is implemented
 import RequestMergeChanges from "./RequestMergeChanges";
 import {
   DownloadOutlined,
@@ -68,6 +74,7 @@ const SingleTermView = () => {
   const [openRequestMergeDialog, setOpenRequestMergeDialog] = useState(false);
   const [editTermDialogOpen, setEditTermDialogOpen] = useState(false);
   const [openForkDialog, setOpenForkDialog] = useState(false);
+  const [featureNotAvailableDialog, setFeatureNotAvailableDialog] = useState(false);
 
   // Use the optimized term data hook instead of manual fetching
   const { termData, actualGroup, isUsingFallback, isLoadingTerm } = useTermData(term, group);
@@ -137,12 +144,22 @@ const SingleTermView = () => {
     setDataFormatAnchorEl(null);
   }, []);
 
-  const handleOpenRequestMergeDialog = useCallback(() => {
-    setOpenRequestMergeDialog(true);
-  }, []);
+  // TODO: Re-enable when merge request feature is implemented
+  // const handleOpenRequestMergeDialog = useCallback(() => {
+  //   setOpenRequestMergeDialog(true);
+  // }, []);
 
+  // TODO: Re-enable when merge request feature is implemented
   const handleCloseRequestMergeDialog = useCallback(() => {
     setOpenRequestMergeDialog(false);
+  }, []);
+
+  const handleOpenFeatureNotAvailableDialog = useCallback(() => {
+    setFeatureNotAvailableDialog(true);
+  }, []);
+
+  const handleCloseFeatureNotAvailableDialog = useCallback(() => {
+    setFeatureNotAvailableDialog(false);
   }, []);
 
   const onToggleButtonChange = useCallback((event, newValue) => {
@@ -250,19 +267,19 @@ const SingleTermView = () => {
   }, [tabValue, isCodeViewVisible, selectedDataFormat, toggleButtonValue, onToggleButtonChange]);
 
   const handleAddToActiveOntology = () => {
-    console.log('Add term to active ontology');
+    handleOpenFeatureNotAvailableDialog();
   };
 
   const handleCreateFork = () => {
-    console.log('Create fork');
+    handleOpenFeatureNotAvailableDialog();
   };
 
   const handleAddToAnotherOntology = () => {
-    console.log('Add term to another ontology');
+    handleOpenFeatureNotAvailableDialog();
   };
 
   const handleRemoveFromActiveOntology = () => {
-    console.log('Remove from active ontology');
+    handleOpenFeatureNotAvailableDialog();
   };
 
   const menuOptions = [
@@ -333,7 +350,7 @@ const SingleTermView = () => {
                   </Button>
                   <Divider orientation="vertical" flexItem />
                   {isItFork ? (
-                    <Button type="string" color="secondary" startIcon={<RateReviewOutlinedIcon />} onClick={handleOpenRequestMergeDialog}>
+                    <Button type="string" color="secondary" startIcon={<RateReviewOutlinedIcon />} onClick={handleOpenFeatureNotAvailableDialog}>
                       Request to merge changes to curated
                     </Button>
                   ) : (
@@ -378,12 +395,35 @@ const SingleTermView = () => {
         </Box>
         {tabContent}
       </Box>
+      {/* TODO: Re-enable when merge request feature is implemented */}
       <RequestMergeChanges searchTerm={searchTerm} open={openRequestMergeDialog} handleClose={handleCloseRequestMergeDialog} />
       <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} searchTerm={searchTerm} />
       <CreateForkDialog
         open={openForkDialog}
         handleClose={handleForkDialogClose}
       />
+      
+      {/* Feature Not Available Dialog */}
+      <Dialog
+        open={featureNotAvailableDialog}
+        onClose={handleCloseFeatureNotAvailableDialog}
+        aria-labelledby="feature-not-available-dialog-title"
+        aria-describedby="feature-not-available-dialog-description"
+      >
+        <DialogTitle id="feature-not-available-dialog-title">
+          Feature Not Yet Available
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="feature-not-available-dialog-description">
+            This feature is not yet implemented. Please check back in a future update.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseFeatureNotAvailableDialog} color="primary" autoFocus>
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   )
 }
