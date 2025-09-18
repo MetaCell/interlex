@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useState, useCallback, useContext } from "react";
+import React, { useState, useContext, useCallback, useMemo, useEffect } from "react";
 import {
     Box,
     Divider,
@@ -46,6 +46,15 @@ const styles = {
                 color: `${gray400} !important`,
             },
         },
+        synonymWarning: {
+            flexDirection: "row !important",
+            border: `1px solid ${vars.warning300} !important`,
+            background: `${vars.warning50} !important`,
+            color: `${vars.warning700} !important`,
+            "& .MuiChip-deleteIcon": {
+                color: `${vars.warning500} !important`,
+            },
+        },
         id: {
             flexDirection: "row !important",
             borderRadius: "1rem !important",
@@ -79,41 +88,77 @@ const FirstStepContent = ({
     handleExistingIdChange,
     handleSynonymChange,
     onTermSelect,
+    onAnySynonymMatchChange,
 }) => {
-    const [openSidebar, setOpenSidebar] = useState(true)
-    const { user } = useContext(GlobalDataContext)
+    const [openSidebar, setOpenSidebar] = useState(true);
+    const { user } = useContext(GlobalDataContext);
 
-    const { loading, searchResults } = useTermSearch({
+    const {
+        loading,
+        searchResults,
+        getSynonymStatus,
+        hasAnySynonymMatch,
+        clearSynonymValidation
+    } = useTermSearch({
         term,
         type,
         synonyms,
         isEditing,
         onExactMatchChange: handleExactMatchChange,
-    })
+    });
+
+    // Notify parent about synonym match changes
+    useEffect(() => {
+        if (onAnySynonymMatchChange) {
+            onAnySynonymMatchChange(hasAnySynonymMatch);
+        }
+    }, [hasAnySynonymMatch, onAnySynonymMatchChange]);
+
+    const handleEnhancedSynonymChange = useCallback((event, newValue, reason, details) => {
+        if (reason === 'removeOption' && details?.option) {
+            clearSynonymValidation(details.option);
+        }
+        handleSynonymChange(event, newValue, reason, details);
+    }, [handleSynonymChange, clearSynonymValidation]);
 
     const handleSidebarToggle = useCallback(() => {
-        setOpenSidebar((prev) => !prev)
-    }, [])
+        setOpenSidebar(prev => !prev);
+    }, []);
 
-    const handleResultSelect = useCallback(
-        (result) => {
-            if (!result?.label) return
+    const handleResultSelect = useCallback((result) => {
+        if (!result?.label) return;
 
-            handleTermChange(result.label)
-            if (onTermSelect) {
-                onTermSelect(result)
-            }
-        },
-        [handleTermChange, onTermSelect],
-    )
+        handleTermChange(result.label);
+        if (onTermSelect) {
+            onTermSelect(result);
+        }
+    }, [handleTermChange, onTermSelect]);
 
-    const renderChips = useCallback((values, getTagProps, chipStyles) =>
+    // Chip renderers
+    const renderSynonymChips = useMemo(() => (values, getTagProps) =>
+        values.map((option, index) => {
+            const synonymStatus = getSynonymStatus(option);
+            const hasWarning = synonymStatus.hasMatch;
+            const chipStyles = hasWarning ? styles.chip.synonymWarning : styles.chip.synonym;
+
+            return (
+                <Chip
+                    key={index}
+                    label={option}
+                    deleteIcon={<CloseIcon />}
+                    sx={chipStyles}
+                    {...getTagProps({ index })}
+                />
+            );
+        }), [getSynonymStatus]);
+
+    const renderIdChips = useMemo(() => (values, getTagProps) =>
         values.map((option, index) => (
             <Chip
                 key={index}
                 label={option}
                 deleteIcon={<CloseIcon />}
-                sx={chipStyles}
+                sx={styles.chip.id}
                 {...getTagProps({ index })}
             />
         )), []);
@@ -121,24 +166,28 @@ const FirstStepContent = ({
     return (
         <Box display="flex" height={1}>
             <Box sx={styles.contentBox}>
+                {/* Header Section */}
                 <Stack spacing={0.5}>
-                    <Typography variant="h6">How would you like to proceed?</Typography>
+                    <Typography variant="h6">
+                        How would you like to proceed?
+                    </Typography>
                     <Typography variant="body1" sx={{ color: gray600 }}>
                         Link this term to an existing source, either by reusing an existing ID or by specifying an exact synonym.
                     </Typography>
                 </Stack>
 
+                {/* Synonyms Section */}
                 <Stack spacing={3}>
                     <Stack>
                         <Typography variant="h6" sx={{ fontWeight: 500 }}>
                             Exact synonyms
                         </Typography>
                         <Typography variant="body1" sx={{ color: gray600 }}>
-                            Synonyms are especially useful when the term is known by different names. Please enter the type, label and
-                            exact synonym(s) for your object.
+                            Synonyms are especially useful when the term is known by different names. Please enter the type, label and exact synonym(s) for your object.
                         </Typography>
                     </Stack>
 
+                    {/* Type and Term Input */}
                     <Stack direction="row" spacing={3}>
                         <CustomSingleSelect
                             isFormControlFullWidth={true}
@@ -156,23 +205,27 @@ const FirstStepContent = ({
                         />
                     </Stack>
 
+                    {/* Synonyms Autocomplete */}
                     <Autocomplete
                         multiple
                         id="exact-synonyms-autocomplete"
                         value={synonyms}
-                        onChange={handleSynonymChange}
+                        onChange={handleEnhancedSynonymChange}
                         popupIcon={<HelpOutlinedIcon />}
                         options={[]}
                         freeSolo
-                        renderTags={(values, getTagProps) => renderChips(values, getTagProps, styles.chip.synonym)}
+                        renderTags={renderSynonymChips}
                         fullWidth
-                        renderInput={(params) => <TextField {...params} placeholder="Enter exact synonym(s)" />}
+                        renderInput={(params) => 
+                            <TextField {...params} placeholder="Enter exact synonym(s)" />
+                        }
                         sx={styles.autocomplete}
                     />
                 </Stack>
 
                 <Divider />
 
+                {/* Existing IDs Section */}
                 <Box>
                     <Stack sx={{ mb: 3 }}>
                         <Typography variant="h6" sx={{ fontWeight: 500 }}>
@@ -191,9 +244,11 @@ const FirstStepContent = ({
                         popupIcon={<HelpOutlinedIcon />}
                         options={[]}
                         freeSolo
-                        renderTags={(values, getTagProps) => renderChips(values, getTagProps, styles.chip.id)}
+                        renderTags={renderIdChips}
                         fullWidth
-                        renderInput={(params) => <TextField {...params} placeholder="Type existing ID(s)" />}
+                        renderInput={(params) => 
+                            <TextField {...params} placeholder="Type existing ID(s)" />
+                        }
                         sx={styles.autocomplete}
                     />
                 </Box>
@@ -209,10 +264,11 @@ const FirstStepContent = ({
                 onResultAction={handleResultSelect}
                 user={user}
                 selectedTerm={term}
+                hasAnySynonymMatch={hasAnySynonymMatch}
             />
         </Box>
-    )
-}
+    );
+};
 
 FirstStepContent.propTypes = {
     term: PropTypes.string,
@@ -227,7 +283,8 @@ FirstStepContent.propTypes = {
     handleExistingIdChange: PropTypes.func.isRequired,
     handleSynonymChange: PropTypes.func.isRequired,
     onTermSelect: PropTypes.func,
-}
+    onAnySynonymMatchChange: PropTypes.func,
+};
 
 FirstStepContent.defaultProps = {
     term: "",
@@ -235,6 +292,6 @@ FirstStepContent.defaultProps = {
     hasExactMatch: false,
     existingIds: [],
     synonyms: [],
-}
+};
 
-export default FirstStepContent
+export default FirstStepContent;

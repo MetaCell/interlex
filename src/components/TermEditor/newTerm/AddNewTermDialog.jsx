@@ -30,7 +30,9 @@ const HeaderRightSideContent = ({
     onContinue,
     onClose,
     isCreateButtonDisabled,
-    isEditing
+    isEditing,
+    hasExactMatch,
+    hasAnySynonymMatch
 }) => {
     const [ontologyChecked, setOntologyChecked] = useState(false);
 
@@ -38,57 +40,71 @@ const HeaderRightSideContent = ({
         setOntologyChecked(event.target.checked);
     };
 
+    const getButtonText = () => {
+        if (isEditing) return 'Edit term';
+        if (hasExactMatch || hasAnySynonymMatch) return 'Add to existing';
+        return 'Create new';
+    };
+
+    if (activeStep === 2) {
+        return (
+            <Button variant="contained" onClick={onClose}>
+                Finish
+            </Button>
+        );
+    }
+
     return (
         <Box display='flex' alignItems='center'>
-            {activeStep !== 2 ? (
-                <>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                size="small"
-                                icon={<UncheckedIcon />}
-                                checkedIcon={<CheckedIcon />}
-                                checked={ontologyChecked}
-                                onChange={handleOntologyChange}
-                            />
+            <FormControlLabel
+                control={
+                    <Checkbox
+                        size="small"
+                        icon={<UncheckedIcon />}
+                        checkedIcon={<CheckedIcon />}
+                        checked={ontologyChecked}
+                        onChange={handleOntologyChange}
+                    />
+                }
+                sx={{ color: gray600 }}
+                label="Add to ontology"
+            />
+            <OntologySearch disabled={!ontologyChecked} />
+
+            <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
+
+            <MobileStepper
+                variant="dots"
+                steps={3}
+                position="static"
+                activeStep={activeStep}
+                sx={{ maxWidth: 64, flexGrow: 1 }}
+            />
+
+            <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
+
+            <Stack direction="row" spacing={1.5}>
+                <CustomButton onClick={onClose}>
+                    Cancel
+                </CustomButton>
+                <Button
+                    onClick={onContinue}
+                    disabled={isCreateButtonDisabled}
+                    variant="contained"
+                    sx={{
+                        padding: '0.625rem 0.875rem',
+                        '&.Mui-disabled': {
+                            border: `1px solid ${gray200}`,
+                            color: gray400,
+                            backgroundColor: gray100
                         }
-                        sx={{ color: gray600 }}
-                        label="Add to ontology"
-                    />
-                    <OntologySearch disabled={!ontologyChecked} />
-                    <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
-                    <MobileStepper
-                        variant="dots"
-                        steps={3}
-                        position="static"
-                        activeStep={activeStep}
-                        sx={{ maxWidth: 64, flexGrow: 1 }}
-                    />
-                    <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
-                    <Stack direction="row" spacing={1.5}>
-                        <CustomButton onClick={onClose}>Cancel</CustomButton>
-                        <Button
-                            onClick={onContinue}
-                            disabled={isCreateButtonDisabled}
-                            variant="contained"
-                            sx={{
-                                padding: '0.625rem 0.875rem',
-                                '&.Mui-disabled': {
-                                    border: `1px solid ${gray200}`,
-                                    color: gray400,
-                                    backgroundColor: gray100
-                                }
-                            }}
-                        >
-                            {isEditing ? 'Edit term' : 'Create new'}
-                        </Button>
-                    </Stack>
-                </>
-            ) : (
-                <Button variant="contained" onClick={onClose}>Finish</Button>
-            )}
+                    }}
+                >
+                    {getButtonText()}
+                </Button>
+            </Stack>
         </Box>
-    )
+    );
 };
 
 HeaderRightSideContent.propTypes = {
@@ -96,7 +112,9 @@ HeaderRightSideContent.propTypes = {
     onContinue: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
     isCreateButtonDisabled: PropTypes.bool.isRequired,
-    isEditing: PropTypes.bool.isRequired
+    isEditing: PropTypes.bool.isRequired,
+    hasExactMatch: PropTypes.bool.isRequired,
+    hasAnySynonymMatch: PropTypes.bool.isRequired
 };
 
 const AddNewTermDialog = ({ open, handleClose }) => {
@@ -109,18 +127,16 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const [existingIds, setExistingIds] = useState([]);
     const [loading, setLoading] = useState(false);
     const [hasExactMatch, setHasExactMatch] = useState(false);
+    const [hasAnySynonymMatch, setHasAnySynonymMatch] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+
     const { user } = useContext(GlobalDataContext);
 
     const isCreateButtonDisabled = useMemo(() => {
-        if (hasExactMatch) return true;
-
         if (termValue === "") return true;
-
         if (isEditing && termValue === selectedTermValue) return true;
-
         return false;
-    }, [hasExactMatch, termValue, isEditing, selectedTermValue]);
+    }, [termValue, isEditing, selectedTermValue]);
 
     const statusProps = getAddTermStatusProps(addTermResponse, termValue);
 
@@ -135,9 +151,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         setTermValue(newValue);
 
         if (isEventObject && isEditing) {
-            if (newValue !== selectedTermValue) {
-                setIsEditing(true);
-            }
+            setIsEditing(newValue !== selectedTermValue);
         } else if (isEventObject) {
             setIsEditing(false);
         }
@@ -155,23 +169,23 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         setExistingIds(newValue);
     };
 
-    const handleExactMatchChange = (value) => {
-        setHasExactMatch(value)
-    }
+    const handleExactMatchChange = useCallback((value) => {
+        setHasExactMatch(value);
+    }, []);
 
     const handleTermSelection = (result) => {
         if (result?.label) {
             setSelectedTermValue(result.label);
             handleTermValueChange(result.label);
         }
-    }
+    };
 
     const editTerm = useCallback(() => {
         console.log("Edit term");
     }, []);
 
     const createNewTerm = useCallback(async () => {
-        if (!termValue || !selectedType || hasExactMatch) return;
+        if (!termValue || !selectedType) return;
 
         setLoading(true);
 
@@ -183,22 +197,27 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         };
 
         try {
-            const response = await createNewEntity({
-                group: groupName,
-                data: body,
-                session: token
-            });
-
-            if (response.term && response.term.id) {
+            if (hasExactMatch || hasAnySynonymMatch) {
                 setActiveStep(1);
-                setAddTermResponse(response.term.id);
+                setAddTermResponse(termValue);
+            } else {
+                const response = await createNewEntity({
+                    group: groupName,
+                    data: body,
+                    session: token
+                });
+
+                if (response.term && response.term.id) {
+                    setActiveStep(1);
+                    setAddTermResponse(response.term.id);
+                }
             }
         } catch (error) {
-            console.error("Creation failed:", error);
+            console.error("Action failed:", error);
         } finally {
             setLoading(false);
         }
-    }, [termValue, selectedType, user, hasExactMatch]);
+    }, [termValue, selectedType, user, hasExactMatch, hasAnySynonymMatch]);
 
     const handleAction = useCallback(() => {
         if (isEditing) {
@@ -209,9 +228,16 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     }, [isEditing, editTerm, createNewTerm]);
 
     if (loading) {
-        return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-            <CircularProgress />
-        </Box>
+        return (
+            <Box sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%'
+            }}>
+                <CircularProgress />
+            </Box>
+        );
     }
 
     return (
@@ -226,25 +252,34 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                     onContinue={handleAction}
                     isCreateButtonDisabled={isCreateButtonDisabled}
                     isEditing={isEditing}
+                    hasExactMatch={hasExactMatch}
+                    hasAnySynonymMatch={hasAnySynonymMatch}
                 />
             }
             sx={{ '& .MuiDialogContent-root': { padding: 0, overflowY: "hidden" } }}
         >
-            {activeStep === 0 && <FirstStepContent
-                term={termValue}
-                type={selectedType}
-                hasExactMatch={hasExactMatch}
-                existingIds={existingIds}
-                synonyms={exactSynonyms}
-                isEditing={isEditing}
-                handleTermChange={handleTermValueChange}
-                handleTypeChange={handleTypeChange}
-                handleExactMatchChange={handleExactMatchChange}
-                handleSynonymChange={handleSynonymChange}
-                handleExistingIdChange={handleExistingIdChange}
-                onTermSelect={handleTermSelection}
-            />}
-            {activeStep === 1 && <SecondStepContent searchTerm={addTermResponse} />}
+            {activeStep === 0 && (
+                <FirstStepContent
+                    term={termValue}
+                    type={selectedType}
+                    hasExactMatch={hasExactMatch}
+                    existingIds={existingIds}
+                    synonyms={exactSynonyms}
+                    isEditing={isEditing}
+                    handleTermChange={handleTermValueChange}
+                    handleTypeChange={handleTypeChange}
+                    handleExactMatchChange={handleExactMatchChange}
+                    handleSynonymChange={handleSynonymChange}
+                    onAnySynonymMatchChange={setHasAnySynonymMatch}
+                    handleExistingIdChange={handleExistingIdChange}
+                    onTermSelect={handleTermSelection}
+                />
+            )}
+
+            {activeStep === 1 && (
+                <SecondStepContent searchTerm={addTermResponse} />
+            )}
+
             {activeStep === 2 && addTermResponse != null && (
                 <StatusStep statusProps={statusProps} />
             )}
