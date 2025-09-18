@@ -15,6 +15,7 @@ import {
   Chip,
   Stack, CircularProgress,
   Typography,
+  TextField,
 } from "@mui/material";
 import { useState } from "react";
 import PropTypes from 'prop-types';
@@ -58,7 +59,9 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, ontology
   const [orderBy, setOrderBy] = useState('@id'); // Set a valid initial orderBy value
   const [anchorEl, setAnchorEl] = useState(null);
   const [terms, setTerms] = useState([]);
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [editingCell, setEditingCell] = useState(null); // { rowIndex, columnId }
+  const [editValue, setEditValue] = useState('');
 
   // Update visible columns when columns change
   React.useEffect(() => {
@@ -70,6 +73,42 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, ontology
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
+  };
+
+  const handleCellDoubleClick = (rowIndex, columnId, currentValue) => {
+    // Don't allow editing read-only columns
+    if (columnId === 'interlex_id') return;
+    
+    setEditingCell({ rowIndex, columnId });
+    setEditValue(currentValue || '');
+  };
+
+  const handleEditSave = () => {
+    if (!editingCell) return;
+
+    const { rowIndex, columnId } = editingCell;
+    const updatedTerms = [...terms];
+    updatedTerms[rowIndex] = {
+      ...updatedTerms[rowIndex],
+      [columnId]: editValue
+    };
+    
+    setTerms(updatedTerms);
+    setEditingCell(null);
+    setEditValue('');
+  };
+
+  const handleEditCancel = () => {
+    setEditingCell(null);
+    setEditValue('');
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      handleEditSave();
+    } else if (event.key === 'Escape') {
+      handleEditCancel();
+    }
   };
 
   const sortedRows = React.useMemo(
@@ -206,33 +245,53 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, ontology
                 <TableBody>
                   {sortedRows.map((row, index) => (
                     <TableRow key={index}>
-                      {filteredColumns.map((column) => (
-                        <TableCell 
-                          key={`${column.id}-${index}`} 
-                          title={column.readOnly ? 'This column is read-only and cannot be edited' : ''}
-                          style={{ 
-                            minWidth: column.minWidth,
-                            backgroundColor: column.readOnly ? gray50 : 'transparent',
-                            fontFamily: column.id === '@id' ? 'monospace' : 'inherit',
-                            cursor: column.readOnly ? 'default' : 'inherit'
-                          }}
-                        >
-                          {Array.isArray(row[column.id]) ? (
-                            <Stack gap='.25rem' direction="row" alignItems="center" maxWidth='20rem' flexWrap='wrap'>
-                              {row[column.id].map((chip, chipIndex) => (
-                                <Chip key={`${chip}-${chipIndex}`} label={chip} className='rounded IDchip-outlined' icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(chip)} />
-                              ))}
-                            </Stack>
-                          ) : column.id === '@id' ? (
-                            // Format the Interlex ID to show just the ID part - read-only display
-                            <span style={{ color: gray700, fontWeight: 500 }}>
-                              {row[column.id]?.split('/').pop() || row[column.id]}
-                            </span>
-                          ) : (
-                            row[column.id]
-                          )}
-                        </TableCell>
-                      ))}
+                      {filteredColumns.map((column) => {
+                        const isEditing = editingCell?.rowIndex === index && editingCell?.columnId === column.id;
+                        const cellValue = row[column.id];
+                        
+                        return (
+                          <TableCell 
+                            key={`${column.id}-${index}`} 
+                            title={column.readOnly ? 'This column is read-only and cannot be edited' : 'Double-click to edit'}
+                            style={{ 
+                              minWidth: column.minWidth,
+                              backgroundColor: column.readOnly ? gray50 : 'transparent',
+                              fontFamily: column.id === '@id' ? 'monospace' : 'inherit',
+                              cursor: column.readOnly ? 'default' : 'pointer'
+                            }}
+                            onDoubleClick={() => !column.readOnly && handleCellDoubleClick(index, column.id, cellValue)}
+                          >
+                            {isEditing ? (
+                              <TextField
+                                value={editValue}
+                                onChange={(e) => setEditValue(e.target.value)}
+                                onKeyDown={handleKeyPress}
+                                onBlur={handleEditCancel}
+                                autoFocus
+                                size="small"
+                                variant="outlined"
+                                fullWidth
+                                sx={{ minWidth: 0 }}
+                              />
+                            ) : Array.isArray(cellValue) ? (
+                              <Stack gap='.25rem' direction="row" alignItems="center" maxWidth='20rem' flexWrap='wrap'>
+                                {cellValue.map((chip, chipIndex) => (
+                                  <Chip key={`${chip}-${chipIndex}`} label={chip} className='rounded IDchip-outlined' icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(chip)} />
+                                ))}
+                              </Stack>
+                            ) : column.id === '@id' ? (
+                              // Format the Interlex ID to show just the ID part - read-only display
+                              <span style={{ color: gray700, fontWeight: 500 }}>
+                                {cellValue?.split('/').pop() || cellValue}
+                              </span>
+                            ) : (
+                              <span>
+                                {cellValue}
+                              </span>
+                            )}
+                          </TableCell>
+                        );
+                      })}
                     </TableRow>
                   ))}
                 </TableBody>

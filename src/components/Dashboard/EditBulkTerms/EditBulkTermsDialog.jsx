@@ -126,6 +126,7 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
             searchConditions={searchConditions}
             ontologyTerms={ontologyTerms}
             ontologyAttributes={ontologyAttributes}
+            onTermsUpdate={setOntologyTerms}
           />
         }
         {
