@@ -1,0 +1,3235 @@
+{
+  "@context": {
+    "0": "file:///ERROR/EMPTY/PREFIX/BANNED/",
+    "gastint": "http://uri.interlex.org/composer/uris/set/gastint/",
+    "ILX": "http://uri.interlex.org/base/ilx_",
+    "ilxcr": "http://uri.interlex.org/composer/uris/readable/",
+    "ilxtr": "http://uri.interlex.org/tgbugs/uris/readable/",
+    "NCBITaxon": "http://purl.obolibrary.org/obo/NCBITaxon_",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "partOf": "http://purl.obolibrary.org/obo/BFO_0000050",
+    "PATO": "http://purl.obolibrary.org/obo/PATO_",
+    "prov": "http://www.w3.org/ns/prov#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "UBERON": "http://purl.obolibrary.org/obo/UBERON_"
+  },
+  "@graph": [
+    {
+      "@id": "https://raw.githubusercontent.com/SciCrunch/NIF-Ontology/neurons/ttl/generated/neurons/composer.ttl",
+      "@type": "owl:Ontology",
+      "owl:imports": [
+        {
+          "@id": "https://raw.githubusercontent.com/SciCrunch/NIF-Ontology/neurons/ttl/phenotype-core.ttl"
+        },
+        {
+          "@id": "https://raw.githubusercontent.com/SciCrunch/NIF-Ontology/neurons/ttl/phenotype-indicators.ttl"
+        },
+        {
+          "@id": "https://raw.githubusercontent.com/SciCrunch/NIF-Ontology/neurons/ttl/phenotypes.ttl"
+        }
+      ],
+      "prov:wasGeneratedBy": {
+        "@id": "https://github.com/tgbugs/pyontutils/blob/uncommitted@9d0cd739/neurondm/neurondm/core.py#L1840"
+      }
+    },
+    {
+      "@id": "gastint:1",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0009675"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0002059"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0002149"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 1",
+      "skos:prefLabel": "from superior salivatory nucleus to submandibular ganglion via chorda tympani branch of facial nerve",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:neuron-phenotype-para-pre"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:10116"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/257"
+      },
+      "ilxtr:genLabel": "superior salivatory nucleus (with-axon-in chorda tympani branch of facial nerve) (with-axon-presynaptic-element-in submandibular ganglion) neuron (implies Rattus norvegicus Parasympathetic Pre-Ganglionic)",
+      "ilxtr:neuronPartialOrder": {
+        "@list": [
+          {
+            "@id": "UBERON:0002149"
+          },
+          {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "UBERON:0009675"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "@id": "UBERON:0002059"
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                }
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "@id": "gastint:2",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0018680"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0018681"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0002262"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0005479"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasForwardConnectionPhenotype"
+              },
+              "owl:someValuesFrom": {
+                "@id": "gastint:3"
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasForwardConnectionPhenotype"
+              },
+              "owl:someValuesFrom": {
+                "@id": "gastint:4"
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0793700"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0793701"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0793811"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0793812"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0793813"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0793814"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0793815"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0793816"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 2",
+      "skos:prefLabel": "from Intermediolateral nucleus of eighth thoracic segment or Intermediolateral nucleus of fifth thoracic segment or Intermediolateral nucleus of ninth thoracic segment or Intermediolateral nucleus of seventh thoracic segment or Intermediolateral nucleus of sixth thoracic segment to celiac ganglion or superior mesenteric ganglion via greater splanchnic nerve from Intermediolateral nucleus of eleventh thoracic segment or Intermediolateral nucleus of tenth thoracic segment or Intermediolateral nucleus of twelfth thoracic segment to celiac ganglion or superior mesenteric ganglion via lesser splanchnic nerve",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:neuron-phenotype-sym-pre"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/261"
+      },
+      "ilxtr:genLabel": "Intermediolateral nucleus of eighth thoracic segment Intermediolateral nucleus of eleventh thoracic segment Intermediolateral nucleus of fifth thoracic segment Intermediolateral nucleus of ninth thoracic segment Intermediolateral nucleus of seventh thoracic segment Intermediolateral nucleus of sixth thoracic segment Intermediolateral nucleus of tenth thoracic segment Intermediolateral nucleus of twelfth thoracic segment (with-axons-in greater splanchnic nerve lesser splanchnic nerve) (with-axon-presynaptic-element-in celiac ganglion superior mesenteric ganglion) (projecting-onto gastint:3 gastint:4) neuron (implies Homo sapiens Sympathetic Pre-Ganglionic)",
+      "ilxtr:neuronPartialOrder": {
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": "blank",
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "ILX:0793700"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "@id": "UBERON:0018680"
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                      "@id": "UBERON:0002262"
+                    },
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                      "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                    }
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                        "@id": "UBERON:0005479"
+                      },
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                        "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                      }
+                    },
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                      "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                    }
+                  }
+                }
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+              }
+            }
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "@id": "ILX:0793701"
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "@id": "UBERON:0018680"
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                  }
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                }
+              }
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "@id": "ILX:0793811"
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                      "@id": "UBERON:0018680"
+                    },
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                      "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                    }
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                  }
+                }
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "@id": "ILX:0793812"
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                        "@id": "UBERON:0018680"
+                      },
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                        "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                      }
+                    },
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                      "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                    }
+                  }
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                      "@id": "ILX:0793813"
+                    },
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                          "@id": "UBERON:0018680"
+                        },
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                          "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                        }
+                      },
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                        "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                      }
+                    }
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                        "@id": "ILX:0793814"
+                      },
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                            "@id": "UBERON:0018681"
+                          },
+                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                                "@id": "UBERON:0002262"
+                              },
+                              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                              }
+                            },
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                                  "@id": "UBERON:0005479"
+                                },
+                                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                                  "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                                }
+                              },
+                              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                              }
+                            }
+                          }
+                        },
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                          "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                        }
+                      }
+                    },
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                          "@id": "ILX:0793815"
+                        },
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                              "@id": "UBERON:0018681"
+                            },
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                            }
+                          },
+                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                            "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                          }
+                        }
+                      },
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                            "@id": "ILX:0793816"
+                          },
+                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                                "@id": "UBERON:0018681"
+                              },
+                              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                              }
+                            },
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                            }
+                          }
+                        },
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                          "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "@id": "gastint:3",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795340"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0771006"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0002262"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0005479"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 3",
+      "skos:prefLabel": "from celiac ganglion or superior mesenteric ganglion to Wall of duodenum via celiac periarterial nerve plexus",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:neuron-phenotype-sym-post"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/262"
+      },
+      "ilxtr:genLabel": "celiac ganglion superior mesenteric ganglion (with-axon-in celiac periarterial nerve plexus) (with-axon-presynaptic-element-in Wall of duodenum) neuron (implies Homo sapiens Sympathetic Post-Ganglionic)",
+      "ilxtr:neuronPartialOrder": {
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": "blank",
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "UBERON:0002262"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "@id": "ILX:0795340"
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                      "@id": "ILX:0771006"
+                    },
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                      "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                    }
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                  }
+                }
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+              }
+            }
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "@id": "UBERON:0005479"
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "@id": "ILX:0795340"
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                  }
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                }
+              }
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          }
+        }
+      }
+    },
+    {
+      "@id": "gastint:4",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0002010"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0005488"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0773238"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795341"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0012377"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0014390"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0002262"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0005479"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 4",
+      "skos:prefLabel": "from celiac ganglion or superior mesenteric ganglion to Muscle layer of transverse colon or muscle layer of ileum or muscle layer of jejunum or muscle layer of proximal colon via celiac nerve plexus via superior mesenteric plexus",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:neuron-phenotype-sym-post"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/264"
+      },
+      "ilxtr:genLabel": "celiac ganglion superior mesenteric ganglion (with-axons-in celiac nerve plexus superior mesenteric plexus) (with-axon-presynaptic-element-in Muscle layer of transverse colon muscle layer of ileum muscle layer of jejunum muscle layer of proximal colon) neuron (implies Homo sapiens Sympathetic Post-Ganglionic)",
+      "ilxtr:neuronPartialOrder": {
+        "@list": [
+          "blank",
+          {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "UBERON:0002262"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "@id": "UBERON:0002010"
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                      "@id": "UBERON:0005488"
+                    },
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                          "@id": "ILX:0773238"
+                        },
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                          "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                        }
+                      },
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                            "@id": "ILX:0795341"
+                          },
+                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                            "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                          }
+                        },
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                              "@id": "UBERON:0012377"
+                            },
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                            }
+                          },
+                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                                "@id": "UBERON:0014390"
+                              },
+                              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                              }
+                            },
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                  }
+                }
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+              }
+            }
+          },
+          {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "UBERON:0005479"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "@id": "UBERON:0002010"
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                }
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "@id": "gastint:5",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0018683"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0793821"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0005453"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasForwardConnectionPhenotype"
+              },
+              "owl:someValuesFrom": {
+                "@id": "gastint:6"
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0793818"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0793819"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 5",
+      "skos:prefLabel": "from Intermediolateral nucleus of first lumbar segment or Intermediolateral nucleus of second lumbar segment to inferior mesenteric ganglion or prevertebral sympathetic ganglion in abdominal aortic plexus via lumbar splanchnic nerve",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:neuron-phenotype-sym-pre"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/265"
+      },
+      "ilxtr:genLabel": "Intermediolateral nucleus of first lumbar segment Intermediolateral nucleus of second lumbar segment (with-axon-in lumbar splanchnic nerve) (with-axon-presynaptic-element-in inferior mesenteric ganglion prevertebral sympathetic ganglion in abdominal aortic plexus) (projecting-onto gastint:6) neuron (implies Homo sapiens Sympathetic Pre-Ganglionic)",
+      "ilxtr:neuronPartialOrder": {
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": "blank",
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "ILX:0793818"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "@id": "UBERON:0018683"
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                      "@id": "ILX:0793821"
+                    },
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                      "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                    }
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                        "@id": "UBERON:0005453"
+                      },
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                        "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                      }
+                    },
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                      "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                    }
+                  }
+                }
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+              }
+            }
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "@id": "ILX:0793819"
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "@id": "UBERON:0018683"
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                  }
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                }
+              }
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          }
+        }
+      }
+    },
+    {
+      "@id": "gastint:6",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0035770"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0773031"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795342"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0001052"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0001158"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0001159"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0793821"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0005453"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 6",
+      "skos:prefLabel": "from inferior mesenteric ganglion or prevertebral sympathetic ganglion in abdominal aortic plexus to Distal part of transverse colon or descending colon or rectum or sigmoid colon or upper part of the anal canal via inferior mesenteric nerve plexus",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:neuron-phenotype-sym-post"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/267"
+      },
+      "ilxtr:genLabel": "inferior mesenteric ganglion prevertebral sympathetic ganglion in abdominal aortic plexus (with-axon-in inferior mesenteric nerve plexus) (with-axon-presynaptic-element-in Distal part of transverse colon descending colon rectum sigmoid colon upper part of the anal canal) neuron (implies Homo sapiens Sympathetic Post-Ganglionic)",
+      "ilxtr:neuronPartialOrder": {
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": "blank",
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "ILX:0793821"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "@id": "UBERON:0035770"
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                }
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+              }
+            }
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "@id": "UBERON:0005453"
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "@id": "UBERON:0035770"
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                        "@id": "ILX:0773031"
+                      },
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                        "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                      }
+                    },
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                          "@id": "ILX:0795342"
+                        },
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                          "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                        }
+                      },
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                            "@id": "UBERON:0001052"
+                          },
+                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                            "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                          }
+                        },
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                              "@id": "UBERON:0001158"
+                            },
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                            }
+                          },
+                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                                "@id": "UBERON:0001159"
+                              },
+                              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                              }
+                            },
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                }
+              }
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          }
+        }
+      }
+    },
+    {
+      "@id": "gastint:7",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0002014"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0018675"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795345"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasForwardConnectionPhenotype"
+              },
+              "owl:someValuesFrom": {
+                "@id": "gastint:8"
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0793879"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0793880"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0793881"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 7",
+      "skos:prefLabel": "from Intermediolateral nucleus of fourth sacral segment or Intermediolateral nucleus of second sacral segment or Intermediolateral nucleus of third sacral segment to myenteric nerve plexus ganglion of large intestine via pelvic splanchnic nerve via inferior hypogastric nerve plexus",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:neuron-phenotype-para-pre"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/268"
+      },
+      "ilxtr:genLabel": "Intermediolateral nucleus of fourth sacral segment Intermediolateral nucleus of second sacral segment Intermediolateral nucleus of third sacral segment (with-axons-in inferior hypogastric nerve plexus pelvic splanchnic nerve) (with-axon-presynaptic-element-in myenteric nerve plexus ganglion of large intestine) (projecting-onto gastint:8) neuron (implies Homo sapiens Parasympathetic Pre-Ganglionic)",
+      "ilxtr:neuronPartialOrder": {
+        "@list": [
+          "blank",
+          {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "ILX:0793879"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "@id": "UBERON:0018675"
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                      "@id": "UBERON:0002014"
+                    },
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                          "@id": "ILX:0795345"
+                        },
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                          "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                        }
+                      },
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                        "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                      }
+                    }
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                  }
+                }
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+              }
+            }
+          },
+          {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "ILX:0793880"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "@id": "UBERON:0018675"
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                }
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+              }
+            }
+          },
+          {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "ILX:0793881"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "@id": "UBERON:0018675"
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                }
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "@id": "gastint:8",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0011929"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795342"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0001052"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0001158"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0001159"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795345"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 8",
+      "skos:prefLabel": "from myenteric nerve plexus ganglion of large intestine to descending colon or rectum or sigmoid colon or upper part of the anal canal via postganglionic parasympathetic fiber",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:neuron-phenotype-para-post"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/269"
+      },
+      "ilxtr:genLabel": "myenteric nerve plexus ganglion of large intestine (with-axon-in postganglionic parasympathetic fiber) (with-axon-presynaptic-element-in descending colon rectum sigmoid colon upper part of the anal canal) neuron (implies Homo sapiens Parasympathetic Post-Ganglionic)",
+      "ilxtr:neuronPartialOrder": {
+        "@list": [
+          {
+            "@id": "ILX:0795345"
+          },
+          {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "UBERON:0011929"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "@id": "ILX:0795342"
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                }
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "@id": "UBERON:0001052"
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                  }
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                      "@id": "UBERON:0001158"
+                    },
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                      "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                    }
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                        "@id": "UBERON:0001159"
+                      },
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                        "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                      }
+                    },
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                      "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "@id": "gastint:9",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0793704"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0794473"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0001759"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0001809"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasForwardConnectionPhenotype"
+              },
+              "owl:someValuesFrom": {
+                "@id": "gastint:10"
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0001719"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0002870"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 9",
+      "skos:prefLabel": "from dorsal motor nucleus of vagus nerve or nucleus ambiguus to enteric ganglion via vagus nerve via Esophageal nerve plexus via abdominal branch of vagus nerve",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:neuron-phenotype-para-pre"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/272"
+      },
+      "ilxtr:genLabel": "Amb dorsal motor nucleus of vagus nerve (with-axons-in 10n Esophageal nerve plexus abdominal branch of vagus nerve) (with-axon-presynaptic-element-in enteric ganglion) (projecting-onto gastint:10) neuron (implies Homo sapiens Parasympathetic Pre-Ganglionic)",
+      "ilxtr:neuronPartialOrder": {
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": "blank",
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "UBERON:0001719"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "@id": "UBERON:0001759"
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                      "@id": "ILX:0793704"
+                    },
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                          "@id": "ILX:0794473"
+                        },
+                        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                              "@id": "UBERON:0001809"
+                            },
+                            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                            }
+                          },
+                          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                            "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                          }
+                        }
+                      },
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                        "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                      }
+                    }
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                  }
+                }
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+              }
+            }
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "@id": "UBERON:0002870"
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "@id": "UBERON:0001759"
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                  }
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                }
+              }
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          }
+        }
+      }
+    },
+    {
+      "@id": "gastint:10",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0011929"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0001153"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0001156"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0001157"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0002108"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0001809"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 10",
+      "skos:prefLabel": "from enteric ganglion to ascending colon or caecum or small intestine or transverse colon via postganglionic parasympathetic fiber",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:neuron-phenotype-para-post"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/273"
+      },
+      "ilxtr:genLabel": "enteric ganglion (with-axon-in postganglionic parasympathetic fiber) (with-axon-presynaptic-element-in ascending colon ceca small intestine transverse colon) neuron (implies Homo sapiens Parasympathetic Post-Ganglionic)",
+      "ilxtr:neuronPartialOrder": {
+        "@list": [
+          {
+            "@id": "UBERON:0001809"
+          },
+          {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "UBERON:0011929"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "@id": "UBERON:0001153"
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                }
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "@id": "UBERON:0001156"
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                  }
+                },
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                      "@id": "UBERON:0001157"
+                    },
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                      "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                    }
+                  },
+                  "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                        "@id": "UBERON:0002108"
+                      },
+                      "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                        "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                      }
+                    },
+                    "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                      "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "@id": "gastint:11",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0003832"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795343"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 11",
+      "skos:prefLabel": "from myenteric nerve plexus ganglion of esophagus to esophagus muscle",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:EntericPhenotype"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/276"
+      },
+      "ilxtr:genLabel": "myenteric nerve plexus ganglion of esophagus (with-axon-presynaptic-element-in esophagus muscle) neuron (implies Homo sapiens Enteric)",
+      "ilxtr:neuronPartialOrder": {
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+          "@id": "ILX:0795343"
+        },
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "UBERON:0003832"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+            "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+          }
+        }
+      }
+    },
+    {
+      "@id": "gastint:12",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0004222"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795344"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 12",
+      "skos:prefLabel": "from myenteric nerve plexus ganglion of stomach to stomach smooth muscle",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:EntericPhenotype"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/277"
+      },
+      "ilxtr:genLabel": "myenteric nerve plexus ganglion of stomach (with-axon-presynaptic-element-in stomach smooth muscle) neuron (implies Homo sapiens Enteric)",
+      "ilxtr:neuronPartialOrder": {
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+          "@id": "ILX:0795344"
+        },
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "UBERON:0004222"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+            "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+          }
+        }
+      }
+    },
+    {
+      "@id": "gastint:13",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0004239"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:8410063"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 13",
+      "skos:prefLabel": "from myenteric nerve plexus of small intestine to small intestine smooth muscle",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:EntericPhenotype"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/278"
+      },
+      "ilxtr:genLabel": "myenteric nerve plexus of small intestine (with-axon-presynaptic-element-in small intestine smooth muscle) neuron (implies Homo sapiens Enteric)",
+      "ilxtr:neuronPartialOrder": {
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+          "@id": "UBERON:8410063"
+        },
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "UBERON:0004239"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+            "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+          }
+        }
+      }
+    },
+    {
+      "@id": "gastint:14",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0011198"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795345"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 14",
+      "skos:prefLabel": "from myenteric nerve plexus ganglion of large intestine to muscle layer of large intestine",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:EntericPhenotype"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/279"
+      },
+      "ilxtr:genLabel": "myenteric nerve plexus ganglion of large intestine (with-axon-presynaptic-element-in muscle layer of large intestine) neuron (implies Homo sapiens Enteric)",
+      "ilxtr:neuronPartialOrder": {
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+          "@id": "ILX:0795345"
+        },
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "UBERON:0011198"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+            "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+          }
+        }
+      }
+    },
+    {
+      "@id": "gastint:15",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0018111"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795346"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 15",
+      "skos:prefLabel": "from myenteric nerve plexus ganglion of rectum to muscle layer of rectum",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:EntericPhenotype"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/280"
+      },
+      "ilxtr:genLabel": "myenteric nerve plexus ganglion of rectum (with-axon-presynaptic-element-in muscle layer of rectum) neuron (implies Homo sapiens Enteric)",
+      "ilxtr:neuronPartialOrder": {
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+          "@id": "ILX:0795346"
+        },
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "UBERON:0018111"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+            "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+          }
+        }
+      }
+    },
+    {
+      "@id": "gastint:16",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0012490"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795347"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 16",
+      "skos:prefLabel": "from myenteric nerve plexus ganglion of anus to muscle layer of anal canal",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:EntericPhenotype"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/281"
+      },
+      "ilxtr:genLabel": "myenteric nerve plexus ganglion of anus (with-axon-presynaptic-element-in muscle layer of anal canal) neuron (implies Homo sapiens Enteric)",
+      "ilxtr:neuronPartialOrder": {
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+          "@id": "ILX:0795347"
+        },
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "UBERON:0012490"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+            "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+          }
+        }
+      }
+    },
+    {
+      "@id": "gastint:17",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0793735"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0001902"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795348"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 17",
+      "skos:prefLabel": "from submucosal nerve plexus ganglion of small intestine to Myenteric ganglion of small intestine or epithelium of small intestine",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:EntericPhenotype"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/282"
+      },
+      "ilxtr:genLabel": "submucosal nerve plexus ganglion of small intestine (with-axon-presynaptic-element-in Myenteric ganglion of small intestine epithelium of small intestine) neuron (implies Homo sapiens Enteric)",
+      "ilxtr:neuronPartialOrder": {
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+          "@id": "ILX:0795348"
+        },
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "ILX:0793735"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "@id": "UBERON:0001902"
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+              }
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          }
+        }
+      }
+    },
+    {
+      "@id": "gastint:18",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795345"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0001278"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795349"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 18",
+      "skos:prefLabel": "from submucosal nerve plexus ganglion of large intestine to epithelium of large intestine or myenteric nerve plexus ganglion of large intestine",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:EntericPhenotype"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/283"
+      },
+      "ilxtr:genLabel": "submucosal nerve plexus ganglion of large intestine (with-axon-presynaptic-element-in epithelium of large intestine myenteric nerve plexus ganglion of large intestine) neuron (implies Homo sapiens Enteric)",
+      "ilxtr:neuronPartialOrder": {
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+          "@id": "ILX:0795349"
+        },
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "ILX:0795345"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "@id": "UBERON:0001278"
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+              }
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          }
+        }
+      }
+    },
+    {
+      "@id": "gastint:19",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795346"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0003354"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795350"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 19",
+      "skos:prefLabel": "from submucosal nerve plexus ganglion of rectum to epithelium of rectum or myenteric nerve plexus ganglion of rectum",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:EntericPhenotype"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/284"
+      },
+      "ilxtr:genLabel": "submucosal nerve plexus ganglion of rectum (with-axon-presynaptic-element-in epithelium of rectum myenteric nerve plexus ganglion of rectum) neuron (implies Homo sapiens Enteric)",
+      "ilxtr:neuronPartialOrder": {
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+          "@id": "ILX:0795350"
+        },
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "ILX:0795346"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "@id": "UBERON:0003354"
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+              }
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          }
+        }
+      }
+    },
+    {
+      "@id": "gastint:20",
+      "@type": "owl:Class",
+      "owl:equivalentClass": {
+        "@type": "owl:Class",
+        "owl:intersectionOf": {
+          "@list": [
+            {
+              "@id": "ilxtr:NeuronComposer"
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795347"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasAxonPresynapticElementIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "UBERON:0015716"
+                }
+              }
+            },
+            {
+              "@type": "owl:Restriction",
+              "owl:onProperty": {
+                "@id": "ilxtr:hasSomaLocatedIn"
+              },
+              "owl:someValuesFrom": {
+                "@type": "owl:Restriction",
+                "owl:onProperty": {
+                  "@id": "partOf:"
+                },
+                "owl:someValuesFrom": {
+                  "@id": "ILX:0795351"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "rdfs:label": "neuron type gastint 20",
+      "skos:prefLabel": "from submucosal nerve plexus ganglion of anus to anal canal epithelium or myenteric nerve plexus ganglion of anus",
+      "rdfs:subClassOf": [
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasAnatomicalSystemPhenotype"
+          },
+          "owl:someValuesFrom": {
+            "@id": "ilxtr:EntericPhenotype"
+          }
+        },
+        {
+          "@type": "owl:Restriction",
+          "owl:onProperty": {
+            "@id": "ilxtr:hasInstanceInTaxon"
+          },
+          "owl:someValuesFrom": {
+            "@id": "NCBITaxon:9606"
+          }
+        }
+      ],
+      "ilxcr:hasComposerURI": {
+        "@id": "https://composer.scicrunch.io/statement/285"
+      },
+      "ilxtr:genLabel": "submucosal nerve plexus ganglion of anus (with-axon-presynaptic-element-in anal canal epithelium myenteric nerve plexus ganglion of anus) neuron (implies Homo sapiens Enteric)",
+      "ilxtr:neuronPartialOrder": {
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+          "@id": "ILX:0795351"
+        },
+        "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "@id": "ILX:0795347"
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          },
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#first": {
+                "@id": "UBERON:0015716"
+              },
+              "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+              }
+            },
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest": {
+              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+            }
+          }
+        }
+      }
+    },
+    {
+      "@id": "ilxtr:NeuronComposer",
+      "@type": "owl:Class",
+      "rdfs:subClassOf": {
+        "@id": "ilxtr:NeuronEBM"
+      }
+    }
+  ]
+}

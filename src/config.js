@@ -50,5 +50,6 @@ export const API_CONFIG = {
     BASE_SCICRUNCH_URL: "/api/elasticsearch?apikey=",
     SCICRUNCH_KEY: import.meta.env.VITE_SCICRUNCH_API_KEY,
     BASE_URL: window.location.origin,
+    INTERLEX_URL: "http://uri.interlex.org",
     // BASE_URL: import.meta.env.MODE === "production" ? "https://uri.olympiangods.org" : window.location.origin,
 };

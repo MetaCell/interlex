@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Box, IconButton, Typography } from "@mui/material";
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
@@ -48,7 +48,6 @@ const styles = {
 }
 
 const ImportFile = ({ onFilesSelected }) => {
-    const [files, setFiles] = useState([]);
     const [error, setError] = useState("");
 
     const handleFileChange = (event) => {
@@ -63,7 +62,11 @@ const ImportFile = ({ onFilesSelected }) => {
                 setError("");
             }
 
-            setFiles((prevFiles) => [...prevFiles, ...validFiles]);
+            // Pass only the newly selected files, don't accumulate
+            onFilesSelected(validFiles);
+            
+            // Clear the input to allow selecting the same file again if needed
+            event.target.value = '';
         }
     };
 
@@ -80,19 +83,15 @@ const ImportFile = ({ onFilesSelected }) => {
                 setError("");
             }
 
-            setFiles((prevFiles) => [...prevFiles, ...validFiles]);
+            // Pass only the newly selected files, don't accumulate
+            onFilesSelected(validFiles);
         }
     };
 
-
     // eslint-disable-next-line no-unused-vars
     const handleRemoveFile = (index) => {
-        setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+        // This function is not needed anymore since we're not managing files internally
     };
-
-    useEffect(() => {
-        onFilesSelected(files);
-    }, [files, onFilesSelected]);
 
     return (
         <Box sx={{ width: "100%", height: "8.875rem", ...styles.dragDrop }}>
@@ -114,7 +113,7 @@ const ImportFile = ({ onFilesSelected }) => {
                         hidden
                         id="browse"
                         onChange={handleFileChange}
-                        accept=".csv,.json"
+                        accept=".csv,.json,.jsonld"
                         multiple
                     />
                     <Box display="flex" sx={styles.uploadLabel} gap={0.50}>
@@ -123,7 +122,7 @@ const ImportFile = ({ onFilesSelected }) => {
                         </label>
                         <span>or drag and drop</span>
                     </Box>
-                    <Typography variant="caption" sx={{ color: gray600, cursor: 'default' }}>CSV (max. 800MB)</Typography>
+                    <Typography variant="caption" sx={{ color: gray600, cursor: 'default' }}>CSV, JSON, JSON-LD (max. 800MB)</Typography>
                     {error && <Typography variant="caption" sx={{ color: 'red' }}>{error}</Typography>}
                 </>
             </div>

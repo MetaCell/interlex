@@ -32,7 +32,8 @@ const HeaderRightSideContent = ({
     isCreateButtonDisabled,
     isEditing,
     hasExactMatch,
-    hasAnySynonymMatch
+    hasAnySynonymMatch,
+    userGroupname
 }) => {
     const [ontologyChecked, setOntologyChecked] = useState(false);
 
@@ -114,7 +115,8 @@ HeaderRightSideContent.propTypes = {
     isCreateButtonDisabled: PropTypes.bool.isRequired,
     isEditing: PropTypes.bool.isRequired,
     hasExactMatch: PropTypes.bool.isRequired,
-    hasAnySynonymMatch: PropTypes.bool.isRequired
+    hasAnySynonymMatch: PropTypes.bool.isRequired,
+    userGroupname: PropTypes.string
 };
 
 const AddNewTermDialog = ({ open, handleClose }) => {
@@ -254,6 +256,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                     isEditing={isEditing}
                     hasExactMatch={hasExactMatch}
                     hasAnySynonymMatch={hasAnySynonymMatch}
+                    userGroupname={user?.groupname}
                 />
             }
             sx={{ '& .MuiDialogContent-root': { padding: 0, overflowY: "hidden" } }}

@@ -7,8 +7,8 @@ import { Stack, Button, Grid, Box } from "@mui/material";
 import CustomizedDialog from "../common/CustomizedDialog";
 import ImportFileTab from "./../TermEditor/ImportFileTab";
 import BasicTabs from "../common/CustomTabs";
-import { useState } from "react";
-import { createNewOntology, getNewTokenApi, retrieveTokenApi } from "../../api/endpoints/apiService";
+import { useState, useCallback } from "react";
+import { createNewOntology } from "../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { useContext } from "react";
 
@@ -29,7 +29,7 @@ HeaderRightSideContent.propTypes = {
     onAddNewOntology: PropTypes.func
 }
 
-const AddNewOntologyDialog = ({ open, handleClose }) => {
+const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organizationName }) => {
     const [openStatusDialog, setOpenStatusDialog] = useState(false);
     const [newOntology, setNewOntology] = useState({
         title: "",
@@ -46,40 +46,61 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
     const [tabValue, setTabValue] = useState(0);
     const { user } = useContext(GlobalDataContext);
 
+    const resetComponentState = () => {
+        setNewOntology({
+            title: "",
+            description: ""
+        });
+        setFiles([]);
+        setUrl('');
+        setTabValue(0);
+        setOpenStatusDialog(false);
+        setNewOntologyResponse({
+            title: "",
+            description: "",
+            created: false,
+            message: "Your ontology has been added. Click 'Go to Ontology' to go see the result, or add a new ontology."
+        });
+    };
+
+    const handleDialogClose = () => {
+        resetComponentState();
+        handleClose();
+    };
+
     const handleSubmit = async () => {
-        const groupname = user?.groupname
+        // Use organization name as groupname, fallback to user's groupname if not available
+        const groupname = organizationName || user?.groupname
 
-        const retrieved_tokens = await retrieveTokenApi({ groupname })
-        let token = null;
-        if (retrieved_tokens?.length > 0) {
-            token = retrieved_tokens?.[retrieved_tokens?.length - 1]?.key;
-        }
-
-        if (token === undefined || token === null) {
-            const newToken = await getNewTokenApi({ groupname });
-            token = newToken?.key;
-        }
-        const ontologyName = newOntology?.title + "_" + Math.random().toString(36).substring(2, 10);
-        const title = newOntology?.title;
+        const ontologyName = newOntology?.title.replace(/\s+/g, '_') + "_" + Math.random().toString(36).substring(2, 10);
+        const title = newOntology?.title || files?.[0]?.data?.title || "";
         const subjects = files?.[0]?.data?.subjects;
 
         const result = await createNewOntology({
             groupname,
-            token,
             ontologyName,
             title,
             subjects,
         });
 
         let ontologyResponseMessage = "Ontology created successfully!"
-
-        if (!result.created) {
+        
+        if (result.created) {
+            if (result.jsonldAvailable === false) {
+                ontologyResponseMessage += " Note: Ontology viewing is currently disabled as the backend implementation is not yet available."
+            }
+        } else {
             ontologyResponseMessage = "Failed to create ontology"
             console.error('❌ Failed to create ontology:', result.error);
         }
 
         setOpenStatusDialog(true);
-        setNewOntologyResponse({ title: newOntology?.title, description: ontologyResponseMessage, message: ontologyResponseMessage, created: result.created })
+        setNewOntologyResponse({ title: newOntology?.title, description: ontologyResponseMessage, message: ontologyResponseMessage, created: result.created });
+        
+        // If ontology was created successfully, trigger refresh
+        if (result.created && onOntologyAdded) {
+            onOntologyAdded();
+        }
     }
 
     const handleNewOntologyChange = (e) => {
@@ -95,71 +116,157 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
     };
 
     const handleCloseStatusDialog = () => {
-        setOpenStatusDialog(false)
+        setOpenStatusDialog(false);
+        resetComponentState();
+        handleClose();
     }
 
     const handleFinishButtonClick = () => {
+        resetComponentState();
         handleClose();
-        setOpenStatusDialog(false);
     }
 
-    const handleChangeUrl = (event) => {
+    const handleChangeUrl = useCallback((event) => {
         setUrl(event.target.value);
-    }
+    }, []);
 
-    const handleFilesSelected = async (newFiles) => {
-        const fileArray = Array.from(newFiles);
+    const handleFilesSelected = useCallback((newFiles) => {
+        // Process each file to extract data
+        const processFiles = async () => {
+            const processedFiles = await Promise.all(
+                newFiles.map(async (file) => {
+                    const fileWithId = {
+                        ...file,
+                        id: `${file.name}-${Date.now()}-${Math.random().toString(36).substring(2)}`,
+                        name: file.name, // Explicitly preserve name
+                        size: file.size, // Explicitly preserve size  
+                        type: file.type, // Explicitly preserve type
+                        progress: 100, // Assume upload is complete
+                        data: null
+                    };
 
-        const readFileContents = (file) => {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-
-                reader.onload = () => {
-                    let content = reader.result;
-
-                    // Try parsing JSON if it's a JSON file
-                    if (file.name.endsWith('.json')) {
+                    // Process JSON, JSON-LD, and CSV files
+                    if (file.name.endsWith('.json') || file.name.endsWith('.jsonld') || file.name.endsWith('.csv')) {
                         try {
-                            content = JSON.parse(content);
-                        } catch (e) {
-                            console.error(`Invalid JSON in file ${file.name}`, e);
-                            content = null;
+                            const text = await new Promise((resolve, reject) => {
+                                const reader = new FileReader();
+                                reader.onload = (e) => resolve(e.target.result);
+                                reader.onerror = reject;
+                                reader.readAsText(file);
+                            });
+
+                            let subjects = [];
+                            let title = '';
+
+                            if (file.name.endsWith('.csv')) {
+                                // Handle CSV format
+                                const lines = text.split('\n').filter(line => line.trim());
+                                if (lines.length > 0) {
+                                    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+                                    
+                                    // Look for title in first line if it's not headers
+                                    if (!headers.includes('subject') && !headers.includes('subjects')) {
+                                        title = lines[0].split(',')[0]?.trim() || '';
+                                        // Extract subjects from remaining lines
+                                        subjects = lines.slice(1)
+                                            .map(line => line.split(',')[0]?.trim())
+                                            .filter(Boolean);
+                                    } else {
+                                        // Extract data based on headers
+                                        const titleIndex = headers.findIndex(h => h.includes('title') || h.includes('name'));
+                                        const subjectIndex = headers.findIndex(h => h.includes('subject'));
+                                        
+                                        lines.slice(1).forEach(line => {
+                                            const values = line.split(',').map(v => v.trim());
+                                            if (titleIndex >= 0 && !title && values[titleIndex]) {
+                                                title = values[titleIndex];
+                                            }
+                                            if (subjectIndex >= 0 && values[subjectIndex]) {
+                                                subjects.push(values[subjectIndex]);
+                                            }
+                                        });
+                                    }
+                                }
+                            } else {
+                                // Handle JSON and JSON-LD formats
+                                const jsonData = JSON.parse(text);
+                                
+                                // Extract title
+                                title = jsonData.title || jsonData.name || jsonData['@title'] || 
+                                       jsonData.ontology?.title || jsonData.ontology?.name || '';
+                                
+                                // Handle JSON-LD format
+                                if (jsonData['@graph'] && Array.isArray(jsonData['@graph'])) {
+                                    // Extract subjects from @graph array
+                                    subjects = jsonData['@graph']
+                                        .filter(item => item['@type'])
+                                        .map(item => item['@type'])
+                                        .flat()
+                                        .filter((subject, index, array) => array.indexOf(subject) === index); // Remove duplicates
+                                    
+                                    // Also try to get title from @graph if not found
+                                    if (!title) {
+                                        const ontologyItem = jsonData['@graph'].find(item => 
+                                            item['@type'] === 'owl:Ontology' || 
+                                            item['rdfs:label'] || 
+                                            item['dc:title']
+                                        );
+                                        if (ontologyItem) {
+                                            title = ontologyItem['rdfs:label'] || ontologyItem['dc:title'] || '';
+                                        }
+                                    }
+                                }
+                                // Handle simple JSON format
+                                else if (jsonData.subjects && Array.isArray(jsonData.subjects)) {
+                                    subjects = jsonData.subjects;
+                                }
+                                // Try to extract from other common structures
+                                else if (jsonData.data && jsonData.data.subjects) {
+                                    subjects = jsonData.data.subjects;
+                                }
+                                // Handle array of objects with @type
+                                else if (Array.isArray(jsonData)) {
+                                    subjects = jsonData
+                                        .filter(item => item['@type'])
+                                        .map(item => item['@type'])
+                                        .flat()
+                                        .filter((subject, index, array) => array.indexOf(subject) === index);
+                                }
+                            }
+
+                            fileWithId.data = { subjects: subjects || [], title: title || '' };
+                        } catch (error) {
+                            console.error('Error processing file:', file.name, error);
+                            fileWithId.data = { subjects: [], title: '' };
                         }
                     }
 
-                    resolve({
-                        name: file.name,
-                        size: (file.size / 1024).toFixed(2),
-                        progress: 100,
-                        data: content
-                    });
-                };
+                    return fileWithId;
+                })
+            );
 
-                reader.onerror = () => reject(reader.error);
-                reader.readAsText(file);
-            });
+            // Replace any existing files with the new one (single file only)
+            setFiles(processedFiles.slice(0, 1)); // Only keep the first file
         };
 
-        const updatedFiles = await Promise.all(fileArray.map(readFileContents));
+        processFiles();
+    }, []);
 
-        setFiles(prevFiles => {
-            const prevString = JSON.stringify(prevFiles);
-            const newString = JSON.stringify(updatedFiles);
-            return prevString !== newString ? updatedFiles : prevFiles;
-        });
-    };
+    const handleChangeTabs = useCallback((_, newValue) => setTabValue(newValue), []);
 
-    const handleChangeTabs = (_, newValue) => setTabValue(newValue);
+    const handleFileDelete = useCallback((index) => {
+        setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+    }, []);
 
     return (
         <>
             <CustomizedDialog
                 title='Add a new ontology'
                 open={open}
-                handleClose={handleClose}
+                handleClose={handleDialogClose}
                 HeaderRightSideContent={
                     <HeaderRightSideContent
-                        handleClose={handleClose}
+                        handleClose={handleDialogClose}
                         onAddNewOntology={handleAddNewOntology}
                     />
                 }
@@ -198,7 +305,7 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
                                 </Grid>
                             </Grid>
                         )}
-                        {tabValue === 1 && <ImportFileTab files={files} url={url} onFilesChange={handleFilesSelected} onChangeUrl={handleChangeUrl} />}
+                        {tabValue === 1 && <ImportFileTab files={files} url={url} onFilesChange={handleFilesSelected} onChangeUrl={handleChangeUrl} onFileDelete={handleFileDelete} />}
                     </Box>
                 </Box>
             </CustomizedDialog>
@@ -219,7 +326,9 @@ const AddNewOntologyDialog = ({ open, handleClose }) => {
 
 AddNewOntologyDialog.propTypes = {
     open: PropTypes.bool,
-    handleClose: PropTypes.func
+    handleClose: PropTypes.func,
+    onOntologyAdded: PropTypes.func,
+    organizationName: PropTypes.string
 }
 
 export default AddNewOntologyDialog;
