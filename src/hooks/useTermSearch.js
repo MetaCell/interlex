@@ -10,6 +10,7 @@ export const useTermSearch = ({ term, type, synonyms, isEditing, onExactMatchCha
   const [synonymValidationStatus, setSynonymValidationStatus] = useState({})
   const { user } = useContext(GlobalDataContext)
   const checkedSynonymsRef = useRef(new Set())
+  const preservedResultsRef = useRef([]) // Store results during editing
 
     const checkSynonym = useCallback(async (synonym, searchType) => {
     try {
@@ -28,8 +29,17 @@ export const useTermSearch = ({ term, type, synonyms, isEditing, onExactMatchCha
   }, [user?.groupname])
 
   const searchTerm = useCallback(async (searchTerm, searchType) => {
-    if (!searchTerm || !searchType || isEditing) {
+    if (!searchTerm || !searchType) {
       setSearchResults([])
+      preservedResultsRef.current = []
+      return
+    }
+
+    // Don't search again if we're in editing mode, but preserve existing results
+    if (isEditing) {
+      if (preservedResultsRef.current.length > 0) {
+        setSearchResults(preservedResultsRef.current)
+      }
       return
     }
 
@@ -50,6 +60,7 @@ export const useTermSearch = ({ term, type, synonyms, isEditing, onExactMatchCha
       })) || []
 
       setSearchResults(searchResults)
+      preservedResultsRef.current = searchResults // Preserve for editing mode
     } catch (error) {
       if (error?.response?.status === 409 && error?.response?.data?.existing) {
         onExactMatchChange(true)
@@ -64,6 +75,7 @@ export const useTermSearch = ({ term, type, synonyms, isEditing, onExactMatchCha
           }
         )
         setSearchResults(exactMatches)
+        preservedResultsRef.current = exactMatches // Preserve exact matches too
       } else {
         onExactMatchChange(false)
         setSearchResults([])
@@ -98,6 +110,7 @@ export const useTermSearch = ({ term, type, synonyms, isEditing, onExactMatchCha
   useEffect(() => {
     if (!term) {
       setSearchResults([])
+      preservedResultsRef.current = [] // Clear preserved results when no term
       onExactMatchChange(false)
       return
     }

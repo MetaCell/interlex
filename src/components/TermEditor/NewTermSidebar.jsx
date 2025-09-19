@@ -159,6 +159,8 @@ const ResultItem = ({ result, searchValue, onResultAction, user }) => {
         }
     });
 
+    console.log("result: ", result)
+
     return (
         <Box
             width={1}

@@ -179,6 +179,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         if (result?.label) {
             setSelectedTermValue(result.label);
             handleTermValueChange(result.label);
+            setIsEditing(true); // Set editing state when a term is selected from sidebar
         }
     };
 
@@ -244,7 +245,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
 
     return (
         <CustomizedDialog
-            title="Add new term"
+            title={isEditing ? "Edit term" : "Add new term"}
             open={open}
             handleClose={handleClose}
             HeaderRightSideContent={
