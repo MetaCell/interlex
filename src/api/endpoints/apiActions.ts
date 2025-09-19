@@ -21,37 +21,7 @@ export const createPostRequest = <T = any, D = any>(endpoint: string, headers: o
         redirect: 'manual'
       });
 
-      // Handle 303 redirect
-      if (response.status === 303) {
-        const redirectUrl = response.headers.get('x-redirect-location') || response.headers.get('Location');
-        if (redirectUrl) {
-          const tmpMatch = redirectUrl.match(/tmp_\d{9}/);
-          if (tmpMatch) {
-            return {
-              term: {
-                id: tmpMatch[0]
-              }
-            };
-          }
-        }
-      }
-
-      // Handle 409 Conflict
-      if (response.status === 409) {
-        const responseData = await response.json();
-        const match = responseData?.existing?.[0];
-        if (match) {
-          return {
-            term: {
-              id: match
-            },
-            raw: responseData,
-            status: response.status
-          };
-        }
-      }
-
-      // Default response
+      // Default response handling
       const text = await response.text();
       try {
         const json = JSON.parse(text);
