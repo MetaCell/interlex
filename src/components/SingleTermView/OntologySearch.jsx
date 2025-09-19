@@ -227,11 +227,17 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userG
     setSearchTerm('');
     setSelectedValue(value);
 
+    // If value is null (cleared), also clear from context
+    if (!value) {
+      setOntologyData(null);
+      console.log('Ontology cleared from context');
+    }
+
     // Call the callback if provided
     if (onOntologySelect) {
       onOntologySelect(value);
     }
-  }, [onOntologySelect]);
+  }, [onOntologySelect, setOntologyData]);
 
   const popperProps = useMemo(() => ({
     sx: {
@@ -315,15 +321,18 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userG
             <FolderSharedOutlinedIcon />
           </InputAdornment>
         ),
-        endAdornment: selectedValue?.selected && (
-          <InputAdornment position='end'>
-            <Chip
-              label={selectedValue.badge}
-              variant='outlined'
-              size='small'
-              sx={{ marginLeft: '0.5rem' }}
-            />
-          </InputAdornment>
+        endAdornment: (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {selectedValue?.selected && (
+              <Chip
+                label={selectedValue.badge}
+                variant='outlined'
+                size='small'
+                sx={{ marginRight: '0.5rem' }}
+              />
+            )}
+            {params.InputProps.endAdornment}
+          </Box>
         ),
       }}
       sx={{
@@ -345,8 +354,9 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userG
     <div ref={autocompleteRef} style={{ width: fullWidth ? '100%' : 'fit-content' }}>
       <Autocomplete
         disableCloseOnSelect
-        disableClearable
+        disableClearable={false}
         options={ontologies}
+        value={selectedValue}
         open={openList}
         disabled={disabled}
         onOpen={handleOpenList}
@@ -360,7 +370,7 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userG
           popper: popperProps,
           paper: { sx: paperStyles },
         }}
-        inputValue={searchTerm ? searchTerm : selectedValue?.selected ? selectedValue?.label : ''}
+        inputValue={searchTerm ? searchTerm : selectedValue?.selected ? selectedValue?.label : selectedValue?.label || ''}
         renderOption={renderOption}
         renderInput={renderInput}
         PaperComponent={PaperComponent}

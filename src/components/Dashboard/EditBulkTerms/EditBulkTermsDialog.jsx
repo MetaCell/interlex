@@ -15,7 +15,7 @@ import { patchTerm } from "../../../api/endpoints";
 
 const initialSearchConditions = { attribute: '', value: '', condition: 'where', relation: SearchTermsData.objectOptions[0].value }
 
-const HeaderRightSideContent = ({ handleClose, activeStep, handleNext, handleBack, setActiveStep, isAllFieldsFilled, selectedOntology, isUpdating }) => {
+const HeaderRightSideContent = ({ handleClose, activeStep, handleNext, handleBack, setActiveStep, isAllFieldsFilled, selectedOntology, isUpdating, ontologyTerms }) => {
   return (
     <Box display='flex' alignItems='center' gap='.75rem'>
       <MobileStepper
@@ -47,7 +47,7 @@ const HeaderRightSideContent = ({ handleClose, activeStep, handleNext, handleBac
             variant='contained' 
             color='primary' 
             onClick={handleNext} 
-            disabled={(activeStep === 0 && !isAllFieldsFilled && !selectedOntology) || isUpdating}
+            disabled={(activeStep === 0 && (!isAllFieldsFilled && !selectedOntology)) || (activeStep === 0 && selectedOntology && (!ontologyTerms || ontologyTerms.length === 0)) || isUpdating}
           >
             {isUpdating ? 'Saving Changes...' : 'Continue'}
           </Button>
@@ -65,6 +65,8 @@ HeaderRightSideContent.propTypes = {
   setActiveStep: PropTypes.func.isRequired,
   isAllFieldsFilled: PropTypes.bool.isRequired,
   selectedOntology: PropTypes.object,
+  isUpdating: PropTypes.bool.isRequired,
+  ontologyTerms: PropTypes.array,
 };
 
 const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) => {
@@ -218,6 +220,7 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
           isAllFieldsFilled={isAllFieldsFilled(searchConditions)}
           selectedOntology={selectedOntology}
           isUpdating={isUpdating}
+          ontologyTerms={ontologyTerms}
         />
       }
       sx={{
