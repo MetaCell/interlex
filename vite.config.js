@@ -38,6 +38,43 @@ export default defineConfig({
           });
         },
       },
+      '^/([^/]+)/priv/password_change$': {
+        target: "https://uri.olympiangods.org",
+        secure: false,
+        changeOrigin: true,
+        rewrite: (path) => path, // keep full path
+        configure: (proxy) => {
+          proxy.on('error', (err, req) => {
+            console.log('Password change proxy error:', err);
+            console.log('Request URL:', req.url);
+          });
+          proxy.on('proxyReq', (proxyReq, req) => {
+            console.log('Proxying password change request:', req.method, req.url);
+            // pass through auth/cookies if present
+            if (req.headers.authorization) proxyReq.setHeader('Authorization', req.headers.authorization);
+            if (req.headers.cookie) proxyReq.setHeader('Cookie', req.headers.cookie);
+            // Set appropriate content type for password change (likely form data)
+            if (req.method === 'POST') {
+              proxyReq.setHeader('Content-Type', 'application/x-www-form-urlencoded');
+            }
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            console.log('Password change response:', proxyRes.statusCode, req.url);
+            // handle redirects
+            const location = proxyRes.headers['location'];
+            if (proxyRes.statusCode === 303 && location) {
+              delete proxyRes.headers['location'];
+              res.setHeader('X-Redirect-Location', location);
+            }
+            
+            // CORS headers
+            const origin = req.headers.origin;
+            if (origin) res.setHeader('Access-Control-Allow-Origin', origin);
+            res.setHeader('Access-Control-Allow-Credentials', 'true');
+            res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
+          });
+        },
+      },
       '^/([^/]+)/priv/entity(.*)': {
         target: "https://uri.olympiangods.org",
         secure: false,

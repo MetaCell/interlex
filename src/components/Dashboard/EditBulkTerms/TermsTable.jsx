@@ -112,7 +112,10 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, ontology
   };
 
   const sortedRows = React.useMemo(
-    () => stableSort(terms || [], getComparator(order, orderBy)),
+    () => {
+      if (!terms || terms.length === 0) return [];
+      return stableSort(terms, getComparator(order, orderBy));
+    },
     [order, orderBy, terms]
   );
 
@@ -156,7 +159,7 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, ontology
     </Box>
   }
   return (
-    terms.length > 0 ? (
+    terms && terms.length > 0 ? (
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <Typography color={gray800} fontSize='1.125rem' fontWeight={600} mb='2.75rem'>
           Edit your terms or select an header to bulk edit that property
@@ -243,11 +246,11 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, ontology
                   attributes={attributes}
                 />
                 <TableBody>
-                  {sortedRows.map((row, index) => (
+                  {sortedRows && sortedRows.length > 0 ? sortedRows.map((row, index) => (
                     <TableRow key={index}>
                       {filteredColumns.map((column) => {
                         const isEditing = editingCell?.rowIndex === index && editingCell?.columnId === column.id;
-                        const cellValue = row[column.id];
+                        const cellValue = row && row[column.id];
                         
                         return (
                           <TableCell 
@@ -273,27 +276,51 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, ontology
                                 fullWidth
                                 sx={{ minWidth: 0 }}
                               />
-                            ) : Array.isArray(cellValue) ? (
+                            ) : Array.isArray(cellValue) && cellValue.length > 0 ? (
                               <Stack gap='.25rem' direction="row" alignItems="center" maxWidth='20rem' flexWrap='wrap'>
-                                {cellValue.map((chip, chipIndex) => (
-                                  <Chip key={`${chip}-${chipIndex}`} label={chip} className='rounded IDchip-outlined' icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(chip)} />
-                                ))}
+                                {cellValue.map((chip, chipIndex) => {
+                                  const chipLabel = typeof chip === 'object' && chip !== null 
+                                    ? chip['@value'] || chip.value || chip['@id'] || JSON.stringify(chip)
+                                    : chip || '';
+                                  const chipValue = typeof chip === 'object' && chip !== null 
+                                    ? chip['@id'] || chip.value || chip['@value']
+                                    : chip;
+                                  return (
+                                    <Chip 
+                                      key={`${chipLabel}-${chipIndex}`} 
+                                      label={chipLabel} 
+                                      className='rounded IDchip-outlined' 
+                                      icon={<OpenInNewOutlinedIcon />} 
+                                      onClick={() => handleChipClick(chipValue)} 
+                                    />
+                                  );
+                                })}
                               </Stack>
                             ) : column.id === '@id' ? (
                               // Format the Interlex ID to show just the ID part - read-only display
                               <span style={{ color: gray700, fontWeight: 500 }}>
-                                {cellValue?.split('/').pop() || cellValue}
+                                {(() => {
+                                  if (!cellValue) return '';
+                                  if (typeof cellValue === 'object') {
+                                    const idValue = cellValue['@id'] || cellValue.id || cellValue['@value'] || JSON.stringify(cellValue);
+                                    return typeof idValue === 'string' ? idValue.split('/').pop() || idValue : idValue;
+                                  }
+                                  return typeof cellValue === 'string' ? cellValue.split('/').pop() || cellValue : cellValue;
+                                })()}
                               </span>
                             ) : (
                               <span>
-                                {cellValue}
+                                {typeof cellValue === 'object' && cellValue !== null 
+                                  ? cellValue['@value'] || cellValue.value || JSON.stringify(cellValue)
+                                  : cellValue || ''
+                                }
                               </span>
                             )}
                           </TableCell>
                         );
                       })}
                     </TableRow>
-                  ))}
+                  )) : null}
                 </TableBody>
               </Table>
             </TableContainer>

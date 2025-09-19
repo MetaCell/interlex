@@ -48,7 +48,7 @@ const styles = {
   },
 }
 
-const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchConditions, setOntologyTerms, ontologyAttributes, setOntologyAttributes, selectedOntology, setSelectedOntology, setOriginalTerms }) => {
+const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchConditions, ontologyTerms, setOntologyTerms, ontologyAttributes, setOntologyAttributes, selectedOntology, setSelectedOntology, setOriginalTerms }) => {
   const [ontologyEditOption, setOntologyEditOption] = useState(Confirmation.Yes);
   const [attributesLoading, setAttributesLoading] = useState(false);
   const { user } = useContext(GlobalDataContext);
@@ -292,13 +292,20 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
         </Stack>
 
         {ontologyEditOption === Confirmation.Yes && (
-          <OntologySearch 
-            placeholder="Enter an Ontology URI" 
-            fullWidth 
-            extra={ontologySearchExtraStyles} 
-            userGroupname={user?.groupname}
-            onOntologySelect={handleOntologySelect}
-          />
+          <>
+            <OntologySearch 
+              placeholder="Enter an Ontology URI" 
+              fullWidth 
+              extra={ontologySearchExtraStyles} 
+              userGroupname={user?.groupname}
+              onOntologySelect={handleOntologySelect}
+            />
+            {selectedOntology && ontologyTerms.length === 0 && !attributesLoading && (
+              <Typography variant="body2" sx={{ mt: 2, color: 'warning.main', fontWeight: 500 }}>
+                ⚠️ The selected ontology &quot;{selectedOntology.label}&quot; contains no terms to edit.
+              </Typography>
+            )}
+          </>
         )}
       </Box>
 
