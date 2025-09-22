@@ -299,6 +299,7 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
               extra={ontologySearchExtraStyles} 
               userGroupname={user?.groupname}
               onOntologySelect={handleOntologySelect}
+              disableGlobalUpdate={true}
             />
             {selectedOntology && ontologyTerms.length === 0 && !attributesLoading && (
               <Typography variant="body2" sx={{ mt: 2, color: 'warning.main', fontWeight: 500 }}>

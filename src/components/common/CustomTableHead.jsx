@@ -37,7 +37,8 @@ export default function CustomTableHead(props) {
                             onClick={createSortHandler(headCell.id)}
                             sx={{
                                 '& .MuiSvgIcon-root': {
-                                    opacity: headCell.label === '' ? '0 !important' : 1
+                                    opacity: headCell.label === '' ? '0 !important' : 
+                                             orderBy === headCell.id ? 1 : '0 !important'
                                 }
                             }}
                         >

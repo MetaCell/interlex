@@ -145,8 +145,8 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
                         data: null
                     };
 
-                    // Process JSON, JSON-LD, and CSV files
-                    if (file.name.endsWith('.json') || file.name.endsWith('.jsonld') || file.name.endsWith('.csv')) {
+                    // Process JSON, JSON-LD, CSV, and TTL files
+                    if (file.name.endsWith('.json') || file.name.endsWith('.jsonld') || file.name.endsWith('.csv') || file.name.endsWith('.ttl')) {
                         try {
                             const text = await new Promise((resolve, reject) => {
                                 const reader = new FileReader();
@@ -186,6 +186,64 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
                                             }
                                         });
                                     }
+                                }
+                            } else if (file.name.endsWith('.ttl')) {
+                                // Handle TTL (Turtle) format
+                                const lines = text.split('\n').filter(line => line.trim());
+                                
+                                // Extract title from comments or @base/@prefix declarations
+                                for (const line of lines) {
+                                    const trimmedLine = line.trim();
+                                    
+                                    // Look for title in comments
+                                    if (trimmedLine.startsWith('#') && 
+                                        (trimmedLine.toLowerCase().includes('title:') || 
+                                         trimmedLine.toLowerCase().includes('name:'))) {
+                                        const match = trimmedLine.match(/(?:title|name):\s*(.+)/i);
+                                        if (match && !title) {
+                                            title = match[1].trim();
+                                        }
+                                    }
+                                    
+                                    // Look for rdfs:label or dc:title
+                                    if (trimmedLine.includes('rdfs:label') || trimmedLine.includes('dc:title')) {
+                                        const match = trimmedLine.match(/(?:rdfs:label|dc:title)\s+["']([^"']+)["']/);
+                                        if (match && !title) {
+                                            title = match[1].trim();
+                                        }
+                                    }
+                                }
+                                
+                                // Extract subjects from RDF type declarations
+                                for (const line of lines) {
+                                    const trimmedLine = line.trim();
+                                    
+                                    // Look for 'a' (rdf:type) declarations
+                                    if (trimmedLine.includes(' a ') && !trimmedLine.startsWith('#')) {
+                                        const match = trimmedLine.match(/\s+a\s+([^;\s.]+)/);
+                                        if (match) {
+                                            const subject = match[1].trim();
+                                            if (subject && !subjects.includes(subject)) {
+                                                subjects.push(subject);
+                                            }
+                                        }
+                                    }
+                                    
+                                    // Look for rdf:type declarations
+                                    if (trimmedLine.includes('rdf:type') && !trimmedLine.startsWith('#')) {
+                                        const match = trimmedLine.match(/rdf:type\s+([^;\s.]+)/);
+                                        if (match) {
+                                            const subject = match[1].trim();
+                                            if (subject && !subjects.includes(subject)) {
+                                                subjects.push(subject);
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                // If no title found, try to extract from filename
+                                if (!title) {
+                                    title = file.name.replace('.ttl', '').replace(/[-_]/g, ' ');
                                 }
                             } else {
                                 // Handle JSON and JSON-LD formats
@@ -314,7 +372,7 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
                 message={newOntologyResponse?.description}
                 subMessage={newOntologyResponse?.message}
                 addButtonTitle={"Add a new ontology"}
-                finishButtonTitle={"Go to ontology"}
+                finishButtonTitle={"Close"}
                 open={openStatusDialog}
                 handleClose={handleCloseStatusDialog}
                 handleCloseandAdd={handleFinishButtonClick}

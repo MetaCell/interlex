@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 import EditTerms from "./EditTerms";
 import SearchTerms from "./SearchTerms";
@@ -12,6 +12,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import SearchTermsData from "../../../static/SearchTermsData.json";
 import { patchTerm } from "../../../api/endpoints";
+import { GlobalDataContext } from "../../../contexts/DataContext";
 
 const initialSearchConditions = { attribute: '', value: '', condition: 'where', relation: SearchTermsData.objectOptions[0].value }
 
@@ -70,6 +71,7 @@ HeaderRightSideContent.propTypes = {
 };
 
 const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) => {
+  const { activeOntology } = useContext(GlobalDataContext);
   const [searchConditions, setSearchConditions] = useState([initialSearchConditions]);
   const [ontologyTerms, setOntologyTerms] = useState([]);
   const [ontologyAttributes, setOntologyAttributes] = useState([]);
@@ -78,6 +80,14 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
   const [originalTerms, setOriginalTerms] = useState([]);
   const [batchUpdateResults, setBatchUpdateResults] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // Prefill selectedOntology with activeOntology when dialog opens
+  useEffect(() => {
+    if (open && activeOntology && !selectedOntology) {
+      setSelectedOntology(activeOntology);
+    }
+  }, [open, activeOntology, selectedOntology]);
+
   const performBatchUpdate = async (termsToUpdate = null) => {
     setIsUpdating(true);
     
