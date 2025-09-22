@@ -1,5 +1,4 @@
-import { useState, useCallback, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useCallback, useContext, useMemo } from "react";
 import PropTypes from "prop-types";
 import {
     Box,
@@ -22,6 +21,7 @@ import { createNewEntity } from "../../../api/endpoints/apiService";
 import { getAddTermStatusProps } from '../termStatusProps';
 import { CheckedIcon, UncheckedIcon } from '../../../Icons';
 import { vars } from "../../../theme/variables";
+import { DEFAULT_TYPE } from "../../../constants/types";
 
 const { gray100, gray200, gray400, gray600 } = vars;
 
@@ -30,6 +30,7 @@ const HeaderRightSideContent = ({
     onContinue,
     onClose,
     isCreateButtonDisabled,
+    isEditing,
     userGroupname
 }) => {
     const [ontologyChecked, setOntologyChecked] = useState(false);
@@ -80,7 +81,7 @@ const HeaderRightSideContent = ({
                                 }
                             }}
                         >
-                            Create new
+                            {isEditing ? 'Edit term' : 'Create new'}
                         </Button>
                     </Stack>
                 </>
@@ -96,22 +97,33 @@ HeaderRightSideContent.propTypes = {
     onContinue: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
     isCreateButtonDisabled: PropTypes.bool.isRequired,
+    isEditing: PropTypes.bool.isRequired,
     userGroupname: PropTypes.string
 };
 
 const AddNewTermDialog = ({ open, handleClose }) => {
     const [activeStep, setActiveStep] = useState(0);
-    const [addTermResponse] = useState(null);
-    const [selectedType, setSelectedType] = useState(null);
+    const [addTermResponse, setAddTermResponse] = useState(null);
+    const [selectedType, setSelectedType] = useState(DEFAULT_TYPE);
     const [termValue, setTermValue] = useState("");
+    const [selectedTermValue, setSelectedTermValue] = useState("");
     const [exactSynonyms, setExactSynonyms] = useState([]);
     const [existingIds, setExistingIds] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [hasExactMatch] = useState(false);
+    const [hasExactMatch, setHasExactMatch] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
     const { user } = useContext(GlobalDataContext);
-    const navigate = useNavigate();
 
-    const isCreateButtonDisabled = hasExactMatch || termValue === "";
+    const isCreateButtonDisabled = useMemo(() => {
+        if (hasExactMatch) return true;
+
+        if (termValue === "") return true;
+
+        if (isEditing && termValue === selectedTermValue) return true;
+
+        return false;
+    }, [hasExactMatch, termValue, isEditing, selectedTermValue]);
+
     const statusProps = getAddTermStatusProps(addTermResponse, termValue);
 
     const handleCancelBtnClick = () => {
@@ -119,9 +131,18 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         setActiveStep(0);
     };
 
-    const handleTermValueChange = (event) => {
-        const value = event.target.value;
-        setTermValue(value);
+    const handleTermValueChange = (value) => {
+        const isEventObject = value && typeof value === 'object' && 'target' in value;
+        const newValue = isEventObject ? value.target.value : value;
+        setTermValue(newValue);
+
+        if (isEventObject && isEditing) {
+            if (newValue !== selectedTermValue) {
+                setIsEditing(true);
+            }
+        } else if (isEventObject) {
+            setIsEditing(false);
+        }
     };
 
     const handleTypeChange = (newType) => {
@@ -136,6 +157,21 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         setExistingIds(newValue);
     };
 
+    const handleExactMatchChange = (value) => {
+        setHasExactMatch(value)
+    }
+
+    const handleTermSelection = (result) => {
+        if (result?.label) {
+            setSelectedTermValue(result.label);
+            handleTermValueChange(result.label);
+        }
+    }
+
+    const editTerm = useCallback(() => {
+        console.log("Edit term");
+    }, []);
+
     const createNewTerm = useCallback(async () => {
         if (!termValue || !selectedType || hasExactMatch) return;
 
@@ -145,8 +181,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         const groupName = user?.groupname || "base";
         const body = {
             'rdf-type': selectedType || 'owl:Class',
-            label: termValue,
-            exact: [],
+            label: termValue
         };
 
         try {
@@ -155,13 +190,25 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                 data: body,
                 session: token
             });
-            navigate(`/terms/${response.term.id.split("/").pop()}`);
+
+            if (response.term && response.term.id) {
+                setActiveStep(1);
+                setAddTermResponse(response.term.id);
+            }
         } catch (error) {
             console.error("Creation failed:", error);
         } finally {
             setLoading(false);
         }
-    }, [termValue, selectedType, user, hasExactMatch, navigate]);
+    }, [termValue, selectedType, user, hasExactMatch]);
+
+    const handleAction = useCallback(() => {
+        if (isEditing) {
+            editTerm();
+        } else {
+            createNewTerm();
+        }
+    }, [isEditing, editTerm, createNewTerm]);
 
     if (loading) {
         return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
@@ -178,8 +225,9 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                 <HeaderRightSideContent
                     activeStep={activeStep}
                     onClose={handleCancelBtnClick}
-                    onContinue={createNewTerm}
+                    onContinue={handleAction}
                     isCreateButtonDisabled={isCreateButtonDisabled}
+                    isEditing={isEditing}
                     userGroupname={user?.groupname}
                 />
             }
@@ -188,15 +236,18 @@ const AddNewTermDialog = ({ open, handleClose }) => {
             {activeStep === 0 && <FirstStepContent
                 term={termValue}
                 type={selectedType}
+                hasExactMatch={hasExactMatch}
                 existingIds={existingIds}
                 synonyms={exactSynonyms}
+                isEditing={isEditing}
                 handleTermChange={handleTermValueChange}
                 handleTypeChange={handleTypeChange}
+                handleExactMatchChange={handleExactMatchChange}
                 handleSynonymChange={handleSynonymChange}
                 handleExistingIdChange={handleExistingIdChange}
-                handleDialogClose={handleClose}
+                onTermSelect={handleTermSelection}
             />}
-            {activeStep === 1 && <SecondStepContent />}
+            {activeStep === 1 && <SecondStepContent searchTerm={addTermResponse} />}
             {activeStep === 2 && addTermResponse != null && (
                 <StatusStep statusProps={statusProps} />
             )}

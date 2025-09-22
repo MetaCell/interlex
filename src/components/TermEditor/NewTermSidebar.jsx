@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 import { StartIcon, JoinRightIcon } from '../../Icons';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
@@ -8,9 +9,9 @@ import {
     IconButton,
     Tooltip,
     Stack,
-    CircularProgress,
     Chip,
-    Button
+    Button,
+    Skeleton
 } from '@mui/material';
 import { vars } from '../../theme/variables';
 
@@ -48,17 +49,6 @@ const HOVER_INDICATOR_STYLES = {
     width: '2px',
     background: brand600
 };
-
-const LoadingSpinner = () => (
-    <Box sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '32rem'
-    }}>
-        <CircularProgress />
-    </Box>
-);
 
 const ExpandedHeader = ({ onToggle }) => (
     <Box
@@ -127,15 +117,43 @@ const EmptyState = () => (
     </Box>
 );
 
-const ResultItem = ({ result, searchValue, onResultAction }) => {
+const ResultItemSkeleton = () => (
+    <Box
+        width={1}
+        display="flex"
+        flexDirection="column"
+        px={1}
+        py={1.5}
+        gap={1}
+        sx={{ borderBottom: `1px solid ${gray200}` }}
+    >
+        <Stack direction="column" spacing={1} sx={{ justifyContent: "space-between", alignItems: "flex-start" }}>
+            <Stack direction="row" spacing={0.5}>
+                <Skeleton variant="rounded" width={150} height={24} />
+                <Skeleton variant="rounded" width={150} height={24} />
+            </Stack>
+            <Skeleton variant="rounded" width="100%" height={36} />
+            <Stack direction="row" spacing={1}>
+                <Skeleton variant="rounded" width={24} height={20} />
+                <Skeleton variant="rounded" width={150} height={20} />
+            </Stack>
+        </Stack>
+    </Box>
+);
+
+const ResultItem = ({ result, searchValue, onResultAction, user }) => {
     const isExactMatch = result.label.toLowerCase() === searchValue?.toLowerCase();
+    const navigate = useNavigate();
 
     const getItemStyles = () => ({
         borderBottom: `1px solid ${gray200}`,
         position: 'relative',
+        borderRadius: '0.5rem',
+        cursor: isExactMatch ? 'default' : 'pointer',
         ...(isExactMatch && EXACT_MATCH_STYLES),
         '&:hover': {
             ...(!isExactMatch && {
+                backgroundColor: gray200,
                 '&:before': HOVER_INDICATOR_STYLES
             })
         }
@@ -150,6 +168,7 @@ const ResultItem = ({ result, searchValue, onResultAction }) => {
             px={1}
             py={1.5}
             gap={1}
+            onClick={() => !isExactMatch && onResultAction(result)}
             sx={getItemStyles()}
         >
             <Stack
@@ -180,7 +199,7 @@ const ResultItem = ({ result, searchValue, onResultAction }) => {
                                 height: "auto",
                                 '&:hover': { backgroundColor: "transparent" }
                             }}
-                            onClick={() => onResultAction(result)}
+                            onClick={() => navigate(`/${user.groupname}/${result.ilx}`)}
                         >
                             Go to term
                         </Button>
@@ -211,11 +230,9 @@ export default function NewTermSidebar({
     results,
     isResultsEmpty,
     searchValue,
-    onResultAction
+    onResultAction,
+    user
 }) {
-    if (loading) {
-        return <LoadingSpinner />;
-    }
 
     const sidebarStyles = {
         display: 'flex',
@@ -223,6 +240,7 @@ export default function NewTermSidebar({
         borderLeft: `1px solid ${gray200}`,
         transition: SIDEBAR_STYLES.transition,
         p: 3,
+        minWidth: open ? SIDEBAR_STYLES.expanded : SIDEBAR_STYLES.collapsed,
         maxWidth: open ? SIDEBAR_STYLES.expanded : SIDEBAR_STYLES.collapsed,
         overflowY: 'auto',
         '::-webkit-scrollbar': {
@@ -249,7 +267,11 @@ export default function NewTermSidebar({
                     alignItems="center"
                     gap={1}
                 >
-                    {isResultsEmpty ? (
+                    {loading ? (
+                        Array.from(new Array(10)).map((_, index) => (
+                            <ResultItemSkeleton key={index} />
+                        ))
+                    ) : isResultsEmpty ? (
                         <EmptyState />
                     ) : (
                         <>
@@ -259,6 +281,7 @@ export default function NewTermSidebar({
                                     result={result}
                                     searchValue={searchValue}
                                     onResultAction={onResultAction}
+                                    user={user}
                                 />
                             ))}
                         </>
@@ -282,6 +305,7 @@ ResultItem.propTypes = {
     result: PropTypes.object.isRequired,
     searchValue: PropTypes.string,
     onResultAction: PropTypes.func,
+    user: PropTypes.object,
 };
 
 NewTermSidebar.propTypes = {
@@ -292,4 +316,5 @@ NewTermSidebar.propTypes = {
     isResultsEmpty: PropTypes.bool.isRequired,
     searchValue: PropTypes.string.isRequired,
     onResultAction: PropTypes.func,
+    user: PropTypes.object,
 };

@@ -99,9 +99,9 @@ export const getSelectedTermLabel = async (searchTerm: string, group: string = '
       return label?.['@value'] || '';
     };
 
-    return { 
-      label: label ? getLabelValue(label) : undefined, 
-      actualGroup: group 
+    return {
+      label: label ? getLabelValue(label) : undefined,
+      actualGroup: group
     };
   } catch (err: any) {
     console.error(err.message);
@@ -110,7 +110,7 @@ export const getSelectedTermLabel = async (searchTerm: string, group: string = '
       try {
         const fallbackResponse = await createGetRequest<JsonLdResponse, any>(`/base/${searchTerm}.jsonld`)();
         const fallbackLabel = fallbackResponse['@graph']?.[0]?.['rdfs:label'];
-        
+
         const getLabelValue = (label: LabelType): string => {
           if (typeof label === 'string') return label;
           if (Array.isArray(label)) {
@@ -122,9 +122,9 @@ export const getSelectedTermLabel = async (searchTerm: string, group: string = '
           return label?.['@value'] || '';
         };
 
-        return { 
-          label: fallbackLabel ? getLabelValue(fallbackLabel) : undefined, 
-          actualGroup: 'base' 
+        return {
+          label: fallbackLabel ? getLabelValue(fallbackLabel) : undefined,
+          actualGroup: 'base'
         };
       } catch (fallbackErr: any) {
         console.error('Fallback request also failed:', fallbackErr.message);
@@ -136,50 +136,9 @@ export const getSelectedTermLabel = async (searchTerm: string, group: string = '
 };
 
 export const createNewEntity = async ({ group, data, session }: { group: string; data: any; session: string }) => {
-  try {
-    const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ENTITY}`;
-    const response = await createPostRequest<any, any>(
-      endpoint,
-      { "Content-Type": "application/x-www-form-urlencoded" }
-    )(data);
-
-    // If the response is HTML (a string), extract TMP ID
-    if (typeof response === "string") {
-      const match = response.match(/TMP:\d{9}/);
-      if (match) {
-        return {
-          term: {
-            id: `${match[0]}`,
-          },
-          raw: response,
-          status: 200,
-        };
-      }
-    }
-
-    // Otherwise, return response as-is
-    return response;
-  } catch (error) {
-    if (error && typeof error === 'object' && 'response' in error && (error as any).response?.status === 409) {
-      const match = (error as any)?.response?.data?.existing?.[0];
-      if (match) {
-        return {
-          term: {
-            id: `${match}`,
-          },
-          raw: (error as any)?.response,
-          status: (error as any)?.response?.status,
-        };
-      }
-    }
-
-    return {
-      raw: (error as any)?.response,
-      status: (error as any)?.response?.status,
-    };
-  }
-
-};
+  const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ENTITY}`;
+  return createPostRequest(endpoint, { 'Content-Type': 'application/json' })(data, { handleRedirect: true });
+}
 
 export const createNewOntology = async ({
   groupname,
@@ -334,10 +293,10 @@ export const getTermDiscussions = async (group: string, variantID: string) => {
 };
 
 export const getVariant = (group: string, term: string) => {
-  return createGetRequest<any, any>(`/${group}/variant/${term}`, "application/json")();  
+  return createGetRequest<any, any>(`/${group}/variant/${term}`, "application/json")();
 };
 
-export const getTermPredicates =  async ({
+export const getTermPredicates = async ({
   groupname,
   termId,
   objToSub = true,
@@ -397,4 +356,8 @@ export const getTermHierarchies = async ({
   const triples = Array.isArray(parsed) ? parsed : (parsed?.triples || parsed?.edges || []);
 
   return { triples };
+};
+
+export const checkPotentialMatches = async (group: string, data: any) => {
+  return createPostRequest<any, any>(`/${group}${API_CONFIG.REAL_API.CHECK_ENTITY}`, { "Content-Type": "application/json" })(data);
 };
