@@ -63,33 +63,54 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
       }
     }}>
       {organizations.length > 0 ? (
-        organizations?.map((organization, index) => (
-          <ListItem key={index} onClick={() => navigate(`/organizations/${organization}`)}>
-            <ListItemText 
-              primary={
-                <Box display='flex' alignItems='center' justifyContent='space-between'>
-                  <Typography component='span'>{organization}</Typography>
-                </Box>
-              } 
-            />
-            <Box display='flex' alignItems='center' justifyContent='space-between'>
-              {
-                viewJoinButton && <Button
-                  variant="outlined"
-                  className="join-button"
-                  onClick={() => navigate(`/organizations/${organization}`)}
-                  startIcon={<Groups />}
-                  sx={{
-                    visibility: 'hidden',
-                    width: 1
-                  }}
-                >
-                  View organization
-                </Button>
-              }
-            </Box>
-          </ListItem>
-        ))
+        organizations?.map((organization, index) => {
+          const orgName = typeof organization === 'string' ? organization : organization.name;
+          const userRole = typeof organization === 'object' ? organization.role : null;
+          
+          return (
+            <ListItem key={index} onClick={() => navigate(`/organizations/${orgName}`)}>
+              <ListItemText 
+                primary={
+                  <Box display='flex' alignItems='center' justifyContent='space-between'>
+                    <Typography component='span'>{orgName}</Typography>
+                    {userRole && (
+                      <Typography 
+                        component='span' 
+                        sx={{ 
+                          fontSize: '0.75rem', 
+                          backgroundColor: 'primary.main', 
+                          color: 'white', 
+                          px: 1, 
+                          py: 0.5, 
+                          borderRadius: 1,
+                          textTransform: 'capitalize'
+                        }}
+                      >
+                        {userRole}
+                      </Typography>
+                    )}
+                  </Box>
+                } 
+              />
+              <Box display='flex' alignItems='center' justifyContent='space-between'>
+                {
+                  viewJoinButton && <Button
+                    variant="outlined"
+                    className="join-button"
+                    onClick={() => navigate(`/organizations/${orgName}`)}
+                    startIcon={<Groups />}
+                    sx={{
+                      visibility: 'hidden',
+                      width: 1
+                    }}
+                  >
+                    View organization
+                  </Button>
+                }
+              </Box>
+            </ListItem>
+          );
+        })
       ) : (
         <Typography>There are no organizations</Typography>
       )}

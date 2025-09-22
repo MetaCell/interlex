@@ -20,10 +20,14 @@ export const getComparator = (order, orderBy) => {
         } else if (bValue === '') {
             return -1;
         } else {
+            // Convert to lowercase for case-insensitive comparison
+            const aLower = typeof aValue === 'string' ? aValue.toLowerCase() : aValue;
+            const bLower = typeof bValue === 'string' ? bValue.toLowerCase() : bValue;
+            
             if (order === 'desc') {
-                return bValue < aValue ? -1 : 1;
+                return bLower < aLower ? -1 : 1;
             } else {
-                return aValue < bValue ? -1 : 1;
+                return aLower < bLower ? -1 : 1;
             }
         }
     };

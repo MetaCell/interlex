@@ -65,7 +65,7 @@ const CustomButtonGroup = ({ variant = "contained", options = [], sx }) => {
     };
 
     return (
-        <Box sx={{ width: 210, position: "relative", display: "flex", justifyContent: "end", ...sx }}>
+        <Box sx={{ width: 250, position: "relative", display: "flex", justifyContent: "end", ...sx }}>
             <ButtonGroup
                 variant={variant}
                 ref={anchorRef}
