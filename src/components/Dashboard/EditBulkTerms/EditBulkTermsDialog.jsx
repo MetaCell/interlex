@@ -71,7 +71,7 @@ HeaderRightSideContent.propTypes = {
 };
 
 const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) => {
-  const { activeOntology } = useContext(GlobalDataContext);
+  const { activeOntology, user } = useContext(GlobalDataContext);
   const [searchConditions, setSearchConditions] = useState([initialSearchConditions]);
   const [ontologyTerms, setOntologyTerms] = useState([]);
   const [ontologyAttributes, setOntologyAttributes] = useState([]);
@@ -87,6 +87,28 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
       setSelectedOntology(activeOntology);
     }
   }, [open, activeOntology, selectedOntology]);
+
+  // Helper function to replace "base" with user groupname in term data
+  const replaceBaseWithUserGroup = (obj, userGroupname) => {
+    if (!obj || !userGroupname) return obj;
+    
+    const replaceInValue = (value) => {
+      if (typeof value === 'string') {
+        return value.replace(/\bbase\b/g, userGroupname);
+      } else if (Array.isArray(value)) {
+        return value.map(replaceInValue);
+      } else if (value && typeof value === 'object') {
+        return replaceBaseWithUserGroup(value, userGroupname);
+      }
+      return value;
+    };
+
+    const result = {};
+    for (const [key, value] of Object.entries(obj)) {
+      result[key] = replaceInValue(value);
+    }
+    return result;
+  };
 
   const performBatchUpdate = async (termsToUpdate = null) => {
     setIsUpdating(true);
@@ -117,18 +139,24 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
             termId = termId.split('/').pop();
           }
           
-          const group = 'base'; // Default group, can be made configurable
+          // Use user's groupname instead of 'base'
+          const group = user?.groupname || 'base';
           
-          // Create the JSON-LD payload with the current term data
-          const jsonLdPayload = {
+          // Create the JSON-LD payload with the current term data, replacing base with user groupname
+          let jsonLdPayload = {
             "@context": term["@context"] || {
-              "@vocab": "http://uri.interlex.org/base/",
+              "@vocab": `http://uri.interlex.org/${group}/`,
               "owl": "http://www.w3.org/2002/07/owl#",
               "rdfs": "http://www.w3.org/2000/01/rdf-schema#"
             },
             "@id": term['@id'] || termId,
             ...term
           };
+
+          // Replace any "base" references with user's groupname in the payload
+          if (user?.groupname && user.groupname !== 'base') {
+            jsonLdPayload = replaceBaseWithUserGroup(jsonLdPayload, user.groupname);
+          }
 
           // Send PATCH request
           const response = await patchTerm(group, termId, jsonLdPayload);
