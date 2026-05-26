@@ -3,8 +3,41 @@ import { customInstance } from '../../../mock/mutator/customClient';
 
 type SecondParameter<T extends (...args: any) => any> = Parameters<T>[1];
 
-export const createPostRequest = <T = any, D = any>(endpoint: string, headers : object) => {
-  return (data?: D, options?: SecondParameter<typeof customInstance>) => {
+interface CustomRequestConfig extends AxiosRequestConfig {
+  handleRedirect?: boolean;
+}
+
+export const createPostRequest = <T = any, D = any>(endpoint: string, headers: object) => {
+  return async (data?: D, options?: CustomRequestConfig) => {
+    // Use fetch for handling redirect responses
+    if (options?.handleRedirect) {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          ...headers,
+        },
+        body: JSON.stringify(data),
+        credentials: 'include',
+        redirect: 'manual'
+      });
+
+      // Default response handling
+      const text = await response.text();
+      try {
+        const json = JSON.parse(text);
+        return {
+          raw: json,
+          status: response.status
+        };
+      } catch {
+        return {
+          raw: text,
+          status: response.status
+        };
+      }
+    }
+
+    // Default axios behavior for normal requests
     return customInstance<T>(
       {
         url: endpoint,

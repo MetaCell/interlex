@@ -37,7 +37,9 @@ import { useCookies } from 'react-cookie';
 import CustomButtonGroup from '../common/CustomButtonGroup';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import AddIcon from '@mui/icons-material/Add';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import AddNewTermDialog from '../TermEditor/newTerm/AddNewTermDialog';
+import AddNewOntologyDialog from '../SingleOrganization/AddNewOntologyDialog';
 
 import { vars } from "../../theme/variables";
 const { gray200, white, gray100, gray600 } = vars;
@@ -151,6 +153,7 @@ const Header = () => {
     const [isLoggedIn, setIsLoggedIn] = React.useState(false);
     const { user, setUserData } = useContext(GlobalDataContext);
     const [openNewTermDialog, setOpenNewTermDialog] = React.useState(false);
+    const [openNewOntologyDialog, setOpenNewOntologyDialog] = React.useState(false);
     // eslint-disable-next-line no-unused-vars
     const [existingCookies, setCookie, removeCookie] = useCookies(['session']);
 
@@ -177,6 +180,14 @@ const Header = () => {
 
     const handleNewTermDialogOpen = () => {
         setOpenNewTermDialog(true);
+    }
+
+    const handleNewOntologyDialogClose = () => {
+        setOpenNewOntologyDialog(false);
+    }
+
+    const handleNewOntologyDialogOpen = () => {
+        setOpenNewOntologyDialog(true);
     }
 
     // eslint-disable-next-line no-unused-vars
@@ -292,6 +303,11 @@ const Header = () => {
             label: 'Add a new term',
             icon: <AddIcon />,
             action: handleNewTermDialogOpen
+        },
+        {
+            label: 'Add a new ontology',
+            icon: <AccountTreeIcon />,
+            action: handleNewOntologyDialogOpen
         },
         {
             label: 'Bulk add terms',
@@ -471,6 +487,11 @@ const Header = () => {
                 )}
             </Box>
             <AddNewTermDialog open={openNewTermDialog} handleClose={handleNewTermDialogClose} />
+            <AddNewOntologyDialog 
+                open={openNewOntologyDialog} 
+                handleClose={handleNewOntologyDialogClose} 
+                organizationName={user?.groupname} 
+            />
             <EditBulkTermsDialog handleClose={handleCloseEditBulkTerms} open={openEditBulkTerms} activeStep={activeStep} setActiveStep={setActiveStep} />
         </>
     )

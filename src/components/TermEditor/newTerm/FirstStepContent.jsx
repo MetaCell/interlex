@@ -1,123 +1,88 @@
 import PropTypes from "prop-types";
-import { useState, useCallback, useEffect, useContext } from "react";
-import { debounce } from "lodash";
+import { useState, useContext } from "react";
 import {
     Box,
     Divider,
     Stack,
     Typography,
     Autocomplete,
-    Chip,
-    TextField
+    TextField,
+    Chip
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { GlobalDataContext } from "../../../contexts/DataContext";
-import CloseIcon from "@mui/icons-material/Close";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
 import CustomFormField from "../../common/CustomFormField";
 import NewTermSidebar from "../NewTermSidebar";
 import { HelpOutlinedIcon } from "../../../Icons";
-import { elasticSearch } from "../../../api/endpoints";
+import CloseIcon from "@mui/icons-material/Close";
 import { vars } from "../../../theme/variables";
+import { TYPES, DEFAULT_TYPE } from "../../../constants/types";
+import { useTermSearch } from "../../../hooks/useTermSearch";
 
 const { white, gray300, gray400, gray500, gray600 } = vars;
 
-const TYPES = ["Term", "Relationship", "Ontology"];
-
-const AUTOCOMPLETE_STYLES = {
-    "& .MuiOutlinedInput-root": {
-        background: white,
-        borderColor: gray300,
+const styles = {
+    contentBox: {
+        px: "3.25rem",
+        pt: "1.75rem",
+        pb: "2.5rem",
+        flex: 1,
+        overflowY: "auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: "2.75rem",
     },
-    "& .MuiOutlinedInput-root .MuiAutocomplete-input": {
-        color: gray500,
-        fontWeight: 400,
+    autocomplete: {
+        "& .MuiOutlinedInput-root": {
+            background: white,
+            borderColor: gray300,
+            padding: "0.5rem 0.75rem !important"
+        },
+        "& .MuiOutlinedInput-root .MuiAutocomplete-input": {
+            color: gray500,
+            fontWeight: 400,
+        },
+        "& .MuiAutocomplete-popupIndicator": {
+            transform: "none !important",
+        },
+        "& .MuiAutocomplete-tag": {
+            background: "transparent",
+        },
     },
-    "& .MuiAutocomplete-popupIndicator": {
-        transform: "none !important",
-    },
-    "& .MuiAutocomplete-tag": {
-        background: "transparent",
+    chip: {
+        synonym: {
+            flexDirection: "row !important",
+            "& .MuiChip-deleteIcon": {
+                color: `${gray400} !important`,
+            },
+        },
+        id: {
+            flexDirection: "row !important",
+            borderRadius: "1rem !important",
+            "& .MuiChip-deleteIcon": {
+                color: `${gray400} !important`,
+            },
+        },
     },
 };
 
-const SYNONYM_CHIP_STYLES = {
-    flexDirection: "row !important",
-    "& .MuiChip-deleteIcon": {
-        color: `${gray400} !important`,
-    },
-};
-
-const ID_CHIP_STYLES = {
-    flexDirection: "row !important",
-    borderRadius: "1rem !important",
-    "& .MuiChip-deleteIcon": {
-        color: `${gray400} !important`,
-    },
-};
-
-const FirstStepContent = ({ term, type, existingIds, synonyms, handleTermChange, handleTypeChange, handleExistingIdChange, handleSynonymChange, handleDialogClose }) => {
-    const [termResults, setTermResults] = useState([]);
+const FirstStepContent = ({ term, type, existingIds, synonyms, isEditing, handleTermChange, handleTypeChange, handleExistingIdChange, handleSynonymChange, handleExactMatchChange, handleDialogClose }) => {
     const [openSidebar, setOpenSidebar] = useState(true);
-    const [loading, setLoading] = useState(false);
-    const [hasExactMatch, setHasExactMatch] = useState(false);
-
-    const [synonymOptions] = useState([]);
-    const [idOptions] = useState([]);
     const { user, updateStoredSearchTerm } = useContext(GlobalDataContext);
     const navigate = useNavigate();
 
-    const searchForMatches = useCallback(
-        debounce(async (searchTerm, type) => {
-            if (!searchTerm || !type) {
-                setTermResults([]);
-                setHasExactMatch(false);
-                return;
-            }
-
-            setLoading(true);
-
-            try {
-                const response = await elasticSearch(searchTerm, 10);
-                const rawResults = response.results.results || [];
-
-                const filteredResults = rawResults.filter(result => {
-                    return result.type === type.toLowerCase() ||
-                        (result.type === "term") ||
-                        (result.type === "relationship") ||
-                        (result.type === "ontology");
-                });
-
-                const exactMatch = filteredResults.find(result =>
-                    result.label?.toLowerCase() === searchTerm.toLowerCase() &&
-                    result.type === type.toLowerCase()
-                );
-
-                setHasExactMatch(!!exactMatch);
-
-                const sortedResults = filteredResults.sort((a, b) => {
-                    const aIsExact = a.label?.toLowerCase() === searchTerm.toLowerCase();
-                    const bIsExact = b.label?.toLowerCase() === searchTerm.toLowerCase();
-
-                    if (aIsExact && !bIsExact) return -1;
-                    if (!aIsExact && bIsExact) return 1;
-                    return 0;
-                });
-
-                setTermResults(sortedResults);
-            } catch (error) {
-                setTermResults([]);
-                setHasExactMatch(false);
-            } finally {
-                setLoading(false);
-            }
-        }, 500),
-        []
-    );
+    const { loading, searchResults } = useTermSearch({
+        term,
+        type,
+        synonyms,
+        isEditing,
+        onExactMatchChange: handleExactMatchChange,
+    });
 
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
 
-    const navigateToExistingTerm = (searchResult) => {
+    const handleResultSelect = (searchResult) => {
         updateStoredSearchTerm(searchResult?.label);
         const groupName = user?.groupname || 'base';
         navigate(`/${groupName}/${searchResult?.ilx}/overview`);
@@ -136,31 +101,9 @@ const FirstStepContent = ({ term, type, existingIds, synonyms, handleTermChange,
         ));
     };
 
-    useEffect(() => {
-        if (term && type) {
-            searchForMatches(term, type);
-        }
-        return () => {
-            searchForMatches.cancel();
-            setHasExactMatch(false);
-            setTermResults([])
-        };
-    }, [term, type, searchForMatches]);
-
     return (
         <Box display="flex" height={1}>
-            <Box
-                sx={{
-                    px: "3.25rem",
-                    pt: "1.75rem",
-                    pb: "2.5rem",
-                    flex: 1,
-                    overflowY: "auto",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "2.75rem",
-                }}
-            >
+            <Box sx={styles.contentBox}>
                 <Stack spacing={0.5}>
                     <Typography variant="h6">How would you like to proceed?</Typography>
                     <Typography variant="body1" sx={{ color: gray600 }}>
@@ -192,7 +135,6 @@ const FirstStepContent = ({ term, type, existingIds, synonyms, handleTermChange,
                             value={term}
                             onChange={handleTermChange}
                             isEndAdornmentVisible
-                            errorMessage={hasExactMatch ? "Your label has an exact match." : null}
                         />
                     </Stack>
 
@@ -202,12 +144,12 @@ const FirstStepContent = ({ term, type, existingIds, synonyms, handleTermChange,
                         value={synonyms}
                         onChange={handleSynonymChange}
                         popupIcon={<HelpOutlinedIcon />}
-                        options={synonymOptions}
+                        options={[]}
                         freeSolo
-                        renderTags={(values, getTagProps) => renderChips(values, getTagProps, SYNONYM_CHIP_STYLES)}
+                        renderTags={(values, getTagProps) => renderChips(values, getTagProps, styles.chip.synonym)}
                         fullWidth
                         renderInput={(params) => <TextField {...params} placeholder="Enter exact synonym(s)" />}
-                        sx={AUTOCOMPLETE_STYLES}
+                        sx={styles.autocomplete}
                     />
                 </Stack>
 
@@ -229,12 +171,12 @@ const FirstStepContent = ({ term, type, existingIds, synonyms, handleTermChange,
                         value={existingIds}
                         onChange={handleExistingIdChange}
                         popupIcon={<HelpOutlinedIcon />}
-                        options={idOptions}
+                        options={[]}
                         freeSolo
-                        renderTags={(values, getTagProps) => renderChips(values, getTagProps, ID_CHIP_STYLES)}
+                        renderTags={(values, getTagProps) => renderChips(values, getTagProps, styles.chip.id)}
                         fullWidth
                         renderInput={(params) => <TextField {...params} placeholder="Type existing ID(s)" />}
-                        sx={AUTOCOMPLETE_STYLES}
+                        sx={styles.autocomplete}
                     />
                 </Box>
             </Box>
@@ -243,25 +185,38 @@ const FirstStepContent = ({ term, type, existingIds, synonyms, handleTermChange,
                 open={openSidebar}
                 loading={loading}
                 onToggle={handleSidebarToggle}
-                results={termResults}
-                isResultsEmpty={termResults.length === 0}
+                results={searchResults}
+                isResultsEmpty={searchResults.length === 0}
                 searchValue={term}
-                onResultAction={navigateToExistingTerm}
+                onResultAction={handleResultSelect}
+                user={user}
+                selectedTerm={term}
             />
         </Box>
-    );
-};
+    )
+}
 
 FirstStepContent.propTypes = {
     term: PropTypes.string,
-    type: PropTypes.string,
-    existingIds: PropTypes.array,
-    synonyms: PropTypes.array,
-    handleTermChange: PropTypes.func,
-    handleTypeChange: PropTypes.func,
-    handleExistingIdChange: PropTypes.func,
-    handleSynonymChange: PropTypes.func,
-    handleDialogClose: PropTypes.func,
-};
+    type: PropTypes.oneOf(TYPES),
+    existingIds: PropTypes.arrayOf(PropTypes.string),
+    synonyms: PropTypes.arrayOf(PropTypes.string),
+    isEditing: PropTypes.bool,
+    handleTermChange: PropTypes.func.isRequired,
+    handleTypeChange: PropTypes.func.isRequired,
+    handleExactMatchChange: PropTypes.func.isRequired,
+    handleExistingIdChange: PropTypes.func.isRequired,
+    handleSynonymChange: PropTypes.func.isRequired,
+    handleDialogClose: PropTypes.func.isRequired,
+    onTermSelect: PropTypes.func,
+}
 
-export default FirstStepContent;
+FirstStepContent.defaultProps = {
+    term: "",
+    type: DEFAULT_TYPE,
+    existingIds: [],
+    synonyms: [],
+    isEditing: false,
+}
+
+export default FirstStepContent

@@ -4,32 +4,15 @@ import PropTypes from 'prop-types';
 import { TableChartIcon, ListIcon } from '../../Icons';
 import OntologySearch from '../SingleTermView/OntologySearch';
 import CustomSingleSelect from '../common/CustomSingleSelect';
-import { Box, Typography, Grid, ButtonGroup, Button, Stack, Divider } from '@mui/material';
+import CustomViewButton from '../common/CustomViewButton';
+import { Box, Typography, Grid, ButtonGroup, Stack, Divider } from '@mui/material';
 import CustomPagination from '../common/CustomPagination';
 import { vars } from '../../theme/variables';
 import { GlobalDataContext } from '../../contexts/DataContext';
 
-const { gray50, gray200, gray300, gray600 } = vars;
+const { gray200, gray600 } = vars;
 
-const CustomViewButton = ({ view, listView, onClick, icon }) => (
-    <Button
-        sx={{
-            background: listView === view ? gray50 : 'transparent',
-            padding: '0.5rem 0.75rem',
-            border: `1px solid ${gray300}`,
-            '&.Mui-disabled': {
-                border: `1px solid ${gray300}`
-            },
-            '& svg path': {
-                fill: listView !== view ? gray300 : 'currentColor'
-            }
-        }}
-        disabled={view === 'table' && true}
-        onClick={onClick}
-    >
-        {icon}
-    </Button>
-);
+
 
 const getPaginationSettings = (totalItems) => {
     const largeDatasetOptions = [20, 50, 100, 200];
@@ -168,13 +151,6 @@ const SearchResultsBox = ({
             />
         </Box>
     );
-};
-
-CustomViewButton.propTypes = {
-    view: PropTypes.string,
-    listView: PropTypes.string,
-    onClick: PropTypes.func,
-    icon: PropTypes.node
 };
 
 SearchResultsBox.propTypes = {

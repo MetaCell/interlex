@@ -1,5 +1,6 @@
 import React from "react"
 import { useState } from "react"
+import PropTypes from "prop-types";
 import { Box, Grid, Typography, FormControl, Autocomplete, Chip, TextField, Divider, Button } from "@mui/material"
 import AddIcon from "@mui/icons-material/Add"
 import CustomFormField from "../../common/CustomFormField"
@@ -40,20 +41,18 @@ const URI_PREFIX_BOX_STYLES = {
     padding: "0.5rem 0.75rem",
 }
 
-const SecondStepContent = () => {
+const SecondStepContent = ({ searchTerm }) => {
     const [superclass, setSuperclass] = useState("")
     const [subclassOf, setSubclassOf] = useState("")
     const [definitionUrls, setDefinitionUrls] = useState([])
     const [transitiveProperty, setTransitiveProperty] = useState("")
     const [definition, setDefinition] = useState("")
     const [comment, setComment] = useState("")
-    const [searchTerm] = useState("Central Nervous System")
-
     const [predicates, setPredicates] = useState([
         {
             subject: "",
             predicate: "",
-            object: { type: "Object", value: "", isLink: false },
+            object: { type: "Object", value: searchTerm, isLink: false },
         },
     ])
 
@@ -263,5 +262,9 @@ const SecondStepContent = () => {
         </Box>
     )
 }
+
+SecondStepContent.propTypes = {
+    searchTerm: PropTypes.string
+};
 
 export default SecondStepContent;

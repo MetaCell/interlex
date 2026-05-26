@@ -3,6 +3,7 @@ import {
     Box,
     Button,
     ButtonGroup,
+    Chip,
     Divider,
     Grid,
     Stack,
@@ -35,7 +36,9 @@ import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutl
 // TODO: These API endpoints are currently returning 501 (Not Implemented) errors
 // They have been updated to use real API service instead of mock data
 // Error handling is in place to gracefully handle 501 responses
-import { getOrganizationsCuries, getOrganizationsTerms, getOrganizationsOntologies } from "../../api/endpoints/apiService";
+import { getOrganizationsCuries, getOrganizationsTerms, getOrganizationsOntologies, getOrganizations } from "../../api/endpoints/apiService";
+import { GlobalDataContext } from "../../contexts/DataContext";
+import { useContext } from "react";
 
 import { vars } from "../../theme/variables";
 const { gray25, gray200, gray500, gray600 } = vars;
@@ -62,7 +65,9 @@ const useOrganizationData = (id) => {
     const [organizationCuries, setOrganizationCuries] = useState([]);
     const [organizationTerms, setOrganizationTerms] = useState([]);
     const [organizationOntologies, setOrganizationOntologies] = useState([]);
+    const [userRole, setUserRole] = useState(null);
     const [loading, setLoading] = useState(false);
+    const { user } = useContext(GlobalDataContext);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -122,6 +127,23 @@ const useOrganizationData = (id) => {
                 }
                 
                 setOrganizationOntologies(ontologiesRes || []);
+                
+                // Fetch user role for this organization
+                if (user?.groupname) {
+                    try {
+                        const organizationsResponse = await getOrganizations(user.groupname);
+                        if (organizationsResponse.length > 0) {
+                            // organizationsResponse is an array of [role, orgName] pairs
+                            const currentOrgData = organizationsResponse.find((orgData) => orgData[1] === id);
+                            if (currentOrgData) {
+                                setUserRole(currentOrgData[0]); // role is the first element
+                            }
+                        }
+                    } catch (roleError) {
+                        console.warn("Could not fetch user role for organization:", roleError);
+                        setUserRole(null);
+                    }
+                }
             } catch (error) {
                 console.error("Error fetching organization data", error);
                 // Set empty data on error to prevent UI issues
@@ -129,6 +151,7 @@ const useOrganizationData = (id) => {
                 setOrganizationTerms([]);
                 setOrganizationCuries([]);
                 setOrganizationOntologies([]);
+                setUserRole(null);
             } finally {
                 setLoading(false);
             }
@@ -137,7 +160,7 @@ const useOrganizationData = (id) => {
             console.log('useOrganizationData: Fetching data for organization:', id);
             fetchData();
         }
-    }, [id]);
+    }, [id, user?.groupname]);
 
     // Function to refresh only ontologies
     const refreshOntologies = async () => {
@@ -157,7 +180,7 @@ const useOrganizationData = (id) => {
         }
     };
 
-    return { organization, organizationCuries, organizationTerms, organizationOntologies, loading, refreshOntologies };
+    return { organization, organizationCuries, organizationTerms, organizationOntologies, userRole, loading, refreshOntologies };
 };
 
 const SingleOrganization = () => {
@@ -178,7 +201,7 @@ const SingleOrganization = () => {
     const navigate = useNavigate();
     const { title } = useParams(); // Get organization name from URL params
 
-    const { organization, organizationTerms, organizationOntologies, loading, refreshOntologies } = useOrganizationData(title);
+    const { organization, organizationTerms, organizationOntologies, userRole, loading, refreshOntologies } = useOrganizationData(title);
 
     useEffect(() => {
         if (Array.isArray(organizationTerms) && organizationTerms.length > 0) {
@@ -272,9 +295,22 @@ const SingleOrganization = () => {
             <Box flex={1} display='flex' flexDirection='column'>
                 <Box sx={{ p: "2.25rem 5rem", backgroundColor: gray25, width: '100%', gap: '1.75rem', display: 'flex', flexDirection: 'column' }}>
                     <Box display='flex' alignItems='center' justifyContent='space-between'>
-                        <Typography variant="h4" component="h1" sx={{ fontWeight: 600, color: gray600 }}>
-                            {organization?.name || title}
-                        </Typography>
+                        <Box display='flex' alignItems='center' gap={2}>
+                            <Typography variant="h4" component="h1" sx={{ fontWeight: 600, color: gray600 }}>
+                                {organization?.name || title}
+                            </Typography>
+                            {userRole && (
+                                <Chip 
+                                    label={userRole} 
+                                    size="small"
+                                    color="primary"
+                                    sx={{ 
+                                        textTransform: 'capitalize',
+                                        fontWeight: 500
+                                    }}
+                                />
+                            )}
+                        </Box>
                         <Stack direction="row" spacing="1rem" alignItems="center">
                             <Button type="string" color="secondary" startIcon={<EditNoteIcon />} onClick={handleViewOrganizationsClick}>
                                 View organization curies

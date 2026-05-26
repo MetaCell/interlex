@@ -113,7 +113,7 @@ const ImportFile = ({ onFilesSelected }) => {
                         hidden
                         id="browse"
                         onChange={handleFileChange}
-                        accept=".csv,.json,.jsonld"
+                        accept=".csv,.json,.jsonld,.ttl"
                         multiple
                     />
                     <Box display="flex" sx={styles.uploadLabel} gap={0.50}>
@@ -122,7 +122,7 @@ const ImportFile = ({ onFilesSelected }) => {
                         </label>
                         <span>or drag and drop</span>
                     </Box>
-                    <Typography variant="caption" sx={{ color: gray600, cursor: 'default' }}>CSV, JSON, JSON-LD (max. 800MB)</Typography>
+                    <Typography variant="caption" sx={{ color: gray600, cursor: 'default' }}>CSV, JSON, JSON-LD, TTL (max. 800MB)</Typography>
                     {error && <Typography variant="caption" sx={{ color: 'red' }}>{error}</Typography>}
                 </>
             </div>

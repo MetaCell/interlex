@@ -84,7 +84,7 @@ const styles = {
   }
 };
 
-const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userGroupname, onOntologySelect }) => {
+const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userGroupname, onOntologySelect, disableGlobalUpdate = false }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [openList, setOpenList] = useState(false);
   const [selectedValue, setSelectedValue] = useState(null);
@@ -191,14 +191,16 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userG
     setSelectedValue(prev => {
       if (prev) {
         const updatedOntology = { ...prev, selected: true };
-        // Save to context
-        setOntologyData(updatedOntology);
-        console.log('Active ontology saved to context:', updatedOntology);
+        // Save to context only if global updates are enabled
+        if (!disableGlobalUpdate) {
+          setOntologyData(updatedOntology);
+          console.log('Active ontology saved to context:', updatedOntology);
+        }
         return updatedOntology;
       }
       return null;
     });
-  }, [setOntologyData]);
+  }, [setOntologyData, disableGlobalUpdate]);
 
   const handleClickOutside = useCallback((event) => {
     if (
@@ -227,8 +229,8 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userG
     setSearchTerm('');
     setSelectedValue(value);
 
-    // If value is null (cleared), also clear from context
-    if (!value) {
+    // If value is null (cleared), also clear from context only if global updates are enabled
+    if (!value && !disableGlobalUpdate) {
       setOntologyData(null);
       console.log('Ontology cleared from context');
     }
@@ -237,7 +239,7 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userG
     if (onOntologySelect) {
       onOntologySelect(value);
     }
-  }, [onOntologySelect, setOntologyData]);
+  }, [onOntologySelect, setOntologyData, disableGlobalUpdate]);
 
   const popperProps = useMemo(() => ({
     sx: {
@@ -387,7 +389,8 @@ OntologySearch.propTypes = {
   disabled: PropTypes.bool,
   extra: PropTypes.object,
   userGroupname: PropTypes.string,
-  onOntologySelect: PropTypes.func
+  onOntologySelect: PropTypes.func,
+  disableGlobalUpdate: PropTypes.bool
 };
 
 export default OntologySearch;

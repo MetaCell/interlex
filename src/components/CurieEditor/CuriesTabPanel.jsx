@@ -32,10 +32,19 @@ const fieldStyle = {
     }
 };
 
-const tableCellStyle = {
-    minWidth: '37.5rem',
+const tableCellBaseStyle = {
     color: gray600,
     fontWeight: 400
+};
+
+const prefixCellStyle = {
+    ...tableCellBaseStyle,
+    width: '25%'
+};
+
+const namespaceCellStyle = {
+    ...tableCellBaseStyle,
+    width: '75%'
 };
 
 const CuriesTabPanel = (props) => {
@@ -44,17 +53,12 @@ const CuriesTabPanel = (props) => {
     const [columnIndex, setColumnIndex] = React.useState(-1);
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('prefix');
-    const [sortTriggered, setSortTriggered] = React.useState(false);
 
     const sortedRows = React.useMemo(() => {
-        // Ensure rows is always an array
+        // Ensure rows is always an array and apply natural sorting by default
         const safeRows = Array.isArray(rows) ? rows : [];
-        
-        if (sortTriggered) {
-            return stableSort(safeRows, getComparator(order, orderBy));
-        }
-        return safeRows;
-    }, [rows, order, orderBy, sortTriggered]);
+        return stableSort(safeRows, getComparator(order, orderBy));
+    }, [rows, order, orderBy]);
 
     React.useEffect(() => {
         onCurieAmountChange?.(rows.length)
@@ -63,12 +67,6 @@ const CuriesTabPanel = (props) => {
     const handleExit = () => {
         setRowIndex(-1);
         setColumnIndex(-1);
-    }
-
-    const handleSort = (dir) => {
-        setSortTriggered(true);
-        setOrder(dir);
-        handleExit();
     }
 
     if (error) {
@@ -84,17 +82,28 @@ const CuriesTabPanel = (props) => {
                     rows={rows}
                     order={order}
                     orderBy={orderBy}
-                    setOrder={handleSort}
+                    setOrder={setOrder}
                     setOrderBy={setOrderBy}
                     headCells={editMode ? headCellsEditMode : headCells}
                 >
+                    {editMode && (
+                        <TableRow>
+                            <TableCell align="left" sx={{ borderBottom: 'none !important', ...prefixCellStyle }} onClick={() => onAddRow(curieValue)}>
+                                <IconButton sx={{ padding: '0.625rem', border: `1px solid ${gray300}` }}>
+                                    <AddOutlinedIcon fontSize="small" sx={{ fill: gray700 }} />
+                                </IconButton>
+                            </TableCell>
+                            <TableCell sx={{ borderBottom: 'none !important', ...namespaceCellStyle }}></TableCell>
+                            <TableCell sx={{ borderBottom: 'none !important' }}></TableCell>
+                        </TableRow>
+                    )}
                     {Array.isArray(sortedRows) && sortedRows.map((row, index) => {
                         return (
                             <TableRow tabIndex={-1} key={`${row.prefix}_${row.namespace}`}>
                                 <TableCell
                                     align="left"
                                     onClick={() => { setRowIndex(index); setColumnIndex(0); }}
-                                    sx={{ border: rowIndex === index && columnIndex === 0 && editMode ? `2px solid ${brand500} !important` : 'inherit', ...tableCellStyle }}
+                                    sx={{ border: rowIndex === index && columnIndex === 0 && editMode ? `2px solid ${brand500} !important` : 'inherit', ...prefixCellStyle }}
                                 >
                                     {
                                         rowIndex === index && columnIndex === 0 && editMode ?
@@ -115,7 +124,7 @@ const CuriesTabPanel = (props) => {
                                 <TableCell
                                     align="left"
                                     onClick={() => { setRowIndex(index); setColumnIndex(1); }}
-                                    sx={{ border: rowIndex === index && columnIndex === 1 && editMode ? `2px solid ${brand500} !important` : 'inherit', ...tableCellStyle }}
+                                    sx={{ border: rowIndex === index && columnIndex === 1 && editMode ? `2px solid ${brand500} !important` : 'inherit', ...namespaceCellStyle }}
                                 >
                                     {
                                         rowIndex === index && columnIndex === 1 && editMode ?
@@ -143,15 +152,6 @@ const CuriesTabPanel = (props) => {
                             </TableRow>
                         );
                     })}
-                    {editMode && (
-                        <TableRow>
-                            <TableCell align="left" sx={{ borderBottom: 'none !important' }} onClick={() => onAddRow(curieValue)}>
-                                <IconButton sx={{ padding: '0.625rem', border: `1px solid ${gray300}` }}>
-                                    <AddOutlinedIcon fontSize="small" sx={{ fill: gray700 }} />
-                                </IconButton>
-                            </TableCell>
-                        </TableRow>
-                    )}
                 </CustomTable>
             )}
         </ClickAwayListener>

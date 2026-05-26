@@ -75,8 +75,15 @@ const CurieEditor = () => {
                 });
                 data = transformCuriesResponse(response);
             } else if (type === 'latest') {
-                // "Latest" tab - stay empty for now
-                data = [];
+                // "Latest" tab - get curies from "base" groupname (same as curated)
+                const response = await getOrganizationsCuries('base').catch(error => {
+                    if (error?.response?.status === 501) {
+                        console.warn('Curies endpoint not implemented yet (501) for base, using empty array');
+                        return [{}]; // Return array with empty object to match expected structure
+                    }
+                    throw error;
+                });
+                data = transformCuriesResponse(response);
             }
             
             setCuries(prev => ({ ...prev, [type]: data }));
@@ -91,7 +98,7 @@ const CurieEditor = () => {
     }, [user]);
 
     const handleAddNewCurieRow = (curieValue) => {
-        setCuries(prev => ({ ...prev, [curieValue]: [...prev[curieValue], newRowObj] }));
+        setCuries(prev => ({ ...prev, [curieValue]: [newRowObj, ...prev[curieValue]] }));
     };
 
     const handleDeleteCurieRow = (curieValue, rowPrefix, rowNamespace) => {
@@ -174,7 +181,7 @@ const CurieEditor = () => {
                                     curieValue={tab}
                                     error={error}
                                     loading={loading}
-                                    editMode
+                                    editMode={tab === 'base'} // Only allow editing for 'base' (My curies) tab
                                     rows={curies[tab]}
                                     onCurieAmountChange={handleCurieAmountChange}
                                     onAddRow={handleAddNewCurieRow}

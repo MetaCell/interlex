@@ -230,6 +230,13 @@ const Login = () => {
     }
   };
 
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    if (formData.username.trim() && formData.password.trim()) {
+      loginUser();
+    }
+  };
+
   return (
     <Box className="authArea">
       {isLoading ? <Box sx={{ height: 1, width: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -243,7 +250,7 @@ const Login = () => {
           <Typography variant="h4">Log in to your account</Typography>
           <Typography variant="body1">Welcome! Please enter your details.</Typography>
           {errors.auth && <Alert severity="error" sx={{ mt: 2 }}>{errors.auth}</Alert>}
-          <form className="authForm">
+          <form className="authForm" onSubmit={handleFormSubmit}>
             <Grid container spacing={2.5}>
               <Grid item xs={12}>
                 <CustomFormField
@@ -293,7 +300,7 @@ const Login = () => {
               </Grid>
               <Grid item xs={12}>
                 <FormControl>
-                  <Button variant="contained" color="primary" onClick={loginUser}>
+                  <Button variant="contained" color="primary" type="submit">
                     Sign in
                   </Button>
                 </FormControl>

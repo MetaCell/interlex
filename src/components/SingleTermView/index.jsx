@@ -9,12 +9,7 @@ import {
   Typography,
   Menu,
   MenuItem,
-  CircularProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  DialogContentText
+  CircularProgress
 } from "@mui/material";
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton';
@@ -49,6 +44,7 @@ import CustomButtonGroup from "../common/CustomButtonGroup";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CreateForkDialog from "./CreateForkDialog";
 import TermDialog from "../TermEditor/TermDialog";
+import FeatureNotAvailableDialog from "../common/FeatureNotAvailableDialog";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { getRawData } from "../../api/endpoints";
 import { useTermData } from "../../hooks/useTermData";
@@ -404,26 +400,10 @@ const SingleTermView = () => {
       />
       
       {/* Feature Not Available Dialog */}
-      <Dialog
+      <FeatureNotAvailableDialog
         open={featureNotAvailableDialog}
         onClose={handleCloseFeatureNotAvailableDialog}
-        aria-labelledby="feature-not-available-dialog-title"
-        aria-describedby="feature-not-available-dialog-description"
-      >
-        <DialogTitle id="feature-not-available-dialog-title">
-          Feature Not Yet Available
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="feature-not-available-dialog-description">
-            This feature is not yet implemented. Please check back in a future update.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseFeatureNotAvailableDialog} color="primary" autoFocus>
-            OK
-          </Button>
-        </DialogActions>
-      </Dialog>
+      />
     </>
   )
 }
