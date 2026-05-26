@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useState, useCallback, useContext } from "react";
+import { useState, useContext } from "react";
 import {
     Box,
     Divider,
@@ -9,6 +9,7 @@ import {
     TextField,
     Chip
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import { GlobalDataContext } from "../../../contexts/DataContext";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
 import CustomFormField from "../../common/CustomFormField";
@@ -19,9 +20,19 @@ import { vars } from "../../../theme/variables";
 import { TYPES, DEFAULT_TYPE } from "../../../constants/types";
 import { useTermSearch } from "../../../hooks/useTermSearch";
 
-const { white, gray300, gray400, gray600, gray700 } = vars;
+const { white, gray300, gray400, gray500, gray600 } = vars;
 
 const styles = {
+    contentBox: {
+        px: "3.25rem",
+        pt: "1.75rem",
+        pb: "2.5rem",
+        flex: 1,
+        overflowY: "auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: "2.75rem",
+    },
     autocomplete: {
         "& .MuiOutlinedInput-root": {
             background: white,
@@ -29,7 +40,7 @@ const styles = {
             padding: "0.5rem 0.75rem !important"
         },
         "& .MuiOutlinedInput-root .MuiAutocomplete-input": {
-            color: gray700,
+            color: gray500,
             fontWeight: 400,
         },
         "& .MuiAutocomplete-popupIndicator": {
@@ -52,36 +63,14 @@ const styles = {
             "& .MuiChip-deleteIcon": {
                 color: `${gray400} !important`,
             },
-        }
+        },
     },
-    contentBox: {
-        px: "3.25rem",
-        pt: "1.75rem",
-        pb: "2.5rem",
-        flex: 1,
-        overflowY: "auto",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2.75rem",
-    }
 };
 
-const FirstStepContent = ({
-    term,
-    type,
-    hasExactMatch,
-    existingIds,
-    synonyms,
-    isEditing,
-    handleTermChange,
-    handleTypeChange,
-    handleExactMatchChange,
-    handleExistingIdChange,
-    handleSynonymChange,
-    onTermSelect,
-}) => {
-    const [openSidebar, setOpenSidebar] = useState(true)
-    const { user } = useContext(GlobalDataContext)
+const FirstStepContent = ({ term, type, existingIds, synonyms, isEditing, handleTermChange, handleTypeChange, handleExistingIdChange, handleSynonymChange, handleExactMatchChange, handleDialogClose }) => {
+    const [openSidebar, setOpenSidebar] = useState(true);
+    const { user, updateStoredSearchTerm } = useContext(GlobalDataContext);
+    const navigate = useNavigate();
 
     const { loading, searchResults } = useTermSearch({
         term,
@@ -89,26 +78,19 @@ const FirstStepContent = ({
         synonyms,
         isEditing,
         onExactMatchChange: handleExactMatchChange,
-    })
+    });
 
-    const handleSidebarToggle = useCallback(() => {
-        setOpenSidebar((prev) => !prev)
-    }, [])
+    const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
 
-    const handleResultSelect = useCallback(
-        (result) => {
-            if (!result?.label) return
+    const handleResultSelect = (searchResult) => {
+        updateStoredSearchTerm(searchResult?.label);
+        const groupName = user?.groupname || 'base';
+        navigate(`/${groupName}/${searchResult?.ilx}/overview`);
+        handleDialogClose();
+    };
 
-            handleTermChange(result.label)
-            if (onTermSelect) {
-                onTermSelect(result)
-            }
-        },
-        [handleTermChange, onTermSelect],
-    )
-
-    const renderChips = useCallback((values, getTagProps, chipStyles) =>
-        values.map((option, index) => (
+    const renderChips = (values, getTagProps, chipStyles) => {
+        return values.map((option, index) => (
             <Chip
                 key={index}
                 label={option}
@@ -116,7 +98,8 @@ const FirstStepContent = ({
                 sx={chipStyles}
                 {...getTagProps({ index })}
             />
-        )), []);
+        ));
+    };
 
     return (
         <Box display="flex" height={1}>
@@ -152,7 +135,6 @@ const FirstStepContent = ({
                             value={term}
                             onChange={handleTermChange}
                             isEndAdornmentVisible
-                            errorMessage={hasExactMatch ? "Your label has an exact match." : null}
                         />
                     </Stack>
 
@@ -217,7 +199,6 @@ const FirstStepContent = ({
 FirstStepContent.propTypes = {
     term: PropTypes.string,
     type: PropTypes.oneOf(TYPES),
-    hasExactMatch: PropTypes.bool,
     existingIds: PropTypes.arrayOf(PropTypes.string),
     synonyms: PropTypes.arrayOf(PropTypes.string),
     isEditing: PropTypes.bool,
@@ -226,15 +207,16 @@ FirstStepContent.propTypes = {
     handleExactMatchChange: PropTypes.func.isRequired,
     handleExistingIdChange: PropTypes.func.isRequired,
     handleSynonymChange: PropTypes.func.isRequired,
+    handleDialogClose: PropTypes.func.isRequired,
     onTermSelect: PropTypes.func,
 }
 
 FirstStepContent.defaultProps = {
     term: "",
     type: DEFAULT_TYPE,
-    hasExactMatch: false,
     existingIds: [],
     synonyms: [],
+    isEditing: false,
 }
 
 export default FirstStepContent
