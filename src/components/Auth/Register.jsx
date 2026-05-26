@@ -244,6 +244,18 @@ const Register = () => {
                 />
               </Grid>
               <Grid item xs={12}>
+                <PasswordField
+                  label="Confirm Password"
+                  placeholder="Confirm your password"
+                  value={formData.confirmPassword}
+                  onChange={(e) =>
+                    setFormData({ ...formData, confirmPassword: e.target.value })
+                  }
+                  errorMessage={errors.confirmPassword}
+                  isRequired
+                />
+              </Grid>
+              <Grid item xs={12}>
                 <FormControl>
                   <Button
                     variant="contained"
