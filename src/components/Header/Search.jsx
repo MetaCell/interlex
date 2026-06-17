@@ -301,6 +301,7 @@ const Search = () => {
     <Autocomplete
       sx={{ '& .MuiOutlinedInput-root': { borderRadius: openList ? '0.5rem 0.5rem 0 0' : '0.5rem' } }}
       options={options}
+      handleHomeEndKeys={false}
       inputValue={searchTerm || ""}
       onChange={handleSelectTerm}
       filterOptions={(options) => options}
