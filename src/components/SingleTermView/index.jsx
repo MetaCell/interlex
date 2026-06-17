@@ -9,7 +9,8 @@ import {
   Typography,
   Menu,
   MenuItem,
-  CircularProgress
+  CircularProgress,
+  Alert
 } from "@mui/material";
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton';
@@ -67,7 +68,7 @@ const formatExtensions = {
 };
 
 const SingleTermView = () => {
-  const { group, term, tab } = useParams();
+  const { group, term, tab, versionHash } = useParams();
   const navigate = useNavigate();
   const [dataFormatAnchorEl, setDataFormatAnchorEl] = useState(null);
   const [isCodeViewVisible, setIsCodeViewVisible] = useState(false);
@@ -227,7 +228,7 @@ const SingleTermView = () => {
   const tabContent = useMemo(() => {
     switch (tabValue) {
       case 0:
-        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} />;
+        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} />;
       case 1:
         return <VariantsPanel searchTerm={searchTerm} group={actualGroup} />;
       case 2:
@@ -235,9 +236,9 @@ const SingleTermView = () => {
       case 3:
         return <Discussion term={searchTerm} />;
       default:
-        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} />;
+        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} />;
     }
-  }, [tabValue, searchTerm, isCodeViewVisible, selectedDataFormat, actualGroup]);
+  }, [tabValue, searchTerm, isCodeViewVisible, selectedDataFormat, actualGroup, versionHash]);
 
   // Memoize the toggle button group for overview tab
   const toggleButtonGroup = useMemo(() => {
@@ -407,6 +408,13 @@ const SingleTermView = () => {
             </Grid>
           </Grid>
         </Box>
+        {versionHash && (
+          <Box px="5rem" pt="1.5rem">
+            <Alert severity="info">
+              Viewing a historical version of this term (identity graph <code>{versionHash}</code>). This snapshot is read-only.
+            </Alert>
+          </Box>
+        )}
         {tabContent}
       </Box>
       {/* TODO: Re-enable when merge request feature is implemented */}

@@ -19,7 +19,10 @@ import {
   getRawData,
   getTermHierarchies,
   getTermPredicates,
+  getTermVersion,
 } from "../../../api/endpoints/apiService";
+import termParser from "../../../parsers/termParser";
+import { versionSnapshotToJsonLd } from "../../../parsers/versionParser";
 import { patchEndpointsIlx } from "../../../api/endpoints/interLexURIStructureAPI";
 import {
   focusNodeFromJsonLd,
@@ -54,7 +57,7 @@ const interpretPatchResult = (res) => {
   return { ok, status, message };
 };
 
-const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, group = "base" }) => {
+const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, group = "base", versionHash }) => {
   const [data, setData] = useState(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [jsonData, setJsonData] = useState(null);
@@ -184,26 +187,65 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
     }
   }, []);
 
+  // Live (head) term load. Skipped in version mode — a snapshot is loaded below.
   useEffect(() => {
+    if (versionHash) return;
     setPageLoading(true);
     setLoadingHierarchies(true);
     setLoadingPredicates(true);
     debouncedFetchTerms(searchTerm, group);
     fetchJSONFile();
     return () => debouncedFetchTerms.cancel();
-  }, [searchTerm, group, debouncedFetchTerms, fetchJSONFile]);
+  }, [searchTerm, group, debouncedFetchTerms, fetchJSONFile, versionHash]);
+
+  // Version mode: load a single term-version snapshot and feed it through the
+  // same JSON-LD pipeline (Details/predicates/raw) the head view uses.
+  useEffect(() => {
+    if (!versionHash || !searchTerm) return;
+    let active = true;
+    setPageLoading(true);
+    setLoadingPredicates(true);
+    (async () => {
+      try {
+        // Borrow the live head @context (richer curie set) when reachable.
+        let headContext;
+        try {
+          const head = await getRawData(group, searchTerm, "jsonld");
+          headContext = head?.["@context"];
+        } catch { /* fall back to the parser's default context */ }
+
+        const snapshot = await getTermVersion(group, searchTerm, versionHash);
+        if (!active) return;
+
+        const jsonld = versionSnapshotToJsonLd(snapshot, versionHash, headContext);
+        setJsonData(jsonld);
+
+        const first = termParser(jsonld, searchTerm)?.results?.[0] || null;
+        setData(first);
+        const id = first?.id || searchTerm;
+        setSelectedValue({ id, label: first?.label || searchTerm });
+      } catch (e) {
+        console.error("loadVersion error:", e);
+        if (active) { setData(null); setJsonData(null); }
+      } finally {
+        if (active) { setPageLoading(false); setLoadingPredicates(false); }
+      }
+    })();
+    return () => { active = false; };
+  }, [versionHash, searchTerm, group]);
 
   useEffect(() => {
     if (selectedValue?.id) {
       fetchHierarchies(selectedValue.id, "base");
-      fetchPredicates(selectedValue.id, "base");
+      // In version mode predicates come from the snapshot, not the live graph.
+      if (!versionHash) fetchPredicates(selectedValue.id, "base");
     } else {
       setTreeChildren([]);
       setTreeSuperclasses([]);
       setPredicateGroups([]);
       setHierarchyOptions([]);
     }
-  }, [selectedValue, fetchHierarchies, fetchPredicates]);
+  }, [selectedValue, fetchHierarchies, fetchPredicates, versionHash]);
 
   // Apply a single predicate triple add/edit/delete to the focus term and PATCH it.
   const handlePredicateMutation = useCallback(async (mutation) => {
@@ -270,6 +312,21 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
   }, [jsonData, selectedValue, searchTerm]);
 
   const predicates = useMemo(() => {
+    // Version mode: every predicate group comes straight from the snapshot
+    // JSON-LD (the post-PATCH freshness workaround below does not apply).
+    if (versionHash) {
+      if (!jsonData) return [];
+      const termId = selectedValue?.id ? toILX(selectedValue.id) : searchTerm;
+      // isAbout / owl:versionIRI are synthetic markers the snapshot parser adds
+      // for termParser + Details; they are not real term predicates.
+      const META_TITLES = new Set(["isabout", "ilx.isabout", "owl:versioniri"]);
+      return dedupePredicateGroups(
+        buildPredicateGroupsForFocus(jsonData, termId)
+          .filter((g) => !META_TITLES.has(String(g.title || "").trim().toLowerCase()))
+          .map(shortenGroup)
+      );
+    }
+
     const norm = (t) => String(t || "").trim().toLowerCase();
 
     // Editable literal predicates (synonym/definition/label) must reflect the
@@ -294,7 +351,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
   return (
     <Box p="2.5rem 5rem" sx={{ overflow: "auto" }}>
       {isCodeViewVisible ? (
-        <RawDataViewer dataId={searchTerm} dataFormat={selectedDataFormat} />
+        <RawDataViewer dataId={searchTerm} dataFormat={selectedDataFormat} group={group} versionHash={versionHash} />
       ) : (
         <>
           {/* Show single global loader when all sections are loading */}
@@ -325,7 +382,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
                       loading={showIndividualLoaders ? loadingPredicates : false}
                       focusId={selectedValue?.id}
                       group={group}
-                      onMutate={handlePredicateMutation}
+                      onMutate={versionHash ? undefined : handlePredicateMutation}
                     />
                   </Grid>
                 </Grid>
@@ -368,6 +425,7 @@ OverView.propTypes = {
   isCodeViewVisible: PropTypes.bool,
   selectedDataFormat: PropTypes.string,
   group: PropTypes.string,
+  versionHash: PropTypes.string,
 };
 
 export default OverView;

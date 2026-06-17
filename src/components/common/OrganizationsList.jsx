@@ -68,7 +68,7 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
           const userRole = typeof organization === 'object' ? organization.role : null;
           
           return (
-            <ListItem key={index} onClick={() => navigate(`/organizations/${orgName}`)}>
+            <ListItem key={index} onClick={() => navigate(`/${orgName}`)}>
               <ListItemText 
                 primary={
                   <Box display='flex' alignItems='center' justifyContent='space-between'>
@@ -97,7 +97,7 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
                   viewJoinButton && <Button
                     variant="outlined"
                     className="join-button"
-                    onClick={() => navigate(`/organizations/${orgName}`)}
+                    onClick={() => navigate(`/${orgName}`)}
                     startIcon={<Groups />}
                     sx={{
                       visibility: 'hidden',
