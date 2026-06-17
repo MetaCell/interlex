@@ -3,20 +3,21 @@ import AddIcon from '@mui/icons-material/Add';
 import Checkbox from "../common/CustomCheckbox";
 import StatusDialog from "../common/StatusDialog";
 import CustomFormField from "../common/CustomFormField";
-import { Stack, Button, Grid, Box } from "@mui/material";
+import { Stack, Button, Grid, Box, TextField, InputAdornment, Typography } from "@mui/material";
 import CustomizedDialog from "../common/CustomizedDialog";
 import ImportFileTab from "./../TermEditor/ImportFileTab";
 import BasicTabs from "../common/CustomTabs";
 import { useState, useCallback } from "react";
 import { createNewOntology } from "../../api/endpoints/apiService";
+import { API_CONFIG } from "../../config";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { useContext } from "react";
 
-const HeaderRightSideContent = ({ handleClose, onAddNewOntology }) => {
+const HeaderRightSideContent = ({ handleClose, onAddNewOntology, disabled }) => {
     return (
         <Box display='flex' alignItems='center' gap={1.5}>
             <Button sx={{ p: '0.625rem 0.875rem', minWidth: '0.0625rem' }} variant="outlined" onClick={handleClose}>Cancel</Button>
-            <Button sx={{ p: '0.625rem 0.875rem', minWidth: '0.0625rem' }} variant='contained' onClick={onAddNewOntology}>
+            <Button sx={{ p: '0.625rem 0.875rem', minWidth: '0.0625rem' }} variant='contained' onClick={onAddNewOntology} disabled={disabled}>
                 <AddIcon />
                 Add a new ontology
             </Button>
@@ -26,13 +27,15 @@ const HeaderRightSideContent = ({ handleClose, onAddNewOntology }) => {
 
 HeaderRightSideContent.propTypes = {
     handleClose: PropTypes.func,
-    onAddNewOntology: PropTypes.func
+    onAddNewOntology: PropTypes.func,
+    disabled: PropTypes.bool
 }
 
 const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organizationName }) => {
     const [openStatusDialog, setOpenStatusDialog] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
     const [newOntology, setNewOntology] = useState({
-        title: "",
+        uri: "",
         description: ""
     });
     const [newOntologyResponse, setNewOntologyResponse] = useState({
@@ -46,9 +49,13 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
     const [tabValue, setTabValue] = useState(0);
     const { user } = useContext(GlobalDataContext);
 
+    // group used both for the POST endpoint and the immutable URI prefix shown to the user
+    const groupForUri = organizationName || user?.groupname || "base";
+    const uriPrefix = `${API_CONFIG.INTERLEX_URL}/${groupForUri}/ontologies/uris/`;
+
     const resetComponentState = () => {
         setNewOntology({
-            title: "",
+            uri: "",
             description: ""
         });
         setFiles([]);
@@ -69,37 +76,48 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
     };
 
     const handleSubmit = async () => {
-        // groupname comes from the caller: header passes the user's groupname, org view passes the organization name
-        const groupname = organizationName || user?.groupname
+        // Guard against a second submission while the first request is in flight
+        // (prevents the duplicate POST seen after the backend returns a 303).
+        if (submitting) return;
 
-        const ontologyName = newOntology?.title.replace(/\s+/g, '_') + "_" + Math.random().toString(36).substring(2, 10);
-        const title = newOntology?.title || files?.[0]?.data?.title || "";
+        const groupname = groupForUri;
+
+        // The URI suffix typed by the user IS the ontology name - no mangling / random suffix.
+        const ontologyName = (newOntology?.uri || files?.[0]?.data?.title || "").trim();
+        if (!ontologyName) return;
+
+        const title = ontologyName;
         const subjects = files?.[0]?.data?.subjects;
 
-        const result = await createNewOntology({
-            groupname,
-            ontologyName,
-            title,
-            subjects,
-        });
+        setSubmitting(true);
+        try {
+            const result = await createNewOntology({
+                groupname,
+                ontologyName,
+                title,
+                subjects,
+            });
 
-        let ontologyResponseMessage = "Ontology created successfully!"
-        
-        if (result.created) {
-            if (result.jsonldAvailable === false) {
-                ontologyResponseMessage += " Note: Ontology viewing is currently disabled as the backend implementation is not yet available."
+            let ontologyResponseMessage = "Ontology created successfully!"
+
+            if (result.created) {
+                if (result.jsonldAvailable === false) {
+                    ontologyResponseMessage += " Note: Ontology viewing is currently disabled as the backend implementation is not yet available."
+                }
+            } else {
+                ontologyResponseMessage = "Failed to create ontology"
+                console.error('❌ Failed to create ontology:', result.error);
             }
-        } else {
-            ontologyResponseMessage = "Failed to create ontology"
-            console.error('❌ Failed to create ontology:', result.error);
-        }
 
-        setOpenStatusDialog(true);
-        setNewOntologyResponse({ title: newOntology?.title, description: ontologyResponseMessage, message: ontologyResponseMessage, created: result.created });
-        
-        // If ontology was created successfully, trigger refresh
-        if (result.created && onOntologyAdded) {
-            onOntologyAdded();
+            setOpenStatusDialog(true);
+            setNewOntologyResponse({ title: ontologyName, description: ontologyResponseMessage, message: ontologyResponseMessage, created: result.created });
+
+            // If ontology was created successfully, trigger refresh
+            if (result.created && onOntologyAdded) {
+                onOntologyAdded();
+            }
+        } finally {
+            setSubmitting(false);
         }
     }
 
@@ -326,6 +344,7 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
                     <HeaderRightSideContent
                         handleClose={handleDialogClose}
                         onAddNewOntology={handleAddNewOntology}
+                        disabled={submitting || !newOntology.uri.trim()}
                     />
                 }
             >
@@ -336,15 +355,24 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
                             <Grid container spacing={5.5} sx={{ marginTop: 0 }}>
                                 <Grid item xs={12} lg={12}>
                                     <Stack direction="column" mb={1}>
-                                        <CustomFormField
-                                            name="title"
-                                            value={newOntology.title}
+                                        <Typography variant="body1" sx={{ fontWeight: 500, mb: '0.375rem' }}>
+                                            Ontology uri
+                                        </Typography>
+                                        <TextField
+                                            name="uri"
+                                            value={newOntology.uri}
                                             onChange={handleNewOntologyChange}
-                                            label="Ontology title"
-                                            isRequired
-                                            placeholder={"Type your Ontology title"}
-                                            isEndAdornmentVisible
-                                            textFontSize="body1"
+                                            placeholder="my-ontology"
+                                            fullWidth
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <Typography variant="body2" sx={{ color: 'text.secondary', whiteSpace: 'nowrap' }}>
+                                                            {uriPrefix}
+                                                        </Typography>
+                                                    </InputAdornment>
+                                                )
+                                            }}
                                         />
                                     </Stack>
                                     <Checkbox label="Set as active ontology" />
