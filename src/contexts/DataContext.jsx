@@ -12,7 +12,11 @@ const GlobalDataProvider = ({ children }) => {
   const [predicatesSingleTermState, setPredicatesSingleTermState] = useState(false);
   const [editBulkSearchFilters, setEditBulkSearchFilters] = useState([]);
   const [storedSearchTerm, setStoredSearchTerm] = useState("");
+  const [ontologiesRefreshKey, setOntologiesRefreshKey] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  // Bump to signal consumers (e.g. OntologySearch) to re-fetch the ontology list.
+  const refreshOntologies = () => setOntologiesRefreshKey((key) => key + 1);
   const setOntologyData = (ontology) => {
     setActiveOntology(ontology);
   };
@@ -66,8 +70,10 @@ const GlobalDataProvider = ({ children }) => {
     setEditBulkSearchData,
     storedSearchTerm,
     updateStoredSearchTerm,
+    ontologiesRefreshKey,
+    refreshOntologies,
     loading
-  };  
+  };
 
   return (
     <GlobalDataContext.Provider value={dataContextValue}>

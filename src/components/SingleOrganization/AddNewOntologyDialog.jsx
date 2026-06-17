@@ -47,7 +47,7 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
     const [files, setFiles] = useState([]);
     const [url, setUrl] = useState('');
     const [tabValue, setTabValue] = useState(0);
-    const { user } = useContext(GlobalDataContext);
+    const { user, refreshOntologies } = useContext(GlobalDataContext);
 
     // group used both for the POST endpoint and the immutable URI prefix shown to the user
     const groupForUri = organizationName || user?.groupname || "base";
@@ -113,8 +113,11 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
             setNewOntologyResponse({ title: ontologyName, description: ontologyResponseMessage, message: ontologyResponseMessage, created: result.created });
 
             // If ontology was created successfully, trigger refresh
-            if (result.created && onOntologyAdded) {
-                onOntologyAdded();
+            if (result.created) {
+                refreshOntologies();
+                if (onOntologyAdded) {
+                    onOntologyAdded();
+                }
             }
         } finally {
             setSubmitting(false);

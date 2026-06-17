@@ -93,7 +93,7 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userG
   const autocompleteRef = useRef(null);
   const popperRef = useRef(null);
   
-  const { activeOntology, setOntologyData } = useContext(GlobalDataContext);
+  const { activeOntology, setOntologyData, ontologiesRefreshKey } = useContext(GlobalDataContext);
 
   // Initialize selectedValue from context immediately if available
   useEffect(() => {
@@ -147,7 +147,7 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userG
     };
 
     fetchOntologies();
-  }, [userGroupname]);
+  }, [userGroupname, ontologiesRefreshKey]);
 
   // Initialize selectedValue from context when ontologies are loaded
   useEffect(() => {
