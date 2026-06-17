@@ -123,8 +123,22 @@ const Search = () => {
   }
 
   const handleEnterKey = (event) => {
-    if (event.key === 'Enter' && searchTerm.trim()) {
-      event.preventDefault();
+    if (event.key !== 'Enter' || !searchTerm.trim()) return;
+
+    // Stop MUI Autocomplete from auto-selecting the highlighted (first) option
+    event.defaultMuiPrevented = true;
+    event.preventDefault();
+
+    const query = searchTerm.trim().toLowerCase();
+    const currentOptions = tabValue === 0 ? terms : tabValue === 1 ? organizations : ontologies;
+    const exactMatch = (currentOptions || []).find(
+      (option) => !option?.hidden && (option.label || option.name || '').toLowerCase() === query
+    );
+
+    if (exactMatch) {
+      handleSelectTerm(event, exactMatch);
+    } else {
+      // No exact match: behave like clicking "Browse all"
       handleSearchTermClick();
     }
   };
