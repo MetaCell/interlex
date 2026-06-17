@@ -182,7 +182,7 @@ const ResultItem = ({ result, searchValue, onResultAction, user }) => {
                     </Typography>
                     {isExactMatch && (
                         <Box sx={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                            <Typography>Central Nervous System</Typography>
+                            <Typography>{result.object}</Typography>
                             <Chip label="ODC-TBI" variant="outlined" />
                         </Box>
                     )}

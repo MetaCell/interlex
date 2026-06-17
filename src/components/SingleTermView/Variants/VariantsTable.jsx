@@ -6,13 +6,10 @@ import {
     Paper, Chip, Typography, IconButton, Pagination, PaginationItem
 } from '@mui/material';
 import CustomTableHead from './CustomTableHead';
-import DoneIcon from '@mui/icons-material/Done';
 import {getComparator, stableSort} from "../../../helpers";
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { ArrowOutwardIcon, DownloadIcon } from '../../../Icons';
-import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import { ArrowOutwardIcon } from '../../../Icons';
 
 import { vars } from '../../../theme/variables';
 const { gray100, gray200, gray600, gray700, gray900 } = vars;
@@ -41,22 +38,9 @@ const iconButtonStyle = {
     }
 };
 
-const getChipColor = (status) => ({
-    Active: 'success',
-    Inactive: 'default',
-    Deleted: 'error'
-}[status]);
-
-const getChipIcon = (status) => ({
-    Active: <DoneIcon />,
-    Inactive: <CloseOutlinedIcon />,
-    Deleted: <DeleteOutlineOutlinedIcon />
-}[status]);
-
-
-const VariantsTable = ({ rows, headCells }) => {
+const VariantsTable = ({ rows, headCells, group, term }) => {
     const [order, setOrder] = React.useState('asc');
-    const [orderBy, setOrderBy] = React.useState('organization');
+    const [orderBy, setOrderBy] = React.useState('firstSeen');
     const [page, setPage] = React.useState(1);
     const rowsPerPage = 5; // Define how many rows you want to display per page
 
@@ -94,32 +78,25 @@ const VariantsTable = ({ rows, headCells }) => {
                             {displayedRows.map((row) => {
                                 return (
                                     <TableRow tabIndex={-1} key={row.id}>
-                                        <TableCell sx={{ color: gray700}}>{row.organization}</TableCell>
-                                        <TableCell sx={descriptionTextStyle}>{row.description}</TableCell>
-                                        <TableCell><Chip color='default' sx={{ maxWidth: '8.125rem' }} label={row.timestamp} /></TableCell>
                                         <TableCell>
-                                            <Chip
-                                                color={getChipColor(row.status)}
-                                                icon={getChipIcon(row.status)}
-                                                label={row.status}
-                                                sx={{ maxWidth: '5rem' }}
-                                            />
+                                            <Chip color='default' sx={{ maxWidth: '8.125rem' }} label={row.fork} />
                                         </TableCell>
+                                        <TableCell sx={descriptionTextStyle}>{row.title}</TableCell>
+                                        <TableCell sx={{ color: gray700 }}>{row.firstSeen}</TableCell>
+                                        <TableCell sx={{ color: gray700 }}>{row.tripleCount}</TableCell>
                                         <TableCell>
-                                            <Typography variant='body2' sx={{ color: gray900 }}>{row.originatingUser.userName}</Typography>
-                                            {/* <Typography variant='body2' sx={{ color: gray600 }}>{row.originated_user_email}</Typography> */}
+                                            <Typography variant='body2' sx={{ color: gray900, fontFamily: 'monospace' }}>{row.identityGraph}</Typography>
                                         </TableCell>
-                                        <TableCell>
-                                            <Typography variant='body2' sx={{ color: gray900 }}>{row.editingUser.userName}</Typography>
-                                            {/* <Typography variant='body2' sx={{ color: gray600 }}>{row.editing_user_email}</Typography> */}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Box display="flex" gap={0.5} justifyContent="flex-end">
-                                                <IconButton sx={iconButtonStyle} onClick={() => console.log("Import")}><DownloadIcon /></IconButton>
-                                                <IconButton sx={iconButtonStyle} onClick={() => console.log("Go")}>
-                                                    <ArrowOutwardIcon />
-                                                </IconButton>
-                                            </Box>
+                                        <TableCell sx={{ width: '3.5rem', whiteSpace: 'nowrap' }}>
+                                            <IconButton
+                                                sx={iconButtonStyle}
+                                                disabled={!row.id}
+                                                component="a"
+                                                href={row.id ? `/${group}/${term}/versions/${row.id}` : undefined}
+                                                title="Open this version"
+                                            >
+                                                <ArrowOutwardIcon />
+                                            </IconButton>
                                         </TableCell>
                                     </TableRow>
                                 );
@@ -162,6 +139,8 @@ const VariantsTable = ({ rows, headCells }) => {
 VariantsTable.propTypes = {
     rows: PropTypes.array.isRequired,
     headCells: PropTypes.array.isRequired,
+    group: PropTypes.string,
+    term: PropTypes.string,
 };
 
 export default VariantsTable;

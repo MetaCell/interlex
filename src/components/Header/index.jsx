@@ -136,7 +136,7 @@ const NavMenu = [
     {
         label: 'Documentation',
         icon: <DocumentationIcon />,
-        href: '#'
+        href: '/documentation'
     },
     {
         label: 'Release notes',
@@ -387,7 +387,7 @@ const Header = () => {
                             <Button variant="outlined" onClick={() => navigate("/login")}>Log in</Button>
                         </Box>
                         <Divider sx={styles.divider} />
-                        <CustomButtonGroup options={options} />
+                        <CustomButtonGroup options={options} disabled={!isLoggedIn} disabledTooltip="Log in to add terms or ontologies" />
                     </Box>
                 ) : (
                     <Box display='flex' gap='1.25rem'>

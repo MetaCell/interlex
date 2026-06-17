@@ -52,6 +52,7 @@ export const useTermSearch = ({ term, type, synonyms, isEditing, onExactMatchCha
               return matchList.map((match) => ({
                 ilx: termUri.split("/").pop(),
                 label: match.object ?? termUri.split("/").pop() ?? "Unknown",
+                object: match.object ?? "",
                 isExactMatch: true,
               }))
             },

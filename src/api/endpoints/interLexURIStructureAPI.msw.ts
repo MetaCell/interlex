@@ -1158,7 +1158,8 @@ export const getInterLexURIStructureAPIMock = () => [
   getPostEndpointsMappedMockHandler(),
   getGetEndpointsLexicalMockHandler(),
   getGetOntologiesOntologiesContributionsMockHandler(),
-  getGetOntologiesOntologiesUrisMockHandler(),
+  // NOTE: the ontology spec GET mock is intentionally NOT registered so the app hits the
+  // real `/{group}/ontologies/uris/{name}/spec` endpoint (used to read ontology membership).
   getPostOntologiesOntologiesUrisMockHandler(),
   getGetOntologiesOntologiesUrisVersionMockHandler(),
   getPostOntologiesOntologiesUrisVersionMockHandler(),

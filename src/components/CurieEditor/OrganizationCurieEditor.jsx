@@ -118,7 +118,7 @@ const OrganizationsCurieEditor = () => {
     const handleClickCurieEditor = () => setOpenCurieEditor(true);
     const handleCloseCurieEditor = () => setOpenCurieEditor(false);
     const handleChangeTabs = (event, newValue) => setTabValue(newValue);
-    const handleBackToOrganization = () => navigate(`/organizations/${title}`);
+    const handleBackToOrganization = () => navigate(`/${title}`);
 
     const handleSubmit = () => {
         console.log("POST: here connect to post method")

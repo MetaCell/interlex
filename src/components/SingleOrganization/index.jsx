@@ -258,7 +258,7 @@ const SingleOrganization = () => {
     // Calculate pagination values safely
     const termsPerPage = numberOfTermsVisiblePages || 6;
     const ontologiesPerPage = numberOfOntologiesVisiblePages || 6;
-    const handleViewOrganizationsClick = () => navigate(`/organizations/${title}/curie-editor`);
+    const handleViewOrganizationsClick = () => navigate(`/${title}/curie-editor`);
     const handleOpenEditBulkTerms = () => setOpenEditBulkTerms(true);
     const handleCloseEditBulkTerms = () => {
         setOpenEditBulkTerms(false);

@@ -1,4 +1,5 @@
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
+import ConstructionOutlinedIcon from "@mui/icons-material/ConstructionOutlined";
 import DiscussionList from "./List";
 import TimeLine from "./TimeLine";
 import { vars } from "../../../theme/variables";
@@ -12,6 +13,7 @@ const Discussion = (term) => {
   const [comments, setComments] = useState([]);
   const commentsEndRef = useRef(null);
   const [discussions, setDiscussions] = useState([]);
+  const [showMockWarning, setShowMockWarning] = useState(true);
 
   const getDiscussions = async () =>  {
     const data = await getTermDiscussions("base", term)
@@ -34,6 +36,21 @@ const Discussion = (term) => {
   
   return (
     <Box overflow="hidden">
+      <Dialog open={showMockWarning} onClose={() => setShowMockWarning(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <ConstructionOutlinedIcon color="warning" />
+          Work in progress
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body1">
+            This Discussion view is a mock frontend implementation. It currently displays
+            placeholder data, is still in progress and needs to be completed.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="contained" onClick={() => setShowMockWarning(false)}>Got it</Button>
+        </DialogActions>
+      </Dialog>
       <Grid container height="100%">
         <Grid item xs={12} lg={4} height="100%">
           <DiscussionList />

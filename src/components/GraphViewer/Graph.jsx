@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import PropTypes from "prop-types";
 import { Box } from "@mui/material";
-import { useMemo, useEffect, useCallback } from "react";
+import { useMemo, useEffect, useCallback, useRef, useState } from "react";
 import { getGraphStructure, PREDICATE, ROOT } from "./GraphStructure";
 import { vars } from "../../theme/variables";
 const { gray600, white } = vars;
@@ -9,8 +9,29 @@ const { gray600, white } = vars;
 const MARGIN = { top: 60, right: 60, bottom: 60, left: 60 };
 
 const Graph = ({ width, height, predicate }) => {
-  const boundsWidth = Math.max(0, width - (MARGIN.right + MARGIN.left * 4));
+  const containerRef = useRef(null);
+  // Expand to fill the available container width so full IRIs are visible;
+  // fall back to the `width` prop before the container is measured.
+  const [measuredWidth, setMeasuredWidth] = useState(width);
+
+  useEffect(() => {
+    const node = containerRef.current;
+    if (!node) return;
+    const observer = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect?.width;
+      if (w) setMeasuredWidth(w);
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  const effectiveWidth = Math.max(measuredWidth || width, width);
+  const boundsWidth = Math.max(0, effectiveWidth - (MARGIN.right + MARGIN.left * 4));
   const boundsHeight = Math.max(0, height - MARGIN.top - MARGIN.bottom);
+  // Extra horizontal room so full (untruncated) IRI labels are visible; the
+  // container scrolls horizontally when labels run past the container width.
+  const LABEL_SPACE = 900;
+  const svgWidth = effectiveWidth + LABEL_SPACE;
 
   const mouseover = useCallback((event) => {
     d3.select("#tooltip").html(event.currentTarget.id).style("opacity", 1);
@@ -51,7 +72,8 @@ const Graph = ({ width, height, predicate }) => {
     const isGroup = node.data.type === PREDICATE || node.data.type === ROOT;
     const textOffset = isGroup ? -40 : 5;
     const label = String(node.data.name ?? "unknown");
-    const truncated = label.length > 25 ? `${label.slice(0, 25)}...` : label;
+    // Show the full IRI for now (most will become curies / be hidden later)
+    const truncated = label;
 
     return (
       <g key={`${node.data.id}-${node.x}-${node.y}`}>
@@ -94,7 +116,7 @@ const Graph = ({ width, height, predicate }) => {
     hierarchy && hierarchy.data && Array.isArray(hierarchy.data.children) && hierarchy.data.children.length > 0;
 
   return (
-    <Box>
+    <Box ref={containerRef} sx={{ width: "100%", overflowX: "auto" }}>
       <Box
         id="tooltip"
         style={{
@@ -108,7 +130,7 @@ const Graph = ({ width, height, predicate }) => {
           borderRadius: "0.5rem",
         }}
       />
-      <svg width={width} height={height}>
+      <svg width={svgWidth} height={height}>
         <defs>
           <marker
             id="arrowhead"

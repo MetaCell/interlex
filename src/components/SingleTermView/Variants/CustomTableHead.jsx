@@ -17,6 +17,7 @@ export default function CustomTableHead(props) {
                 sortDirection={orderBy === headCell.id ? order : false}
                 sx={{
                   padding: (index === headCells.length - 1 && viewEditAttributes) ? '.75rem 3.5rem .75rem 1.5rem !important' : 'default',
+                  width: headCell.width,
                   backgroundColor: headCell.readOnly ? '#f8f9fa' : '#ffffff',
                   borderBottom: headCell.readOnly ? '2px solid #e9ecef' : '1px solid #e0e0e0',
                   position: 'sticky',
@@ -85,6 +86,7 @@ CustomTableHead.propTypes = {
           id: PropTypes.string,
           label: PropTypes.string,
           sortable: PropTypes.bool,
+          width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       })
     ),
     viewEditAttributes: PropTypes.bool,

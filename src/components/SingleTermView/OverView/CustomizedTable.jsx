@@ -1,18 +1,22 @@
-import { debounce } from 'lodash';
 import TableRow from "./TableRow";
 import PropTypes from 'prop-types';
-import CustomSnackbar from "./CustomSnackbar";
-import TermDialog from "../../TermEditor/TermDialog";
-import { getMatchTerms } from "../../../api/endpoints";
-import { Box, IconButton, Typography } from "@mui/material";
+import ObjectInput from "./ObjectInput";
+import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-import { useCallback, useEffect, useRef, useState, useContext } from "react";
+import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
+import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
+import { useEffect, useRef, useState } from "react";
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import { GlobalDataContext } from "../../../contexts/DataContext";
+import {
+  getObjectInputKind,
+  isAddablePredicate,
+  isReadOnlyPredicate,
+  isRowOnFocus,
+} from "../../../configuration/predicateConfig";
 
 import { vars } from "../../../theme/variables";
-const { gray100, gray50, gray600, gray500, brand600, brand50, brand700, gray700 } = vars;
+const { gray100, gray50, gray600, gray500, brand600, gray700 } = vars;
 
 const tableStyles = {
   head: {
@@ -57,26 +61,6 @@ const tableStyles = {
       }
     },
   },
-  inputParentBox: {
-    width: '100%', borderRadius: '0.5rem', background: '#F0F2F2',
-    '&:before': {
-      content: '""', height: '1.5rem', width: '0.125rem', background: brand600,
-      position: 'absolute', left: '0rem', top: '50%', transform: 'translateY(-50%)',
-      margin: 'auto 0', borderRadius: '0.1875rem'
-    }
-  },
-  input: {
-    '& .MuiOutlinedInput-root': {
-      borderRadius: '0.5rem', fontSize: '0.875rem', color: '#313534',
-      background: '#fff', boxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)'
-    },
-    '& input': { padding: '0.5rem 0.75rem', height: '2.25rem' },
-    '& .Mui-focused': { border: '2px solid #1C5F54', background: '#F0F2F2', color: '#313534' }
-  },
-  confirmButton: {
-    p: '0.5rem 0.75rem', background: 'transparent', color: brand700,
-    '&:hover': { background: brand50, color: brand700 }
-  }
 };
 
 // ---------- helpers ----------
@@ -120,7 +104,12 @@ function normalizeTableData(data) {
 }
 
 // ---------- component ----------
-const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
+const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
+  const predicateTitle = data?.title || "";
+  const objectKind = getObjectInputKind(predicateTitle);
+  const addable = isAddablePredicate(predicateTitle);
+  const readOnly = isReadOnlyPredicate(predicateTitle);
+
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [tableContent, setTableContent] = useState(() => normalizeTableData(data));
   const [tableHeader, setTableHeader] = useState([
@@ -129,15 +118,8 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
     { key: 'object', label: 'Objects', allowSort: true, direction: 'desc' },
   ]);
 
-  // eslint-disable-next-line no-unused-vars
-  const [terms, setTerms] = useState([]);
-  // eslint-disable-next-line no-unused-vars
-  const [objectSearchTerm, setObjectSearchTerm] = useState('');
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  // eslint-disable-next-line no-unused-vars
-  const [deletedObj, setDeletedObj] = useState({});
-  const [editTermDialogOpen, setEditTermDialogOpen] = useState(false);
-  const { user } = useContext(GlobalDataContext);
+  const [adding, setAdding] = useState(false);
+  const [newValue, setNewValue] = useState("");
 
   const targetRow = useRef();
   const sourceRow = useRef();
@@ -199,86 +181,105 @@ const CustomizedTable = ({ data, term, isAddButtonVisible }) => {
     return <ArrowDownwardIcon fontSize="small" style={{ opacity: 0.3 }} />;
   };
 
-  const handleOpenEditTermDialog = () => setEditTermDialogOpen(true);
-  const handleCloseEditTermDialog = () => setEditTermDialogOpen(false);
-  const handleUndoDelete = () => {};
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") return;
-    setSnackbarOpen(false);
+  const handleEditRow = (row, value) =>
+    onMutate?.({ subject: row.subject, predicate: predicateTitle, op: "edit", kind: objectKind, oldValue: row.object, newValue: value });
+
+  const handleDeleteRow = (row) =>
+    onMutate?.({ subject: row.subject, predicate: predicateTitle, op: "delete", kind: objectKind, oldValue: row.object });
+
+  const startAdd = () => { setNewValue(""); setAdding(true); };
+  const cancelAdd = () => { setAdding(false); setNewValue(""); };
+  const confirmAdd = () => {
+    const value = newValue.trim();
+    if (!value) return;
+    // reuse the subject already on this group's rows when present (exact stored IRI)
+    const subject = tableContent.find((r) => isRowOnFocus(r.subject, focusId))?.subject;
+    onMutate?.({ subject, predicate: predicateTitle, op: "add", kind: objectKind, newValue: value });
+    cancelAdd();
   };
-
-  // NOTE: rename inner var to avoid shadowing prop `data` (fixes react/prop-types lint)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchTerms = useCallback(debounce(async (searchTerm) => {
-    const resp = await getMatchTerms(user?.groupname, searchTerm);
-    setTerms(resp?.results?.[0]);
-  }, 500), [user?.groupname]);
-
-  useEffect(() => {
-    if (objectSearchTerm) fetchTerms(objectSearchTerm);
-  }, [objectSearchTerm, fetchTerms]);
 
   const tableWidth = 800;
   const columnWidth = "100%";
 
   return (
-    <>
-      <Box pb={1.5} width={1} sx={{ maxWidth: `${tableWidth}px` }}>
-        <Box sx={tableStyles.head}>
-          {tableHeader.map((head, index) => (
-            <Box key={index} sx={{ display: 'flex', alignItems: 'center', width: columnWidth }}>
-              <Typography>{head.label}</Typography>
-              {head.key && head.allowSort && (
-                <IconButton
-                  size="small"
-                  onClick={(e) => requestSort(e, head.key)}
-                  sx={{ transition: 'opacity 0.3s', marginLeft: '0.5rem' }}
-                >
-                  {getSortIcon(head.key)}
-                </IconButton>
-              )}
-            </Box>
-          ))}
-          <Box sx={{ width: '6.25rem' }} />
-        </Box>
-
-        {(tableContent || []).map((row, index) => (
-          <TableRow
-            key={`${row.id}-${index}`}
-            tableStyles={tableStyles}
-            columnWidth={columnWidth}
-            data={row}
-            index={index}
-            onDragStart={dragStart}
-            onDragEnter={dragEnter}
-            onDragEnd={dragEnd}
-          />
-        ))}
-
-        {isAddButtonVisible && (
-          <Box sx={tableStyles.root}>
-            <Box sx={{ paddingLeft: '0 !important' }}>
-              <IconButton onClick={handleOpenEditTermDialog}>
-                <AddOutlinedIcon />
+    <Box pb={1.5} width={1} sx={{ maxWidth: `${tableWidth}px` }}>
+      <Box sx={tableStyles.head}>
+        {tableHeader.map((head, index) => (
+          <Box key={index} sx={{ display: 'flex', alignItems: 'center', width: columnWidth }}>
+            <Typography>{head.label}</Typography>
+            {head.key && head.allowSort && (
+              <IconButton
+                size="small"
+                onClick={(e) => requestSort(e, head.key)}
+                sx={{ transition: 'opacity 0.3s', marginLeft: '0.5rem' }}
+              >
+                {getSortIcon(head.key)}
               </IconButton>
-            </Box>
+            )}
           </Box>
-        )}
+        ))}
+        <Box sx={{ width: '6.25rem' }} />
       </Box>
 
-      <TermDialog
-        open={editTermDialogOpen}
-        handleClose={handleCloseEditTermDialog}
-        searchTerm={term}
-        forwardPredicateStep={true}
-      />
-      <CustomSnackbar
-        open={snackbarOpen}
-        handleClose={handleSnackbarClose}
-        onUndoDelete={handleUndoDelete}
-        data={deletedObj}
-      />
-    </>
+      {(tableContent || []).map((row, index) => (
+        <TableRow
+          key={`${row.id}-${index}`}
+          tableStyles={tableStyles}
+          columnWidth={columnWidth}
+          data={row}
+          index={index}
+          editable={!readOnly && !!onMutate && isRowOnFocus(row.subject, focusId)}
+          objectKind={objectKind}
+          group={group}
+          onEdit={handleEditRow}
+          onDelete={handleDeleteRow}
+          onDragStart={dragStart}
+          onDragEnter={dragEnter}
+          onDragEnd={dragEnd}
+        />
+      ))}
+
+      {adding && (
+        <Box sx={tableStyles.root}>
+          <Box sx={{ width: columnWidth }} />
+          <Box sx={{ width: columnWidth }}>
+            <Typography>{predicateTitle}</Typography>
+          </Box>
+          <Box sx={{ width: columnWidth }}>
+            <ObjectInput
+              kind={objectKind}
+              value={newValue}
+              group={group}
+              onChange={setNewValue}
+              onConfirm={confirmAdd}
+              onCancel={cancelAdd}
+            />
+          </Box>
+          <Box display="flex" sx={{ width: '6.25rem', justifyContent: "flex-end" }}>
+            <Tooltip placement="top" title="Save">
+              <IconButton onClick={confirmAdd}>
+                <CheckOutlinedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip placement="top" title="Cancel">
+              <IconButton onClick={cancelAdd}>
+                <CloseOutlinedIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </Box>
+      )}
+
+      {addable && !!onMutate && !adding && (
+        <Box sx={tableStyles.root}>
+          <Box sx={{ paddingLeft: '0 !important' }}>
+            <IconButton onClick={startAdd}>
+              <AddOutlinedIcon />
+            </IconButton>
+          </Box>
+        </Box>
+      )}
+    </Box>
   );
 };
 
@@ -291,8 +292,9 @@ CustomizedTable.propTypes = {
     values: PropTypes.array,    // new alias
     edges: PropTypes.array      // fallback
   }),
-  term: PropTypes.string,
-  isAddButtonVisible: PropTypes.bool
+  focusId: PropTypes.string,
+  group: PropTypes.string,
+  onMutate: PropTypes.func,
 };
 
 export default CustomizedTable;

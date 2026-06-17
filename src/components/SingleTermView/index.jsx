@@ -9,7 +9,8 @@ import {
   Typography,
   Menu,
   MenuItem,
-  CircularProgress
+  CircularProgress,
+  Alert
 } from "@mui/material";
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton';
@@ -51,6 +52,12 @@ import { useTermData } from "../../hooks/useTermData";
 
 const { gray200, gray600, error700 } = vars;
 
+// Pull the InterLex id (ilx_/tmp_) out of an arbitrary IRI/string for membership checks.
+const extractIlxId = (value) => {
+  const match = String(value || "").match(/(?:ilx|tmp)_\d+/i);
+  return match ? match[0] : null;
+};
+
 const dataFormats = ['JSON-LD', 'Turtle', 'N3', 'OWL', 'CSV'];
 const formatExtensions = {
   'JSON-LD': 'jsonld',
@@ -61,7 +68,7 @@ const formatExtensions = {
 };
 
 const SingleTermView = () => {
-  const { group, term, tab } = useParams();
+  const { group, term, tab, versionHash } = useParams();
   const navigate = useNavigate();
   const [dataFormatAnchorEl, setDataFormatAnchorEl] = useState(null);
   const [isCodeViewVisible, setIsCodeViewVisible] = useState(false);
@@ -78,7 +85,15 @@ const SingleTermView = () => {
   // Remove redundant query logic - use term from URL params directly
   const searchTerm = term;
   const openDataFormatMenu = Boolean(dataFormatAnchorEl);
-  const { storedSearchTerm, updateStoredSearchTerm, user } = useContext(GlobalDataContext);
+  const { storedSearchTerm, updateStoredSearchTerm, user, activeOntology } = useContext(GlobalDataContext);
+
+  // Whether the term currently in view is a member of the active ontology.
+  const hasActiveOntology = !!activeOntology;
+  const isTermInActiveOntology = useMemo(() => {
+    const termId = extractIlxId(term);
+    const ontologyTerms = activeOntology?.terms || [];
+    return !!termId && ontologyTerms.some((id) => extractIlxId(id) === termId);
+  }, [term, activeOntology]);
 
   // Tab mapping
   const tabMapping = useMemo(() => ({
@@ -213,7 +228,7 @@ const SingleTermView = () => {
   const tabContent = useMemo(() => {
     switch (tabValue) {
       case 0:
-        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} />;
+        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} />;
       case 1:
         return <VariantsPanel searchTerm={searchTerm} group={actualGroup} />;
       case 2:
@@ -221,9 +236,9 @@ const SingleTermView = () => {
       case 3:
         return <Discussion term={searchTerm} />;
       default:
-        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} />;
+        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} />;
     }
-  }, [tabValue, searchTerm, isCodeViewVisible, selectedDataFormat, actualGroup]);
+  }, [tabValue, searchTerm, isCodeViewVisible, selectedDataFormat, actualGroup, versionHash]);
 
   // Memoize the toggle button group for overview tab
   const toggleButtonGroup = useMemo(() => {
@@ -282,7 +297,9 @@ const SingleTermView = () => {
     {
       icon: <CreateNewFolderOutlinedIcon fontSize="small" />,
       label: "Add term to active ontology",
-      action: handleAddToActiveOntology
+      action: handleAddToActiveOntology,
+      // Can only add when an ontology is active and the term isn't already in it.
+      disabled: !hasActiveOntology || isTermInActiveOntology
     },
     {
       icon: <ForkRightOutlinedIcon fontSize="small" />,
@@ -297,7 +314,9 @@ const SingleTermView = () => {
     {
       icon: <DeleteOutlineOutlinedIcon fontSize="small" sx={{ color: error700 }} />,
       label: "Remove from active ontology",
-      action: handleRemoveFromActiveOntology
+      action: handleRemoveFromActiveOntology,
+      // Can only remove when an ontology is active and the term is in it.
+      disabled: !hasActiveOntology || !isTermInActiveOntology
     }
   ]
 
@@ -389,6 +408,13 @@ const SingleTermView = () => {
             </Grid>
           </Grid>
         </Box>
+        {versionHash && (
+          <Box px="5rem" pt="1.5rem">
+            <Alert severity="info">
+              Viewing a historical version of this term (identity graph <code>{versionHash}</code>). This snapshot is read-only.
+            </Alert>
+          </Box>
+        )}
         {tabContent}
       </Box>
       {/* TODO: Re-enable when merge request feature is implemented */}

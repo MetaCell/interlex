@@ -35,9 +35,14 @@ const Details = ({ loading, data, jsonData }) => {
   if (!data) {
     return <div>No data available</div>;
   }
-  const graphArray = jsonData["@graph"];
+  const graphArray = jsonData?.["@graph"] || [];
   const lastGraphItem = graphArray[graphArray.length - 1]
   const versionIRI = lastGraphItem?.["owl:versionIRI"]?.["@id"];
+  // versionIRI is normally a full IRI (.../version/<id>/...); a term-version
+  // snapshot surfaces the bare identity-graph hash instead.
+  const versionDisplay = versionIRI?.includes('/version/')
+    ? versionIRI.split('/version/')[1]?.split('/')[0]
+    : versionIRI;
   const versionInfo = formatTimestamp(lastGraphItem?.["owl:versionInfo"]);
 
   return (
@@ -116,7 +121,7 @@ const Details = ({ loading, data, jsonData }) => {
               Version
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {versionIRI.split('/version/')[1].split('/')[0]}
+              {versionDisplay}
             </Typography>
           </Stack>
         </Grid>

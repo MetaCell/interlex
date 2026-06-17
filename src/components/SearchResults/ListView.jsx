@@ -1,23 +1,21 @@
 import PropTypes from "prop-types";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomButton from '../common/CustomButton';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
-import { Box, Typography, Grid, Stack, Chip, CircularProgress } from '@mui/material';
+import { Box, Typography, Grid, Stack, Chip, CircularProgress, Snackbar, Alert } from '@mui/material';
 import { GlobalDataContext } from "../../contexts/DataContext";
 
 import { vars } from '../../theme/variables';
 const { gray200, gray500, gray700, brand50, brand200, brand600, brand700, error50, error300, error700 } = vars;
 
 
-const TitleSection = ({ searchResult }) => {
-    const navigate = useNavigate();
-    const { user } = useContext(GlobalDataContext);
-
-    const handleClick = (e, term) => {
-        const groupName = user?.groupname || 'base';
-        navigate(`/${groupName}/${term}/overview`);
+const TitleSection = ({ searchResult, onAddToActiveOntology }) => {
+    const handleAddClick = (e) => {
+        // Don't navigate to the term page - keep the user on the results list
+        e.stopPropagation();
+        onAddToActiveOntology(searchResult);
     };
 
     return (
@@ -47,7 +45,7 @@ const TitleSection = ({ searchResult }) => {
                         visibility: 'hidden',
                         transition: 'opacity 0.3s ease-in-out'
                     }}
-                    onClick={(e) => handleClick(e, searchResult.label)}
+                    onClick={handleAddClick}
                 >
                     <CreateNewFolderOutlinedIcon fontSize="medium" />
                     Add term to active ontology
@@ -133,12 +131,25 @@ const InfoSection = ({ searchResult }) => {
 
 const ListView = ({ searchResults, loading }) => {
     const navigate = useNavigate();
-    const { updateStoredSearchTerm, user } = useContext(GlobalDataContext);
+    const { updateStoredSearchTerm, user, activeOntology } = useContext(GlobalDataContext);
+    const [snackbar, setSnackbar] = useState({ open: false, message: '' });
 
     const handleClick = (searchResult) => {
         updateStoredSearchTerm(searchResult?.label);
         const groupName = user?.groupname || 'base';
         navigate(`/${groupName}/${searchResult?.ilx}/overview`);
+    };
+
+    const handleAddToActiveOntology = (searchResult) => {
+        const term = searchResult?.label || searchResult?.name || 'Term';
+        const ontologyName = activeOntology?.label || activeOntology?.title || 'the active ontology';
+        // TODO: wire the actual add-to-ontology API once available
+        setSnackbar({ open: true, message: `“${term}” added to ${ontologyName}` });
+    };
+
+    const handleSnackbarClose = (_, reason) => {
+        if (reason === 'clickaway') return;
+        setSnackbar((prev) => ({ ...prev, open: false }));
     };
 
 
@@ -183,7 +194,7 @@ const ListView = ({ searchResults, loading }) => {
                         }}
                     >
                         <Grid item lg={12} xs={12}>
-                            <TitleSection searchResult={searchResult} />
+                            <TitleSection searchResult={searchResult} onAddToActiveOntology={handleAddToActiveOntology} />
                         </Grid>
                         <Grid item lg={12} xs={12} mt={2}>
                             <Description description={searchResult.description} />
@@ -194,6 +205,30 @@ const ListView = ({ searchResults, loading }) => {
                     </Grid>
                 </Box>
             ))}
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={handleSnackbarClose}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert
+                    onClose={handleSnackbarClose}
+                    severity="success"
+                    variant="filled"
+                    sx={{
+                        width: '100%',
+                        // Global MuiIconButton override forces a white background; reset it so the
+                        // white close icon stays visible on the green Alert.
+                        '& .MuiIconButton-root': {
+                            background: 'transparent',
+                            color: '#fff',
+                            '&:hover': { background: 'rgba(255, 255, 255, 0.16)' },
+                        },
+                    }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };
@@ -203,7 +238,8 @@ Description.propTypes = {
 };
 
 TitleSection.propTypes = {
-    searchResult: PropTypes.object
+    searchResult: PropTypes.object,
+    onAddToActiveOntology: PropTypes.func
 };
 
 InfoSection.propTypes = {

@@ -25,6 +25,7 @@ import ResetPassword from "./components/Auth/ResetPassword";
 import ForgotPassword from "./components/Auth/ForgotPassword";
 import SingleOrganization from "./components/SingleOrganization";
 import TermActivity from "./components/term_activity/TermActivity";
+import Documentation from "./components/documentation/Documentation";
 import OrganizationsCurieEditor from "./components/CurieEditor/OrganizationCurieEditor";
 import { handleOrcidLogin } from "./api/endpoints";
 import { GlobalDataContext } from "./contexts/DataContext";
@@ -165,6 +166,14 @@ function MainContent() {
 							</PageContainer>
 						}
 					/>
+						<Route
+							path="/documentation"
+							element={
+								<PageContainer>
+									<Documentation />
+								</PageContainer>
+							}
+						/>
 					<Route
 						path="/:group/dashboard"
 						element={
@@ -178,7 +187,7 @@ function MainContent() {
 					<Route path="/forgot" element={<ForgotPassword />} />
 					<Route path="/reset" element={<ResetPassword />} />
 					<Route
-						path="/organizations/:title"
+						path="/:title"
 						element={
 							<ProtectedRoute>
 								<PageContainer>
@@ -188,13 +197,21 @@ function MainContent() {
 						}
 					/>
 					<Route
-						path="/organizations/:title/curie-editor"
+						path="/:title/curie-editor"
 						element={
 							<ProtectedRoute>
 								<PageContainer>
 									<OrganizationsCurieEditor />
 								</PageContainer>
 							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/:group/:term/versions/:versionHash"
+						element={
+							<PageContainer>
+								<SingleTermView />
+							</PageContainer>
 						}
 					/>
 					<Route
@@ -231,8 +248,6 @@ const Layout = ({ children }) => {
 		}
 	}, [location]);
 
-	// Determine whether to show the footer based on the current route
-	const showFooter = location.pathname !== "/";
 	return (
 		<Box
 			sx={{
@@ -243,7 +258,7 @@ const Layout = ({ children }) => {
 		>
 			{!isAuthPath && <Header />}
 			{children}
-			{!isAuthPath && showFooter && <Footer />}
+			{!isAuthPath && <Footer />}
 		</Box>
 	);
 };

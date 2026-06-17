@@ -72,6 +72,47 @@ export const getOrganizationsOntologies = (group: string) => {
   return createGetRequest<any, any>(endpoint, "application/json")();
 };
 
+// Pull the InterLex id (ilx_/tmp_) out of an arbitrary IRI/string.
+const extractIlxId = (value: string): string | null => {
+  const match = String(value || "").match(/(?:ilx|tmp)_\d+/i);
+  return match ? match[0] : null;
+};
+
+/**
+ * Fetch an ontology spec (JSON-LD) and return the list of member term ids (ilx_/tmp_).
+ * Hits the real backend endpoint - returns [] on any error/404 so callers stay resilient
+ * while the backend implementation is completed.
+ */
+export const getOntologyTerms = async (ontologyUri: string): Promise<string[]> => {
+  if (!ontologyUri) return [];
+
+  const url = ontologyUri.replace(API_CONFIG.INTERLEX_URL, API_CONFIG.BASE_URL);
+
+  try {
+    const resp = await fetch(url, {
+      headers: { Accept: "application/ld+json, application/json" },
+      credentials: "include",
+    });
+    if (!resp.ok) {
+      console.warn(`getOntologyTerms: ${resp.status} for ${url}`);
+      return [];
+    }
+    const jsonld = await resp.json();
+    const graph = Array.isArray(jsonld?.["@graph"]) ? jsonld["@graph"] : [];
+
+    const ids = graph
+      .filter((node: any) => node?.["@type"] !== "owl:Ontology")
+      .map((node: any) => extractIlxId(node?.["@id"]))
+      .filter(Boolean) as string[];
+
+    // De-duplicate
+    return Array.from(new Set(ids));
+  } catch (error) {
+    console.warn("getOntologyTerms failed:", error);
+    return [];
+  }
+};
+
 export const userLogout = (group: string) => {
   const endpoint = `/${group}${API_CONFIG.REAL_API.LOGOUT}`;
   return createGetRequest<any, any>(endpoint, "application/json")();
@@ -286,6 +327,12 @@ export const getVariants = async (group: string, term: string) => {
 
 export const getVersions = async (group: string, term: string) => {
   return createGetRequest<any, any>(`/${group}/${term}/versions`, "application/json")();
+};
+
+// A single version snapshot of a term, identified by its identity-graph hash.
+// Returns { prefixes, triples: [[subject, predicate, object], ...] }.
+export const getTermVersion = async (group: string, term: string, identityGraph: string) => {
+  return createGetRequest<any, any>(`/${group}/${term}/versions/${identityGraph}`, "application/json")();
 };
 
 export const getTermDiscussions = async (group: string, variantID: string) => {

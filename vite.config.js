@@ -224,12 +224,17 @@ export default defineConfig({
           });
         },
       },
-      '^/[^/]+/[^/]+/versions$': {
+      '^/[^/]+/[^/]+/versions(/[^/]+)?$': {
         target: 'https://uri.olympiangods.org',
         changeOrigin: true,
         secure: false,
         rewrite: path => path, // Keep full path
         configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq, req) => {
+            // pass through auth/cookies so non-base group versions resolve
+            if (req.headers.authorization) proxyReq.setHeader('Authorization', req.headers.authorization);
+            if (req.headers.cookie) proxyReq.setHeader('Cookie', req.headers.cookie);
+          });
           proxy.on('proxyRes', (proxyRes, req, res) => {
             const origin = req.headers.origin;
             if (origin) {
