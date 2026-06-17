@@ -51,6 +51,12 @@ import { useTermData } from "../../hooks/useTermData";
 
 const { gray200, gray600, error700 } = vars;
 
+// Pull the InterLex id (ilx_/tmp_) out of an arbitrary IRI/string for membership checks.
+const extractIlxId = (value) => {
+  const match = String(value || "").match(/(?:ilx|tmp)_\d+/i);
+  return match ? match[0] : null;
+};
+
 const dataFormats = ['JSON-LD', 'Turtle', 'N3', 'OWL', 'CSV'];
 const formatExtensions = {
   'JSON-LD': 'jsonld',
@@ -78,7 +84,15 @@ const SingleTermView = () => {
   // Remove redundant query logic - use term from URL params directly
   const searchTerm = term;
   const openDataFormatMenu = Boolean(dataFormatAnchorEl);
-  const { storedSearchTerm, updateStoredSearchTerm, user } = useContext(GlobalDataContext);
+  const { storedSearchTerm, updateStoredSearchTerm, user, activeOntology } = useContext(GlobalDataContext);
+
+  // Whether the term currently in view is a member of the active ontology.
+  const hasActiveOntology = !!activeOntology;
+  const isTermInActiveOntology = useMemo(() => {
+    const termId = extractIlxId(term);
+    const ontologyTerms = activeOntology?.terms || [];
+    return !!termId && ontologyTerms.some((id) => extractIlxId(id) === termId);
+  }, [term, activeOntology]);
 
   // Tab mapping
   const tabMapping = useMemo(() => ({
@@ -282,7 +296,9 @@ const SingleTermView = () => {
     {
       icon: <CreateNewFolderOutlinedIcon fontSize="small" />,
       label: "Add term to active ontology",
-      action: handleAddToActiveOntology
+      action: handleAddToActiveOntology,
+      // Can only add when an ontology is active and the term isn't already in it.
+      disabled: !hasActiveOntology || isTermInActiveOntology
     },
     {
       icon: <ForkRightOutlinedIcon fontSize="small" />,
@@ -297,7 +313,9 @@ const SingleTermView = () => {
     {
       icon: <DeleteOutlineOutlinedIcon fontSize="small" sx={{ color: error700 }} />,
       label: "Remove from active ontology",
-      action: handleRemoveFromActiveOntology
+      action: handleRemoveFromActiveOntology,
+      // Can only remove when an ontology is active and the term is in it.
+      disabled: !hasActiveOntology || !isTermInActiveOntology
     }
   ]
 

@@ -15,7 +15,7 @@ import ListItem from '@mui/material/ListItem';
 import CustomizedRadio from "../common/CustomizedRadio";
 import FolderSharedOutlinedIcon from '@mui/icons-material/FolderSharedOutlined';
 import { vars } from "../../theme/variables";
-import { getOrganizationsOntologies } from "../../api/endpoints/apiService";
+import { getOrganizationsOntologies, getOntologyTerms } from "../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../contexts/DataContext";
 
 const { brand600, gray50, gray300, gray400, white, gray700, gray200, paperShadow } = vars;
@@ -189,16 +189,24 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userG
     event.stopPropagation();
     setOpenList(false);
     setSelectedValue(prev => {
-      if (prev) {
-        const updatedOntology = { ...prev, selected: true };
-        // Save to context only if global updates are enabled
-        if (!disableGlobalUpdate) {
-          setOntologyData(updatedOntology);
-          console.log('Active ontology saved to context:', updatedOntology);
-        }
-        return updatedOntology;
+      if (!prev) return null;
+
+      const updatedOntology = { ...prev, selected: true };
+      // Save to context only if global updates are enabled
+      if (!disableGlobalUpdate) {
+        // Store immediately so the selection persists, then enrich with the
+        // ontology's member terms once fetched from the real spec endpoint.
+        setOntologyData(updatedOntology);
+        getOntologyTerms(updatedOntology.description || updatedOntology.url)
+          .then((terms) => {
+            setOntologyData({ ...updatedOntology, terms });
+          })
+          .catch(() => {
+            setOntologyData({ ...updatedOntology, terms: [] });
+          });
+        console.log('Active ontology saved to context:', updatedOntology);
       }
-      return null;
+      return updatedOntology;
     });
   }, [setOntologyData, disableGlobalUpdate]);
 

@@ -43,6 +43,7 @@ const CustomButtonGroup = ({ variant = "contained", options = [], sx, disabled =
 
     const handleMainButtonClick = () => {
         setOpen(false);
+        if (options[selectedIndex]?.disabled) return;
         if (options[selectedIndex]?.action) {
             options[selectedIndex].action();
         }
@@ -78,7 +79,7 @@ const CustomButtonGroup = ({ variant = "contained", options = [], sx, disabled =
                 }}
             >
                 <Button
-                    disabled={disabled}
+                    disabled={disabled || options[selectedIndex]?.disabled}
                     onClick={handleMainButtonClick}
                     startIcon={options[selectedIndex]?.icon}
                     sx={{
@@ -130,6 +131,7 @@ const CustomButtonGroup = ({ variant = "contained", options = [], sx, disabled =
                                         {options.map((option, index) => (
                                             <MenuItem
                                                 key={option.label || index}
+                                                disabled={option.disabled}
                                                 onClick={(event) => handleMenuItemClick(event, index)}
                                                 sx={styles.menuItem}
                                             >
