@@ -108,7 +108,7 @@ const TermActivity = () => {
             try {
                 setLoading(true);
                 const data = await elasticSearch("");
-                setRows(data?.results.results);
+                setRows(data?.results?.results ?? []);
             } catch (err) {
                 setError(err);
             } finally {

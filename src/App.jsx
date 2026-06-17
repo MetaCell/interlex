@@ -25,6 +25,7 @@ import ResetPassword from "./components/Auth/ResetPassword";
 import ForgotPassword from "./components/Auth/ForgotPassword";
 import SingleOrganization from "./components/SingleOrganization";
 import TermActivity from "./components/term_activity/TermActivity";
+import Documentation from "./components/documentation/Documentation";
 import OrganizationsCurieEditor from "./components/CurieEditor/OrganizationCurieEditor";
 import { handleOrcidLogin } from "./api/endpoints";
 import { GlobalDataContext } from "./contexts/DataContext";
@@ -165,6 +166,14 @@ function MainContent() {
 							</PageContainer>
 						}
 					/>
+						<Route
+							path="/documentation"
+							element={
+								<PageContainer>
+									<Documentation />
+								</PageContainer>
+							}
+						/>
 					<Route
 						path="/:group/dashboard"
 						element={

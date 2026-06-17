@@ -9,6 +9,7 @@ import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
+import Tooltip from '@mui/material/Tooltip';
 import { KeyboardArrowUp, KeyboardArrowDown } from "@mui/icons-material";
 import { vars } from '../../theme/variables';
 
@@ -35,7 +36,7 @@ const styles = {
     }
 }
 
-const CustomButtonGroup = ({ variant = "contained", options = [], sx }) => {
+const CustomButtonGroup = ({ variant = "contained", options = [], sx, disabled = false, disabledTooltip = "" }) => {
     const [open, setOpen] = React.useState(false);
     const [selectedIndex, setSelectedIndex] = React.useState(0);
     const anchorRef = React.useRef(null);
@@ -66,6 +67,8 @@ const CustomButtonGroup = ({ variant = "contained", options = [], sx }) => {
 
     return (
         <Box sx={{ width: 250, position: "relative", display: "flex", justifyContent: "end", ...sx }}>
+            <Tooltip title={disabled ? disabledTooltip : ""}>
+            <span>
             <ButtonGroup
                 variant={variant}
                 ref={anchorRef}
@@ -75,6 +78,7 @@ const CustomButtonGroup = ({ variant = "contained", options = [], sx }) => {
                 }}
             >
                 <Button
+                    disabled={disabled}
                     onClick={handleMainButtonClick}
                     startIcon={options[selectedIndex]?.icon}
                     sx={{
@@ -89,6 +93,7 @@ const CustomButtonGroup = ({ variant = "contained", options = [], sx }) => {
                 {options.length > 0 && (
                     <Button
                         size="small"
+                        disabled={disabled}
                         aria-controls={open ? 'split-button-menu' : undefined}
                         aria-expanded={open ? 'true' : undefined}
                         aria-label="split button with menu"
@@ -100,6 +105,8 @@ const CustomButtonGroup = ({ variant = "contained", options = [], sx }) => {
                     </Button>
                 )}
             </ButtonGroup>
+            </span>
+            </Tooltip>
             {options.length > 0 && (
                 <Popper
                     sx={{ zIndex: 1, marginTop: "0.25rem !important", width: "100%" }}
@@ -145,6 +152,8 @@ CustomButtonGroup.propTypes = {
     variant: PropTypes.oneOf(['contained', 'outlined', 'text']),
     options: PropTypes.array,
     sx: PropTypes.object,
+    disabled: PropTypes.bool,
+    disabledTooltip: PropTypes.string,
 };
 
 CustomButtonGroup.defaultProps = {

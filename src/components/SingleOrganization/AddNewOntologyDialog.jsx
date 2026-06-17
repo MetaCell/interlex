@@ -69,7 +69,7 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
     };
 
     const handleSubmit = async () => {
-        // Use organization name as groupname, fallback to user's groupname if not available
+        // groupname comes from the caller: header passes the user's groupname, org view passes the organization name
         const groupname = organizationName || user?.groupname
 
         const ontologyName = newOntology?.title.replace(/\s+/g, '_') + "_" + Math.random().toString(36).substring(2, 10);
