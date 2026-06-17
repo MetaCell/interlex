@@ -4,6 +4,8 @@ import {
   Divider,
   Grid,
   CircularProgress,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import Details from "./Details";
 import { debounce } from "lodash";
@@ -18,6 +20,14 @@ import {
   getTermHierarchies,
   getTermPredicates,
 } from "../../../api/endpoints/apiService";
+import { patchEndpointsIlx } from "../../../api/endpoints/interLexURIStructureAPI";
+import {
+  focusNodeFromJsonLd,
+  buildTripleDiff,
+  resolveStoredObject,
+} from "../../../parsers/predicateMutations";
+import { buildPredicateGroupsForFocus } from "../../../parsers/predicateParser";
+import { shortenIri, getObjectInputKind } from "../../../configuration/predicateConfig";
 
 import {
   toHierarchyOptionsFromTriples,
@@ -25,6 +35,24 @@ import {
   buildSuperclassesTreeFromTriples,
   dedupePredicateGroups
 } from "../../../parsers/hierarchies-parser";
+
+// patchTerm resolves with { status, term } on success, or the raw axios error
+// (its .catch returns it) on failure. Normalize to { ok, status, message }.
+const interpretPatchResult = (res) => {
+  const status = res?.status ?? res?.response?.status;
+  const ok = status === 200 || status === 201;
+  if (ok) return { ok, status, message: "" };
+
+  const body = res?.response?.data ?? res?.data ?? res?.message ?? "";
+  let message = typeof body === "string" ? body : JSON.stringify(body);
+  // Backend errors come back as small HTML pages: pull out the <p> text.
+  const para = message.match(/<p>([\s\S]*?)<\/p>/i);
+  message = (para ? para[1] : message.replace(/<[^>]*>/g, " "))
+    .replace(/&#34;/g, '"').replace(/&quot;/g, '"').replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ").trim();
+  if (!message) message = status ? `Request failed (HTTP ${status})` : "Request failed";
+  return { ok, status, message };
+};
 
 const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, group = "base" }) => {
   const [data, setData] = useState(null);
@@ -41,6 +69,9 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
 
   // predicates
   const [predicateGroups, setPredicateGroups] = useState([]);
+
+  // feedback for inline predicate edits (add/edit/delete)
+  const [mutationFeedback, setMutationFeedback] = useState(null); // { severity, message }
 
   // loading flags
   const [loadingHierarchies, setLoadingHierarchies] = useState(true);
@@ -174,14 +205,91 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
     }
   }, [selectedValue, fetchHierarchies, fetchPredicates]);
 
+  // Apply a single predicate triple add/edit/delete to the focus term and PATCH it.
+  const handlePredicateMutation = useCallback(async (mutation) => {
+    const patchId = (selectedValue?.id || searchTerm || "").split("/").pop();
+
+    // Predicate groups are sourced from the "base" graph, so expand curies with
+    // the base @context (the term's own group serializes a stripped context).
+    // GET-first guarantees the exact predicate IRIs round-trip.
+    const baseDoc = await getRawData("base", patchId, "jsonld");
+    const context = baseDoc?.["@context"] || jsonData?.["@context"] || {};
+    const node = focusNodeFromJsonLd(baseDoc) || focusNodeFromJsonLd(jsonData);
+    const subject = mutation.subject || node?.["@id"];
+    if (!subject) {
+      setMutationFeedback({ severity: "error", message: "Could not resolve the term subject" });
+      return;
+    }
+    // For edit/delete, match the exact stored object (whitespace/lang/datatype).
+    const oldObject =
+      mutation.op === "edit" || mutation.op === "delete"
+        ? resolveStoredObject(node, mutation.predicate, mutation.oldValue)
+        : null;
+    const payload = buildTripleDiff(subject, { ...mutation, oldObject }, context);
+    try {
+      // patchEndpointsIlx resolves on any 2xx (a 201 returns a bare version
+      // hash, not JSON) and throws an AxiosError on 4xx/5xx. We don't track the
+      // returned version id — a plain GET resolves the current head.
+      await patchEndpointsIlx(group, patchId, { data: payload });
+      setMutationFeedback({ severity: "success", message: "Change saved" });
+      fetchJSONFile();
+      debouncedFetchTerms(searchTerm, group);
+      if (selectedValue?.id) fetchPredicates(selectedValue.id, group);
+    } catch (e) {
+      console.error("handlePredicateMutation error:", e);
+      const { message } = interpretPatchResult(e);
+      setMutationFeedback({ severity: "error", message: message || "Could not save change" });
+    }
+  }, [jsonData, selectedValue, searchTerm, group, fetchJSONFile, fetchPredicates, debouncedFetchTerms]);
+
   const memoData = useMemo(() => data, [data]);
 
-  const rawPredicates = [
-    ...(Array.isArray(predicateGroups) ? predicateGroups : []),
-    ...(memoData && Array.isArray(memoData.predicates) ? memoData.predicates : []),
-  ];
-  
-  const predicates = dedupePredicateGroups(rawPredicates);  
+  // Normalize a predicate group's title + row predicates from full IRIs to curies.
+  const shortenGroup = (g) => ({
+    ...g,
+    title: shortenIri(g.title),
+    tableData: Array.isArray(g.tableData)
+      ? g.tableData.map((r) => ({ ...r, predicate: shortenIri(r.predicate) }))
+      : g.tableData,
+  });
+
+  // TODO(predicates-freshness): TEMPORARY WORKAROUND. The transitive-query
+  // endpoint (getTermPredicates) does not reflect the term head right after a
+  // PATCH, so edited literal predicates would still show the old value. Until
+  // the backend serves head-consistent data from that endpoint, we override the
+  // editable literal predicates with the fresh .jsonld (getRawData) below and
+  // re-shorten the stripped full-IRI keys to curies. Once the backend is fixed,
+  // delete freshGroups + the override merge and go back to:
+  //   const predicates = dedupePredicateGroups(predicateGroups);
+  // Focus-node predicates from the head-resolving .jsonld (fresh after a PATCH).
+  const freshGroups = useMemo(() => {
+    if (!jsonData) return [];
+    const termId = selectedValue?.id ? toILX(selectedValue.id) : searchTerm;
+    return buildPredicateGroupsForFocus(jsonData, termId).map(shortenGroup);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jsonData, selectedValue, searchTerm]);
+
+  const predicates = useMemo(() => {
+    const norm = (t) => String(t || "").trim().toLowerCase();
+
+    // Editable literal predicates (synonym/definition/label) must reflect the
+    // fresh .jsonld; the transitive-query endpoint lags after a PATCH.
+    const freshLiteralTitles = new Set(
+      freshGroups
+        .filter((g) => getObjectInputKind(g.title) === "text")
+        .map((g) => norm(g.title))
+    );
+    const freshLiterals = freshGroups.filter((g) => freshLiteralTitles.has(norm(g.title)));
+
+    // Everything else (relations, inbound partOf, ids) stays on the transitive
+    // source, minus the literal predicates we just refreshed.
+    const transitive = (Array.isArray(predicateGroups) ? predicateGroups : [])
+      .map(shortenGroup)
+      .filter((g) => !freshLiteralTitles.has(norm(g.title)));
+
+    return dedupePredicateGroups([...freshLiterals, ...transitive]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [freshGroups, predicateGroups]);
 
   return (
     <Box p="2.5rem 5rem" sx={{ overflow: "auto" }}>
@@ -211,7 +319,14 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
                     />
                   </Grid>
                   <Grid item xs={12} lg={8}>
-                    <Predicates data={predicates} isGraphVisible={true} loading={showIndividualLoaders ? loadingPredicates : false}/>
+                    <Predicates
+                      data={predicates}
+                      isGraphVisible={true}
+                      loading={showIndividualLoaders ? loadingPredicates : false}
+                      focusId={selectedValue?.id}
+                      group={group}
+                      onMutate={handlePredicateMutation}
+                    />
                   </Grid>
                 </Grid>
               </Box>
@@ -219,6 +334,31 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
           )}
         </>
       )}
+      <Snackbar
+        open={!!mutationFeedback}
+        autoHideDuration={mutationFeedback?.severity === "error" ? null : 4000}
+        onClose={() => setMutationFeedback(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        {mutationFeedback ? (
+          <Alert
+            onClose={() => setMutationFeedback(null)}
+            severity={mutationFeedback.severity}
+            variant="filled"
+            sx={{
+              maxWidth: "32rem",
+              // theme forces IconButton bg white -> white close X becomes invisible
+              "& .MuiAlert-action .MuiIconButton-root": {
+                background: "transparent",
+                "&:hover": { background: "rgba(255,255,255,0.2)" },
+              },
+              "& .MuiAlert-action .MuiSvgIcon-root": { color: "#fff" },
+            }}
+          >
+            {mutationFeedback.message}
+          </Alert>
+        ) : undefined}
+      </Snackbar>
     </Box>
   );
 };

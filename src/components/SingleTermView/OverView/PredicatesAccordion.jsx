@@ -11,7 +11,6 @@ import {
   ToggleButton
 } from "@mui/material";
 import PropTypes from "prop-types";
-import { useQuery } from "../../../helpers";
 import Graph from "../../GraphViewer/Graph";
 import CustomizedTable from "./CustomizedTable";
 import ViewDiagramDialog from "./ViewDiagramDialog";
@@ -25,13 +24,11 @@ const { gray600 } = vars;
 const TABLE_VIEW = 'tableView';
 const GRAPH_VIEW = 'graphView';
 
-const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
+const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible, focusId, group, onMutate }) => {
   const [toggleButtonValues, setToggleButtonValues] = useState(data?.map(() => TABLE_VIEW) || []);
   const [openViewDiagram, setOpenViewDiagram] = React.useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [expandedItems, setExpandedItems] = useState(data?.map(() => false) || []);
-  const query = useQuery();
-  const term = query.get('searchTerm');
 
   const onToggleButtonChange = (index) => (event, newValue) => {
     if (newValue) {
@@ -117,8 +114,9 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
             {toggleButtonValues[index] === TABLE_VIEW ? (
               <CustomizedTable
                 data={pred}           // expects object with rows/values
-                term={term}
-                isAddButtonVisible={isGraphVisible}
+                focusId={focusId}
+                group={group}
+                onMutate={onMutate}
               />
             ) : (
               <Box display='flex' flexDirection='column'>
@@ -152,7 +150,10 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible }) => {
 PredicatesAccordion.propTypes = {
   data: PropTypes.array.isRequired,
   expandAllPredicates: PropTypes.bool,
-  isGraphVisible: PropTypes.bool
+  isGraphVisible: PropTypes.bool,
+  focusId: PropTypes.string,
+  group: PropTypes.string,
+  onMutate: PropTypes.func
 };
 
 export default PredicatesAccordion;
