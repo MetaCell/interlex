@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import ObjectInput from "./ObjectInput";
-import { Box, IconButton, Tooltip, Typography, Link } from "@mui/material";
+import { Box, IconButton, Tooltip, Typography, Link, CircularProgress } from "@mui/material";
 import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -20,6 +20,7 @@ const TableRow = ({
   index,
   columnWidth,
   editable = false,
+  pending = false,
   objectKind = "text",
   group = "base",
   onEdit,
@@ -41,8 +42,8 @@ const TableRow = ({
   };
 
   return (
-    <Box sx={tableStyles.root}
-      draggable={!isEditing}
+    <Box sx={{ ...tableStyles.root, ...(pending && { opacity: 0.6, pointerEvents: "none" }) }}
+      draggable={!isEditing && !pending}
       onDragStart={e => onDragStart(id, index, e)}
       onDragEnter={e => onDragEnter(id, index, e)}
       onDragEnd={onDragEnd}
@@ -89,8 +90,10 @@ const TableRow = ({
           </Tooltip>
         )}
       </Box>
-      <Box display="flex" sx={{ width: '6.25rem', justifyContent: "flex-end" }}>
-        {isEditing ? (
+      <Box display="flex" sx={{ width: '6.25rem', justifyContent: "flex-end", alignItems: "center" }}>
+        {pending ? (
+          <CircularProgress size={16} />
+        ) : isEditing ? (
           <>
             <Tooltip placement="top" title="Save">
               <IconButton onClick={confirmEdit}>
@@ -132,6 +135,7 @@ TableRow.propTypes = {
   index: PropTypes.number.isRequired,
   columnWidth: PropTypes.number.isRequired,
   editable: PropTypes.bool,
+  pending: PropTypes.bool,
   objectKind: PropTypes.oneOf(["term", "text"]),
   group: PropTypes.string,
   onEdit: PropTypes.func,

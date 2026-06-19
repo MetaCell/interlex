@@ -67,6 +67,31 @@ const formatExtensions = {
   'CSV': 'csv'
 };
 
+// MIME type per export format so the downloaded file opens correctly.
+const formatMimeTypes = {
+  jsonld: 'application/ld+json',
+  ttl: 'text/turtle',
+  n3: 'text/n3',
+  owl: 'application/rdf+xml',
+  csv: 'text/csv'
+};
+
+// Build an informative download filename, e.g. "ilx_0101431-Brain.csv".
+const buildDownloadFilename = (termId, label, ext) => {
+  const slugify = (value) => String(value || '')
+    .trim()
+    .replace(/[^\w-]+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 60);
+  const id = slugify(termId);
+  const slug = slugify(label);
+  const base = id && slug && slug.toLowerCase() !== id.toLowerCase()
+    ? `${id}-${slug}`
+    : (id || slug || 'term');
+  return `${base}.${ext}`;
+};
+
 const SingleTermView = () => {
   const { group, term, tab, versionHash } = useParams();
   const navigate = useNavigate();
@@ -181,19 +206,37 @@ const SingleTermView = () => {
   }, []);
 
   const downloadFormattedData = useCallback((dataFormat) => {
-    getRawData(actualGroup, searchTerm, formatExtensions[dataFormat]).then(rawResponse => {
-      const formattedData = JSON.stringify(rawResponse, null, 2);
-      const blob = new Blob([formattedData], { type: 'application/json' });
+    const ext = formatExtensions[dataFormat];
+    getRawData(actualGroup, searchTerm, ext).then(rawResponse => {
+      if (rawResponse === undefined || rawResponse === null) {
+        console.error(`No ${dataFormat} data returned for ${searchTerm}`);
+        return;
+      }
+      // Text formats (CSV/Turtle/N3/OWL) come back as strings and must be
+      // written verbatim; only object responses (JSON-LD) are stringified.
+      const formattedData = typeof rawResponse === 'string'
+        ? rawResponse
+        : JSON.stringify(rawResponse, null, 2);
+      // Guard against the backend returning the SPA shell instead of data
+      // (e.g. ids it doesn't serve in the requested format).
+      if (typeof formattedData === 'string' && /^\s*<(?:!doctype|html)\b/i.test(formattedData)) {
+        console.error(`No ${dataFormat} representation available for ${searchTerm}`);
+        return;
+      }
+      const mime = formatMimeTypes[ext] || 'text/plain';
+      const blob = new Blob([formattedData], { type: `${mime};charset=utf-8` });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `data.${formatExtensions[dataFormat]}`;
+      a.download = buildDownloadFilename(searchTerm, displayedTermLabel, ext);
+      document.body.appendChild(a);
       a.click();
+      a.remove();
       URL.revokeObjectURL(url);
     }).catch(error => {
       console.error('Error downloading data:', error);
     });
-  }, [actualGroup, searchTerm]);
+  }, [actualGroup, searchTerm, displayedTermLabel]);
 
   const handleDataFormatMenuItemClick = useCallback((value) => {
     setSelectedDataFormat(value);

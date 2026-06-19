@@ -30,6 +30,7 @@ import {
   resolveStoredObject,
 } from "../../../parsers/predicateMutations";
 import { buildPredicateGroupsForFocus } from "../../../parsers/predicateParser";
+import { emitPredicateRowUpdate, makeRowKey } from "./predicateMutationBus";
 import { shortenIri, getObjectInputKind } from "../../../configuration/predicateConfig";
 
 import {
@@ -268,19 +269,34 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
         ? resolveStoredObject(node, mutation.predicate, mutation.oldValue)
         : null;
     const payload = buildTripleDiff(subject, { ...mutation, oldObject }, context);
+    // For an edit, the affected row shows an in-row loader until we emit a
+    // terminal (success/error) update keyed to it.
+    const isEdit = mutation.op === "edit";
+    const rowKey = isEdit
+      ? makeRowKey(mutation.subject, mutation.predicate, mutation.oldValue)
+      : null;
     try {
       // patchEndpointsIlx resolves on any 2xx (a 201 returns a bare version
       // hash, not JSON) and throws an AxiosError on 4xx/5xx. We don't track the
       // returned version id — a plain GET resolves the current head.
       await patchEndpointsIlx(group, patchId, { data: payload });
       setMutationFeedback({ severity: "success", message: "Change saved" });
-      fetchJSONFile();
-      debouncedFetchTerms(searchTerm, group);
-      if (selectedValue?.id) fetchPredicates(selectedValue.id, group);
+      if (isEdit) {
+        // Surgical update: refresh only the edited row so the rest of the
+        // predicates section is left untouched (no spinner / accordion reset).
+        emitPredicateRowUpdate({ rowKey, newValue: mutation.newValue, status: "success" });
+      } else {
+        // add/delete change the table structure -> full refetch.
+        fetchJSONFile();
+        debouncedFetchTerms(searchTerm, group);
+        if (selectedValue?.id) fetchPredicates(selectedValue.id, group);
+      }
     } catch (e) {
       console.error("handlePredicateMutation error:", e);
       const { message } = interpretPatchResult(e);
       setMutationFeedback({ severity: "error", message: message || "Could not save change" });
+      // Clear the row loader and keep the original value (revert).
+      if (isEdit) emitPredicateRowUpdate({ rowKey, status: "error" });
     }
   }, [jsonData, selectedValue, searchTerm, group, fetchJSONFile, fetchPredicates, debouncedFetchTerms]);
 
