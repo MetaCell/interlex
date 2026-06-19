@@ -16,6 +16,7 @@ import PropTypes from 'prop-types';
 import BasicTabs from "../common/CustomTabs";
 import { useNavigate } from "react-router-dom";
 import { GlobalDataContext } from "../../contexts/DataContext";
+import { primeTermDataCache } from "../../hooks/useTermData";
 import { SEARCH_TYPES } from "../../constants/types";
 import { searchAll, elasticSearch } from "../../api/endpoints";
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
@@ -106,6 +107,9 @@ const Search = () => {
 
     handleCloseList();
     const groupName = getGroupName();
+    // We already know this term's label — prime the cache so the term page can
+    // show the title immediately, without waiting on its .jsonld download.
+    primeTermDataCache(groupName, newInputValue?.ilx, newInputValue?.label);
     navigate(`/${groupName}/${newInputValue?.ilx}/overview`);
     updateStoredSearchTerm(newInputValue?.label)
   };

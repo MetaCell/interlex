@@ -379,7 +379,10 @@ const SingleTermView = () => {
               <Grid item xs={12} lg={2}>
                 <Stack direction="row" spacing=".75rem" alignItems="center">
                   <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
-                    {isLoadingTerm ? (
+                    {/* The label is already known from the search (storedSearchTerm),
+                        so show it immediately and only fall back to a spinner on a
+                        cold direct load where we have nothing to display yet. */}
+                    {isLoadingTerm && !termData && !storedSearchTerm ? (
                       <CircularProgress size={20} />
                     ) : (
                       displayedTermLabel

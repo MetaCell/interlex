@@ -4,6 +4,18 @@ import { getSelectedTermLabel } from '../api/endpoints/apiService';
 // Cache to store term data and avoid duplicate API calls
 const termDataCache = new Map();
 
+// Seed the cache with a label we already know (e.g. the one shown on a search
+// result that was just clicked). The next useTermData(term, group) then gets an
+// instant cache hit, so the title renders immediately instead of waiting on the
+// term's full .jsonld download.
+export const primeTermDataCache = (group, term, label) => {
+  if (!group || !term || !label) return;
+  const cacheKey = `${group}:${term}`;
+  if (!termDataCache.has(cacheKey)) {
+    termDataCache.set(cacheKey, { label, actualGroup: group });
+  }
+};
+
 export const useTermData = (searchTerm, group) => {
   const [termData, setTermData] = useState(null);
   const [actualGroup, setActualGroup] = useState(group);
@@ -25,6 +37,12 @@ export const useTermData = (searchTerm, group) => {
       setIsUsingFallback(cachedData.actualGroup !== groupName);
       return;
     }
+
+    // Cache miss: drop the previous term's label right away so the view can
+    // fall back to the already-known search label (storedSearchTerm) instead of
+    // showing the stale title until the new fetch completes.
+    setTermData(null);
+    setIsUsingFallback(false);
 
     // Cancel previous request if it exists
     if (abortControllerRef.current) {
