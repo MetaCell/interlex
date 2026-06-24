@@ -36,6 +36,7 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
     const [submitting, setSubmitting] = useState(false);
     const [newOntology, setNewOntology] = useState({
         uri: "",
+        title: "",
         description: ""
     });
     const [newOntologyResponse, setNewOntologyResponse] = useState({
@@ -56,6 +57,7 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
     const resetComponentState = () => {
         setNewOntology({
             uri: "",
+            title: "",
             description: ""
         });
         setFiles([]);
@@ -86,7 +88,7 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
         const ontologyName = (newOntology?.uri || files?.[0]?.data?.title || "").trim();
         if (!ontologyName) return;
 
-        const title = ontologyName;
+        const title = newOntology.title.trim() || ontologyName;
         const subjects = files?.[0]?.data?.subjects;
 
         setSubmitting(true);
@@ -379,6 +381,16 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
                                         />
                                     </Stack>
                                     <Checkbox label="Set as active ontology" />
+                                </Grid>
+                                <Grid item xs={12} lg={12}>
+                                    <CustomFormField
+                                        name="title"
+                                        value={newOntology.title}
+                                        onChange={handleNewOntologyChange}
+                                        label="Title"
+                                        placeholder={"Human-readable title for this ontology"}
+                                        textFontSize="body1"
+                                    />
                                 </Grid>
                                 <Grid item xs={12} lg={12}>
                                     <CustomFormField

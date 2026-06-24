@@ -199,10 +199,13 @@ export default defineConfig({
             if (req.headers.authorization) {
               proxyReq.setHeader('Authorization', req.headers.authorization);
             }
+            if (req.headers.cookie) {
+              proxyReq.setHeader('Cookie', req.headers.cookie);
+            }
           });
           proxy.on('proxyRes', (proxyRes, req, res) => {
             const location = proxyRes.headers['location'];
-          
+
             if (proxyRes.statusCode === 303 && location) {
               delete proxyRes.headers['location'];
               res.setHeader('X-Redirect-Location', location);

@@ -4,6 +4,36 @@ import termParser from "../../parsers/termParser";
 import { jsonldToTriplesAndEdges, PART_OF_IRI } from '../../parsers/hierarchies-parser'
 import { buildPredicateGroupsForFocus } from "../../parsers/predicateParser";
 
+// Error enriched with the queried URL + the backend's message, so the UI can
+// show a meaningful dialog instead of a bare "HTTP 404".
+export interface ApiRequestError extends Error {
+  url?: string;
+  status?: number;
+  body?: string;
+}
+
+// Read a failed Response body and turn it into a clean, short message. Backend
+// errors are often small HTML pages, so pull the <p> text / strip tags.
+const buildRequestError = async (resp: Response, url: string): Promise<ApiRequestError> => {
+  let raw = "";
+  try {
+    raw = await resp.text();
+  } catch {
+    /* body not readable */
+  }
+  const para = raw.match(/<p>([\s\S]*?)<\/p>/i);
+  let message = (para ? para[1] : raw.replace(/<[^>]*>/g, " "))
+    .replace(/&#34;/g, '"').replace(/&quot;/g, '"').replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ").trim();
+  if (message.length > 400) message = `${message.slice(0, 400)}…`;
+
+  const err = new Error(`HTTP ${resp.status}`) as ApiRequestError;
+  err.url = url;
+  err.status = resp.status;
+  err.body = message;
+  return err;
+};
+
 export interface LoginRequest {
   username: string
   password: string
@@ -361,10 +391,14 @@ export const getTermPredicates = async ({
     headers: { Accept: "application/ld+json" },
     credentials: "include",
   });
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  if (!resp.ok) throw await buildRequestError(resp, url);
   const ct = resp.headers.get("content-type") || "";
   if (!/application\/(ld\+json|json)/i.test(ct)) {
-    throw new Error(`Server did not return JSON-LD (content-type: ${ct || "n/a"})`);
+    const err = new Error(`Server did not return JSON-LD (content-type: ${ct || "n/a"})`) as ApiRequestError;
+    err.url = url;
+    err.status = resp.status;
+    err.body = `Expected JSON-LD but received content-type: ${ct || "n/a"}`;
+    throw err;
   }
   const jsonld = await resp.json();
 
@@ -391,10 +425,14 @@ export const getTermHierarchies = async ({
     headers: { Accept: "application/ld+json" },
     credentials: "include",
   });
-  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  if (!resp.ok) throw await buildRequestError(resp, url);
   const ct = resp.headers.get("content-type") || "";
   if (!/application\/(ld\+json|json)/i.test(ct)) {
-    throw new Error(`Server did not return JSON-LD (content-type: ${ct || "n/a"})`);
+    const err = new Error(`Server did not return JSON-LD (content-type: ${ct || "n/a"})`) as ApiRequestError;
+    err.url = url;
+    err.status = resp.status;
+    err.body = `Expected JSON-LD but received content-type: ${ct || "n/a"}`;
+    throw err;
   }
   const jsonld = await resp.json();
 

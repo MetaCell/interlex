@@ -48,7 +48,7 @@ const styles = {
   },
 }
 
-const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchConditions, ontologyTerms, setOntologyTerms, ontologyAttributes, setOntologyAttributes, selectedOntology, setSelectedOntology, setOriginalTerms }) => {
+const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchConditions, ontologyTerms, setOntologyTerms, ontologyAttributes, setOntologyAttributes, selectedOntology, setSelectedOntology, setOriginalTerms, setJsonLdContext }) => {
   const [ontologyEditOption, setOntologyEditOption] = useState(Confirmation.Yes);
   const [attributesLoading, setAttributesLoading] = useState(false);
   const { user } = useContext(GlobalDataContext);
@@ -201,7 +201,7 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
           if (term['@type'] === 'owl:Ontology') return;
           
           // Create a term object with all its properties
-          const termObj = { '@id': term['@id'] };
+          const termObj = { '@id': term['@id'], '_rawNode': term };
           
           // Process each property
           Object.keys(term).forEach(key => {
@@ -212,8 +212,8 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
               if (Array.isArray(value)) {
                 // For arrays, extract meaningful values
                 termObj[key] = value.map(item => {
-                  if (typeof item === 'object' && item['@id']) {
-                    return item['@id'];
+                  if (typeof item === 'object' && item !== null) {
+                    return JSON.stringify(item);
                   }
                   return item;
                 }).join(', ');
@@ -232,7 +232,8 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
       }
       
       setOntologyTerms(termsData);
-      setOriginalTerms([...termsData]); // Store original terms for undo functionality
+      setOriginalTerms([...termsData]);
+      if (setJsonLdContext) setJsonLdContext(jsonldData['@context'] || {});
     } catch (error) {
       console.error('Error fetching ontology attributes:', error);
       setOntologyAttributes([]);
@@ -442,6 +443,7 @@ SearchTerms.propTypes = {
   selectedOntology: PropTypes.object,
   setSelectedOntology: PropTypes.func.isRequired,
   setOriginalTerms: PropTypes.func.isRequired,
+  setJsonLdContext: PropTypes.func,
 };
 
 export default SearchTerms;
