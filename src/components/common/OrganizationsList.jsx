@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import Groups from '@mui/icons-material/Groups';
-import {Box, Typography, Button, List, ListItem, ListItemText} from "@mui/material";
+import {Box, Typography, Button, List, ListItem, ListItemText, Chip} from "@mui/material";
 
 import { vars } from "../../theme/variables";
 const { gray50, gray700, gray200, brand600 } = vars;
@@ -25,9 +25,6 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
         '&:hover': {
           cursor: 'pointer',
           backgroundColor: gray50,
-          '& .join-button': {
-            visibility: 'visible'
-          },
           '& .MuiListItemText-root': {
             position: 'relative',
             '&::before': {
@@ -74,25 +71,17 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
                   <Box display='flex' alignItems='center' justifyContent='space-between'>
                     <Typography component='span'>{orgName}</Typography>
                     {userRole && (
-                      <Typography 
-                        component='span' 
-                        sx={{ 
-                          fontSize: '0.75rem', 
-                          backgroundColor: 'primary.main', 
-                          color: 'white', 
-                          px: 1, 
-                          py: 0.5, 
-                          borderRadius: 1,
-                          textTransform: 'capitalize'
-                        }}
-                      >
-                        {userRole}
-                      </Typography>
+                      <Chip
+                        label={userRole}
+                        variant="outlined"
+                        className="greenChip"
+                        sx={{ textTransform: 'capitalize' }}
+                      />
                     )}
                   </Box>
                 } 
               />
-              <Box display='flex' alignItems='center' justifyContent='space-between'>
+              <Box display='flex' alignItems='center' justifyContent='space-between' ml='1rem'>
                 {
                   viewJoinButton && <Button
                     variant="outlined"
@@ -100,7 +89,6 @@ const OrganizationsList = ({organizations, viewJoinButton = true}) => {
                     onClick={() => navigate(`/${orgName}`)}
                     startIcon={<Groups />}
                     sx={{
-                      visibility: 'hidden',
                       width: 1
                     }}
                   >

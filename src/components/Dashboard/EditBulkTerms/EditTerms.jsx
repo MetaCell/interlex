@@ -157,6 +157,12 @@ const EditTerms = ({searchConditions, ontologyTerms, ontologyAttributes, onTerms
             attributes={attributes}
             ontologyTerms={filteredTerms}
             dynamicColumns={ontologyAttributes}
+            onTermsUpdate={(updatedFiltered) => {
+              if (!onTermsUpdate) return;
+              const byIri = {};
+              updatedFiltered.forEach(t => { byIri[t['@id']] = t; });
+              onTermsUpdate(ontologyTerms.map(t => byIri[t['@id']] || t));
+            }}
           />
         </Box>
         <Box

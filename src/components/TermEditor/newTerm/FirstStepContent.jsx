@@ -20,7 +20,7 @@ import { vars } from "../../../theme/variables";
 import { TYPES, DEFAULT_TYPE } from "../../../constants/types";
 import { useTermSearch } from "../../../hooks/useTermSearch";
 
-const { white, gray300, gray400, gray500, gray600 } = vars;
+const { white, gray300, gray400, gray500, gray600, error500 } = vars;
 
 const styles = {
     contentBox: {
@@ -57,6 +57,14 @@ const styles = {
                 color: `${gray400} !important`,
             },
         },
+        synonymExactMatch: {
+            flexDirection: "row !important",
+            border: `1px solid ${error500} !important`,
+            color: `${error500} !important`,
+            "& .MuiChip-deleteIcon": {
+                color: `${error500} !important`,
+            },
+        },
         id: {
             flexDirection: "row !important",
             borderRadius: "1rem !important",
@@ -72,13 +80,15 @@ const FirstStepContent = ({ term, type, existingIds, synonyms, isEditing, handle
     const { user, updateStoredSearchTerm } = useContext(GlobalDataContext);
     const navigate = useNavigate();
 
-    const { loading, searchResults } = useTermSearch({
+    const { loading, searchResults, displayedValue, exactMatchValues } = useTermSearch({
         term,
         type,
         synonyms,
         isEditing,
         onExactMatchChange: handleExactMatchChange,
     });
+
+    const exactMatchSet = new Set((exactMatchValues || []).map((value) => value.toLowerCase()));
 
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
 
@@ -89,16 +99,22 @@ const FirstStepContent = ({ term, type, existingIds, synonyms, isEditing, handle
         handleDialogClose();
     };
 
-    const renderChips = (values, getTagProps, chipStyles) => {
-        return values.map((option, index) => (
-            <Chip
-                key={index}
-                label={option}
-                deleteIcon={<CloseIcon />}
-                sx={chipStyles}
-                {...getTagProps({ index })}
-            />
-        ));
+    const renderChips = (values, getTagProps, chipStyles, exactMatchStyles) => {
+        return values.map((option, index) => {
+            const isExactMatch =
+                exactMatchStyles &&
+                typeof option === "string" &&
+                exactMatchSet.has(option.trim().toLowerCase());
+            return (
+                <Chip
+                    key={index}
+                    label={option}
+                    deleteIcon={<CloseIcon />}
+                    sx={isExactMatch ? exactMatchStyles : chipStyles}
+                    {...getTagProps({ index })}
+                />
+            );
+        });
     };
 
     return (
@@ -146,7 +162,7 @@ const FirstStepContent = ({ term, type, existingIds, synonyms, isEditing, handle
                         popupIcon={<HelpOutlinedIcon />}
                         options={[]}
                         freeSolo
-                        renderTags={(values, getTagProps) => renderChips(values, getTagProps, styles.chip.synonym)}
+                        renderTags={(values, getTagProps) => renderChips(values, getTagProps, styles.chip.synonym, styles.chip.synonymExactMatch)}
                         fullWidth
                         renderInput={(params) => <TextField {...params} placeholder="Enter exact synonym(s)" />}
                         sx={styles.autocomplete}
@@ -187,10 +203,10 @@ const FirstStepContent = ({ term, type, existingIds, synonyms, isEditing, handle
                 onToggle={handleSidebarToggle}
                 results={searchResults}
                 isResultsEmpty={searchResults.length === 0}
-                searchValue={term}
+                searchValue={displayedValue || term}
                 onResultAction={handleResultSelect}
                 user={user}
-                selectedTerm={term}
+                selectedTerm={displayedValue || term}
             />
         </Box>
     )

@@ -6,6 +6,7 @@ import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import { Box, Typography, Grid, Stack, Chip, CircularProgress, Snackbar, Alert } from '@mui/material';
 import { GlobalDataContext } from "../../contexts/DataContext";
+import { primeTermDataCache } from "../../hooks/useTermData";
 
 import { vars } from '../../theme/variables';
 const { gray200, gray500, gray700, brand50, brand200, brand600, brand700, error50, error300, error700 } = vars;
@@ -137,6 +138,8 @@ const ListView = ({ searchResults, loading }) => {
     const handleClick = (searchResult) => {
         updateStoredSearchTerm(searchResult?.label);
         const groupName = user?.groupname || 'base';
+        // Seed the cache so the term page shows the title instantly.
+        primeTermDataCache(groupName, searchResult?.ilx, searchResult?.label);
         navigate(`/${groupName}/${searchResult?.ilx}/overview`);
     };
 

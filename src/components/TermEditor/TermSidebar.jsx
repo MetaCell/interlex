@@ -99,14 +99,10 @@ export default function TermSidebar({ open, loading, onToggle, data }) {
                                         <Box display="flex" flexWrap="wrap" gap=".5rem">
                                             {data?.synonym?.map((synonym) => (
                                                 <Chip
-                                                    className="rounded dual-text-chip"
+                                                    className="rounded"
                                                     variant="outlined"
                                                     key={synonym}
-                                                    label={
-                                                        <span>
-                                                            {synonym} <span>{synonym}</span>
-                                                        </span>
-                                                    }
+                                                    label={synonym}
                                                 />
                                             ))}
                                         </Box>

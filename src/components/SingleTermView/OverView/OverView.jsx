@@ -1,19 +1,8 @@
 // SingleTermView/OverView/OverView.jsx
-import {
-  Box,
-  Divider,
-  Grid,
-  CircularProgress,
-  Snackbar,
-  Alert,
-} from "@mui/material";
-import Details from "./Details";
-import { debounce } from "lodash";
+import { Box, Divider, Grid, Snackbar, Alert } from "@mui/material";
 import PropTypes from "prop-types";
-import Hierarchy from "./Hierarchy";
-import Predicates from "./Predicates";
 import RawDataViewer from "./RawDataViewer";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   getMatchTerms,
   getRawData,
@@ -31,13 +20,107 @@ import {
 } from "../../../parsers/predicateMutations";
 import { buildPredicateGroupsForFocus } from "../../../parsers/predicateParser";
 import { shortenIri, getObjectInputKind } from "../../../configuration/predicateConfig";
-
 import {
   toHierarchyOptionsFromTriples,
   buildChildrenTreeFromTriples,
   buildSuperclassesTreeFromTriples,
-  dedupePredicateGroups
+  dedupePredicateGroups,
 } from "../../../parsers/hierarchies-parser";
+import { createOverviewStore } from "./overviewStore";
+import { DetailsSection, HierarchySection, PredicatesSection } from "./OverviewSections";
+import { emitPredicateRowUpdate, makeRowKey } from "./predicateMutationBus";
+import { reportApiError } from "../../../api/apiErrorBus";
+import ApiErrorDialog from "../../common/ApiErrorDialog";
+
+// Reserved minimum heights while a section loads, so content arriving in one
+// section can't shove a section the user is already scrolled to.
+const DETAILS_MIN_HEIGHT = 240;
+const HIERARCHY_MIN_HEIGHT = 420;
+const PREDICATES_MIN_HEIGHT = 320;
+
+const META_TITLES = new Set(["isabout", "ilx.isabout", "owl:versioniri"]);
+const norm = (t) => String(t || "").trim().toLowerCase();
+
+// Surface a failed backend request (with its URL + backend message) to the
+// shared error dialog.
+const reportFetchFailure = (context, e) => {
+  reportApiError({
+    context,
+    url: e?.url || "",
+    status: e?.status,
+    message: e?.body || e?.message || "Request failed",
+  });
+};
+
+// normalize ID for API calls
+const toILX = (curieLike) => {
+  const t = (curieLike || "").split("/").pop() || curieLike;
+  return t.replace(/^ilx_/i, "ILX:");
+};
+
+// Normalize a predicate group's title + row predicates from full IRIs to curies.
+const shortenGroup = (g) => ({
+  ...g,
+  title: shortenIri(g.title),
+  tableData: Array.isArray(g.tableData)
+    ? g.tableData.map((r) => ({ ...r, predicate: shortenIri(r.predicate) }))
+    : g.tableData,
+});
+
+// Pure assembly of the predicate groups shown in the table/graph.
+//
+// TODO(predicates-freshness): TEMPORARY WORKAROUND. The transitive-query
+// endpoint (getTermPredicates) does not reflect the term head right after a
+// PATCH, so edited literal predicates would still show the old value. Until the
+// backend serves head-consistent data, the editable literal predicates are
+// overridden with the fresh .jsonld groups. Once fixed, return
+// dedupePredicateGroups(predicateGroups.map(shortenGroup)).
+const mergePredicates = ({ versionHash, jsonData, predicateGroups, focusCurie, searchTerm }) => {
+  const termId = focusCurie ? toILX(focusCurie) : searchTerm;
+
+  if (versionHash) {
+    if (!jsonData) return [];
+    // isAbout / owl:versionIRI are synthetic markers the snapshot parser adds
+    // for termParser + Details; they are not real term predicates.
+    return dedupePredicateGroups(
+      buildPredicateGroupsForFocus(jsonData, termId)
+        .filter((g) => !META_TITLES.has(norm(g.title)))
+        .map(shortenGroup)
+    );
+  }
+
+  const freshGroups = jsonData
+    ? buildPredicateGroupsForFocus(jsonData, termId).map(shortenGroup)
+    : [];
+  const freshLiteralTitles = new Set(
+    freshGroups.filter((g) => getObjectInputKind(g.title) === "text").map((g) => norm(g.title))
+  );
+  const freshLiterals = freshGroups.filter((g) => freshLiteralTitles.has(norm(g.title)));
+  const transitive = (Array.isArray(predicateGroups) ? predicateGroups : [])
+    .map(shortenGroup)
+    .filter((g) => !freshLiteralTitles.has(norm(g.title)));
+
+  return dedupePredicateGroups([...freshLiterals, ...transitive]);
+};
+
+// Fetch + parse both hierarchy directions for a focus id (always from "base").
+const fetchHierarchiesData = async (curieLike) => {
+  const termId = toILX(curieLike);
+  const [childRes, superRes] = await Promise.all([
+    getTermHierarchies({ groupname: "base", termId, objToSub: true }),
+    getTermHierarchies({ groupname: "base", termId, objToSub: false }),
+  ]);
+  const childTriples = childRes?.triples || [];
+  const superTriples = superRes?.triples || [];
+  return {
+    treeChildren: buildChildrenTreeFromTriples(childTriples, termId),
+    treeSuperclasses: buildSuperclassesTreeFromTriples(superTriples, termId),
+    options: {
+      children: toHierarchyOptionsFromTriples(childTriples),
+      superclasses: toHierarchyOptionsFromTriples(superTriples),
+    },
+  };
+};
 
 // patchTerm resolves with { status, term } on success, or the raw axios error
 // (its .catch returns it) on failure. Normalize to { ok, status, message }.
@@ -58,153 +141,216 @@ const interpretPatchResult = (res) => {
 };
 
 const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, group = "base", versionHash }) => {
-  const [data, setData] = useState(null);
-  const [pageLoading, setPageLoading] = useState(true);
-  const [jsonData, setJsonData] = useState(null);
+  // Per-instance rxjs streams; each section subscribes to its own.
+  const storeRef = useRef();
+  if (!storeRef.current) storeRef.current = createOverviewStore();
+  const store = storeRef.current;
 
-  // SingleSearch options + selection
-  const [hierarchyOptions, setHierarchyOptions] = useState({});
-  const [selectedValue, setSelectedValue] = useState(null); // {id, label}
-
-  // computed trees
-  const [treeChildren, setTreeChildren] = useState([]);
-  const [treeSuperclasses, setTreeSuperclasses] = useState([]);
-
-  // predicates
-  const [predicateGroups, setPredicateGroups] = useState([]);
+  // Guards against stale async writes after the term/group changed.
+  const loadTokenRef = useRef(0);
+  // Latest raw inputs to the predicate merge (arrive independently).
+  const jsonDataRef = useRef(null);
+  const groupsRef = useRef([]);
+  const jsonReadyRef = useRef(false);
+  const groupsReadyRef = useRef(false);
 
   // feedback for inline predicate edits (add/edit/delete)
-  const [mutationFeedback, setMutationFeedback] = useState(null); // { severity, message }
+  const [mutationFeedback, setMutationFeedback] = useState(null);
 
-  // loading flags
-  const [loadingHierarchies, setLoadingHierarchies] = useState(true);
-  const [loadingPredicates, setLoadingPredicates] = useState(true);
-
-  // Determine if we should show individual loaders or a single global loader
-  const allSectionsLoading = pageLoading && loadingHierarchies && loadingPredicates;
-  const hasAnyData = data !== null || !loadingHierarchies || !loadingPredicates;
-  const showIndividualLoaders = hasAnyData && !allSectionsLoading;
-
-  // debounced search (explicit deps to satisfy eslint)
-  const debouncedFetchTerms = useMemo(
-    () =>
-      debounce(async (term, groupname) => {
-        if (!term) {
-          setData(null);
-          setSelectedValue(null);
-          setPageLoading(false);
-          return;
-        }
-        try {
-          const apiData = await getMatchTerms(groupname, term);
-          const results = apiData?.results || [];
-          const first = results?.[0] || null;
-
-          // normalize first result -> { id, label }
-          let id =
-            first?.curie ||
-            first?.ilx ||
-            first?.id ||
-            first?.termId ||
-            first?.identifier ||
-            null;
-          let label =
-            first?.label ||
-            first?.rdfsLabel ||
-            first?.prefLabel ||
-            first?.term ||
-            first?.name ||
-            id;
-
-          if (id) setSelectedValue({ id, label });
-          setData(first);
-        } finally {
-          setPageLoading(false);
-        }
-      }, 300),
-    []
+  // Push merged predicates once both inputs (fresh .jsonld + transitive groups)
+  // are ready; until then the section stays in its loading state.
+  const maybePushPredicates = useCallback(
+    (focus, token) => {
+      if (token != null && token !== loadTokenRef.current) return;
+      const ready = jsonReadyRef.current && groupsReadyRef.current;
+      const focusId = focus?.id || null;
+      if (!ready) {
+        store.predicates$.next({ loading: true, data: [], focusId });
+        return;
+      }
+      const data = mergePredicates({
+        versionHash: null,
+        jsonData: jsonDataRef.current,
+        predicateGroups: groupsRef.current,
+        focusCurie: focusId,
+        searchTerm,
+      });
+      store.predicates$.next({ loading: false, data, focusId });
+    },
+    [store, searchTerm]
   );
 
-  const fetchJSONFile = useCallback(() => {
-    if (!searchTerm) {
-      setJsonData(null);
-      return;
-    }
-    getRawData(group, searchTerm, "jsonld").then((rawResponse) => {
-      setJsonData(rawResponse);
+  // Live (head) load. Each fetch resolves and writes its own stream.
+  useEffect(() => {
+    if (versionHash) return undefined;
+    const token = ++loadTokenRef.current;
+    const isStale = () => token !== loadTokenRef.current;
+
+    jsonDataRef.current = null;
+    groupsRef.current = [];
+    jsonReadyRef.current = false;
+    groupsReadyRef.current = false;
+
+    store.details$.next({ loading: true, data: null, jsonData: null });
+    store.hierarchy$.next({
+      loading: true,
+      options: { children: [], superclasses: [] },
+      treeChildren: [],
+      treeSuperclasses: [],
     });
-  }, [searchTerm, group]);
+    store.predicates$.next({ loading: true, data: [], focusId: null });
+    store.selectedValue$.next(null);
 
-  // normalize ID for API calls
-  const toILX = (curieLike) => {
-    let t = (curieLike || "").split("/").pop() || curieLike;
-    return t.replace(/^ilx_/i, "ILX:");
-  };
+    // React to focus changes: hierarchy + transitive predicates.
+    const sub = store.selectedValue$.subscribe((sv) => {
+      if (isStale()) return;
+      if (!sv?.id) {
+        store.hierarchy$.next({
+          loading: false,
+          options: { children: [], superclasses: [] },
+          treeChildren: [],
+          treeSuperclasses: [],
+        });
+        groupsReadyRef.current = true;
+        maybePushPredicates(null, token);
+        return;
+      }
 
-  // fetch both directions + compute trees + build options
-  const fetchHierarchies = useCallback(async (curieLike, groupname) => {
-    setLoadingHierarchies(true);
-    try {
-      const termId = toILX(curieLike);
+      store.hierarchy$.next({ ...store.hierarchy$.getValue(), loading: true });
+      fetchHierarchiesData(sv.id)
+        .then((res) => {
+          if (isStale()) return;
+          store.hierarchy$.next({ loading: false, ...res });
+        })
+        .catch((e) => {
+          if (isStale()) return;
+          console.error("fetchHierarchies error:", e);
+          reportFetchFailure("Loading hierarchy", e);
+          store.hierarchy$.next({
+            loading: false,
+            options: { children: [], superclasses: [] },
+            treeChildren: [],
+            treeSuperclasses: [],
+          });
+        });
 
-      const [childRes, superRes] = await Promise.all([
-        getTermHierarchies({ groupname, termId, objToSub: true }),
-        getTermHierarchies({ groupname, termId, objToSub: false }),
-      ]);
+      groupsReadyRef.current = false;
+      store.predicates$.next({ ...store.predicates$.getValue(), loading: true, focusId: sv.id });
+      getTermPredicates({ groupname: "base", termId: toILX(sv.id) })
+        .then((groups) => {
+          if (isStale()) return;
+          groupsRef.current = groups || [];
+          groupsReadyRef.current = true;
+          maybePushPredicates(sv, token);
+        })
+        .catch((e) => {
+          if (isStale()) return;
+          console.error("fetchPredicates error:", e);
+          reportFetchFailure("Loading predicates", e);
+          groupsRef.current = [];
+          groupsReadyRef.current = true;
+          maybePushPredicates(sv, token);
+        });
+    });
 
-      const childTriples = childRes?.triples || [];
-      const superTriples = superRes?.triples || [];
+    // term match -> details data + the initial focus
+    (async () => {
+      if (!searchTerm) {
+        if (isStale()) return;
+        store.details$.next({ loading: false, data: null, jsonData: null });
+        store.selectedValue$.next(null);
+        return;
+      }
+      try {
+        const apiData = await getMatchTerms(group, searchTerm);
+        if (isStale()) return;
+        const first = apiData?.results?.[0] || null;
+        const id =
+          first?.curie || first?.ilx || first?.id || first?.termId || first?.identifier || null;
+        const label =
+          first?.label || first?.rdfsLabel || first?.prefLabel || first?.term || first?.name || id;
+        store.details$.next({ loading: false, data: first, jsonData: jsonDataRef.current });
+        store.selectedValue$.next(id ? { id, label } : null);
+      } catch (e) {
+        if (isStale()) return;
+        console.error("term match error:", e);
+        store.details$.next({ loading: false, data: null, jsonData: jsonDataRef.current });
+        store.selectedValue$.next(null);
+      }
+    })();
 
-      // trees for the currently selected ID
-      setTreeChildren(buildChildrenTreeFromTriples(childTriples, termId));
-      setTreeSuperclasses(buildSuperclassesTreeFromTriples(superTriples, termId));
+    // .jsonld -> details.jsonData + fresh literal predicates
+    (async () => {
+      try {
+        const raw = await getRawData(group, searchTerm, "jsonld");
+        if (isStale()) return;
+        jsonDataRef.current = raw;
+        jsonReadyRef.current = true;
+        store.details$.next({ ...store.details$.getValue(), jsonData: raw });
+        maybePushPredicates(store.selectedValue$.getValue(), token);
+      } catch (e) {
+        if (isStale()) return;
+        console.error("jsonld fetch error:", e);
+        jsonReadyRef.current = true; // don't block predicates forever
+        maybePushPredicates(store.selectedValue$.getValue(), token);
+      }
+    })();
 
-      // update SingleSearch options (union of both)
-      const children = toHierarchyOptionsFromTriples(childTriples);
-      const superclasses = toHierarchyOptionsFromTriples(superTriples);
-      setHierarchyOptions({children: children, superclasses: superclasses});
-      setLoadingHierarchies(false);
-    } catch (e) {
-      console.error("fetchHierarchies error:", e);
-      setTreeChildren([]);
-      setTreeSuperclasses([]);
-      setHierarchyOptions([]);
-      setLoadingHierarchies(false);
-    }
-  }, []);
+    return () => {
+      sub.unsubscribe();
+      // Invalidate any in-flight async writes from this load.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      loadTokenRef.current++;
+    };
+  }, [group, searchTerm, versionHash, store, maybePushPredicates]);
 
-  const fetchPredicates = useCallback(async (curieLike, groupname) => {
-    setLoadingPredicates(true);
-    try {
-      const termId = toILX(curieLike);
-      const groups = await getTermPredicates({ groupname, termId });
-      setPredicateGroups(groups || []);
-    } catch (e) {
-      console.error("fetchPredicates error:", e);
-      setLoadingPredicates(false);
-    } finally {
-      setLoadingPredicates(false);
-    }
-  }, []);
-
-  // Live (head) term load. Skipped in version mode — a snapshot is loaded below.
+  // Version mode: load a single term-version snapshot through the same pipeline.
   useEffect(() => {
-    if (versionHash) return;
-    setPageLoading(true);
-    setLoadingHierarchies(true);
-    setLoadingPredicates(true);
-    debouncedFetchTerms(searchTerm, group);
-    fetchJSONFile();
-    return () => debouncedFetchTerms.cancel();
-  }, [searchTerm, group, debouncedFetchTerms, fetchJSONFile, versionHash]);
+    if (!versionHash || !searchTerm) return undefined;
+    const token = ++loadTokenRef.current;
+    const isStale = () => token !== loadTokenRef.current;
 
-  // Version mode: load a single term-version snapshot and feed it through the
-  // same JSON-LD pipeline (Details/predicates/raw) the head view uses.
-  useEffect(() => {
-    if (!versionHash || !searchTerm) return;
-    let active = true;
-    setPageLoading(true);
-    setLoadingPredicates(true);
+    store.details$.next({ loading: true, data: null, jsonData: null });
+    store.hierarchy$.next({
+      loading: true,
+      options: { children: [], superclasses: [] },
+      treeChildren: [],
+      treeSuperclasses: [],
+    });
+    store.predicates$.next({ loading: true, data: [], focusId: null });
+    store.selectedValue$.next(null);
+
+    // Hierarchy still comes from the live graph for the selected focus.
+    const sub = store.selectedValue$.subscribe((sv) => {
+      if (isStale() || !sv?.id) {
+        if (!isStale() && !sv?.id) {
+          store.hierarchy$.next({
+            loading: false,
+            options: { children: [], superclasses: [] },
+            treeChildren: [],
+            treeSuperclasses: [],
+          });
+        }
+        return;
+      }
+      store.hierarchy$.next({ ...store.hierarchy$.getValue(), loading: true });
+      fetchHierarchiesData(sv.id)
+        .then((res) => {
+          if (!isStale()) store.hierarchy$.next({ loading: false, ...res });
+        })
+        .catch((e) => {
+          if (isStale()) return;
+          console.error("fetchHierarchies error:", e);
+          reportFetchFailure("Loading hierarchy", e);
+          store.hierarchy$.next({
+            loading: false,
+            options: { children: [], superclasses: [] },
+            treeChildren: [],
+            treeSuperclasses: [],
+          });
+        });
+    });
+
     (async () => {
       try {
         // Borrow the live head @context (richer curie set) when reachable.
@@ -212,141 +358,129 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
         try {
           const head = await getRawData(group, searchTerm, "jsonld");
           headContext = head?.["@context"];
-        } catch { /* fall back to the parser's default context */ }
+        } catch {
+          /* fall back to the parser's default context */
+        }
 
         const snapshot = await getTermVersion(group, searchTerm, versionHash);
-        if (!active) return;
+        if (isStale()) return;
 
         const jsonld = versionSnapshotToJsonLd(snapshot, versionHash, headContext);
-        setJsonData(jsonld);
-
         const first = termParser(jsonld, searchTerm)?.results?.[0] || null;
-        setData(first);
-        const id = first?.id || searchTerm;
-        setSelectedValue({ id, label: first?.label || searchTerm });
+        store.details$.next({ loading: false, data: first, jsonData: jsonld });
+        const sv = { id: first?.id || searchTerm, label: first?.label || searchTerm };
+        store.selectedValue$.next(sv);
+        const data = mergePredicates({
+          versionHash,
+          jsonData: jsonld,
+          predicateGroups: [],
+          focusCurie: sv.id,
+          searchTerm,
+        });
+        store.predicates$.next({ loading: false, data, focusId: sv.id });
       } catch (e) {
+        if (isStale()) return;
         console.error("loadVersion error:", e);
-        if (active) { setData(null); setJsonData(null); }
-      } finally {
-        if (active) { setPageLoading(false); setLoadingPredicates(false); }
+        store.details$.next({ loading: false, data: null, jsonData: null });
+        store.predicates$.next({ loading: false, data: [], focusId: null });
       }
     })();
-    return () => { active = false; };
-  }, [versionHash, searchTerm, group]);
 
-  useEffect(() => {
-    if (selectedValue?.id) {
-      fetchHierarchies(selectedValue.id, "base");
-      // In version mode predicates come from the snapshot, not the live graph.
-      if (!versionHash) fetchPredicates(selectedValue.id, "base");
-    } else {
-      setTreeChildren([]);
-      setTreeSuperclasses([]);
-      setPredicateGroups([]);
-      setHierarchyOptions([]);
-    }
-  }, [selectedValue, fetchHierarchies, fetchPredicates, versionHash]);
+    return () => {
+      sub.unsubscribe();
+      // Invalidate any in-flight async writes from this load.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      loadTokenRef.current++;
+    };
+  }, [versionHash, searchTerm, group, store]);
 
-  // Apply a single predicate triple add/edit/delete to the focus term and PATCH it.
-  const handlePredicateMutation = useCallback(async (mutation) => {
-    const patchId = (selectedValue?.id || searchTerm || "").split("/").pop();
+  const handleSelect = useCallback(
+    (value) => {
+      store.selectedValue$.next(value);
+    },
+    [store]
+  );
 
-    // Predicate groups are sourced from the "base" graph, so expand curies with
-    // the base @context (the term's own group serializes a stripped context).
-    // GET-first guarantees the exact predicate IRIs round-trip.
-    const baseDoc = await getRawData("base", patchId, "jsonld");
-    const context = baseDoc?.["@context"] || jsonData?.["@context"] || {};
-    const node = focusNodeFromJsonLd(baseDoc) || focusNodeFromJsonLd(jsonData);
-    const subject = mutation.subject || node?.["@id"];
-    if (!subject) {
-      setMutationFeedback({ severity: "error", message: "Could not resolve the term subject" });
-      return;
-    }
-    // For edit/delete, match the exact stored object (whitespace/lang/datatype).
-    const oldObject =
-      mutation.op === "edit" || mutation.op === "delete"
-        ? resolveStoredObject(node, mutation.predicate, mutation.oldValue)
-        : null;
-    const payload = buildTripleDiff(subject, { ...mutation, oldObject }, context);
+  // Refresh .jsonld + term data + transitive predicates after a structural
+  // (add/delete) mutation, without disturbing hierarchy/focus or scroll.
+  const reloadAfterMutation = useCallback(async () => {
+    const focus = store.selectedValue$.getValue();
     try {
-      // patchEndpointsIlx resolves on any 2xx (a 201 returns a bare version
-      // hash, not JSON) and throws an AxiosError on 4xx/5xx. We don't track the
-      // returned version id — a plain GET resolves the current head.
-      await patchEndpointsIlx(group, patchId, { data: payload });
-      setMutationFeedback({ severity: "success", message: "Change saved" });
-      fetchJSONFile();
-      debouncedFetchTerms(searchTerm, group);
-      if (selectedValue?.id) fetchPredicates(selectedValue.id, group);
+      const raw = await getRawData(group, searchTerm, "jsonld");
+      jsonDataRef.current = raw;
+      jsonReadyRef.current = true;
+      store.details$.next({ ...store.details$.getValue(), jsonData: raw });
     } catch (e) {
-      console.error("handlePredicateMutation error:", e);
-      const { message } = interpretPatchResult(e);
-      setMutationFeedback({ severity: "error", message: message || "Could not save change" });
+      console.error("reload jsonld error:", e);
     }
-  }, [jsonData, selectedValue, searchTerm, group, fetchJSONFile, fetchPredicates, debouncedFetchTerms]);
-
-  const memoData = useMemo(() => data, [data]);
-
-  // Normalize a predicate group's title + row predicates from full IRIs to curies.
-  const shortenGroup = (g) => ({
-    ...g,
-    title: shortenIri(g.title),
-    tableData: Array.isArray(g.tableData)
-      ? g.tableData.map((r) => ({ ...r, predicate: shortenIri(r.predicate) }))
-      : g.tableData,
-  });
-
-  // TODO(predicates-freshness): TEMPORARY WORKAROUND. The transitive-query
-  // endpoint (getTermPredicates) does not reflect the term head right after a
-  // PATCH, so edited literal predicates would still show the old value. Until
-  // the backend serves head-consistent data from that endpoint, we override the
-  // editable literal predicates with the fresh .jsonld (getRawData) below and
-  // re-shorten the stripped full-IRI keys to curies. Once the backend is fixed,
-  // delete freshGroups + the override merge and go back to:
-  //   const predicates = dedupePredicateGroups(predicateGroups);
-  // Focus-node predicates from the head-resolving .jsonld (fresh after a PATCH).
-  const freshGroups = useMemo(() => {
-    if (!jsonData) return [];
-    const termId = selectedValue?.id ? toILX(selectedValue.id) : searchTerm;
-    return buildPredicateGroupsForFocus(jsonData, termId).map(shortenGroup);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [jsonData, selectedValue, searchTerm]);
-
-  const predicates = useMemo(() => {
-    // Version mode: every predicate group comes straight from the snapshot
-    // JSON-LD (the post-PATCH freshness workaround below does not apply).
-    if (versionHash) {
-      if (!jsonData) return [];
-      const termId = selectedValue?.id ? toILX(selectedValue.id) : searchTerm;
-      // isAbout / owl:versionIRI are synthetic markers the snapshot parser adds
-      // for termParser + Details; they are not real term predicates.
-      const META_TITLES = new Set(["isabout", "ilx.isabout", "owl:versioniri"]);
-      return dedupePredicateGroups(
-        buildPredicateGroupsForFocus(jsonData, termId)
-          .filter((g) => !META_TITLES.has(String(g.title || "").trim().toLowerCase()))
-          .map(shortenGroup)
-      );
+    try {
+      const apiData = await getMatchTerms(group, searchTerm);
+      const first = apiData?.results?.[0] || null;
+      store.details$.next({ ...store.details$.getValue(), data: first });
+    } catch (e) {
+      console.error("reload term match error:", e);
     }
+    if (focus?.id) {
+      try {
+        const groups = await getTermPredicates({ groupname: "base", termId: toILX(focus.id) });
+        groupsRef.current = groups || [];
+        groupsReadyRef.current = true;
+        maybePushPredicates(focus, null);
+      } catch (e) {
+        console.error("reload predicates error:", e);
+      }
+    }
+  }, [store, group, searchTerm, maybePushPredicates]);
 
-    const norm = (t) => String(t || "").trim().toLowerCase();
+  // Apply a single predicate triple add/edit/delete to the focus term and PATCH.
+  const handlePredicateMutation = useCallback(
+    async (mutation) => {
+      const jsonData = jsonDataRef.current;
+      const selectedValue = store.selectedValue$.getValue();
+      const patchId = (selectedValue?.id || searchTerm || "").split("/").pop();
 
-    // Editable literal predicates (synonym/definition/label) must reflect the
-    // fresh .jsonld; the transitive-query endpoint lags after a PATCH.
-    const freshLiteralTitles = new Set(
-      freshGroups
-        .filter((g) => getObjectInputKind(g.title) === "text")
-        .map((g) => norm(g.title))
-    );
-    const freshLiterals = freshGroups.filter((g) => freshLiteralTitles.has(norm(g.title)));
+      // Predicate groups are sourced from the "base" graph, so expand curies
+      // with the base @context. GET-first guarantees the predicate IRIs
+      // round-trip.
+      const baseDoc = await getRawData("base", patchId, "jsonld");
+      const context = baseDoc?.["@context"] || jsonData?.["@context"] || {};
+      const node = focusNodeFromJsonLd(baseDoc) || focusNodeFromJsonLd(jsonData);
+      const subject = mutation.subject || node?.["@id"];
+      if (!subject) {
+        setMutationFeedback({ severity: "error", message: "Could not resolve the term subject" });
+        return;
+      }
+      const oldObject =
+        mutation.op === "edit" || mutation.op === "delete"
+          ? resolveStoredObject(node, mutation.predicate, mutation.oldValue)
+          : null;
+      const payload = buildTripleDiff(subject, { ...mutation, oldObject }, context);
 
-    // Everything else (relations, inbound partOf, ids) stays on the transitive
-    // source, minus the literal predicates we just refreshed.
-    const transitive = (Array.isArray(predicateGroups) ? predicateGroups : [])
-      .map(shortenGroup)
-      .filter((g) => !freshLiteralTitles.has(norm(g.title)));
+      const isEdit = mutation.op === "edit";
+      const rowKey = isEdit
+        ? makeRowKey(mutation.subject, mutation.predicate, mutation.oldValue)
+        : null;
+      try {
+        await patchEndpointsIlx(group, patchId, { data: payload });
+        setMutationFeedback({ severity: "success", message: "Change saved" });
+        if (isEdit) {
+          // Surgical update: only the edited row refreshes.
+          emitPredicateRowUpdate({ rowKey, newValue: mutation.newValue, status: "success" });
+        } else {
+          // add/delete change the table structure -> refresh predicates.
+          reloadAfterMutation();
+        }
+      } catch (e) {
+        console.error("handlePredicateMutation error:", e);
+        const { message } = interpretPatchResult(e);
+        setMutationFeedback({ severity: "error", message: message || "Could not save change" });
+        if (isEdit) emitPredicateRowUpdate({ rowKey, status: "error" });
+      }
+    },
+    [store, group, searchTerm, reloadAfterMutation]
+  );
 
-    return dedupePredicateGroups([...freshLiterals, ...transitive]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [freshGroups, predicateGroups]);
+  const onMutate = versionHash ? undefined : handlePredicateMutation;
 
   return (
     <Box p="2.5rem 5rem" sx={{ overflow: "auto" }}>
@@ -354,41 +488,28 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
         <RawDataViewer dataId={searchTerm} dataFormat={selectedDataFormat} group={group} versionHash={versionHash} />
       ) : (
         <>
-          {/* Show single global loader when all sections are loading */}
-          {allSectionsLoading ? (
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
-              <CircularProgress />
-            </Box>
-          ) : (
-            <>
-              <Details data={memoData} jsonData={jsonData} loading={showIndividualLoaders ? pageLoading : false} />
-              <Box p="5rem 0">
-                <Divider />
-                <Grid container pt="5.25rem" spacing="2.75rem">
-                  <Grid item xs={12} lg={4}>
-                    <Hierarchy
-                      options={hierarchyOptions}
-                      selectedValue={selectedValue}
-                      onSelect={setSelectedValue}
-                      treeChildren={treeChildren}
-                      treeSuperclasses={treeSuperclasses}
-                      loading={showIndividualLoaders ? loadingHierarchies : false}
-                    />
-                  </Grid>
-                  <Grid item xs={12} lg={8}>
-                    <Predicates
-                      data={predicates}
-                      isGraphVisible={true}
-                      loading={showIndividualLoaders ? loadingPredicates : false}
-                      focusId={selectedValue?.id}
-                      group={group}
-                      onMutate={versionHash ? undefined : handlePredicateMutation}
-                    />
-                  </Grid>
-                </Grid>
-              </Box>
-            </>
-          )}
+          <DetailsSection subject={store.details$} reserveHeight={DETAILS_MIN_HEIGHT} />
+          <Box p="5rem 0">
+            <Divider />
+            <Grid container pt="5.25rem" spacing="2.75rem">
+              <Grid item xs={12} lg={4}>
+                <HierarchySection
+                  subject={store.hierarchy$}
+                  selectedSubject={store.selectedValue$}
+                  onSelect={handleSelect}
+                  reserveHeight={HIERARCHY_MIN_HEIGHT}
+                />
+              </Grid>
+              <Grid item xs={12} lg={8}>
+                <PredicatesSection
+                  subject={store.predicates$}
+                  group={group}
+                  onMutate={onMutate}
+                  reserveHeight={PREDICATES_MIN_HEIGHT}
+                />
+              </Grid>
+            </Grid>
+          </Box>
         </>
       )}
       <Snackbar
@@ -416,6 +537,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
           </Alert>
         ) : undefined}
       </Snackbar>
+      <ApiErrorDialog />
     </Box>
   );
 };

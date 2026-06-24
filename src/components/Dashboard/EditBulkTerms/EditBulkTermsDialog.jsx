@@ -11,7 +11,8 @@ import CustomizedDialog from "../../common/CustomizedDialog";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import SearchTermsData from "../../../static/SearchTermsData.json";
-import { patchTerm } from "../../../api/endpoints";
+import { patchEndpointsIlx } from "../../../api/endpoints/interLexURIStructureAPI";
+import { expandIri } from "../../../parsers/predicateMutations";
 import { GlobalDataContext } from "../../../contexts/DataContext";
 
 const initialSearchConditions = { attribute: '', value: '', condition: 'where', relation: SearchTermsData.objectOptions[0].value }
@@ -76,8 +77,8 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
   const [ontologyTerms, setOntologyTerms] = useState([]);
   const [ontologyAttributes, setOntologyAttributes] = useState([]);
   const [selectedOntology, setSelectedOntology] = useState(null);
-  // eslint-disable-next-line no-unused-vars
   const [originalTerms, setOriginalTerms] = useState([]);
+  const [jsonLdContext, setJsonLdContext] = useState({});
   const [batchUpdateResults, setBatchUpdateResults] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -88,107 +89,109 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
     }
   }, [open, activeOntology, selectedOntology]);
 
-  // Helper function to replace "base" with user groupname in term data
-  const replaceBaseWithUserGroup = (obj, userGroupname) => {
-    if (!obj || !userGroupname) return obj;
-    
-    const replaceInValue = (value) => {
-      if (typeof value === 'string') {
-        return value.replace(/\bbase\b/g, userGroupname);
-      } else if (Array.isArray(value)) {
-        return value.map(replaceInValue);
-      } else if (value && typeof value === 'object') {
-        return replaceBaseWithUserGroup(value, userGroupname);
+  const rawNodeItemToRdfObject = (item, context) => {
+    if (item == null) return null;
+    if (typeof item === 'string') return { type: 'literal', value: item };
+    if (typeof item === 'object') {
+      if (item['@id']) return { type: 'uri', value: expandIri(item['@id'], context) };
+      if (item['@value'] != null) {
+        const obj = { type: 'literal', value: String(item['@value']) };
+        if (item['@language']) obj.lang = item['@language'];
+        if (item['@type']) obj.datatype = item['@type'];
+        return obj;
       }
-      return value;
-    };
-
-    const result = {};
-    for (const [key, value] of Object.entries(obj)) {
-      result[key] = replaceInValue(value);
+      return { type: 'literal', value: JSON.stringify(item) };
     }
-    return result;
+    return { type: 'literal', value: String(item) };
+  };
+
+  const parseValueToRdfObjects = (value, context) => {
+    if (value == null || value === '') return [];
+    try {
+      const arr = JSON.parse('[' + value + ']');
+      if (Array.isArray(arr)) {
+        return arr.map(item => rawNodeItemToRdfObject(item, context)).filter(Boolean);
+      }
+    } catch (_e) { /* not valid JSON array, fall through to plain literal */ }
+    return [{ type: 'literal', value: String(value) }];
   };
 
   const performBatchUpdate = async (termsToUpdate = null) => {
     setIsUpdating(true);
-    
-    // Use provided terms or all ontology terms
+
     const terms = termsToUpdate || ontologyTerms;
-    
-    const results = {
-      successful: [],
-      failed: [],
-      total: terms.length
-    };
+    const results = { successful: [], failed: [], total: terms.length };
+
+    const originalByIri = {};
+    originalTerms.forEach(t => { originalByIri[t['@id']] = t; });
 
     try {
-      // Store original terms before starting updates (only if not retrying)
-      if (!termsToUpdate) {
-        setOriginalTerms([...ontologyTerms]);
-      }
-
-      // Process each term
       for (const term of terms) {
+        const termIri = term['@id'];
+        let termId = termIri;
+        if (termId && termId.includes('/')) termId = termId.split('/').pop();
+        const group = user?.groupname || 'base';
+
         try {
-          // Extract the group and term ID from the term
-          let termId = term.id || term['@id'];
-          
-          // If termId is in full URI format, extract just the ID part
-          if (termId && termId.includes('/')) {
-            termId = termId.split('/').pop();
-          }
-          
-          // Use user's groupname instead of 'base'
-          const group = user?.groupname || 'base';
-          
-          // Create the JSON-LD payload with the current term data, replacing base with user groupname
-          let jsonLdPayload = {
-            "@context": term["@context"] || {
-              "@vocab": `http://uri.interlex.org/${group}/`,
-              "owl": "http://www.w3.org/2002/07/owl#",
-              "rdfs": "http://www.w3.org/2000/01/rdf-schema#"
-            },
-            "@id": term['@id'] || termId,
-            ...term
-          };
-
-          // Replace any "base" references with user's groupname in the payload
-          if (user?.groupname && user.groupname !== 'base') {
-            jsonLdPayload = replaceBaseWithUserGroup(jsonLdPayload, user.groupname);
+          const originalTerm = originalByIri[termIri];
+          if (!originalTerm) {
+            results.failed.push({ termId, error: 'Original term not found', term });
+            continue;
           }
 
-          // Send PATCH request
-          const response = await patchTerm(group, termId, jsonLdPayload);
-          
-          if (response.status === 200 || response.status === 201) {
-            results.successful.push({
-              termId,
-              term: response.term,
-              status: response.status
-            });
-          } else {
-            results.failed.push({
-              termId,
-              error: `HTTP ${response.status}`,
-              term
-            });
+          const add = [];
+          const del = [];
+          const allKeys = new Set([
+            ...Object.keys(term),
+            ...Object.keys(originalTerm),
+          ].filter(k => k !== '@id' && k !== '_rawNode'));
+
+          for (const predicate of allKeys) {
+            const oldValue = originalTerm[predicate];
+            const newValue = term[predicate];
+            if (oldValue === newValue) continue;
+            if (!oldValue && !newValue) continue;
+
+            const expandedPredicate = expandIri(predicate, jsonLdContext);
+            const rawNode = originalTerm['_rawNode'];
+
+            if (oldValue != null) {
+              const rawVal = rawNode ? rawNode[predicate] : null;
+              if (rawVal != null) {
+                const rawArr = Array.isArray(rawVal) ? rawVal : [rawVal];
+                rawArr.forEach(item => {
+                  const rdfObj = rawNodeItemToRdfObject(item, jsonLdContext);
+                  if (rdfObj) del.push([termIri, expandedPredicate, rdfObj]);
+                });
+              } else {
+                del.push([termIri, expandedPredicate, { type: 'literal', value: String(oldValue) }]);
+              }
+            }
+
+            if (newValue != null && newValue !== '') {
+              parseValueToRdfObjects(newValue, jsonLdContext).forEach(rdfObj => {
+                add.push([termIri, expandedPredicate, rdfObj]);
+              });
+            }
           }
+
+          if (add.length === 0 && del.length === 0) {
+            results.successful.push({ termId, status: 'unchanged' });
+            continue;
+          }
+
+          await patchEndpointsIlx(group, termId, { data: { add, del } });
+          results.successful.push({ termId, status: 200 });
         } catch (error) {
-          console.error(`Failed to update term ${term.id}:`, error);
-          results.failed.push({
-            termId: term.id,
-            error: error.message || 'Unknown error',
-            term
-          });
+          console.error(`Failed to update term ${termId}:`, error);
+          results.failed.push({ termId, error: error.message || 'Unknown error', term });
         }
       }
 
-      // If retrying, merge with existing results
       if (termsToUpdate && batchUpdateResults) {
         setBatchUpdateResults({
           successful: [...batchUpdateResults.successful, ...results.successful],
-          failed: results.failed, // Replace failed list with new attempt results
+          failed: results.failed,
           total: batchUpdateResults.total
         });
       } else {
@@ -196,16 +199,11 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
       }
     } catch (error) {
       console.error('Batch update failed:', error);
-      const failureResults = {
+      setBatchUpdateResults({
         successful: termsToUpdate && batchUpdateResults ? batchUpdateResults.successful : [],
-        failed: terms.map(term => ({
-          termId: term.id,
-          error: error.message || 'Batch operation failed',
-          term
-        })),
+        failed: terms.map(t => ({ termId: t['@id'], error: error.message || 'Batch operation failed', term: t })),
         total: termsToUpdate && batchUpdateResults ? batchUpdateResults.total : terms.length
-      };
-      setBatchUpdateResults(failureResults);
+      });
     } finally {
       setIsUpdating(false);
     }
@@ -269,9 +267,9 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
     >
       <>
         {
-          activeStep === 0 && <SearchTerms 
-            searchConditions={searchConditions} 
-            setSearchConditions={setSearchConditions} 
+          activeStep === 0 && <SearchTerms
+            searchConditions={searchConditions}
+            setSearchConditions={setSearchConditions}
             initialSearchConditions={initialSearchConditions}
             ontologyTerms={ontologyTerms}
             setOntologyTerms={setOntologyTerms}
@@ -280,6 +278,7 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
             selectedOntology={selectedOntology}
             setSelectedOntology={setSelectedOntology}
             setOriginalTerms={setOriginalTerms}
+            setJsonLdContext={setJsonLdContext}
           />
         }
         {

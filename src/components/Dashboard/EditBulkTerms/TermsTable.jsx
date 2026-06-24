@@ -28,7 +28,7 @@ import { getComparator, stableSort } from "../../../helpers";
 import { vars } from "../../../theme/variables";
 const { gray200, gray50, gray700, brand600, gray800 } = vars;
 
-const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, ontologyTerms, dynamicColumns }) => {
+const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, ontologyTerms, dynamicColumns, onTermsUpdate }) => {
   // Memoize the static columns
   const interlexIdColumn = React.useMemo(() => ({ 
     "id": "@id", 
@@ -80,7 +80,10 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, ontology
     if (columnId === 'interlex_id') return;
     
     setEditingCell({ rowIndex, columnId });
-    setEditValue(currentValue || '');
+    const editableValue = typeof currentValue === 'object' && currentValue !== null
+      ? JSON.stringify(currentValue)
+      : currentValue;
+    setEditValue(editableValue || '');
   };
 
   const handleEditSave = () => {
@@ -94,6 +97,7 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, ontology
     };
     
     setTerms(updatedTerms);
+    if (onTermsUpdate) onTermsUpdate(updatedTerms);
     setEditingCell(null);
     setEditValue('');
   };
@@ -253,14 +257,15 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, ontology
                         const cellValue = row && row[column.id];
                         
                         return (
-                          <TableCell 
-                            key={`${column.id}-${index}`} 
+                          <TableCell
+                            key={`${column.id}-${index}`}
                             title={column.readOnly ? 'This column is read-only and cannot be edited' : 'Double-click to edit'}
-                            style={{ 
+                            style={{
                               minWidth: column.minWidth,
                               backgroundColor: column.readOnly ? gray50 : 'transparent',
                               fontFamily: column.id === '@id' ? 'monospace' : 'inherit',
-                              cursor: column.readOnly ? 'default' : 'pointer'
+                              cursor: column.readOnly ? 'default' : 'pointer',
+                              padding: isEditing ? 0 : undefined,
                             }}
                             onDoubleClick={() => !column.readOnly && handleCellDoubleClick(index, column.id, cellValue)}
                           >
@@ -271,10 +276,15 @@ const TermsTable = ({ setOpenEditAttributes, setAttributes, attributes, ontology
                                 onKeyDown={handleKeyPress}
                                 onBlur={handleEditCancel}
                                 autoFocus
-                                size="small"
+                                multiline
                                 variant="outlined"
                                 fullWidth
-                                sx={{ minWidth: 0 }}
+                                sx={{
+                                  minWidth: 0,
+                                  '& .MuiOutlinedInput-root': { borderRadius: 0 },
+                                  '& .MuiOutlinedInput-notchedOutline': { border: '2px solid' },
+                                  '& textarea': { resize: 'none' },
+                                }}
                               />
                             ) : Array.isArray(cellValue) && cellValue.length > 0 ? (
                               <Stack gap='.25rem' direction="row" alignItems="center" maxWidth='20rem' flexWrap='wrap'>
@@ -339,6 +349,7 @@ TermsTable.propTypes = {
   attributes: PropTypes.array,
   ontologyTerms: PropTypes.array,
   dynamicColumns: PropTypes.array,
+  onTermsUpdate: PropTypes.func,
 };
 
 export default TermsTable;

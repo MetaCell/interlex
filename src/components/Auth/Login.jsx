@@ -18,7 +18,7 @@ import { requestUserSettings } from "./utils";
 import Checkbox from "@mui/material/Checkbox";
 import PasswordField from "./UI/PasswordField";
 import { ArrowBack } from "@mui/icons-material";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { login } from "../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { CheckedIcon, UncheckedIcon, OrcidIcon } from "../../Icons";
@@ -51,6 +51,8 @@ const Login = () => {
 
   const { setUserData } = React.useContext(GlobalDataContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectTo = location.state?.from || "/";
 
   React.useEffect(() => {
     let eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
@@ -109,7 +111,7 @@ const Login = () => {
             settings: userData
           });
           closePopups();
-          navigate("/", { replace: true });
+          navigate(redirectTo, { replace: true });
         } catch (error) {
           console.error("Error fetching user settings:", error);
           removeCookie('session', { path: '/' });
@@ -185,7 +187,7 @@ const Login = () => {
             settings: userData
           });
           closePopups();
-          navigate("/", { replace: true });
+          navigate(redirectTo, { replace: true });
         } catch (error) {
           console.error("Error fetching user settings:", error);
           removeCookie('session', { path: '/' });
@@ -201,7 +203,7 @@ const Login = () => {
           setUserData({ name: orcid_meta.name, id: orcid_meta.orcid });
         }
         closePopups();
-        navigate("/", { replace: true });
+        navigate(redirectTo, { replace: true });
       }
     } catch (error) {
       console.error("Login error:", error);

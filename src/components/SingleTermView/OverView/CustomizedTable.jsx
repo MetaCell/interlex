@@ -14,6 +14,7 @@ import {
   isReadOnlyPredicate,
   isRowOnFocus,
 } from "../../../configuration/predicateConfig";
+import { predicateRowUpdates$, makeRowKey } from "./predicateMutationBus";
 
 import { vars } from "../../../theme/variables";
 const { gray100, gray50, gray600, gray500, brand600, gray700 } = vars;
@@ -120,6 +121,8 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
 
   const [adding, setAdding] = useState(false);
   const [newValue, setNewValue] = useState("");
+  // Row currently awaiting a PATCH response (shows an in-row loader).
+  const [pendingRowKey, setPendingRowKey] = useState(null);
 
   const targetRow = useRef();
   const sourceRow = useRef();
@@ -128,6 +131,26 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
   useEffect(() => {
     setTableContent(normalizeTableData(data));
   }, [data]);
+
+  // Terminal PATCH responses for an inline edit. On success, swap in the
+  // persisted value (only the changed row re-renders); on error, leave the
+  // original value untouched (revert). Either way the in-row loader clears.
+  useEffect(() => {
+    const sub = predicateRowUpdates$.subscribe(({ rowKey, newValue, status }) => {
+      setPendingRowKey((current) => (current === rowKey ? null : current));
+      if (status !== "success") return;
+      setTableContent((prev) => {
+        let changed = false;
+        const next = prev.map((row) => {
+          if (makeRowKey(row.subject, predicateTitle, row.object) !== rowKey) return row;
+          changed = true;
+          return { ...row, object: safe(newValue) };
+        });
+        return changed ? next : prev;
+      });
+    });
+    return () => sub.unsubscribe();
+  }, [predicateTitle]);
 
   const move = (arr, fromIndex, toIndex) => {
     const element = arr[fromIndex];
@@ -181,8 +204,10 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
     return <ArrowDownwardIcon fontSize="small" style={{ opacity: 0.3 }} />;
   };
 
-  const handleEditRow = (row, value) =>
+  const handleEditRow = (row, value) => {
+    setPendingRowKey(makeRowKey(row.subject, predicateTitle, row.object));
     onMutate?.({ subject: row.subject, predicate: predicateTitle, op: "edit", kind: objectKind, oldValue: row.object, newValue: value });
+  };
 
   const handleDeleteRow = (row) =>
     onMutate?.({ subject: row.subject, predicate: predicateTitle, op: "delete", kind: objectKind, oldValue: row.object });
@@ -229,6 +254,7 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
           data={row}
           index={index}
           editable={!readOnly && !!onMutate && isRowOnFocus(row.subject, focusId)}
+          pending={pendingRowKey === makeRowKey(row.subject, predicateTitle, row.object)}
           objectKind={objectKind}
           group={group}
           onEdit={handleEditRow}
