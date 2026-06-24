@@ -77,7 +77,6 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
   const [ontologyTerms, setOntologyTerms] = useState([]);
   const [ontologyAttributes, setOntologyAttributes] = useState([]);
   const [selectedOntology, setSelectedOntology] = useState(null);
-  // eslint-disable-next-line no-unused-vars
   const [originalTerms, setOriginalTerms] = useState([]);
   const [jsonLdContext, setJsonLdContext] = useState({});
   const [batchUpdateResults, setBatchUpdateResults] = useState(null);
@@ -113,7 +112,7 @@ const EditBulkTermsDialog = ({ open, handleClose, activeStep, setActiveStep }) =
       if (Array.isArray(arr)) {
         return arr.map(item => rawNodeItemToRdfObject(item, context)).filter(Boolean);
       }
-    } catch {}
+    } catch (_e) { /* not valid JSON array, fall through to plain literal */ }
     return [{ type: 'literal', value: String(value) }];
   };
 

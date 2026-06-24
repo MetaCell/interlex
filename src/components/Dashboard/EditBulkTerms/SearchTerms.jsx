@@ -241,7 +241,7 @@ const SearchTerms = ({ searchConditions, setSearchConditions, initialSearchCondi
     } finally {
       setAttributesLoading(false);
     }
-  }, [setOntologyAttributes, setOntologyTerms, setSelectedOntology, setOriginalTerms]);
+  }, [setOntologyAttributes, setOntologyTerms, setSelectedOntology, setOriginalTerms, setJsonLdContext]);
 
   const updatedColumnsArray = useMemo(() => {
     // If an ontology is selected and we have attributes, use those
