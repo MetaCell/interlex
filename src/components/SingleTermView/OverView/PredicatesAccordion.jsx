@@ -14,7 +14,7 @@ import PropTypes from "prop-types";
 import Graph from "../../GraphViewer/Graph";
 import CustomizedTable from "./CustomizedTable";
 import ViewDiagramDialog from "./ViewDiagramDialog";
-import CallMadeIcon from '@mui/icons-material/CallMade';
+
 import { FullscreenOutlined } from "@mui/icons-material";
 import { TableChartIcon, GraphIcon } from "../../../Icons";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -85,7 +85,6 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible, focusI
           >
             <Stack direction='row' spacing='.25rem'>
               <Typography>{pred.title}</Typography>
-              <CallMadeIcon fontSize='medium' />
             </Stack>
             <Stack direction='row' alignItems='center' spacing='.75rem'>
               <Typography color={gray600} fontSize='.875rem'>

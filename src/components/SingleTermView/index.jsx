@@ -344,11 +344,11 @@ const SingleTermView = () => {
       // Can only add when an ontology is active and the term isn't already in it.
       disabled: !hasActiveOntology || isTermInActiveOntology
     },
-    {
+    ...(user ? [{
       icon: <ForkRightOutlinedIcon fontSize="small" />,
       label: "Create fork",
       action: handleCreateFork
-    },
+    }] : []),
     {
       icon: <FolderCopyOutlinedIcon fontSize="small" />,
       label: "Add term to another ontology",
@@ -414,11 +414,11 @@ const SingleTermView = () => {
                     <Button type="string" color="secondary" startIcon={<RateReviewOutlinedIcon />} onClick={handleOpenFeatureNotAvailableDialog}>
                       Request to merge changes to curated
                     </Button>
-                  ) : (
+                  ) : user ? (
                     <Button type="string" color="secondary" startIcon={<ForkRightIcon />} onClick={handleOpenForkDialog}>
                       Create fork
                     </Button>
-                  )}
+                  ) : null}
 
                   <CustomButtonGroup
                     variant="outlined"
@@ -445,7 +445,7 @@ const SingleTermView = () => {
                 </Stack>
               </Grid>
               <Grid item xs={6}>
-                <CopyLinkComponent url={`http://uri.interlex.org/${actualGroup}/${searchTerm}`} />
+                <CopyLinkComponent url={`http://uri.interlex.org/${searchTerm?.startsWith('ilx_') ? 'base' : actualGroup}/${searchTerm}`} />
               </Grid>
               <Grid item xs={12} mt="2rem" display='flex' alignItems='center' justifyContent='space-between'>
                 <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={tabLabels} />

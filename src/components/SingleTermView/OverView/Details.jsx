@@ -3,6 +3,7 @@ import {
   Chip, CircularProgress,
   Grid,
   Stack,
+  Tooltip,
   Typography
 } from "@mui/material";
 import PropTypes from "prop-types";
@@ -11,6 +12,8 @@ import { formatTimestamp } from "../../../utils";
 
 import { vars } from "../../../theme/variables";
 const { gray800, gray500 } = vars;
+
+const RELATED_SYNONYM_IRI = "http://uri.interlex.org/base/ilx_0737162";
 
 const Details = ({ loading, data, jsonData }) => {
   const handleChipClick = (url) => {
@@ -24,7 +27,21 @@ const Details = ({ loading, data, jsonData }) => {
       return [existingID];
     }
     return [];
-  }
+  };
+
+  const getSynonymGroups = () => {
+    const synonyms = processExistingIds(data?.synonym);
+    const graph = jsonData?.["@graph"];
+    const focusNode = Array.isArray(graph)
+      ? graph.find(n => String(n?.["@type"] || "").toLowerCase().includes("class")) || null
+      : null;
+    const relatedRaw = focusNode?.[RELATED_SYNONYM_IRI];
+    const relatedArr = Array.isArray(relatedRaw) ? relatedRaw : relatedRaw ? [relatedRaw] : [];
+    const related = relatedArr
+      .map(v => (typeof v === "string" ? v : v?.["@value"] || null))
+      .filter(Boolean);
+    return { synonyms, related };
+  };
 
   if (loading) {
     return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -50,23 +67,45 @@ const Details = ({ loading, data, jsonData }) => {
       <Grid container>
         <Grid item xs={12} lg={5}>
           <Stack spacing=".75rem">
-            <Typography color={gray800} fontWeight={500}>
+            <Typography
+              id="synonyms"
+              color={gray800}
+              fontWeight={500}
+              component="a"
+              href="#synonyms"
+              sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { textDecoration: 'underline' } }}
+            >
               Synonyms
             </Typography>
-            <Box display="flex" flexWrap="wrap" gap=".5rem">
-              {data?.synonym && processExistingIds(data?.synonym).map((syn) => (
-                <Chip
-                  className="rounded dual-text-chip"
-                  variant="outlined"
-                  key={syn}
-                  label={
-                    <span>
-                      {syn} <span>{syn}</span>
-                    </span>
-                  }
-                />))
-              }
-            </Box>
+            {(() => {
+              const { synonyms, related } = getSynonymGroups();
+              return (
+                <Stack spacing=".5rem">
+                  {synonyms.length > 0 && (
+                    <Box display="flex" flexWrap="wrap" gap=".5rem">
+                      {synonyms.map((syn) => (
+                        <Tooltip key={syn} title="Synonym" arrow>
+                          <Chip className="rounded" variant="outlined" label={syn} />
+                        </Tooltip>
+                      ))}
+                    </Box>
+                  )}
+                  {related.length > 0 && (
+                    <>
+                      <Typography variant="caption" color={gray500}>Related</Typography>
+                      <Box display="flex" flexWrap="wrap" gap=".5rem">
+                        {related.map((syn) => (
+                          <Tooltip key={syn} title="Related synonym" arrow>
+                            <Chip className="rounded" variant="outlined" label={syn} color="info" size="small" />
+                          </Tooltip>
+                        ))}
+                      </Box>
+                    </>
+                  )}
+                  {synonyms.length === 0 && related.length === 0 && null}
+                </Stack>
+              );
+            })()}
           </Stack>
         </Grid>
         <Grid item xs={12} lg={3}>

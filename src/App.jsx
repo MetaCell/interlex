@@ -45,12 +45,13 @@ const PageContainer = ({ children }) => {
 const ProtectedRoute = ({ children }) => {
 	const { user } = useContext(GlobalDataContext);
 	const navigate = useNavigate();
+	const location = useLocation();
 
 	useEffect(() => {
 		if (!user) {
-			navigate('/login');
+			navigate('/login', { state: { from: location.pathname + location.search } });
 		}
-	}, [user, navigate]);
+	}, [user, navigate, location]);
 
 	return user ? children : null;
 };
