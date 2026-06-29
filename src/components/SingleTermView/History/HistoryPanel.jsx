@@ -6,7 +6,7 @@ import { vars } from "../../../theme/variables";
 
 const { gray50 } = vars;
 
-const HistoryPanel = ({ searchTerm, group = "base", versionsData, versionsLoading }) => {
+const HistoryPanel = ({ /*searchTerm, group = "base",*/ versionsData, versionsLoading }) => {
     const versions = React.useMemo(() => {
         if (!versionsData?.versions) return [];
         return versionsData.versions.map(version => {

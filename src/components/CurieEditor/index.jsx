@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import { useState, useContext } from "react";
 import { Box, Typography, Grid } from "@mui/material";
 import CustomButton from "../common/CustomButton";
 import BasicTabs from "../common/CustomTabs";

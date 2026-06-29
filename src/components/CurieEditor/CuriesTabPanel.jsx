@@ -48,7 +48,7 @@ const namespaceCellStyle = {
 };
 
 const CuriesTabPanel = (props) => {
-    const { curieValue, error, loading, rows, editMode, onCurieAmountChange, onAddRow, onDeleteRow, onChangeRow } = props;
+    const { curieValue, error, loading, rows, editMode, onCurieAmountChange, onAddRow, onChangeRow } = props;
     const [rowId, setRowId] = React.useState(null);
     const [columnIndex, setColumnIndex] = React.useState(-1);
     const [order, setOrder] = React.useState('asc');
