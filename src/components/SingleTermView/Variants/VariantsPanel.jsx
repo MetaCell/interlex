@@ -9,7 +9,7 @@ const headCells = [
     { id: 'title', label: 'Title' },
     { id: 'firstSeen', label: 'First seen' },
     { id: 'tripleCount', label: 'Triples' },
-    { id: 'identityGraph', label: 'Identity graph' },
+    { id: 'identityRecord', label: 'Identity record' },
     { id: 'action_buttons', label: '', sortable: false, width: '3.5rem' }
 ];
 
@@ -31,16 +31,16 @@ const mapVersionsToRows = (data) => {
             (a, b) => parseBackendDate(a.first_seen) - parseBackendDate(b.first_seen)
         )[0];
 
-        const identityGraph = version['identity-graph'];
+        const identityRecord = version['identity-record'];
         return {
-            id: identityGraph,
+            id: identityRecord,
             fork: forkFromUri(oldest?.uri),
             title: oldest?.title ?? '',
             firstSeen: oldest?.first_seen
                 ? parseBackendDate(oldest.first_seen).toLocaleString()
                 : '',
             tripleCount: version.triple_count ?? 0,
-            identityGraph: identityGraph ? `${identityGraph.slice(0, 12)}…` : '',
+            identityRecord: identityRecord ? `${identityRecord.slice(0, 12)}…` : '',
             viri: oldest?.viri ?? ''
         };
     });

@@ -276,11 +276,11 @@ const SingleTermView = () => {
       setTabValue(newTabValue);
     }
 
-    // If no tab is specified in URL, redirect to overview
-    if (!tab && group && term) {
+    // If no tab is specified in URL (and not a version view), redirect to overview
+    if (!tab && !versionHash && group && term) {
       navigate(`/${group}/${term}/overview`, { replace: true });
     }
-  }, [tab, tabMapping, navigate, group, term, tabValue]);
+  }, [tab, tabMapping, navigate, group, term, tabValue, versionHash]);
 
   const isItFork = actualGroup === 'base' ? false : true; // Use actualGroup instead of group
 

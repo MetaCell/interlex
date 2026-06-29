@@ -464,7 +464,7 @@ export const getVersions = async (group: string, term: string) => {
 // A single version snapshot of a term, identified by its identity-graph hash.
 // Returns { prefixes, triples: [[subject, predicate, object], ...] }.
 export const getTermVersion = async (group: string, term: string, identityGraph: string) => {
-  return createGetRequest<any, any>(`/${group}/${term}/versions/${identityGraph}`, "application/json")();
+  return createGetRequest<any, any>(`/${group}/${term}/versions/${identityGraph}`, "application/ld+json")();
 };
 
 export const getTermDiscussions = async (group: string, variantID: string) => {

@@ -5,6 +5,7 @@ import {
     TableCell, TableContainer, TableRow,
     Paper, Chip, Typography, IconButton, Pagination, PaginationItem
 } from '@mui/material';
+import { Link } from 'react-router-dom';
 import CustomTableHead from './CustomTableHead';
 import {getComparator, stableSort} from "../../../helpers";
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -85,14 +86,14 @@ const VariantsTable = ({ rows, headCells, group, term }) => {
                                         <TableCell sx={{ color: gray700 }}>{row.firstSeen}</TableCell>
                                         <TableCell sx={{ color: gray700 }}>{row.tripleCount}</TableCell>
                                         <TableCell>
-                                            <Typography variant='body2' sx={{ color: gray900, fontFamily: 'monospace' }}>{row.identityGraph}</Typography>
+                                            <Typography variant='body2' sx={{ color: gray900, fontFamily: 'monospace' }}>{row.identityRecord}</Typography>
                                         </TableCell>
                                         <TableCell sx={{ width: '3.5rem', whiteSpace: 'nowrap' }}>
                                             <IconButton
                                                 sx={iconButtonStyle}
                                                 disabled={!row.id}
-                                                component="a"
-                                                href={row.id ? `/${group}/${term}/versions/${row.id}` : undefined}
+                                                component={row.id ? Link : 'button'}
+                                                to={row.id ? `/${group}/${term}/versions/${row.id}` : undefined}
                                                 title="Open this version"
                                             >
                                                 <ArrowOutwardIcon />

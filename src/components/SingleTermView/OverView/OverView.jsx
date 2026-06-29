@@ -11,7 +11,6 @@ import {
   getTermVersion,
 } from "../../../api/endpoints/apiService";
 import termParser from "../../../parsers/termParser";
-import { versionSnapshotToJsonLd } from "../../../parsers/versionParser";
 import { patchEndpointsIlx } from "../../../api/endpoints/interLexURIStructureAPI";
 import {
   focusNodeFromJsonLd,
@@ -355,19 +354,9 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
 
     (async () => {
       try {
-        // Borrow the live head @context (richer curie set) when reachable.
-        let headContext;
-        try {
-          const head = await getRawData(group, searchTerm, "jsonld");
-          headContext = head?.["@context"];
-        } catch {
-          /* fall back to the parser's default context */
-        }
-
-        const snapshot = await getTermVersion(group, searchTerm, versionHash);
+        const jsonld = await getTermVersion(group, searchTerm, versionHash);
         if (isStale()) return;
 
-        const jsonld = versionSnapshotToJsonLd(snapshot, versionHash, headContext);
         const first = termParser(jsonld, searchTerm)?.results?.[0] || null;
         store.details$.next({ loading: false, data: first, jsonData: jsonld });
         const sv = { id: first?.id || searchTerm, label: first?.label || searchTerm };
