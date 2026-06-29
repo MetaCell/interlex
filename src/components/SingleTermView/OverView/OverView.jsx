@@ -473,7 +473,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
         if (isEdit) emitPredicateRowUpdate({ rowKey, status: "error" });
       }
     },
-    [store, group, searchTerm, reloadAfterMutation]
+    [store, group, searchTerm, reloadAfterMutation, curies]
   );
 
   const onMutate = versionHash ? undefined : handlePredicateMutation;
