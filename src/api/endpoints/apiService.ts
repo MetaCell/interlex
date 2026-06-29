@@ -67,6 +67,18 @@ interface JsonLdResponse {
 
 const BASE_EXTENSION = "jsonld";
 
+// Deduplicate concurrent GET fetches for the same URL.
+// All callers that request the same in-flight URL share one network request.
+const inflight = new Map<string, Promise<any>>();
+
+const fetchOnce = (url: string, fetcher: () => Promise<any>): Promise<any> => {
+  const existing = inflight.get(url);
+  if (existing) return existing;
+  const p = fetcher().finally(() => inflight.delete(url));
+  inflight.set(url, p);
+  return p;
+};
+
 export const login = createPostRequest<any, LoginRequest>(API_CONFIG.REAL_API.SIGNIN, { "Content-Type": "application/x-www-form-urlencoded" })
 
 export const register = createPostRequest<any, RegisterRequest>(API_CONFIG.REAL_API.NEWUSER_ILX, { "Content-Type": "application/x-www-form-urlencoded" })
@@ -90,6 +102,11 @@ export const getOrganizations = (group: string) => {
 export const getOrganizationsCuries = (group: string) => {
   const endpoint = `/${group}${API_CONFIG.REAL_API.ORG_CURIES}`;
   return createGetRequest<any, any>(endpoint, "application/json")();
+};
+
+export const addOrganizationCuries = (group: string, curies: Record<string, string>) => {
+  const endpoint = `/${group}${API_CONFIG.REAL_API.ORG_CURIES}`;
+  return createPostRequest<any, any>(endpoint, { "Content-Type": "application/json" })(curies);
 };
 
 export const getOrganizationsTerms = (group: string) => {
@@ -155,7 +172,8 @@ export const changePassword = (group: string, data: { username: string; currentP
 
 export const getSelectedTermLabel = async (searchTerm: string, group: string = 'base'): Promise<{ label: string | undefined; actualGroup: string }> => {
   try {
-    const response = await createGetRequest<JsonLdResponse, any>(`/${group}/${searchTerm}.jsonld`)();
+    const primaryUrl = `/${group}/${searchTerm}.jsonld`;
+    const response = await fetchOnce(primaryUrl, () => createGetRequest<JsonLdResponse, any>(primaryUrl)());
 
     const label = response['@graph']?.[0]?.['rdfs:label'];
 
@@ -179,7 +197,8 @@ export const getSelectedTermLabel = async (searchTerm: string, group: string = '
     // If the request fails and we're not already trying 'base', try with 'base' as fallback
     if (group !== 'base') {
       try {
-        const fallbackResponse = await createGetRequest<JsonLdResponse, any>(`/base/${searchTerm}.jsonld`)();
+        const fallbackUrl = `/base/${searchTerm}.jsonld`;
+        const fallbackResponse = await fetchOnce(fallbackUrl, () => createGetRequest<JsonLdResponse, any>(fallbackUrl)());
         const fallbackLabel = fallbackResponse['@graph']?.[0]?.['rdfs:label'];
 
         const getLabelValue = (label: LabelType): string => {
@@ -312,15 +331,17 @@ export const retrieveTokenApi = ({ groupname }: { groupname: string }) => {
 export const forgotPassword = createPostRequest<any, ForgotPasswordReguest>(API_CONFIG.REAL_API.USER_RECOVER, { "Content-Type": "application/x-www-form-urlencoded" })
 
 export const getMatchTerms = async (group: string, term: string, filters = {}) => {
+  const primaryUrl = `/${group}/${term}.${BASE_EXTENSION}`;
   try {
-    const response = await createGetRequest<any, any>(`/${group}/${term}.${BASE_EXTENSION}`, "application/json")();
+    const response = await fetchOnce(primaryUrl, () => createGetRequest<any, any>(primaryUrl, "application/json")());
     return termParser(response, term);
   } catch (err: any) {
     console.error(err.message);
     // If the request fails and we're not already trying 'base', try with 'base' as fallback
     if (group !== 'base') {
       try {
-        const fallbackResponse = await createGetRequest<any, any>(`/base/${term}.${BASE_EXTENSION}`, "application/json")();
+        const fallbackUrl = `/base/${term}.${BASE_EXTENSION}`;
+        const fallbackResponse = await fetchOnce(fallbackUrl, () => createGetRequest<any, any>(fallbackUrl, "application/json")());
         return termParser(fallbackResponse, term);
       } catch (fallbackErr: any) {
         console.error('Fallback request also failed:', fallbackErr.message);
@@ -332,15 +353,17 @@ export const getMatchTerms = async (group: string, term: string, filters = {}) =
 };
 
 export const getRawData = async (group: string, termID: string, format: string) => {
+  const primaryUrl = `/${group}/${termID}.${format}`;
   try {
-    const response = await createGetRequest<any, any>(`/${group}/${termID}.${format}`, "application/json")();
+    const response = await fetchOnce(primaryUrl, () => createGetRequest<any, any>(primaryUrl, "application/json")());
     return response;
   } catch (err: any) {
     console.error(err.message);
     // If the request fails and we're not already trying 'base', try with 'base' as fallback
     if (group !== 'base') {
       try {
-        const fallbackResponse = await createGetRequest<any, any>(`/base/${termID}.${format}`, "application/json")();
+        const fallbackUrl = `/base/${termID}.${format}`;
+        const fallbackResponse = await fetchOnce(fallbackUrl, () => createGetRequest<any, any>(fallbackUrl, "application/json")());
         return fallbackResponse;
       } catch (fallbackErr: any) {
         console.error('Fallback request also failed:', fallbackErr.message);

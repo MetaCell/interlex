@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Box, CircularProgress } from '@mui/material';
 import VariantsTable from './VariantsTable';
 import ErrorModal from '../../common/ErrorModal';
-import { getVersions } from '../../../api/endpoints/apiService';
 
 const headCells = [
     { id: 'fork', label: 'Fork' },
@@ -47,43 +46,21 @@ const mapVersionsToRows = (data) => {
     });
 };
 
-const VariantsPanel = ({ searchTerm, group = "base" }) => {
-    const [variants, setVariants] = React.useState([]);
-    const [loading, setLoading] = React.useState(true);
-    const [error, setError] = React.useState(null);
+const VariantsPanel = ({ searchTerm, group = "base", versionsData, versionsLoading, versionsError, onDismissError }) => {
+    const variants = React.useMemo(() => mapVersionsToRows(versionsData), [versionsData]);
 
-    React.useEffect(() => {
-        let active = true;
-        setLoading(true);
-        setError(null);
-        getVersions(group, searchTerm)
-            .then(data => {
-                if (active) setVariants(mapVersionsToRows(data));
-            })
-            .catch(err => {
-                if (active) {
-                    setError(err);
-                    setVariants([]);
-                }
-            })
-            .finally(() => {
-                if (active) setLoading(false);
-            });
-        return () => { active = false; };
-    }, [group, searchTerm]);
-
-    if (loading) {
+    if (versionsLoading) {
         return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
             <CircularProgress />
         </Box>
     }
 
-    if (error) {
+    if (versionsError) {
         return <ErrorModal
             open
-            onClose={() => setError(null)}
+            onClose={onDismissError || (() => {})}
             title="Failed to load variants"
-            error={error}
+            error={versionsError}
         />
     }
 
@@ -100,7 +77,11 @@ const VariantsPanel = ({ searchTerm, group = "base" }) => {
 
 VariantsPanel.propTypes = {
     searchTerm: PropTypes.string,
-    group: PropTypes.string
+    group: PropTypes.string,
+    versionsData: PropTypes.object,
+    versionsLoading: PropTypes.bool,
+    versionsError: PropTypes.any,
+    onDismissError: PropTypes.func,
 }
 
 export default VariantsPanel;

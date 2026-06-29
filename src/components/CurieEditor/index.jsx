@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useContext, useCallback } from "react";
+import React, { useState, useContext } from "react";
 import { Box, Typography, Grid } from "@mui/material";
 import CustomButton from "../common/CustomButton";
 import BasicTabs from "../common/CustomTabs";
@@ -6,136 +6,79 @@ import CurieEditorDialog from "./CurieEditorDialog";
 import CuriesTabPanel from "./CuriesTabPanel";
 import { EditNoteIcon } from "../../Icons";
 import { vars } from "../../theme/variables";
-import { getOrganizationsCuries } from "../../api/endpoints/apiService";
+import { addOrganizationCuries } from "../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../contexts/DataContext";
-import debounce from 'lodash/debounce';
 
 const { gray600, gray700 } = vars;
 
-// Helper function to transform curies response similar to SingleOrganization
-const transformCuriesResponse = (response) => {
-    let curiesObject;
-    if (Array.isArray(response) && response.length > 0) {
-        // If response is an array, take the first item
-        curiesObject = response[0];
-    } else if (response && typeof response === 'object') {
-        // If response is a direct object, use it directly
-        curiesObject = response;
-    }
-
-    if (curiesObject && Object.keys(curiesObject).length > 0) {
-        // Convert object to array of {prefix, namespace} objects
-        return Object.entries(curiesObject).map(([prefix, namespace]) => ({
-            prefix,
-            namespace
-        }));
-    }
-    return [];
-};
-
-const newRowObj = { prefix: '', namespace: '' };
+let newRowCounter = 0;
 
 const curiesTabs = ["My curies", "Curated", "Latest"];
-const curieValues = ["base", "curated", "latest"]
+const curieValues = ["base", "curated", "latest"];
 
 const CurieEditor = () => {
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [curies, setCuries] = useState({ base: [], curated: [], latest: [] });
+    const { user, curies, curiesLoading, setCuriesData } = useContext(GlobalDataContext);
+
+    const [localCuries, setLocalCuries] = useState({ base: [], curated: [], latest: [] });
     const [tabValue, setTabValue] = useState(0);
     const [curieAmount, setCurieAmount] = useState(0);
-    const [openCurieEditor, setOpenCurieEditor] = React.useState(false);
-    
-    const { user } = useContext(GlobalDataContext);
+    const [openCurieEditor, setOpenCurieEditor] = useState(false);
 
-    const fetchCuries = useCallback(async (type) => {
-        try {
-            let data = [];
-            
-            if (type === 'base') {
-                // "My curies" tab - get curies from user's groupname
-                if (user?.groupname) {
-                    const response = await getOrganizationsCuries(user.groupname).catch(error => {
-                        if (error?.response?.status === 501) {
-                            console.warn(`Curies endpoint not implemented yet (501) for ${user.groupname}, using empty array`);
-                            return [{}]; // Return array with empty object to match expected structure
-                        }
-                        throw error;
-                    });
-                    data = transformCuriesResponse(response);
-                }
-            } else if (type === 'curated') {
-                // "Curated" tab - get curies from "base" groupname
-                const response = await getOrganizationsCuries('base').catch(error => {
-                    if (error?.response?.status === 501) {
-                        console.warn('Curies endpoint not implemented yet (501) for base, using empty array');
-                        return [{}]; // Return array with empty object to match expected structure
-                    }
-                    throw error;
-                });
-                data = transformCuriesResponse(response);
-            } else if (type === 'latest') {
-                // "Latest" tab - get curies from "base" groupname (same as curated)
-                const response = await getOrganizationsCuries('base').catch(error => {
-                    if (error?.response?.status === 501) {
-                        console.warn('Curies endpoint not implemented yet (501) for base, using empty array');
-                        return [{}]; // Return array with empty object to match expected structure
-                    }
-                    throw error;
-                });
-                data = transformCuriesResponse(response);
-            }
-            
-            setCuries(prev => ({ ...prev, [type]: data }));
-        } catch (error) {
-            console.error(`Error fetching curies for ${type}:`, error);
-            setError(error);
-            // Set empty array on error to prevent UI issues
-            setCuries(prev => ({ ...prev, [type]: [] }));
-        } finally {
-            setLoading(false);
-        }
-    }, [user]);
-
-    const handleAddNewCurieRow = (curieValue) => {
-        setCuries(prev => ({ ...prev, [curieValue]: [newRowObj, ...prev[curieValue]] }));
+    const handleClickCurieEditor = () => {
+        // Snapshot context curies into local state when opening dialog
+        setLocalCuries(curies);
+        setOpenCurieEditor(true);
     };
 
-    const handleDeleteCurieRow = (curieValue, rowPrefix, rowNamespace) => {
-        console.log("DELETE: connect to delete method")
-        setCuries(prev => ({
+    const handleCloseCurieEditor = () => setOpenCurieEditor(false);
+    const handleChangeTabs = (event, newValue) => setTabValue(newValue);
+    const handleCurieAmountChange = (value) => setCurieAmount(value);
+
+    const handleAddNewCurieRow = (curieValue) => {
+        newRowCounter += 1;
+        setLocalCuries(prev => ({
             ...prev,
-            [curieValue]: prev[curieValue].filter(row => row.prefix !== rowPrefix && row.namespace !== rowNamespace)
+            [curieValue]: [{ prefix: '', namespace: '', _id: `new_${newRowCounter}` }, ...prev[curieValue]]
         }));
     };
 
-    const debouncedUpdateRows = useMemo(
-        () => debounce((curieValue, updatedRows) => {
-            setCuries(prev => ({ ...prev, [curieValue]: updatedRows }));
-        }, 2000),
-        []
-    );
-
-    const handleInputChangeCurieRow = (e, rowIndex, columnName, curieValue) => {
-        console.log("UPDATE: here connect to update method")
-        const updatedRows = curies[curieValue].map((row, index) => index === rowIndex ? { ...row, [columnName]: e.target.value } : row);
-        debouncedUpdateRows(curieValue, updatedRows);
+    const handleDeleteCurieRow = (curieValue, rowId) => {
+        setLocalCuries(prev => ({
+            ...prev,
+            [curieValue]: prev[curieValue].filter(row => row._id !== rowId)
+        }));
     };
 
-    const handleCurieAmountChange = (value) => setCurieAmount(value);
-    const handleClickCurieEditor = () => setOpenCurieEditor(true);
-    const handleCloseCurieEditor = () => setOpenCurieEditor(false);
-    const handleChangeTabs = (event, newValue) => setTabValue(newValue);
+    const handleInputChangeCurieRow = (e, rowId, columnName, curieValue) => {
+        const value = e.target.value;
+        setLocalCuries(prev => ({
+            ...prev,
+            [curieValue]: prev[curieValue].map(row => row._id === rowId ? { ...row, [columnName]: value } : row)
+        }));
+    };
 
-    const handleSubmit = () => {
-        console.log("POST: here connect to post method")
-    }
+    const handleSubmit = async () => {
+        if (!user?.groupname) return;
+        const newRows = localCuries.base.filter(row => row._id?.startsWith('new_'));
+        if (newRows.length === 0) return;
+        const payload = newRows.reduce((acc, { prefix, namespace }) => {
+            if (prefix && namespace) acc[prefix] = namespace;
+            return acc;
+        }, {});
+        if (Object.keys(payload).length === 0) return;
 
-    useEffect(() => {
-        fetchCuries('base');
-        fetchCuries('curated');
-        fetchCuries('latest');
-    }, [fetchCuries]);
+        await addOrganizationCuries(user.groupname, payload);
+
+        // Re-stamp saved rows as existing, then sync to context
+        const updatedBase = localCuries.base.map(row =>
+            row._id?.startsWith('new_') && payload[row.prefix]
+                ? { ...row, _id: `existing_${row.prefix}_${row.namespace}` }
+                : row
+        );
+        const updatedCuries = { ...localCuries, base: updatedBase };
+        setLocalCuries(updatedCuries);
+        setCuriesData(updatedCuries);
+    };
 
     return (
         <>
@@ -160,8 +103,8 @@ const CurieEditor = () => {
                             tabValue === index && (
                                 <CuriesTabPanel
                                     key={tab}
-                                    error={error}
-                                    loading={loading}
+                                    error={null}
+                                    loading={curiesLoading}
                                     rows={curies[tab]}
                                     onCurieAmountChange={handleCurieAmountChange}
                                 />
@@ -179,10 +122,10 @@ const CurieEditor = () => {
                                 <CuriesTabPanel
                                     key={tab}
                                     curieValue={tab}
-                                    error={error}
-                                    loading={loading}
-                                    editMode={tab === 'base'} // Only allow editing for 'base' (My curies) tab
-                                    rows={curies[tab]}
+                                    error={null}
+                                    loading={curiesLoading}
+                                    editMode={tab === 'base'}
+                                    rows={localCuries[tab]}
                                     onCurieAmountChange={handleCurieAmountChange}
                                     onAddRow={handleAddNewCurieRow}
                                     onDeleteRow={handleDeleteCurieRow}
@@ -195,6 +138,6 @@ const CurieEditor = () => {
             </CurieEditorDialog>
         </>
     );
-}
+};
 
 export default CurieEditor;

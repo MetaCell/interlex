@@ -4,7 +4,7 @@ import CustomTable from "../common/CustomTable";
 import { getComparator, stableSort } from "../../utils";
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import { Box, TableRow, TableCell, IconButton, TextField, ClickAwayListener, CircularProgress } from "@mui/material";
+import { Box, TableRow, TableCell, IconButton, TextField, ClickAwayListener, CircularProgress, Tooltip } from "@mui/material";
 
 import { vars } from "../../theme/variables";
 const { gray600, brand500, gray100, gray300, gray700 } = vars;
@@ -49,13 +49,12 @@ const namespaceCellStyle = {
 
 const CuriesTabPanel = (props) => {
     const { curieValue, error, loading, rows, editMode, onCurieAmountChange, onAddRow, onDeleteRow, onChangeRow } = props;
-    const [rowIndex, setRowIndex] = React.useState(-1);
+    const [rowId, setRowId] = React.useState(null);
     const [columnIndex, setColumnIndex] = React.useState(-1);
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('prefix');
 
     const sortedRows = React.useMemo(() => {
-        // Ensure rows is always an array and apply natural sorting by default
         const safeRows = Array.isArray(rows) ? rows : [];
         return stableSort(safeRows, getComparator(order, orderBy));
     }, [rows, order, orderBy]);
@@ -65,7 +64,7 @@ const CuriesTabPanel = (props) => {
     }, [rows, onCurieAmountChange]);
 
     const handleExit = () => {
-        setRowIndex(-1);
+        setRowId(null);
         setColumnIndex(-1);
     }
 
@@ -97,56 +96,52 @@ const CuriesTabPanel = (props) => {
                             <TableCell sx={{ borderBottom: 'none !important' }}></TableCell>
                         </TableRow>
                     )}
-                    {Array.isArray(sortedRows) && sortedRows.map((row, index) => {
+                    {Array.isArray(sortedRows) && sortedRows.map((row) => {
+                        const isEditingPrefix = rowId === row._id && columnIndex === 0 && editMode;
+                        const isEditingNamespace = rowId === row._id && columnIndex === 1 && editMode;
                         return (
-                            <TableRow tabIndex={-1} key={`${row.prefix}_${row.namespace}`}>
+                            <TableRow tabIndex={-1} key={row._id}>
                                 <TableCell
                                     align="left"
-                                    onClick={() => { setRowIndex(index); setColumnIndex(0); }}
-                                    sx={{ border: rowIndex === index && columnIndex === 0 && editMode ? `2px solid ${brand500} !important` : 'inherit', ...prefixCellStyle }}
+                                    onClick={() => { setRowId(row._id); setColumnIndex(0); }}
+                                    sx={{ border: isEditingPrefix ? `2px solid ${brand500} !important` : 'inherit', ...prefixCellStyle }}
                                 >
-                                    {
-                                        rowIndex === index && columnIndex === 0 && editMode ?
-                                            <TextField
-                                                placeholder={row.prefix}
-                                                defaultValue={row.prefix}
-                                                fullWidth
-                                                onChange={(e) => onChangeRow(e, index, "prefix", curieValue)}
-                                                sx={fieldStyle}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === "Enter") {
-                                                        handleExit();
-                                                    }
-                                                }}
-                                            /> : row.prefix
+                                    {isEditingPrefix ?
+                                        <TextField
+                                            placeholder={row.prefix}
+                                            defaultValue={row.prefix}
+                                            fullWidth
+                                            onChange={(e) => onChangeRow(e, row._id, "prefix", curieValue)}
+                                            sx={fieldStyle}
+                                            onKeyDown={(e) => { if (e.key === "Enter") handleExit(); }}
+                                        /> : row.prefix
                                     }
                                 </TableCell>
                                 <TableCell
                                     align="left"
-                                    onClick={() => { setRowIndex(index); setColumnIndex(1); }}
-                                    sx={{ border: rowIndex === index && columnIndex === 1 && editMode ? `2px solid ${brand500} !important` : 'inherit', ...namespaceCellStyle }}
+                                    onClick={() => { setRowId(row._id); setColumnIndex(1); }}
+                                    sx={{ border: isEditingNamespace ? `2px solid ${brand500} !important` : 'inherit', ...namespaceCellStyle }}
                                 >
-                                    {
-                                        rowIndex === index && columnIndex === 1 && editMode ?
-                                            <TextField
-                                                placeholder={row.namespace}
-                                                defaultValue={row.namespace}
-                                                fullWidth
-                                                onChange={(e) => onChangeRow(e, index, "namespace", curieValue)}
-                                                sx={fieldStyle}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === "Enter") {
-                                                        handleExit();
-                                                    }
-                                                }}
-                                            /> : row.namespace
+                                    {isEditingNamespace ?
+                                        <TextField
+                                            placeholder={row.namespace}
+                                            defaultValue={row.namespace}
+                                            fullWidth
+                                            onChange={(e) => onChangeRow(e, row._id, "namespace", curieValue)}
+                                            sx={fieldStyle}
+                                            onKeyDown={(e) => { if (e.key === "Enter") handleExit(); }}
+                                        /> : row.namespace
                                     }
                                 </TableCell>
                                 {editMode && (
                                     <TableCell>
-                                        <IconButton sx={{ background: 'transparent', '&:hover': { backgroundColor: gray100 } }} onClick={() => onDeleteRow(curieValue, row.prefix, row.namespace)}>
-                                            <DeleteOutlineOutlinedIcon fontSize="small" />
-                                        </IconButton>
+                                        <Tooltip title="Delete action on the curie endpoint is not yet supported">
+                                            <span>
+                                                <IconButton disabled sx={{ background: 'transparent', '&:hover': { backgroundColor: gray100 } }}>
+                                                    <DeleteOutlineOutlinedIcon fontSize="small" />
+                                                </IconButton>
+                                            </span>
+                                        </Tooltip>
                                     </TableCell>
                                 )}
                             </TableRow>

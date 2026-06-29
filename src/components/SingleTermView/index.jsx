@@ -48,6 +48,7 @@ import TermDialog from "../TermEditor/TermDialog";
 import FeatureNotAvailableDialog from "../common/FeatureNotAvailableDialog";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { getRawData } from "../../api/endpoints";
+import { getVersions } from "../../api/endpoints/apiService";
 import { useTermData } from "../../hooks/useTermData";
 
 const { gray200, gray600, error700 } = vars;
@@ -106,6 +107,11 @@ const SingleTermView = () => {
 
   // Use the optimized term data hook instead of manual fetching
   const { termData, actualGroup, isUsingFallback, isLoadingTerm } = useTermData(term, group);
+
+  const [versionsData, setVersionsData] = useState(null);
+  const [versionsLoading, setVersionsLoading] = useState(true);
+  const [versionsError, setVersionsError] = useState(null);
+  const clearVersionsError = useCallback(() => setVersionsError(null), []);
 
   // Remove redundant query logic - use term from URL params directly
   const searchTerm = term;
@@ -251,6 +257,17 @@ const SingleTermView = () => {
     }
   }, [termData, updateStoredSearchTerm]);
 
+  useEffect(() => {
+    if (!actualGroup || !searchTerm) return;
+    let active = true;
+    setVersionsLoading(true);
+    setVersionsError(null);
+    getVersions(actualGroup, searchTerm)
+      .then(data => { if (active) { setVersionsData(data); setVersionsLoading(false); } })
+      .catch(err => { if (active) { setVersionsError(err); setVersionsLoading(false); } });
+    return () => { active = false; };
+  }, [actualGroup, searchTerm]);
+
   // Optimize tab URL synchronization
   useEffect(() => {
     const newTabValue = tabMapping[tab] !== undefined ? tabMapping[tab] : 0;
@@ -273,9 +290,9 @@ const SingleTermView = () => {
       case 0:
         return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} />;
       case 1:
-        return <VariantsPanel searchTerm={searchTerm} group={actualGroup} />;
+        return <VariantsPanel searchTerm={searchTerm} group={actualGroup} versionsData={versionsData} versionsLoading={versionsLoading} versionsError={versionsError} onDismissError={clearVersionsError} />;
       case 2:
-        return <HistoryPanel searchTerm={searchTerm} group={actualGroup} />;
+        return <HistoryPanel searchTerm={searchTerm} group={actualGroup} versionsData={versionsData} versionsLoading={versionsLoading} />;
       case 3:
         return <Discussion term={searchTerm} />;
       default:

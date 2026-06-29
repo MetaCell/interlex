@@ -103,12 +103,12 @@ const mergePredicates = ({ versionHash, jsonData, predicateGroups, focusCurie, s
   return dedupePredicateGroups([...freshLiterals, ...transitive]);
 };
 
-// Fetch + parse both hierarchy directions for a focus id (always from "base").
-const fetchHierarchiesData = async (curieLike) => {
+// Fetch + parse both hierarchy directions for a focus id.
+const fetchHierarchiesData = async (curieLike, group) => {
   const termId = toILX(curieLike);
   const [childRes, superRes] = await Promise.all([
-    getTermHierarchies({ groupname: "base", termId, objToSub: true }),
-    getTermHierarchies({ groupname: "base", termId, objToSub: false }),
+    getTermHierarchies({ groupname: group, termId, objToSub: true }),
+    getTermHierarchies({ groupname: group, termId, objToSub: false }),
   ]);
   const childTriples = childRes?.triples || [];
   const superTriples = superRes?.triples || [];
@@ -217,7 +217,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
       }
 
       store.hierarchy$.next({ ...store.hierarchy$.getValue(), loading: true });
-      fetchHierarchiesData(sv.id)
+      fetchHierarchiesData(sv.id, group)
         .then((res) => {
           if (isStale()) return;
           store.hierarchy$.next({ loading: false, ...res });
@@ -236,7 +236,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
 
       groupsReadyRef.current = false;
       store.predicates$.next({ ...store.predicates$.getValue(), loading: true, focusId: sv.id });
-      getTermPredicates({ groupname: "base", termId: toILX(sv.id) })
+      getTermPredicates({ groupname: group, termId: toILX(sv.id) })
         .then((groups) => {
           if (isStale()) return;
           groupsRef.current = groups || [];
@@ -334,7 +334,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
         return;
       }
       store.hierarchy$.next({ ...store.hierarchy$.getValue(), loading: true });
-      fetchHierarchiesData(sv.id)
+      fetchHierarchiesData(sv.id, group)
         .then((res) => {
           if (!isStale()) store.hierarchy$.next({ loading: false, ...res });
         })
@@ -422,7 +422,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
     }
     if (focus?.id) {
       try {
-        const groups = await getTermPredicates({ groupname: "base", termId: toILX(focus.id) });
+        const groups = await getTermPredicates({ groupname: group, termId: toILX(focus.id) });
         groupsRef.current = groups || [];
         groupsReadyRef.current = true;
         maybePushPredicates(focus, null);
