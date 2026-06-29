@@ -45,7 +45,7 @@ const HeaderRightSideContent = ({ activeStep, onContinue, onClose, isContinueBut
     </Box>
 );
 
-const TermDialog = ({ open, handleClose, searchTerm, forwardPredicateStep }) => {
+const TermDialog = ({ open, handleClose, searchTerm, group, forwardPredicateStep }) => {
     const [activeStep, setActiveStep] = useState(0);
     const [areMatchesChecked, setAreMatchesChecked] = useState(false);
 
@@ -82,6 +82,7 @@ const TermDialog = ({ open, handleClose, searchTerm, forwardPredicateStep }) => 
                 <TermDialogContent
                     activeStep={activeStep}
                     searchTerm={searchTerm}
+                    group={group}
                     onReset={handleReset}
                 />
             ) : (
@@ -108,6 +109,7 @@ TermDialog.propTypes = {
     open: PropTypes.bool.isRequired,
     handleClose: PropTypes.func.isRequired,
     searchTerm: PropTypes.string,
+    group: PropTypes.string,
     forwardPredicateStep: PropTypes.bool
 };
 

@@ -283,6 +283,26 @@ export const patchTermPredicates = async ({
   return { ok: resp.ok };
 };
 
+export const createFork = async (
+  groupname: string,
+  termId: string,
+  sourceGroup: string,
+  termLabel: string
+): Promise<{ ok: boolean; status: number }> => {
+  const sourceIri = `${API_CONFIG.INTERLEX_URL}/${sourceGroup}/${termId}`;
+  const synonymIri = "http://uri.interlex.org/base/readable/synonym";
+  const resp = await fetch(`/${groupname}/${termId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({
+      add: [[sourceIri, synonymIri, { type: "literal", value: termLabel }]],
+      del: [],
+    }),
+  });
+  return { ok: resp.ok, status: resp.status };
+};
+
 export const addEntityToOntology = async ({
   group,
   ontologyUri,
@@ -291,7 +311,7 @@ export const addEntityToOntology = async ({
   group: string;
   ontologyUri: string;
   termId: string;
-}): Promise<{ success: boolean; error?: string }> => {
+}): Promise<{ success: boolean; status?: number; url?: string; body?: string; error?: string }> => {
   const specUrl = ontologyUri.replace(API_CONFIG.INTERLEX_URL, API_CONFIG.BASE_URL);
   const termIri = `${API_CONFIG.OLYMPIAN_GODS}/${group}/${termId}`;
 
@@ -300,12 +320,18 @@ export const addEntityToOntology = async ({
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ subjects: [termIri] }),
+      body: JSON.stringify({ add: [termIri], del: [] }),
       redirect: 'manual',
     });
-    return { success: resp.ok || resp.status === 0 };
+    const ok = resp.ok || resp.status === 0;
+    if (!ok) {
+      let body = '';
+      try { body = await resp.text(); } catch { /* ignore */ }
+      return { success: false, status: resp.status, url: specUrl, body };
+    }
+    return { success: true, status: resp.status, url: specUrl };
   } catch (error: any) {
-    return { success: false, error: error?.message || String(error) };
+    return { success: false, url: specUrl, error: error?.message || String(error) };
   }
 };
 

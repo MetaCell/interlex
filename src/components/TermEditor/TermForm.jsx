@@ -63,10 +63,7 @@ const styles = {
 };
 
 const TermForm = ({ formState, data, onInputChange, onAutocompleteChange }) => {
-
-    if (!data) {
-        return <div>No data available</div>;
-    }
+    const safeData = data ?? {};
 
     return (
         <Box component="form" sx={{ width: '100%', mt: '2.75rem', display: 'flex', flexDirection: 'column', gap: '2.75rem' }} noValidate autoComplete="off">
@@ -93,7 +90,7 @@ const TermForm = ({ formState, data, onInputChange, onAutocompleteChange }) => {
                 <Autocomplete
                     multiple
                     id="term-synonyms"
-                    options={data?.synonym || []}
+                    options={safeData?.synonym || []}
                     sx={styles.autocomplete}
                     getOptionLabel={(option) => option}
                     value={formState?.synonyms}
@@ -133,7 +130,7 @@ const TermForm = ({ formState, data, onInputChange, onAutocompleteChange }) => {
                     <Autocomplete
                         multiple
                         id="term-existingIds"
-                        options={data?.existingID || []}
+                        options={safeData?.existingID || []}
                         sx={styles.autocomplete}
                         getOptionLabel={(option) => option}
                         value={formState?.existingIds}

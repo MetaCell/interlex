@@ -11,6 +11,7 @@ import {
   getTermVersion,
 } from "../../../api/endpoints/apiService";
 import termParser from "../../../parsers/termParser";
+import { adaptVersionJsonLd } from "../../../parsers/versionAdapter";
 import { patchEndpointsIlx } from "../../../api/endpoints/interLexURIStructureAPI";
 import {
   focusNodeFromJsonLd,
@@ -354,9 +355,10 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
 
     (async () => {
       try {
-        const jsonld = await getTermVersion(group, searchTerm, versionHash);
+        const raw = await getTermVersion(group, searchTerm, versionHash);
         if (isStale()) return;
 
+        const jsonld = adaptVersionJsonLd(raw);
         const first = termParser(jsonld, searchTerm)?.results?.[0] || null;
         store.details$.next({ loading: false, data: first, jsonData: jsonld });
         const sv = { id: first?.id || searchTerm, label: first?.label || searchTerm };

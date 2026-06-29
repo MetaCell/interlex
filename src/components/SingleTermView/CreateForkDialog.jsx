@@ -1,135 +1,149 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
-import StatusDialog from "../common/StatusDialog";
+import { useNavigate } from "react-router-dom";
 import CustomizedDialog from "../common/CustomizedDialog";
-import { Box, Button, Grid, Typography } from "@mui/material";
-import CustomSingleSelect from "../common/CustomSingleSelect";
-import SearchTermsData from "../../static/SearchTermsData.json"
+import FeatureNotAvailableDialog from "../common/FeatureNotAvailableDialog";
+import { Box, Button, Grid, Typography, CircularProgress, Alert } from "@mui/material";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { createFork } from "../../api/endpoints/apiService";
 
 import { vars } from "../../theme/variables";
-const { gray800, gray600, gray500, gray700 } = vars;
+const { gray800, gray600, gray500 } = vars;
 
-const HeaderRightSideContent = ({ handleClose, onSaveFork }) => {
-  return (
-      <Box display='flex' alignItems='center' gap={1.5}>
-          <Button sx={{ p: '0.625rem 0.875rem', minWidth: '0.0625rem' }} variant="outlined" onClick={handleClose}>Cancel</Button>
-          <Button sx={{ p: '0.625rem 0.875rem', minWidth: '0.0625rem' }} variant='contained' onClick={onSaveFork}>
-              Create a fork
-              <ArrowForwardIcon />
-          </Button>
-      </Box>
-  )
-}
+const HeaderRightSideContent = ({ handleClose, onSaveFork, isSaving }) => (
+  <Box display='flex' alignItems='center' gap={1.5}>
+    <Button sx={{ p: '0.625rem 0.875rem', minWidth: '0.0625rem' }} variant="outlined" onClick={handleClose} disabled={isSaving}>Cancel</Button>
+    <Button sx={{ p: '0.625rem 0.875rem', minWidth: '0.0625rem' }} variant='contained' onClick={onSaveFork} disabled={isSaving}>
+      {isSaving ? <CircularProgress size={16} color="inherit" sx={{ mr: 1 }} /> : null}
+      Create a fork
+      <ArrowForwardIcon />
+    </Button>
+  </Box>
+);
 
 HeaderRightSideContent.propTypes = {
   handleClose: PropTypes.func,
-  onSaveFork: PropTypes.func
-}
+  onSaveFork: PropTypes.func,
+  isSaving: PropTypes.bool,
+};
 
-// eslint-disable-next-line no-unused-vars
-const CreateForkDialog = ({ formState, open, handleClose, onInputChange }) => {
-  const [openStatusDialog, setOpenStatusDialog] = useState(false);
-  const [newTerm, setNewTerm] = useState('label')
-    const handleSaveFork = () => {
-      setOpenStatusDialog(true);
-      handleClose()
+const CreateForkDialog = ({ open, handleClose, user, searchTerm, termLabel, group }) => {
+  const navigate = useNavigate();
+  const [ownerNotSupportedOpen, setOwnerNotSupportedOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
+
+  const groupname = user?.groupname || '';
+  const displayLabel = termLabel || searchTerm || '';
+
+  const handleSaveFork = async () => {
+    if (!groupname || !searchTerm) return;
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      const result = await createFork(groupname, searchTerm, group || 'base', displayLabel);
+      if (result.ok) {
+        handleClose();
+        navigate(`/${groupname}/${searchTerm}/overview`);
+      } else {
+        setSaveError(`Fork creation failed (status ${result.status}). Please try again.`);
+      }
+    } catch (e) {
+      setSaveError(e?.message || 'An unexpected error occurred.');
+    } finally {
+      setIsSaving(false);
     }
-    const handleTermChange = (index, field, value) => {
-      // newTerms[index][field] = value;
-      setNewTerm(value)
-    };
-    const updatedColumnsArray = SearchTermsData.termsColumns.map(item => ({
-      ...item,
-      value: item.id
-    }));
-    const handleCloseStatusDialog = () => {
-      setOpenStatusDialog(false)
-    }
-    const handleStatusDialogActionButtonClick = () => {
-      setOpenStatusDialog(false);
-    }
-    return (
-      <>
-        <CustomizedDialog
-          title='Create a fork'
-          open={open}
-          handleClose={handleClose}
-          sx={{ '& .MuiDialogContent-root': { overflowY: "hidden" } }}
-          HeaderRightSideContent={
-            <HeaderRightSideContent
-              handleClose={handleClose}
-              onSaveFork={handleSaveFork}
+  };
+
+  return (
+    <>
+      <CustomizedDialog
+        title='Create a fork'
+        open={open}
+        handleClose={handleClose}
+        sx={{ '& .MuiDialogContent-root': { overflowY: 'hidden' } }}
+        HeaderRightSideContent={
+          <HeaderRightSideContent
+            handleClose={handleClose}
+            onSaveFork={handleSaveFork}
+            isSaving={isSaving}
           />
-          }
-        >
+        }
+      >
         <Box width={705}>
           <Typography color={gray800} fontSize='1.125rem' fontWeight={600} mb='2.75rem'>
-            Add a fork to Central Nervous System
+            Fork &quot;{displayLabel}&quot; under your account
           </Typography>
-          <Grid container spacing='1.75rem' alignItems={'flex-start'}>
+
+          {saveError && (
+            <Alert severity="error" sx={{ mb: '1.5rem' }}>{saveError}</Alert>
+          )}
+
+          <Grid container spacing='1.75rem' alignItems='flex-start'>
             <Grid item xs={12} lg={5}>
-              <Box display="flex" justifyContent="space-between">
-                <Typography sx={{
-                  fontSize: '1rem',
-                  fontWeight: '500',
-                  color: gray800,
-                  mb: '.75rem'
-                }}>
+              <Box display="flex" justifyContent="space-between" mb='.75rem'>
+                <Typography sx={{ fontSize: '1rem', fontWeight: '500', color: gray800 }}>
                   Owner
                 </Typography>
                 <Typography variant="body1" sx={{ color: gray600 }}>Required</Typography>
               </Box>
-              <CustomSingleSelect
-                isFormControlFullWidth={true}
-                options={updatedColumnsArray}
-                placeholder='Select fork owner'
-                value={newTerm}
-                onChange={handleTermChange}
-              />
+              <Box
+                onClick={() => setOwnerNotSupportedOpen(true)}
+                sx={{
+                  cursor: 'pointer',
+                  border: '1px solid',
+                  borderColor: 'grey.300',
+                  borderRadius: '0.5rem',
+                  padding: '0.5rem 0.75rem',
+                  backgroundColor: 'grey.50',
+                  userSelect: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Typography sx={{ color: gray800, fontSize: '1rem' }}>{groupname}</Typography>
+                <Typography sx={{ color: gray500, fontSize: '0.75rem' }}>▼</Typography>
+              </Box>
             </Grid>
             <Grid item xs={12} lg={1}>
-              <Box textAlign={'center'} mt="2rem">
+              <Box textAlign='center' mt='2rem'>
                 <Typography variant="body1" fontSize='1.875rem' sx={{ color: gray500 }}>/</Typography>
               </Box>
             </Grid>
             <Grid item xs={12} lg={6}>
-              <Box>
-                <Typography color={gray800} fontSize='1rem' fontWeight={500} mb='1.25rem'>
-                  Fork name
-                </Typography>
-              </Box>
-              <Box>
-                <Typography color={gray700} fontSize='1rem' fontWeight={400}>
-                  Central nervous system
-                </Typography>
-              </Box>
+              <Typography color={gray800} fontSize='1rem' fontWeight={500} mb='1.25rem'>
+                Fork name
+              </Typography>
+              <Typography color={gray800} fontSize='1rem' fontWeight={400}>
+                {displayLabel}
+              </Typography>
             </Grid>
           </Grid>
+
           <Typography color={gray600} fontSize='1rem' fontWeight={400} mt='2.75rem'>
-            By default the fork name is the same as the curated. It’s possible to personalise it.
+            The fork will be created under your account with the same term identifier.
           </Typography>
         </Box>
-        </CustomizedDialog>
-        <StatusDialog
-          open={openStatusDialog}
-          handleClose={handleCloseStatusDialog}
-          title={"Create a fork"}
-          message={"Fork successfully created"}
-          subMessage={"Your fork of “Nervous system” has been created. "}
-          finishButtonTitle={"Go to fork"}
-          handleActionButtonClick={handleStatusDialogActionButtonClick}
-          finishButtonEndIcon={<ArrowForwardIcon />}
-        />
-      </>
-    );
+      </CustomizedDialog>
+
+      <FeatureNotAvailableDialog
+        open={ownerNotSupportedOpen}
+        onClose={() => setOwnerNotSupportedOpen(false)}
+        title='Custom fork owner not supported'
+        message='Selecting a different fork owner is not yet supported. Forks can only be created under your own account.'
+      />
+    </>
+  );
 };
 
 CreateForkDialog.propTypes = {
-  formState: PropTypes.object,
   open: PropTypes.bool,
   handleClose: PropTypes.func,
-  onInputChange: PropTypes.func
-}
+  user: PropTypes.object,
+  searchTerm: PropTypes.string,
+  termLabel: PropTypes.string,
+  group: PropTypes.string,
+};
 
 export default CreateForkDialog;

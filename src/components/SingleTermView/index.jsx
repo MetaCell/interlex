@@ -10,7 +10,8 @@ import {
   Menu,
   MenuItem,
   CircularProgress,
-  Alert
+  Alert,
+  Snackbar
 } from "@mui/material";
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton';
@@ -48,7 +49,9 @@ import TermDialog from "../TermEditor/TermDialog";
 import FeatureNotAvailableDialog from "../common/FeatureNotAvailableDialog";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { getRawData } from "../../api/endpoints";
-import { getVersions } from "../../api/endpoints/apiService";
+import { getVersions, addEntityToOntology, getOntologyTerms } from "../../api/endpoints/apiService";
+import { reportApiError } from "../../api/apiErrorBus";
+import ApiErrorDialog from "../common/ApiErrorDialog";
 import { useTermData } from "../../hooks/useTermData";
 
 const { gray200, gray600, error700 } = vars;
@@ -116,7 +119,8 @@ const SingleTermView = () => {
   // Remove redundant query logic - use term from URL params directly
   const searchTerm = term;
   const openDataFormatMenu = Boolean(dataFormatAnchorEl);
-  const { storedSearchTerm, updateStoredSearchTerm, user, activeOntology } = useContext(GlobalDataContext);
+  const { storedSearchTerm, updateStoredSearchTerm, user, activeOntology, setOntologyData } = useContext(GlobalDataContext);
+  const [ontologySnackbar, setOntologySnackbar] = useState(null); // { severity, message }
 
   // Whether the term currently in view is a member of the active ontology.
   const hasActiveOntology = !!activeOntology;
@@ -298,7 +302,7 @@ const SingleTermView = () => {
       default:
         return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} />;
     }
-  }, [tabValue, searchTerm, isCodeViewVisible, selectedDataFormat, actualGroup, versionHash]);
+  }, [tabValue, searchTerm, isCodeViewVisible, selectedDataFormat, actualGroup, versionHash, versionsData, versionsLoading, versionsError, clearVersionsError]);
 
   // Memoize the toggle button group for overview tab
   const toggleButtonGroup = useMemo(() => {
@@ -337,9 +341,24 @@ const SingleTermView = () => {
     );
   }, [tabValue, isCodeViewVisible, selectedDataFormat, toggleButtonValue, onToggleButtonChange]);
 
-  const handleAddToActiveOntology = () => {
-    handleOpenFeatureNotAvailableDialog();
-  };
+  const handleAddToActiveOntology = useCallback(async () => {
+    if (!activeOntology || !actualGroup || !searchTerm) return;
+    const ontologyUri = activeOntology.description || activeOntology.url;
+    const result = await addEntityToOntology({ group: actualGroup, ontologyUri, termId: searchTerm });
+    if (result.success) {
+      setOntologySnackbar({ severity: 'success', message: `Term added to "${activeOntology.label}".` });
+      getOntologyTerms(ontologyUri)
+        .then(terms => setOntologyData({ ...activeOntology, terms }))
+        .catch(() => {});
+    } else {
+      reportApiError({
+        context: `Add term to ontology "${activeOntology.label}"`,
+        url: result.url || ontologyUri,
+        status: result.status,
+        message: result.body || result.error || 'Request failed with no body.',
+      });
+    }
+  }, [activeOntology, actualGroup, searchTerm, setOntologyData]);
 
   const handleCreateFork = () => {
     handleOpenFeatureNotAvailableDialog();
@@ -482,10 +501,14 @@ const SingleTermView = () => {
       </Box>
       {/* TODO: Re-enable when merge request feature is implemented */}
       <RequestMergeChanges searchTerm={searchTerm} open={openRequestMergeDialog} handleClose={handleCloseRequestMergeDialog} />
-      <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} searchTerm={searchTerm} />
+      <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} searchTerm={searchTerm} group={actualGroup} />
       <CreateForkDialog
         open={openForkDialog}
         handleClose={handleForkDialogClose}
+        user={user}
+        searchTerm={searchTerm}
+        termLabel={displayedTermLabel}
+        group={actualGroup}
       />
       
       {/* Feature Not Available Dialog */}
@@ -493,6 +516,17 @@ const SingleTermView = () => {
         open={featureNotAvailableDialog}
         onClose={handleCloseFeatureNotAvailableDialog}
       />
+      <ApiErrorDialog />
+      <Snackbar
+        open={!!ontologySnackbar}
+        autoHideDuration={4000}
+        onClose={() => setOntologySnackbar(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setOntologySnackbar(null)} severity={ontologySnackbar?.severity} sx={{ width: '100%' }}>
+          {ontologySnackbar?.message}
+        </Alert>
+      </Snackbar>
     </>
   )
 }

@@ -1,10 +1,10 @@
-import { debounce } from 'lodash';
 import TermForm from "./TermForm";
 import PropTypes from 'prop-types';
 import TermSidebar from "./TermSidebar";
 import StatusStep from "../common/StatusStep";
 import AddPredicatesStep from "./AddPredicatesStep";
-import { elasticSearch } from "../../api/endpoints";
+import { getRawData } from "../../api/endpoints/apiService";
+import termParser from "../../parsers/termParser";
 import { getTermStatusProps } from "./termStatusProps";
 import { Box, Stack, Typography, Chip } from "@mui/material";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
@@ -13,7 +13,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { vars } from "../../theme/variables";
 const { success600, success700 } = vars;
 
-const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
+const TermDialogContent = ({ activeStep, searchTerm, group, onReset }) => {
     const [loading, setLoading] = useState(true);
     const [openSidebar, setOpenSidebar] = useState(true);
     // eslint-disable-next-line no-unused-vars
@@ -33,20 +33,19 @@ const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
         comment: ''
     });
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const fetchTerms = useCallback(
-        debounce(async(searchTerm) => {
-            setLoading(true);
-            if (searchTerm) {
-                const data = await elasticSearch(searchTerm);
-                setData(data);
-                setLoading(false);
-            } else {
-                setLoading(false);
-            }
-        }, 300),
-        []
-    );
+    const fetchTermData = useCallback(async (term, grp) => {
+        if (!term || !grp) return;
+        setLoading(true);
+        try {
+            const raw = await getRawData(grp, term, 'jsonld');
+            const parsed = termParser(raw, term)?.results?.[0] || null;
+            setData(parsed);
+        } catch (e) {
+            console.error('Error fetching term data for dialog:', e);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     const handleSidebarToggle = () => setOpenSidebar(!openSidebar);
     const handleFormInputChange = (e) => {
@@ -68,19 +67,19 @@ const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
     };
 
     useEffect(() => {
-        fetchTerms(searchTerm);
-        return () => {
-            fetchTerms.cancel();
-        };
-    }, [searchTerm, fetchTerms]);
+        fetchTermData(searchTerm, group);
+    }, [searchTerm, group, fetchTermData]);
 
     useEffect(() => {
         if (data) {
+            const subClassOf = Array.isArray(data.subClassOf) ? data.subClassOf[0] : (data.subClassOf || '');
             setFormState((prevState) => ({
                 ...prevState,
+                label: data.label || prevState.label,
                 synonyms: data.synonym || [],
                 existingIds: data.existingID || [],
-                description: data.description || ''
+                description: data.description || '',
+                superclass: subClassOf,
             }));
         }
     }, [data]);
@@ -150,6 +149,7 @@ const TermDialogContent = ({ activeStep, searchTerm, onReset }) => {
 TermDialogContent.propTypes = {
     activeStep: PropTypes.number.isRequired,
     searchTerm: PropTypes.string.isRequired,
+    group: PropTypes.string,
     onReset: PropTypes.func.isRequired
 }
 
