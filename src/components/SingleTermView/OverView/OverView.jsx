@@ -19,7 +19,7 @@ import {
   resolveStoredObject,
 } from "../../../parsers/predicateMutations";
 import { buildPredicateGroupsForFocus } from "../../../parsers/predicateParser";
-import { shortenIri, getObjectInputKind } from "../../../configuration/predicateConfig";
+import { shortenIri, getObjectInputKind, buildExpandContext } from "../../../configuration/predicateConfig";
 import {
   toHierarchyOptionsFromTriples,
   buildChildrenTreeFromTriples,
@@ -443,7 +443,10 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
       // with the base @context. GET-first guarantees the predicate IRIs
       // round-trip.
       const baseDoc = await getRawData("base", patchId, "jsonld");
-      const context = baseDoc?.["@context"] || jsonData?.["@context"] || {};
+      const jsonLdContext = baseDoc?.["@context"] || jsonData?.["@context"] || {};
+      // Merge known-term shorthands (e.g. "definition" → IAO IRI) under the
+      // JSON-LD context so bare predicate names expand to full IRIs.
+      const context = { ...buildExpandContext([]), ...jsonLdContext };
       const node = focusNodeFromJsonLd(baseDoc) || focusNodeFromJsonLd(jsonData);
       const subject = mutation.subject || node?.["@id"];
       if (!subject) {

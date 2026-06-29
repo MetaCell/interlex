@@ -1,4 +1,5 @@
-import { useState, useCallback, useContext, useMemo } from "react";
+import { useState, useCallback, useContext, useMemo, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import {
     Box,
@@ -17,7 +18,9 @@ import FirstStepContent from "./FirstStepContent";
 import SecondStepContent from "./SecondStepContent";
 import StatusStep from "../../common/StatusStep";
 import { GlobalDataContext } from "../../../contexts/DataContext";
-import { createNewEntity } from "../../../api/endpoints/apiService";
+import { createNewEntity, addEntityToOntology, patchTermPredicates } from "../../../api/endpoints/apiService";
+import { buildExpandContext } from "../../../configuration/predicateConfig";
+import { expandIri } from "../../../parsers/predicateMutations";
 import { getAddTermStatusProps } from '../termStatusProps';
 import { CheckedIcon, UncheckedIcon } from '../../../Icons';
 import { vars } from "../../../theme/variables";
@@ -25,39 +28,46 @@ import { DEFAULT_TYPE } from "../../../constants/types";
 
 const { gray100, gray200, gray400, gray600 } = vars;
 
+const STEP_BUTTON_LABEL = ['Create new', 'Continue', 'Continue'];
+
 const HeaderRightSideContent = ({
     activeStep,
     onContinue,
     onClose,
+    onFinish,
     isCreateButtonDisabled,
     isEditing,
-    userGroupname
+    userGroupname,
+    ontologyChecked,
+    onOntologyChange,
 }) => {
-    const [ontologyChecked, setOntologyChecked] = useState(false);
-
     const handleOntologyChange = (event) => {
-        setOntologyChecked(event.target.checked);
+        onOntologyChange(event.target.checked);
     };
 
     return (
         <Box display='flex' alignItems='center'>
             {activeStep !== 2 ? (
                 <>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                size="small"
-                                icon={<UncheckedIcon />}
-                                checkedIcon={<CheckedIcon />}
-                                checked={ontologyChecked}
-                                onChange={handleOntologyChange}
+                    {activeStep === 0 && (
+                        <>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        size="small"
+                                        icon={<UncheckedIcon />}
+                                        checkedIcon={<CheckedIcon />}
+                                        checked={ontologyChecked}
+                                        onChange={handleOntologyChange}
+                                    />
+                                }
+                                sx={{ color: gray600 }}
+                                label="Add to ontology"
                             />
-                        }
-                        sx={{ color: gray600 }}
-                        label="Add to ontology"
-                    />
-                    <OntologySearch disabled={!ontologyChecked} userGroupname={userGroupname} />
-                    <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
+                            <OntologySearch disabled={!ontologyChecked} userGroupname={userGroupname} />
+                            <Divider orientation="vertical" flexItem sx={{ m: '0 1rem' }} />
+                        </>
+                    )}
                     <MobileStepper
                         variant="dots"
                         steps={3}
@@ -81,12 +91,12 @@ const HeaderRightSideContent = ({
                                 }
                             }}
                         >
-                            {isEditing ? 'Edit term' : 'Create new'}
+                            {activeStep === 0 && isEditing ? 'Edit term' : STEP_BUTTON_LABEL[activeStep]}
                         </Button>
                     </Stack>
                 </>
             ) : (
-                <Button variant="contained" onClick={onClose}>Finish</Button>
+                <Button variant="contained" onClick={onFinish}>Finish</Button>
             )}
         </Box>
     )
@@ -96,14 +106,19 @@ HeaderRightSideContent.propTypes = {
     activeStep: PropTypes.number.isRequired,
     onContinue: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
+    onFinish: PropTypes.func.isRequired,
     isCreateButtonDisabled: PropTypes.bool.isRequired,
     isEditing: PropTypes.bool.isRequired,
-    userGroupname: PropTypes.string
+    userGroupname: PropTypes.string,
+    ontologyChecked: PropTypes.bool.isRequired,
+    onOntologyChange: PropTypes.func.isRequired,
 };
 
 const AddNewTermDialog = ({ open, handleClose }) => {
+    const navigate = useNavigate();
     const [activeStep, setActiveStep] = useState(0);
-    const [addTermResponse, setAddTermResponse] = useState(null);
+    const [addTermResponse, setAddTermResponse] = useState(null); // termId string (e.g. tmp_000000146)
+    const [addTermStatus, setAddTermStatus] = useState(null);    // synthetic { status } for StatusStep
     const [selectedType, setSelectedType] = useState(DEFAULT_TYPE);
     const [termValue, setTermValue] = useState("");
     const [selectedTermValue, setSelectedTermValue] = useState("");
@@ -112,7 +127,9 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const [loading, setLoading] = useState(false);
     const [hasExactMatch, setHasExactMatch] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const { user } = useContext(GlobalDataContext);
+    const [ontologyChecked, setOntologyChecked] = useState(false);
+    const secondStepRef = useRef(null);
+    const { user, activeOntology, curies } = useContext(GlobalDataContext);
 
     const isCreateButtonDisabled = useMemo(() => {
         if (hasExactMatch) return true;
@@ -124,11 +141,13 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         return false;
     }, [hasExactMatch, termValue, isEditing, selectedTermValue]);
 
-    const statusProps = getAddTermStatusProps(addTermResponse, termValue);
+    const statusProps = getAddTermStatusProps(addTermStatus, termValue);
 
     const handleCancelBtnClick = () => {
         handleClose();
         setActiveStep(0);
+        setAddTermResponse(null);
+        setAddTermStatus(null);
     };
 
     const handleTermValueChange = (value) => {
@@ -177,7 +196,6 @@ const AddNewTermDialog = ({ open, handleClose }) => {
 
         setLoading(true);
 
-        const token = localStorage.getItem("token");
         const groupName = user?.groupname || "base";
         const body = {
             'rdf-type': selectedType || 'owl:Class',
@@ -185,36 +203,88 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         };
 
         try {
-            const response = await createNewEntity({
-                group: groupName,
-                data: body,
-                session: token
-            });
+            const response = await createNewEntity({ group: groupName, data: body });
 
-            if (response.term && response.term.id) {
-                setActiveStep(1);
-                setAddTermResponse(response.term.id);
+            if (!response.termId) {
+                console.error("Creation failed: no term ID in response", response.raw);
+                return;
             }
+
+            if (ontologyChecked && activeOntology?.description) {
+                await addEntityToOntology({
+                    group: groupName,
+                    ontologyUri: activeOntology.description,
+                    termId: response.termId,
+                });
+            }
+
+            setAddTermResponse(response.termId);
+            setAddTermStatus({ status: 200 });
+            setActiveStep(1);
         } catch (error) {
             console.error("Creation failed:", error);
         } finally {
             setLoading(false);
         }
-    }, [termValue, selectedType, user, hasExactMatch]);
+    }, [termValue, selectedType, user, hasExactMatch, ontologyChecked, activeOntology]);
+
+    const handleFinish = useCallback(() => {
+        const groupName = user?.groupname || "base";
+        handleClose();
+        setActiveStep(0);
+        setAddTermResponse(null);
+        setAddTermStatus(null);
+        if (addTermResponse) {
+            navigate(`/${groupName}/${addTermResponse}`);
+        }
+    }, [user, addTermResponse, handleClose, navigate]);
+
+    const patchNewTerm = useCallback(async () => {
+        const groupName = user?.groupname || "base";
+        const termId = addTermResponse;
+        const formData = secondStepRef.current?.getFormData?.();
+
+        const termIri = `http://uri.interlex.org/${groupName}/${termId}`;
+        const ctx = buildExpandContext(curies?.base ?? []);
+        const triples = [];
+
+        if (formData?.definition) {
+            triples.push([termIri, expandIri('definition', ctx), { type: 'literal', value: formData.definition }]);
+        }
+        if (formData?.comment) {
+            triples.push([termIri, expandIri('rdfs:comment', ctx), { type: 'literal', value: formData.comment }]);
+        }
+        for (const p of formData?.predicates ?? []) {
+            if (p.predicate && p.object?.value) {
+                const subject = p.subject || termIri;
+                const pred = expandIri(p.predicate, ctx);
+                triples.push([subject, pred, { type: p.object.isLink ? 'uri' : 'literal', value: p.object.value }]);
+            }
+        }
+
+        if (triples.length > 0) {
+            setLoading(true);
+            try {
+                await patchTermPredicates({ group: groupName, termId, add: triples });
+            } catch (error) {
+                console.error("PATCH failed:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        setActiveStep(2);
+    }, [user, addTermResponse, curies]);
 
     const handleAction = useCallback(() => {
-        if (isEditing) {
+        if (activeStep === 1) {
+            patchNewTerm();
+        } else if (isEditing) {
             editTerm();
         } else {
             createNewTerm();
         }
-    }, [isEditing, editTerm, createNewTerm]);
-
-    if (loading) {
-        return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-            <CircularProgress />
-        </Box>
-    }
+    }, [activeStep, isEditing, editTerm, createNewTerm, patchNewTerm]);
 
     return (
         <CustomizedDialog
@@ -226,29 +296,39 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                     activeStep={activeStep}
                     onClose={handleCancelBtnClick}
                     onContinue={handleAction}
-                    isCreateButtonDisabled={isCreateButtonDisabled}
+                    onFinish={handleFinish}
+                    isCreateButtonDisabled={isCreateButtonDisabled || loading}
                     isEditing={isEditing}
                     userGroupname={user?.groupname}
+                    ontologyChecked={ontologyChecked}
+                    onOntologyChange={setOntologyChecked}
                 />
             }
             sx={{ '& .MuiDialogContent-root': { padding: 0, overflowY: "hidden" } }}
         >
-            {activeStep === 0 && <FirstStepContent
-                term={termValue}
-                type={selectedType}
-                hasExactMatch={hasExactMatch}
-                existingIds={existingIds}
-                synonyms={exactSynonyms}
-                isEditing={isEditing}
-                handleTermChange={handleTermValueChange}
-                handleTypeChange={handleTypeChange}
-                handleExactMatchChange={handleExactMatchChange}
-                handleSynonymChange={handleSynonymChange}
-                handleExistingIdChange={handleExistingIdChange}
-                onTermSelect={handleTermSelection}
-            />}
-            {activeStep === 1 && <SecondStepContent searchTerm={addTermResponse} />}
-            {activeStep === 2 && addTermResponse != null && (
+            {loading ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: '3rem' }}>
+                    <CircularProgress />
+                </Box>
+            ) : activeStep === 0 ? (
+                <FirstStepContent
+                    term={termValue}
+                    type={selectedType}
+                    hasExactMatch={hasExactMatch}
+                    existingIds={existingIds}
+                    synonyms={exactSynonyms}
+                    isEditing={isEditing}
+                    handleTermChange={handleTermValueChange}
+                    handleTypeChange={handleTypeChange}
+                    handleExactMatchChange={handleExactMatchChange}
+                    handleSynonymChange={handleSynonymChange}
+                    handleExistingIdChange={handleExistingIdChange}
+                    onTermSelect={handleTermSelection}
+                    handleDialogClose={handleClose}
+                />
+            ) : activeStep === 1 ? (
+                <SecondStepContent ref={secondStepRef} searchTerm={addTermResponse} />
+            ) : (
                 <StatusStep statusProps={statusProps} />
             )}
         </CustomizedDialog>
