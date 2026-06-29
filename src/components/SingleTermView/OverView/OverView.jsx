@@ -2,7 +2,7 @@
 import { Box, Divider, Grid, Snackbar, Alert } from "@mui/material";
 import PropTypes from "prop-types";
 import RawDataViewer from "./RawDataViewer";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   getMatchTerms,
   getRawData,
@@ -31,6 +31,7 @@ import { DetailsSection, HierarchySection, PredicatesSection } from "./OverviewS
 import { emitPredicateRowUpdate, makeRowKey } from "./predicateMutationBus";
 import { reportApiError } from "../../../api/apiErrorBus";
 import ApiErrorDialog from "../../common/ApiErrorDialog";
+import { GlobalDataContext } from "../../../contexts/DataContext";
 
 // Reserved minimum heights while a section loads, so content arriving in one
 // section can't shove a section the user is already scrolled to.
@@ -141,6 +142,7 @@ const interpretPatchResult = (res) => {
 };
 
 const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, group = "base", versionHash }) => {
+  const { curies } = useContext(GlobalDataContext);
   // Per-instance rxjs streams; each section subscribes to its own.
   const storeRef = useRef();
   if (!storeRef.current) storeRef.current = createOverviewStore();
@@ -446,7 +448,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
       const jsonLdContext = baseDoc?.["@context"] || jsonData?.["@context"] || {};
       // Merge known-term shorthands (e.g. "definition" → IAO IRI) under the
       // JSON-LD context so bare predicate names expand to full IRIs.
-      const context = { ...buildExpandContext([]), ...jsonLdContext };
+      const context = { ...buildExpandContext(curies?.base ?? []), ...jsonLdContext };
       const node = focusNodeFromJsonLd(baseDoc) || focusNodeFromJsonLd(jsonData);
       const subject = mutation.subject || node?.["@id"];
       if (!subject) {

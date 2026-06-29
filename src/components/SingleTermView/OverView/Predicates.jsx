@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import ExpandIcon from "@mui/icons-material/Expand";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -16,14 +16,25 @@ import {
   ADDABLE_PREDICATES,
   getObjectInputKind,
 } from "../../../configuration/predicateConfig";
+import { GlobalDataContext } from "../../../contexts/DataContext";
 import { vars } from "../../../theme/variables";
 
 const { gray800, gray300, gray700 } = vars;
 
 const Predicates = ({ data, isGraphVisible, loading, focusId, group, onMutate }) => {
+  const { curies } = useContext(GlobalDataContext);
+
+  const predicateOptions = React.useMemo(() => {
+    const base = curies?.base ?? [];
+    if (base.length > 0) {
+      return base.map(({ prefix }) => ({ title: prefix, label: prefix }));
+    }
+    return ADDABLE_PREDICATES;
+  }, [curies]);
+
   const [toggleButtonValue, setToggleButtonValue] = React.useState("expand");
   const [adding, setAdding] = React.useState(false);
-  const [newPredicate, setNewPredicate] = React.useState(ADDABLE_PREDICATES[0].title);
+  const [newPredicate, setNewPredicate] = React.useState(() => (predicateOptions[0]?.title ?? ADDABLE_PREDICATES[0].title));
   const [newValue, setNewValue] = React.useState("");
 
   const predicates = React.useMemo(() => (Array.isArray(data) ? data : []), [data]);
@@ -32,7 +43,7 @@ const Predicates = ({ data, isGraphVisible, loading, focusId, group, onMutate })
 
   const objectKind = getObjectInputKind(newPredicate);
 
-  const startAdd = () => { setNewValue(""); setNewPredicate(ADDABLE_PREDICATES[0].title); setAdding(true); };
+  const startAdd = () => { setNewValue(""); setNewPredicate(predicateOptions[0]?.title ?? ""); setAdding(true); };
   const cancelAdd = () => { setAdding(false); setNewValue(""); };
   const confirmAdd = () => {
     const value = newValue.trim();
@@ -83,7 +94,7 @@ const Predicates = ({ data, isGraphVisible, loading, focusId, group, onMutate })
                 '& .MuiOutlinedInput-notchedOutline': { borderColor: gray300 },
               }}
             >
-              {ADDABLE_PREDICATES.map((p) => (
+              {predicateOptions.map((p) => (
                 <MenuItem key={p.title} value={p.title}>{p.label}</MenuItem>
               ))}
             </Select>
