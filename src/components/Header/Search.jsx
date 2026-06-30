@@ -167,8 +167,10 @@ const Search = () => {
   }, []);
 
   const handleKeyDown = useCallback(event => {
-    if (event.ctrlKey && event.key === 'k') {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
       setOpenList(true);
+      document.getElementById('interlex-search-input')?.focus();
     }
     if (event.key === 'Escape') {
       escapeSearch();
@@ -364,6 +366,10 @@ const Search = () => {
           placeholder="Find something..."
           onChange={handleInputChange}
           onKeyDown={handleEnterKey}
+          inputProps={{
+            ...params.inputProps,
+            id: 'interlex-search-input',
+          }}
           InputProps={{
             ...params.InputProps,
             startAdornment: (

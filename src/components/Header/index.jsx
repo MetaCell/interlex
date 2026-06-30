@@ -234,16 +234,6 @@ const Header = () => {
     const openUser = Boolean(anchorElUser);
     const idUser = open ? 'simple-popover' : undefined;
 
-    const [openList, setOpenList] = React.useState(false);
-
-    const handleCloseList = () => {
-        setOpenList(false);
-    };
-
-    const toggleList = () => {
-        setOpenList(!openList);
-    };
-
     const handleMenuClick = async (e, menu) => {
         // Close both popovers
         handleClose();
@@ -267,24 +257,6 @@ const Header = () => {
             navigate(menu.href)
         }
     }
-
-    React.useEffect(() => {
-        const handleKeyDown = (event) => {
-            if (event.ctrlKey && event.key === 'k') {
-                toggleList();
-            }
-            if (event.key === 'Escape') {
-                handleCloseList();
-            }
-        };
-
-        document.addEventListener('keydown', handleKeyDown);
-
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown);
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     React.useEffect(() => {
         console.log("Stored user in context ", user)
