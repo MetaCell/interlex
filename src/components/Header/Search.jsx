@@ -10,6 +10,7 @@ import {
   Chip,
   List,
   ListItem,
+  LinearProgress,
 } from "@mui/material";
 import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
@@ -91,6 +92,7 @@ const Search = () => {
   const [terms, setTerms] = useState([]);
   const [organizations, setOrganizations] = useState([]);
   const [ontologies, setOntologies] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
   const { storedSearchTerm, updateStoredSearchTerm, user } = useContext(GlobalDataContext);
 
   // Get the group name based on user login status
@@ -155,6 +157,7 @@ const Search = () => {
     setTerms([])
     setOntologies([])
     setOrganizations([])
+    setIsSearching(false);
   };
 
   const escapeSearch = useCallback(() => {
@@ -164,11 +167,14 @@ const Search = () => {
     setTerms([])
     setOntologies([])
     setOrganizations([])
+    setIsSearching(false);
   }, []);
 
   const handleKeyDown = useCallback(event => {
-    if (event.ctrlKey && event.key === 'k') {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
       setOpenList(true);
+      document.getElementById('interlex-search-input')?.focus();
     }
     if (event.key === 'Escape') {
       escapeSearch();
@@ -182,13 +188,18 @@ const Search = () => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchTerms = useCallback(debounce(async (searchTerm) => {
-    const data = await elasticSearch(searchTerm, 20, 0);
-    const dataTerms = data?.results.results?.filter(result => result.type === SEARCH_TYPES.TERM);
-    const dataOrganizations = data?.results.results?.filter(result => result.type === SEARCH_TYPES.ORGANIZATION);
-    const dataOntologies = data?.results.results?.filter(result => result.type === SEARCH_TYPES.ONTOLOGY);
-    setTerms(dataTerms);
-    setOrganizations(dataOrganizations);
-    setOntologies(dataOntologies);
+    setIsSearching(true);
+    try {
+      const data = await elasticSearch(searchTerm, 20, 0);
+      const dataTerms = data?.results.results?.filter(result => result.type === SEARCH_TYPES.TERM);
+      const dataOrganizations = data?.results.results?.filter(result => result.type === SEARCH_TYPES.ORGANIZATION);
+      const dataOntologies = data?.results.results?.filter(result => result.type === SEARCH_TYPES.ONTOLOGY);
+      setTerms(dataTerms);
+      setOrganizations(dataOrganizations);
+      setOntologies(dataOntologies);
+    } finally {
+      setIsSearching(false);
+    }
   }, 500), [searchAll]);
 
   useEffect(() => {
@@ -208,6 +219,7 @@ const Search = () => {
   const ListboxComponent = forwardRef(function ListboxComponent(props, ref) {
     return (
       <>
+        {isSearching && <LinearProgress sx={{ height: '0.125rem' }} />}
         {searchTerm && (<><Box p="0.5rem">
           <List sx={{
             '& .MuiTypography-body1': {
@@ -364,6 +376,10 @@ const Search = () => {
           placeholder="Find something..."
           onChange={handleInputChange}
           onKeyDown={handleEnterKey}
+          inputProps={{
+            ...params.inputProps,
+            id: 'interlex-search-input',
+          }}
           InputProps={{
             ...params.InputProps,
             startAdornment: (
@@ -373,7 +389,7 @@ const Search = () => {
             ),
             endAdornment: (
               <InputAdornment position="end">
-                {openList ? (
+                {searchTerm ? (
                   <Box display="flex" alignItems="center" gap="0.75rem">
                     <IconButton
                       sx={styles.searchButton}
@@ -381,7 +397,7 @@ const Search = () => {
                     >
                       <CloseIcon />
                     </IconButton>
-                    <Box sx={styles.keyBoardInfo}>Esc</Box>
+                    {openList && <Box sx={styles.keyBoardInfo}>Esc</Box>}
                   </Box>
                 ) : (
                   <Box sx={styles.keyBoardInfo}>Ctrl + K</Box>

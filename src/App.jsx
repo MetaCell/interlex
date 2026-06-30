@@ -5,6 +5,7 @@ import {
 	BrowserRouter as Router,
 	Routes,
 	Route,
+	Navigate,
 	useLocation,
 	useNavigate
 } from "react-router-dom";
@@ -223,6 +224,7 @@ function MainContent() {
 							</PageContainer>
 						}
 					/>
+					<Route path="*" element={<Navigate to="/" replace />} />
 				</Routes>
 			</Layout>
 		</Box>

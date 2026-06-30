@@ -53,11 +53,39 @@ const CuriesTabPanel = (props) => {
     const [columnIndex, setColumnIndex] = React.useState(-1);
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('prefix');
+    const [displayOrder, setDisplayOrder] = React.useState([]);
+    const isEditing = rowId !== null;
+
+    const sortIds = (rowsArr) => stableSort(rowsArr, getComparator(order, orderBy)).map((row) => row._id);
+
+    // Manual header sort always re-orders, even mid-edit.
+    React.useEffect(() => {
+        setDisplayOrder(sortIds(Array.isArray(rows) ? rows : []));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [order, orderBy]);
+
+    // Row content changes (typing, add/delete) only trigger a full re-sort once
+    // editing is done; while editing, just reconcile which rows exist so a row
+    // doesn't jump position under the user as soon as it gets a value.
+    React.useEffect(() => {
+        const safeRows = Array.isArray(rows) ? rows : [];
+        if (!isEditing) {
+            setDisplayOrder(sortIds(safeRows));
+            return;
+        }
+        const currentIds = safeRows.map((row) => row._id);
+        setDisplayOrder((prevOrder) => {
+            const stillPresent = prevOrder.filter((id) => currentIds.includes(id));
+            const newIds = currentIds.filter((id) => !prevOrder.includes(id));
+            return [...stillPresent, ...newIds];
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [rows, isEditing]);
 
     const sortedRows = React.useMemo(() => {
-        const safeRows = Array.isArray(rows) ? rows : [];
-        return stableSort(safeRows, getComparator(order, orderBy));
-    }, [rows, order, orderBy]);
+        const rowsById = new Map((Array.isArray(rows) ? rows : []).map((row) => [row._id, row]));
+        return displayOrder.map((id) => rowsById.get(id)).filter(Boolean);
+    }, [displayOrder, rows]);
 
     React.useEffect(() => {
         onCurieAmountChange?.(rows.length)

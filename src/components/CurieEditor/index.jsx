@@ -30,7 +30,11 @@ const CurieEditor = () => {
         setOpenCurieEditor(true);
     };
 
-    const handleCloseCurieEditor = () => setOpenCurieEditor(false);
+    const handleCloseCurieEditor = () => {
+        // Discard any unsaved edits/added rows made in the dialog.
+        setLocalCuries(curies);
+        setOpenCurieEditor(false);
+    };
     const handleChangeTabs = (event, newValue) => setTabValue(newValue);
     const handleCurieAmountChange = (value) => setCurieAmount(value);
 
@@ -126,7 +130,6 @@ const CurieEditor = () => {
                                     loading={curiesLoading}
                                     editMode={tab === 'base'}
                                     rows={localCuries[tab]}
-                                    onCurieAmountChange={handleCurieAmountChange}
                                     onAddRow={handleAddNewCurieRow}
                                     onDeleteRow={handleDeleteCurieRow}
                                     onChangeRow={handleInputChangeCurieRow}

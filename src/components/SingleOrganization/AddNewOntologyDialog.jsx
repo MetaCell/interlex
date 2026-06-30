@@ -13,13 +13,13 @@ import { API_CONFIG } from "../../config";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { useContext } from "react";
 
-const HeaderRightSideContent = ({ handleClose, onAddNewOntology, disabled }) => {
+const HeaderRightSideContent = ({ handleClose, onAddNewOntology, disabled, ready }) => {
     return (
         <Box display='flex' alignItems='center' gap={1.5}>
             <Button sx={{ p: '0.625rem 0.875rem', minWidth: '0.0625rem' }} variant="outlined" onClick={handleClose}>Cancel</Button>
             <Button sx={{ p: '0.625rem 0.875rem', minWidth: '0.0625rem' }} variant='contained' onClick={onAddNewOntology} disabled={disabled}>
-                <AddIcon />
-                Add a new ontology
+                {!ready && <AddIcon />}
+                {ready ? "Create ontology" : "Add a new ontology"}
             </Button>
         </Box>
     )
@@ -28,7 +28,8 @@ const HeaderRightSideContent = ({ handleClose, onAddNewOntology, disabled }) => 
 HeaderRightSideContent.propTypes = {
     handleClose: PropTypes.func,
     onAddNewOntology: PropTypes.func,
-    disabled: PropTypes.bool
+    disabled: PropTypes.bool,
+    ready: PropTypes.bool
 }
 
 const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organizationName }) => {
@@ -350,6 +351,7 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
                         handleClose={handleDialogClose}
                         onAddNewOntology={handleAddNewOntology}
                         disabled={submitting || !newOntology.uri.trim()}
+                        ready={!!newOntology.uri.trim()}
                     />
                 }
             >

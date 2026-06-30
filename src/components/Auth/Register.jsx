@@ -16,7 +16,7 @@ import { API_CONFIG } from "../../config";
 import { useCookies } from 'react-cookie';
 import PasswordField from "./UI/PasswordField";
 import { ArrowBack } from "@mui/icons-material";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 // import { GlobalDataContext } from "../../contexts/DataContext";
 
 const OLYMPIAN_GODS = import.meta.env.MODE === "production" ? "" : API_CONFIG.OLYMPIAN_GODS;
@@ -54,11 +54,12 @@ const Register = () => {
   const [existingCookies, setCookie, removeCookie] = useCookies(['session']);
   const prevSnackbarOpen = React.useRef(snackbarOpen);
   const navigate = useNavigate();
+  const location = useLocation();
 
   React.useEffect(() => {
     if (prevSnackbarOpen.current && !snackbarOpen) {
       closePopups();
-      navigate("/login");
+      navigate("/login", { state: { from: location.state?.from } });
     }
     prevSnackbarOpen.current = snackbarOpen;
     // eslint-disable-next-line react-hooks/exhaustive-deps
