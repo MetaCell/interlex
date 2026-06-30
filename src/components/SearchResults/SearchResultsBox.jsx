@@ -5,7 +5,7 @@ import { TableChartIcon, ListIcon } from '../../Icons';
 import OntologySearch from '../SingleTermView/OntologySearch';
 import CustomSingleSelect from '../common/CustomSingleSelect';
 import CustomViewButton from '../common/CustomViewButton';
-import { Box, Typography, Grid, ButtonGroup, Stack, Divider } from '@mui/material';
+import { Box, Typography, Grid, ButtonGroup, Stack, Divider, CircularProgress } from '@mui/material';
 import CustomPagination from '../common/CustomPagination';
 import { vars } from '../../theme/variables';
 import { GlobalDataContext } from '../../contexts/DataContext';
@@ -45,7 +45,6 @@ const getPaginationSettings = (totalItems) => {
 };
 
 const SearchResultsBox = ({
-    allResults,
     pageResults,
     searchTerm,
     loading,
@@ -99,8 +98,12 @@ const SearchResultsBox = ({
         <Box width={1} flex={1} display="flex" flexDirection="column" px={4} py={3} gap={3} sx={{ overflowY: 'auto' }}>
             <Grid container justifyContent={{ lg: 'space-between', xs: 'flex-end', md: 'flex-end' }} alignItems="center">
                 <Grid item xs={12} lg={6} sm={6}>
-                    <Typography variant="h5">
-                        {allResults.length} results for {searchTerm} search
+                    <Typography variant="h5" sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        {loading ? (
+                            <CircularProgress size={20} />
+                        ) : (
+                            `${totalItems} results for ${searchTerm} search`
+                        )}
                     </Typography>
                 </Grid>
                 <Grid item xs={12} lg={6} sm={6}>
@@ -154,7 +157,6 @@ const SearchResultsBox = ({
 };
 
 SearchResultsBox.propTypes = {
-    allResults: PropTypes.object,
     pageResults: PropTypes.object,
     searchTerm: PropTypes.string,
     loading: PropTypes.bool,

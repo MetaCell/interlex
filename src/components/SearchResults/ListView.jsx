@@ -59,7 +59,7 @@ const TitleSection = ({ searchResult, onAddToActiveOntology }) => {
 const Description = ({ description }) => {
     return (
         <Typography variant='body2' sx={{ color: gray500 }}>
-            {description === '' ? '-' : description}
+            {description || '-'}
         </Typography>
     );
 };
@@ -200,7 +200,7 @@ const ListView = ({ searchResults, loading }) => {
                             <TitleSection searchResult={searchResult} onAddToActiveOntology={handleAddToActiveOntology} />
                         </Grid>
                         <Grid item lg={12} xs={12} mt={2}>
-                            <Description description={searchResult.description} />
+                            <Description description={searchResult.definition} />
                         </Grid>
                         <Grid item lg={12} xs={12} sm={12} mt={3}>
                             <InfoSection searchResult={searchResult} />

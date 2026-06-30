@@ -4,6 +4,7 @@ import { debounce } from 'lodash';
 import { useQuery } from '../../helpers';
 import SearchResultsBox from './SearchResultsBox';
 import FiltersSidebar from '../Sidebar/FiltersSidebar';
+import ApiErrorDialog from '../common/ApiErrorDialog';
 import { elasticSearch } from '../../api/endpoints';
 
 const SearchResults = () => {
@@ -98,13 +99,13 @@ const SearchResults = () => {
 
     return (
         <>
+            <ApiErrorDialog />
             <FiltersSidebar
                 filters={filters}
                 checkedLabels={checkedLabels}
                 handleCheckboxChange={handleCheckboxChange}
             />
             <SearchResultsBox
-                allResults={allResults}
                 pageResults={displayedResults}
                 searchTerm={searchTerm}
                 loading={loading}

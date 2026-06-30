@@ -6,6 +6,7 @@ import curieParser from '../../parsers/curieParser';
 import termParser, { elasticSearchParser, getTerm } from '../../parsers/termParser';
 import axios from 'axios';
 import { API_CONFIG } from '../../config';
+import { reportApiError } from '../apiErrorBus';
 
 const useApi = () => api;
 const useMockApi = () => mockApi;
@@ -148,6 +149,13 @@ const fetchData = async (url, method = "GET", data: object | null = null) => {
             },
             withCredentials : true
         });
+        // Some backends (e.g. the Elasticsearch proxy) return HTTP 200 with
+        // the failure encoded in the body, so axios never rejects on its own.
+        if (response.data?.error) {
+            const bodyError: any = new Error(response.data.error.message || `Request failed with code ${response.data.error.code}`);
+            bodyError.status = response.data.error.code;
+            throw bodyError;
+        }
         return response.data;
     } catch (error) {
         console.error(`API Error at ${url}:`, error);
@@ -175,6 +183,12 @@ export const elasticSearch = async (
       total = initialResponse?.hits?.total ?? 0;
     } catch (error) {
       console.error("Failed to fetch total count from Elasticsearch:", error);
+      reportApiError({
+        context: `Search "${query}"`,
+        url,
+        status: error?.status ?? error?.response?.status,
+        message: error?.message || "Request failed",
+      });
       return { results: [], total: 0 };
     }
   }
@@ -192,6 +206,12 @@ export const elasticSearch = async (
     };
   } catch (error) {
     console.error("Error when performing elastic search", error);
+    reportApiError({
+      context: `Search "${query}"`,
+      url,
+      status: error?.status ?? error?.response?.status,
+      message: error?.message || "Request failed",
+    });
     return { results: [], total: 0 };
   }
 };
