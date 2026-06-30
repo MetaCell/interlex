@@ -28,6 +28,7 @@ import {
 } from "../../../parsers/hierarchies-parser";
 import { createOverviewStore } from "./overviewStore";
 import { DetailsSection, HierarchySection, PredicatesSection } from "./OverviewSections";
+import OverviewSideNav from "./OverviewSideNav";
 import { emitPredicateRowUpdate, makeRowKey } from "./predicateMutationBus";
 import { reportApiError } from "../../../api/apiErrorBus";
 import ApiErrorDialog from "../../common/ApiErrorDialog";
@@ -38,6 +39,12 @@ import { GlobalDataContext } from "../../../contexts/DataContext";
 const DETAILS_MIN_HEIGHT = 240;
 const HIERARCHY_MIN_HEIGHT = 420;
 const PREDICATES_MIN_HEIGHT = 320;
+
+const SIDE_NAV_ITEMS = [
+  { id: "overview-section-details", label: "Details" },
+  { id: "overview-section-hierarchy", label: "Hierarchy & relations" },
+  { id: "overview-section-predicates", label: "Predicates" },
+];
 
 const META_TITLES = new Set(["isabout", "ilx.isabout", "owl:versioniri"]);
 const norm = (t) => String(t || "").trim().toLowerCase();
@@ -484,11 +491,14 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
         <RawDataViewer dataId={searchTerm} dataFormat={selectedDataFormat} group={group} versionHash={versionHash} />
       ) : (
         <>
-          <DetailsSection subject={store.details$} reserveHeight={DETAILS_MIN_HEIGHT} />
+          <OverviewSideNav items={SIDE_NAV_ITEMS} />
+          <Box id="overview-section-details">
+            <DetailsSection subject={store.details$} reserveHeight={DETAILS_MIN_HEIGHT} />
+          </Box>
           <Box p="5rem 0">
             <Divider />
             <Grid container pt="5.25rem" spacing="2.75rem">
-              <Grid item xs={12} lg={4}>
+              <Grid item xs={12} lg={4} id="overview-section-hierarchy">
                 <HierarchySection
                   subject={store.hierarchy$}
                   selectedSubject={store.selectedValue$}
@@ -496,7 +506,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
                   reserveHeight={HIERARCHY_MIN_HEIGHT}
                 />
               </Grid>
-              <Grid item xs={12} lg={8}>
+              <Grid item xs={12} lg={8} id="overview-section-predicates">
                 <PredicatesSection
                   subject={store.predicates$}
                   group={group}
