@@ -1,6 +1,7 @@
 import { Term, Terms } from "./../model/frontend/terms";
 import { termKeys, termPredicates } from "../configuration/model";
 import { defaultTermFiltersSections } from "../configuration/filters";
+import { shortenIri } from "../configuration/predicateConfig";
 
 /**
  * Takes in raw term data object from server and formats it into Term object 
@@ -14,9 +15,12 @@ export const getTerm = (data) => {
     let predicates = {};
     let isAboutValue = null;
 
+    // "isAbout" may appear as a curie (base context) or as its full IRI (fork minimal context)
+    const ISABOUT_IRI = "http://purl.obolibrary.org/obo/IAO_0000136";
     data?.["@graph"]?.forEach((object) => {
-        if (object["isAbout"]) {
-            isAboutValue = object["isAbout"]?.["@id"] || object["isAbout"];
+        const raw = object["isAbout"] || object[ISABOUT_IRI];
+        if (raw) {
+            isAboutValue = raw?.["@id"] || raw;
         }
     });
 
@@ -27,9 +31,21 @@ export const getTerm = (data) => {
         }
     });
 
+    // Fork jsonld often has no isAbout wrapper — fall back to first owl:Class node
+    if (!matchedObject) {
+        data?.["@graph"]?.forEach((object) => {
+            if (!matchedObject && object["@type"] === "owl:Class") {
+                matchedObject = object;
+            }
+        });
+    }
+
+    if (!matchedObject) return term;
+
     const keys = Object.keys(matchedObject);
     keys.forEach((key) => {
-        const predicate = key;
+        // Fork jsonld uses full IRIs as keys; normalize to curies before lookup
+        const predicate = shortenIri(key) || key;
         if (termPredicates[predicate]) {
             let value = matchedObject[key];
             let dataToStore = value;

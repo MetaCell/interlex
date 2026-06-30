@@ -2,7 +2,7 @@
 import { Box, Divider, Grid, Snackbar, Alert } from "@mui/material";
 import PropTypes from "prop-types";
 import RawDataViewer from "./RawDataViewer";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
   getMatchTerms,
   getRawData,
@@ -11,7 +11,7 @@ import {
   getTermVersion,
 } from "../../../api/endpoints/apiService";
 import termParser from "../../../parsers/termParser";
-import { versionSnapshotToJsonLd } from "../../../parsers/versionParser";
+import { adaptVersionJsonLd } from "../../../parsers/versionAdapter";
 import { patchEndpointsIlx } from "../../../api/endpoints/interLexURIStructureAPI";
 import {
   focusNodeFromJsonLd,
@@ -19,7 +19,7 @@ import {
   resolveStoredObject,
 } from "../../../parsers/predicateMutations";
 import { buildPredicateGroupsForFocus } from "../../../parsers/predicateParser";
-import { shortenIri, getObjectInputKind } from "../../../configuration/predicateConfig";
+import { shortenIri, getObjectInputKind, buildExpandContext } from "../../../configuration/predicateConfig";
 import {
   toHierarchyOptionsFromTriples,
   buildChildrenTreeFromTriples,
@@ -31,6 +31,7 @@ import { DetailsSection, HierarchySection, PredicatesSection } from "./OverviewS
 import { emitPredicateRowUpdate, makeRowKey } from "./predicateMutationBus";
 import { reportApiError } from "../../../api/apiErrorBus";
 import ApiErrorDialog from "../../common/ApiErrorDialog";
+import { GlobalDataContext } from "../../../contexts/DataContext";
 
 // Reserved minimum heights while a section loads, so content arriving in one
 // section can't shove a section the user is already scrolled to.
@@ -103,12 +104,12 @@ const mergePredicates = ({ versionHash, jsonData, predicateGroups, focusCurie, s
   return dedupePredicateGroups([...freshLiterals, ...transitive]);
 };
 
-// Fetch + parse both hierarchy directions for a focus id (always from "base").
-const fetchHierarchiesData = async (curieLike) => {
+// Fetch + parse both hierarchy directions for a focus id.
+const fetchHierarchiesData = async (curieLike, group) => {
   const termId = toILX(curieLike);
   const [childRes, superRes] = await Promise.all([
-    getTermHierarchies({ groupname: "base", termId, objToSub: true }),
-    getTermHierarchies({ groupname: "base", termId, objToSub: false }),
+    getTermHierarchies({ groupname: group, termId, objToSub: true }),
+    getTermHierarchies({ groupname: group, termId, objToSub: false }),
   ]);
   const childTriples = childRes?.triples || [];
   const superTriples = superRes?.triples || [];
@@ -141,6 +142,7 @@ const interpretPatchResult = (res) => {
 };
 
 const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, group = "base", versionHash }) => {
+  const { curies } = useContext(GlobalDataContext);
   // Per-instance rxjs streams; each section subscribes to its own.
   const storeRef = useRef();
   if (!storeRef.current) storeRef.current = createOverviewStore();
@@ -217,7 +219,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
       }
 
       store.hierarchy$.next({ ...store.hierarchy$.getValue(), loading: true });
-      fetchHierarchiesData(sv.id)
+      fetchHierarchiesData(sv.id, group)
         .then((res) => {
           if (isStale()) return;
           store.hierarchy$.next({ loading: false, ...res });
@@ -236,7 +238,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
 
       groupsReadyRef.current = false;
       store.predicates$.next({ ...store.predicates$.getValue(), loading: true, focusId: sv.id });
-      getTermPredicates({ groupname: "base", termId: toILX(sv.id) })
+      getTermPredicates({ groupname: group, termId: toILX(sv.id) })
         .then((groups) => {
           if (isStale()) return;
           groupsRef.current = groups || [];
@@ -334,7 +336,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
         return;
       }
       store.hierarchy$.next({ ...store.hierarchy$.getValue(), loading: true });
-      fetchHierarchiesData(sv.id)
+      fetchHierarchiesData(sv.id, group)
         .then((res) => {
           if (!isStale()) store.hierarchy$.next({ loading: false, ...res });
         })
@@ -353,19 +355,10 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
 
     (async () => {
       try {
-        // Borrow the live head @context (richer curie set) when reachable.
-        let headContext;
-        try {
-          const head = await getRawData(group, searchTerm, "jsonld");
-          headContext = head?.["@context"];
-        } catch {
-          /* fall back to the parser's default context */
-        }
-
-        const snapshot = await getTermVersion(group, searchTerm, versionHash);
+        const raw = await getTermVersion(group, searchTerm, versionHash);
         if (isStale()) return;
 
-        const jsonld = versionSnapshotToJsonLd(snapshot, versionHash, headContext);
+        const jsonld = adaptVersionJsonLd(raw);
         const first = termParser(jsonld, searchTerm)?.results?.[0] || null;
         store.details$.next({ loading: false, data: first, jsonData: jsonld });
         const sv = { id: first?.id || searchTerm, label: first?.label || searchTerm };
@@ -422,7 +415,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
     }
     if (focus?.id) {
       try {
-        const groups = await getTermPredicates({ groupname: "base", termId: toILX(focus.id) });
+        const groups = await getTermPredicates({ groupname: group, termId: toILX(focus.id) });
         groupsRef.current = groups || [];
         groupsReadyRef.current = true;
         maybePushPredicates(focus, null);
@@ -443,7 +436,10 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
       // with the base @context. GET-first guarantees the predicate IRIs
       // round-trip.
       const baseDoc = await getRawData("base", patchId, "jsonld");
-      const context = baseDoc?.["@context"] || jsonData?.["@context"] || {};
+      const jsonLdContext = baseDoc?.["@context"] || jsonData?.["@context"] || {};
+      // Merge known-term shorthands (e.g. "definition" → IAO IRI) under the
+      // JSON-LD context so bare predicate names expand to full IRIs.
+      const context = { ...buildExpandContext(curies?.base ?? []), ...jsonLdContext };
       const node = focusNodeFromJsonLd(baseDoc) || focusNodeFromJsonLd(jsonData);
       const subject = mutation.subject || node?.["@id"];
       if (!subject) {
@@ -477,7 +473,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
         if (isEdit) emitPredicateRowUpdate({ rowKey, status: "error" });
       }
     },
-    [store, group, searchTerm, reloadAfterMutation]
+    [store, group, searchTerm, reloadAfterMutation, curies]
   );
 
   const onMutate = versionHash ? undefined : handlePredicateMutation;

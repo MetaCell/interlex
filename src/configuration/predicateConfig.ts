@@ -81,6 +81,23 @@ const KNOWN_TERMS: Record<string, string> = {
   "http://uri.interlex.org/base/ilx_0737162": "ilx.anno.hasRelatedSynonym",
 };
 
+// Reverse of KNOWN_TERMS: shortname -> full IRI (for predicate expansion before PATCH).
+const KNOWN_TERMS_REVERSE: Record<string, string> = Object.fromEntries(
+  Object.entries(KNOWN_TERMS).map(([iri, name]) => [name, iri])
+);
+
+// Build an expandIri-compatible context from the app's curies list.
+// Merges KNOWN_PREFIXES + KNOWN_TERMS_REVERSE + caller-supplied curies.
+export const buildExpandContext = (
+  curies: Array<{ prefix: string; namespace: string }> = []
+): Record<string, string> => {
+  const ctx: Record<string, string> = {};
+  for (const [prefix, base] of KNOWN_PREFIXES) ctx[prefix] = base;
+  for (const { prefix, namespace } of curies) ctx[prefix] = namespace;
+  Object.assign(ctx, KNOWN_TERMS_REVERSE);
+  return ctx;
+};
+
 // Shorten a full predicate IRI to its curie; pass through curies/non-IRIs.
 export const shortenIri = (iri: string): string => {
   if (!iri || !/^https?:\/\//i.test(iri)) return iri;

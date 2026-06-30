@@ -3,14 +3,13 @@ import PropTypes from 'prop-types';
 import { Box, CircularProgress } from '@mui/material';
 import VariantsTable from './VariantsTable';
 import ErrorModal from '../../common/ErrorModal';
-import { getVersions } from '../../../api/endpoints/apiService';
 
 const headCells = [
     { id: 'fork', label: 'Fork' },
     { id: 'title', label: 'Title' },
     { id: 'firstSeen', label: 'First seen' },
     { id: 'tripleCount', label: 'Triples' },
-    { id: 'identityGraph', label: 'Identity graph' },
+    { id: 'identityRecord', label: 'Identity record' },
     { id: 'action_buttons', label: '', sortable: false, width: '3.5rem' }
 ];
 
@@ -32,58 +31,36 @@ const mapVersionsToRows = (data) => {
             (a, b) => parseBackendDate(a.first_seen) - parseBackendDate(b.first_seen)
         )[0];
 
-        const identityGraph = version['identity-graph'];
+        const identityRecord = version['identity-record'];
         return {
-            id: identityGraph,
+            id: identityRecord,
             fork: forkFromUri(oldest?.uri),
             title: oldest?.title ?? '',
             firstSeen: oldest?.first_seen
                 ? parseBackendDate(oldest.first_seen).toLocaleString()
                 : '',
             tripleCount: version.triple_count ?? 0,
-            identityGraph: identityGraph ? `${identityGraph.slice(0, 12)}…` : '',
+            identityRecord: identityRecord ? `${identityRecord.slice(0, 12)}…` : '',
             viri: oldest?.viri ?? ''
         };
     });
 };
 
-const VariantsPanel = ({ searchTerm, group = "base" }) => {
-    const [variants, setVariants] = React.useState([]);
-    const [loading, setLoading] = React.useState(true);
-    const [error, setError] = React.useState(null);
+const VariantsPanel = ({ searchTerm, group = "base", versionsData, versionsLoading, versionsError, onDismissError }) => {
+    const variants = React.useMemo(() => mapVersionsToRows(versionsData), [versionsData]);
 
-    React.useEffect(() => {
-        let active = true;
-        setLoading(true);
-        setError(null);
-        getVersions(group, searchTerm)
-            .then(data => {
-                if (active) setVariants(mapVersionsToRows(data));
-            })
-            .catch(err => {
-                if (active) {
-                    setError(err);
-                    setVariants([]);
-                }
-            })
-            .finally(() => {
-                if (active) setLoading(false);
-            });
-        return () => { active = false; };
-    }, [group, searchTerm]);
-
-    if (loading) {
+    if (versionsLoading) {
         return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
             <CircularProgress />
         </Box>
     }
 
-    if (error) {
+    if (versionsError) {
         return <ErrorModal
             open
-            onClose={() => setError(null)}
+            onClose={onDismissError || (() => {})}
             title="Failed to load variants"
-            error={error}
+            error={versionsError}
         />
     }
 
@@ -100,7 +77,11 @@ const VariantsPanel = ({ searchTerm, group = "base" }) => {
 
 VariantsPanel.propTypes = {
     searchTerm: PropTypes.string,
-    group: PropTypes.string
+    group: PropTypes.string,
+    versionsData: PropTypes.object,
+    versionsLoading: PropTypes.bool,
+    versionsError: PropTypes.any,
+    onDismissError: PropTypes.func,
 }
 
 export default VariantsPanel;

@@ -310,7 +310,7 @@ const Header = () => {
             action: handleNewOntologyDialogOpen
         },
         {
-            label: 'Bulk add terms',
+            label: 'Bulk edit terms',
             icon: <PlaylistAddIcon />,
             action: handleOpenEditBulkTerms
         }

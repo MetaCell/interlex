@@ -1,7 +1,7 @@
 import * as React from "react";
 import PropTypes from 'prop-types';
 import { EditNoteIcon } from "../../Icons";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Snackbar, Alert } from "@mui/material";
 import StatusDialog from "../common/StatusDialog";
 import CustomizedDialog from "../common/CustomizedDialog";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -21,16 +21,22 @@ const HeaderRightSideContent = ({ handleClose, onSaveCuries }) => {
 
 const CurieEditorDialog = ({ open, handleClose, onSubmit, children, isFromOrganization }) => {
     const [openStatusDialog, setOpenStatusDialog] = React.useState(false);
+    const [saveError, setSaveError] = React.useState(null);
 
-    const handleSaveCuries = () => {
-        onSubmit();
-        setOpenStatusDialog(true);
+    const handleSaveCuries = async () => {
+        setSaveError(null);
+        try {
+            await onSubmit();
+            setOpenStatusDialog(true);
+        } catch (err) {
+            setSaveError(err?.body || err?.message || 'Failed to save curies. Please try again.');
+        }
     }
 
     const handleCloseStatusDialog = () => {
         setOpenStatusDialog(false)
     }
-    
+
     const handleStatusDialogActionButtonClick = () => {
         setOpenStatusDialog(false);
     }
@@ -59,6 +65,16 @@ const CurieEditorDialog = ({ open, handleClose, onSubmit, children, isFromOrgani
                 finishButtonEndIcon={<ArrowForwardIcon />}
                 actionButtonStartIcon={<EditNoteIcon />}
             />
+            <Snackbar
+                open={!!saveError}
+                autoHideDuration={6000}
+                onClose={() => setSaveError(null)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert severity="error" onClose={() => setSaveError(null)} sx={{ width: '100%' }}>
+                    {saveError}
+                </Alert>
+            </Snackbar>
         </>
     )
 }

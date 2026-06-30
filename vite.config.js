@@ -96,22 +96,23 @@ export default defineConfig({
             console.log('Request:', proxyReq);
           });
           proxy.on('proxyRes', (proxyRes, req, res) => {
-            console.log('Received response', res);
             console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
             const location = proxyRes.headers['location'];
-            console.log('Received location', location);
+            const origin = req.headers.origin;
             if (proxyRes.statusCode === 303 && location) {
-              // Prevent browser from seeing the actual Location
-              delete proxyRes.headers['location'];
-              // Inject the location into a custom header we can use in Axios
+              // Convert 303 → 200 + JSON body so fetch() can read the location.
+              // (redirect: 'manual' returns opaque status-0 response; headers inaccessible.)
+              res.setHeader('Content-Type', 'application/json');
               res.setHeader('X-Redirect-Location', location);
+              if (origin) res.setHeader('Access-Control-Allow-Origin', origin);
+              res.setHeader('Access-Control-Allow-Credentials', 'true');
+              res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
+              res.writeHead(200);
+              res.end(JSON.stringify({ location }));
+              return;
             }
 
-            // Required for credentialed CORS
-            const origin = req.headers.origin;
-            if (origin) {
-              res.setHeader('Access-Control-Allow-Origin', origin);
-            }
+            if (origin) res.setHeader('Access-Control-Allow-Origin', origin);
             res.setHeader('Access-Control-Allow-Credentials', 'true');
             res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
           });
@@ -327,8 +328,8 @@ export default defineConfig({
           });
         },
       },
-      // Pattern for ilx_ endpoints (bulk term editing) - matches any group
-      '^/[^/]+/ilx_[^/]+$': {
+      // Pattern for ilx_/tmp_ endpoints (bulk term editing + newly created terms)
+      '^/[^/]+/(ilx|tmp)_[^/]+$': {
         target: 'https://uri.olympiangods.org',
         changeOrigin: true,
         secure: false,

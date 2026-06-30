@@ -1,5 +1,4 @@
-import React from "react"
-import { useState } from "react"
+import React, { useState, forwardRef, useImperativeHandle } from "react"
 import PropTypes from "prop-types";
 import { Box, Grid, Typography, FormControl, Autocomplete, Chip, TextField, Divider, Button } from "@mui/material"
 import AddIcon from "@mui/icons-material/Add"
@@ -41,7 +40,7 @@ const URI_PREFIX_BOX_STYLES = {
     padding: "0.5rem 0.75rem",
 }
 
-const SecondStepContent = ({ searchTerm }) => {
+const SecondStepContent = forwardRef(({ searchTerm }, ref) => {
     const [superclass, setSuperclass] = useState("")
     const [subclassOf, setSubclassOf] = useState("")
     const [definitionUrls, setDefinitionUrls] = useState([])
@@ -55,6 +54,10 @@ const SecondStepContent = ({ searchTerm }) => {
             object: { type: "Object", value: searchTerm, isLink: false },
         },
     ])
+
+    useImperativeHandle(ref, () => ({
+        getFormData: () => ({ definition, comment, predicates }),
+    }), [definition, comment, predicates])
 
     const [urlOptions] = useState([])
 
@@ -261,8 +264,9 @@ const SecondStepContent = ({ searchTerm }) => {
             </Grid>
         </Box>
     )
-}
+})
 
+SecondStepContent.displayName = 'SecondStepContent';
 SecondStepContent.propTypes = {
     searchTerm: PropTypes.string
 };

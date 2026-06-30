@@ -31,6 +31,7 @@ const Details = ({ loading, data, jsonData }) => {
 
   const getSynonymGroups = () => {
     const synonyms = processExistingIds(data?.synonym);
+    const synonymSet = new Set(synonyms);
     const graph = jsonData?.["@graph"];
     const focusNode = Array.isArray(graph)
       ? graph.find(n => String(n?.["@type"] || "").toLowerCase().includes("class")) || null
@@ -39,7 +40,7 @@ const Details = ({ loading, data, jsonData }) => {
     const relatedArr = Array.isArray(relatedRaw) ? relatedRaw : relatedRaw ? [relatedRaw] : [];
     const related = relatedArr
       .map(v => (typeof v === "string" ? v : v?.["@value"] || null))
-      .filter(Boolean);
+      .filter(v => v && !synonymSet.has(v));
     return { synonyms, related };
   };
 
@@ -118,18 +119,20 @@ const Details = ({ loading, data, jsonData }) => {
             </Typography>
           </Stack>
         </Grid>
-        <Grid item xs={12} lg={4}>
-          <Stack spacing=".75rem">
-            <Typography color={gray800} fontWeight={500}>
-              Existing IDs
-            </Typography>
-            <Box display="flex" flexWrap="wrap" gap=".5rem">
-              {data?.existingID && (processExistingIds(data?.existingID).map((id) =>
-                <Chip className="rounded IDchip-outlined" variant="outlined" key={id} label={id} icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(id)} />
-              ))}
-            </Box>
-          </Stack>
-        </Grid>
+        {processExistingIds(data?.existingID).length > 0 && (
+          <Grid item xs={12} lg={4}>
+            <Stack spacing=".75rem">
+              <Typography color={gray800} fontWeight={500}>
+                Existing IDs
+              </Typography>
+              <Box display="flex" flexWrap="wrap" gap=".5rem">
+                {processExistingIds(data?.existingID).map((id) =>
+                  <Chip className="rounded IDchip-outlined" variant="outlined" key={id} label={id} icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(id)} />
+                )}
+              </Box>
+            </Stack>
+          </Grid>
+        )}
       </Grid>
       <Grid container mt="2.5rem">
         <Grid item xs={12}>
@@ -174,26 +177,30 @@ const Details = ({ loading, data, jsonData }) => {
             </Typography>
           </Stack>
         </Grid>
-        <Grid item xs={12} lg={4} mb=".75rem">
-          <Stack spacing=".75rem">
-            <Typography color={gray800} fontWeight={500}>
-              Originally submitted by
-            </Typography>
-            <Typography fontSize=".875rem" color={gray500}>
-              {data?.submittedBy}
-            </Typography>
-          </Stack>
-        </Grid>
-        <Grid item xs={12} lg={4} mb=".75rem">
-          <Stack spacing=".75rem">
-            <Typography color={gray800} fontWeight={500}>
-              Last modified by
-            </Typography>
-            <Typography fontSize=".875rem" color={gray500}>
-              {data?.lastModifiedBy}
-            </Typography>
-          </Stack>
-        </Grid>
+        {data?.submittedBy && (
+          <Grid item xs={12} lg={4} mb=".75rem">
+            <Stack spacing=".75rem">
+              <Typography color={gray800} fontWeight={500}>
+                Originally submitted by
+              </Typography>
+              <Typography fontSize=".875rem" color={gray500}>
+                {data?.submittedBy}
+              </Typography>
+            </Stack>
+          </Grid>
+        )}
+        {data?.lastModifiedBy && (
+          <Grid item xs={12} lg={4} mb=".75rem">
+            <Stack spacing=".75rem">
+              <Typography color={gray800} fontWeight={500}>
+                Last modified by
+              </Typography>
+              <Typography fontSize=".875rem" color={gray500}>
+                {data?.lastModifiedBy}
+              </Typography>
+            </Stack>
+          </Grid>
+        )}
         <Grid item xs={12} lg={4} mb=".75rem">
           <Stack spacing=".75rem">
             <Typography color={gray800} fontWeight={500}>

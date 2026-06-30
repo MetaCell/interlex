@@ -1,14 +1,21 @@
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 import {Box, Chip, Grid, Stack, Typography} from "@mui/material";
 
 import { vars } from "../../../theme/variables";
 const {gray500, gray700, gray200, brand600, brand200, brand50 } = vars;
 
 const VariantCard = ({term}) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    const parts = term.iri?.split('/');
+    const group = parts?.[parts.length - 2] || 'base';
+    navigate(`/${group}/${term.id}/overview`);
+  };
+
   return (
-    <Grid item xs={12} lg={6} sx={{
-      cursor: 'pointer',
-    }}>
+    <Grid item xs={12} lg={6} sx={{ cursor: 'pointer' }} onClick={handleClick}>
       <Stack spacing={'1rem'} sx={{
         borderBottom: `1px solid ${gray200}`,
         minHeight: '11.314rem',

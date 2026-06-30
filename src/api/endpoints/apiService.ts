@@ -67,6 +67,18 @@ interface JsonLdResponse {
 
 const BASE_EXTENSION = "jsonld";
 
+// Deduplicate concurrent GET fetches for the same URL.
+// All callers that request the same in-flight URL share one network request.
+const inflight = new Map<string, Promise<any>>();
+
+const fetchOnce = (url: string, fetcher: () => Promise<any>): Promise<any> => {
+  const existing = inflight.get(url);
+  if (existing) return existing;
+  const p = fetcher().finally(() => inflight.delete(url));
+  inflight.set(url, p);
+  return p;
+};
+
 export const login = createPostRequest<any, LoginRequest>(API_CONFIG.REAL_API.SIGNIN, { "Content-Type": "application/x-www-form-urlencoded" })
 
 export const register = createPostRequest<any, RegisterRequest>(API_CONFIG.REAL_API.NEWUSER_ILX, { "Content-Type": "application/x-www-form-urlencoded" })
@@ -90,6 +102,11 @@ export const getOrganizations = (group: string) => {
 export const getOrganizationsCuries = (group: string) => {
   const endpoint = `/${group}${API_CONFIG.REAL_API.ORG_CURIES}`;
   return createGetRequest<any, any>(endpoint, "application/json")();
+};
+
+export const addOrganizationCuries = (group: string, curies: Record<string, string>) => {
+  const endpoint = `/${group}${API_CONFIG.REAL_API.ORG_CURIES}`;
+  return createPostRequest<any, any>(endpoint, { "Content-Type": "application/json" })(curies);
 };
 
 export const getOrganizationsTerms = (group: string) => {
@@ -155,7 +172,8 @@ export const changePassword = (group: string, data: { username: string; currentP
 
 export const getSelectedTermLabel = async (searchTerm: string, group: string = 'base'): Promise<{ label: string | undefined; actualGroup: string }> => {
   try {
-    const response = await createGetRequest<JsonLdResponse, any>(`/${group}/${searchTerm}.jsonld`)();
+    const primaryUrl = `/${group}/${searchTerm}.jsonld`;
+    const response = await fetchOnce(primaryUrl, () => createGetRequest<JsonLdResponse, any>(primaryUrl)());
 
     const label = response['@graph']?.[0]?.['rdfs:label'];
 
@@ -179,7 +197,8 @@ export const getSelectedTermLabel = async (searchTerm: string, group: string = '
     // If the request fails and we're not already trying 'base', try with 'base' as fallback
     if (group !== 'base') {
       try {
-        const fallbackResponse = await createGetRequest<JsonLdResponse, any>(`/base/${searchTerm}.jsonld`)();
+        const fallbackUrl = `/base/${searchTerm}.jsonld`;
+        const fallbackResponse = await fetchOnce(fallbackUrl, () => createGetRequest<JsonLdResponse, any>(fallbackUrl)());
         const fallbackLabel = fallbackResponse['@graph']?.[0]?.['rdfs:label'];
 
         const getLabelValue = (label: LabelType): string => {
@@ -206,10 +225,115 @@ export const getSelectedTermLabel = async (searchTerm: string, group: string = '
   }
 };
 
-export const createNewEntity = async ({ group, data, session }: { group: string; data: any; session: string }) => {
+export const createNewEntity = async ({ group, data }: { group: string; data: any; session?: string }): Promise<{ termId: string | null; raw: string; status: number }> => {
   const endpoint = `/${group}${API_CONFIG.REAL_API.CREATE_NEW_ENTITY}`;
-  return createPostRequest(endpoint, { 'Content-Type': 'application/json' })(data, { handleRedirect: true });
-}
+
+  // Vite proxy converts 303 → 200 + JSON { location } so fetch can read the redirect target.
+  const resp = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+    credentials: 'include',
+  });
+
+  const xRedirect = resp.headers.get('x-redirect-location');
+  let raw = '';
+  try { raw = await resp.text(); } catch { /* ignore */ }
+
+  // Prefer the custom header set by the proxy
+  const target = xRedirect || '';
+  if (target) {
+    const m = target.match(/((?:tmp|ilx)_\d+)/i);
+    if (m) return { termId: m[1], raw: target, status: resp.status };
+  }
+
+  // Fallback: proxy sent JSON { location: "..." }
+  try {
+    const json = JSON.parse(raw);
+    const loc: string = json?.location || '';
+    const m = loc.match(/((?:tmp|ilx)_\d+)/i);
+    if (m) return { termId: m[1], raw: loc, status: resp.status };
+  } catch { /* not JSON */ }
+
+  // Last resort: scan raw body for the ID pattern
+  const hrefMatch = raw.match(/href="[^"]*\/((?:tmp|ilx)_\d+)[^"]*"/i);
+  const textMatch = raw.match(/((?:tmp|ilx)_\d+)/i);
+  const termId = hrefMatch ? hrefMatch[1] : (textMatch ? textMatch[1] : null);
+
+  return { termId, raw, status: resp.status };
+};
+
+export const patchTermPredicates = async ({
+  group,
+  termId,
+  add,
+  del = [],
+}: {
+  group: string;
+  termId: string;
+  add: [string, string, { type: string; value: string }][];
+  del?: any[];
+}): Promise<{ ok: boolean }> => {
+  const resp = await fetch(`/${group}/${termId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ add, del }),
+  });
+  return { ok: resp.ok };
+};
+
+export const createFork = async (
+  groupname: string,
+  termId: string,
+  sourceGroup: string,
+  termLabel: string
+): Promise<{ ok: boolean; status: number }> => {
+  const sourceIri = `${API_CONFIG.INTERLEX_URL}/${sourceGroup}/${termId}`;
+  const synonymIri = "http://uri.interlex.org/base/readable/synonym";
+  const resp = await fetch(`/${groupname}/${termId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({
+      add: [[sourceIri, synonymIri, { type: "literal", value: termLabel }]],
+      del: [],
+    }),
+  });
+  return { ok: resp.ok, status: resp.status };
+};
+
+export const addEntityToOntology = async ({
+  group,
+  ontologyUri,
+  termId,
+}: {
+  group: string;
+  ontologyUri: string;
+  termId: string;
+}): Promise<{ success: boolean; status?: number; url?: string; body?: string; error?: string }> => {
+  const specUrl = ontologyUri.replace(API_CONFIG.INTERLEX_URL, API_CONFIG.BASE_URL);
+  const termIri = `${API_CONFIG.OLYMPIAN_GODS}/${group}/${termId}`;
+
+  try {
+    const resp = await fetch(specUrl, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ add: [termIri], del: [] }),
+      redirect: 'manual',
+    });
+    const ok = resp.ok || resp.status === 0;
+    if (!ok) {
+      let body = '';
+      try { body = await resp.text(); } catch { /* ignore */ }
+      return { success: false, status: resp.status, url: specUrl, body };
+    }
+    return { success: true, status: resp.status, url: specUrl };
+  } catch (error: any) {
+    return { success: false, url: specUrl, error: error?.message || String(error) };
+  }
+};
 
 export const createNewOntology = async ({
   groupname,
@@ -312,15 +436,17 @@ export const retrieveTokenApi = ({ groupname }: { groupname: string }) => {
 export const forgotPassword = createPostRequest<any, ForgotPasswordReguest>(API_CONFIG.REAL_API.USER_RECOVER, { "Content-Type": "application/x-www-form-urlencoded" })
 
 export const getMatchTerms = async (group: string, term: string, filters = {}) => {
+  const primaryUrl = `/${group}/${term}.${BASE_EXTENSION}`;
   try {
-    const response = await createGetRequest<any, any>(`/${group}/${term}.${BASE_EXTENSION}`, "application/json")();
+    const response = await fetchOnce(primaryUrl, () => createGetRequest<any, any>(primaryUrl, "application/json")());
     return termParser(response, term);
   } catch (err: any) {
     console.error(err.message);
     // If the request fails and we're not already trying 'base', try with 'base' as fallback
     if (group !== 'base') {
       try {
-        const fallbackResponse = await createGetRequest<any, any>(`/base/${term}.${BASE_EXTENSION}`, "application/json")();
+        const fallbackUrl = `/base/${term}.${BASE_EXTENSION}`;
+        const fallbackResponse = await fetchOnce(fallbackUrl, () => createGetRequest<any, any>(fallbackUrl, "application/json")());
         return termParser(fallbackResponse, term);
       } catch (fallbackErr: any) {
         console.error('Fallback request also failed:', fallbackErr.message);
@@ -332,15 +458,17 @@ export const getMatchTerms = async (group: string, term: string, filters = {}) =
 };
 
 export const getRawData = async (group: string, termID: string, format: string) => {
+  const primaryUrl = `/${group}/${termID}.${format}`;
   try {
-    const response = await createGetRequest<any, any>(`/${group}/${termID}.${format}`, "application/json")();
+    const response = await fetchOnce(primaryUrl, () => createGetRequest<any, any>(primaryUrl, "application/json")());
     return response;
   } catch (err: any) {
     console.error(err.message);
     // If the request fails and we're not already trying 'base', try with 'base' as fallback
     if (group !== 'base') {
       try {
-        const fallbackResponse = await createGetRequest<any, any>(`/base/${termID}.${format}`, "application/json")();
+        const fallbackUrl = `/base/${termID}.${format}`;
+        const fallbackResponse = await fetchOnce(fallbackUrl, () => createGetRequest<any, any>(fallbackUrl, "application/json")());
         return fallbackResponse;
       } catch (fallbackErr: any) {
         console.error('Fallback request also failed:', fallbackErr.message);
@@ -362,7 +490,7 @@ export const getVersions = async (group: string, term: string) => {
 // A single version snapshot of a term, identified by its identity-graph hash.
 // Returns { prefixes, triples: [[subject, predicate, object], ...] }.
 export const getTermVersion = async (group: string, term: string, identityGraph: string) => {
-  return createGetRequest<any, any>(`/${group}/${term}/versions/${identityGraph}`, "application/json")();
+  return createGetRequest<any, any>(`/${group}/${term}/versions/${identityGraph}`, "application/ld+json")();
 };
 
 export const getTermDiscussions = async (group: string, variantID: string) => {

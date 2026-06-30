@@ -1,53 +1,61 @@
-import { debounce } from 'lodash';
 import PropTypes from "prop-types";
 import VariantCard from "./VariantCard";
-import termParser from "../../../parsers/termParser";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { ListIcon, TableChartIcon } from "../../../Icons";
 import CustomPagination from "../../common/CustomPagination";
 import CustomViewButton from "../../common/CustomViewButton";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
-import * as mockApi from "../../../api/endpoints/swaggerMockMissingEndpoints";
+import { getOrganizationsTerms } from "../../../api/endpoints/apiService";
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 import {Box, Button, ButtonGroup, CircularProgress, Divider, Grid, Stack, Typography} from "@mui/material";
+import { GlobalDataContext } from "../../../contexts/DataContext";
 
 import { vars } from "../../../theme/variables";
 const { gray600, gray200 } = vars;
 
-const useMockApi = () => mockApi;
 const Variants = ({handleOpenEditBulkTerms}) => {
+  const { user } = useContext(GlobalDataContext);
+  const groupname = user?.groupname;
   const [loading, setLoading] = useState(false);
   const [numberOfVisiblePages, setNumberOfVisiblePages] = useState(8);
   const [listView, setListView] = useState('list');
   const [terms, setTerms] = useState([]);
   const [page, setPage] = useState(1);
   const [slicedTerms, setSlicedTerms] = useState([]);
-  const { getUserTerms } = useMockApi();
 
   const handleNumberOfPagesChange = (v) => {
     setNumberOfVisiblePages(v);
     setPage(1);
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchTerms = useCallback(
-    debounce(async (searchTerm) => {
-      getUserTerms("base", searchTerm).then(data => {
-        const parsedData = termParser(data, searchTerm);
-        setTerms(parsedData.results)
-        setPage(1);
-        setLoading(false)
-      }).catch(err => {
-        console.log(err);
-        setLoading(false)
-      })
-    }, 500),
-    [getUserTerms]
-  );
+  const fetchTerms = useCallback(async () => {
+    if (!groupname) return;
+    setLoading(true);
+    getOrganizationsTerms(groupname).then(data => {
+      const seen = new Set();
+      const parsed = (Array.isArray(data) ? data : [])
+        .filter(([iri]) => {
+          if (seen.has(iri)) return false;
+          seen.add(iri);
+          return true;
+        })
+        .map(([iri, label, lastModified]) => {
+          const idMatch = iri.match(/((?:tmp|ilx)_\d+)/i);
+          const termId = idMatch ? idMatch[1] : iri;
+          const status = termId.toLowerCase().startsWith('tmp_') ? 'draft' : 'published';
+          return { id: termId, iri, label, lastModified, status };
+        });
+      setTerms(parsed);
+      setPage(1);
+      setLoading(false);
+    }).catch(err => {
+      console.log(err);
+      setLoading(false);
+    });
+  }, [groupname]);
 
   useEffect(() => {
-    setLoading(true)
-    fetchTerms('a');
+    fetchTerms();
   }, [fetchTerms]);
 
   useEffect(() => {
