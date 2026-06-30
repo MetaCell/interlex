@@ -23,7 +23,7 @@ import Search from './Search';
 import { useContext } from "react";
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Logo from '../../Icons/svg/interlex_logo.svg'
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -195,6 +195,7 @@ const Header = () => {
         setUserData(user, organization);
     };
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -383,8 +384,8 @@ const Header = () => {
                 {!isLoggedIn ? (
                     <Box display='flex' gap='1.25rem'>
                         <Box display='flex' gap='0.25rem'>
-                            <Button onClick={() => navigate("/register")}>Register</Button>
-                            <Button variant="outlined" onClick={() => navigate("/login")}>Log in</Button>
+                            <Button onClick={() => navigate("/register", { state: { from: location.pathname + location.search } })}>Register</Button>
+                            <Button variant="outlined" onClick={() => navigate("/login", { state: { from: location.pathname + location.search } })}>Log in</Button>
                         </Box>
                         <Divider sx={styles.divider} />
                         <CustomButtonGroup options={options} disabled={!isLoggedIn} disabledTooltip="Log in to add terms or ontologies" />
