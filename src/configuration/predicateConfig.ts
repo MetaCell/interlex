@@ -98,9 +98,25 @@ export const buildExpandContext = (
   return ctx;
 };
 
-// Shorten a full predicate IRI to its curie; pass through curies/non-IRIs.
-export const shortenIri = (iri: string): string => {
+// Shorten a full predicate IRI to its curie. Checks the app's live curies
+// (user/org-registered namespaces) first, then the hardcoded tables above;
+// pass through curies/non-IRIs/unmatched IRIs unchanged.
+export const shortenIri = (
+  iri: string,
+  curies: Array<{ prefix: string; namespace: string }> = []
+): string => {
   if (!iri || !/^https?:\/\//i.test(iri)) return iri;
+
+  let bestNamespace = "";
+  let curieMatch = "";
+  for (const { prefix, namespace } of curies) {
+    if (namespace && iri.startsWith(namespace) && namespace.length > bestNamespace.length) {
+      bestNamespace = namespace;
+      curieMatch = `${prefix}:${iri.slice(namespace.length)}`;
+    }
+  }
+  if (curieMatch) return curieMatch;
+
   if (KNOWN_TERMS[iri]) return KNOWN_TERMS[iri];
   let best = "";
   let curie = iri;

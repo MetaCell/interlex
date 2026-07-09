@@ -54,7 +54,7 @@ import { reportApiError } from "../../api/apiErrorBus";
 import ApiErrorDialog from "../common/ApiErrorDialog";
 import { useTermData } from "../../hooks/useTermData";
 
-const { gray200, gray600, error700 } = vars;
+const { gray200, gray500, gray600, error700 } = vars;
 
 // Pull the InterLex id (ilx_/tmp_) out of an arbitrary IRI/string for membership checks.
 const extractIlxId = (value) => {
@@ -109,7 +109,7 @@ const SingleTermView = () => {
   const [featureNotAvailableDialog, setFeatureNotAvailableDialog] = useState(false);
 
   // Use the optimized term data hook instead of manual fetching
-  const { termData, actualGroup, isUsingFallback, isLoadingTerm } = useTermData(term, group);
+  const { termData, actualGroup, graphId, isUsingFallback, isLoadingTerm } = useTermData(term, group);
 
   const [versionsData, setVersionsData] = useState(null);
   const [versionsLoading, setVersionsLoading] = useState(true);
@@ -481,7 +481,14 @@ const SingleTermView = () => {
                 </Stack>
               </Grid>
               <Grid item xs={6}>
-                <CopyLinkComponent url={`http://uri.interlex.org/${searchTerm?.startsWith('ilx_') ? 'base' : actualGroup}/${searchTerm}`} />
+                <Stack direction="row" spacing="1rem" alignItems="center">
+                  <CopyLinkComponent url={`http://uri.interlex.org/${actualGroup}/${searchTerm}`} />
+                  {graphId && (
+                    <Typography fontSize=".875rem" color={gray500}>
+                      Graph ID: {graphId}
+                    </Typography>
+                  )}
+                </Stack>
               </Grid>
               <Grid item xs={12} mt="2rem" display='flex' alignItems='center' justifyContent='space-between'>
                 <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={tabLabels} />
