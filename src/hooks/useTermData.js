@@ -12,13 +12,14 @@ export const primeTermDataCache = (group, term, label) => {
   if (!group || !term || !label) return;
   const cacheKey = `${group}:${term}`;
   if (!termDataCache.has(cacheKey)) {
-    termDataCache.set(cacheKey, { label, actualGroup: group });
+    termDataCache.set(cacheKey, { label, actualGroup: group, graphId: undefined });
   }
 };
 
 export const useTermData = (searchTerm, group) => {
   const [termData, setTermData] = useState(null);
   const [actualGroup, setActualGroup] = useState(group);
+  const [graphId, setGraphId] = useState(undefined);
   const [isUsingFallback, setIsUsingFallback] = useState(false);
   const [isLoadingTerm, setIsLoadingTerm] = useState(false);
   const abortControllerRef = useRef(null);
@@ -28,12 +29,13 @@ export const useTermData = (searchTerm, group) => {
 
     // Create cache key
     const cacheKey = `${groupName}:${term}`;
-    
+
     // Check cache first
     if (termDataCache.has(cacheKey)) {
       const cachedData = termDataCache.get(cacheKey);
       setTermData(cachedData.label);
       setActualGroup(cachedData.actualGroup);
+      setGraphId(cachedData.graphId);
       setIsUsingFallback(cachedData.actualGroup !== groupName);
       return;
     }
@@ -61,6 +63,7 @@ export const useTermData = (searchTerm, group) => {
       
       setTermData(result.label);
       setActualGroup(result.actualGroup);
+      setGraphId(result.graphId);
       setIsUsingFallback(result.actualGroup !== groupName);
     } catch (error) {
       if (error.name !== 'AbortError') {
@@ -86,6 +89,7 @@ export const useTermData = (searchTerm, group) => {
   return {
     termData,
     actualGroup,
+    graphId,
     isUsingFallback,
     isLoadingTerm,
     refreshTermData: () => {

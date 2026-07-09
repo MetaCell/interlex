@@ -66,12 +66,13 @@ const toILX = (curieLike) => {
   return t.replace(/^ilx_/i, "ILX:");
 };
 
-// Normalize a predicate group's title + row predicates from full IRIs to curies.
-const shortenGroup = (g) => ({
+// Normalize a predicate group's title + row predicates from full IRIs to
+// curies, preferring the app's live (user/org) curies over the hardcoded ones.
+const shortenGroup = (g, curies) => ({
   ...g,
-  title: shortenIri(g.title),
+  title: shortenIri(g.title, curies),
   tableData: Array.isArray(g.tableData)
-    ? g.tableData.map((r) => ({ ...r, predicate: shortenIri(r.predicate) }))
+    ? g.tableData.map((r) => ({ ...r, predicate: shortenIri(r.predicate, curies) }))
     : g.tableData,
 });
 
@@ -83,8 +84,9 @@ const shortenGroup = (g) => ({
 // backend serves head-consistent data, the editable literal predicates are
 // overridden with the fresh .jsonld groups. Once fixed, return
 // dedupePredicateGroups(predicateGroups.map(shortenGroup)).
-const mergePredicates = ({ versionHash, jsonData, predicateGroups, focusCurie, searchTerm }) => {
+const mergePredicates = ({ versionHash, jsonData, predicateGroups, focusCurie, searchTerm, curies }) => {
   const termId = focusCurie ? toILX(focusCurie) : searchTerm;
+  const shorten = (g) => shortenGroup(g, curies);
 
   if (versionHash) {
     if (!jsonData) return [];
@@ -93,19 +95,19 @@ const mergePredicates = ({ versionHash, jsonData, predicateGroups, focusCurie, s
     return dedupePredicateGroups(
       buildPredicateGroupsForFocus(jsonData, termId)
         .filter((g) => !META_TITLES.has(norm(g.title)))
-        .map(shortenGroup)
+        .map(shorten)
     );
   }
 
   const freshGroups = jsonData
-    ? buildPredicateGroupsForFocus(jsonData, termId).map(shortenGroup)
+    ? buildPredicateGroupsForFocus(jsonData, termId).map(shorten)
     : [];
   const freshLiteralTitles = new Set(
     freshGroups.filter((g) => getObjectInputKind(g.title) === "text").map((g) => norm(g.title))
   );
   const freshLiterals = freshGroups.filter((g) => freshLiteralTitles.has(norm(g.title)));
   const transitive = (Array.isArray(predicateGroups) ? predicateGroups : [])
-    .map(shortenGroup)
+    .map(shorten)
     .filter((g) => !freshLiteralTitles.has(norm(g.title)));
 
   return dedupePredicateGroups([...freshLiterals, ...transitive]);
@@ -183,10 +185,11 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
         predicateGroups: groupsRef.current,
         focusCurie: focusId,
         searchTerm,
+        curies: curies?.base,
       });
       store.predicates$.next({ loading: false, data, focusId });
     },
-    [store, searchTerm]
+    [store, searchTerm, curies]
   );
 
   // Live (head) load. Each fetch resolves and writes its own stream.
@@ -376,6 +379,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
           predicateGroups: [],
           focusCurie: sv.id,
           searchTerm,
+          curies: curies?.base,
         });
         store.predicates$.next({ loading: false, data, focusId: sv.id });
       } catch (e) {
@@ -392,7 +396,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
       // eslint-disable-next-line react-hooks/exhaustive-deps
       loadTokenRef.current++;
     };
-  }, [versionHash, searchTerm, group, store]);
+  }, [versionHash, searchTerm, group, store, curies]);
 
   const handleSelect = useCallback(
     (value) => {
