@@ -21,6 +21,7 @@ import CurieEditor from "./components/CurieEditor";
 import SearchResults from "./components/SearchResults";
 import Organizations from "./components/organizations";
 import SingleTermView from "./components/SingleTermView";
+import OntologyGridPage from "./components/CellCards/OntologyGridPage";
 import { GlobalDataProvider } from "./contexts/DataContext";
 import ResetPassword from "./components/Auth/ResetPassword";
 import ForgotPassword from "./components/Auth/ForgotPassword";
@@ -181,6 +182,14 @@ function MainContent() {
 						element={
 							<PageContainer>
 								<Dashboard />
+							</PageContainer>
+						}
+					/>
+					<Route
+						path="/cellcards/:slug"
+						element={
+							<PageContainer>
+								<OntologyGridPage />
 							</PageContainer>
 						}
 					/>

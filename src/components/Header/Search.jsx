@@ -20,8 +20,9 @@ import { GlobalDataContext } from "../../contexts/DataContext";
 import { primeTermDataCache } from "../../hooks/useTermData";
 import { SEARCH_TYPES } from "../../constants/types";
 import { searchAll, elasticSearch } from "../../api/endpoints";
+import { HARDCODED_RESULTS } from "../CellCards/config/gridConfig";
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
-import { useEffect, useState, useCallback, forwardRef, useContext } from 'react';
+import { useEffect, useState, useCallback, useMemo, forwardRef, useContext } from 'react';
 import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
 import CorporateFareOutlinedIcon from '@mui/icons-material/CorporateFareOutlined';
 
@@ -100,6 +101,15 @@ const Search = () => {
     return user?.groupname || 'base';
   };
 
+  // Hardcoded CellCards ontologies surfaced in the "Ontologies" tab until a search
+  // backend exists. Shown by default; filtered by the query when one is typed.
+  const cellCardsOntologies = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    return HARDCODED_RESULTS
+      .filter((e) => !q || e.label.toLowerCase().includes(q) || e.curie.toLowerCase().includes(q))
+      .map((e) => ({ label: e.label, name: e.label, submittedBy: e.curie, cellCardsSlug: e.slug }));
+  }, [searchTerm]);
+
   const handleOpenList = () => setOpenList(true);
   const handleCloseList = () => setOpenList(false);
   const handleInputChange = (event) => setSearchTerm(event.target.value);
@@ -108,6 +118,12 @@ const Search = () => {
     if (!newInputValue) return;
 
     handleCloseList();
+    // CellCards ontology result → go straight to its grid view.
+    if (newInputValue.cellCardsSlug) {
+      updateStoredSearchTerm(newInputValue.label);
+      navigate(`/cellcards/${newInputValue.cellCardsSlug}`);
+      return;
+    }
     const groupName = getGroupName();
     // We already know this term's label — prime the cache so the term page can
     // show the title immediately, without waiting on its .jsonld download.
@@ -136,7 +152,7 @@ const Search = () => {
     event.preventDefault();
 
     const query = searchTerm.trim().toLowerCase();
-    const currentOptions = tabValue === 0 ? terms : tabValue === 1 ? organizations : ontologies;
+    const currentOptions = tabValue === 0 ? terms : tabValue === 1 ? organizations : [...(ontologies || []), ...cellCardsOntologies];
     const exactMatch = (currentOptions || []).find(
       (option) => !option?.hidden && (option.label || option.name || '').toLowerCase() === query
     );
@@ -324,7 +340,7 @@ const Search = () => {
     );
   });
 
-  const displayOptions = (tabValue === 0 ? terms : tabValue === 1 ? organizations : ontologies);
+  const displayOptions = (tabValue === 0 ? terms : tabValue === 1 ? organizations : [...(ontologies || []), ...cellCardsOntologies]);
   const options = displayOptions?.length ? displayOptions : [{ hidden: true }];
 
   return (
