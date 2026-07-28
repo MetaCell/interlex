@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { Box, Typography } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import CellTile from "./CellTile";
 import { vars } from "../../theme/variables";
 
@@ -26,28 +26,23 @@ const CellTileGrid = ({ cells, onSelect }) => {
   }
 
   return (
-    <Box
-      sx={{
-        display: "grid",
-        gridTemplateColumns: {
-          xs: "1fr",
-          sm: "1fr 1fr",
-          md: "repeat(auto-fill, minmax(20rem, 1fr))",
-        },
-        gap: 2,
-        alignItems: "stretch",
-      }}
-    >
+    <Grid container spacing={2} alignItems="stretch">
       {cells.map((cell) => (
-        <Box
+        <Grid
+          item
           key={cell.id}
+          xs={12}
+          sm={6}
+          md={6}
+          lg={4}
+          xl={3}
           onClick={() => onSelect(cell)}
           sx={{ cursor: "pointer", display: "flex" }}
         >
           <CellTile cell={cell} />
-        </Box>
+        </Grid>
       ))}
-    </Box>
+    </Grid>
   );
 };
 

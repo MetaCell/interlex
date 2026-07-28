@@ -58,6 +58,11 @@ const iconButtonSx = {
 
 const checkboxSx = { p: 0, flexShrink: 0 };
 
+// Master checkbox: clears every facet, so it is inert (and must look inert)
+// while no filter is active — the icon SVGs carry their own colours, hence the
+// explicit disabled treatment.
+const masterCheckboxSx = { ...checkboxSx, "&.Mui-disabled": { opacity: 0.45 } };
+
 const FacetCheckbox = ({ checked, onChange, label }) => (
   <Checkbox
     disableRipple
@@ -240,19 +245,21 @@ const GridFilterSidebar = ({
           flexShrink: 0,
         }}
       >
-        <Tooltip title={anySelection ? "Clear all filters" : ""}>
-          <Checkbox
-            disableRipple
-            icon={<CheckboxDefault />}
-            checkedIcon={<CheckboxSelected />}
-            indeterminateIcon={<CheckboxIndeterminate />}
-            indeterminate={anySelection}
-            checked={false}
-            disabled={!anySelection}
-            onChange={onClearAll}
-            sx={checkboxSx}
-            inputProps={{ "aria-label": "Clear all filters" }}
-          />
+        <Tooltip title={anySelection ? "Clear all filters" : "No active filters"}>
+          {/* Wrapper: a disabled input fires no events, so the tooltip needs a host. */}
+          <Box component="span" sx={{ display: "inline-flex", flexShrink: 0 }}>
+            <Checkbox
+              disableRipple
+              icon={<CheckboxDefault />}
+              indeterminateIcon={<CheckboxIndeterminate />}
+              indeterminate={anySelection}
+              checked={false}
+              disabled={!anySelection}
+              onChange={onClearAll}
+              sx={masterCheckboxSx}
+              inputProps={{ "aria-label": "Clear all filters" }}
+            />
+          </Box>
         </Tooltip>
         <Typography
           title="Filters"

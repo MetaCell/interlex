@@ -337,7 +337,11 @@ export const buildFacets = (
         localName,
         title: titles[localName] || humanizeLocalName(localName),
         tooltip: tooltips[localName],
-        values: [...counts.values()].sort((a, b) => a.label.localeCompare(b.label)),
+        // Most frequent value first, so the collapsed list shows the ones that
+        // actually narrow the results; labels break ties.
+        values: [...counts.values()].sort(
+          (a, b) => b.count - a.count || a.label.localeCompare(b.label)
+        ),
       });
     }
   }

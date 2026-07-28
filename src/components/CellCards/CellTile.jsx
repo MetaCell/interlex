@@ -1,10 +1,10 @@
 import PropTypes from "prop-types";
-import { Box, Typography, Chip, Divider, Link } from "@mui/material";
+import { Box, Card, CardContent, Typography, Chip, Divider, Link } from "@mui/material";
 import { ArrowOutwardIcon } from "../../Icons";
 import { vars } from "../../theme/variables";
 import { TILE_HEADER_CHIPS, TILE_ROWS, labelFor, linkFor } from "./config/gridConfig";
 
-const { gray200, gray500, gray700, gray800, brand700 } = vars;
+const { gray500, gray700, gray800, brand700 } = vars;
 
 const CHIP_COLOR = { class: "secondary", subtype: "success", species: "default" };
 
@@ -24,9 +24,9 @@ const PropertyRow = ({ label, prop, render }) => {
           {prop.values.map((v) => v.label).join(", ")}
         </Typography>
       ) : (
-        <Box display="flex" flexWrap="wrap" justifyContent="flex-end" gap={0.5}>
+        <Box display="flex" flexWrap="wrap" justifyContent="flex-end" gap={0.5} minWidth={0}>
           {prop.values.map((v) => (
-            <Chip key={v.id} label={v.label} variant="outlined" />
+            <Chip key={v.id} label={v.label} title={v.label} variant="outlined" />
           ))}
         </Box>
       )}
@@ -47,7 +47,7 @@ const CellTile = ({ cell }) => {
     const prop = cell.properties[localName];
     if (!prop) return [];
     return prop.values.map((v) => (
-      <Chip key={`${localName}-${v.id}`} label={v.label} color={CHIP_COLOR[tone]} />
+      <Chip key={`${localName}-${v.id}`} label={v.label} title={v.label} color={CHIP_COLOR[tone]} />
     ));
   });
 
@@ -61,18 +61,18 @@ const CellTile = ({ cell }) => {
   )).filter((row) => row.props.prop);
 
   return (
-    <Box
+    <Card
+      variant="outlined"
       sx={{
-        display: "flex",
+        // Layout only — border, radius and background come from the MuiCard theme overrides.
+        display: "flex", // keeps the footer's `mt: auto` working
         flexDirection: "column",
-        border: `1px solid ${gray200}`,
-        borderRadius: "0.75rem",
-        overflow: "hidden",
+        width: "100%",
+        minWidth: 0, // let long labels wrap instead of widening the tile
         height: "100%",
-        background: vars.white,
       }}
     >
-      <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 1 }}>
+      <CardContent sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
         <Box>
           <Typography variant="subtitle2" sx={{ color: gray800, fontWeight: 600 }}>
             {cell.label}
@@ -86,22 +86,23 @@ const CellTile = ({ cell }) => {
             {headerChips}
           </Box>
         )}
-      </Box>
+      </CardContent>
 
       {rows.length > 0 && (
         <>
           <Divider />
-          <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 1 }}>{rows}</Box>
+          <CardContent sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            {rows}
+          </CardContent>
         </>
       )}
 
       {cell.sources.length > 0 && (
         <>
           <Divider />
-          <Box
+          <CardContent
             sx={{
-              p: 2,
-              mt: "auto",
+              mt: "auto", // pin the source footer to the bottom of a short tile
               display: "flex",
               alignItems: "flex-start",
               justifyContent: "space-between",
@@ -135,10 +136,10 @@ const CellTile = ({ cell }) => {
                 )
               )}
             </Box>
-          </Box>
+          </CardContent>
         </>
       )}
-    </Box>
+    </Card>
   );
 };
 

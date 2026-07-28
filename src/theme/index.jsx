@@ -35,10 +35,81 @@ const {
 	error700,
 	gray400,
 	brand200,
-	errorInputBoxShadow
+	errorInputBoxShadow,
+	black,
+	brand400,
+	error400,
+	warning400,
+	success400,
+	blue200,
+	blue700
 } = vars;
 
 const theme = createTheme({
+	// Semantic colour tokens. `vars` stays the source of truth and feeds this; call sites should
+	// consume the palette (color="primary", sx={{ color: "text.secondary" }}) rather than importing
+	// `vars` directly. Only `main` is given where the design has no verified token at the tone MUI
+	// expects for light/dark, so MUI derives those via tonalOffset. contrastText is always computed.
+	palette: {
+		mode: "light",
+		primary: {
+			light: brand400,
+			main: brand600,
+			dark: brand700
+		},
+		// Blue accent, matching the shipped MuiChip.colorSecondary.
+		secondary: {
+			light: blue200,
+			main: blue700
+		},
+		info: {
+			light: blue200,
+			main: blue700
+		},
+		error: {
+			light: error400,
+			main: error500,
+			dark: error700
+		},
+		warning: {
+			light: warning400,
+			main: warning500,
+			dark: warning700
+		},
+		success: {
+			light: success400,
+			main: success500,
+			dark: success700
+		},
+		grey: {
+			50: gray50,
+			100: gray100,
+			200: gray200,
+			300: gray300,
+			400: gray400,
+			500: gray500,
+			600: gray600,
+			700: gray700,
+			800: gray800,
+			900: gray900
+		},
+		text: {
+			primary: gray900,
+			secondary: gray500,
+			disabled: gray400
+		},
+		background: {
+			default: white,
+			paper: white
+		},
+		// Matches the MuiDivider override, which makes `variant="outlined"` borders correct by default.
+		divider: gray200,
+		common: {
+			black: black,
+			white: white
+		}
+	},
+
 	typography: {
 		allVariants: {
 			fontFamily: primaryFont,
@@ -125,6 +196,34 @@ const theme = createTheme({
 			styleOverrides: {
 				root: {
 					borderColor: gray200
+				}
+			}
+		},
+		// Card is a Paper, and this theme defines no `palette`/`shape`, so an outlined Card would
+		// otherwise fall back to MUI defaults: palette.divider for the outline (which would not match
+		// the gray200 MuiDivider above) and shape.borderRadius = 4px.
+		MuiCard: {
+			styleOverrides: {
+				root: {
+					borderColor: gray200,
+					borderRadius: "0.75rem",
+					transition: "background-color 150ms ease-in-out",
+					// Hover state of the clickable CellCards tile (Figma "State=Hover"): fill only,
+					// border and radius unchanged. The click target itself lives on the grid item.
+					"&:hover": {
+						backgroundColor: gray50
+					}
+				}
+			}
+		},
+		MuiCardContent: {
+			styleOverrides: {
+				root: {
+					padding: "1rem",
+					// MUI pads the last CardContent to 24px; keep every section uniform instead.
+					"&:last-child": {
+						paddingBottom: "1rem"
+					}
 				}
 			}
 		},
@@ -268,6 +367,8 @@ const theme = createTheme({
 					borderRadius: "0.375rem !important",
 					fontWeight: 500,
 					width: "fit-content",
+					maxWidth: "100%",
+					minWidth: 0,
 
 					"&.rounded": {
 						padding: "0.125rem 0.5rem 0.125rem 0.375rem",
@@ -341,6 +442,14 @@ const theme = createTheme({
 				},
 				label: {
 					padding: 0,
+					// Chip text is often an ontology term of unbounded length, so cap every label and
+					// ellipsize. 20ch resolves to 160px here, which is 23-29 characters depending on
+					// letter widths. Chips whose label can exceed that should pass a `title` so the
+					// full value stays readable on hover.
+					maxWidth: "20ch",
+					overflow: "hidden",
+					textOverflow: "ellipsis",
+					whiteSpace: "nowrap",
 				},
 				outlined: {
 					borderColor: gray300,
