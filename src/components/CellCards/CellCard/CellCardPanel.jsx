@@ -1,0 +1,160 @@
+import { useCallback, useEffect } from "react";
+import PropTypes from "prop-types";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Box, Stack, Skeleton, Alert, AlertTitle, Button, Typography } from "@mui/material";
+import CellCard from "./CellCard";
+import EmptyState from "../../common/EmptyState";
+import useCellTerm from "./useCellTerm";
+import { curieToSlug } from "../services/ontologyGridService";
+import {
+  termLink,
+  ontologyPath,
+  isIlxTermSlug,
+  ONTOLOGY_PARAM,
+  ONTOLOGY_CATALOG,
+} from "../config/gridConfig";
+
+// A three-column skeleton, so the (unavoidable) whole-ontology load reads as the page arriving
+// rather than as a blank panel. Cold entry pays a ~16MB fetch + a 39,788-node parse before the
+// first cell can render; navigating from the grid hits the memoized parse and skips both.
+// PageContainer fixes the page height and expects each tab to scroll internally (OverView does the
+// same). Without this the card runs on underneath the site footer.
+//
+// Module scope, not the component body: declared inside, it would be a new component *type* on
+// every render, so React would unmount and remount the whole card — losing an open comment
+// popover, the hierarchy widget's query and the container's scroll offset on every location change.
+const Scroll = ({ children }) => (
+  <Box sx={{ overflow: "auto", width: "100%", minWidth: 0 }}>{children}</Box>
+);
+
+Scroll.propTypes = { children: PropTypes.node };
+
+const LoadingSkeleton = () => (
+  <Box
+    sx={{
+      display: "grid",
+      gridTemplateColumns: { xs: "1fr", lg: "26.5rem minmax(0, 1fr) 26.5rem" },
+      gap: 4,
+      px: 4,
+      py: 3,
+    }}
+  >
+    {[0, 1, 2].map((col) => (
+      <Stack key={col} gap={1}>
+        <Skeleton variant="text" width="45%" height={28} />
+        {Array.from({ length: col === 1 ? 8 : 6 }).map((_, i) => (
+          <Skeleton key={i} variant="text" />
+        ))}
+      </Stack>
+    ))}
+  </Box>
+);
+
+/**
+ * The Cell Card tab: resolves the term against the context ontology and renders the card.
+ *
+ * The card's data never comes from the InterLex term API — Precision cells are npokb-only and
+ * that endpoint 404s on every one of them. The context ontology arrives as `?ontology=`, written
+ * by the grid tile click; it is *not* `DataContext.activeOntology`, which is an edit target.
+ */
+const CellCardPanel = ({ term, group, onTermLabel }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const ontologySlug = new URLSearchParams(location.search).get(ONTOLOGY_PARAM) || undefined;
+  const { cell, data, loading, error } = useCellTerm(term, ontologySlug);
+
+  // Navigating between cells keeps the context ontology, so the card the user lands on can still
+  // populate its hierarchy and sibling widgets (Sue: "you're staying in that context ontology").
+  const search = location.search;
+
+  // The page title cannot come from the term API for these cells — it 404s on an npokb id — so
+  // the card hands the label it resolved from the graph back to the page shell.
+  useEffect(() => {
+    if (cell?.label) onTermLabel?.(cell.label);
+  }, [cell, onTermLabel]);
+
+  const goToCell = useCallback(
+    (target) => navigate(`/${group}/${curieToSlug(target.curie)}/cell-card${search}`),
+    [navigate, group, search]
+  );
+
+  // A graph node may be a cell (stay in the card) or an external term (open its own page).
+  const goToRef = useCallback(
+    (ref) => {
+      const sibling = data?.cells?.find((c) => c.id === ref.id);
+      if (sibling) {
+        goToCell(sibling);
+        return;
+      }
+      const href = termLink(ref);
+      if (href) window.open(href, "_blank", "noopener");
+    },
+    [data, goToCell]
+  );
+
+  if (loading) {
+    return (
+      <Scroll>
+        <LoadingSkeleton />
+      </Scroll>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ px: 4, py: 3, width: "100%" }}>
+        <Alert severity="error">
+          <AlertTitle>Could not load the ontology</AlertTitle>
+          <Stack gap={1} alignItems="flex-start">
+            <Typography variant="body2">{error.message}</Typography>
+            <Button variant="outlined" onClick={() => navigate(0)}>
+              Try again
+            </Button>
+          </Stack>
+        </Alert>
+      </Box>
+    );
+  }
+
+  if (!cell) {
+    const entry = ONTOLOGY_CATALOG[ontologySlug] || ONTOLOGY_CATALOG.precision;
+    return (
+      <EmptyState
+        sx={{ width: "100%" }}
+        message="This term is not a cell type in the loaded ontology."
+        supportingText="The Cell Card shows neuron cell types from a precision ontology."
+        actions={
+          <Button variant="outlined" onClick={() => navigate(ontologyPath(entry))}>
+            Browse the ontology
+          </Button>
+        }
+      />
+    );
+  }
+
+  return (
+    <Scroll>
+      <CellCard
+        cell={cell}
+        data={data}
+        group={group}
+        termSlug={term}
+        // Only when the Discussions tab can actually serve this term. For an npokb-only cell that
+        // tab is disabled (SingleTermView: no ILX id → no term API), so the link would land on a
+        // tab the bar shows as unselectable, against an endpoint that 404s for every one of them.
+        discussionHref={isIlxTermSlug(term) ? `/${group}/${term}/discussions${search}` : undefined}
+        onNavigateToCell={goToCell}
+        onNavigateToRef={goToRef}
+      />
+    </Scroll>
+  );
+};
+
+CellCardPanel.propTypes = {
+  term: PropTypes.string.isRequired,
+  group: PropTypes.string.isRequired,
+  // Reports the label resolved from the ontology graph, for the page's H1 and breadcrumb.
+  onTermLabel: PropTypes.func,
+};
+
+export default CellCardPanel;

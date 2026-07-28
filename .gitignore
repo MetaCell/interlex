@@ -24,3 +24,16 @@ dist-ssr
 *.sw?
 
 .env
+# CellCards ontology data — downloaded by `yarn fetch-data` and baked into the image at build
+# time (see scripts/README.md). ~16MB, so it is never committed. Includes the .gz sibling.
+public/data/
+# The 16MB source graph, wherever it is dropped. cellcard-spec/ has its own catch-all ignore, but
+# that file is itself ignored, so a fresh clone has neither — this rule is the only protection when
+# someone recreates the directory.
+cellcard-spec/*.jsonld
+/npo-merged.jsonld
+
+# The NervoSensus project, cloned in here for reference while the Cell Card's deep-link widgets are
+# built. It is a separate repo with its own .git, so without this rule `git add -A` records it as a
+# gitlink with no .gitmodules entry — which clones as an empty directory.
+/nervosensus/

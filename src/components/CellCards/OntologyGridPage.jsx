@@ -1,12 +1,14 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useOutletContext } from "react-router-dom";
-import { Box, Typography, Snackbar, Stack } from "@mui/material";
+import { useOutletContext, useNavigate } from "react-router-dom";
+import { Box, Typography, Stack } from "@mui/material";
 import GridFilterSidebar from "./GridFilterSidebar";
 import GridSearchBar from "./GridSearchBar";
 import CellTileGrid from "./CellTileGrid";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import CustomPagination from "../common/CustomPagination";
-import { getFacets } from "./services/ontologyGridService";
+import { getFacets, curieToSlug } from "./services/ontologyGridService";
+import { ONTOLOGY_PARAM } from "./config/gridConfig";
+import { primeTermDataCache } from "../../hooks/useTermData";
 import { vars } from "../../theme/variables";
 
 const { gray200, gray600 } = vars;
@@ -30,13 +32,13 @@ const cellFacetKeys = (cell, localName) => {
 // arrives through the outlet context, so switching tabs does not refetch it.
 const OntologyGridPage = () => {
   const { data } = useOutletContext();
+  const navigate = useNavigate();
   const [displayedOnly, setDisplayedOnly] = useState(true);
   const [checked, setChecked] = useState({}); // facet filter checks, keyed by facet localName
   const [selectedIds, setSelectedIds] = useState({}); // tiles picked via their checkbox
   const [word, setWord] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(24);
-  const [snack, setSnack] = useState("");
 
   useEffect(() => {
     // Reset all filter/paging/selection state so it never leaks across ontologies.
@@ -117,84 +119,91 @@ const OntologyGridPage = () => {
     setPage(1);
   }, []);
 
+  // Tile click -> that cell's Cell Card (the tile's primary action, per the design).
+  //
+  // Two things travel with the navigation. `?ontology=` is the context ontology, which is how the
+  // card knows which graph to resolve the term against. And the label is pushed into the term-data
+  // cache first: the term page would otherwise fetch `/{group}/npokb_998.jsonld`, which 404s for
+  // every Precision cell, and a cache hit skips the request entirely and titles the page at once.
+  const openCellCard = useCallback(
+    (cell) => {
+      const slug = curieToSlug(cell.curie);
+      primeTermDataCache(data.entry.org, slug, cell.label);
+      navigate(
+        `/${data.entry.org}/${slug}/cell-card?${ONTOLOGY_PARAM}=${encodeURIComponent(data.entry.slug)}`
+      );
+    },
+    [navigate, data]
+  );
+
   return (
-    <>
-      {/* Body: filter sidebar | results */}
-      <Box sx={{ display: "flex", flex: 1, minHeight: 0 }}>
-        <GridFilterSidebar
-          facets={facets}
-          checked={checked}
-          onToggle={onToggle}
-          onClear={onClear}
-          onClearAll={onClearAll}
-          displayedOnly={displayedOnly}
-          onToggleDisplayedOnly={() => setDisplayedOnly((v) => !v)}
-        />
+    // Body: filter sidebar | results
+    <Box sx={{ display: "flex", flex: 1, minHeight: 0 }}>
+      <GridFilterSidebar
+        facets={facets}
+        checked={checked}
+        onToggle={onToggle}
+        onClear={onClear}
+        onClearAll={onClearAll}
+        displayedOnly={displayedOnly}
+        onToggleDisplayedOnly={() => setDisplayedOnly((v) => !v)}
+      />
 
-        <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-          <Box
-            sx={{
-              px: 4,
-              py: 2,
-              borderBottom: `1px solid ${gray200}`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 2,
-              flexWrap: "wrap",
-            }}
-          >
-            <Typography variant="body2" sx={{ color: gray600 }}>
-              Showing {pageCells.length} of {total} cells
-            </Typography>
-            <Stack direction="row" alignItems="center" gap={2}>
-              <GridSearchBar value={word} onSubmit={onWord} />
-              <Stack direction="row" alignItems="center" gap={1}>
-                <Typography variant="caption" sx={{ fontSize: "0.875rem", color: gray600 }}>
-                  Show on page:
-                </Typography>
-                <CustomSingleSelect
-                  value={pageSize}
-                  onChange={(v) => {
-                    setPageSize(Number(v));
-                    setPage(1);
-                  }}
-                  options={PAGE_SIZES}
-                />
-              </Stack>
+      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+        <Box
+          sx={{
+            px: 4,
+            py: 2,
+            borderBottom: `1px solid ${gray200}`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
+            flexWrap: "wrap",
+          }}
+        >
+          <Typography variant="body2" sx={{ color: gray600 }}>
+            Showing {pageCells.length} of {total} cells
+          </Typography>
+          <Stack direction="row" alignItems="center" gap={2}>
+            <GridSearchBar value={word} onSubmit={onWord} />
+            <Stack direction="row" alignItems="center" gap={1}>
+              <Typography variant="caption" sx={{ fontSize: "0.875rem", color: gray600 }}>
+                Show on page:
+              </Typography>
+              <CustomSingleSelect
+                value={pageSize}
+                onChange={(v) => {
+                  setPageSize(Number(v));
+                  setPage(1);
+                }}
+                options={PAGE_SIZES}
+              />
             </Stack>
-          </Box>
+          </Stack>
+        </Box>
 
-          <Box sx={{ flex: 1, overflowY: "auto", px: 4, py: 3 }}>
-            <CellTileGrid
-              cells={pageCells}
-              onSelect={() => setSnack("The single-cell Cell Card view is coming in the next round.")}
-              selectedIds={selectedIds}
-              onToggleSelect={onToggleSelect}
+        <Box sx={{ flex: 1, overflowY: "auto", px: 4, py: 3 }}>
+          <CellTileGrid
+            cells={pageCells}
+            onSelect={openCellCard}
+            selectedIds={selectedIds}
+            onToggleSelect={onToggleSelect}
+          />
+        </Box>
+
+        {total > pageSize && (
+          <Box sx={{ borderTop: `1px solid ${gray200}` }}>
+            <CustomPagination
+              rowCount={total}
+              rowsPerPage={pageSize}
+              page={currentPage}
+              onPageChange={(_, p) => setPage(p)}
             />
           </Box>
-
-          {total > pageSize && (
-            <Box sx={{ borderTop: `1px solid ${gray200}` }}>
-              <CustomPagination
-                rowCount={total}
-                rowsPerPage={pageSize}
-                page={currentPage}
-                onPageChange={(_, p) => setPage(p)}
-              />
-            </Box>
-          )}
-        </Box>
+        )}
       </Box>
-
-      <Snackbar
-        open={!!snack}
-        autoHideDuration={4000}
-        onClose={() => setSnack("")}
-        message={snack}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      />
-    </>
+    </Box>
   );
 };
 

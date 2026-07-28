@@ -5,7 +5,8 @@
 import { parseNeurdf, buildFacets } from "../../../parsers/neurdfParser";
 import {
   NEURDF_URL,
-  NEURDF_FALLBACK_URL,
+  NEURDF_LOCAL_URL,
+  PREFER_LOCAL_NEURDF,
   ONTOLOGY_CATALOG,
   DISPLAYED_PROPERTIES,
   PREDICATE_LABELS,
@@ -25,6 +26,7 @@ export interface LoadedOntology {
   meta: ParsedOntology["meta"];
   cells: CellTerm[];
   hierarchy: HierarchyNode[];
+  predicateDisplay: ParsedOntology["predicateDisplay"];
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -55,24 +57,44 @@ const fetchGraph = async (url: string): Promise<OntologyGraph> => {
 
 const LIVE_RETRIES = 3;
 
-const loadGraphWithRetry = async (): Promise<OntologyGraph> => {
-  // Try the live endpoint (flaky on the large body), then the optional dev fallback.
-  let liveErr: unknown;
+// Upstream is slow and flaky on the 16MB body, so it gets retries with backoff. The baked
+// same-origin copy is a static file — it either exists or it does not, and retrying a 404 just
+// delays the real attempt.
+const fetchLocal = () => fetchGraph(NEURDF_LOCAL_URL);
+
+const fetchUpstream = async (): Promise<OntologyGraph> => {
+  let lastErr: unknown;
   for (let i = 0; i < LIVE_RETRIES; i++) {
     try {
       return await fetchGraph(NEURDF_URL);
     } catch (err) {
-      liveErr = err;
+      lastErr = err;
       if (i < LIVE_RETRIES - 1) await sleep(600 * (i + 1));
     }
   }
+  throw lastErr instanceof Error ? lastErr : new Error("Failed to load ontology data");
+};
+
+const loadGraphWithRetry = async (): Promise<OntologyGraph> => {
+  // Preferred source first (the baked copy in production), the other as the safety net, so a
+  // missing bake or a down upstream still leaves the page working.
+  const [primary, secondary] = PREFER_LOCAL_NEURDF
+    ? [fetchLocal, fetchUpstream]
+    : [fetchUpstream, fetchLocal];
+
+  let primaryErr: unknown;
   try {
-    return await fetchGraph(NEURDF_FALLBACK_URL);
-  } catch {
-    // The fallback is a dev-only convenience (gitignored, often absent). If it fails,
-    // surface the real live-endpoint error rather than the fallback's parse/HTML error.
+    return await primary();
+  } catch (err) {
+    primaryErr = err;
   }
-  throw liveErr instanceof Error ? liveErr : new Error("Failed to load ontology data");
+  try {
+    return await secondary();
+  } catch {
+    // Report the *preferred* source's error: it is the one an operator needs to fix, and the
+    // secondary's error is usually just "404, no bake in this image".
+  }
+  throw primaryErr instanceof Error ? primaryErr : new Error("Failed to load ontology data");
 };
 
 // Fetch + JSON.parse only once per session.
@@ -105,9 +127,85 @@ export const loadOntology = async (slug: string): Promise<LoadedOntology> => {
     meta: parsed.meta,
     cells: parsed.cells,
     hierarchy: parsed.hierarchy,
+    predicateDisplay: parsed.predicateDisplay,
   };
   parsedCache.set(slug, loaded);
   return loaded;
+};
+
+// --- single-term selectors (Cell Card) ---------------------------------------
+
+// A term arrives from the URL as a slug, where the ":" of a CURIE has become "_":
+// "npokb_998" -> "npokb:998". ILX ids are accepted in either their slug or CURIE form so the
+// same lookup keeps working once Precision cells are ingested with ILX ids.
+export const slugToCurie = (slug: string): string => {
+  const s = decodeURIComponent(slug || "").trim();
+  if (!s) return "";
+  if (s.includes(":")) return s;
+  const at = s.indexOf("_");
+  return at > 0 ? `${s.slice(0, at)}:${s.slice(at + 1)}` : s;
+};
+
+export const curieToSlug = (curie: string): string => (curie || "").replace(":", "_");
+
+// Find one cell by any of the identifiers a link might carry: the URL slug, the CURIE, or the
+// full IRI. Matching is case-insensitive on the prefix only ("NPOKB:998" is the same record),
+// because the local part of an ILX/npokb id is numeric anyway.
+export const findCell = (data: LoadedOntology, id: string): CellTerm | undefined => {
+  const wanted = slugToCurie(id);
+  if (!wanted) return undefined;
+  const lower = wanted.toLowerCase();
+  return data.cells.find(
+    (c) => c.id === wanted || c.curie === wanted || c.iri === wanted ||
+      c.curie.toLowerCase() === lower || c.id.toLowerCase() === lower
+  );
+};
+
+// Sibling cells that cite the same publication ("Other cells from this source"). Excludes the
+// current cell and preserves the parse's alphabetical order.
+export const relatedBySource = (data: LoadedOntology, cell: CellTerm): CellTerm[] => {
+  const dois = new Set(cell.sources.map((s) => s.id));
+  if (!dois.size) return [];
+  return data.cells.filter(
+    (c) => c.id !== cell.id && c.sources.some((s) => dois.has(s.id))
+  );
+};
+
+// Direct subClassOf parents and children of a cell, as ResolvedRefs. Both come from the
+// hierarchy the parse already reduced (transitive edges removed), so a cell does not list its
+// grandparents. Restricted to cells in scope — a parent outside the ontology (ilxtr:
+// NeuronPrecision itself) is not a navigable cell card.
+export const hierarchyNeighbours = (
+  data: LoadedOntology,
+  cell: CellTerm
+): { parents: CellTerm[]; children: CellTerm[] } => {
+  const parents: CellTerm[] = [];
+  const children: CellTerm[] = [];
+  const seenParent = new Set<string>();
+  const seenChild = new Set<string>();
+  const byTermId = new Map(data.cells.map((c) => [c.id, c]));
+
+  const walk = (nodes: HierarchyNode[], parent?: HierarchyNode) => {
+    for (const node of nodes) {
+      if (node.termId === cell.id) {
+        const p = parent && byTermId.get(parent.termId);
+        if (p && !seenParent.has(p.id)) {
+          seenParent.add(p.id);
+          parents.push(p);
+        }
+        for (const child of node.children) {
+          const c = byTermId.get(child.termId);
+          if (c && !seenChild.has(c.id)) {
+            seenChild.add(c.id);
+            children.push(c);
+          }
+        }
+      }
+      walk(node.children, node);
+    }
+  };
+  walk(data.hierarchy);
+  return { parents, children };
 };
 
 // Which predicates are present across the cells (+ "source" from literatureCitation).

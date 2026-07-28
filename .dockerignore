@@ -1,0 +1,36 @@
+# Build context exclusions.
+#
+# The first entry is load-bearing, not just an optimisation: `COPY . /app` followed by `yarn build`
+# would copy public/data into dist/, so on any machine where `yarn fetch-data` has been run the
+# ~16MB ontology would be silently baked into the image — the thing the entrypoint fetch exists to
+# avoid, and a build whose output depends on local developer state.
+public/data/
+
+# Stray full-size copies of the same ontology.
+npo-merged.jsonld
+cellcard-spec/*.jsonld
+
+# Reinstalled inside the image by `yarn install`; sending it is slow and can leak host-native
+# binaries into a different base image.
+node_modules/
+dist/
+
+.git/
+.github/
+.vscode/
+.idea/
+.claude/
+
+# Vendored vanilla-JS app, not part of the Vite build.
+nervosensus/
+
+# Separate Puppeteer/Jest package with its own node_modules.
+test/
+
+# Secrets and local overrides — the image gets its .env written from build args.
+.env
+.env.*
+!.env.example
+
+*.log
+.DS_Store

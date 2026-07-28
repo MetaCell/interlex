@@ -19,6 +19,11 @@ RUN echo "VITE_SCICRUNCH_API_URL=$VITE_API_URL" >> .env
 
 RUN yarn install
 COPY . ${BUILDDIR}
+
+# The ~16MB neurdf ontology is deliberately NOT baked in here. Baking it froze the data to build
+# time and added 16MB to every image; instead the entrypoint fetches it at container start (see
+# below), and the front end reads the source endpoint directly until it lands. Locally, get a copy
+# with `yarn fetch-data` — .dockerignore keeps public/data out of the build context either way.
 RUN yarn build
 
 FROM nginx:1.19.3-alpine
@@ -28,5 +33,12 @@ RUN cat /etc/nginx/conf.d/default.conf
 COPY --from=frontend /app/default.conf  /etc/nginx/conf.d/default.conf
 
 COPY --from=frontend /app/dist /usr/share/nginx/html/
+
+# Fetch the ontology into /usr/share/nginx/html/data/ when the container starts. Runs in the
+# *background*, so nginx binds immediately and the liveness probe is never at risk; until the file
+# lands the app falls back to the source endpoint on its own. Set NEURDF_FETCH_ON_START=0 to skip
+# it and always read upstream.
+COPY deploy/fetch-neurdf-at-start.sh /docker-entrypoint.d/40-fetch-neurdf.sh
+RUN chmod +x /docker-entrypoint.d/40-fetch-neurdf.sh
 
 EXPOSE 80

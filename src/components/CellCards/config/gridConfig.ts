@@ -39,6 +39,22 @@ export const ontologyPath = (entry: OntologyEntry, tab = ""): string =>
 // The single hardcoded search result until an ontology search backend exists.
 export const HARDCODED_RESULTS: OntologyEntry[] = [ONTOLOGY_CATALOG.precision];
 
+// Context ontology assumed when a Cell Card is opened without an `?ontology=` param (a shared
+// link, or a term reached from search rather than from the grid). With one entry in the
+// catalog this is unambiguous; it becomes a real lookup once there are several.
+export const DEFAULT_ONTOLOGY_SLUG = "precision";
+
+// Query param carrying the context ontology across a term-page navigation. Distinct from
+// DataContext.activeOntology, which is the *edit* target shown as a chip in the header.
+export const ONTOLOGY_PARAM = "ontology";
+
+// Does this term slug address an InterLex record (`ilx_0101431`, `tmp_0381624`)? Precision cells
+// are npokb-only today, so it is false for them — and every feature backed by the InterLex term
+// API (Overview, Variants, Version history, Discussions) then has nothing to serve. One home for
+// the rule so the tabs SingleTermView disables and the links the Cell Card suppresses cannot
+// drift apart; it goes away once these cells are ingested with ILX ids.
+export const isIlxTermSlug = (slug?: string): boolean => /^(ilx|tmp)[_:]/i.test(slug || "");
+
 // --- ontology tabs ----------------------------------------------------------
 
 export interface OntologyTab {
@@ -60,14 +76,33 @@ export const ONTOLOGY_TABS: OntologyTab[] = [
 
 // --- data source ------------------------------------------------------------
 
-// The reasoned neurdf JSON-LD (requested with Accept: application/ld+json).
+// The reasoned neurdf JSON-LD, upstream (requested with Accept: application/ld+json).
 // ACAO:* on the endpoint lets the browser fetch it directly; the body is served as
 // text/plain, so the service JSON.parses the text rather than trusting content-type.
+//
+// NOTE: scripts/fetch-neurdf.mjs parses this constant to know what to download. Renaming it
+// breaks that script loudly (by design) — update both together.
 export const NEURDF_URL =
   "https://uri.olympiangods.org/base/ontologies/dns/raw.githubusercontent.com/SciCrunch/NIF-Ontology/neurons/ttl/npo-merged-reasoned-neurdf.ttl";
 
-// Optional same-origin dev fallback (served from /public) if the live endpoint is flaky.
-export const NEURDF_FALLBACK_URL = "/data/npo-merged-neurdf.jsonld";
+// Same-origin copy. In production the container's entrypoint downloads it into the served /data/
+// directory shortly after start (deploy/fetch-neurdf-at-start.sh); locally, `yarn fetch-data` puts
+// it in public/. It is not in the image, so it is **often absent** — during the first few tens of
+// seconds of a container's life, or if the fetch failed, or in dev before anyone ran the script.
+//
+// Preferred when present, because upstream has no caching yet: ~9s for the 16MB body, flaky enough
+// to need three retries, versus a local static GET nginx serves gzipped (1.3MB) with a long
+// max-age. Absent, it 404s in milliseconds and the loader moves on to upstream — the same path the
+// app used before any of this existed.
+//
+// Temporary shim: once the source server caches, delete this and PREFER_LOCAL_NEURDF along with
+// the entrypoint script and the nginx /data/ location.
+export const NEURDF_LOCAL_URL = "/data/npo-merged-neurdf.jsonld";
+
+// Try the local copy first, then upstream. Set VITE_PREFER_LOCAL_NEURDF=false to invert this —
+// useful in development when you want to verify against whatever the source is serving now.
+export const PREFER_LOCAL_NEURDF =
+  import.meta.env?.VITE_PREFER_LOCAL_NEURDF !== "false";
 
 // --- predicate display metadata ---------------------------------------------
 

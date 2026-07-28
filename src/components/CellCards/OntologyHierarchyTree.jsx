@@ -17,7 +17,7 @@ import { termLink } from "./config/gridConfig";
 const HierarchyTreeItem = forwardRef(function HierarchyTreeItem(props, ref) {
   // `meta` arrives via slotProps and must not reach the DOM.
   const { meta, label, itemId, ...treeItemProps } = props;
-  const { curie, href } = meta?.get(itemId) || {};
+  const { curie, href, isCurrent } = meta?.get(itemId) || {};
 
   return (
     <TreeItem
@@ -26,7 +26,10 @@ const HierarchyTreeItem = forwardRef(function HierarchyTreeItem(props, ref) {
       itemId={itemId}
       label={
         <Stack direction="row" alignItems="center" gap={1} sx={{ minWidth: 0 }}>
-          {href ? (
+          {/* The term whose page we are on is the anchor of the tree, so it reads as text rather
+              than a link to itself, in the theme's `currentTerm` variant — the semibold brand
+              emphasis is a design token, not a call-site style. */}
+          {href && !isCurrent ? (
             <Link
               href={href}
               target="_blank"
@@ -41,7 +44,7 @@ const HierarchyTreeItem = forwardRef(function HierarchyTreeItem(props, ref) {
               {label}
             </Link>
           ) : (
-            <Typography variant="body2" noWrap title={label}>
+            <Typography variant={isCurrent ? "currentTerm" : "body2"} noWrap title={label}>
               {label}
             </Typography>
           )}
@@ -62,18 +65,30 @@ HierarchyTreeItem.propTypes = {
   itemId: PropTypes.string,
 };
 
-const OntologyHierarchyTree = ({ items, expandedItems, onExpandedItemsChange, selectedItems }) => {
-  // itemId -> { curie, href }, resolved once here so the item slot needs no walk of its own.
+const OntologyHierarchyTree = ({
+  items,
+  expandedItems,
+  onExpandedItemsChange,
+  selectedItems,
+  currentTermId,
+}) => {
+  // itemId -> { curie, href, isCurrent }, resolved once here so the item slot needs no walk of
+  // its own. `currentTermId` is a *term* id, matched against node.termId — a class with several
+  // parents appears at more than one path, and every one of those positions is "current".
   const meta = useMemo(() => {
     const map = new Map();
     const stack = [...items];
     while (stack.length) {
       const node = stack.pop();
-      map.set(node.id, { curie: node.curie, href: termLink(node) });
+      map.set(node.id, {
+        curie: node.curie,
+        href: termLink(node),
+        isCurrent: !!currentTermId && node.termId === currentTermId,
+      });
       stack.push(...(node.children || []));
     }
     return map;
-  }, [items]);
+  }, [items, currentTermId]);
 
   return (
     <RichTreeView
@@ -99,6 +114,8 @@ OntologyHierarchyTree.propTypes = {
   expandedItems: PropTypes.arrayOf(PropTypes.string).isRequired,
   onExpandedItemsChange: PropTypes.func.isRequired,
   selectedItems: PropTypes.arrayOf(PropTypes.string),
+  // The term the page is about; every position of that class renders highlighted.
+  currentTermId: PropTypes.string,
 };
 
 export default OntologyHierarchyTree;

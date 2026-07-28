@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton';
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import CustomBreadcrumbs from "../common/CustomBreadcrumbs";
 import ForkRightIcon from '@mui/icons-material/ForkRight';
 import { vars } from "../../theme/variables";
@@ -40,6 +40,8 @@ import FolderCopyOutlinedIcon from '@mui/icons-material/FolderCopyOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import Discussion from "./Discussion";
+import CellCardPanel from "../CellCards/CellCard/CellCardPanel";
+import { ONTOLOGY_PARAM, isIlxTermSlug } from "../CellCards/config/gridConfig";
 import { CodeIcon } from "../../Icons";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import CustomButtonGroup from "../common/CustomButtonGroup";
@@ -96,8 +98,14 @@ const buildDownloadFilename = (termId, label, ext) => {
   return `${base}.${ext}`;
 };
 
+// Tab indices. Cell Card leads, per the design (Figma 9533:72028), which shifts every other
+// tab by one — these are named so the shift is stated once rather than as bare numbers.
+const CELL_CARD_TAB = 0;
+const OVERVIEW_TAB = 1;
+
 const SingleTermView = () => {
   const { group, term, tab, versionHash } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const [dataFormatAnchorEl, setDataFormatAnchorEl] = useState(null);
   const [isCodeViewVisible, setIsCodeViewVisible] = useState(false);
@@ -121,6 +129,9 @@ const SingleTermView = () => {
   const openDataFormatMenu = Boolean(dataFormatAnchorEl);
   const { storedSearchTerm, updateStoredSearchTerm, user, activeOntology, setOntologyData } = useContext(GlobalDataContext);
   const [ontologySnackbar, setOntologySnackbar] = useState(null); // { severity, message }
+  // Label resolved by the Cell Card from the ontology graph. The term API cannot supply it for a
+  // precision cell (npokb ids 404), so without this the H1 would read "NPOKB:1067".
+  const [cellLabel, setCellLabel] = useState(null);
 
   // Whether the term currently in view is a member of the active ontology.
   const hasActiveOntology = !!activeOntology;
@@ -130,26 +141,63 @@ const SingleTermView = () => {
     return !!termId && ontologyTerms.some((id) => extractIlxId(id) === termId);
   }, [term, activeOntology]);
 
-  // Tab mapping
+  // Is this term a cell type, and therefore does the Cell Card tab apply?
+  //
+  // This has to be answered *synchronously*, because it decides the default tab in the mount
+  // effect below — waiting on the ontology load (a ~16MB fetch) would block every term page.
+  // Two cheap signals, both available from the URL alone:
+  //   - the term slug is an `npokb_*` id: all 161 Precision cells are npokb-only today;
+  //   - an `?ontology=` param is present: the user arrived from an ontology grid.
+  // Revisit once Precision cells are ingested with ILX ids — at that point the slug shape stops
+  // being a reliable signal and the term's own @type should decide.
+  const contextOntology = new URLSearchParams(location.search).get(ONTOLOGY_PARAM);
+  useEffect(() => {
+    setCellLabel(null);
+  }, [term]);
+
+  const isCellTerm = useMemo(
+    () => /^npokb[_:]/i.test(term || "") || Boolean(contextOntology),
+    [term, contextOntology]
+  );
+  // Whether the InterLex term API can address this term at all.
+  const hasIlxId = useMemo(() => isIlxTermSlug(term), [term]);
+  const DEFAULT_TAB_INDEX = isCellTerm ? CELL_CARD_TAB : OVERVIEW_TAB;
+
+  // Cell Card is the first tab, per the design, so `overview` is index 1 and every
+  // hardcoded index below shifts with it. OVERVIEW_TAB names that so the code says which
+  // tab it means rather than repeating a bare 1.
   const tabMapping = useMemo(() => ({
-    'overview': 0,
-    'variants': 1,
-    'history': 2,
-    'discussions': 3
+    'cell-card': 0,
+    'overview': 1,
+    'variants': 2,
+    'history': 3,
+    'discussions': 4
   }), []);
 
-  const tabNames = useMemo(() => ['overview', 'variants', 'history', 'discussions'], []);
-  const tabLabels = useMemo(() => ["Overview", "Variants", "Version history", "Discussions"], []);
+  const tabNames = useMemo(() => ['cell-card', 'overview', 'variants', 'history', 'discussions'], []);
+  const tabLabels = useMemo(() => {
+    // A precision cell has no ILX id, so the term API — and therefore every tab that reads it
+    // — has nothing to serve for it. Disable those rather than offer dead tabs; they light up
+    // once these cells are ingested with ILX ids.
+    const termTabsDisabled = isCellTerm && !hasIlxId;
+    return [
+      { label: "Cell Card", disabled: !isCellTerm },
+      { label: "Overview", disabled: termTabsDisabled },
+      { label: "Variants", disabled: termTabsDisabled },
+      { label: "Version history", disabled: termTabsDisabled },
+      { label: "Discussions", disabled: termTabsDisabled },
+    ];
+  }, [isCellTerm, hasIlxId]);
 
   // Set initial tab value based on URL
   const [tabValue, setTabValue] = useState(() => {
-    return tabMapping[tab] !== undefined ? tabMapping[tab] : 0;
+    return tabMapping[tab] !== undefined ? tabMapping[tab] : DEFAULT_TAB_INDEX;
   });
 
   // Memoize the displayed term label to prevent unnecessary re-renders
   const displayedTermLabel = useMemo(() => {
-    return termData || storedSearchTerm || searchTerm.toUpperCase().replace("_", ":");
-  }, [termData, storedSearchTerm, searchTerm]);
+    return termData || cellLabel || storedSearchTerm || searchTerm.toUpperCase().replace("_", ":");
+  }, [termData, cellLabel, storedSearchTerm, searchTerm]);
 
   // Memoize breadcrumb items to prevent unnecessary re-renders
   const breadcrumbItems = useMemo(() => [
@@ -163,8 +211,10 @@ const SingleTermView = () => {
   const handleChangeTabs = useCallback((event, newValue) => {
     setTabValue(newValue);
     const newTab = tabNames[newValue];
-    navigate(`/${group}/${term}/${newTab}`, { replace: true });
-  }, [navigate, group, term, tabNames]);
+    // Carry the query string across: the Cell Card's context ontology lives in `?ontology=`,
+    // and dropping it here would blank the card whenever the user came back to this tab.
+    navigate(`/${group}/${term}/${newTab}${location.search}`, { replace: true });
+  }, [navigate, group, term, tabNames, location.search]);
 
   const handleForkDialogClose = useCallback(() => {
     setOpenForkDialog(false);
@@ -274,39 +324,52 @@ const SingleTermView = () => {
 
   // Optimize tab URL synchronization
   useEffect(() => {
-    const newTabValue = tabMapping[tab] !== undefined ? tabMapping[tab] : 0;
+    // A URL can name a tab this term has no data for — `/cell-card` on a term that is not a cell
+    // type, or a term tab on a precision cell. Those tabs are disabled in the bar, so honouring
+    // the URL would mount a panel that can only render an empty state (and, for the Cell Card,
+    // pay a ~16MB fetch to find that out) while the Tabs bar shows nothing selected. Fall back to
+    // the default tab, which is always enabled: Cell Card for a cell type, Overview otherwise.
+    const requested = tabMapping[tab];
+    const newTabValue =
+      requested !== undefined && !tabLabels[requested]?.disabled ? requested : DEFAULT_TAB_INDEX;
 
     if (newTabValue !== tabValue) {
       setTabValue(newTabValue);
     }
 
-    // If no tab is specified in URL (and not a version view), redirect to overview
-    if (!tab && !versionHash && group && term) {
-      navigate(`/${group}/${term}/overview`, { replace: true });
+    // Rewrite the URL when it does not name the tab in view: no tab at all, or one that resolved
+    // elsewhere. Skipped on the version route, which has no `tab` segment to write into.
+    // Preserves the query string for the same reason handleChangeTabs does.
+    if (!versionHash && group && term && tab !== tabNames[newTabValue]) {
+      navigate(`/${group}/${term}/${tabNames[newTabValue]}${location.search}`, { replace: true });
     }
-  }, [tab, tabMapping, navigate, group, term, tabValue, versionHash]);
+  }, [tab, tabMapping, tabLabels, navigate, group, term, tabValue, versionHash, tabNames, DEFAULT_TAB_INDEX, location.search]);
 
   const isItFork = actualGroup === 'base' ? false : true; // Use actualGroup instead of group
 
   // Memoize tab content to prevent unnecessary re-renders
   const tabContent = useMemo(() => {
     switch (tabValue) {
-      case 0:
+      case CELL_CARD_TAB:
+        return <CellCardPanel term={searchTerm} group={group} onTermLabel={setCellLabel} />;
+      case OVERVIEW_TAB:
         return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} />;
-      case 1:
-        return <VariantsPanel searchTerm={searchTerm} group={actualGroup} versionsData={versionsData} versionsLoading={versionsLoading} versionsError={versionsError} onDismissError={clearVersionsError} />;
       case 2:
-        return <HistoryPanel searchTerm={searchTerm} group={actualGroup} versionsData={versionsData} versionsLoading={versionsLoading} />;
+        return <VariantsPanel searchTerm={searchTerm} group={actualGroup} versionsData={versionsData} versionsLoading={versionsLoading} versionsError={versionsError} onDismissError={clearVersionsError} />;
       case 3:
+        return <HistoryPanel searchTerm={searchTerm} group={actualGroup} versionsData={versionsData} versionsLoading={versionsLoading} />;
+      case 4:
         return <Discussion term={searchTerm} />;
       default:
         return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} />;
     }
-  }, [tabValue, searchTerm, isCodeViewVisible, selectedDataFormat, actualGroup, versionHash, versionsData, versionsLoading, versionsError, clearVersionsError]);
+  }, [tabValue, searchTerm, group, isCodeViewVisible, selectedDataFormat, actualGroup, versionHash, versionsData, versionsLoading, versionsError, clearVersionsError]);
 
   // Memoize the toggle button group for overview tab
   const toggleButtonGroup = useMemo(() => {
-    if (tabValue !== 0) return null;
+    // Overview owns the raw-data view; before Cell Card took index 0 this read `!== 0`, which
+    // would now follow the Cell Card instead.
+    if (tabValue !== OVERVIEW_TAB) return null;
 
     return (
       <Box display="flex">

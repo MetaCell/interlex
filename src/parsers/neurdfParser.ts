@@ -11,11 +11,16 @@ import type {
   RefKind,
   CellTerm,
   CellProperty,
+  CellAnnotations,
+  CellMapping,
+  MappingEvidence,
+  ValueCombinator,
   OntologyMeta,
   ParsedOntology,
   HierarchyNode,
   Facet,
   FacetValue,
+  PredicateDisplay,
 } from "../components/CellCards/model/types";
 
 // --- label + value helpers -------------------------------------------------
@@ -151,10 +156,20 @@ const labelFor = (id: string, idx: Index): string => {
   return classify(id).curie; // fall back to a compact curie when no label exists
 };
 
-// Turn a predicate value (ref object, array, or literal) into ResolvedRefs.
+// Turn a predicate value (ref object, array, @list, or literal) into ResolvedRefs.
+//
+// `@list` matters: the union/intersection families serialise their members as a JSON-LD list
+// ({"@list":[{...},{...}]}), and `neurdf.eqv.uo:hasSomaLocatedIn` is the *only* soma-location
+// predicate on 61 of the 161 Precision cells. Treating a list object as an unrecognised value
+// silently dropped the property for all of them.
 const resolveValue = (raw: unknown, idx: Index): ResolvedRef[] => {
   const out: ResolvedRef[] = [];
   const push = (item: unknown) => {
+    if (item && typeof item === "object" && "@list" in (item as object)) {
+      const list = (item as { "@list"?: unknown })["@list"];
+      if (Array.isArray(list)) list.forEach(push);
+      return;
+    }
     if (item && typeof item === "object" && "@id" in (item as object)) {
       const id = String((item as JsonLdRefish)["@id"]);
       if (isBlankNode(id) || isMissingSentinel(id)) return; // skip restriction blanks + "not specified" sentinels
@@ -179,26 +194,91 @@ type JsonLdRefish = { "@id"?: unknown };
 
 // --- neurdf predicate families ---------------------------------------------
 
-// "neurdf.eqv:hasSomaLocatedIn" -> { family:'eqv', negated:false, localName:'hasSomaLocatedIn' }
-// "neurdf.eqv.neg:hasMorphologicalPhenotype" -> { family:'eqv', negated:true, ... }
+// "neurdf.eqv:hasSomaLocatedIn"                -> { family:'eqv', negated:false, localName:… }
+// "neurdf.eqv.neg:hasMorphologicalPhenotype"   -> { family:'eqv', negated:true, … }
+// "neurdf.eqv.uo:hasSomaLocatedIn"             -> { …, combinator:'or'  }  (owl:unionOf)
+// "neurdf.eqv.io:hasExpressionPhenotype"       -> { …, combinator:'and' }  (owl:intersectionOf)
 const parseNeurdfKey = (
   key: string
-): { family: "eqv" | "ent"; negated: boolean; localName: string } | null => {
+): {
+  family: "eqv" | "ent";
+  negated: boolean;
+  combinator?: ValueCombinator;
+  localName: string;
+} | null => {
   if (!key.startsWith("neurdf.")) return null;
   const [prefix, local] = key.split(":");
   if (!local) return null;
-  const fam = prefix.replace("neurdf.", ""); // "eqv" | "ent" | "eqv.neg" | "ent.neg"
+  const fam = prefix.replace("neurdf.", ""); // "eqv" | "ent" | "eqv.neg" | "eqv.uo" | "eqv.io" | …
   return {
     family: fam.startsWith("ent") ? "ent" : "eqv",
     negated: fam.endsWith(".neg"),
+    combinator: fam.endsWith(".uo") ? "or" : fam.endsWith(".io") ? "and" : undefined,
     localName: local,
   };
 };
 
-// A few literal-valued ilxtr predicates we surface directly (not neurdf refs).
+// A few literal-valued ilxtr predicates we surface directly (not neurdf refs). These land on
+// `properties`, so they are facetable and can appear on a tile row.
 const LITERAL_PREDICATES: Record<string, string> = {
   "ilxtr:neurondmBaseClass": "neurondmBaseClass",
 };
+
+// Cross-nomenclature relations. The evidence type is derived from *which* relation it is,
+// since the graph has no dedicated evidence predicate.
+const MAPPING_PREDICATES: Record<string, MappingEvidence> = {
+  "TEMP:assertedSubClassOf": "described",
+  "TEMP:subClassOf": "described",
+  "TEMP:mapsTo": "inferred",
+};
+
+// Prose / id / dataset annotations. Deliberately kept off `properties` so widening the parser
+// cannot add new facets to the grid sidebar or new rows to a tile — they land on
+// `CellTerm.annotations` instead, which only the Cell Card reads.
+const TEXT_ANNOTATIONS = {
+  "ilxtr:atlasAnnotation": "atlasAnnotation",
+  "ilxtr:curatorNote": "curatorNotes",
+  "ilxtr:alertNote": "alertNotes",
+} as const;
+
+// Deep-link targets for the Cell Card's external widgets (SPARC Portal, SPARC Maps, NervoSensus).
+// None of these predicates occur in the shipped graph yet, and the front end must not need an edit
+// when they arrive — so they are matched by *local name* and every prefix works: `ilx:`, `ilxtr:`
+// or the expanded IRI all reduce to the same compact form, exactly as parsePredicateDisplay does
+// for the display annotations.
+//
+// They land on `annotations` rather than `properties` for the same reason TEXT_ANNOTATIONS does: a
+// deep-link URL is not a phenotype, and every key on `properties` becomes a facet option in the
+// grid sidebar as soon as the "Displayed properties" toggle is off.
+const LINK_ANNOTATIONS = {
+  hasSPARCTranscriptomicsLink: "sparcTranscriptomicsLinks",
+  hasSPARCMap: "sparcMaps",
+  hasNervoSensusLink: "nervoSensusLinks",
+} as const;
+
+type LinkAnnotationField = (typeof LINK_ANNOTATIONS)[keyof typeof LINK_ANNOTATIONS];
+
+const linkAnnotationField = (key: string): LinkAnnotationField | undefined => {
+  if (key.startsWith("neurdf.")) return undefined; // a phenotype family, never a deep link
+  const localName = classify(key).curie.split(":").pop() || "";
+  return LINK_ANNOTATIONS[localName as keyof typeof LINK_ANNOTATIONS];
+};
+
+// A source label like "DRG TG Calca+Bmpr1b human (Bhuiyan2024)" carries its provenance in a
+// trailing parenthetical; the Cross-Nomenclature table shows it as its own Source column.
+const trailingParenthetical = (label: string): string | undefined =>
+  /\(([^()]+)\)\s*$/.exec(label)?.[1];
+
+const emptyAnnotations = (): CellAnnotations => ({
+  atlasAnnotation: [],
+  curatorNotes: [],
+  alertNotes: [],
+  dataCitations: [],
+  errors: [],
+  sparcTranscriptomicsLinks: [],
+  sparcMaps: [],
+  nervoSensusLinks: [],
+});
 
 const asType = (t: unknown): string[] =>
   Array.isArray(t) ? (t as string[]) : typeof t === "string" ? [t] : [];
@@ -239,11 +319,55 @@ const buildCell = (node: GraphNode, idx: Index): CellTerm => {
   const { curie } = classify(id);
   const properties: Record<string, CellProperty> = {};
   const negated: Record<string, CellProperty> = {};
+  const annotations = emptyAnnotations();
+  const mappings: CellMapping[] = [];
   let sources: ResolvedRef[] = [];
 
   for (const [key, raw] of Object.entries(node)) {
     if (key === "ilxtr:literatureCitation") {
       sources = resolveValue(raw, idx); // a cell may cite several publications
+      continue;
+    }
+    if (key === "ilxtr:dataCitation") {
+      annotations.dataCitations = resolveValue(raw, idx);
+      continue;
+    }
+    if (key in TEXT_ANNOTATIONS) {
+      const field = TEXT_ANNOTATIONS[key as keyof typeof TEXT_ANNOTATIONS];
+      // These are plain strings in the graph; resolveValue normalises the literal shapes.
+      annotations[field] = resolveValue(raw, idx).map((r) => r.label);
+      continue;
+    }
+    if (key === "ilxtr:hasTemporaryId") {
+      annotations.temporaryId = resolveValue(raw, idx)[0]?.curie;
+      continue;
+    }
+    if (key === "ilxtr:genLabel") {
+      annotations.generatedLabel = firstString(raw);
+      continue;
+    }
+    if (key === "ilxtr:error") {
+      annotations.errors = resolveValue(raw, idx).map((r) => r.curie);
+      continue;
+    }
+    const linkField = linkAnnotationField(key);
+    if (linkField) {
+      // The same link can be asserted under more than one prefix; merge rather than overwrite.
+      annotations[linkField] = mergeValues(annotations[linkField], resolveValue(raw, idx));
+      continue;
+    }
+    if (key in MAPPING_PREDICATES) {
+      const evidence = MAPPING_PREDICATES[key];
+      for (const ref of resolveValue(raw, idx)) {
+        // A cell can be related to the same record by more than one relation; the stronger
+        // claim (an explicit description) wins over an inferred mapping.
+        const prev = mappings.find((m) => m.ref.id === ref.id);
+        if (prev) {
+          if (evidence === "described") prev.evidence = evidence;
+          continue;
+        }
+        mappings.push({ ref, evidence, source: trailingParenthetical(ref.label) });
+      }
       continue;
     }
     if (key in LITERAL_PREDICATES) {
@@ -253,7 +377,7 @@ const buildCell = (node: GraphNode, idx: Index): CellTerm => {
       continue;
     }
     const parsed = parseNeurdfKey(key);
-    if (!parsed) continue; // skip @id/@type/owl:*/rdfs:*/ilxtr:error/genLabel/etc.
+    if (!parsed) continue; // skip @id/@type/owl:*/rdfs:*/etc.
     const values = resolveValue(raw, idx);
     if (!values.length) continue;
     const bucket = parsed.negated ? negated : properties;
@@ -266,6 +390,9 @@ const buildCell = (node: GraphNode, idx: Index): CellTerm => {
         localName: parsed.localName,
         family: prev.family === "eqv" ? "eqv" : parsed.family,
         negated: parsed.negated,
+        // Only keep the combinator when both keys agree — a union merged with a plain
+        // assertion has no single "or"/"and" reading, so it is better left unstated.
+        combinator: prev.combinator === parsed.combinator ? prev.combinator : undefined,
         values: mergeValues(prev.values, values),
       };
     }
@@ -284,6 +411,8 @@ const buildCell = (node: GraphNode, idx: Index): CellTerm => {
     properties,
     negated,
     sources,
+    mappings,
+    annotations,
   };
 };
 
@@ -400,6 +529,34 @@ export const parseOntologyMeta = (graph: GraphNode[]): OntologyMeta => {
 };
 
 // Parse the graph into cells that are (transitively) subClassOf `rootClass`.
+// Row labels and tooltips ship inside the ontology: the ilxtr:* property nodes carry
+// ilxtr:displayLabel ("Soma location") and ilxtr:shortDefinition, which between them cover 14
+// of the 15 neurdf local names Precision cells use. Reading them here keeps the UI's wording
+// in the curators' hands instead of a hardcoded map in the front end — gridConfig's
+// PREDICATE_LABELS / PREDICATE_TOOLTIPS are only the fallback for what the file omits.
+//
+// Keyed by *local name* (`hasSomaLocatedIn`), because that is how a CellProperty is keyed,
+// while the annotation lives on the `ilxtr:hasSomaLocatedIn` node.
+export const parsePredicateDisplay = (graph: GraphNode[]): Record<string, PredicateDisplay> => {
+  const out: Record<string, PredicateDisplay> = {};
+  for (const node of graph) {
+    const id = node["@id"];
+    if (typeof id !== "string") continue;
+    const label = firstString(node["ilxtr:displayLabel"]);
+    const description = firstString(node["ilxtr:shortDefinition"]);
+    if (!label && !description) continue;
+    // "ilxtr:hasSomaLocatedIn" and the expanded IRI both reduce to the same local name.
+    const localName = classify(id).curie.split(":").pop() || "";
+    if (!localName) continue;
+    out[localName] = {
+      localName,
+      label: label || out[localName]?.label || humanizeLocalName(localName),
+      description: description || out[localName]?.description,
+    };
+  }
+  return out;
+};
+
 export const parseNeurdf = (data: OntologyGraph, rootClass: string): ParsedOntology => {
   const graph = data["@graph"] || [];
   const idx = indexGraph(graph);
@@ -413,6 +570,7 @@ export const parseNeurdf = (data: OntologyGraph, rootClass: string): ParsedOntol
     meta: parseOntologyMeta(graph),
     cells,
     hierarchy: buildHierarchy(rootClass, cells, idx),
+    predicateDisplay: parsePredicateDisplay(graph),
   };
 };
 

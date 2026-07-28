@@ -43,7 +43,11 @@ const {
 	success400,
 	blue200,
 	blue700,
-	brand500
+	brand500,
+	brand800,
+	success25,
+	warning25,
+	error25
 } = vars;
 
 const theme = createTheme({
@@ -126,6 +130,24 @@ const theme = createTheme({
 			fontSize: '1rem',
 			fontWeight: 500,
 			lineHeight: 1.5,
+		},
+		// An absent value in a Cell Card property row ("not specified"): body2, greyed and italic
+		// (Figma "Biological properties item", empty state).
+		notSpecified: {
+			color: gray400,
+			fontSize: '0.875rem',
+			fontStyle: 'italic',
+			lineHeight: 1.4285,
+		},
+		// The term the page is about, inside a hierarchy tree: body2 in brand, semibold, so it
+		// reads as the anchor of the tree rather than as another row.
+		currentTerm: {
+			// brand600 is palette.primary.main — the tone the call-site `sx` used before this
+			// became a variant, so the tree row keeps exactly its old colour.
+			color: brand600,
+			fontSize: '0.875rem',
+			fontWeight: 600,
+			lineHeight: 1.4285,
 		},
 	},
 
@@ -1098,9 +1120,161 @@ const theme = createTheme({
 				},
 			},
 		},
+		// Components the Cell Card design leans on that had no override. Without these they render
+		// as MUI defaults (MUI blue links, 4px radii, a shadowed Alert), and the only way to fix
+		// that at the call site would be `sx` colours, which the project forbids. Kept to what the
+		// design needs *everywhere*: per-instance choices (an Alert with no severity icon) belong
+		// at the call site, and a look only one widget wants is scoped to a class.
+		MuiAlert: {
+			styleOverrides: {
+				root: {
+					borderRadius: "0.75rem",
+					border: `1px solid ${gray200}`,
+					padding: "0.75rem 1rem",
+					fontSize: "0.875rem",
+					lineHeight: 1.4285,
+				},
+				// Figma "Definition" banner: brand-tinted fill with a brand border.
+				standardInfo: {
+					backgroundColor: brand25,
+					borderColor: brand300,
+					color: gray700,
+				},
+				standardSuccess: {
+					backgroundColor: success25,
+					borderColor: success200,
+				},
+				standardWarning: {
+					backgroundColor: warning25,
+					borderColor: warning200,
+				},
+				standardError: {
+					backgroundColor: error25,
+					borderColor: error200,
+				},
+				message: {
+					padding: 0,
+					width: "100%",
+				},
+				action: {
+					paddingTop: 0,
+					marginRight: 0,
+				},
+			},
+		},
+		MuiAlertTitle: {
+			styleOverrides: {
+				root: {
+					fontSize: "0.875rem",
+					fontWeight: 600,
+					color: gray800,
+					marginBottom: "0.25rem",
+				},
+			},
+		},
+		MuiLink: {
+			defaultProps: {
+				underline: "hover",
+			},
+			styleOverrides: {
+				root: {
+					// Every value link in the Cell Card is brand-coloured and semibold, per the
+					// design's teal property values.
+					color: brand700,
+					fontWeight: 500,
+					cursor: "pointer",
+					"&:hover": {
+						color: brand800,
+					},
+				},
+			},
+		},
+		MuiSkeleton: {
+			defaultProps: {
+				animation: "wave",
+			},
+			styleOverrides: {
+				root: {
+					backgroundColor: gray100,
+					borderRadius: "0.375rem",
+				},
+			},
+		},
+		MuiList: {
+			styleOverrides: {
+				root: {
+					paddingTop: 0,
+					paddingBottom: 0,
+				},
+			},
+		},
+		MuiListItemButton: {
+			styleOverrides: {
+				root: {
+					// "Other cells from this source" tiles: an outlined row, not a filled list item.
+					// Scoped to the class rather than every ListItemButton in the app — the Header's
+					// nav dropdown and the About page link lists are ListItemButtons too.
+					"&.cellCardTile": {
+						border: `1px solid ${gray200}`,
+						borderRadius: "0.5rem",
+						padding: "0.5rem 0.75rem",
+						"&:hover": {
+							backgroundColor: gray25,
+							borderColor: gray300,
+						},
+					},
+				},
+			},
+		},
+		MuiListItemText: {
+			styleOverrides: {
+				primary: {
+					fontSize: "0.875rem",
+					fontWeight: 500,
+					color: gray700,
+				},
+				secondary: {
+					fontSize: "0.75rem",
+					color: gray500,
+				},
+			},
+		},
+		MuiDialogTitle: {
+			styleOverrides: {
+				root: {
+					fontSize: "1rem",
+					fontWeight: 500,
+					color: gray800,
+					padding: "1rem 1.5rem",
+					borderBottom: `1px solid ${gray200}`,
+				},
+			},
+		},
+		MuiDialogContent: {
+			styleOverrides: {
+				root: {
+					padding: "1.5rem",
+				},
+			},
+		},
+		MuiPopover: {
+			styleOverrides: {
+				paper: {
+					borderRadius: "0.75rem",
+					border: `1px solid ${gray200}`,
+					boxShadow: paperShadow,
+				},
+			},
+		},
 		MuiPaper: {
 			styleOverrides: {
 				root: {
+					// Relationship Graph frame (Figma 9478:72004): a 12px outlined surface with the
+					// legend bar tucked inside it, so the corners have to clip.
+					"&.graphFrame": {
+						borderRadius: "0.75rem",
+						overflow: "hidden",
+					},
 					"&.authPaper": {
 						borderRadius: "2rem",
 						boxShadow: paperShadow,

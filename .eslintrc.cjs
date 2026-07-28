@@ -7,7 +7,10 @@ module.exports = {
     'plugin:react/jsx-runtime',
     'plugin:react-hooks/recommended',
   ],
-  ignorePatterns: ['dist', '.eslintrc.cjs'],
+  // `nervosensus` is a separate project checked out inside this tree for reference while the Cell
+  // Card's deep-link widgets are built (git-ignored). Linting it under this config reports ~1900
+  // errors that are not this project's to fix, and `yarn lint` fails before reaching src/.
+  ignorePatterns: ['dist', '.eslintrc.cjs', 'nervosensus'],
   parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
   settings: { react: { version: '18.2' } },
   plugins: ['react-refresh'],
