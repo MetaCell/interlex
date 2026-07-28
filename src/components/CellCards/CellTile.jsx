@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
-import { Box, Card, CardContent, Typography, Chip, Divider, Link } from "@mui/material";
-import { ArrowOutwardIcon } from "../../Icons";
+import { Box, Card, CardContent, Checkbox, Typography, Chip, Divider, Link } from "@mui/material";
+import { ArrowOutwardIcon, CheckboxDefault, CheckboxSelected } from "../../Icons";
 import { vars } from "../../theme/variables";
 import { TILE_HEADER_CHIPS, TILE_ROWS, labelFor, linkFor } from "./config/gridConfig";
 
@@ -40,9 +40,14 @@ PropertyRow.propTypes = {
   render: PropTypes.oneOf(["text", "chip"]),
 };
 
-// A cell record as a grid tile: header (title/id/chips) → property rows → source footer.
-// Objects inside the tile are not clickable; the whole tile navigates (handled by the grid).
-const CellTile = ({ cell }) => {
+// The design pins the checkbox 20px in from the tile's top-right corner; CardContent already pads
+// 16px, so the 32px hit area is pulled back 4px to line the 16px glyph up with it.
+const CHECKBOX_SX = { p: 1, mt: -0.5, mr: -0.5 };
+
+// A cell record as a grid tile: header (title/id/chips + select checkbox) → property rows → source
+// footer. Apart from the checkbox and the source links, the tile interior is not clickable; the
+// whole tile navigates (handled by the grid).
+const CellTile = ({ cell, selected = false, onToggleSelect }) => {
   const headerChips = TILE_HEADER_CHIPS.flatMap(({ localName, tone }) => {
     const prop = cell.properties[localName];
     if (!prop) return [];
@@ -63,6 +68,8 @@ const CellTile = ({ cell }) => {
   return (
     <Card
       variant="outlined"
+      // `Mui-selected` is styled in the MuiCard theme override (Figma "State=Focus").
+      className={selected ? "Mui-selected" : undefined}
       sx={{
         // Layout only — border, radius and background come from the MuiCard theme overrides.
         display: "flex", // keeps the footer's `mt: auto` working
@@ -72,20 +79,33 @@ const CellTile = ({ cell }) => {
         height: "100%",
       }}
     >
-      <CardContent sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-        <Box>
-          <Typography variant="subtitle2" sx={{ color: gray800, fontWeight: 600 }}>
-            {cell.label}
-          </Typography>
-          <Typography variant="caption" sx={{ color: gray500 }}>
-            {cell.curie}
-          </Typography>
-        </Box>
-        {headerChips.length > 0 && (
-          <Box display="flex" flexWrap="wrap" gap={0.5}>
-            {headerChips}
+      {/* Two columns, as in the design: the text block grows, the checkbox stays top-right. */}
+      <CardContent sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flex: 1, minWidth: 0 }}>
+          <Box>
+            <Typography variant="subtitle2" sx={{ color: gray800, fontWeight: 600 }}>
+              {cell.label}
+            </Typography>
+            <Typography variant="caption" sx={{ color: gray500 }}>
+              {cell.curie}
+            </Typography>
           </Box>
-        )}
+          {headerChips.length > 0 && (
+            <Box display="flex" flexWrap="wrap" gap={0.5}>
+              {headerChips}
+            </Box>
+          )}
+        </Box>
+        <Checkbox
+          disableRipple
+          icon={<CheckboxDefault />}
+          checkedIcon={<CheckboxSelected />}
+          checked={selected}
+          onChange={onToggleSelect}
+          onClick={(e) => e.stopPropagation()} // selecting must not navigate
+          inputProps={{ "aria-label": `Select ${cell.label}` }}
+          sx={CHECKBOX_SX}
+        />
       </CardContent>
 
       {rows.length > 0 && (
@@ -145,6 +165,8 @@ const CellTile = ({ cell }) => {
 
 CellTile.propTypes = {
   cell: PropTypes.object.isRequired,
+  selected: PropTypes.bool,
+  onToggleSelect: PropTypes.func,
 };
 
 export default CellTile;

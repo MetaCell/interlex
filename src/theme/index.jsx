@@ -1,4 +1,4 @@
-import { createTheme } from "@mui/material/styles";
+import { alpha, createTheme } from "@mui/material/styles";
 import { vars } from "./variables";
 
 const {
@@ -42,7 +42,8 @@ const {
 	warning400,
 	success400,
 	blue200,
-	blue700
+	blue700,
+	brand500
 } = vars;
 
 const theme = createTheme({
@@ -199,19 +200,29 @@ const theme = createTheme({
 				}
 			}
 		},
-		// Card is a Paper, and this theme defines no `palette`/`shape`, so an outlined Card would
-		// otherwise fall back to MUI defaults: palette.divider for the outline (which would not match
-		// the gray200 MuiDivider above) and shape.borderRadius = 4px.
+		// `borderColor` here predates the palette and now merely restates `palette.divider`; the
+		// radius still has to be pinned because `shape` is deliberately left per-component.
 		MuiCard: {
 			styleOverrides: {
 				root: {
 					borderColor: gray200,
 					borderRadius: "0.75rem",
-					transition: "background-color 150ms ease-in-out",
+					transition:
+						"background-color 150ms ease-in-out, border-color 150ms ease-in-out, box-shadow 150ms ease-in-out",
 					// Hover state of the clickable CellCards tile (Figma "State=Hover"): fill only,
 					// border and radius unchanged. The click target itself lives on the grid item.
 					"&:hover": {
 						backgroundColor: gray50
+					},
+					// Selected tile (Figma "State=Focus", which the design reuses for selection):
+					// 2px brand border + the `ring-brand` focus ring, on a white fill that has to be
+					// restated so a selected tile does not pick up the gray hover fill. Listed after
+					// `:hover` so it wins at equal specificity.
+					"&.Mui-selected": {
+						backgroundColor: white,
+						borderColor: brand600,
+						borderWidth: "2px",
+						boxShadow: `0 0 0 4px ${alpha(brand500, 0.24)}`
 					}
 				}
 			}

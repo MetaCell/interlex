@@ -42,7 +42,8 @@ const OntologyGridPage = () => {
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
   const [displayedOnly, setDisplayedOnly] = useState(true);
-  const [checked, setChecked] = useState({});
+  const [checked, setChecked] = useState({}); // facet filter checks, keyed by facet localName
+  const [selectedIds, setSelectedIds] = useState({}); // tiles picked via their checkbox
   const [word, setWord] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(24);
@@ -53,8 +54,9 @@ const OntologyGridPage = () => {
     let active = true;
     setLoading(true);
     setError(null);
-    // Reset all filter/paging state so it never leaks across ontologies.
+    // Reset all filter/paging/selection state so it never leaks across ontologies.
     setChecked({});
+    setSelectedIds({});
     setWord("");
     setDisplayedOnly(true);
     setPage(1);
@@ -126,6 +128,16 @@ const OntologyGridPage = () => {
   const onClearAll = useCallback(() => {
     setChecked({});
     setPage(1);
+  }, []);
+
+  // Tile selection. Kept across paging and filtering — a tile scrolled out of view stays picked.
+  const onToggleSelect = useCallback((id) => {
+    setSelectedIds((prev) => {
+      const next = { ...prev };
+      if (next[id]) delete next[id];
+      else next[id] = true;
+      return next;
+    });
   }, []);
 
   const onWord = useCallback((value) => {
@@ -248,7 +260,12 @@ const OntologyGridPage = () => {
           </Box>
 
           <Box sx={{ flex: 1, overflowY: "auto", px: 4, py: 3 }}>
-            <CellTileGrid cells={pageCells} onSelect={() => setSnack("The single-cell Cell Card view is coming in the next round.")} />
+            <CellTileGrid
+              cells={pageCells}
+              onSelect={() => setSnack("The single-cell Cell Card view is coming in the next round.")}
+              selectedIds={selectedIds}
+              onToggleSelect={onToggleSelect}
+            />
           </Box>
 
           {total > pageSize && (
