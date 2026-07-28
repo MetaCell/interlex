@@ -5,7 +5,8 @@
 // --- ontology catalog (stands in for the not-yet-built search backend) ------
 
 export interface OntologyEntry {
-  slug: string; // URL segment, e.g. "precision"
+  slug: string; // ontology URL segment, e.g. "precision"
+  org: string; // owning organization's URL segment (the app's /:title org route)
   label: string; // friendly search-result name (the header title comes from the file, not this)
   type: string; // shown as a result type chip + a header tag
   curie: string; // ontology file identity, shown under the search result (submittedBy)
@@ -19,6 +20,7 @@ export interface OntologyEntry {
 export const ONTOLOGY_CATALOG: Record<string, OntologyEntry> = {
   precision: {
     slug: "precision",
+    org: "precision",
     label: "Precision Cells",
     type: "Cell ontology",
     curie: "NPOprecisionCellType",
@@ -29,8 +31,32 @@ export const ONTOLOGY_CATALOG: Record<string, OntologyEntry> = {
   },
 };
 
+// Canonical route to an ontology tab, mirroring the breadcrumb hierarchy:
+// /[organization]/ontology/[ontology slug](/[tab]).
+export const ontologyPath = (entry: OntologyEntry, tab = ""): string =>
+  `/${entry.org}/ontology/${entry.slug}${tab ? `/${tab}` : ""}`;
+
 // The single hardcoded search result until an ontology search backend exists.
 export const HARDCODED_RESULTS: OntologyEntry[] = [ONTOLOGY_CATALOG.precision];
+
+// --- ontology tabs ----------------------------------------------------------
+
+export interface OntologyTab {
+  label: string;
+  path?: string; // route segment under /:org/ontology/:slug; absent = no view behind it yet
+}
+
+// The tabs from the design. Only the two carrying a `path` are built; the rest are rendered
+// disabled so the bar matches the design without offering dead links.
+export const ONTOLOGY_TABS: OntologyTab[] = [
+  { label: "Grid View", path: "" },
+  { label: "Browse", path: "browse" },
+  { label: "Specification" },
+  { label: "Overview" },
+  { label: "Variants" },
+  { label: "Version History" },
+  { label: "Discussions" },
+];
 
 // --- data source ------------------------------------------------------------
 
@@ -110,6 +136,48 @@ export const DISPLAYED_PROPERTIES: string[] = [
   "source",
 ];
 
-// External link target for a facet value / chip. All ref kinds resolve to their IRI;
-// UBERON "internal view" mechanics are TBD (Tom), so link to the IRI for now.
-export const linkFor = (iri?: string): string | undefined => iri || undefined;
+// --- term links ---------------------------------------------------------------
+
+const OLS_BASE = "https://www.ebi.ac.uk/ols4";
+
+// Curie prefix -> OLS ontology id, for the OBO-library ontologies referenced by these terms.
+// A prefix that is absent is not an ontology OLS can show (NCBIGene is a sequence database,
+// a DOI is a paper), so those keep their own IRI.
+const OLS_ONTOLOGY_BY_PREFIX: Record<string, string> = {
+  UBERON: "uberon",
+  CHEBI: "chebi",
+  NCBITaxon: "ncbitaxon",
+};
+
+// InterLex renders its own ILX terms; this is the app's route for one.
+const interlexTermView = (curie: string): string | undefined => {
+  const match = /^ILX:(\d+)$/i.exec(curie);
+  // TODO point the group at the user's groupname once the API supports it — same TODO as
+  // SingleTermView/OverView/Hierarchy.jsx.
+  return match ? `/base/ilx_${match[1]}/overview` : undefined;
+};
+
+// Where a term opens (always a new tab), per the design decision: the internal view of the
+// term when there is one, otherwise OLS for an ontology term we cannot render ourselves.
+//
+// Checked against the configured backend: `base/ilx_*` resolves, while `npokb`, `ilxtr` and
+// `base/uberon_*` all answer 404. So an ILX term gets the internal view; an OBO term goes to
+// OLS, because serving the internal view of an *external* term is still owed by the backend;
+// and an InterLex-native term that is not an ILX id can only be named by its own IRI.
+export const termLink = (ref?: {
+  curie?: string;
+  iri?: string;
+}): string | undefined => {
+  if (!ref) return undefined;
+  const curie = ref.curie || "";
+  const internal = interlexTermView(curie);
+  if (internal) return internal;
+  const ontology = OLS_ONTOLOGY_BY_PREFIX[curie.split(":")[0]];
+  if (ontology) {
+    // OLS addresses a class by its IRI, encoded twice because the id is a path segment.
+    return ref.iri
+      ? `${OLS_BASE}/ontologies/${ontology}/classes/${encodeURIComponent(encodeURIComponent(ref.iri))}`
+      : `${OLS_BASE}/search?q=${encodeURIComponent(curie)}`;
+  }
+  return ref.iri || undefined;
+};

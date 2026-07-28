@@ -50,11 +50,26 @@ export interface CellTerm {
   curie: string; // display id, e.g. "npokb:1067"
   iri: string; // full IRI
   label: string; // ilxtr:localLabel -> rdfs:label -> curie
+  rdfTypes: string[]; // rdf:type as curies, owl:* preferred (e.g. ["owl:Class"])
+  definition?: string; // best available description (see DEFINITION_KEYS)
+  definitionCurated?: boolean; // false when it is generated text rather than curated prose
   // Positive phenotypes keyed by local name (eqv ∪ ent, deduped).
   properties: Record<string, CellProperty>;
   // Negated phenotypes (neurdf.*.neg) keyed by local name — rendered with a "not" modifier.
   negated: Record<string, CellProperty>;
   sources: ResolvedRef[]; // ilxtr:literatureCitation (a cell may have several)
+}
+
+// One position of a class in the subClassOf hierarchy. A class with several parents is
+// rendered under each of them, so `id` is the path that reached it (unique per position)
+// while `termId` is the class itself (shared across its positions).
+export interface HierarchyNode {
+  id: string; // e.g. "ilxtr:NeuronPrecision/npokb:1075/npokb:1014"
+  termId: string;
+  label: string;
+  curie: string;
+  iri: string;
+  children: HierarchyNode[];
 }
 
 export interface OntologyMeta {
@@ -67,12 +82,14 @@ export interface OntologyMeta {
 export interface ParsedOntology {
   meta: OntologyMeta;
   cells: CellTerm[];
+  hierarchy: HierarchyNode[]; // roots of the subClassOf tree (the root class, when there is one)
 }
 
 // A filter facet built from the data values across all cells.
 export interface FacetValue {
   key: string; // ResolvedRef.id — the stable value identity
   label: string;
+  curie: string; // compact form, which is what decides where the value links to
   iri: string;
   kind: RefKind;
   count: number;

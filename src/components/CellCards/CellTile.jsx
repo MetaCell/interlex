@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { Box, Card, CardContent, Checkbox, Typography, Chip, Divider, Link } from "@mui/material";
 import { ArrowOutwardIcon, CheckboxDefault, CheckboxSelected } from "../../Icons";
 import { vars } from "../../theme/variables";
-import { TILE_HEADER_CHIPS, TILE_ROWS, labelFor, linkFor } from "./config/gridConfig";
+import { TILE_HEADER_CHIPS, TILE_ROWS, labelFor, termLink } from "./config/gridConfig";
 
 const { gray500, gray700, gray800, brand700 } = vars;
 
@@ -134,10 +134,10 @@ const CellTile = ({ cell, selected = false, onToggleSelect }) => {
             </Typography>
             <Box display="flex" flexWrap="wrap" justifyContent="flex-end" gap={1}>
               {cell.sources.map((src) =>
-                linkFor(src.iri) ? (
+                termLink(src) ? (
                   <Link
                     key={src.id}
-                    href={src.iri}
+                    href={termLink(src)}
                     target="_blank"
                     rel="noopener"
                     underline="hover"

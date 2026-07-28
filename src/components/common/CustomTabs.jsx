@@ -70,7 +70,11 @@ const BasicTabs = ({ tabs, tabValue, handleChange, onMouseDown, parentBoxStyles,
         onMouseDown={(event) => event.preventDefault()}
       >
         {
-          tabs.map((tab, i) => <Tab key={i} label={tab} {...a11yProps(i)} />)
+          // A tab is either a plain label or { label, disabled } — the latter for a tab that
+          // is part of the design but has no view behind it yet.
+          tabs.map((tab, i) => typeof tab === 'string'
+            ? <Tab key={i} label={tab} {...a11yProps(i)} />
+            : <Tab key={i} label={tab.label} disabled={tab.disabled} {...a11yProps(i)} />)
         }
       </Tabs>
     </Box>
@@ -78,7 +82,10 @@ const BasicTabs = ({ tabs, tabValue, handleChange, onMouseDown, parentBoxStyles,
 }
 
 BasicTabs.propTypes = {
-  tabs: PropTypes.array.isRequired,
+  tabs: PropTypes.arrayOf(PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.shape({ label: PropTypes.string.isRequired, disabled: PropTypes.bool })
+  ])).isRequired,
   tabValue: PropTypes.number.isRequired,
   handleChange: PropTypes.func.isRequired,
   onMouseDown: PropTypes.func,

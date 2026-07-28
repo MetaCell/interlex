@@ -1,25 +1,15 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useParams } from "react-router-dom";
-import {
-  Box,
-  Typography,
-  Chip,
-  CircularProgress,
-  Button,
-  Snackbar,
-  Stack,
-} from "@mui/material";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import { useOutletContext } from "react-router-dom";
+import { Box, Typography, Snackbar, Stack } from "@mui/material";
 import GridFilterSidebar from "./GridFilterSidebar";
 import GridSearchBar from "./GridSearchBar";
 import CellTileGrid from "./CellTileGrid";
-import BreadcrumbBar from "../common/BreadcrumbBar";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import CustomPagination from "../common/CustomPagination";
-import { loadOntology, getFacets } from "./services/ontologyGridService";
+import { getFacets } from "./services/ontologyGridService";
 import { vars } from "../../theme/variables";
 
-const { gray200, gray500, gray600 } = vars;
+const { gray200, gray600 } = vars;
 const PAGE_SIZES = [12, 24, 48, 96];
 
 // Serialised text for the free-text "Filter by word" (label + id + all values).
@@ -36,44 +26,26 @@ const cellFacetKeys = (cell, localName) => {
   return (cell.properties[localName]?.values || []).map((v) => v.id);
 };
 
+// The "Grid View" tab. The ontology itself is loaded by the OntologyPage layout route and
+// arrives through the outlet context, so switching tabs does not refetch it.
 const OntologyGridPage = () => {
-  const { slug } = useParams();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [data, setData] = useState(null);
+  const { data } = useOutletContext();
   const [displayedOnly, setDisplayedOnly] = useState(true);
   const [checked, setChecked] = useState({}); // facet filter checks, keyed by facet localName
   const [selectedIds, setSelectedIds] = useState({}); // tiles picked via their checkbox
   const [word, setWord] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(24);
-  const [reloadKey, setReloadKey] = useState(0);
   const [snack, setSnack] = useState("");
 
   useEffect(() => {
-    let active = true;
-    setLoading(true);
-    setError(null);
     // Reset all filter/paging/selection state so it never leaks across ontologies.
     setChecked({});
     setSelectedIds({});
     setWord("");
     setDisplayedOnly(true);
     setPage(1);
-    loadOntology(slug)
-      .then((res) => {
-        if (active) setData(res);
-      })
-      .catch((err) => {
-        if (active) setError(err.message || "Failed to load ontology");
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [slug, reloadKey]);
+  }, [data]);
 
   const cells = useMemo(() => data?.cells || [], [data]);
   const facets = useMemo(() => getFacets(cells, displayedOnly), [cells, displayedOnly]);
@@ -145,74 +117,8 @@ const OntologyGridPage = () => {
     setPage(1);
   }, []);
 
-  if (loading) {
-    return (
-      <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2 }}>
-        <Typography variant="body1" sx={{ color: gray600 }}>
-          Could not load the ontology data.
-        </Typography>
-        <Typography variant="body2" sx={{ color: gray500 }}>
-          {error}
-        </Typography>
-        <Button variant="outlined" onClick={() => setReloadKey((k) => k + 1)}>
-          Retry
-        </Button>
-      </Box>
-    );
-  }
-
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", width: 1, height: 1, overflow: "hidden" }}>
-      {/* Breadcrumb bar — its own container (app-wide pattern) with copy-path */}
-      <BreadcrumbBar
-        breadcrumbItems={[
-          { label: "", href: "/", icon: HomeOutlinedIcon },
-          { label: "Search", href: "/" },
-          { label: data.entry.community, href: "#" },
-          { label: data.meta.title },
-        ]}
-        copyPath
-        copyLabel="Permalink to ontology"
-      />
-
-      {/* Header: title + curation status -> description -> version -> tags below.
-          Title / description / version are read from the file's owl:Ontology node;
-          the curie is the real root class the grid is scoped to. */}
-      <Box sx={{ px: 4, py: 3, borderBottom: `1px solid ${gray200}`, display: "flex", flexDirection: "column", gap: 1 }}>
-        <Stack direction="row" alignItems="center" gap={1.5} flexWrap="wrap">
-          <Typography variant="h5">{data.meta.title}</Typography>
-          {data.entry.curationStatus && (
-            <Chip label={data.entry.curationStatus} variant="outlined" />
-          )}
-        </Stack>
-        {data.meta.description && (
-          <Typography variant="body2" sx={{ color: gray600 }}>
-            {data.meta.description}
-          </Typography>
-        )}
-        {data.meta.version && (
-          <Typography variant="caption" sx={{ color: gray500 }}>
-            Version {data.meta.version}
-          </Typography>
-        )}
-        <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap" sx={{ mt: 0.5 }}>
-          <Typography variant="body2" sx={{ color: gray500 }}>
-            Tags
-          </Typography>
-          <Chip label={data.entry.type} color="secondary" />
-          <Chip label={data.entry.community} color="success" />
-          <Chip label={data.entry.rootClass} variant="outlined" />
-        </Stack>
-      </Box>
-
+    <>
       {/* Body: filter sidebar | results */}
       <Box sx={{ display: "flex", flex: 1, minHeight: 0 }}>
         <GridFilterSidebar
@@ -288,7 +194,7 @@ const OntologyGridPage = () => {
         message={snack}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       />
-    </Box>
+    </>
   );
 };
 

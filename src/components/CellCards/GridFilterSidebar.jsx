@@ -22,7 +22,7 @@ import {
   ExpandRowsIcon,
 } from "../../Icons";
 import { vars } from "../../theme/variables";
-import { linkFor } from "./config/gridConfig";
+import { termLink } from "./config/gridConfig";
 
 const { gray200, gray300, gray400, gray500, gray600, gray700, gray800, brand700, brand800 } = vars;
 
@@ -133,7 +133,7 @@ const FacetGroup = ({ facet, checked, expanded, onToggle, onClear, onToggleExpan
           max-content width and defeat the per-label ellipsis. */}
       <FormGroup sx={{ gap: 1.5, width: 1, minWidth: 0, flexWrap: "nowrap" }}>
         {values.map((v) => {
-          const href = linkFor(v.iri);
+          const href = termLink(v);
           const labelSx = {
             ...ellipsis,
             flex: 1,

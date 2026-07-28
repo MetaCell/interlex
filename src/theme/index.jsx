@@ -119,6 +119,14 @@ const theme = createTheme({
 			color: gray600,
 			fontWeight: 600,
 		},
+		// Widget/section title (Figma "Text md/Medium" + Gray/800) — the "Ontology hierarchy"
+		// and "Terms" panel titles on the ontology Browse tab.
+		sectionTitle: {
+			color: gray800,
+			fontSize: '1rem',
+			fontWeight: 500,
+			lineHeight: 1.5,
+		},
 	},
 
 	components: {
@@ -186,6 +194,11 @@ const theme = createTheme({
             `,
 		},
 		MuiTypography: {
+			defaultProps: {
+				variantMapping: {
+					sectionTitle: 'h2'
+				}
+			},
 			styleOverrides: {
 				h6: {
 					fontSize: '1.125rem',
@@ -240,7 +253,6 @@ const theme = createTheme({
 		},
 		MuiRichTreeView: {
 			styleOverrides: {
-				backgroundColor: "red",
 				root: {
 					"& .MuiTreeItem-root": {
 						position: "relative",
@@ -994,24 +1006,59 @@ const theme = createTheme({
 				},
 			},
 		},
+		// The Terms table on the ontology Browse tab. Column-header and cell metrics mirror the
+		// MuiTable overrides above so the two table flavours read as one component.
 		MuiDataGrid: {
 			styleOverrides: {
 				root: {
-					height: "90%",
+					// v7 paints this variable over the header and any pinned row, so the header fill
+					// has to be set here rather than on the columnHeaders slot.
+					"--DataGrid-containerBackground": gray50,
 					borderColor: gray200,
 					borderRadius: ".75rem",
 					boxShadow:
 						"0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)",
-
-					"& .MuiDataGrid-columnHeaderRow": {
-						backgroundColor: "red",
+					// The design has no vertical rules between columns.
+					"& .MuiDataGrid-columnSeparator": {
+						display: "none",
 					},
 				},
 				columnHeaders: {
-					width: "100% !important",
-					'& [role="row"]': {
-						backgroundColor: `${gray200} !important`,
-						border: "0 !important",
+					borderTopLeftRadius: ".75rem",
+					borderTopRightRadius: ".75rem",
+				},
+				columnHeaderTitle: {
+					fontSize: "0.75rem",
+					fontWeight: 500,
+					color: gray600,
+				},
+				columnHeader: {
+					padding: "0 1.5rem",
+				},
+				cell: {
+					// 0.5rem of padding around two 1.25rem lines is exactly the 3.5rem row the grid
+					// asks for, so a wrapped label or definition fits without changing the row.
+					padding: "0.5rem 1.5rem",
+					// flex is restated because a cell rendering an element rather than bare text
+					// computes to display:block, which would leave alignItems inert and top-align
+					// that column against its neighbours.
+					display: "flex",
+					alignItems: "center",
+					whiteSpace: "normal",
+					// The grid otherwise sets line-height to the whole row height to centre a single
+					// line; flex does that job here, and a row-tall line-height would space wrapped
+					// text by 3.5rem a line.
+					lineHeight: "1.25rem",
+					// Content taller than the row is clipped here rather than spilling over the
+					// rows above and below it.
+					overflow: "hidden",
+					borderColor: gray200,
+					color: gray600,
+					// A centred column holds a control, not text: side padding would squeeze it and
+					// trip the cell's own text-overflow ellipsis.
+					"&.MuiDataGrid-cell--textCenter": {
+						paddingLeft: 0,
+						paddingRight: 0,
 					},
 				},
 			},

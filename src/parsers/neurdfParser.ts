@@ -13,6 +13,7 @@ import type {
   CellProperty,
   OntologyMeta,
   ParsedOntology,
+  HierarchyNode,
   Facet,
   FacetValue,
 } from "../components/CellCards/model/types";
@@ -24,6 +25,23 @@ import type {
 // carries none of these do we fall back to its CURIE (the machine id). ilxtr:genLabel is
 // deliberately excluded — it is the verbose machine-generated string, never a title.
 const LABEL_KEYS = ["ilxtr:localLabel", "rdfs:label", "dc:title", "dcterms:title"];
+
+// Definition sources for the Terms table, best first. The first four are prose written by a
+// curator. The last two are fallbacks so the column still describes a term that has none of
+// those: ilxtr:genLabel is the phenotype string generated from the term's own axioms, and the
+// curator note is a last resort. Everything past CURATED_DEFINITION_KEYS is reported as
+// uncurated, so the UI can say where the text came from instead of passing generated output
+// off as a definition (the same care LABEL_KEYS takes in excluding genLabel as a *title*).
+const DEFINITION_KEYS = [
+  "definition",
+  "skos:definition",
+  "NIFRID:definition",
+  "rdfs:comment",
+  "ilxtr:genLabel",
+  "ilxtr:curatorNote",
+];
+
+const CURATED_DEFINITION_KEYS = 4;
 
 type LabelLike =
   | string
@@ -253,15 +271,113 @@ const buildCell = (node: GraphNode, idx: Index): CellTerm => {
     }
   }
 
+  const definition = definitionOf(node);
+
   return {
     id,
     curie,
     iri: toIri(id),
     label: labelFor(id, idx),
+    rdfTypes: rdfTypesOf(node),
+    definition: definition?.text,
+    definitionCurated: definition?.curated,
     properties,
     negated,
     sources,
   };
+};
+
+// rdf:type for the Terms table. The design asks for the OWL type of the record
+// (owl:Class / owl:ObjectProperty), so the neurdf marker types are dropped — but a record
+// carrying no owl:* type shows every type it has rather than nothing.
+const rdfTypesOf = (node: GraphNode): string[] => {
+  const all = asType(node["@type"]).map((t) => classify(t).curie);
+  const owl = all.filter((t) => t.startsWith("owl:"));
+  return owl.length ? owl : all;
+};
+
+const definitionOf = (
+  node: GraphNode
+): { text: string; curated: boolean } | undefined => {
+  for (let i = 0; i < DEFINITION_KEYS.length; i++) {
+    const text = firstString(node[DEFINITION_KEYS[i]]);
+    if (text) return { text, curated: i < CURATED_DEFINITION_KEYS };
+  }
+  return undefined;
+};
+
+// Build the subClassOf hierarchy over the in-scope terms.
+//
+// The neurdf file is *reasoned*, so each term asserts a direct rdfs:subClassOf link to the root
+// class **as well as** to its real parent(s) — taken literally that yields a flat list of 161
+// children. A transitive reduction drops every parent that another parent already implies,
+// which recovers the curated shape (here 4 levels deep under the root).
+//
+// The result is a DAG, not a tree: 15 of the Precision terms have more than one direct parent.
+// Each is rendered under every parent, so node ids are the path that reached them.
+const buildHierarchy = (
+  rootClass: string,
+  cells: CellTerm[],
+  idx: Index
+): HierarchyNode[] => {
+  if (!rootClass) return [];
+  const inScope = new Set(cells.map((c) => c.id));
+  const parentsOf = new Map<string, string[]>();
+  for (const cell of cells) {
+    parentsOf.set(
+      cell.id,
+      subClassRefs(idx.get(cell.id)).filter((p) => p === rootClass || inScope.has(p))
+    );
+  }
+
+  const ancestorCache = new Map<string, Set<string>>();
+  const ancestorsOf = (id: string): Set<string> => {
+    const cached = ancestorCache.get(id);
+    if (cached) return cached;
+    const out = new Set<string>();
+    const stack = [...(parentsOf.get(id) || [])];
+    while (stack.length) {
+      const cur = stack.pop() as string;
+      if (out.has(cur)) continue;
+      out.add(cur);
+      stack.push(...(parentsOf.get(cur) || []));
+    }
+    ancestorCache.set(id, out);
+    return out;
+  };
+
+  const childrenOf = new Map<string, string[]>();
+  for (const cell of cells) {
+    const parents = parentsOf.get(cell.id) || [];
+    // Keep a parent only when no *other* parent already reaches it: that other parent is the
+    // more specific one, and this link is the entailed shortcut.
+    const direct = parents.filter((p) => !parents.some((q) => q !== p && ancestorsOf(q).has(p)));
+    for (const parent of direct.length ? direct : parents) {
+      const siblings = childrenOf.get(parent);
+      if (siblings) siblings.push(cell.id);
+      else childrenOf.set(parent, [cell.id]);
+    }
+  }
+
+  const byId = new Map(cells.map((c) => [c.id, c]));
+  // `seen` is the current path — it stops a subClassOf cycle from recursing forever.
+  const nodeAt = (termId: string, path: string, seen: Set<string>): HierarchyNode => {
+    const cell = byId.get(termId);
+    const kids = seen.has(termId) ? [] : childrenOf.get(termId) || [];
+    const nextSeen = new Set(seen).add(termId);
+    return {
+      id: path,
+      termId,
+      label: cell ? cell.label : labelFor(termId, idx),
+      curie: cell ? cell.curie : classify(termId).curie,
+      iri: cell ? cell.iri : toIri(termId),
+      children: kids
+        .map((kid) => nodeAt(kid, `${path}/${kid}`, nextSeen))
+        .sort((a, b) => a.label.localeCompare(b.label)),
+    };
+  };
+
+  return [nodeAt(rootClass, rootClass, new Set())];
 };
 
 export const parseOntologyMeta = (graph: GraphNode[]): OntologyMeta => {
@@ -293,7 +409,11 @@ export const parseNeurdf = (data: OntologyGraph, rootClass: string): ParsedOntol
     : neurons;
   const cells = inScope.map((n) => buildCell(n, idx));
   cells.sort((a, b) => a.label.localeCompare(b.label));
-  return { meta: parseOntologyMeta(graph), cells };
+  return {
+    meta: parseOntologyMeta(graph),
+    cells,
+    hierarchy: buildHierarchy(rootClass, cells, idx),
+  };
 };
 
 // Readable fallback title for a predicate with no configured label: drop the "has" prefix
@@ -329,7 +449,15 @@ export const buildFacets = (
       for (const v of prop.values) {
         const existing = counts.get(v.id);
         if (existing) existing.count += 1;
-        else counts.set(v.id, { key: v.id, label: v.label, iri: v.iri, kind: v.kind, count: 1 });
+        else
+          counts.set(v.id, {
+            key: v.id,
+            label: v.label,
+            curie: v.curie,
+            iri: v.iri,
+            kind: v.kind,
+            count: 1,
+          });
       }
     }
     if (counts.size >= minOptions) {

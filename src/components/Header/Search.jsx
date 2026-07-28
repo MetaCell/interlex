@@ -20,7 +20,7 @@ import { GlobalDataContext } from "../../contexts/DataContext";
 import { primeTermDataCache } from "../../hooks/useTermData";
 import { SEARCH_TYPES } from "../../constants/types";
 import { searchAll, elasticSearch } from "../../api/endpoints";
-import { HARDCODED_RESULTS } from "../CellCards/config/gridConfig";
+import { HARDCODED_RESULTS, ontologyPath } from "../CellCards/config/gridConfig";
 import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
 import { useEffect, useState, useCallback, useMemo, forwardRef, useContext } from 'react';
 import { CloseIcon, ForwardIcon, SearchIcon, TermsIcon } from '../../Icons';
@@ -107,7 +107,7 @@ const Search = () => {
     const q = searchTerm.trim().toLowerCase();
     return HARDCODED_RESULTS
       .filter((e) => !q || e.label.toLowerCase().includes(q) || e.curie.toLowerCase().includes(q))
-      .map((e) => ({ label: e.label, name: e.label, submittedBy: e.curie, cellCardsSlug: e.slug }));
+      .map((e) => ({ label: e.label, name: e.label, submittedBy: e.curie, ontologyEntry: e }));
   }, [searchTerm]);
 
   const handleOpenList = () => setOpenList(true);
@@ -119,9 +119,9 @@ const Search = () => {
 
     handleCloseList();
     // CellCards ontology result → go straight to its grid view.
-    if (newInputValue.cellCardsSlug) {
+    if (newInputValue.ontologyEntry) {
       updateStoredSearchTerm(newInputValue.label);
-      navigate(`/cellcards/${newInputValue.cellCardsSlug}`);
+      navigate(ontologyPath(newInputValue.ontologyEntry));
       return;
     }
     const groupName = getGroupName();

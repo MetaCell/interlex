@@ -11,13 +11,20 @@ import {
   PREDICATE_LABELS,
   PREDICATE_TOOLTIPS,
 } from "../config/gridConfig";
-import type { OntologyGraph, ParsedOntology, Facet, CellTerm } from "../model/types";
+import type {
+  OntologyGraph,
+  ParsedOntology,
+  Facet,
+  CellTerm,
+  HierarchyNode,
+} from "../model/types";
 import type { OntologyEntry } from "../config/gridConfig";
 
 export interface LoadedOntology {
   entry: OntologyEntry;
   meta: ParsedOntology["meta"];
   cells: CellTerm[];
+  hierarchy: HierarchyNode[];
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -97,6 +104,7 @@ export const loadOntology = async (slug: string): Promise<LoadedOntology> => {
     // (title/description/version) — no hardcoded overrides.
     meta: parsed.meta,
     cells: parsed.cells,
+    hierarchy: parsed.hierarchy,
   };
   parsedCache.set(slug, loaded);
   return loaded;
