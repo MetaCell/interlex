@@ -63,6 +63,8 @@ const CellCard = ({ cell, data, group, termSlug, discussionHref, onNavigateToCel
       cell={cell}
       hierarchy={data.hierarchy}
       rootLabel={data.entry?.rootClass?.split(":").pop() || "root"}
+      // Same resolver the graph uses: a cell stays in the card, anything else opens its own page.
+      onNavigate={onNavigateToRef}
       actions={commentFor(HIERARCHY_TITLE)}
     />,
     <AnatomicalContext

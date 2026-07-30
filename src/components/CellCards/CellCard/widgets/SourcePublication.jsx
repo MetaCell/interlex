@@ -17,28 +17,29 @@ export const TITLE = "Source publication";
  */
 const SourcePublication = ({ cell, actions }) => {
   const primary = cell.sources?.[0];
+  const doi = primary?.iri || primary?.id;
+  // Keyed by the DOI it was fetched for, and read only when that still matches. Navigating between
+  // cells re-renders this widget rather than remounting it (see useCellTerm), so plain state would
+  // caption the new cell with the previous cell's paper until the fetch came back.
   const [citation, setCitation] = useState(null);
-  const [loading, setLoading] = useState(Boolean(primary));
 
   useEffect(() => {
-    if (!primary) {
-      setCitation(null);
-      setLoading(false);
-      return undefined;
-    }
+    if (!doi) return undefined;
     let active = true;
-    setLoading(true);
-    fetchCitation(primary.iri || primary.id).then((result) => {
-      if (!active) return;
-      setCitation(result);
-      setLoading(false);
+    fetchCitation(doi).then((result) => {
+      if (active) setCitation({ doi, result });
     });
     return () => {
       active = false;
     };
-  }, [primary]);
+  }, [doi]);
 
   if (!primary) return null;
+
+  const resolved = citation?.doi === doi ? citation.result : null;
+  // A source with no IRI at all is never fetched, so it is not "loading" — it renders whatever the
+  // graph gave, which is the same fallback a failed lookup lands on.
+  const loading = Boolean(doi) && !resolved;
 
   const dataCitation = cell.annotations?.dataCitations?.[0];
 
@@ -52,21 +53,21 @@ const SourcePublication = ({ cell, actions }) => {
         </Stack>
       ) : (
         <Stack gap={1}>
-          {citation?.title && (
+          {resolved?.title && (
             <Typography variant="body2" sx={{ color: "text.primary" }}>
-              {citation.title}
+              {resolved.title}
             </Typography>
           )}
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            {[citation?.authors, citation?.journal, citation?.year]
+            {[resolved?.authors, resolved?.journal, resolved?.year]
               .filter(Boolean)
-              .join(citation?.authors ? " " : ", ")}
-            {citation?.doi && (
+              .join(resolved?.authors ? " " : ", ")}
+            {resolved?.doi && (
               <>
-                {[citation?.authors, citation?.journal, citation?.year].some(Boolean) ? " · " : ""}
+                {[resolved?.authors, resolved?.journal, resolved?.year].some(Boolean) ? " · " : ""}
                 DOI:{" "}
-                <Link href={citation.url} target="_blank" rel="noopener">
-                  {citation.doi}
+                <Link href={resolved.url} target="_blank" rel="noopener">
+                  {resolved.doi}
                 </Link>
               </>
             )}

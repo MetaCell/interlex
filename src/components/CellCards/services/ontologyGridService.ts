@@ -133,6 +133,13 @@ export const loadOntology = async (slug: string): Promise<LoadedOntology> => {
   return loaded;
 };
 
+// Synchronous read of an already-parsed ontology, for callers that must resolve during render.
+// Awaiting `loadOntology` costs a frame even on a cache hit, and that frame is a loading state:
+// it unmounts the Cell Card and takes every widget's state with it. The hierarchy widget has to
+// survive a cell → cell navigation (spec §3.2), so `useCellTerm` reads through this instead and
+// only falls back to the async path on a cold load.
+export const peekOntology = (slug: string): LoadedOntology | undefined => parsedCache.get(slug);
+
 // --- single-term selectors (Cell Card) ---------------------------------------
 
 // A term arrives from the URL as a slug, where the ":" of a CURIE has become "_":

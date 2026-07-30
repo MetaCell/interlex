@@ -131,6 +131,11 @@ const SingleTermView = () => {
   const [ontologySnackbar, setOntologySnackbar] = useState(null); // { severity, message }
   // Label resolved by the Cell Card from the ontology graph. The term API cannot supply it for a
   // precision cell (npokb ids 404), so without this the H1 would read "NPOKB:1067".
+  //
+  // Kept as { term, label } and read only when the term still matches, rather than being cleared
+  // by an effect on `term`: navigating between cells resolves the new cell synchronously (see
+  // useCellTerm), so the card reports its label in the *same* commit that a clearing effect would
+  // run in — and effects run child-before-parent, so the clear would land last and win.
   const [cellLabel, setCellLabel] = useState(null);
 
   // Whether the term currently in view is a member of the active ontology.
@@ -151,9 +156,9 @@ const SingleTermView = () => {
   // Revisit once Precision cells are ingested with ILX ids — at that point the slug shape stops
   // being a reliable signal and the term's own @type should decide.
   const contextOntology = new URLSearchParams(location.search).get(ONTOLOGY_PARAM);
-  useEffect(() => {
-    setCellLabel(null);
-  }, [term]);
+
+  const handleCellLabel = useCallback((label) => setCellLabel({ term, label }), [term]);
+  const resolvedCellLabel = cellLabel?.term === term ? cellLabel.label : null;
 
   const isCellTerm = useMemo(
     () => /^npokb[_:]/i.test(term || "") || Boolean(contextOntology),
@@ -196,8 +201,8 @@ const SingleTermView = () => {
 
   // Memoize the displayed term label to prevent unnecessary re-renders
   const displayedTermLabel = useMemo(() => {
-    return termData || cellLabel || storedSearchTerm || searchTerm.toUpperCase().replace("_", ":");
-  }, [termData, cellLabel, storedSearchTerm, searchTerm]);
+    return termData || resolvedCellLabel || storedSearchTerm || searchTerm.toUpperCase().replace("_", ":");
+  }, [termData, resolvedCellLabel, storedSearchTerm, searchTerm]);
 
   // Memoize breadcrumb items to prevent unnecessary re-renders
   const breadcrumbItems = useMemo(() => [
@@ -351,7 +356,7 @@ const SingleTermView = () => {
   const tabContent = useMemo(() => {
     switch (tabValue) {
       case CELL_CARD_TAB:
-        return <CellCardPanel term={searchTerm} group={group} onTermLabel={setCellLabel} />;
+        return <CellCardPanel term={searchTerm} group={group} onTermLabel={handleCellLabel} />;
       case OVERVIEW_TAB:
         return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} />;
       case 2:
@@ -363,7 +368,7 @@ const SingleTermView = () => {
       default:
         return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} />;
     }
-  }, [tabValue, searchTerm, group, isCodeViewVisible, selectedDataFormat, actualGroup, versionHash, versionsData, versionsLoading, versionsError, clearVersionsError]);
+  }, [tabValue, searchTerm, group, handleCellLabel, isCodeViewVisible, selectedDataFormat, actualGroup, versionHash, versionsData, versionsLoading, versionsError, clearVersionsError]);
 
   // Memoize the toggle button group for overview tab
   const toggleButtonGroup = useMemo(() => {
