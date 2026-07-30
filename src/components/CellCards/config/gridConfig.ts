@@ -48,12 +48,21 @@ export const DEFAULT_ONTOLOGY_SLUG = "precision";
 // DataContext.activeOntology, which is the *edit* target shown as a chip in the header.
 export const ONTOLOGY_PARAM = "ontology";
 
-// Does this term slug address an InterLex record (`ilx_0101431`, `tmp_0381624`)? Precision cells
-// are npokb-only today, so it is false for them — and every feature backed by the InterLex term
-// API (Overview, Variants, Version history, Discussions) then has nothing to serve. One home for
-// the rule so the tabs SingleTermView disables and the links the Cell Card suppresses cannot
-// drift apart; it goes away once these cells are ingested with ILX ids.
+// Does this term slug address an InterLex record *by construction* (`ilx_0101431`,
+// `tmp_0381624`)? Anything else — a Precision cell's `npokb_991` — may still be addressable, but
+// only once curation maps it, which is a backend question: see `termUriMappingPath` and
+// `hasInterLexRecord`. Callers that gate term-API features (Overview, Variants, Version history,
+// Discussions) want the latter; this is only its synchronous shortcut.
 export const isIlxTermSlug = (slug?: string): boolean => /^(ilx|tmp)[_:]/i.test(slug || "");
+
+// Backend route answering "is this external id mapped to an InterLex record?":
+// `npokb_991` under `base` -> /base/uris/npokb/991, which 404s while unmapped. Split on the first
+// separator so a compound id (`obo_UBERON_0000955`) keeps its own underscores. Returns undefined
+// for a slug carrying no prefix, which the endpoint cannot address at all.
+export const termUriMappingPath = (group: string, slug?: string): string | undefined => {
+  const match = String(slug || "").match(/^([A-Za-z][A-Za-z0-9.-]*)[_:](.+)$/);
+  return match ? `/${group}/uris/${match[1]}/${match[2]}` : undefined;
+};
 
 // --- ontology tabs ----------------------------------------------------------
 

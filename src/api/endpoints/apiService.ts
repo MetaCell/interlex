@@ -3,6 +3,7 @@ import { API_CONFIG } from "../../config";
 import termParser from "../../parsers/termParser";
 import { jsonldToTriplesAndEdges, PART_OF_IRI } from '../../parsers/hierarchies-parser'
 import { buildPredicateGroupsForFocus } from "../../parsers/predicateParser";
+import { termUriMappingPath } from "../../components/CellCards/config/gridConfig";
 
 // Error enriched with the queried URL + the backend's message, so the UI can
 // show a meaningful dialog instead of a bare "HTTP 404".
@@ -234,6 +235,43 @@ export const getSelectedTermLabel = async (searchTerm: string, group: string = '
     }
     return { label: undefined, actualGroup: group, graphId: undefined };
   }
+};
+
+// --- InterLex record mapping --------------------------------------------------------------
+//
+// A Precision cell is addressed by an external id (`npokb_991`), and the term API can only serve
+// it once curation maps that id to an InterLex record. /{group}/uris/{prefix}/{id} is where the
+// backend answers: 404 with "has not been mapped to an InterLex id" until it exists. Everything
+// term-API-backed — Overview, Variants, Version history, Discussions — hangs off that answer, so
+// it is probed once per group+slug and remembered for the session.
+const recordMappingCache = new Map<string, Promise<boolean>>();
+
+const probeUriMapping = async (path: string): Promise<boolean> => {
+  // `redirect: manual` on purpose: a mapped id may answer with a redirect to the record on
+  // another origin, and following it would fail the CORS check and read as "unmapped". A
+  // redirect still says what we need to know — something is behind this id. The browser hands it
+  // back opaque (type "opaqueredirect", status 0); Node reports the 3xx as-is.
+  const response = await fetch(path, { credentials: 'include', redirect: 'manual' });
+  return response.type === 'opaqueredirect' || response.ok
+    || (response.status >= 300 && response.status < 400);
+};
+
+/** Is `slug` mapped to an InterLex record the term API can serve? */
+export const hasInterLexRecord = (slug: string, group: string = 'base'): Promise<boolean> => {
+  const path = termUriMappingPath(group, slug);
+  const basePath = termUriMappingPath('base', slug);
+  if (!path || !basePath) return Promise.resolve(false);
+
+  const key = `${group}:${slug}`;
+  if (!recordMappingCache.has(key)) {
+    // Falls back to `base` exactly as getSelectedTermLabel does: a curated mapping lives there,
+    // so a term viewed under another group is still addressable through it.
+    const probe = probeUriMapping(path)
+      .then(found => (found || group === 'base' ? found : probeUriMapping(basePath)))
+      .catch(() => false);
+    recordMappingCache.set(key, probe);
+  }
+  return recordMappingCache.get(key) as Promise<boolean>;
 };
 
 export const createNewEntity = async ({ group, data }: { group: string; data: any; session?: string }): Promise<{ termId: string | null; raw: string; status: number }> => {

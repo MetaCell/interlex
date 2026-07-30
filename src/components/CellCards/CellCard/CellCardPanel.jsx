@@ -9,10 +9,10 @@ import { curieToSlug } from "../services/ontologyGridService";
 import {
   termLink,
   ontologyPath,
-  isIlxTermSlug,
   ONTOLOGY_PARAM,
   ONTOLOGY_CATALOG,
 } from "../config/gridConfig";
+import { useTermRecordAvailability } from "../../../hooks/useTermRecordAvailability";
 
 // A three-column skeleton, so the (unavoidable) whole-ontology load reads as the page arriving
 // rather than as a blank panel. Cold entry pays a ~16MB fetch + a 39,788-node parse before the
@@ -61,6 +61,9 @@ const CellCardPanel = ({ term, group, onTermLabel }) => {
   const location = useLocation();
   const ontologySlug = new URLSearchParams(location.search).get(ONTOLOGY_PARAM) || undefined;
   const { cell, data, loading, error } = useCellTerm(term, ontologySlug);
+  // Same answer the page shell gates the Discussions tab on — one probe, shared through the
+  // module-level cache, so the link and the tab cannot disagree.
+  const termRecordAvailable = useTermRecordAvailability(term, group);
 
   // Navigating between cells keeps the context ontology, so the card the user lands on can still
   // populate its hierarchy and sibling widgets (Sue: "you're staying in that context ontology").
@@ -138,10 +141,10 @@ const CellCardPanel = ({ term, group, onTermLabel }) => {
         data={data}
         group={group}
         termSlug={term}
-        // Only when the Discussions tab can actually serve this term. For an npokb-only cell that
-        // tab is disabled (SingleTermView: no ILX id → no term API), so the link would land on a
-        // tab the bar shows as unselectable, against an endpoint that 404s for every one of them.
-        discussionHref={isIlxTermSlug(term) ? `/${group}/${term}/discussions${search}` : undefined}
+        // Only when the Discussions tab can actually serve this term. While the cell's id is not
+        // mapped to an InterLex record that tab is disabled (SingleTermView gates it on the same
+        // probe), so the link would land on a tab the bar shows as unselectable.
+        discussionHref={termRecordAvailable ? `/${group}/${term}/discussions${search}` : undefined}
         onNavigateToCell={goToCell}
         onNavigateToRef={goToRef}
       />

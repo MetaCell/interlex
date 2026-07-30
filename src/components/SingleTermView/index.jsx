@@ -41,7 +41,7 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import Discussion from "./Discussion";
 import CellCardPanel from "../CellCards/CellCard/CellCardPanel";
-import { ONTOLOGY_PARAM, isIlxTermSlug } from "../CellCards/config/gridConfig";
+import { ONTOLOGY_PARAM } from "../CellCards/config/gridConfig";
 import { CodeIcon } from "../../Icons";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import CustomButtonGroup from "../common/CustomButtonGroup";
@@ -55,6 +55,7 @@ import { getVersions, addEntityToOntology, getOntologyTerms } from "../../api/en
 import { reportApiError } from "../../api/apiErrorBus";
 import ApiErrorDialog from "../common/ApiErrorDialog";
 import { useTermData } from "../../hooks/useTermData";
+import { useTermRecordAvailability } from "../../hooks/useTermRecordAvailability";
 
 const { gray200, gray500, gray600, error700 } = vars;
 
@@ -164,8 +165,13 @@ const SingleTermView = () => {
     () => /^npokb[_:]/i.test(term || "") || Boolean(contextOntology),
     [term, contextOntology]
   );
-  // Whether the InterLex term API can address this term at all.
-  const hasIlxId = useMemo(() => isIlxTermSlug(term), [term]);
+  // Whether the InterLex term API can address this term at all. For a cell arriving as an
+  // external id (`npokb_991`) that is not a property of the slug but of the data: the id is
+  // addressable once curation maps it to a record, and the backend is the only one who knows.
+  // `undefined` until it answers — see useTermRecordAvailability. Only cell terms are asked;
+  // every other term keeps the tabs it has today, probe or no probe.
+  const termRecordAvailable = useTermRecordAvailability(term, group, isCellTerm);
+  const isTermRecordPending = isCellTerm && termRecordAvailable === undefined;
   const DEFAULT_TAB_INDEX = isCellTerm ? CELL_CARD_TAB : OVERVIEW_TAB;
 
   // Cell Card is the first tab, per the design, so `overview` is index 1 and every
@@ -181,10 +187,11 @@ const SingleTermView = () => {
 
   const tabNames = useMemo(() => ['cell-card', 'overview', 'variants', 'history', 'discussions'], []);
   const tabLabels = useMemo(() => {
-    // A precision cell has no ILX id, so the term API — and therefore every tab that reads it
-    // — has nothing to serve for it. Disable those rather than offer dead tabs; they light up
-    // once these cells are ingested with ILX ids.
-    const termTabsDisabled = isCellTerm && !hasIlxId;
+    // A precision cell's id is not mapped to an InterLex record yet, so the term API — and
+    // therefore every tab that reads it — has nothing to serve for it. Disable those rather than
+    // offer dead tabs; they light up on their own once the mapping exists. Pending counts as
+    // disabled, which is what the bar already shows, so the common case never flickers.
+    const termTabsDisabled = isCellTerm && termRecordAvailable !== true;
     return [
       { label: "Cell Card", disabled: !isCellTerm },
       { label: "Overview", disabled: termTabsDisabled },
@@ -192,7 +199,7 @@ const SingleTermView = () => {
       { label: "Version history", disabled: termTabsDisabled },
       { label: "Discussions", disabled: termTabsDisabled },
     ];
-  }, [isCellTerm, hasIlxId]);
+  }, [isCellTerm, termRecordAvailable]);
 
   // Set initial tab value based on URL
   const [tabValue, setTabValue] = useState(() => {
@@ -334,6 +341,12 @@ const SingleTermView = () => {
     // the URL would mount a panel that can only render an empty state (and, for the Cell Card,
     // pay a ~16MB fetch to find that out) while the Tabs bar shows nothing selected. Fall back to
     // the default tab, which is always enabled: Cell Card for a cell type, Overview otherwise.
+    //
+    // Not while the record probe is in flight, though: the disabled set is not known yet, and the
+    // fallback rewrites the URL with `replace: true`. Judging /overview now would send a deep
+    // link to a mapped cell back to /cell-card with no way back.
+    if (isTermRecordPending) return;
+
     const requested = tabMapping[tab];
     const newTabValue =
       requested !== undefined && !tabLabels[requested]?.disabled ? requested : DEFAULT_TAB_INDEX;
@@ -348,12 +361,24 @@ const SingleTermView = () => {
     if (!versionHash && group && term && tab !== tabNames[newTabValue]) {
       navigate(`/${group}/${term}/${tabNames[newTabValue]}${location.search}`, { replace: true });
     }
-  }, [tab, tabMapping, tabLabels, navigate, group, term, tabValue, versionHash, tabNames, DEFAULT_TAB_INDEX, location.search]);
+  }, [tab, tabMapping, tabLabels, navigate, group, term, tabValue, versionHash, tabNames, DEFAULT_TAB_INDEX, location.search, isTermRecordPending]);
 
   const isItFork = actualGroup === 'base' ? false : true; // Use actualGroup instead of group
 
   // Memoize tab content to prevent unnecessary re-renders
   const tabContent = useMemo(() => {
+    // Every tab but the Cell Card reads the InterLex term API, and whether it can answer for this
+    // cell is still being probed. Mounting one now would fire a request that 404s — raising the
+    // shared error dialog over a tab we are a moment away from redirecting off. The Cell Card
+    // reads the ontology graph instead, so it starts its (much heavier) load straight away.
+    if (isTermRecordPending && tabValue !== CELL_CARD_TAB) {
+      return (
+        <Box display="flex" justifyContent="center" p="3rem">
+          <CircularProgress size={24} />
+        </Box>
+      );
+    }
+
     switch (tabValue) {
       case CELL_CARD_TAB:
         return <CellCardPanel term={searchTerm} group={group} onTermLabel={handleCellLabel} />;
@@ -368,7 +393,7 @@ const SingleTermView = () => {
       default:
         return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} />;
     }
-  }, [tabValue, searchTerm, group, handleCellLabel, isCodeViewVisible, selectedDataFormat, actualGroup, versionHash, versionsData, versionsLoading, versionsError, clearVersionsError]);
+  }, [tabValue, searchTerm, group, handleCellLabel, isCodeViewVisible, selectedDataFormat, actualGroup, versionHash, versionsData, versionsLoading, versionsError, clearVersionsError, isTermRecordPending]);
 
   // Memoize the toggle button group for overview tab
   const toggleButtonGroup = useMemo(() => {
