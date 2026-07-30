@@ -642,6 +642,72 @@ const theme = createTheme({
 			defaultProps: {
 				disableElevation: true,
 			},
+			// A full-width, two-line link tile that happens to be a Button, so the *whole* card is
+			// one clickable target with real button/anchor semantics (focus ring, keyboard, middle
+			// click) instead of a bordered Box with a link inside it.
+			//
+			// Here rather than in `sx` at the call site because it is a look, not layout: the fill,
+			// border, radius, shadow and type all come from Figma tokens (9239:67808 — Base/White,
+			// Gray/200, shadow-xs, Text sm Semibold/Regular in Gray/500).
+			variants: [
+				{
+					props: { variant: "tile" },
+					style: {
+						width: "100%",
+						height: "auto",
+						padding: "1rem",
+						gap: "1rem",
+						justifyContent: "flex-start",
+						textAlign: "left",
+						background: white,
+						border: `1px solid ${gray200}`,
+						borderRadius: "0.5rem",
+						boxShadow: "0rem 0.0625rem 0.125rem 0rem rgba(16, 24, 40, 0.05)",
+						color: gray500,
+						fontWeight: 400,
+						"&:hover": {
+							background: gray25,
+							borderColor: gray300,
+						},
+						"&:focus-visible": {
+							borderColor: brand600,
+							boxShadow: `0rem 0rem 0rem 0.25rem ${alpha(brand500, 0.24)}`,
+						},
+						// The boxed glyph on the left (Figma "Featured icon", 40x40).
+						"& .tileIcon": {
+							flexShrink: 0,
+							display: "inline-flex",
+							alignItems: "center",
+							justifyContent: "center",
+							width: "2.5rem",
+							height: "2.5rem",
+							border: `1px solid ${gray200}`,
+							borderRadius: "0.5rem",
+							color: gray500,
+						},
+						"& .tileTitle": {
+							fontSize: "0.875rem",
+							lineHeight: 1.4285,
+							fontWeight: 600,
+							color: gray500,
+						},
+						"& .tileSupporting": {
+							fontSize: "0.875rem",
+							lineHeight: 1.4285,
+							fontWeight: 400,
+							color: gray500,
+						},
+						// Trailing affordance: a plain glyph pushed to the right edge, no button chrome
+						// of its own — the tile itself is the control.
+						"& .tileAction": {
+							flexShrink: 0,
+							marginLeft: "auto",
+							display: "inline-flex",
+							color: gray500,
+						},
+					},
+				},
+			],
 			styleOverrides: {
 				root: {
 					fontSize: "0.875rem",

@@ -28,10 +28,11 @@ export const hasTranscriptomicProfile = (cell) =>
       cell.annotations?.atlasAnnotation?.length
   );
 
-// `hasNervoSensusLink` has zero occurrences today, so this is false for every cell — the widget is
-// built and wired, waiting on the triple (which the parser already recognises under any prefix).
-export const hasCellGrouping = (cell) =>
-  Boolean(cell.annotations?.nervoSensusLinks?.length);
+// No `hasCellGrouping` here on purpose: the Interactive Cell Grouping widget always renders.
+// NervoSensus is a single application rather than a per-cell resource, so there is always somewhere
+// to link; only the precision of the link varies (see buildNervoSensusLink). Gating it on a
+// per-cell `hasNervoSensusLink` triple — which has zero occurrences upstream — meant the widget
+// never appeared at all, though the design shows it.
 
 export const hasCrossNomenclature = (cell) => Boolean(cell.mappings?.length);
 

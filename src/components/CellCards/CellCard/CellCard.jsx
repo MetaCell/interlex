@@ -16,7 +16,6 @@ import { relatedBySource, hierarchyNeighbours } from "../services/ontologyGridSe
 import {
   hasDefinition,
   hasTranscriptomicProfile,
-  hasCellGrouping,
   hasCrossNomenclature,
   hasSourcePublication,
 } from "./widgetVisibility";
@@ -86,9 +85,8 @@ const CellCard = ({ cell, data, group, termSlug, discussionHref, onNavigateToCel
     hasTranscriptomicProfile(cell) && (
       <TranscriptomicProfile key="transcriptomic" cell={cell} actions={commentFor(TRANSCRIPTOMIC_TITLE)} />
     ),
-    hasCellGrouping(cell) && (
-      <CellGrouping key="grouping" cell={cell} actions={commentFor(GROUPING_TITLE)} />
-    ),
+    // Unconditional: NervoSensus is a tool, not per-cell data (see the widget).
+    <CellGrouping key="grouping" cell={cell} actions={commentFor(GROUPING_TITLE)} />,
     hasCrossNomenclature(cell) && (
       <CrossNomenclature key="mapping" cell={cell} actions={commentFor(MAPPING_TITLE)} />
     ),

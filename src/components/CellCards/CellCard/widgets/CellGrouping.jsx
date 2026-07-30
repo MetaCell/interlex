@@ -1,83 +1,98 @@
 import PropTypes from "prop-types";
-import { Stack, Typography, Alert, AlertTitle, IconButton, Link, Divider } from "@mui/material";
-import ScatterPlotOutlinedIcon from "@mui/icons-material/ScatterPlotOutlined";
+import { Stack, Typography, Button, Box, Link, Divider } from "@mui/material";
+import PolylineOutlinedIcon from "@mui/icons-material/PolylineOutlined";
 import { ArrowOutwardIcon } from "../../../../Icons";
 import CellCardWidget from "../CellCardWidget";
-import { NERVOSENSUS_GROUP_BY, MARKER_GENE_PREDICATE } from "../../config/cellCardConfig";
+import { buildNervoSensusLink } from "../nervoSensusLink";
+import { NERVOSENSUS_VIEWS } from "../../config/cellCardConfig";
 
 export const TITLE = "Interactive Cell Grouping";
 
-const withGroupBy = (url, groupBy) => {
+// Add the view's params to the cell's own link, so a grouping keeps the cell's filters.
+const withParams = (href, params) => {
   try {
-    const u = new URL(url);
-    u.searchParams.set("groupBy", groupBy);
-    return u.toString();
+    const url = new URL(href);
+    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+    return url.toString();
   } catch {
-    // Not an absolute URL — fall back to naive appending rather than dropping the link.
-    return `${url}${url.includes("?") ? "&" : "?"}groupBy=${groupBy}`;
+    const query = new URLSearchParams(params).toString();
+    return `${href}${href.includes("?") ? "&" : "?"}${query}`;
   }
 };
 
 /**
  * §4.3 Interactive Cell Grouping / NervoSensus (Figma 9239:67802).
  *
- * Entirely conditional on `ilx:hasNervoSensusLink`, which has **zero occurrences** in the shipped
- * graph — so in practice this widget is hidden today (see `hasCellGrouping`). It is built anyway
- * because the shape is fully specified and it lights up with no code change once the triple lands.
+ * The tile is one `Button variant="tile"` rendering an `<a>`, so the **whole** card is a single
+ * click target with real link semantics — focus ring, keyboard activation, middle-click and
+ * open-in-new-tab all for free. It was previously an `Alert` with a link in its title and a
+ * separate icon button, which gave three small targets and a tinted fill the design does not have.
+ * The `tile` variant lives in the theme (`MuiButton.variants`) because it is a look, not layout.
  *
- * The tile is a MUI `Alert`, which is what the design itself reuses for this pattern (an icon, a
- * title, supporting text and a trailing action) rather than a bespoke frame.
+ * Icon is Material Symbols `polyline`, which is what the design uses (Figma 9239:67809).
+ *
+ * Always rendered: NervoSensus is a single application, not a per-cell resource, so there is always
+ * somewhere to send the user — only the precision varies, which `buildNervoSensusLink` works out
+ * from the cell.
  */
 const CellGrouping = ({ cell, actions }) => {
-  // A deep link, not a phenotype, so the parser puts it on `annotations` (matched by local
-  // name under any prefix) rather than on `properties`.
-  const link = cell.annotations?.nervoSensusLinks?.[0];
-  const url = link?.iri || link?.id;
-  if (!url) return null;
-
-  const genes = cell.properties[MARKER_GENE_PREDICATE]?.values || [];
+  const { href, precise, filters } = buildNervoSensusLink(cell);
 
   return (
     <CellCardWidget title={TITLE} actions={actions}>
-      <Alert
-        severity="info"
-        icon={<ScatterPlotOutlinedIcon />}
-        action={
-          <IconButton
-            component="a"
-            href={url}
-            target="_blank"
-            rel="noopener"
-            aria-label="Open NervoSensus"
-          >
-            <ArrowOutwardIcon />
-          </IconButton>
-        }
+      <Button
+        // A real anchor, so this is a link that looks like a button rather than a button that
+        // navigates — external target, hence component="a" over a router Link.
+        component="a"
+        variant="tile"
+        href={href}
+        target="_blank"
+        rel="noopener"
       >
-        <AlertTitle>Explore in NervoSensus</AlertTitle>
-        Interactively group and compare cells by phenotype
-      </Alert>
+        <Box component="span" className="tileIcon">
+          <PolylineOutlinedIcon fontSize="small" />
+        </Box>
+        {/* minWidth:0 so a long subtitle can shrink instead of pushing the arrow off the tile. */}
+        <Box component="span" sx={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+          <Box component="span" className="tileTitle">
+            Explore in NervoSensus
+          </Box>
+          <Box component="span" className="tileSupporting">
+            Interactively group and compare cells by phenotype
+          </Box>
+        </Box>
+        <Box component="span" className="tileAction">
+          <ArrowOutwardIcon />
+        </Box>
+      </Button>
 
       <Divider />
 
       <Stack direction="row" alignItems="center" gap={0.5} flexWrap="wrap">
-        {genes.length > 0 && (
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            {`View pre-filtered for ${genes.map((g) => g.label || g.curie).join(", ")}.`}
-          </Typography>
-        )}
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          {precise
+            ? "Opens this cell."
+            : filters.length
+              ? `Pre-filtered for ${filters.join(", ")}.`
+              : "Opens the full cell atlas."}
+        </Typography>
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
           Group by
         </Typography>
-        {NERVOSENSUS_GROUP_BY.map((groupBy, i) => (
-          <Stack key={groupBy} direction="row" alignItems="center" gap={0.5}>
+        {NERVOSENSUS_VIEWS.map((view, i) => (
+          <Stack key={view.label} direction="row" alignItems="center" gap={0.5}>
             {i > 0 && (
               <Typography variant="body2" sx={{ color: "text.disabled" }}>
                 ·
               </Typography>
             )}
-            <Link href={withGroupBy(url, groupBy)} target="_blank" rel="noopener" variant="body2">
-              {groupBy}
+            <Link
+              href={withParams(href, view.params)}
+              target="_blank"
+              rel="noopener"
+              variant="body2"
+            >
+              {view.label}
             </Link>
           </Stack>
         ))}
@@ -90,6 +105,5 @@ CellGrouping.propTypes = {
   cell: PropTypes.object.isRequired,
   actions: PropTypes.node,
 };
-
 
 export default CellGrouping;

@@ -6,10 +6,8 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { parseNeurdf, parsePredicateDisplay } from "../neurdfParser";
-import {
-  hasCellGrouping,
-  hasTranscriptomicProfile,
-} from "../../components/CellCards/CellCard/widgetVisibility";
+import { hasTranscriptomicProfile } from "../../components/CellCards/CellCard/widgetVisibility";
+import { buildNervoSensusLink, atlasCellKey } from "../../components/CellCards/CellCard/nervoSensusLink";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const data = JSON.parse(readFileSync(join(here, "neurdf-precision-sample.jsonld"), "utf8"));
@@ -144,8 +142,59 @@ check(
 check("deep links stay off properties", Object.keys(linked?.properties || {}), []);
 // The bug this guards: the widgets used to look these up as `properties["ilx:has…"]`, a key the
 // parser never writes, so they could not light up even with the triple present.
-check("the NervoSensus widget lights up", hasCellGrouping(linked), true);
 check("the Transcriptomic widget lights up on the link alone", hasTranscriptomicProfile(linked), true);
+
+// --- NervoSensus deep link -----------------------------------------------------
+// The Interactive Cell Grouping widget is unconditional (NervoSensus is one app, not per-cell
+// data), so what needs pinning is the *precision* of the link it builds.
+console.log("\nNervoSensus deep link");
+
+// A curator-supplied per-cell link outranks anything inferred.
+check("a curated hasNervoSensusLink wins", buildNervoSensusLink(linked).href, "https://nervosensus.org/cell/9001");
+check("and counts as precise", buildNervoSensusLink(linked).precise, true);
+
+// Our atlas annotations carry a dataset suffix the app's keys do not, so it has to be dropped —
+// this is what makes the link open the exact cell for 48 of the 161 Precision cells.
+check(
+  "the dataset suffix is stripped off the atlas annotation",
+  atlasCellKey({ annotations: { atlasAnnotation: ["A-PEP.SCGN/ADRA2C:U19_HMS"] } }),
+  "A-PEP.SCGN/ADRA2C"
+);
+
+const atlasLink = buildNervoSensusLink(c1007);
+check("an atlas annotation yields a precise link", atlasLink.precise, true);
+check(
+  "…carrying atlasannotation",
+  new URL(atlasLink.href).searchParams.get("atlasannotation"),
+  atlasCellKey(c1007)
+);
+
+// Without an atlas annotation the link degrades to the app's card filters, mapped from the
+// ontology's prose labels onto the slugs the app's <select> options actually use.
+const filtered = buildNervoSensusLink(c1067);
+const params = new URL(filtered.href).searchParams;
+check("a cell without one is not precise", filtered.precise, false);
+check("species label maps to the app's value", params.get("species"), "mouse");
+check("soma label maps to the app's value", params.get("location"), "soma_drg");
+check("axon label maps to the app's value", params.get("axon"), "fiber_c");
+// npokb:1067's first marker gene resolves to the symbol "Mrgpra3"; an unlabelled gene would be a
+// CURIE, which the app has no filter option for and so must be omitted.
+check("a resolved gene symbol is passed", params.get("gene"), "Mrgpra3");
+check(
+  "an unlabelled gene (CURIE) is not passed as a gene filter",
+  new URL(
+    buildNervoSensusLink({
+      properties: { hasNucleicAcidExpressionPhenotype: { values: [{ label: "NCBIGene:667742" }] } },
+    }).href
+  ).searchParams.get("gene"),
+  null
+);
+// A bare cell still gets a usable link — the widget renders for every cell.
+check(
+  "a cell with nothing mappable still links to the app",
+  buildNervoSensusLink({}).href.startsWith("https://nervosensus.netlify.app/"),
+  true
+);
 
 console.log(failed ? `\n${failed} check(s) failed` : "\nall checks passed");
 process.exit(failed ? 1 : 0);
