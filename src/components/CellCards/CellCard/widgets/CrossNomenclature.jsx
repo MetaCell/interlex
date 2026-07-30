@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import {
   Table,
+  TableContainer,
   TableHead,
   TableBody,
   TableRow,
@@ -9,7 +10,7 @@ import {
   Typography,
   Divider,
   Stack,
-  Box,
+  Paper,
 } from "@mui/material";
 import CellCardWidget from "../CellCardWidget";
 import TermValueLink from "../TermValueLink";
@@ -31,6 +32,17 @@ const EvidenceChip = ({ evidence }) => {
 
 EvidenceChip.propTypes = { evidence: PropTypes.string.isRequired };
 
+// Column proportions are the design's (280 / 176 / 196 / 196 of 848) as percentages, so the table
+// keeps its shape as the card's middle column resizes. A long cell name then wraps to the two
+// 1.25rem lines the 4.5rem row already has room for, rather than pushing the other three columns
+// against the right edge.
+const COLUMNS = [
+  { label: "Cell name", width: "33%" },
+  { label: "Evidence", width: "21%" },
+  { label: "Source", width: "23%" },
+  { label: "Reference", width: "23%" },
+];
+
 /**
  * §4.4 Cross-Nomenclature Mapping (Figma 9239:67833): how this cell type is named in other
  * nomenclatures.
@@ -48,14 +60,18 @@ const CrossNomenclature = ({ cell, actions }) => {
 
   return (
     <CellCardWidget title={TITLE} actions={actions}>
-      <Box sx={{ overflowX: "auto" }}>
+      {/* The design's table sits on its own outlined surface, which is what `component={Paper}`
+          + `variant="outlined"` resolves to in the theme. TableContainer also brings the
+          horizontal scroll the four columns need once the card's middle column narrows. */}
+      <TableContainer component={Paper} variant="outlined">
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>Cell name</TableCell>
-              <TableCell>Evidence</TableCell>
-              <TableCell>Source</TableCell>
-              <TableCell>Reference</TableCell>
+              {COLUMNS.map((column) => (
+                <TableCell key={column.label} sx={{ width: column.width }}>
+                  {column.label}
+                </TableCell>
+              ))}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -68,21 +84,19 @@ const CrossNomenclature = ({ cell, actions }) => {
                 <TableCell>
                   <EvidenceChip evidence={m.evidence} />
                 </TableCell>
+                {/* Source and reference are Text sm/Regular; their Gray/600 comes from the
+                    theme's small-table cell, so `variant` is all these carry. */}
                 <TableCell>
-                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    {m.source || "—"}
-                  </Typography>
+                  <Typography variant="body2">{m.source || "—"}</Typography>
                 </TableCell>
                 <TableCell>
-                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    {m.ref.curie}
-                  </Typography>
+                  <Typography variant="body2">{m.ref.curie}</Typography>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
-      </Box>
+      </TableContainer>
 
       {hasFlagged && (
         <Stack gap={1}>

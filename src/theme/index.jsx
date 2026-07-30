@@ -6,6 +6,7 @@ const {
 	white,
 	brand600,
 	paperShadow,
+	shadowSm,
 	gray300,
 	gray600,
 	gray700,
@@ -409,7 +410,12 @@ const theme = createTheme({
 					height: "1.375rem",
 					padding: "0 0.375rem",
 					fontSize: "0.75rem",
-					borderRadius: "0.375rem !important",
+					// The design's badge is a pill (Figma "Badge", 9239:67792 — measured against a rendered
+					// sweep, its corners match a radius of 10-11px on a 22px chip, which is what 1rem clamps
+					// to). Every colour slot below has always declared 1rem; the `0.375rem !important` that
+					// used to sit here overrode all of them, so no chip in the app was drawing its own radius.
+					// `.green-glow-chip` still pins 6px on its own class, which beats this on specificity.
+					borderRadius: "1rem",
 					fontWeight: 500,
 					width: "fit-content",
 					maxWidth: "100%",
@@ -496,10 +502,15 @@ const theme = createTheme({
 					textOverflow: "ellipsis",
 					whiteSpace: "nowrap",
 				},
+				// An outlined chip is the design's badge without a hue (Figma "Badge", 9239:67792): a
+				// 1px rule in the 200 tone over the 50 fill, flat. The colour slots below already draw
+				// it that way, so this only has to stop overriding them with the heavier 300 rule and a
+				// raised shadow, neither of which the badge has. `.greenChip` restates its own shadow
+				// and still wins on specificity, so the one chip that is meant to lift keeps lifting.
 				outlined: {
-					borderColor: gray300,
+					borderColor: gray200,
 					color: gray700,
-					boxShadow: "0rem 0.0625rem 0.125rem 0rem rgba(16, 24, 40, 0.05)",
+					boxShadow: "none",
 				},
 				colorPrimary: {
 					padding: "0.13rem 0.5rem",
@@ -946,6 +957,53 @@ const theme = createTheme({
 					},
 				},
 			},
+			// The Cell Card widget tables (Figma "Table cell-editable", 9239:67836). The design
+			// gives them the same metrics as the table above — 2.75rem header, 4.5rem rows,
+			// 1.5rem gutters — so this carries only what it draws differently, and deliberately no
+			// geometry of its own. Its surface is the outlined MuiTableContainer below.
+			variants: [
+				{
+					props: { size: "small" },
+					style: {
+						// Column labels are Text xs/Medium in Gray/500, the same treatment a sortable
+						// header already gets from MuiTableSortLabel above.
+						"& .MuiTableHead-root .MuiTableCell-root": {
+							fontSize: "0.75rem",
+							color: gray500,
+						},
+						"& .MuiTableCell-root": {
+							color: gray600,
+							// These rows carry no action — the design has no hover state for them, and a
+							// fill on the one cell under the pointer reads as a broken row highlight.
+							"&:hover": {
+								backgroundColor: "transparent",
+							},
+						},
+						// The last row's rule is the container's bottom border; drawing both doubles it.
+						"& .MuiTableBody-root .MuiTableRow-root:last-of-type .MuiTableCell-root": {
+							borderBottom: 0,
+						},
+					},
+				},
+			],
+		},
+		MuiTableContainer: {
+			// `<TableContainer component={Paper} variant="outlined">` is the design's table surface:
+			// Paper brings the Gray/200 rule and the white fill, this adds the 12px corners and
+			// shadow-sm. Scoped to the outlined variant because the tables that predate it supply
+			// their own bordered Paper wrapper and would end up with two rules.
+			variants: [
+				{
+					props: { variant: "outlined" },
+					style: {
+						// Beats MuiPaper's own 4px radius, which is a class of equal weight.
+						"&.MuiPaper-root": {
+							borderRadius: "0.75rem",
+							boxShadow: shadowSm,
+						},
+					},
+				},
+			],
 		},
 		MuiPagination: {
 			styleOverrides: {
@@ -1038,8 +1096,7 @@ const theme = createTheme({
 					"--DataGrid-containerBackground": gray50,
 					borderColor: gray200,
 					borderRadius: ".75rem",
-					boxShadow:
-						"0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)",
+					boxShadow: shadowSm,
 					// The design has no vertical rules between columns.
 					"& .MuiDataGrid-columnSeparator": {
 						display: "none",
