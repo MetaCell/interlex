@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { useState } from "react";
-import { Box, Link, Tooltip, Typography } from "@mui/material";
+import { Box, Container, Link, Tooltip, Typography } from "@mui/material";
 import ContentCopyOutlinedIcon from "@mui/icons-material/ContentCopyOutlined";
 import CustomBreadcrumbs from "./CustomBreadcrumbs";
 import { vars } from "../../theme/variables";
@@ -25,13 +25,12 @@ const BreadcrumbBar = ({ breadcrumbItems, copyPath, permalink, copyLabel, rightC
   };
 
   return (
-    <Box
+    <Container
       sx={{
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         gap: 2,
-        px: 4,
         py: 2,
         borderBottom: `1px solid ${gray200}`,
       }}
@@ -67,7 +66,7 @@ const BreadcrumbBar = ({ breadcrumbItems, copyPath, permalink, copyLabel, rightC
         )}
       </Box>
       {rightContent}
-    </Box>
+    </Container>
   );
 };
 

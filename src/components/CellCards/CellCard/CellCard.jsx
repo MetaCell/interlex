@@ -1,6 +1,6 @@
 import { useMemo, Fragment } from "react";
 import PropTypes from "prop-types";
-import { Box, Stack, Divider } from "@mui/material";
+import { Box, Container, Stack, Divider } from "@mui/material";
 import DefinitionBanner from "./DefinitionBanner";
 import WidgetCommentButton from "./WidgetCommentButton";
 import BiologicalProperties, { TITLE as BIO_TITLE } from "./widgets/BiologicalProperties";
@@ -117,21 +117,23 @@ const CellCard = ({ cell, data, group, termSlug, discussionHref, onNavigateToCel
     ));
 
   return (
-    <Stack gap={3} sx={{ px: 4, py: 3 }}>
-      {hasDefinition(cell) && <DefinitionBanner cell={cell} />}
+    <Container sx={{ py: 3 }}>
+      <Stack gap={3}>
+        {hasDefinition(cell) && <DefinitionBanner cell={cell} />}
 
-      <Box sx={{ display: "grid", gridTemplateColumns: COLUMNS, gap: 4, alignItems: "start" }}>
-        <Stack gap={4} sx={{ minWidth: 0 }}>
-          {withDividers(left)}
-        </Stack>
-        <Stack gap={4} sx={{ minWidth: 0 }}>
-          {withDividers(centre)}
-        </Stack>
-        <Stack gap={4} sx={{ minWidth: 0 }}>
-          {right}
-        </Stack>
-      </Box>
-    </Stack>
+        <Box sx={{ display: "grid", gridTemplateColumns: COLUMNS, gap: 4, alignItems: "start" }}>
+          <Stack gap={4} sx={{ minWidth: 0 }}>
+            {withDividers(left)}
+          </Stack>
+          <Stack gap={4} sx={{ minWidth: 0 }}>
+            {withDividers(centre)}
+          </Stack>
+          <Stack gap={4} sx={{ minWidth: 0 }}>
+            {right}
+          </Stack>
+        </Box>
+      </Stack>
+    </Container>
   );
 };
 

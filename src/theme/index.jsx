@@ -395,7 +395,40 @@ const theme = createTheme({
 		},
 
 		MuiContainer: {
+			// A bare Container is a full-bleed page section, not MUI's centred `lg` box. The
+			// capped ones (Header banner, Footer, About, Partners) pass `maxWidth` explicitly.
+			defaultProps: {
+				maxWidth: false,
+			},
+
+			// Header band: title/breadcrumb/tabs above a divider, hence no bottom padding.
+			// `variant` is not in Container's API; MUI matches it off ownerState anyway and
+			// drops it before the DOM.
+			variants: [
+				{ props: { variant: "header" }, style: { paddingTop: "1.5rem" } },
+			],
+
 			styleOverrides: {
+				// Page gutter. 5rem = (1920 - 1760) / 2, from the Figma frame's content column.
+				//
+				// On `maxWidthFalse` (the slot `maxWidth={false}` resolves to) and not `root`, so
+				// the capped `maxWidth="xl"` containers keep MUI's gutters — for those, padding
+				// adds to the centring offset instead of setting the margin.
+				//
+				// The `sm` restatement is required, not redundant: styleOverrides merge into
+				// Container's style object, so a flat property lands in MUI's key position, ahead
+				// of MUI's own `@media (min-width:600px)` gutter, which then wins from 600px up.
+				//
+				// Unconditional for now: docs/container-layout-migration.md.
+				maxWidthFalse: {
+					paddingLeft: "5rem",
+					paddingRight: "5rem",
+					"@media (min-width:600px)": {
+						paddingLeft: "5rem",
+						paddingRight: "5rem",
+					},
+				},
+
 				maxWidthXl: {
 					"@media screen and (min-width: 96rem)": {
 						maxWidth: "104.5rem",

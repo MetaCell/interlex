@@ -1,5 +1,5 @@
 import { useOutletContext } from "react-router-dom";
-import { Box, Grid } from "@mui/material";
+import { Container, Grid } from "@mui/material";
 import OntologyHierarchyPanel from "./OntologyHierarchyPanel";
 import OntologyTermsTable from "./OntologyTermsTable";
 
@@ -14,7 +14,7 @@ const OntologyBrowsePage = () => {
   const panelHeight = { xs: "32rem", md: 1 };
 
   return (
-    <Box sx={{ flex: 1, minHeight: 0, overflowY: "auto", px: 4, py: 3 }}>
+    <Container sx={{ flex: 1, minHeight: 0, overflowY: "auto", py: 3 }}>
       <Grid container spacing={4} sx={{ height: { md: 1 }, minHeight: 0 }}>
         <Grid item xs={12} md={4} sx={{ height: panelHeight, minHeight: 0 }}>
           <OntologyHierarchyPanel
@@ -26,7 +26,7 @@ const OntologyBrowsePage = () => {
           <OntologyTermsTable cells={data.cells} />
         </Grid>
       </Grid>
-    </Box>
+    </Container>
   );
 };
 

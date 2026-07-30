@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Chip, Stack } from "@mui/material";
+import { Container, Typography, Chip, Stack } from "@mui/material";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import BreadcrumbBar from "../common/BreadcrumbBar";
 import CustomTabs from "../common/CustomTabs";
@@ -33,7 +33,7 @@ const OntologyHeader = ({ data, tab }) => {
       {/* Header: title + curation status -> description -> version -> tags -> tabs.
           Title / description / version are read from the file's owl:Ontology node;
           the curie is the real root class the grid is scoped to. */}
-      <Box sx={{ px: 4, pt: 3, borderBottom: `1px solid ${gray200}`, display: "flex", flexDirection: "column", gap: 1 }}>
+      <Container variant="header" sx={{ borderBottom: `1px solid ${gray200}`, display: "flex", flexDirection: "column", gap: 1 }}>
         <Stack direction="row" alignItems="center" gap={1.5} flexWrap="wrap">
           <Typography variant="h5">{data.meta.title}</Typography>
           {data.entry.curationStatus && (
@@ -68,7 +68,7 @@ const OntologyHeader = ({ data, tab }) => {
           }}
           parentBoxStyles={{ mt: 1, borderBottom: 0 }}
         />
-      </Box>
+      </Container>
     </>
   );
 };

@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Box, Stack, Skeleton, Alert, AlertTitle, Button, Typography } from "@mui/material";
+import { Box, Container, Stack, Skeleton, Alert, AlertTitle, Button, Typography } from "@mui/material";
 import CellCard from "./CellCard";
 import EmptyState from "../../common/EmptyState";
 import useCellTerm from "./useCellTerm";
@@ -30,12 +30,11 @@ const Scroll = ({ children }) => (
 Scroll.propTypes = { children: PropTypes.node };
 
 const LoadingSkeleton = () => (
-  <Box
+  <Container
     sx={{
       display: "grid",
       gridTemplateColumns: { xs: "1fr", lg: "26.5rem minmax(0, 1fr) 26.5rem" },
       gap: 4,
-      px: 4,
       py: 3,
     }}
   >
@@ -47,7 +46,7 @@ const LoadingSkeleton = () => (
         ))}
       </Stack>
     ))}
-  </Box>
+  </Container>
 );
 
 /**
@@ -102,7 +101,7 @@ const CellCardPanel = ({ term, group, onTermLabel }) => {
 
   if (error) {
     return (
-      <Box sx={{ px: 4, py: 3, width: "100%" }}>
+      <Container sx={{ py: 3 }}>
         <Alert severity="error">
           <AlertTitle>Could not load the ontology</AlertTitle>
           <Stack gap={1} alignItems="flex-start">
@@ -112,7 +111,7 @@ const CellCardPanel = ({ term, group, onTermLabel }) => {
             </Button>
           </Stack>
         </Alert>
-      </Box>
+      </Container>
     );
   }
 
