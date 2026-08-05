@@ -499,7 +499,11 @@ const SingleTermView = () => {
         </Box>
         {versionHash && (
           <Box px="5rem" pt="1.5rem">
-            <Alert severity="info">
+            <Alert
+              severity="info"
+              onClose={() => navigate(`/${group}/${term}/overview`)}
+              closeText="Back to current term"
+            >
               Viewing a historical version of this term (identity graph <code>{versionHash}</code>). This snapshot is read-only.
             </Alert>
           </Box>

@@ -8,7 +8,7 @@ import CustomizedDialog from "../common/CustomizedDialog";
 import ImportFileTab from "./../TermEditor/ImportFileTab";
 import BasicTabs from "../common/CustomTabs";
 import { useState, useCallback } from "react";
-import { createNewOntology } from "../../api/endpoints/apiService";
+import { createNewOntology, getOntologyTerms } from "../../api/endpoints/apiService";
 import { API_CONFIG } from "../../config";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { useContext } from "react";
@@ -49,7 +49,8 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
     const [files, setFiles] = useState([]);
     const [url, setUrl] = useState('');
     const [tabValue, setTabValue] = useState(0);
-    const { user, refreshOntologies } = useContext(GlobalDataContext);
+    const [setAsActive, setSetAsActive] = useState(false);
+    const { user, refreshOntologies, setOntologyData } = useContext(GlobalDataContext);
 
     // group used both for the POST endpoint and the immutable URI prefix shown to the user
     const groupForUri = organizationName || user?.groupname || "base";
@@ -64,6 +65,7 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
         setFiles([]);
         setUrl('');
         setTabValue(0);
+        setSetAsActive(false);
         setOpenStatusDialog(false);
         setNewOntologyResponse({
             title: "",
@@ -118,6 +120,28 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
             // If ontology was created successfully, trigger refresh
             if (result.created) {
                 refreshOntologies();
+
+                // Honor the "Set as active ontology" checkbox: push the freshly
+                // created ontology into global context so the active-ontology
+                // selector reflects it. The object shape mirrors the transformed
+                // ontologies produced in OntologySearch (label/badge/id/description/url).
+                if (setAsActive) {
+                    const ontologyUri = `${API_CONFIG.INTERLEX_URL}/${groupname}/ontologies/uris/${ontologyName}/spec`;
+                    const activeOntology = {
+                        label: title,
+                        badge: groupname,
+                        selected: true,
+                        id: result.newOntologyID || ontologyUri,
+                        description: ontologyUri,
+                        url: result.location,
+                    };
+                    setOntologyData(activeOntology);
+                    // Enrich with member terms once fetched, same as OntologySearch.onSetActive.
+                    getOntologyTerms(ontologyUri)
+                        .then((terms) => setOntologyData({ ...activeOntology, terms }))
+                        .catch(() => setOntologyData({ ...activeOntology, terms: [] }));
+                }
+
                 if (onOntologyAdded) {
                     onOntologyAdded();
                 }
@@ -382,7 +406,12 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
                                             }}
                                         />
                                     </Stack>
-                                    <Checkbox label="Set as active ontology" />
+                                    <Checkbox
+                                        label="Set as active ontology"
+                                        name="setAsActive"
+                                        checked={setAsActive}
+                                        onChange={(e) => setSetAsActive(e.target.checked)}
+                                    />
                                 </Grid>
                                 <Grid item xs={12} lg={12}>
                                     <CustomFormField

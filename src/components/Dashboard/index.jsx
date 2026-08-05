@@ -2,6 +2,7 @@ import {Box} from "@mui/material";
 import { useState } from "react";
 import EditBulkTermsDialog from "./EditBulkTerms/EditBulkTermsDialog";
 import Variants from "./Variants";
+import Ontologies from "./Ontologies";
 import TermsChange from "./TermsChange";
 import Organizations from "./Organizations";
 import User from "./User";
@@ -22,6 +23,7 @@ const Dashboard = () => {
       <User />
       <Box flexGrow={1} overflow='auto'>
         <Variants handleOpenEditBulkTerms={handleOpenEditBulkTerms} />
+        <Ontologies />
         <TermsChange />
         <Organizations />
       </Box>
