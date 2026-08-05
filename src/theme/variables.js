@@ -33,6 +33,13 @@ export const vars = {
 
 
 
+    // Blue accent. Only the three steps the design actually shipped — they lived as raw hex in
+    // MuiChip.colorSecondary before being tokenised here. Add further steps from the design, not
+    // by interpolation.
+    blue50: '#F0F9FF',
+    blue200: '#B9E6FE',
+    blue700: '#026AA2',
+
     error25: '#FFFBFA',
     error50: '#FEF3F2',
     error100: '#FEE4E2',
@@ -73,6 +80,7 @@ export const vars = {
     success900: '#074D31',
     success950: '#053321',
     paperShadow: '0px 12px 16px -4px rgba(16, 24, 40, 0.08), 0px 4px 6px -2px rgba(16, 24, 40, 0.03)',
+    shadowSm: '0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)',
     errorInputBoxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05), 0px 0px 0px 4px rgba(240, 68, 56, 0.24)',
     inputBoxShadow: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)',
     inputErrorBoxShadow: '0px 0px 0px 4px rgba(240, 68, 56, 0.24)'

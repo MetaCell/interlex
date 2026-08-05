@@ -188,6 +188,38 @@ export const CheckboxSelected = () => (
 		/>
 	</svg>
 );
+
+export const CheckboxIndeterminate = () => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		width="16"
+		height="16"
+		viewBox="0 0 16 16"
+		fill="none"
+	>
+		<rect x="0.5" y="0.5" width="15" height="15" rx="3.5" fill="#1C5F54" />
+		<rect x="0.5" y="0.5" width="15" height="15" rx="3.5" stroke="#1C5F54" />
+		<path d="M4 7.3H12V8.7H4V7.3Z" fill="white" />
+	</svg>
+);
+
+// Figma "v5/expand" — expand/collapse a facet value list (two rules + vertical arrows).
+export const ExpandRowsIcon = () => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		width="20"
+		height="20"
+		viewBox="0 0 20 20"
+		fill="none"
+	>
+		<g transform="translate(3.3333 1.6667)" fill="currentColor">
+			<path d="M13.3333 15H0V16.6667H13.3333V15Z" />
+			<path d="M13.3333 0H0V1.66667H13.3333V0Z" />
+			<path d="M4.50833 9.65833L3.33333 10.8333L6.66667 14.1667L10 10.8333L8.825 9.65833L7.5 10.975V5.69167L8.825 7.00833L10 5.83333L6.66667 2.5L3.33333 5.83333L4.50833 7.00833L5.83333 5.69167V10.975L4.50833 9.65833Z" />
+		</g>
+	</svg>
+);
+
 export const ForwardIcon = () => (
 	<svg
 		width="20"

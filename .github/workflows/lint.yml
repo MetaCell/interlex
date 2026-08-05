@@ -13,3 +13,6 @@ jobs:
               yarn
               yarn run build
               yarn run lint
+              # The neurdf parser's only automated coverage (30 assertions against the trimmed
+              # fixture in src/parsers/__fixtures__). Plain node + esbuild, no extra dependency.
+              yarn run check-parser

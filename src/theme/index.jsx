@@ -1,4 +1,4 @@
-import { createTheme } from "@mui/material/styles";
+import { alpha, createTheme } from "@mui/material/styles";
 import { vars } from "./variables";
 
 const {
@@ -6,6 +6,7 @@ const {
 	white,
 	brand600,
 	paperShadow,
+	shadowSm,
 	gray300,
 	gray600,
 	gray700,
@@ -35,10 +36,86 @@ const {
 	error700,
 	gray400,
 	brand200,
-	errorInputBoxShadow
+	errorInputBoxShadow,
+	black,
+	brand400,
+	error400,
+	warning400,
+	success400,
+	blue200,
+	blue700,
+	brand500,
+	brand800,
+	success25,
+	warning25,
+	error25
 } = vars;
 
 const theme = createTheme({
+	// Semantic colour tokens. `vars` stays the source of truth and feeds this; call sites should
+	// consume the palette (color="primary", sx={{ color: "text.secondary" }}) rather than importing
+	// `vars` directly. Only `main` is given where the design has no verified token at the tone MUI
+	// expects for light/dark, so MUI derives those via tonalOffset. contrastText is always computed.
+	palette: {
+		mode: "light",
+		primary: {
+			light: brand400,
+			main: brand600,
+			dark: brand700
+		},
+		// Blue accent, matching the shipped MuiChip.colorSecondary.
+		secondary: {
+			light: blue200,
+			main: blue700
+		},
+		info: {
+			light: blue200,
+			main: blue700
+		},
+		error: {
+			light: error400,
+			main: error500,
+			dark: error700
+		},
+		warning: {
+			light: warning400,
+			main: warning500,
+			dark: warning700
+		},
+		success: {
+			light: success400,
+			main: success500,
+			dark: success700
+		},
+		grey: {
+			50: gray50,
+			100: gray100,
+			200: gray200,
+			300: gray300,
+			400: gray400,
+			500: gray500,
+			600: gray600,
+			700: gray700,
+			800: gray800,
+			900: gray900
+		},
+		text: {
+			primary: gray900,
+			secondary: gray500,
+			disabled: gray400
+		},
+		background: {
+			default: white,
+			paper: white
+		},
+		// Matches the MuiDivider override, which makes `variant="outlined"` borders correct by default.
+		divider: gray200,
+		common: {
+			black: black,
+			white: white
+		}
+	},
+
 	typography: {
 		allVariants: {
 			fontFamily: primaryFont,
@@ -46,6 +123,32 @@ const theme = createTheme({
 		h5: {
 			color: gray600,
 			fontWeight: 600,
+		},
+		// Widget/section title (Figma "Text md/Medium" + Gray/800) — the "Ontology hierarchy"
+		// and "Terms" panel titles on the ontology Browse tab.
+		sectionTitle: {
+			color: gray800,
+			fontSize: '1rem',
+			fontWeight: 500,
+			lineHeight: 1.5,
+		},
+		// An absent value in a Cell Card property row ("not specified"): body2, greyed and italic
+		// (Figma "Biological properties item", empty state).
+		notSpecified: {
+			color: gray400,
+			fontSize: '0.875rem',
+			fontStyle: 'italic',
+			lineHeight: 1.4285,
+		},
+		// The term the page is about, inside a hierarchy tree: body2 in brand, semibold, so it
+		// reads as the anchor of the tree rather than as another row.
+		currentTerm: {
+			// brand600 is palette.primary.main — the tone the call-site `sx` used before this
+			// became a variant, so the tree row keeps exactly its old colour.
+			color: brand600,
+			fontSize: '0.875rem',
+			fontWeight: 600,
+			lineHeight: 1.4285,
 		},
 	},
 
@@ -114,6 +217,11 @@ const theme = createTheme({
             `,
 		},
 		MuiTypography: {
+			defaultProps: {
+				variantMapping: {
+					sectionTitle: 'h2'
+				}
+			},
 			styleOverrides: {
 				h6: {
 					fontSize: '1.125rem',
@@ -128,9 +236,46 @@ const theme = createTheme({
 				}
 			}
 		},
+		// `borderColor` here predates the palette and now merely restates `palette.divider`; the
+		// radius still has to be pinned because `shape` is deliberately left per-component.
+		MuiCard: {
+			styleOverrides: {
+				root: {
+					borderColor: gray200,
+					borderRadius: "0.75rem",
+					transition:
+						"background-color 150ms ease-in-out, border-color 150ms ease-in-out, box-shadow 150ms ease-in-out",
+					// Hover state of the clickable CellCards tile (Figma "State=Hover"): fill only,
+					// border and radius unchanged. The click target itself lives on the grid item.
+					"&:hover": {
+						backgroundColor: gray50
+					},
+					// Selected tile (Figma "State=Focus", which the design reuses for selection):
+					// 2px brand border + the `ring-brand` focus ring, on a white fill that has to be
+					// restated so a selected tile does not pick up the gray hover fill. Listed after
+					// `:hover` so it wins at equal specificity.
+					"&.Mui-selected": {
+						backgroundColor: white,
+						borderColor: brand600,
+						borderWidth: "2px",
+						boxShadow: `0 0 0 4px ${alpha(brand500, 0.24)}`
+					}
+				}
+			}
+		},
+		MuiCardContent: {
+			styleOverrides: {
+				root: {
+					padding: "1rem",
+					// MUI pads the last CardContent to 24px; keep every section uniform instead.
+					"&:last-child": {
+						paddingBottom: "1rem"
+					}
+				}
+			}
+		},
 		MuiRichTreeView: {
 			styleOverrides: {
-				backgroundColor: "red",
 				root: {
 					"& .MuiTreeItem-root": {
 						position: "relative",
@@ -250,7 +395,40 @@ const theme = createTheme({
 		},
 
 		MuiContainer: {
+			// A bare Container is a full-bleed page section, not MUI's centred `lg` box. The
+			// capped ones (Header banner, Footer, About, Partners) pass `maxWidth` explicitly.
+			defaultProps: {
+				maxWidth: false,
+			},
+
+			// Header band: title/breadcrumb/tabs above a divider, hence no bottom padding.
+			// `variant` is not in Container's API; MUI matches it off ownerState anyway and
+			// drops it before the DOM.
+			variants: [
+				{ props: { variant: "header" }, style: { paddingTop: "1.5rem" } },
+			],
+
 			styleOverrides: {
+				// Page gutter. 5rem = (1920 - 1760) / 2, from the Figma frame's content column.
+				//
+				// On `maxWidthFalse` (the slot `maxWidth={false}` resolves to) and not `root`, so
+				// the capped `maxWidth="xl"` containers keep MUI's gutters — for those, padding
+				// adds to the centring offset instead of setting the margin.
+				//
+				// The `sm` restatement is required, not redundant: styleOverrides merge into
+				// Container's style object, so a flat property lands in MUI's key position, ahead
+				// of MUI's own `@media (min-width:600px)` gutter, which then wins from 600px up.
+				//
+				// Unconditional for now: docs/container-layout-migration.md.
+				maxWidthFalse: {
+					paddingLeft: "5rem",
+					paddingRight: "5rem",
+					"@media (min-width:600px)": {
+						paddingLeft: "5rem",
+						paddingRight: "5rem",
+					},
+				},
+
 				maxWidthXl: {
 					"@media screen and (min-width: 96rem)": {
 						maxWidth: "104.5rem",
@@ -265,9 +443,16 @@ const theme = createTheme({
 					height: "1.375rem",
 					padding: "0 0.375rem",
 					fontSize: "0.75rem",
-					borderRadius: "0.375rem !important",
+					// The design's badge is a pill (Figma "Badge", 9239:67792 — measured against a rendered
+					// sweep, its corners match a radius of 10-11px on a 22px chip, which is what 1rem clamps
+					// to). Every colour slot below has always declared 1rem; the `0.375rem !important` that
+					// used to sit here overrode all of them, so no chip in the app was drawing its own radius.
+					// `.green-glow-chip` still pins 6px on its own class, which beats this on specificity.
+					borderRadius: "1rem",
 					fontWeight: 500,
 					width: "fit-content",
+					maxWidth: "100%",
+					minWidth: 0,
 
 					"&.rounded": {
 						padding: "0.125rem 0.5rem 0.125rem 0.375rem",
@@ -341,11 +526,24 @@ const theme = createTheme({
 				},
 				label: {
 					padding: 0,
+					// Chip text is often an ontology term of unbounded length, so cap every label and
+					// ellipsize. 20ch resolves to 160px here, which is 23-29 characters depending on
+					// letter widths. Chips whose label can exceed that should pass a `title` so the
+					// full value stays readable on hover.
+					maxWidth: "20ch",
+					overflow: "hidden",
+					textOverflow: "ellipsis",
+					whiteSpace: "nowrap",
 				},
+				// An outlined chip is the design's badge without a hue (Figma "Badge", 9239:67792): a
+				// 1px rule in the 200 tone over the 50 fill, flat. The colour slots below already draw
+				// it that way, so this only has to stop overriding them with the heavier 300 rule and a
+				// raised shadow, neither of which the badge has. `.greenChip` restates its own shadow
+				// and still wins on specificity, so the one chip that is meant to lift keeps lifting.
 				outlined: {
-					borderColor: gray300,
+					borderColor: gray200,
 					color: gray700,
-					boxShadow: "0rem 0.0625rem 0.125rem 0rem rgba(16, 24, 40, 0.05)",
+					boxShadow: "none",
 				},
 				colorPrimary: {
 					padding: "0.13rem 0.5rem",
@@ -477,6 +675,72 @@ const theme = createTheme({
 			defaultProps: {
 				disableElevation: true,
 			},
+			// A full-width, two-line link tile that happens to be a Button, so the *whole* card is
+			// one clickable target with real button/anchor semantics (focus ring, keyboard, middle
+			// click) instead of a bordered Box with a link inside it.
+			//
+			// Here rather than in `sx` at the call site because it is a look, not layout: the fill,
+			// border, radius, shadow and type all come from Figma tokens (9239:67808 — Base/White,
+			// Gray/200, shadow-xs, Text sm Semibold/Regular in Gray/500).
+			variants: [
+				{
+					props: { variant: "tile" },
+					style: {
+						width: "100%",
+						height: "auto",
+						padding: "1rem",
+						gap: "1rem",
+						justifyContent: "flex-start",
+						textAlign: "left",
+						background: white,
+						border: `1px solid ${gray200}`,
+						borderRadius: "0.5rem",
+						boxShadow: "0rem 0.0625rem 0.125rem 0rem rgba(16, 24, 40, 0.05)",
+						color: gray500,
+						fontWeight: 400,
+						"&:hover": {
+							background: gray25,
+							borderColor: gray300,
+						},
+						"&:focus-visible": {
+							borderColor: brand600,
+							boxShadow: `0rem 0rem 0rem 0.25rem ${alpha(brand500, 0.24)}`,
+						},
+						// The boxed glyph on the left (Figma "Featured icon", 40x40).
+						"& .tileIcon": {
+							flexShrink: 0,
+							display: "inline-flex",
+							alignItems: "center",
+							justifyContent: "center",
+							width: "2.5rem",
+							height: "2.5rem",
+							border: `1px solid ${gray200}`,
+							borderRadius: "0.5rem",
+							color: gray500,
+						},
+						"& .tileTitle": {
+							fontSize: "0.875rem",
+							lineHeight: 1.4285,
+							fontWeight: 600,
+							color: gray500,
+						},
+						"& .tileSupporting": {
+							fontSize: "0.875rem",
+							lineHeight: 1.4285,
+							fontWeight: 400,
+							color: gray500,
+						},
+						// Trailing affordance: a plain glyph pushed to the right edge, no button chrome
+						// of its own — the tile itself is the control.
+						"& .tileAction": {
+							flexShrink: 0,
+							marginLeft: "auto",
+							display: "inline-flex",
+							color: gray500,
+						},
+					},
+				},
+			],
 			styleOverrides: {
 				root: {
 					fontSize: "0.875rem",
@@ -792,6 +1056,53 @@ const theme = createTheme({
 					},
 				},
 			},
+			// The Cell Card widget tables (Figma "Table cell-editable", 9239:67836). The design
+			// gives them the same metrics as the table above — 2.75rem header, 4.5rem rows,
+			// 1.5rem gutters — so this carries only what it draws differently, and deliberately no
+			// geometry of its own. Its surface is the outlined MuiTableContainer below.
+			variants: [
+				{
+					props: { size: "small" },
+					style: {
+						// Column labels are Text xs/Medium in Gray/500, the same treatment a sortable
+						// header already gets from MuiTableSortLabel above.
+						"& .MuiTableHead-root .MuiTableCell-root": {
+							fontSize: "0.75rem",
+							color: gray500,
+						},
+						"& .MuiTableCell-root": {
+							color: gray600,
+							// These rows carry no action — the design has no hover state for them, and a
+							// fill on the one cell under the pointer reads as a broken row highlight.
+							"&:hover": {
+								backgroundColor: "transparent",
+							},
+						},
+						// The last row's rule is the container's bottom border; drawing both doubles it.
+						"& .MuiTableBody-root .MuiTableRow-root:last-of-type .MuiTableCell-root": {
+							borderBottom: 0,
+						},
+					},
+				},
+			],
+		},
+		MuiTableContainer: {
+			// `<TableContainer component={Paper} variant="outlined">` is the design's table surface:
+			// Paper brings the Gray/200 rule and the white fill, this adds the 12px corners and
+			// shadow-sm. Scoped to the outlined variant because the tables that predate it supply
+			// their own bordered Paper wrapper and would end up with two rules.
+			variants: [
+				{
+					props: { variant: "outlined" },
+					style: {
+						// Beats MuiPaper's own 4px radius, which is a class of equal weight.
+						"&.MuiPaper-root": {
+							borderRadius: "0.75rem",
+							boxShadow: shadowSm,
+						},
+					},
+				},
+			],
 		},
 		MuiPagination: {
 			styleOverrides: {
@@ -874,24 +1185,58 @@ const theme = createTheme({
 				},
 			},
 		},
+		// The Terms table on the ontology Browse tab. Column-header and cell metrics mirror the
+		// MuiTable overrides above so the two table flavours read as one component.
 		MuiDataGrid: {
 			styleOverrides: {
 				root: {
-					height: "90%",
+					// v7 paints this variable over the header and any pinned row, so the header fill
+					// has to be set here rather than on the columnHeaders slot.
+					"--DataGrid-containerBackground": gray50,
 					borderColor: gray200,
 					borderRadius: ".75rem",
-					boxShadow:
-						"0px 1px 3px 0px rgba(16, 24, 40, 0.10), 0px 1px 2px 0px rgba(16, 24, 40, 0.06)",
-
-					"& .MuiDataGrid-columnHeaderRow": {
-						backgroundColor: "red",
+					boxShadow: shadowSm,
+					// The design has no vertical rules between columns.
+					"& .MuiDataGrid-columnSeparator": {
+						display: "none",
 					},
 				},
 				columnHeaders: {
-					width: "100% !important",
-					'& [role="row"]': {
-						backgroundColor: `${gray200} !important`,
-						border: "0 !important",
+					borderTopLeftRadius: ".75rem",
+					borderTopRightRadius: ".75rem",
+				},
+				columnHeaderTitle: {
+					fontSize: "0.75rem",
+					fontWeight: 500,
+					color: gray600,
+				},
+				columnHeader: {
+					padding: "0 1.5rem",
+				},
+				cell: {
+					// 0.5rem of padding around two 1.25rem lines is exactly the 3.5rem row the grid
+					// asks for, so a wrapped label or definition fits without changing the row.
+					padding: "0.5rem 1.5rem",
+					// flex is restated because a cell rendering an element rather than bare text
+					// computes to display:block, which would leave alignItems inert and top-align
+					// that column against its neighbours.
+					display: "flex",
+					alignItems: "center",
+					whiteSpace: "normal",
+					// The grid otherwise sets line-height to the whole row height to centre a single
+					// line; flex does that job here, and a row-tall line-height would space wrapped
+					// text by 3.5rem a line.
+					lineHeight: "1.25rem",
+					// Content taller than the row is clipped here rather than spilling over the
+					// rows above and below it.
+					overflow: "hidden",
+					borderColor: gray200,
+					color: gray600,
+					// A centred column holds a control, not text: side padding would squeeze it and
+					// trip the cell's own text-overflow ellipsis.
+					"&.MuiDataGrid-cell--textCenter": {
+						paddingLeft: 0,
+						paddingRight: 0,
 					},
 				},
 			},
@@ -931,9 +1276,161 @@ const theme = createTheme({
 				},
 			},
 		},
+		// Components the Cell Card design leans on that had no override. Without these they render
+		// as MUI defaults (MUI blue links, 4px radii, a shadowed Alert), and the only way to fix
+		// that at the call site would be `sx` colours, which the project forbids. Kept to what the
+		// design needs *everywhere*: per-instance choices (an Alert with no severity icon) belong
+		// at the call site, and a look only one widget wants is scoped to a class.
+		MuiAlert: {
+			styleOverrides: {
+				root: {
+					borderRadius: "0.75rem",
+					border: `1px solid ${gray200}`,
+					padding: "0.75rem 1rem",
+					fontSize: "0.875rem",
+					lineHeight: 1.4285,
+				},
+				// Figma "Definition" banner: brand-tinted fill with a brand border.
+				standardInfo: {
+					backgroundColor: brand25,
+					borderColor: brand300,
+					color: gray700,
+				},
+				standardSuccess: {
+					backgroundColor: success25,
+					borderColor: success200,
+				},
+				standardWarning: {
+					backgroundColor: warning25,
+					borderColor: warning200,
+				},
+				standardError: {
+					backgroundColor: error25,
+					borderColor: error200,
+				},
+				message: {
+					padding: 0,
+					width: "100%",
+				},
+				action: {
+					paddingTop: 0,
+					marginRight: 0,
+				},
+			},
+		},
+		MuiAlertTitle: {
+			styleOverrides: {
+				root: {
+					fontSize: "0.875rem",
+					fontWeight: 600,
+					color: gray800,
+					marginBottom: "0.25rem",
+				},
+			},
+		},
+		MuiLink: {
+			defaultProps: {
+				underline: "hover",
+			},
+			styleOverrides: {
+				root: {
+					// Every value link in the Cell Card is brand-coloured and semibold, per the
+					// design's teal property values.
+					color: brand700,
+					fontWeight: 500,
+					cursor: "pointer",
+					"&:hover": {
+						color: brand800,
+					},
+				},
+			},
+		},
+		MuiSkeleton: {
+			defaultProps: {
+				animation: "wave",
+			},
+			styleOverrides: {
+				root: {
+					backgroundColor: gray100,
+					borderRadius: "0.375rem",
+				},
+			},
+		},
+		MuiList: {
+			styleOverrides: {
+				root: {
+					paddingTop: 0,
+					paddingBottom: 0,
+				},
+			},
+		},
+		MuiListItemButton: {
+			styleOverrides: {
+				root: {
+					// "Other cells from this source" tiles: an outlined row, not a filled list item.
+					// Scoped to the class rather than every ListItemButton in the app — the Header's
+					// nav dropdown and the About page link lists are ListItemButtons too.
+					"&.cellCardTile": {
+						border: `1px solid ${gray200}`,
+						borderRadius: "0.5rem",
+						padding: "0.5rem 0.75rem",
+						"&:hover": {
+							backgroundColor: gray25,
+							borderColor: gray300,
+						},
+					},
+				},
+			},
+		},
+		MuiListItemText: {
+			styleOverrides: {
+				primary: {
+					fontSize: "0.875rem",
+					fontWeight: 500,
+					color: gray700,
+				},
+				secondary: {
+					fontSize: "0.75rem",
+					color: gray500,
+				},
+			},
+		},
+		MuiDialogTitle: {
+			styleOverrides: {
+				root: {
+					fontSize: "1rem",
+					fontWeight: 500,
+					color: gray800,
+					padding: "1rem 1.5rem",
+					borderBottom: `1px solid ${gray200}`,
+				},
+			},
+		},
+		MuiDialogContent: {
+			styleOverrides: {
+				root: {
+					padding: "1.5rem",
+				},
+			},
+		},
+		MuiPopover: {
+			styleOverrides: {
+				paper: {
+					borderRadius: "0.75rem",
+					border: `1px solid ${gray200}`,
+					boxShadow: paperShadow,
+				},
+			},
+		},
 		MuiPaper: {
 			styleOverrides: {
 				root: {
+					// Relationship Graph frame (Figma 9478:72004): a 12px outlined surface with the
+					// legend bar tucked inside it, so the corners have to clip.
+					"&.graphFrame": {
+						borderRadius: "0.75rem",
+						overflow: "hidden",
+					},
 					"&.authPaper": {
 						borderRadius: "2rem",
 						boxShadow: paperShadow,

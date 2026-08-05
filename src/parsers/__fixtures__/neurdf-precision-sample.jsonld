@@ -1,0 +1,1335 @@
+{
+ "@context": {
+  "AIBSSPEC": "http://api.brain-map.org/api/v2/data/Specimen/",
+  "AIBSTL": "http://api.brain-map.org/api/v2/data/TransgenicLine/",
+  "BFO": "http://purl.obolibrary.org/obo/BFO_",
+  "BIRNLEX": "http://uri.neuinfo.org/nif/nifstd/birnlex_",
+  "CHEBI": "http://purl.obolibrary.org/obo/CHEBI_",
+  "FMA": "http://purl.org/sig/ont/fma/fma",
+  "IAO": "http://purl.obolibrary.org/obo/IAO_",
+  "ILX": "http://uri.interlex.org/base/ilx_",
+  "JAX": "http://jaxmice.jax.org/strain/",
+  "MBA": "http://api.brain-map.org/api/v2/data/Structure/",
+  "MIRO": "http://uri.interlex.org/MIRO/uris/readable/",
+  "MMRRC": "http://www.mmrrc.org/catalog/getSDS.jsp?mmrrc_id=",
+  "NCBIGene": "http://www.ncbi.nlm.nih.gov/gene/",
+  "NCBITaxon": "http://purl.obolibrary.org/obo/NCBITaxon_",
+  "NIFEXT": "http://uri.neuinfo.org/nif/nifstd/nifext_",
+  "NIFRID": "http://uri.neuinfo.org/nif/nifstd/readable/",
+  "NIFSTD": "http://uri.neuinfo.org/nif/nifstd/",
+  "NLX": "http://uri.neuinfo.org/nif/nifstd/nlx_",
+  "NLXANAT": "http://uri.neuinfo.org/nif/nifstd/nlx_anat_",
+  "NLXCELL": "http://uri.neuinfo.org/nif/nifstd/nlx_cell_",
+  "NLXMOL": "http://uri.neuinfo.org/nif/nifstd/nlx_mol_",
+  "NLXNEURNT": "http://uri.neuinfo.org/nif/nifstd/nlx_neuron_nt_",
+  "NLXSUB": "http://uri.neuinfo.org/nif/nifstd/nlx_subcell_",
+  "NLXWIKI": "http://neurolex.org/wiki/",
+  "OBI": "http://purl.obolibrary.org/obo/OBI_",
+  "PATO": "http://purl.obolibrary.org/obo/PATO_",
+  "PAXRAT": "http://uri.interlex.org/paxinos/uris/rat/labels/",
+  "PMID": "http://www.ncbi.nlm.nih.gov/pubmed/",
+  "PR": "http://purl.obolibrary.org/obo/PR_",
+  "PTHR": "http://www.pantherdb.org/panther/family.do?clsAccession=PTHR",
+  "RO": "http://purl.obolibrary.org/obo/RO_",
+  "RRID": "https://scicrunch.org/resolver/RRID:",
+  "SAO": "http://uri.neuinfo.org/nif/nifstd/sao",
+  "SO": "http://purl.obolibrary.org/obo/SO_",
+  "TEMP": "http://uri.interlex.org/temp/uris/",
+  "TEMPIND": "http://uri.interlex.org/temp/uris/phenotype-indicators/",
+  "UBERON": "http://purl.obolibrary.org/obo/UBERON_",
+  "aibs.mus.lab": "http://uri.interlex.org/aibs/uris/mouse/labels/",
+  "aibs.mus.ver": "http://uri.interlex.org/aibs/uris/mouse/versions/",
+  "altTerm": "http://purl.obolibrary.org/obo/IAO_0000118",
+  "atom": "http://uri.interlex.org/tgbugs/uris/readable/atlas/",
+  "brick": "https://brickschema.org/schema/Brick#",
+  "csvw": "http://www.w3.org/ns/csvw#",
+  "curatorNote": "http://purl.obolibrary.org/obo/IAO_0000232",
+  "dc": "http://purl.org/dc/elements/1.1/",
+  "dcam": "http://purl.org/dc/dcam/",
+  "dcat": "http://www.w3.org/ns/dcat#",
+  "dcmitype": "http://purl.org/dc/dcmitype/",
+  "dcterms": "http://purl.org/dc/terms/",
+  "defSource": "http://purl.obolibrary.org/obo/IAO_0000119",
+  "definition": "http://purl.obolibrary.org/obo/IAO_0000115",
+  "doap": "http://usefulinc.com/ns/doap#",
+  "editorNote": "http://purl.obolibrary.org/obo/IAO_0000116",
+  "femrep": "http://uri.interlex.org/tgbugs/uris/readable/sparc-nlp/femrep/",
+  "foaf": "http://xmlns.com/foaf/0.1/",
+  "geo": "http://www.opengis.net/ont/geosparql#",
+  "hasMember": "http://purl.obolibrary.org/obo/RO_0002351",
+  "hasPart": "http://purl.obolibrary.org/obo/BFO_0000051",
+  "hasRole": "http://purl.obolibrary.org/obo/RO_0000087",
+  "ilx.hasDbXref": "http://uri.interlex.org/base/ilx_0381360",
+  "ilx.hasRole": "http://uri.interlex.org/base/ilx_0112784",
+  "ilx.partOf": "http://uri.interlex.org/base/ilx_0112785",
+  "ilx.relatedTo": "http://uri.interlex.org/base/ilx_0112796",
+  "ilx.type": "http://uri.interlex.org/base/readable/type/",
+  "ilxcr": "http://uri.interlex.org/composer/uris/readable/",
+  "ilxr": "http://uri.interlex.org/base/readable/",
+  "ilxtr": "http://uri.interlex.org/tgbugs/uris/readable/",
+  "importedFrom": "http://purl.obolibrary.org/obo/IAO_0000412",
+  "kidney": "http://uri.interlex.org/tgbugs/uris/readable/sparc-nlp/kidney/",
+  "liver": "http://uri.interlex.org/tgbugs/uris/readable/sparc-nlp/liver/",
+  "memberOf": "http://purl.obolibrary.org/obo/RO_0002350",
+  "mmset1": "http://uri.interlex.org/tgbugs/uris/readable/sparc-nlp/mmset1/",
+  "mmset2cn": "http://uri.interlex.org/tgbugs/uris/readable/sparc-nlp/mmset2cn/",
+  "mmset4": "http://uri.interlex.org/tgbugs/uris/readable/sparc-nlp/mmset4/",
+  "neurdf": "http://uri.interlex.org/tgbugs/uris/readable/neurdf/",
+  "neurdf.ent": "http://uri.interlex.org/tgbugs/uris/readable/neurdf/pred/ent/",
+  "neurdf.ent.neg": "http://uri.interlex.org/tgbugs/uris/readable/neurdf/pred/ent/neg/",
+  "neurdf.eqv": "http://uri.interlex.org/tgbugs/uris/readable/neurdf/pred/eqv/",
+  "neurdf.eqv.io": "http://uri.interlex.org/tgbugs/uris/readable/neurdf/pred/eqv/intsec/",
+  "neurdf.eqv.neg": "http://uri.interlex.org/tgbugs/uris/readable/neurdf/pred/eqv/neg/",
+  "neurdf.eqv.uo": "http://uri.interlex.org/tgbugs/uris/readable/neurdf/pred/eqv/union/",
+  "npokb": "http://uri.interlex.org/npo/uris/neurons/",
+  "odrl": "http://www.w3.org/ns/odrl/2/",
+  "org": "http://www.w3.org/ns/org#",
+  "overlaps": "http://purl.obolibrary.org/obo/RO_0002131",
+  "owl": "http://www.w3.org/2002/07/owl#",
+  "partOf": "http://purl.obolibrary.org/obo/BFO_0000050",
+  "prof": "http://www.w3.org/ns/dx/prof/",
+  "prostate": "http://uri.interlex.org/tgbugs/uris/readable/sparc-nlp/prostate/",
+  "prov": "http://www.w3.org/ns/prov#",
+  "qb": "http://purl.org/linked-data/cube#",
+  "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+  "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+  "schema": "https://schema.org/",
+  "semves": "http://uri.interlex.org/tgbugs/uris/readable/sparc-nlp/semves/",
+  "senmot": "http://uri.interlex.org/tgbugs/uris/readable/sparc-nlp/senmot/",
+  "sh": "http://www.w3.org/ns/shacl#",
+  "skos": "http://www.w3.org/2004/02/skos/core#",
+  "sosa": "http://www.w3.org/ns/sosa/",
+  "ssn": "http://www.w3.org/ns/ssn/",
+  "swglnd": "http://uri.interlex.org/tgbugs/uris/readable/sparc-nlp/swglnd/",
+  "termEditor": "http://purl.obolibrary.org/obo/IAO_0000117",
+  "time": "http://www.w3.org/2006/time#",
+  "vann": "http://purl.org/vocab/vann/",
+  "void": "http://rdfs.org/ns/void#",
+  "wgs": "https://www.w3.org/2003/01/geo/wgs84_pos#",
+  "xsd": "http://www.w3.org/2001/XMLSchema#"
+ },
+ "@graph": [
+  {
+   "@id": "npokb:1067",
+   "@type": [
+    "neurdf:Neuron",
+    "owl:Class"
+   ],
+   "TEMP:assertedSubClassOf": {
+    "@id": "npokb:1004"
+   },
+   "TEMP:mapsTo": {
+    "@id": "TEMP:MISSING_"
+   },
+   "ilxtr:dataCitation": {
+    "@id": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE254789"
+   },
+   "ilxtr:genLabel": "dorsal root ganglion (with-axon-presynaptic-element-in Rexed lamina II) (with-axon-sensory-subcellular-element-in skin of body) type C nerve fiber slowly adapting type 1 (SA1) nerve fiber +peptide +Mrgpra3 +NCBIGene:667742 +Trpv1 heat-sensitive high-threshold mechanosensitivity (HTM) (implies Mus musculus sensory) neuron (Precision)",
+   "ilxtr:hasTemporaryId": {
+    "@id": "http://uri.interlex.org/tgbugs/uris/readable/neurons/precision/99-mouse"
+   },
+   "ilxtr:literatureCitation": {
+    "@id": "https://doi.org/10.1016/j.cell.2024.02.006"
+   },
+   "ilxtr:neurondmBaseClass": "neuron",
+   "neurdf.ent:hasCircuitRolePhenotype": {
+    "@id": "ilxtr:SensoryPhenotype"
+   },
+   "neurdf.ent:hasInstanceInTaxon": {
+    "@id": "http://purl.obolibrary.org/obo/NCBITaxon_10090"
+   },
+   "neurdf.eqv:hasAdaptationPhenotype": {
+    "@id": "http://uri.interlex.org/base/ilx_0796517"
+   },
+   "neurdf.eqv:hasAxonPhenotype": {
+    "@id": "http://uri.interlex.org/base/ilx_0796516"
+   },
+   "neurdf.eqv:hasAxonPresynapticElementIn": {
+    "@id": "http://uri.interlex.org/base/ilx_0110092"
+   },
+   "neurdf.eqv:hasAxonSensorySubcellularElementIn": {
+    "@id": "http://purl.obolibrary.org/obo/UBERON_0002097"
+   },
+   "neurdf.eqv:hasAxonSensorySubcellularStructure": {
+    "@id": "http://purl.obolibrary.org/obo/UBERON_0035501"
+   },
+   "neurdf.eqv:hasFunctionalPhenotype": {
+    "@id": "http://uri.interlex.org/base/ilx_0796528"
+   },
+   "neurdf.eqv:hasNeurotransmitterPhenotype": {
+    "@id": "http://purl.obolibrary.org/obo/CHEBI_16670"
+   },
+   "neurdf.eqv:hasNucleicAcidExpressionPhenotype": [
+    {
+     "@id": "NCBIGene:233222"
+    },
+    {
+     "@id": "NCBIGene:667742"
+    },
+    {
+     "@id": "NCBIGene:193034"
+    }
+   ],
+   "neurdf.eqv:hasSomaLocatedIn": {
+    "@id": "http://purl.obolibrary.org/obo/UBERON_0000044"
+   },
+   "neurdf.eqv:hasThresholdPhenotype": {
+    "@id": "http://uri.interlex.org/base/ilx_0796526"
+   },
+   "owl:equivalentClass": {
+    "@id": "_:sg_3355_0_0"
+   },
+   "rdfs:label": "DRG CGRP-theta1 (Qi2024)",
+   "rdfs:subClassOf": [
+    {
+     "@id": "ilxtr:NeuronPrecision"
+    },
+    {
+     "@id": "npokb:1052"
+    },
+    {
+     "@id": "npokb:954"
+    },
+    {
+     "@id": "npokb:1070"
+    },
+    {
+     "@id": "_:sg_3214_220_0"
+    },
+    {
+     "@id": "_:sg_3314_892_0"
+    }
+   ]
+  },
+  {
+   "@id": "npokb:1004",
+   "@type": [
+    "neurdf:Neuron",
+    "owl:Class"
+   ],
+   "rdfs:label": "DRG C-NP.MRGPRX1 MRGPRX4 (Bhuiyan2025)"
+  },
+  {
+   "@id": "ilxtr:SensoryPhenotype",
+   "@type": "owl:Class",
+   "rdfs:label": "Sensory phenotype"
+  },
+  {
+   "@id": "http://purl.obolibrary.org/obo/NCBITaxon_10090",
+   "@type": "owl:Class",
+   "rdfs:label": "Mus musculus"
+  },
+  {
+   "@id": "http://uri.interlex.org/base/ilx_0796517",
+   "@type": "owl:Class",
+   "rdfs:label": "slowly adapting type 1 (SA1) nerve fiber"
+  },
+  {
+   "@id": "http://uri.interlex.org/base/ilx_0796516",
+   "@type": "owl:Class",
+   "rdfs:label": "type C nerve fiber"
+  },
+  {
+   "@id": "http://uri.interlex.org/base/ilx_0110092",
+   "@type": "owl:Class",
+   "rdfs:label": "Rexed lamina II"
+  },
+  {
+   "@id": "http://purl.obolibrary.org/obo/UBERON_0002097",
+   "@type": "owl:Class",
+   "rdfs:label": "skin of body"
+  },
+  {
+   "@id": "http://purl.obolibrary.org/obo/UBERON_0035501",
+   "@type": "owl:Class",
+   "rdfs:label": "unencapsulated tactile receptor"
+  },
+  {
+   "@id": "http://uri.interlex.org/base/ilx_0796528",
+   "@type": "owl:Class",
+   "rdfs:label": "heat-sensitive phenotype"
+  },
+  {
+   "@id": "http://purl.obolibrary.org/obo/CHEBI_16670",
+   "@type": "owl:Class",
+   "rdfs:label": "peptide"
+  },
+  {
+   "@id": "NCBIGene:233222",
+   "@type": "owl:Class",
+   "rdfs:label": "Mrgpra3"
+  },
+  {
+   "@id": "NCBIGene:667742",
+   "@type": "owl:Class"
+  },
+  {
+   "@id": "NCBIGene:193034",
+   "@type": "owl:Class",
+   "rdfs:label": "Trpv1"
+  },
+  {
+   "@id": "http://purl.obolibrary.org/obo/UBERON_0000044",
+   "@type": "owl:Class",
+   "rdfs:label": "dorsal root ganglion"
+  },
+  {
+   "@id": "http://uri.interlex.org/base/ilx_0796526",
+   "@type": "owl:Class",
+   "rdfs:label": "high-threshold mechanosensitivity (HTM) phenotype"
+  },
+  {
+   "@id": "ilxtr:NeuronPrecision",
+   "@type": "owl:Class"
+  },
+  {
+   "@id": "npokb:1052",
+   "@type": [
+    "owl:Class",
+    "neurdf:Neuron"
+   ],
+   "rdfs:label": "DRG NP2.1 (Krauter2025)"
+  },
+  {
+   "@id": "npokb:954",
+   "@type": [
+    "neurdf:Neuron",
+    "owl:Class"
+   ],
+   "rdfs:label": "DRG TG Mrgpra3+Trpv1 (Bhuiyan2024)"
+  },
+  {
+   "@id": "npokb:1070",
+   "@type": [
+    "owl:Class",
+    "neurdf:Neuron"
+   ],
+   "rdfs:label": "DRG CGRP-iota (Qi2024)"
+  },
+  {
+   "@id": "npokb:934",
+   "@type": [
+    "neurdf:Neuron",
+    "owl:Class"
+   ],
+   "ilxtr:atlasAnnotation": {
+    "@id": "TEMP:MISSING_"
+   },
+   "ilxtr:genLabel": "(unionOf dorsal root ganglion trigeminal ganglion) type Aδ (delta) nerve fiber +Calca +Smr2 heat-sensitive high-threshold mechanosensitivity (HTM) (implies Cavia porcellus Homo sapiens Macaca mulatta Mus musculus sensory) neuron (Precision)",
+   "ilxtr:hasTemporaryId": {
+    "@id": "http://uri.interlex.org/tgbugs/uris/readable/neurons/precision/5-master"
+   },
+   "ilxtr:literatureCitation": {
+    "@id": "https://doi.org/10.1126/sciadv.adj9173"
+   },
+   "ilxtr:neurondmBaseClass": "neuron",
+   "neurdf.ent:hasCircuitRolePhenotype": {
+    "@id": "ilxtr:SensoryPhenotype"
+   },
+   "neurdf.ent:hasInstanceInTaxon": [
+    {
+     "@id": "http://purl.obolibrary.org/obo/NCBITaxon_10141"
+    },
+    {
+     "@id": "http://purl.obolibrary.org/obo/NCBITaxon_9606"
+    },
+    {
+     "@id": "http://purl.obolibrary.org/obo/NCBITaxon_9544"
+    },
+    {
+     "@id": "http://purl.obolibrary.org/obo/NCBITaxon_10090"
+    }
+   ],
+   "neurdf.eqv.uo:hasSomaLocatedIn": {
+    "@list": [
+     {
+      "@id": "http://purl.obolibrary.org/obo/UBERON_0000044"
+     },
+     {
+      "@id": "http://purl.obolibrary.org/obo/UBERON_0001675"
+     }
+    ]
+   },
+   "neurdf.eqv:hasAxonPhenotype": {
+    "@id": "http://uri.interlex.org/base/ilx_0796514"
+   },
+   "neurdf.eqv:hasFunctionalPhenotype": {
+    "@id": "http://uri.interlex.org/base/ilx_0796528"
+   },
+   "neurdf.eqv:hasNucleicAcidExpressionPhenotype": [
+    {
+     "@id": "TEMPIND:Smr2"
+    },
+    {
+     "@id": "TEMPIND:Calca"
+    }
+   ],
+   "neurdf.eqv:hasThresholdPhenotype": {
+    "@id": "http://uri.interlex.org/base/ilx_0796526"
+   },
+   "owl:equivalentClass": {
+    "@id": "_:sg_4301_0_0"
+   },
+   "rdfs:label": "DRG TG Calca+Smr2 (Bhuiyan2024)",
+   "rdfs:subClassOf": [
+    {
+     "@id": "ilxtr:NeuronPrecision"
+    },
+    {
+     "@id": "_:sg_3214_87_0"
+    },
+    {
+     "@id": "_:sg_3314_834_0"
+    },
+    {
+     "@id": "_:sg_4274_7_0"
+    },
+    {
+     "@id": "_:sg_3172_132_0"
+    },
+    {
+     "@id": "_:sg_4275_8_0"
+    }
+   ]
+  },
+  {
+   "@id": "http://purl.obolibrary.org/obo/NCBITaxon_10141",
+   "@type": "owl:Class",
+   "rdfs:label": "Cavia porcellus"
+  },
+  {
+   "@id": "http://purl.obolibrary.org/obo/NCBITaxon_9606",
+   "@type": "owl:Class",
+   "rdfs:label": "Homo sapiens"
+  },
+  {
+   "@id": "http://purl.obolibrary.org/obo/NCBITaxon_9544",
+   "@type": "owl:Class",
+   "rdfs:label": "Macaca mulatta"
+  },
+  {
+   "@id": "http://purl.obolibrary.org/obo/UBERON_0001675",
+   "@type": "owl:Class",
+   "rdfs:label": "trigeminal ganglion"
+  },
+  {
+   "@id": "http://uri.interlex.org/base/ilx_0796514",
+   "@type": "owl:Class",
+   "rdfs:label": "type Aδ (delta) nerve fiber"
+  },
+  {
+   "@id": "TEMPIND:Smr2",
+   "@type": "owl:Class",
+   "rdfs:label": "Smr2 (indicator)"
+  },
+  {
+   "@id": "TEMPIND:Calca",
+   "@type": "owl:Class",
+   "rdfs:label": "Calca (indicator)"
+  },
+  {
+   "@id": "npokb:1007",
+   "@type": [
+    "neurdf:Neuron",
+    "owl:Class"
+   ],
+   "TEMP:assertedSubClassOf": [
+    {
+     "@id": "npokb:1014"
+    },
+    {
+     "@id": "npokb:1074"
+    }
+   ],
+   "TEMP:mapsTo": [
+    {
+     "@id": "npokb:1037"
+    },
+    {
+     "@id": "npokb:970"
+    }
+   ],
+   "ilxtr:atlasAnnotation": [
+    "C-Thermo.RXFP1:U19_UPENN",
+    "C-Thermo.RXFP1:U19_WASHU",
+    "C-Thermo.RXFP1:U19_HMS",
+    "C-Thermo.RXFP1:U19_UTD"
+   ],
+   "ilxtr:curatorNote": "see Figure 1G of https://doi.org/10.1038/s42003-025-08315-1 for asserted equivalences to Yu et al., 2024. See Table S12 for asserted equivalences to Bhuyian et al., 2025.",
+   "ilxtr:genLabel": "dorsal root ganglion type C nerve fiber +NCBIGene:59350 heat-sensitive (implies Homo sapiens sensory) neuron (Precision)",
+   "ilxtr:hasTemporaryId": {
+    "@id": "http://uri.interlex.org/tgbugs/uris/readable/neurons/precision/39-human"
+   },
+   "ilxtr:literatureCitation": {
+    "@id": "https://doi.org/10.1101/2025.11.05.686654"
+   },
+   "ilxtr:neurondmBaseClass": "neuron",
+   "neurdf.ent:hasCircuitRolePhenotype": {
+    "@id": "ilxtr:SensoryPhenotype"
+   },
+   "neurdf.ent:hasInstanceInTaxon": {
+    "@id": "http://purl.obolibrary.org/obo/NCBITaxon_9606"
+   },
+   "neurdf.eqv:hasAxonPhenotype": {
+    "@id": "http://uri.interlex.org/base/ilx_0796516"
+   },
+   "neurdf.eqv:hasFunctionalPhenotype": {
+    "@id": "http://uri.interlex.org/base/ilx_0796528"
+   },
+   "neurdf.eqv:hasNucleicAcidExpressionPhenotype": {
+    "@id": "NCBIGene:59350"
+   },
+   "neurdf.eqv:hasSomaLocatedIn": {
+    "@id": "http://purl.obolibrary.org/obo/UBERON_0000044"
+   },
+   "owl:equivalentClass": {
+    "@id": "_:sg_3277_0_0"
+   },
+   "rdfs:label": "DRG C-Thermo.RXFP1 (Bhuiyan2025)",
+   "rdfs:subClassOf": [
+    {
+     "@id": "npokb:1075"
+    },
+    {
+     "@id": "ilxtr:NeuronPrecision"
+    },
+    {
+     "@id": "_:sg_3214_160_0"
+    },
+    {
+     "@id": "_:sg_3172_170_0"
+    }
+   ]
+  },
+  {
+   "@id": "npokb:1014",
+   "@type": [
+    "neurdf:Neuron",
+    "owl:Class"
+   ],
+   "rdfs:label": "DRG cold nociceptor (Tavares-Ferreira2022)"
+  },
+  {
+   "@id": "npokb:1074",
+   "@type": [
+    "neurdf:Neuron",
+    "owl:Class"
+   ],
+   "rdfs:label": "DRG Trmp8 (Qi2024)"
+  },
+  {
+   "@id": "npokb:1037",
+   "@type": [
+    "neurdf:Neuron",
+    "owl:Class"
+   ],
+   "rdfs:label": "DRG Rxfp1 (Krauter2025)"
+  },
+  {
+   "@id": "npokb:970",
+   "@type": [
+    "owl:Class",
+    "neurdf:Neuron"
+   ],
+   "rdfs:label": "DRG Rxfp1 mouse (Bhuiyan2024)"
+  },
+  {
+   "@id": "NCBIGene:59350",
+   "@type": "owl:Class"
+  },
+  {
+   "@id": "npokb:1075",
+   "@type": [
+    "neurdf:Neuron",
+    "owl:Class"
+   ],
+   "rdfs:label": "DRG unassigned (Qi2024)"
+  },
+  {
+   "@id": "ilxtr:hasComputedMolecularPhenotypeFromRNA",
+   "@type": [
+    "owl:IrreflexiveProperty",
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Computed from RNA",
+   "ilxtr:shortDefinition": "Molecular phenotype computed from RNA-level data (e.g., transcriptomics).",
+   "rdfs:label": "hasComputedMolecularPhenotypeFromRNA"
+  },
+  {
+   "@id": "ilxtr:isMemberOfCircuit",
+   "@type": [
+    "owl:IrreflexiveProperty",
+    "owl:AsymmetricProperty",
+    "owl:ObjectProperty"
+   ],
+   "ilxtr:displayLabel": "Member of circuit",
+   "ilxtr:shortDefinition": "A neural circuit that this cell type is a member of.",
+   "rdfs:label": "isMemberOfCircuit"
+  },
+  {
+   "@id": "ilxtr:hasElectrophysiologicalPhenotype",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Electrophyioslogy",
+   "ilxtr:shortDefinition": "The electrical properties and firing properties of the cell.",
+   "rdfs:label": "hasElectrophysiologicalPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasProcessLocatedIn",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Process location",
+   "ilxtr:shortDefinition": "An anatomical location of the cell type's processes (axon/dendrites).",
+   "rdfs:label": "hasProcessLocatedIn"
+  },
+  {
+   "@id": "ilxtr:hasTaxonRank",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:IrreflexiveProperty",
+    "owl:ObjectProperty"
+   ],
+   "ilxtr:displayLabel": "Taxonomic rank",
+   "ilxtr:shortDefinition": "The taxonomic group of the last common ancestor with this cell type.",
+   "rdfs:label": "hasTaxonRank"
+  },
+  {
+   "@id": "ilxtr:hasDevelopmentalType",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Developmental type",
+   "ilxtr:shortDefinition": "The developmental lineage for the cell type.",
+   "rdfs:label": "hasDevelopmentalType"
+  },
+  {
+   "@id": "ilxtr:hasDendriteLocatedIn",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:IrreflexiveProperty",
+    "owl:ObjectProperty"
+   ],
+   "ilxtr:displayLabel": "Dendrite location",
+   "ilxtr:shortDefinition": "An anatomical location of the cell type's dendrites.",
+   "rdfs:label": "hasDendriteLocatedIn"
+  },
+  {
+   "@id": "ilxtr:hasConnectionDeterminedByElectronMicroscopy",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Connection via electron microscopy",
+   "ilxtr:shortDefinition": "Connection determined by electron microscopy imaging.",
+   "rdfs:label": "hasConnectionDeterminedByElectronMicroscopy"
+  },
+  {
+   "@id": "ilxtr:hasPhenotype",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Observed phenotype",
+   "ilxtr:shortDefinition": "The particular observable characteristics or phenotypes of a cell type.",
+   "rdfs:label": "hasPhenotype"
+  },
+  {
+   "@id": "ilxtr:phenotypeCooccuresWith",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Co-occurs with",
+   "ilxtr:shortDefinition": "Another phenotype that is consistently observed alongside this one.",
+   "rdfs:label": "phenotypeCooccuresWith"
+  },
+  {
+   "@id": "ilxtr:hasExpressionPhenotype",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Expresses",
+   "ilxtr:shortDefinition": "General phenotype based on gene or molecule expression levels.",
+   "rdfs:label": "hasExpressionPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasReverseConnectionPhenotype",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Receives input from",
+   "ilxtr:shortDefinition": "Synaptic connections where this cell type is the postsynaptic partner.",
+   "rdfs:label": "hasReverseConnectionPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasExperimentalPhenotype",
+   "@type": [
+    "owl:IrreflexiveProperty",
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Experimental observation",
+   "ilxtr:shortDefinition": "A phenotype defined by meeting specific experimental conditions.",
+   "rdfs:label": "hasExperimentalPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasConnectionPhenotype",
+   "@type": [
+    "owl:ObjectProperty",
+    "owl:SymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Connectivity",
+   "ilxtr:shortDefinition": "Synaptic connections between this cell type and other cell types.",
+   "rdfs:label": "hasConnectionPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasReporterExpressionPhenotype",
+   "@type": [
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty",
+    "owl:AsymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Reporter expression",
+   "ilxtr:shortDefinition": "Genetic reporter line (e.g., fluorescent marker).",
+   "rdfs:label": "hasReporterExpressionPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasDendriteMorphologicalPhenotype",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Dendrite morphology",
+   "ilxtr:shortDefinition": "The shape and branching pattern of the cell type's dendrites.",
+   "rdfs:label": "hasDendriteMorphologicalPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasBiologicalSex",
+   "@type": [
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Sex",
+   "ilxtr:shortDefinition": "The biological sex the cell type has been observed in.",
+   "rdfs:label": "hasBiologicalSex"
+  },
+  {
+   "@id": "ilxtr:hasInstanceInTaxon",
+   "@type": [
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty",
+    "owl:AsymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Observed in",
+   "ilxtr:shortDefinition": "A taxonomic group the cell type has been observed in.",
+   "rdfs:label": "hasInstanceInTaxon"
+  },
+  {
+   "@id": "ilxtr:hasDriverExpressionInducedPhenotype",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:IrreflexiveProperty",
+    "owl:ObjectProperty"
+   ],
+   "ilxtr:displayLabel": "Induced driver expression",
+   "ilxtr:shortDefinition": "Genetic driver that must be induced to drive expression.",
+   "rdfs:label": "hasDriverExpressionInducedPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasProjectionPhenotype",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Projection target",
+   "ilxtr:shortDefinition": "Anatomical regions to which the cell type sends its axonal projections.",
+   "rdfs:label": "hasProjectionPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasMorphologicalPhenotype",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Morphology",
+   "ilxtr:shortDefinition": "The shape, size, and structural appearance of the cell type.",
+   "rdfs:label": "hasMorphologicalPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasAxonSensorySubcellularElementIn",
+   "@type": [
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Sensory structure location",
+   "ilxtr:shortDefinition": "An anatomical location of the cell type's axonal sensory subcellular elements.",
+   "rdfs:label": "hasAxonSensorySubcellularElementIn"
+  },
+  {
+   "@id": "ilxtr:hasAxonPhenotype",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Axon type",
+   "ilxtr:shortDefinition": "Phenotypes specific to the cell type's axons.",
+   "rdfs:label": "hasAxonPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasConnectionDeterminedByCellFilling",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Connection via cell filling",
+   "ilxtr:shortDefinition": "Connection determined by filling individual cells with a dye or tracer.",
+   "rdfs:label": "hasConnectionDeterminedByCellFilling"
+  },
+  {
+   "@id": "ilxtr:phenotypeOf",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Phenotype of",
+   "ilxtr:shortDefinition": "Links a phenotype back to the cell type or entity it characterizes.",
+   "rdfs:label": "phenotypeOf"
+  },
+  {
+   "@id": "ilxtr:hasClassificationPhenotype",
+   "@type": [
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Used for classification ",
+   "ilxtr:shortDefinition": "A phenotype used to classify or categorize a cell type within an arbitrary taxonomy.",
+   "rdfs:label": "hasClassificationPhenotype"
+  },
+  {
+   "@id": "ilxtr:phenotypeObservedInBrainRegion",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Observed in brain region",
+   "ilxtr:shortDefinition": "A brain region where a cell type with this phenotype has been observed.",
+   "rdfs:label": "phenotypeObservedInBrainRegion"
+  },
+  {
+   "@id": "ilxtr:hasAxonPresynapticElementIn",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Terminates in",
+   "ilxtr:shortDefinition": "An anatomical location of the cell type's axonal presynaptic elements.",
+   "rdfs:label": "hasAxonPresynapticElementIn"
+  },
+  {
+   "@id": "ilxtr:hasFunctionalCircuitRolePhenotype",
+   "@type": [
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty",
+    "owl:AsymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Functional circuit role",
+   "ilxtr:shortDefinition": "The excitatory or inhibitory role played by the cell type in the circuit.",
+   "rdfs:label": "hasFunctionalCircuitRolePhenotype"
+  },
+  {
+   "@id": "ilxtr:hasSomaLocationLaterality",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Laterality",
+   "ilxtr:shortDefinition": "The laterality (left, right, both) of the location of the somas of the cell type.",
+   "rdfs:label": "hasSomaLocationLaterality"
+  },
+  {
+   "@id": "ilxtr:hasDevelopmentalStructure",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Developmental structure",
+   "ilxtr:shortDefinition": "An anatomical structure associated with the cell type's developmental origin.",
+   "rdfs:label": "hasDevelopmentalStructure"
+  },
+  {
+   "@id": "ilxtr:hasNucleicAcidExpressionPhenotype",
+   "@type": [
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty",
+    "owl:AsymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Marker genes",
+   "ilxtr:shortDefinition": "DNA or RNA expression patterns in the cell type.",
+   "rdfs:label": "hasNucleicAcidExpressionPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasDriverExpressionPhenotype",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:IrreflexiveProperty",
+    "owl:ObjectProperty"
+   ],
+   "ilxtr:displayLabel": "Driver expression",
+   "rdfs:label": "hasDriverExpressionPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasSomaPhenotype",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Soma characteristics",
+   "ilxtr:shortDefinition": "Phenotypes specific to the cell type's soma.",
+   "rdfs:label": "hasSomaPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasForwardConnectionPhenotype",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Connects onto",
+   "ilxtr:shortDefinition": "Synaptic connections where this cell type is the presynaptic partner.",
+   "rdfs:label": "hasForwardConnectionPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasAdaptationPhenotype",
+   "@type": [
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty",
+    "owl:AsymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Adaptation",
+   "ilxtr:shortDefinition": "The electrophysiological adaptation behavior of the cell type.",
+   "rdfs:label": "hasAdaptationPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasComputedMolecularPhenotypeFromDNA",
+   "@type": [
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty",
+    "owl:AsymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Computed from DNA",
+   "ilxtr:shortDefinition": "Molecular phenotype computed from DNA-level data (e.g., genomics).",
+   "rdfs:label": "hasComputedMolecularPhenotypeFromDNA"
+  },
+  {
+   "@id": "ilxtr:hasDendritePhenotype",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Dendrite characteristics",
+   "ilxtr:shortDefinition": "Phenotypes specific to the cell type's dendrites.",
+   "rdfs:label": "hasDendritePhenotype"
+  },
+  {
+   "@id": "ilxtr:hasFunctionalPhenotype",
+   "@type": [
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Function",
+   "ilxtr:shortDefinition": "An external function or behavior that results in the electrical activation of the cell type.",
+   "rdfs:label": "hasFunctionalPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasLocationPhenotype",
+   "@type": [
+    "owl:IrreflexiveProperty",
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Located in",
+   "ilxtr:shortDefinition": "An anatomical location of any part of a cell type.",
+   "rdfs:label": "hasLocationPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasInstanceInSpecies",
+   "@type": [
+    "owl:IrreflexiveProperty",
+    "owl:AsymmetricProperty",
+    "owl:ObjectProperty"
+   ],
+   "ilxtr:displayLabel": "Observed in",
+   "ilxtr:shortDefinition": "A species the cell type has been observed in.",
+   "rdfs:label": "hasInstanceInSpecies"
+  },
+  {
+   "@id": "ilxtr:hasMolecularPhenotype",
+   "@type": [
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Molecular phenotype",
+   "ilxtr:shortDefinition": "Molecular-level characteristics such as gene or protein expression.",
+   "rdfs:label": "hasMolecularPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasComputedMolecularPhenotype",
+   "@type": [
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Computed molecular phenotype",
+   "ilxtr:shortDefinition": "Molecular phenotype inferred computationally from experimental data.",
+   "rdfs:label": "hasComputedMolecularPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasAxonLeadingToSensorySubcellularElementIn",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Axon location",
+   "ilxtr:shortDefinition": "An anatomical location of the cell type's axons that lead to a senaroy subcellular element (including terminals).",
+   "rdfs:label": "hasAxonLeadingToSensorySubcellularElementIn"
+  },
+  {
+   "@id": "ilxtr:hasConnectionDeterminedByViralTracing",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Connection via viral tracing",
+   "ilxtr:shortDefinition": "Connection determined by using viral tracers injected into tissue.",
+   "rdfs:label": "hasConnectionDeterminedByViralTracing"
+  },
+  {
+   "@id": "ilxtr:hasDevelopmentalStage",
+   "@type": [
+    "owl:IrreflexiveProperty",
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Developmental stage",
+   "ilxtr:shortDefinition": "A life cycle stage during which the cell type is observed.",
+   "rdfs:label": "hasDevelopmentalStage"
+  },
+  {
+   "@id": "ilxtr:receivesProjectionFrom",
+   "@type": [
+    "owl:IrreflexiveProperty",
+    "owl:AsymmetricProperty",
+    "owl:ObjectProperty"
+   ],
+   "ilxtr:displayLabel": "Receives input from",
+   "ilxtr:shortDefinition": "Anatomical regions that send input to this cell type.",
+   "rdfs:label": "receivesProjectionFrom"
+  },
+  {
+   "@id": "ilxtr:hasProteinExpressionPhenotype",
+   "@type": [
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Protein expression",
+   "ilxtr:shortDefinition": "Proteins expressed in the cell type.",
+   "rdfs:label": "hasProteinExpressionPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasSmallMoleculePhenotype",
+   "@type": [
+    "owl:IrreflexiveProperty",
+    "owl:AsymmetricProperty",
+    "owl:ObjectProperty"
+   ],
+   "ilxtr:displayLabel": "Small molecule phenotype",
+   "ilxtr:shortDefinition": "Small molecules present in the cell type (e.g., neurotransmitters, metabolites).",
+   "rdfs:label": "hasSmallMoleculePhenotype"
+  },
+  {
+   "@id": "ilxtr:hasDriverExpressionConstitutivePhenotype",
+   "@type": [
+    "owl:IrreflexiveProperty",
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Constitutive driver expression",
+   "ilxtr:shortDefinition": "Genetic driver that is always expressed if its promoter is active (not inducible).",
+   "rdfs:label": "hasDriverExpressionConstitutivePhenotype"
+  },
+  {
+   "@id": "ilxtr:hasConnectionDeterminedByElectrophysiology",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Connection via electrophysiology",
+   "ilxtr:shortDefinition": "Connection determined by using electrophysiological recording methods.",
+   "rdfs:label": "hasConnectionDeterminedByElectrophysiology"
+  },
+  {
+   "@id": "ilxtr:hasConnectionDeterminedByPharmacology",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Connection via pharmacology",
+   "ilxtr:shortDefinition": "Connection determined by using pharmacological manipulation.",
+   "rdfs:label": "hasConnectionDeterminedByPharmacology"
+  },
+  {
+   "@id": "ilxtr:hasSensorySubcellularElementIn",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:IrreflexiveProperty",
+    "owl:ObjectProperty"
+   ],
+   "ilxtr:displayLabel": "Sensory ending location",
+   "ilxtr:shortDefinition": "An anatomical location of the cell type's sensory subcellular elements (axonal OR dendritic).",
+   "rdfs:label": "hasSensorySubcellularElementIn"
+  },
+  {
+   "@id": "ilxtr:hasSomaLocatedIn",
+   "@type": [
+    "owl:IrreflexiveProperty",
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Soma location",
+   "ilxtr:shortDefinition": "An anatomical region where the cell body (soma) resides.",
+   "rdfs:label": "hasSomaLocatedIn"
+  },
+  {
+   "@id": "ilxtr:hasDendriteSensorySubcellularElementIn",
+   "@type": [
+    "owl:IrreflexiveProperty",
+    "owl:AsymmetricProperty",
+    "owl:ObjectProperty"
+   ],
+   "ilxtr:displayLabel": "Dendrite sensory element location",
+   "ilxtr:shortDefinition": "An anatomical location of the cell type's dendritic sensory subcellular elements.",
+   "rdfs:label": "hasDendriteSensorySubcellularElementIn"
+  },
+  {
+   "@id": "ilxtr:hasThresholdPhenotype",
+   "@type": [
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Threshold",
+   "ilxtr:shortDefinition": "The threshold stimulus strength needed to activate or trigger the cell type.",
+   "rdfs:label": "hasThresholdPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasAxonLocatedIn",
+   "@type": [
+    "owl:IrreflexiveProperty",
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Axon location",
+   "ilxtr:shortDefinition": "An anatomical location of the cell type's axons (including terminals).",
+   "rdfs:label": "hasAxonLocatedIn"
+  },
+  {
+   "@id": "ilxtr:hasPresynapticTerminalsIn",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Presynaptic terminal locations",
+   "ilxtr:shortDefinition": "An anatomical location of the cell type's presynaptic terminals (axonal OR dendritic).",
+   "rdfs:label": "hasPresynapticTerminalsIn"
+  },
+  {
+   "@id": "ilxtr:hasNeurotransmitterPhenotype",
+   "@type": [
+    "owl:IrreflexiveProperty",
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Neurotransmitters",
+   "ilxtr:shortDefinition": "Neurotransmitters the cell type produces or releases.",
+   "rdfs:label": "hasNeurotransmitterPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasConnectionDeterminedBySynapticPhysiology",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Connection via synaptic physiology",
+   "ilxtr:shortDefinition": "Connection determined by measuring synaptic potentials or currents.",
+   "rdfs:label": "hasConnectionDeterminedBySynapticPhysiology"
+  },
+  {
+   "@id": "ilxtr:hasPhenotypeModifier",
+   "@type": [
+    "owl:IrreflexiveProperty",
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Phenotype modifier",
+   "ilxtr:shortDefinition": "Specifies a condition or context that modifies how a phenotype is expressed.",
+   "rdfs:label": "hasPhenotypeModifier"
+  },
+  {
+   "@id": "ilxtr:hasComputedPhenotype",
+   "@type": [
+    "owl:IrreflexiveProperty",
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Computed phenotype",
+   "ilxtr:shortDefinition": "A phenotype computer from data rather than directly observed.",
+   "rdfs:label": "hasComputedPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasLayerLocationPhenotype",
+   "@type": [
+    "owl:IrreflexiveProperty",
+    "owl:AsymmetricProperty",
+    "owl:ObjectProperty"
+   ],
+   "ilxtr:displayLabel": "Layer location",
+   "ilxtr:shortDefinition": "A laminar structure (e.g. cortical layer, spinal layer) that any part of the of the cell type is located in.",
+   "rdfs:label": "hasLayerLocationPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasComputedMolecularPhenotypeFromProtein",
+   "@type": [
+    "owl:ObjectProperty",
+    "owl:AsymmetricProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Computed from protein",
+   "ilxtr:shortDefinition": "Molecular phenotype computed from protein-level data (e.g., proteomics).",
+   "rdfs:label": "hasComputedMolecularPhenotypeFromProtein"
+  },
+  {
+   "@id": "ilxtr:hasSomaLocatedInLayer",
+   "@type": "owl:ObjectProperty",
+   "ilxtr:displayLabel": "Soma layer",
+   "ilxtr:shortDefinition": "A tissue layer in which the cell body is located.",
+   "rdfs:label": "hasSomaLocatedInLayer"
+  },
+  {
+   "@id": "ilxtr:hasCircuitRolePhenotype",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:IrreflexiveProperty",
+    "owl:ObjectProperty"
+   ],
+   "ilxtr:displayLabel": "Circuit role",
+   "ilxtr:shortDefinition": "The role this cell type plays within a neural circuit.",
+   "rdfs:label": "hasCircuitRolePhenotype"
+  },
+  {
+   "@id": "ilxtr:hasAnatomicalSystemPhenotype",
+   "@type": [
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty",
+    "owl:AsymmetricProperty"
+   ],
+   "ilxtr:displayLabel": "Anatomical system",
+   "ilxtr:shortDefinition": "An anatomical system (e.g., sympathetic, enteric) the cell type is part of.",
+   "rdfs:label": "hasAnatomicalSystemPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasAxonMorphologicalPhenotype",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Axon morphology",
+   "ilxtr:shortDefinition": "The shape and branching pattern of the cell type's axons.",
+   "rdfs:label": "hasAxonMorphologicalPhenotype"
+  },
+  {
+   "@id": "ilxtr:hasProjectionLaterality",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:ObjectProperty",
+    "owl:IrreflexiveProperty"
+   ],
+   "ilxtr:displayLabel": "Projection laterality",
+   "ilxtr:shortDefinition": "Projections are ipsilateral, contralateral, or bilateral.",
+   "rdfs:label": "hasProjectionLaterality"
+  },
+  {
+   "@id": "ilxtr:hasPresynapticElementIn",
+   "@type": [
+    "owl:AsymmetricProperty",
+    "owl:IrreflexiveProperty",
+    "owl:ObjectProperty"
+   ],
+   "ilxtr:displayLabel": "Presynaptic element location",
+   "ilxtr:shortDefinition": "An anatomical location of the cell type's presynaptic elements (axonal OR dendritic).",
+   "rdfs:label": "hasPresynapticElementIn"
+  },
+  {
+   "@id": "https://raw.githubusercontent.com/SciCrunch/NIF-Ontology/neurons/ttl/npo-merged-reasoned-neurdf.ttl",
+   "@type": "owl:Ontology",
+   "MIRO:axiom_patterns": [
+    {
+     "@id": "https://github.com/tgbugs/pyontutils/blob/master/neurondm/docs/basic-model.org"
+    },
+    {
+     "@id": "https://github.com/SciCrunch/NIF-Ontology/blob/neurons/docs/Neurons.md"
+    }
+   ],
+   "MIRO:competition": {
+    "@id": "https://github.com/obophenotype/cell-ontology"
+   },
+   "MIRO:dereferenceable_iris": "`npokb:' and `ilxtr:' identifiers are not currently dereferenceable, but they are planned to be.",
+   "MIRO:development_community": {
+    "@id": "https://github.com/SciCrunch/NIF-Ontology"
+   },
+   "MIRO:development_environment": "Protégé, FaCT++, ELK, python, pyontutils, neurondm",
+   "MIRO:entity_deprecation_strategy": "Specific ontology ids are never deprecated. If you need to know whether the modeling of a class has changed, neurondm can be used to regenerate the deterministic identifiers that appear as `ilxtr:hasTemporaryId'.",
+   "MIRO:entity_metadata_policy": "`rdfs:label' must be present. `skos:prefLabel' must be present for common usage types, and should be present when possible for evidence based models. Since the constituent ontology files that make up the npo are generated using python, provenance is primarily stored in the git repository pointed to via the `prov:wasGeneratedBy' predicate in the `owl:Ontology' header for individual files, in this case that repository is `<https://github.com/tgbugs/pyontutils>'",
+   "MIRO:entity_naming_convention": "`rdfs:label' must be automatically generated using neurondm. Labels are generated from the labels of the constituent phenotype values. Only restrictions specifying necessary criteria for defining the type (i.e. those that are contained in an `owl:equivalentClass' statement) are included when generating the name. The ordering of the dimensions is specified in https://github.com/tgbugs/pyontutils/blob/a5e9fcc70d56870e692c17cb7fadce735a281d02/neurondm/neurondm/core.py#L135-L389",
+   "MIRO:evaluation": "No external evaluation has been conducted. See https://doi.org/10.1007/s12021-022-09566-7",
+   "MIRO:example_of_use": {
+    "@id": "https://doi.org/10.1007/s12021-022-09566-7"
+   },
+   "MIRO:identifier_generation_policy": "`npokb:[0-9]+' identifiers are assigned sequentially via https://github.com/tgbugs/pyontutils/blob/a5e9fcc70d56870e692c17cb7fadce735a281d02/nifstd/nifstd_tools/map-identifiers.py#L20-L49. An index of issued identifiers is retained at https://github.com/SciCrunch/NIF-Ontology/blob/neurons/ttl/generated/neurons/npokb-index.ttl. Note that the current implementation currently does not correctly handles cases where the constituent phenotypes of a class change.",
+   "MIRO:knowledge_acquisition_methodology": {
+    "@id": "https://doi.org/10.1007/s12021-022-09566-7"
+   },
+   "MIRO:knowledge_representation_language": {
+    "@id": "http://www.w3.org/2002/07/owl"
+   },
+   "MIRO:methodological_framework": {
+    "@id": "https://doi.org/10.1007/s12021-022-09566-7"
+   },
+   "MIRO:need": "There is a need to bridge the gap between historical definitions of cell types from the literature, with cell types being defined using a wide variety of new techniques. There is also a need to be able to bridge and reconcile the wide variety of local terminology used across laboratories and place them on more solid foundations derived from the methodology used to make measurements on cells.",
+   "MIRO:scope_and_coverage": "Scope: neuron types, and the dimensions and values of their constituent phenotypes. Coverage: an inventory of common usage types from existing sources, as well as three examples of evidence based models of cell types from recent publications.",
+   "MIRO:source_knowledge_location": {
+    "@id": "https://doi.org/10.1007/s12021-022-09566-7"
+   },
+   "MIRO:sustainability_plan": "The npo is maintained as part of the NIF-Ontology.",
+   "MIRO:testing": "See `MIRO:axiom_patterns' and paper https://doi.org/10.1007/s12021-022-09566-7",
+   "MIRO:versioning_policy": "Development versions of the ontology are released continuously and are identified by their git commit hashes. Stable versions are released periodically and can be accessed by their git tag.",
+   "dc:contributor": [
+    "Ilias Ziogas - https://orcid.org/0000-0002-9210-2455",
+    "Susan Tappan - https://orcid.org/0000-0001-5120-3770",
+    "Mohameth François Sy - https://orcid.org/0000-0002-4603-9838",
+    "Monique Surles-Zeigler - https://orcid.org/0000-0002-2308-8813",
+    "Fahim Imam - https://orcid.org/0000-0003-4752-543X",
+    "Shreejoy Tripathy - https://orcid.org/0000-0002-1007-9061",
+    "Jyl Boline - https://orcid.org/0000-0001-5232-8364",
+    "Bernard de Bono - https://orcid.org/0000-0003-0638-5274"
+   ],
+   "dc:creator": [
+    "Sean Hill - https://orcid.org/0000-0001-8055-860X",
+    "Tom Gillespie - https://orcid.org/0000-0002-7509-4801",
+    "Maryann Martone - https://orcid.org/0000-0002-8406-3871"
+   ],
+   "dc:description": "An ontology of neuron types based on the phenotypic dimensions of cells that can be measure experimentally.",
+   "dc:title": "The Neuron Phenotype Ontology",
+   "dcterms:license": {
+    "@id": "http://spdx.org/licenses/CC-BY-4.0"
+   },
+   "doap:GitRespository": {
+    "@id": "https://github.com/SciCrunch/NIF-Ontology"
+   },
+   "doap:audience": "researchers working on cell types and their phenotypes, whether they are collecting raw data, organizing existing data, or creating simulations of cell types",
+   "doap:bug-database": {
+    "@id": "https://github.com/SciCrunch/NIF-Ontology/issues"
+   },
+   "ilxtr:imports": [
+    {
+     "@id": "https://raw.githubusercontent.com/SciCrunch/NIF-Ontology/neurons/ttl/generated/parcellation/mbaslim.ttl"
+    },
+    {
+     "@id": "https://raw.githubusercontent.com/SciCrunch/NIF-Ontology/neurons/ttl/bridge/neuron-bridge.ttl"
+    },
+    {
+     "@id": "https://raw.githubusercontent.com/SciCrunch/NIF-Ontology/neurons/ttl/generated/allen-transgenic-lines.ttl"
+    },
+    {
+     "@id": "http://purl.obolibrary.org/obo/bfo.owl"
+    }
+   ],
+   "ilxtr:indexNamespace": {
+    "@id": "npokb:"
+   },
+   "owl:versionInfo": "2026-06-23",
+   "prov:wasGeneratedBy": {
+    "@id": "https://github.com/tgbugs/pyontutils/blob/master/neurondm/neurondm/build.py"
+   },
+   "rdfs:label": "The Neuron Phenotype Ontology"
+  }
+ ]
+}
