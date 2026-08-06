@@ -76,31 +76,58 @@ const isIri = (id: string): boolean => id.includes("://");
 // It is not a real term, so it must never surface as a value / facet option / tile chip.
 const isMissingSentinel = (id: string): boolean => /^TEMP:MISSING/i.test(id);
 
-// Compact an @id (curie or IRI) into { curie, kind } without needing the @context.
-const classify = (id: string): { curie: string; kind: RefKind } => {
+// --- prefix table: the parsed file's own @context ---------------------------
+
+// Prefix -> base IRI, read from the graph's @context. Every curie <-> IRI conversion below goes
+// through it, so no prefix is known to the front end: `npokb:997` is `@context.npokb` + `997`,
+// i.e. http://uri.interlex.org/npo/uris/neurons/997, and an ontology that names its terms with a
+// different prefix needs no edit here. Every CURIE prefix the shipped graph uses is declared in
+// its @context.
+export type Prefixes = Record<string, string>;
+
+// A JSON-LD @context mixes prefix declarations ("npokb": ".../neurons/") with term definitions
+// ("definition": ".../IAO_0000115"), and either may be written as an object ({"@id": …}). Both
+// are kept: expansion only looks up the part before a ":", where a term name cannot appear, and
+// compaction requires a non-empty local part, which a term's own IRI cannot leave behind.
+export const contextPrefixes = (context?: Record<string, unknown>): Prefixes => {
+  const out: Prefixes = {};
+  for (const [key, value] of Object.entries(context || {})) {
+    if (key.startsWith("@")) continue; // @vocab / @base / @version are not prefixes
+    const base =
+      typeof value === "string"
+        ? value
+        : value && typeof value === "object"
+          ? firstString((value as { "@id"?: unknown })["@id"])
+          : undefined;
+    if (base) out[key] = base;
+  }
+  return out;
+};
+
+// Compact an @id (curie or IRI) into { curie, kind } against the @context.
+const classify = (id: string, prefixes: Prefixes): { curie: string; kind: RefKind } => {
   if (!isIri(id)) {
     // already a curie like "npokb:1067", "NCBIGene:233222", "ilxtr:SensoryPhenotype"
     const prefix = id.split(":")[0];
     return { curie: id, kind: kindForPrefix(prefix, id) };
   }
-  // full IRI — derive a short curie + kind from known bases
-  for (const [prefix, base] of Object.entries(IRI_BASES)) {
-    if (id.startsWith(base)) {
-      return { curie: `${prefix}:${id.slice(base.length)}`, kind: kindForPrefix(prefix, id) };
+  // Full IRI: compact it against the longest declared base that covers it, since a context
+  // routinely declares both a family and its members (".../obo/" and ".../obo/UBERON_") and only
+  // the longer one names the term. The base must leave a local part behind, which is what stops a
+  // term definition — an IRI complete in itself — from being read as a prefix.
+  let best = "";
+  let bestPrefix = "";
+  for (const [prefix, base] of Object.entries(prefixes)) {
+    if (base.length > best.length && id.length > base.length && id.startsWith(base)) {
+      best = base;
+      bestPrefix = prefix;
     }
+  }
+  if (best) {
+    return { curie: `${bestPrefix}:${id.slice(best.length)}`, kind: kindForPrefix(bestPrefix, id) };
   }
   const tail = id.split(/[/#]/).filter(Boolean).pop() || id;
   return { curie: tail, kind: "external" };
-};
-
-const IRI_BASES: Record<string, string> = {
-  UBERON: "http://purl.obolibrary.org/obo/UBERON_",
-  CHEBI: "http://purl.obolibrary.org/obo/CHEBI_",
-  NCBITaxon: "http://purl.obolibrary.org/obo/NCBITaxon_",
-  NCBIGene: "http://www.ncbi.nlm.nih.gov/gene/",
-  ILX: "http://uri.interlex.org/base/ilx_",
-  ilxtr: "http://uri.interlex.org/tgbugs/uris/readable/",
-  npokb: "http://uri.interlex.org/npo/uris/neurons/",
 };
 
 const kindForPrefix = (prefix: string, id: string): RefKind => {
@@ -124,11 +151,13 @@ const kindForPrefix = (prefix: string, id: string): RefKind => {
   }
 };
 
-// Full IRI for linking out (expand a curie via known bases; pass through IRIs).
-const toIri = (id: string): string => {
+// Full IRI for linking out: expand a curie through the @context, pass an IRI through. "" when the
+// file declares no base for the prefix, which the UI reads as "not addressable" and renders as
+// plain text rather than a dead link.
+const toIri = (id: string, prefixes: Prefixes): string => {
   if (isIri(id)) return id;
   const [prefix, ...rest] = id.split(":");
-  const base = IRI_BASES[prefix];
+  const base = prefixes[prefix];
   return base ? base + rest.join(":") : "";
 };
 
@@ -145,7 +174,7 @@ const indexGraph = (graph: GraphNode[]): Index => {
   return idx;
 };
 
-const labelFor = (id: string, idx: Index): string => {
+const labelFor = (id: string, idx: Index, prefixes: Prefixes): string => {
   const node = idx.get(id);
   if (node) {
     for (const key of LABEL_KEYS) {
@@ -153,7 +182,7 @@ const labelFor = (id: string, idx: Index): string => {
       if (s) return s;
     }
   }
-  return classify(id).curie; // fall back to a compact curie when no label exists
+  return classify(id, prefixes).curie; // fall back to a compact curie when no label exists
 };
 
 // Turn a predicate value (ref object, array, @list, or literal) into ResolvedRefs.
@@ -162,7 +191,7 @@ const labelFor = (id: string, idx: Index): string => {
 // ({"@list":[{...},{...}]}), and `neurdf.eqv.uo:hasSomaLocatedIn` is the *only* soma-location
 // predicate on 61 of the 161 Precision cells. Treating a list object as an unrecognised value
 // silently dropped the property for all of them.
-const resolveValue = (raw: unknown, idx: Index): ResolvedRef[] => {
+const resolveValue = (raw: unknown, idx: Index, prefixes: Prefixes): ResolvedRef[] => {
   const out: ResolvedRef[] = [];
   const push = (item: unknown) => {
     if (item && typeof item === "object" && "@list" in (item as object)) {
@@ -173,8 +202,8 @@ const resolveValue = (raw: unknown, idx: Index): ResolvedRef[] => {
     if (item && typeof item === "object" && "@id" in (item as object)) {
       const id = String((item as JsonLdRefish)["@id"]);
       if (isBlankNode(id) || isMissingSentinel(id)) return; // skip restriction blanks + "not specified" sentinels
-      const { curie, kind } = classify(id);
-      out.push({ id, curie, label: labelFor(id, idx), iri: toIri(id), kind });
+      const { curie, kind } = classify(id, prefixes);
+      out.push({ id, curie, label: labelFor(id, idx, prefixes), iri: toIri(id, prefixes), kind });
     } else if (item && typeof item === "object" && "@value" in (item as object)) {
       // JSON-LD literal object, e.g. {"@value":"foo"} / {"@value":"foo","@language":"en"}
       const v = (item as { "@value"?: unknown })["@value"];
@@ -258,9 +287,9 @@ const LINK_ANNOTATIONS = {
 
 type LinkAnnotationField = (typeof LINK_ANNOTATIONS)[keyof typeof LINK_ANNOTATIONS];
 
-const linkAnnotationField = (key: string): LinkAnnotationField | undefined => {
+const linkAnnotationField = (key: string, prefixes: Prefixes): LinkAnnotationField | undefined => {
   if (key.startsWith("neurdf.")) return undefined; // a phenotype family, never a deep link
-  const localName = classify(key).curie.split(":").pop() || "";
+  const localName = classify(key, prefixes).curie.split(":").pop() || "";
   return LINK_ANNOTATIONS[localName as keyof typeof LINK_ANNOTATIONS];
 };
 
@@ -314,9 +343,9 @@ const mergeValues = (existing: ResolvedRef[], incoming: ResolvedRef[]): Resolved
   return [...byId.values()];
 };
 
-const buildCell = (node: GraphNode, idx: Index): CellTerm => {
+const buildCell = (node: GraphNode, idx: Index, prefixes: Prefixes): CellTerm => {
   const id = String(node["@id"]);
-  const { curie } = classify(id);
+  const { curie } = classify(id, prefixes);
   const properties: Record<string, CellProperty> = {};
   const negated: Record<string, CellProperty> = {};
   const annotations = emptyAnnotations();
@@ -325,21 +354,21 @@ const buildCell = (node: GraphNode, idx: Index): CellTerm => {
 
   for (const [key, raw] of Object.entries(node)) {
     if (key === "ilxtr:literatureCitation") {
-      sources = resolveValue(raw, idx); // a cell may cite several publications
+      sources = resolveValue(raw, idx, prefixes); // a cell may cite several publications
       continue;
     }
     if (key === "ilxtr:dataCitation") {
-      annotations.dataCitations = resolveValue(raw, idx);
+      annotations.dataCitations = resolveValue(raw, idx, prefixes);
       continue;
     }
     if (key in TEXT_ANNOTATIONS) {
       const field = TEXT_ANNOTATIONS[key as keyof typeof TEXT_ANNOTATIONS];
       // These are plain strings in the graph; resolveValue normalises the literal shapes.
-      annotations[field] = resolveValue(raw, idx).map((r) => r.label);
+      annotations[field] = resolveValue(raw, idx, prefixes).map((r) => r.label);
       continue;
     }
     if (key === "ilxtr:hasTemporaryId") {
-      annotations.temporaryId = resolveValue(raw, idx)[0]?.curie;
+      annotations.temporaryId = resolveValue(raw, idx, prefixes)[0]?.curie;
       continue;
     }
     if (key === "ilxtr:genLabel") {
@@ -347,18 +376,18 @@ const buildCell = (node: GraphNode, idx: Index): CellTerm => {
       continue;
     }
     if (key === "ilxtr:error") {
-      annotations.errors = resolveValue(raw, idx).map((r) => r.curie);
+      annotations.errors = resolveValue(raw, idx, prefixes).map((r) => r.curie);
       continue;
     }
-    const linkField = linkAnnotationField(key);
+    const linkField = linkAnnotationField(key, prefixes);
     if (linkField) {
       // The same link can be asserted under more than one prefix; merge rather than overwrite.
-      annotations[linkField] = mergeValues(annotations[linkField], resolveValue(raw, idx));
+      annotations[linkField] = mergeValues(annotations[linkField], resolveValue(raw, idx, prefixes));
       continue;
     }
     if (key in MAPPING_PREDICATES) {
       const evidence = MAPPING_PREDICATES[key];
-      for (const ref of resolveValue(raw, idx)) {
+      for (const ref of resolveValue(raw, idx, prefixes)) {
         // A cell can be related to the same record by more than one relation; the stronger
         // claim (an explicit description) wins over an inferred mapping.
         const prev = mappings.find((m) => m.ref.id === ref.id);
@@ -372,13 +401,13 @@ const buildCell = (node: GraphNode, idx: Index): CellTerm => {
     }
     if (key in LITERAL_PREDICATES) {
       const local = LITERAL_PREDICATES[key];
-      const values = resolveValue(raw, idx);
+      const values = resolveValue(raw, idx, prefixes);
       if (values.length) properties[local] = { localName: local, family: "eqv", negated: false, values };
       continue;
     }
     const parsed = parseNeurdfKey(key);
     if (!parsed) continue; // skip @id/@type/owl:*/rdfs:*/etc.
-    const values = resolveValue(raw, idx);
+    const values = resolveValue(raw, idx, prefixes);
     if (!values.length) continue;
     const bucket = parsed.negated ? negated : properties;
     const prev = bucket[parsed.localName];
@@ -403,9 +432,9 @@ const buildCell = (node: GraphNode, idx: Index): CellTerm => {
   return {
     id,
     curie,
-    iri: toIri(id),
-    label: labelFor(id, idx),
-    rdfTypes: rdfTypesOf(node),
+    iri: toIri(id, prefixes),
+    label: labelFor(id, idx, prefixes),
+    rdfTypes: rdfTypesOf(node, prefixes),
     definition: definition?.text,
     definitionCurated: definition?.curated,
     properties,
@@ -419,8 +448,8 @@ const buildCell = (node: GraphNode, idx: Index): CellTerm => {
 // rdf:type for the Terms table. The design asks for the OWL type of the record
 // (owl:Class / owl:ObjectProperty), so the neurdf marker types are dropped — but a record
 // carrying no owl:* type shows every type it has rather than nothing.
-const rdfTypesOf = (node: GraphNode): string[] => {
-  const all = asType(node["@type"]).map((t) => classify(t).curie);
+const rdfTypesOf = (node: GraphNode, prefixes: Prefixes): string[] => {
+  const all = asType(node["@type"]).map((t) => classify(t, prefixes).curie);
   const owl = all.filter((t) => t.startsWith("owl:"));
   return owl.length ? owl : all;
 };
@@ -447,7 +476,8 @@ const definitionOf = (
 const buildHierarchy = (
   rootClass: string,
   cells: CellTerm[],
-  idx: Index
+  idx: Index,
+  prefixes: Prefixes
 ): HierarchyNode[] => {
   if (!rootClass) return [];
   const inScope = new Set(cells.map((c) => c.id));
@@ -497,9 +527,9 @@ const buildHierarchy = (
     return {
       id: path,
       termId,
-      label: cell ? cell.label : labelFor(termId, idx),
-      curie: cell ? cell.curie : classify(termId).curie,
-      iri: cell ? cell.iri : toIri(termId),
+      label: cell ? cell.label : labelFor(termId, idx, prefixes),
+      curie: cell ? cell.curie : classify(termId, prefixes).curie,
+      iri: cell ? cell.iri : toIri(termId, prefixes),
       children: kids
         .map((kid) => nodeAt(kid, `${path}/${kid}`, nextSeen))
         .sort((a, b) => a.label.localeCompare(b.label)),
@@ -537,7 +567,10 @@ export const parseOntologyMeta = (graph: GraphNode[]): OntologyMeta => {
 //
 // Keyed by *local name* (`hasSomaLocatedIn`), because that is how a CellProperty is keyed,
 // while the annotation lives on the `ilxtr:hasSomaLocatedIn` node.
-export const parsePredicateDisplay = (graph: GraphNode[]): Record<string, PredicateDisplay> => {
+export const parsePredicateDisplay = (
+  graph: GraphNode[],
+  prefixes: Prefixes = {}
+): Record<string, PredicateDisplay> => {
   const out: Record<string, PredicateDisplay> = {};
   for (const node of graph) {
     const id = node["@id"];
@@ -546,7 +579,7 @@ export const parsePredicateDisplay = (graph: GraphNode[]): Record<string, Predic
     const description = firstString(node["ilxtr:shortDefinition"]);
     if (!label && !description) continue;
     // "ilxtr:hasSomaLocatedIn" and the expanded IRI both reduce to the same local name.
-    const localName = classify(id).curie.split(":").pop() || "";
+    const localName = classify(id, prefixes).curie.split(":").pop() || "";
     if (!localName) continue;
     out[localName] = {
       localName,
@@ -559,18 +592,20 @@ export const parsePredicateDisplay = (graph: GraphNode[]): Record<string, Predic
 
 export const parseNeurdf = (data: OntologyGraph, rootClass: string): ParsedOntology => {
   const graph = data["@graph"] || [];
+  // The file's own prefix declarations, which every curie <-> IRI conversion below reads.
+  const prefixes = contextPrefixes(data["@context"]);
   const idx = indexGraph(graph);
   const neurons = graph.filter((n) => asType(n["@type"]).includes("neurdf:Neuron"));
   const inScope = rootClass
     ? neurons.filter((n) => reaches(String(n["@id"] ?? ""), rootClass, idx))
     : neurons;
-  const cells = inScope.map((n) => buildCell(n, idx));
+  const cells = inScope.map((n) => buildCell(n, idx, prefixes));
   cells.sort((a, b) => a.label.localeCompare(b.label));
   return {
     meta: parseOntologyMeta(graph),
     cells,
-    hierarchy: buildHierarchy(rootClass, cells, idx),
-    predicateDisplay: parsePredicateDisplay(graph),
+    hierarchy: buildHierarchy(rootClass, cells, idx, prefixes),
+    predicateDisplay: parsePredicateDisplay(graph, prefixes),
   };
 };
 

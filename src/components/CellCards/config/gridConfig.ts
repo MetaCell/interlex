@@ -15,6 +15,11 @@ export interface OntologyEntry {
   description?: string;
   // neurdf root: cells are (transitively) subClassOf this; also shown as the header's curie tag.
   rootClass: string;
+  // CURIE prefixes this ontology names its own terms with. Part of its identity, so it belongs
+  // here rather than as a regex at a call site: it is what lets a term page recognise, from the
+  // slug alone and before anything is loaded, that this ontology is the only place the term can
+  // come from (`npokb_997` -> precision). See `ontologyForTermSlug`.
+  termPrefixes?: string[];
 }
 
 export const ONTOLOGY_CATALOG: Record<string, OntologyEntry> = {
@@ -28,6 +33,9 @@ export const ONTOLOGY_CATALOG: Record<string, OntologyEntry> = {
     curationStatus: "Curated",
     description: "HEAL-PRECISION neuron cell types (NPO).",
     rootClass: "ilxtr:NeuronPrecision",
+    // All 161 Precision cells are npokb-only today. Drop this once they are ingested with ILX ids:
+    // by then InterLex addresses them and the ontology stops being their only source.
+    termPrefixes: ["npokb"],
   },
 };
 
@@ -47,6 +55,20 @@ export const DEFAULT_ONTOLOGY_SLUG = "precision";
 // Query param carrying the context ontology across a term-page navigation. Distinct from
 // DataContext.activeOntology, which is the *edit* target shown as a chip in the header.
 export const ONTOLOGY_PARAM = "ontology";
+
+// Which catalogued ontology declares the prefix this term slug carries — i.e. the ontology a term
+// page can fall back to when nothing else names a context (a shared link, a search hit). Undefined
+// for a slug no ontology claims, which is the signal not to load one at all: the ~16MB file must
+// never be fetched on an ordinary InterLex term page.
+export const ontologyForTermSlug = (slug?: string): string | undefined => {
+  const prefix = String(slug || "")
+    .match(/^([A-Za-z][A-Za-z0-9.-]*)[_:]/)?.[1]
+    ?.toLowerCase();
+  if (!prefix) return undefined;
+  return Object.values(ONTOLOGY_CATALOG).find((entry) =>
+    entry.termPrefixes?.some((p) => p.toLowerCase() === prefix)
+  )?.slug;
+};
 
 // Does this term slug address an InterLex record *by construction* (`ilx_0101431`,
 // `tmp_0381624`)? Anything else — a Precision cell's `npokb_991` — may still be addressable, but

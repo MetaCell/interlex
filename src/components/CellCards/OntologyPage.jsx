@@ -4,6 +4,7 @@ import { Box, Typography, CircularProgress, Button } from "@mui/material";
 import OntologyHeader from "./OntologyHeader";
 import { ONTOLOGY_TABS } from "./config/gridConfig";
 import { loadOntology } from "./services/ontologyGridService";
+import { usePublishContextOntology } from "../../hooks/useContextOntology";
 import { vars } from "../../theme/variables";
 
 const { gray500, gray600 } = vars;
@@ -14,6 +15,8 @@ const { gray500, gray600 } = vars;
 const OntologyPage = () => {
   const { slug } = useParams();
   const { pathname } = useLocation();
+  // Reading this ontology *is* the context, for terms later opened without `?ontology=`.
+  usePublishContextOntology(slug);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);

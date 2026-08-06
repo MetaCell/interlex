@@ -11,6 +11,7 @@ import {
   MenuItem,
   CircularProgress,
   Alert,
+  Skeleton,
   Snackbar
 } from "@mui/material";
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -41,7 +42,8 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import Discussion from "./Discussion";
 import CellCardPanel from "../CellCards/CellCard/CellCardPanel";
-import { ONTOLOGY_PARAM } from "../CellCards/config/gridConfig";
+import { ONTOLOGY_PARAM, isIlxTermSlug, ontologyForTermSlug } from "../CellCards/config/gridConfig";
+import { useContextTerm } from "../../hooks/useContextOntology";
 import { CodeIcon } from "../../Icons";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import CustomButtonGroup from "../common/CustomButtonGroup";
@@ -104,6 +106,10 @@ const buildDownloadFilename = (termId, label, ext) => {
 const CELL_CARD_TAB = 0;
 const OVERVIEW_TAB = 1;
 
+// Can the URL select this tab? Disabled means "applies here, but has nothing to serve yet";
+// hidden means "does not apply to this term at all". Neither can be navigated to.
+const isTabSelectable = (tab) => Boolean(tab) && !tab.disabled && !tab.hidden;
+
 const SingleTermView = () => {
   const { group, term, tab, versionHash } = useParams();
   const location = useLocation();
@@ -130,14 +136,14 @@ const SingleTermView = () => {
   const openDataFormatMenu = Boolean(dataFormatAnchorEl);
   const { storedSearchTerm, updateStoredSearchTerm, user, activeOntology, setOntologyData } = useContext(GlobalDataContext);
   const [ontologySnackbar, setOntologySnackbar] = useState(null); // { severity, message }
-  // Label resolved by the Cell Card from the ontology graph. The term API cannot supply it for a
-  // precision cell (npokb ids 404), so without this the H1 would read "NPOKB:1067".
-  //
-  // Kept as { term, label } and read only when the term still matches, rather than being cleared
-  // by an effect on `term`: navigating between cells resolves the new cell synchronously (see
-  // useCellTerm), so the card reports its label in the *same* commit that a clearing effect would
-  // run in — and effects run child-before-parent, so the clear would land last and win.
-  const [cellLabel, setCellLabel] = useState(null);
+
+  // The term as the context ontology describes it. The term API can supply neither label nor IRI
+  // for a precision cell (npokb ids 404), so without this the H1 would read "NPOKB:1067".
+  const {
+    cell: contextCell,
+    ontology: contextOntologyData,
+    loading: contextLoading,
+  } = useContextTerm(term);
 
   // Whether the term currently in view is a member of the active ontology.
   const hasActiveOntology = !!activeOntology;
@@ -147,24 +153,33 @@ const SingleTermView = () => {
     return !!termId && ontologyTerms.some((id) => extractIlxId(id) === termId);
   }, [term, activeOntology]);
 
-  // Is this term a cell type, and therefore does the Cell Card tab apply?
-  //
-  // This has to be answered *synchronously*, because it decides the default tab in the mount
-  // effect below — waiting on the ontology load (a ~16MB fetch) would block every term page.
-  // Two cheap signals, both available from the URL alone:
-  //   - the term slug is an `npokb_*` id: all 161 Precision cells are npokb-only today;
-  //   - an `?ontology=` param is present: the user arrived from an ontology grid.
-  // Revisit once Precision cells are ingested with ILX ids — at that point the slug shape stops
-  // being a reliable signal and the term's own @type should decide.
+  // Is this term a cell type, and therefore does the Cell Card tab apply? Answered from the URL
+  // alone — a catalogued ontology claims the slug's prefix, or `?ontology=` says the user came from
+  // a grid — because it decides the default tab, which cannot wait on a ~16MB load. Deliberately
+  // not the resolved `contextCell`: that lands later and would move the default tab under a user
+  // already reading one.
   const contextOntology = new URLSearchParams(location.search).get(ONTOLOGY_PARAM);
 
-  const handleCellLabel = useCallback((label) => setCellLabel({ term, label }), [term]);
-  const resolvedCellLabel = cellLabel?.term === term ? cellLabel.label : null;
+  const resolvedCellLabel = contextCell?.label || null;
 
   const isCellTerm = useMemo(
-    () => /^npokb[_:]/i.test(term || "") || Boolean(contextOntology),
+    () => Boolean(ontologyForTermSlug(term)) || Boolean(contextOntology),
     [term, contextOntology]
   );
+
+  // The URL that names this term, which depends on what kind of term it is:
+  //   - an `ilx_*` / `tmp_*` slug is an InterLex record, addressed by group
+  //     (`uri.interlex.org/{group}/ilx_0101431`);
+  //   - a cell is named by its own IRI, which only the context ontology can give: the CURIE prefix
+  //     expanded through that file's @context. Until it arrives there is no link, rather than a
+  //     group path that names nothing — an unmapped external id 404s under every group.
+  const termIdentityUrl = useMemo(() => {
+    const groupUrl = `http://uri.interlex.org/${actualGroup}/${searchTerm}`;
+    if (isIlxTermSlug(searchTerm)) return groupUrl;
+    if (contextCell) return contextCell.iri || groupUrl;
+    return isCellTerm ? "" : groupUrl;
+  }, [searchTerm, actualGroup, contextCell, isCellTerm]);
+
   // Whether the InterLex term API can address this term at all. For a cell arriving as an
   // external id (`npokb_991`) that is not a property of the slug but of the data: the id is
   // addressable once curation maps it to a record, and the backend is the only one who knows.
@@ -172,6 +187,9 @@ const SingleTermView = () => {
   // every other term keeps the tabs it has today, probe or no probe.
   const termRecordAvailable = useTermRecordAvailability(term, group, isCellTerm);
   const isTermRecordPending = isCellTerm && termRecordAvailable === undefined;
+  // Same condition OverView applies to pick its source, so the page cannot say "read-only, from the
+  // ontology" over an Overview that has gone back to the (editable) InterLex record.
+  const servedByOntology = Boolean(contextCell) && termRecordAvailable !== true;
   const DEFAULT_TAB_INDEX = isCellTerm ? CELL_CARD_TAB : OVERVIEW_TAB;
 
   // Cell Card is the first tab, per the design, so `overview` is index 1 and every
@@ -193,17 +211,30 @@ const SingleTermView = () => {
     // disabled, which is what the bar already shows, so the common case never flickers.
     const termTabsDisabled = isCellTerm && termRecordAvailable !== true;
     return [
-      { label: "Cell Card", disabled: !isCellTerm },
-      { label: "Overview", disabled: termTabsDisabled },
+      // Hidden, not disabled: a term that is not a cell type has no Cell Card to offer and never
+      // will, so the bar should read as a plain term page rather than advertise a dead tab. The
+      // term tabs above are the other case — they apply, they just have no data yet.
+      { label: "Cell Card", hidden: !isCellTerm },
+      // Overview is the one term tab with a second source: the context ontology's own record. Its
+      // pending state counts as *not* disabled, unlike the probe above — the ontology takes seconds
+      // to load, and the sync effect below would spend them redirecting a deep link to /overview
+      // away. The other three read endpoints that answer only for an InterLex record.
+      { label: "Overview", disabled: termTabsDisabled && !contextCell && !contextLoading },
       { label: "Variants", disabled: termTabsDisabled },
       { label: "Version history", disabled: termTabsDisabled },
       { label: "Discussions", disabled: termTabsDisabled },
     ];
-  }, [isCellTerm, termRecordAvailable]);
+  }, [isCellTerm, termRecordAvailable, contextCell, contextLoading]);
 
   // Set initial tab value based on URL
   const [tabValue, setTabValue] = useState(() => {
-    return tabMapping[tab] !== undefined ? tabMapping[tab] : DEFAULT_TAB_INDEX;
+    const requested = tabMapping[tab];
+    // `/cell-card` on a term that is not a cell type: that tab is not rendered at all, and a
+    // value with no Tab behind it leaves the bar with nothing selected — plus an invalid-value
+    // warning from MUI — until the effect below rewrites the URL. The disabled cases are fine to
+    // select: they still exist in the bar.
+    if (requested === undefined || (requested === CELL_CARD_TAB && !isCellTerm)) return DEFAULT_TAB_INDEX;
+    return requested;
   });
 
   // Memoize the displayed term label to prevent unnecessary re-renders
@@ -337,10 +368,11 @@ const SingleTermView = () => {
   // Optimize tab URL synchronization
   useEffect(() => {
     // A URL can name a tab this term has no data for — `/cell-card` on a term that is not a cell
-    // type, or a term tab on a precision cell. Those tabs are disabled in the bar, so honouring
-    // the URL would mount a panel that can only render an empty state (and, for the Cell Card,
-    // pay a ~16MB fetch to find that out) while the Tabs bar shows nothing selected. Fall back to
-    // the default tab, which is always enabled: Cell Card for a cell type, Overview otherwise.
+    // type, or a term tab on a precision cell. The bar hides the former and disables the latter,
+    // so honouring the URL would mount a panel that can only render an empty state (and, for the
+    // Cell Card, pay a ~16MB fetch to find that out) while the Tabs bar shows nothing selected.
+    // Fall back to the default tab, which is always selectable: Cell Card for a cell type,
+    // Overview otherwise.
     //
     // Not while the record probe is in flight, though: the disabled set is not known yet, and the
     // fallback rewrites the URL with `replace: true`. Judging /overview now would send a deep
@@ -348,8 +380,7 @@ const SingleTermView = () => {
     if (isTermRecordPending) return;
 
     const requested = tabMapping[tab];
-    const newTabValue =
-      requested !== undefined && !tabLabels[requested]?.disabled ? requested : DEFAULT_TAB_INDEX;
+    const newTabValue = isTabSelectable(tabLabels[requested]) ? requested : DEFAULT_TAB_INDEX;
 
     if (newTabValue !== tabValue) {
       setTabValue(newTabValue);
@@ -381,9 +412,9 @@ const SingleTermView = () => {
 
     switch (tabValue) {
       case CELL_CARD_TAB:
-        return <CellCardPanel term={searchTerm} group={group} onTermLabel={handleCellLabel} />;
+        return <CellCardPanel term={searchTerm} group={group} />;
       case OVERVIEW_TAB:
-        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} />;
+        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible && !servedByOntology} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} />;
       case 2:
         return <VariantsPanel searchTerm={searchTerm} group={actualGroup} versionsData={versionsData} versionsLoading={versionsLoading} versionsError={versionsError} onDismissError={clearVersionsError} />;
       case 3:
@@ -391,15 +422,18 @@ const SingleTermView = () => {
       case 4:
         return <Discussion term={searchTerm} />;
       default:
-        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} />;
+        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible && !servedByOntology} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} />;
     }
-  }, [tabValue, searchTerm, group, handleCellLabel, isCodeViewVisible, selectedDataFormat, actualGroup, versionHash, versionsData, versionsLoading, versionsError, clearVersionsError, isTermRecordPending]);
+  }, [tabValue, searchTerm, group, servedByOntology, isCodeViewVisible, selectedDataFormat, actualGroup, versionHash, versionsData, versionsLoading, versionsError, clearVersionsError, isTermRecordPending]);
 
   // Memoize the toggle button group for overview tab
   const toggleButtonGroup = useMemo(() => {
     // Overview owns the raw-data view; before Cell Card took index 0 this read `!== 0`, which
     // would now follow the Cell Card instead.
-    if (tabValue !== OVERVIEW_TAB) return null;
+    //
+    // Nothing to offer for a term read from the context ontology: the raw view downloads that one
+    // term's document, and its source is a node inside the ontology file, not a document.
+    if (tabValue !== OVERVIEW_TAB || servedByOntology) return null;
 
     return (
       <Box display="flex">
@@ -432,7 +466,7 @@ const SingleTermView = () => {
         </ToggleButtonGroup>
       </Box>
     );
-  }, [tabValue, isCodeViewVisible, selectedDataFormat, toggleButtonValue, onToggleButtonChange]);
+  }, [tabValue, servedByOntology, isCodeViewVisible, selectedDataFormat, toggleButtonValue, onToggleButtonChange]);
 
   const handleAddToActiveOntology = useCallback(async () => {
     if (!activeOntology || !actualGroup || !searchTerm) return;
@@ -575,7 +609,14 @@ const SingleTermView = () => {
               </Grid>
               <Grid item xs={6}>
                 <Stack direction="row" spacing="1rem" alignItems="center">
-                  <CopyLinkComponent url={`http://uri.interlex.org/${actualGroup}/${searchTerm}`} />
+                  {termIdentityUrl ? (
+                    <CopyLinkComponent url={termIdentityUrl} />
+                  ) : (
+                    // Waiting on the ontology for a cell's IRI (see termIdentityUrl). The
+                    // placeholder holds the row's height so the tab bar below does not jump when
+                    // the link arrives.
+                    <Skeleton variant="text" width="20rem" height="2.5rem" />
+                  )}
                   {graphId && (
                     <Typography fontSize=".875rem" color={gray500}>
                       Graph ID: {graphId}
@@ -594,6 +635,16 @@ const SingleTermView = () => {
           <Box px="5rem" pt="1.5rem">
             <Alert severity="info">
               Viewing a historical version of this term (identity graph <code>{versionHash}</code>). This snapshot is read-only.
+            </Alert>
+          </Box>
+        )}
+        {/* Why nothing on the Overview is editable: the record shown is the ontology's, not InterLex's. */}
+        {!versionHash && servedByOntology && tabValue === OVERVIEW_TAB && (
+          <Box px="5rem" pt="1.5rem">
+            <Alert severity="info">
+              This term has no InterLex record yet, so its Overview is read from{" "}
+              {contextOntologyData?.meta?.title || "the context ontology"} and is read-only. Curate
+              it by editing that ontology.
             </Alert>
           </Box>
         )}

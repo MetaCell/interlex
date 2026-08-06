@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { loadOntology, peekOntology, findCell } from "../services/ontologyGridService";
-import { ONTOLOGY_CATALOG, DEFAULT_ONTOLOGY_SLUG } from "../config/gridConfig";
+import { ONTOLOGY_CATALOG } from "../config/gridConfig";
 
 /**
  * Resolve one cell from a context ontology.
@@ -18,19 +18,19 @@ import { ONTOLOGY_CATALOG, DEFAULT_ONTOLOGY_SLUG } from "../config/gridConfig";
  * around it (spec §3.2), which it cannot do if it is remounted on the way.
  *
  * The card's data never comes from the InterLex term API — Precision cells are npokb-only and
- * that endpoint 404s on them. `ontologySlug` is the *context* ontology (the `?ontology=` param
- * written by the grid), which is a different thing from `DataContext.activeOntology`: the
- * latter is an edit target, not a data source.
+ * that endpoint 404s on them. `ontologySlug` is the context ontology, resolved by
+ * `useContextOntologySlug`; null means there is none and nothing loads, so an ordinary InterLex
+ * term never pays a ~16MB fetch to be told it is not a cell.
  */
-const useCellTerm = (termSlug, ontologySlug = DEFAULT_ONTOLOGY_SLUG) => {
-  const slug = ontologySlug && ONTOLOGY_CATALOG[ontologySlug] ? ontologySlug : DEFAULT_ONTOLOGY_SLUG;
+const useCellTerm = (termSlug, ontologySlug) => {
+  const slug = ontologySlug && ONTOLOGY_CATALOG[ontologySlug] ? ontologySlug : null;
   // Carries the slug it was resolved against, so a switch of context ontology cannot be served
   // the previous ontology's cell for the render before the effect runs.
-  const [state, setState] = useState({ slug, cell: null, data: null, loading: true, error: null });
-  const cached = peekOntology(slug);
+  const [state, setState] = useState({ slug, cell: null, data: null, loading: Boolean(slug), error: null });
+  const cached = slug ? peekOntology(slug) : undefined;
 
   useEffect(() => {
-    if (!termSlug) {
+    if (!termSlug || !slug) {
       setState({ slug, cell: null, data: null, loading: false, error: null });
       return undefined;
     }
@@ -57,6 +57,8 @@ const useCellTerm = (termSlug, ontologySlug = DEFAULT_ONTOLOGY_SLUG) => {
   }, [termSlug, slug]);
 
   return useMemo(() => {
+    // No context ontology: there is nothing to resolve against and nothing in flight.
+    if (!slug) return { cell: null, data: null, loading: false, error: null };
     if (cached) {
       return {
         cell: termSlug ? findCell(cached, termSlug) || null : null,

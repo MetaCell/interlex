@@ -1,15 +1,14 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import PropTypes from "prop-types";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Box, Container, Stack, Skeleton, Alert, AlertTitle, Button, Typography } from "@mui/material";
 import CellCard from "./CellCard";
 import EmptyState from "../../common/EmptyState";
-import useCellTerm from "./useCellTerm";
+import { useContextTerm } from "../../../hooks/useContextOntology";
 import { curieToSlug } from "../services/ontologyGridService";
 import {
   termLink,
   ontologyPath,
-  ONTOLOGY_PARAM,
   ONTOLOGY_CATALOG,
 } from "../config/gridConfig";
 import { useTermRecordAvailability } from "../../../hooks/useTermRecordAvailability";
@@ -56,11 +55,12 @@ const LoadingSkeleton = () => (
  * that endpoint 404s on every one of them. The context ontology arrives as `?ontology=`, written
  * by the grid tile click; it is *not* `DataContext.activeOntology`, which is an edit target.
  */
-const CellCardPanel = ({ term, group, onTermLabel }) => {
+const CellCardPanel = ({ term, group }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const ontologySlug = new URLSearchParams(location.search).get(ONTOLOGY_PARAM) || undefined;
-  const { cell, data, loading, error } = useCellTerm(term, ontologySlug);
+  // Same hook the page shell and the Overview read, so the card cannot end up on a different
+  // ontology than the tab bar thinks it is.
+  const { ontologySlug, cell, ontology: data, loading, error } = useContextTerm(term);
   // Same answer the page shell gates the Discussions tab on — one probe, shared through the
   // module-level cache, so the link and the tab cannot disagree.
   const termRecordAvailable = useTermRecordAvailability(term, group);
@@ -68,12 +68,6 @@ const CellCardPanel = ({ term, group, onTermLabel }) => {
   // Navigating between cells keeps the context ontology, so the card the user lands on can still
   // populate its hierarchy and sibling widgets (Sue: "you're staying in that context ontology").
   const search = location.search;
-
-  // The page title cannot come from the term API for these cells — it 404s on an npokb id — so
-  // the card hands the label it resolved from the graph back to the page shell.
-  useEffect(() => {
-    if (cell?.label) onTermLabel?.(cell.label);
-  }, [cell, onTermLabel]);
 
   const goToCell = useCallback(
     (target) => navigate(`/${group}/${curieToSlug(target.curie)}/cell-card${search}`),
@@ -155,8 +149,6 @@ const CellCardPanel = ({ term, group, onTermLabel }) => {
 CellCardPanel.propTypes = {
   term: PropTypes.string.isRequired,
   group: PropTypes.string.isRequired,
-  // Reports the label resolved from the ontology graph, for the page's H1 and breadcrumb.
-  onTermLabel: PropTypes.func,
 };
 
 export default CellCardPanel;

@@ -96,6 +96,16 @@ points, all in that file:
   which would silently have followed the Cell Card instead of Overview.
 - `handleChangeTabs`, which must carry `location.search`
 
+**`hidden` and `disabled` are different states**, and `CustomTabs` takes both. A term that is not a
+cell type has no Cell Card and never will, so that tab is **hidden** — the bar reads as a plain term
+page instead of advertising a dead tab. A precision cell's term tabs *do* apply and are merely
+unserved for now, so they stay **disabled** and visible. Hiding must not renumber anything: each
+`Tab` carries its index as an explicit `value`, so `tabValue` keeps meaning "position in
+`tabLabels`" whatever is hidden, and `isTabSelectable` treats both states as unreachable from the
+URL. `SingleTermView`'s *initial* `tabValue` also refuses `CELL_CARD_TAB` when it is hidden: a value
+with no Tab behind it leaves the bar with nothing selected — and MUI logging "the `value` provided
+to the Tabs component is invalid" from its indicator effect — until the URL is rewritten.
+
 **Cell-term detection has to be synchronous**, because it decides the default tab inside the mount
 effect and cannot wait on a 16MB load. Two cheap URL-only signals: the slug is `npokb_*`, or
 `?ontology=` is present. Revisit when Precision cells gain ILX ids — the slug shape stops being a
@@ -106,7 +116,7 @@ Verified behaviour:
 | URL | Result |
 |---|---|
 | `/precision/npokb_1067` | redirects to `/cell-card`; Overview/Variants/History/Discussions **disabled**, because the record probe (§3.1) 404s |
-| `/base/ilx_0101431/overview` | Cell Card disabled, Overview active, code toggle on Overview |
+| `/base/ilx_0101431/overview` | Cell Card **not rendered**, Overview active, code toggle on Overview |
 | `…/overview?ontology=precision` | Cell Card becomes available |
 
 ### 3.1 Which tabs are enabled is a backend question, not a slug shape

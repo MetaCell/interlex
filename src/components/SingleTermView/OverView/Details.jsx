@@ -61,7 +61,10 @@ const Details = ({ loading, data, jsonData }) => {
   const versionDisplay = versionIRI?.includes('/version/')
     ? versionIRI.split('/version/')[1]?.split('/')[0]
     : versionIRI;
-  const versionInfo = formatTimestamp(lastGraphItem?.["owl:versionInfo"]);
+  // Blank, not "Invalid date", when the document carries no owl:versionInfo — as an ontology-backed
+  // term never does.
+  const versionInfoRaw = lastGraphItem?.["owl:versionInfo"];
+  const versionInfo = versionInfoRaw ? formatTimestamp(versionInfoRaw) : "";
 
   return (
     <>

@@ -70,11 +70,19 @@ const BasicTabs = ({ tabs, tabValue, handleChange, onMouseDown, parentBoxStyles,
         onMouseDown={(event) => event.preventDefault()}
       >
         {
-          // A tab is either a plain label or { label, disabled } — the latter for a tab that
-          // is part of the design but has no view behind it yet.
-          tabs.map((tab, i) => typeof tab === 'string'
-            ? <Tab key={i} label={tab} {...a11yProps(i)} />
-            : <Tab key={i} label={tab.label} disabled={tab.disabled} {...a11yProps(i)} />)
+          // A tab is either a plain label or { label, disabled, hidden }: `disabled` for one that
+          // is part of the design but has no view behind it yet, `hidden` for one that does not
+          // apply to what is being shown at all.
+          //
+          // Each Tab carries its index as an explicit `value`, so hiding one does not renumber
+          // the others — callers keep addressing tabs by their position in `tabs`, which is what
+          // the value MUI hands back to `handleChange` still means.
+          tabs.map((tab, i) => {
+            const { label, disabled, hidden } = typeof tab === 'string' ? { label: tab } : tab;
+            return hidden
+              ? null
+              : <Tab key={i} value={i} label={label} disabled={disabled} {...a11yProps(i)} />;
+          })
         }
       </Tabs>
     </Box>
@@ -84,7 +92,11 @@ const BasicTabs = ({ tabs, tabValue, handleChange, onMouseDown, parentBoxStyles,
 BasicTabs.propTypes = {
   tabs: PropTypes.arrayOf(PropTypes.oneOfType([
     PropTypes.string,
-    PropTypes.shape({ label: PropTypes.string.isRequired, disabled: PropTypes.bool })
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      disabled: PropTypes.bool,
+      hidden: PropTypes.bool
+    })
   ])).isRequired,
   tabValue: PropTypes.number.isRequired,
   handleChange: PropTypes.func.isRequired,
