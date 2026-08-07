@@ -42,7 +42,13 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
 import Discussion from "./Discussion";
 import CellCardPanel from "../CellCards/CellCard/CellCardPanel";
-import { ONTOLOGY_PARAM, isIlxTermSlug, ontologyForTermSlug } from "../CellCards/config/gridConfig";
+import {
+  ONTOLOGY_CATALOG,
+  isIlxTermSlug,
+  ontologyForTermSlug,
+  ontologyPath,
+  termPath,
+} from "../CellCards/config/gridConfig";
 import { useContextTerm } from "../../hooks/useContextOntology";
 import { CodeIcon } from "../../Icons";
 import CustomSingleSelect from "../common/CustomSingleSelect";
@@ -111,7 +117,7 @@ const OVERVIEW_TAB = 1;
 const isTabSelectable = (tab) => Boolean(tab) && !tab.disabled && !tab.hidden;
 
 const SingleTermView = () => {
-  const { group, term, tab, versionHash } = useParams();
+  const { group, term, tab, versionHash, ontologySlug } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const [dataFormatAnchorEl, setDataFormatAnchorEl] = useState(null);
@@ -153,19 +159,20 @@ const SingleTermView = () => {
     return !!termId && ontologyTerms.some((id) => extractIlxId(id) === termId);
   }, [term, activeOntology]);
 
-  // Is this term a cell type, and therefore does the Cell Card tab apply? Answered from the URL
-  // alone — a catalogued ontology claims the slug's prefix, or `?ontology=` says the user came from
-  // a grid — because it decides the default tab, which cannot wait on a ~16MB load. Deliberately
-  // not the resolved `contextCell`: that lands later and would move the default tab under a user
-  // already reading one.
-  const contextOntology = new URLSearchParams(location.search).get(ONTOLOGY_PARAM);
+  // The ontology this term is being read inside: the one the path names
+  // (`/{org}/ontology/{slug}/{term}`, written by the grid), or — for a term reached from search —
+  // the catalogued ontology claiming the slug's prefix. Answered from the URL alone because it
+  // decides whether the Cell Card tab applies, and so the default tab, which cannot wait on a
+  // ~16MB load. Deliberately not the resolved `contextCell`: that lands later and would move the
+  // default tab under a user already reading one.
+  const contextEntry = useMemo(
+    () => ONTOLOGY_CATALOG[ontologySlug] || ONTOLOGY_CATALOG[ontologyForTermSlug(term)] || null,
+    [ontologySlug, term]
+  );
 
   const resolvedCellLabel = contextCell?.label || null;
 
-  const isCellTerm = useMemo(
-    () => Boolean(ontologyForTermSlug(term)) || Boolean(contextOntology),
-    [term, contextOntology]
-  );
+  const isCellTerm = Boolean(contextEntry);
 
   // The URL that names this term, which depends on what kind of term it is:
   //   - an `ilx_*` / `tmp_*` slug is an InterLex record, addressed by group
@@ -243,21 +250,40 @@ const SingleTermView = () => {
   }, [termData, resolvedCellLabel, storedSearchTerm, searchTerm]);
 
   // Memoize breadcrumb items to prevent unnecessary re-renders
-  const breadcrumbItems = useMemo(() => [
-    { label: '', href: '/', icon: HomeOutlinedIcon },
-    { label: 'Term search', href: `/${group}/search?searchTerm=${storedSearchTerm}` },
-    { label: group, href: '#' },
-    { label: displayedTermLabel },
-  ], [group, displayedTermLabel, storedSearchTerm]);
+  const breadcrumbItems = useMemo(() => {
+    // Read inside an ontology: retrace the trail the user arrived by, which is the chain the
+    // ontology's own pages show (OntologyHeader) with this term appended. The ontology crumb is
+    // built from the catalog entry, not from `group`, so a cell opened under another group still
+    // points at the one page that ontology has.
+    if (contextEntry) {
+      return [
+        { label: '', href: '/', icon: HomeOutlinedIcon },
+        { label: contextEntry.community, href: `/${contextEntry.org}` },
+        {
+          label: contextOntologyData?.meta?.title || contextEntry.label,
+          href: ontologyPath(contextEntry),
+        },
+        { label: displayedTermLabel },
+      ];
+    }
+    return [
+      { label: '', href: '/', icon: HomeOutlinedIcon },
+      { label: 'Term search', href: `/${group}/search?searchTerm=${storedSearchTerm}` },
+      { label: group, href: '#' },
+      { label: displayedTermLabel },
+    ];
+  }, [group, displayedTermLabel, storedSearchTerm, contextEntry, contextOntologyData]);
 
   // Optimize handlers with useCallback
   const handleChangeTabs = useCallback((event, newValue) => {
     setTabValue(newValue);
     const newTab = tabNames[newValue];
-    // Carry the query string across: the Cell Card's context ontology lives in `?ontology=`,
-    // and dropping it here would blank the card whenever the user came back to this tab.
-    navigate(`/${group}/${term}/${newTab}${location.search}`, { replace: true });
-  }, [navigate, group, term, tabNames, location.search]);
+    // A term read inside an ontology stays under that ontology's path, which is where the Cell Card
+    // reads its context from. Built from the resolved context rather than from the current path, so
+    // a term that arrived from search (context claimed by its prefix) names its ontology from here
+    // on and the link a user copies off the page carries it.
+    navigate(`${termPath(group, contextEntry?.slug, term, newTab)}${location.search}`, { replace: true });
+  }, [navigate, group, contextEntry, term, tabNames, location.search]);
 
   const handleForkDialogClose = useCallback(() => {
     setOpenForkDialog(false);
@@ -388,11 +414,11 @@ const SingleTermView = () => {
 
     // Rewrite the URL when it does not name the tab in view: no tab at all, or one that resolved
     // elsewhere. Skipped on the version route, which has no `tab` segment to write into.
-    // Preserves the query string for the same reason handleChangeTabs does.
+    // Keeps the ontology path and the query string for the same reason handleChangeTabs does.
     if (!versionHash && group && term && tab !== tabNames[newTabValue]) {
-      navigate(`/${group}/${term}/${tabNames[newTabValue]}${location.search}`, { replace: true });
+      navigate(`${termPath(group, contextEntry?.slug, term, tabNames[newTabValue])}${location.search}`, { replace: true });
     }
-  }, [tab, tabMapping, tabLabels, navigate, group, term, tabValue, versionHash, tabNames, DEFAULT_TAB_INDEX, location.search, isTermRecordPending]);
+  }, [tab, tabMapping, tabLabels, navigate, group, contextEntry, term, tabValue, versionHash, tabNames, DEFAULT_TAB_INDEX, location.search, isTermRecordPending]);
 
   const isItFork = actualGroup === 'base' ? false : true; // Use actualGroup instead of group
 

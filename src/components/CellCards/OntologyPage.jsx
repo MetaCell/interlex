@@ -15,7 +15,7 @@ const { gray500, gray600 } = vars;
 const OntologyPage = () => {
   const { slug } = useParams();
   const { pathname } = useLocation();
-  // Reading this ontology *is* the context, for terms later opened without `?ontology=`.
+  // Reading this ontology *is* the context, for terms later opened on a path that does not name one.
   usePublishContextOntology(slug);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

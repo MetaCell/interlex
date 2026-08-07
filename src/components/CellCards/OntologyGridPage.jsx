@@ -7,7 +7,7 @@ import CellTileGrid from "./CellTileGrid";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import CustomPagination from "../common/CustomPagination";
 import { getFacets, curieToSlug } from "./services/ontologyGridService";
-import { ONTOLOGY_PARAM } from "./config/gridConfig";
+import { termPath } from "./config/gridConfig";
 import { primeTermDataCache } from "../../hooks/useTermData";
 import { vars } from "../../theme/variables";
 
@@ -121,17 +121,16 @@ const OntologyGridPage = () => {
 
   // Tile click -> that cell's Cell Card (the tile's primary action, per the design).
   //
-  // Two things travel with the navigation. `?ontology=` is the context ontology, which is how the
-  // card knows which graph to resolve the term against. And the label is pushed into the term-data
-  // cache first: the term page would otherwise fetch `/{group}/npokb_998.jsonld`, which 404s for
-  // every Precision cell, and a cache hit skips the request entirely and titles the page at once.
+  // Two things travel with the navigation. The card is opened under this ontology's own path, which
+  // is how it knows which graph to resolve the term against. And the label is pushed into the
+  // term-data cache first: the term page would otherwise fetch `/{group}/npokb_998.jsonld`, which
+  // 404s for every Precision cell, and a cache hit skips the request entirely and titles the page
+  // at once.
   const openCellCard = useCallback(
     (cell) => {
       const slug = curieToSlug(cell.curie);
       primeTermDataCache(data.entry.org, slug, cell.label);
-      navigate(
-        `/${data.entry.org}/${slug}/cell-card?${ONTOLOGY_PARAM}=${encodeURIComponent(data.entry.slug)}`
-      );
+      navigate(termPath(data.entry.org, data.entry.slug, slug, "cell-card"));
     },
     [navigate, data]
   );

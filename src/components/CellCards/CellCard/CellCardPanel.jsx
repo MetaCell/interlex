@@ -9,6 +9,7 @@ import { curieToSlug } from "../services/ontologyGridService";
 import {
   termLink,
   ontologyPath,
+  termPath,
   ONTOLOGY_CATALOG,
 } from "../config/gridConfig";
 import { useTermRecordAvailability } from "../../../hooks/useTermRecordAvailability";
@@ -52,8 +53,9 @@ const LoadingSkeleton = () => (
  * The Cell Card tab: resolves the term against the context ontology and renders the card.
  *
  * The card's data never comes from the InterLex term API — Precision cells are npokb-only and
- * that endpoint 404s on every one of them. The context ontology arrives as `?ontology=`, written
- * by the grid tile click; it is *not* `DataContext.activeOntology`, which is an edit target.
+ * that endpoint 404s on every one of them. The context ontology is the `/ontology/{slug}/` the term
+ * is read under, written by the grid tile click; it is *not* `DataContext.activeOntology`, which is
+ * an edit target.
  */
 const CellCardPanel = ({ term, group }) => {
   const navigate = useNavigate();
@@ -65,13 +67,15 @@ const CellCardPanel = ({ term, group }) => {
   // module-level cache, so the link and the tab cannot disagree.
   const termRecordAvailable = useTermRecordAvailability(term, group);
 
-  // Navigating between cells keeps the context ontology, so the card the user lands on can still
-  // populate its hierarchy and sibling widgets (Sue: "you're staying in that context ontology").
+  // Navigating between cells keeps the context ontology — it stays in the path — so the card the
+  // user lands on can still populate its hierarchy and sibling widgets (Sue: "you're staying in
+  // that context ontology").
   const search = location.search;
 
   const goToCell = useCallback(
-    (target) => navigate(`/${group}/${curieToSlug(target.curie)}/cell-card${search}`),
-    [navigate, group, search]
+    (target) =>
+      navigate(`${termPath(group, ontologySlug, curieToSlug(target.curie), "cell-card")}${search}`),
+    [navigate, group, ontologySlug, search]
   );
 
   // A graph node may be a cell (stay in the card) or an external term (open its own page).
@@ -138,7 +142,11 @@ const CellCardPanel = ({ term, group }) => {
         // Only when the Discussions tab can actually serve this term. While the cell's id is not
         // mapped to an InterLex record that tab is disabled (SingleTermView gates it on the same
         // probe), so the link would land on a tab the bar shows as unselectable.
-        discussionHref={termRecordAvailable ? `/${group}/${term}/discussions${search}` : undefined}
+        discussionHref={
+          termRecordAvailable
+            ? `${termPath(group, ontologySlug, term, "discussions")}${search}`
+            : undefined
+        }
         onNavigateToCell={goToCell}
         onNavigateToRef={goToRef}
       />

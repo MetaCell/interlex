@@ -39,22 +39,32 @@ export const ONTOLOGY_CATALOG: Record<string, OntologyEntry> = {
   },
 };
 
+const ontologySegment = (slug: string): string => `/ontology/${slug}`;
+
 // Canonical route to an ontology tab, mirroring the breadcrumb hierarchy:
 // /[organization]/ontology/[ontology slug](/[tab]).
 export const ontologyPath = (entry: OntologyEntry, tab = ""): string =>
-  `/${entry.org}/ontology/${entry.slug}${tab ? `/${tab}` : ""}`;
+  `/${entry.org}${ontologySegment(entry.slug)}${tab ? `/${tab}` : ""}`;
+
+// Route to a term page. A term read inside an ontology hangs off that ontology's path, so the URL
+// carries the context the Cell Card resolves against — /[org]/ontology/[slug]/[term](/[tab]) — and
+// the breadcrumb can name the ontology the user came through. Without a context ontology it is the
+// plain /[group]/[term](/[tab]) an InterLex term has always had.
+export const termPath = (
+  group: string,
+  ontologySlug: string | null | undefined,
+  termSlug: string,
+  tab = ""
+): string =>
+  `/${group}${ontologySlug ? ontologySegment(ontologySlug) : ""}/${termSlug}${tab ? `/${tab}` : ""}`;
 
 // The single hardcoded search result until an ontology search backend exists.
 export const HARDCODED_RESULTS: OntologyEntry[] = [ONTOLOGY_CATALOG.precision];
 
-// Context ontology assumed when a Cell Card is opened without an `?ontology=` param (a shared
-// link, or a term reached from search rather than from the grid). With one entry in the
-// catalog this is unambiguous; it becomes a real lookup once there are several.
+// Context ontology assumed when a Cell Card is opened on a path that does not name one (a term
+// reached from search rather than from the grid). With one entry in the catalog this is
+// unambiguous; it becomes a real lookup once there are several.
 export const DEFAULT_ONTOLOGY_SLUG = "precision";
-
-// Query param carrying the context ontology across a term-page navigation. Distinct from
-// DataContext.activeOntology, which is the *edit* target shown as a chip in the header.
-export const ONTOLOGY_PARAM = "ontology";
 
 // Which catalogued ontology declares the prefix this term slug carries — i.e. the ontology a term
 // page can fall back to when nothing else names a context (a shared link, a search hit). Undefined

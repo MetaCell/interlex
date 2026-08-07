@@ -1,9 +1,8 @@
 import { useEffect } from "react";
 import { atom, useAtom, useSetAtom } from "jotai";
-import { useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   ONTOLOGY_CATALOG,
-  ONTOLOGY_PARAM,
   ontologyForTermSlug,
 } from "../components/CellCards/config/gridConfig";
 import useCellTerm from "../components/CellCards/CellCard/useCellTerm";
@@ -27,16 +26,16 @@ export const usePublishContextOntology = (slug) => {
 };
 
 /**
- * Which ontology is in context for this term: `?ontology=` first, then the atom, then a catalogued
- * ontology claiming the slug's prefix. Null for an ordinary InterLex term, which must not load one.
+ * Which ontology is in context for this term: the `/ontology/{slug}/` the path was opened under
+ * first, then the atom, then a catalogued ontology claiming the slug's prefix. Null for an ordinary
+ * InterLex term, which must not load one.
  *
  * The URL wins and is read synchronously so a shared deep link resolves on its first render; the
  * sync is one-way (URL -> atom), leaving react-router the only writer of the URL.
  */
 export const useContextOntologySlug = (termSlug) => {
   const [stored, setStored] = useAtom(contextOntologyAtom);
-  const { search } = useLocation();
-  const fromUrl = new URLSearchParams(search).get(ONTOLOGY_PARAM);
+  const { ontologySlug: fromUrl } = useParams();
   const valid = fromUrl && ONTOLOGY_CATALOG[fromUrl] ? fromUrl : null;
 
   useEffect(() => {

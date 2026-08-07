@@ -22,7 +22,6 @@ const OntologyHeader = ({ data, tab }) => {
       <BreadcrumbBar
         breadcrumbItems={[
           { label: "", href: "/", icon: HomeOutlinedIcon },
-          { label: "Search", href: "/" },
           { label: data.entry.community, href: `/${data.entry.org}` },
           { label: data.meta.title },
         ]}
