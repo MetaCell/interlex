@@ -5,33 +5,36 @@ import CustomSingleSelect from "../common/CustomSingleSelect";
 import OntologyHierarchyTree from "./OntologyHierarchyTree";
 import { RestartAlt, TargetCross } from "../../Icons";
 
-// Local name of a curie or IRI: "ilxtr:NeuronPrecision" -> "NeuronPrecision".
-const localName = (id) => String(id).split(/[:/#]/).filter(Boolean).pop() || id;
-
-// The "Ontology hierarchy" widget: the subClassOf tree of the ontology, opened on its root
-// class (the starting selection the design calls for). Per the MVP decision this widget does
-// not drive the Terms table beside it — the two are independent views of the same ontology.
-const OntologyHierarchyPanel = ({ hierarchy, rootClass }) => {
+// The "Ontology hierarchy" widget: the subClassOf tree of the ontology, opened on its root class
+// (the starting selection the design calls for).
+//
+// The tree always shows the whole hierarchy — clicking a term picks what the Terms table beside it
+// lists, so re-scoping the tree to the choice would take away the rows the user browses *with*.
+// Which term is picked, and the direction the "Type:" select reads it in, belong to the page that
+// owns both panels; expansion is this widget's own business.
+const OntologyHierarchyPanel = ({
+  hierarchy,
+  anchorTermId,
+  scope,
+  scopeOptions,
+  onScopeChange,
+  onSelectTerm,
+  onSelectRoot,
+}) => {
   const rootIds = useMemo(() => hierarchy.map((node) => node.id), [hierarchy]);
   const [expandedItems, setExpandedItems] = useState(rootIds);
-  const [selectedItems, setSelectedItems] = useState([]);
 
-  // Only one hierarchy exists for a neurdf ontology, but the label is built from the root
-  // class rather than hardcoded — the same rule the rest of this view follows.
-  const typeOptions = useMemo(
-    () => [{ value: "subClassOf", label: `sub class of ${localName(rootClass)}` }],
-    [rootClass]
-  );
-
+  // Both buttons put the scope back on the root class; they differ in what they do to the tree.
+  // Reset closes it back to the opening view, while focus only makes sure the root is open.
   const handleReset = useCallback(() => {
     setExpandedItems(rootIds);
-    setSelectedItems([]);
-  }, [rootIds]);
+    onSelectRoot();
+  }, [rootIds, onSelectRoot]);
 
   const handleFocusRoot = useCallback(() => {
     setExpandedItems((prev) => [...new Set([...prev, ...rootIds])]);
-    setSelectedItems(rootIds);
-  }, [rootIds]);
+    onSelectRoot();
+  }, [rootIds, onSelectRoot]);
 
   return (
     <Stack sx={{ height: 1, minHeight: 0 }} gap={2}>
@@ -41,7 +44,7 @@ const OntologyHierarchyPanel = ({ hierarchy, rootClass }) => {
         <Typography variant="body2" color="text.secondary">
           Type:
         </Typography>
-        <CustomSingleSelect value="subClassOf" onChange={() => {}} options={typeOptions} />
+        <CustomSingleSelect value={scope} onChange={onScopeChange} options={scopeOptions} />
         <Box sx={{ flex: 1 }} />
         <Divider orientation="vertical" flexItem />
         <Button
@@ -56,8 +59,8 @@ const OntologyHierarchyPanel = ({ hierarchy, rootClass }) => {
         <Button
           variant="outlined"
           onClick={handleFocusRoot}
-          aria-label="Highlight the root class"
-          title="Highlight the root class"
+          aria-label="Select the root class"
+          title="Select the root class"
           sx={{ p: "0.625rem 0.5625rem", minWidth: "0.0625rem" }}
         >
           <TargetCross />
@@ -70,7 +73,8 @@ const OntologyHierarchyPanel = ({ hierarchy, rootClass }) => {
           items={hierarchy}
           expandedItems={expandedItems}
           onExpandedItemsChange={(_e, ids) => setExpandedItems(ids)}
-          selectedItems={selectedItems}
+          anchorTermId={anchorTermId}
+          onSelectTerm={onSelectTerm}
         />
       </Box>
     </Stack>
@@ -79,7 +83,15 @@ const OntologyHierarchyPanel = ({ hierarchy, rootClass }) => {
 
 OntologyHierarchyPanel.propTypes = {
   hierarchy: PropTypes.array.isRequired,
-  rootClass: PropTypes.string.isRequired,
+  // The class the table is scoped to; highlighted at every position it occupies.
+  anchorTermId: PropTypes.string.isRequired,
+  scope: PropTypes.string.isRequired,
+  scopeOptions: PropTypes.arrayOf(
+    PropTypes.shape({ value: PropTypes.string, label: PropTypes.string })
+  ).isRequired,
+  onScopeChange: PropTypes.func.isRequired,
+  onSelectTerm: PropTypes.func.isRequired,
+  onSelectRoot: PropTypes.func.isRequired,
 };
 
 export default OntologyHierarchyPanel;

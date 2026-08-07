@@ -1,24 +1,26 @@
-import { labelFor, PREDICATE_TOOLTIPS } from "../config/gridConfig";
+import { DEFAULT_MAPPINGS, predicateLabel, predicateTooltip } from "../config/mappingDefaults";
 
 /**
- * Turn `cellCardConfig` rows + a cell into the row models PropertyList renders.
+ * Turn a region's configured rows + a cell into the row models PropertyList renders.
  *
  * Labels and tooltips prefer the ontology's own `ilxtr:displayLabel` / `ilxtr:shortDefinition`
- * (14 of the 15 predicates Precision cells use ship both), falling back to gridConfig's
- * hardcoded maps. That keeps the wording in the curators' hands: changing a displayLabel in the
- * ontology changes the Cell Card, with no front-end edit.
+ * (14 of the 15 predicates Precision cells use ship both), falling back to the mappings document's
+ * `predicates` section. That keeps the wording in the curators' hands: changing a displayLabel in
+ * the ontology changes the Cell Card, with no front-end edit. A row that pins its own `label`
+ * outranks both — that is the region saying it wants different wording here.
  *
- * @param {Array} rows            entries from cellCardConfig (localName, render, required)
+ * @param {Array} rows            the region's rows (localName, render, required, label)
  * @param {object} cell           the CellTerm
  * @param {object} display        predicateDisplay from the parse, keyed by local name
+ * @param {object} mappings       the loaded ontology's mappings
  */
-export const buildRows = (rows, cell, display = {}) =>
-  rows.map(({ localName, render, required }) => {
+export const buildRows = (rows, cell, display = {}, mappings = DEFAULT_MAPPINGS) =>
+  rows.map(({ localName, render, required, label }) => {
     const meta = display[localName];
     return {
       localName,
-      label: meta?.label || labelFor(localName),
-      tooltip: meta?.description || PREDICATE_TOOLTIPS[localName],
+      label: label || meta?.label || predicateLabel(mappings, localName),
+      tooltip: meta?.description || predicateTooltip(mappings, localName),
       prop: cell.properties[localName],
       render,
       required,

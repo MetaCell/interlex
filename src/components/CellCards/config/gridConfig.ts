@@ -146,71 +146,11 @@ export const PREFER_LOCAL_NEURDF =
   import.meta.env?.VITE_PREFER_LOCAL_NEURDF !== "false";
 
 // --- predicate display metadata ---------------------------------------------
-
-// local name (family-stripped) -> human label. Any predicate not listed falls back
-// to its local name, so nothing is silently dropped ("render everything").
-export const PREDICATE_LABELS: Record<string, string> = {
-  neurondmBaseClass: "Cell class",
-  hasInstanceInTaxon: "Species",
-  hasSomaLocatedIn: "Soma location",
-  hasCircuitRolePhenotype: "Circuit role",
-  hasFunctionalPhenotype: "Physiology",
-  hasAxonPhenotype: "Axon type",
-  hasAdaptationPhenotype: "Adaptation",
-  hasThresholdPhenotype: "Threshold",
-  hasNeurotransmitterPhenotype: "Neurotransmitter",
-  hasNucleicAcidExpressionPhenotype: "Marker genes",
-  hasBiologicalSex: "Sex",
-  hasMorphologicalPhenotype: "Morphology",
-  source: "Source",
-};
-
-// Tooltip text sourced from pyontutils neuron_phenotype_edges.csv (displayDescription).
-export const PREDICATE_TOOLTIPS: Record<string, string> = {
-  hasInstanceInTaxon: "Species the cell type is observed in.",
-  hasSomaLocatedIn: "Anatomical location of the cell body (soma).",
-  hasFunctionalPhenotype: "Functional / physiological properties.",
-  hasAxonPhenotype: "Axon fiber type.",
-  hasNucleicAcidExpressionPhenotype: "Marker genes expressed by the cell type.",
-  hasNeurotransmitterPhenotype: "Neurotransmitters the cell type produces or releases.",
-  hasCircuitRolePhenotype: "Excitatory / inhibitory circuit role.",
-  source: "Source publication for the cell type.",
-};
-
-export const labelFor = (localName: string): string =>
-  PREDICATE_LABELS[localName] || localName;
-
-// --- tile layout ------------------------------------------------------------
-
-export type ChipTone = "class" | "subtype" | "species";
-
-// Header chips (left→right), from the mockup: class + fiber/subtype + species.
-export const TILE_HEADER_CHIPS: { localName: string; tone: ChipTone }[] = [
-  { localName: "neurondmBaseClass", tone: "class" },
-  { localName: "hasAxonPhenotype", tone: "subtype" },
-  { localName: "hasInstanceInTaxon", tone: "species" },
-];
-
-export type RowRender = "text" | "chip";
-
-// Ordered property rows shown on a tile (auto-hidden when empty).
-export const TILE_ROWS: { localName: string; render: RowRender }[] = [
-  { localName: "hasSomaLocatedIn", render: "text" },
-  { localName: "hasNucleicAcidExpressionPhenotype", render: "chip" },
-  { localName: "hasFunctionalPhenotype", render: "chip" },
-];
-
-// --- facets -----------------------------------------------------------------
-
-// The properties actually shown on a tile: header chips + rows + the footer source.
-// The "Displayed properties" toggle ON restricts facets to exactly these; OFF shows a
-// facet for every property found on the terms. Derived from the tile config above so the
-// two never drift apart.
-export const DISPLAYED_PROPERTIES: string[] = [
-  ...TILE_HEADER_CHIPS.map((c) => c.localName),
-  ...TILE_ROWS.map((r) => r.localName),
-  "source",
-];
+//
+// Predicate labels/tooltips, the tile layout and the facet configuration used to live here. They
+// are field *mappings*, which `cellcard-spec/mappings.md` §1.1 asks to be configurable per
+// ontology, so they now come from the runtime-fetched document — see `config/mappingsService` for
+// the fetch and `config/mappingDefaults` for the built-in fallback and the readers.
 
 // --- term links ---------------------------------------------------------------
 

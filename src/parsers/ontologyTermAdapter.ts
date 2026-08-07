@@ -10,7 +10,8 @@ import type {
   PredicateDisplay,
   ResolvedRef,
 } from "../components/CellCards/model/types";
-import { labelFor } from "../components/CellCards/config/gridConfig";
+import { DEFAULT_MAPPINGS, predicateLabel } from "../components/CellCards/config/mappingDefaults";
+import type { OntologyMappings } from "../components/CellCards/model/mappings";
 
 // The CURIE is the term's identity throughout this mode: the hierarchy focus, a tree node's `iri`
 // and a predicate row's subject must all match, and `Hierarchy` passes a non-ILX id through
@@ -187,7 +188,8 @@ const withCombinator = (title: string, prop: CellProperty): string =>
  */
 export const ontologyPredicateGroups = (
   cell: CellTerm,
-  display: Record<string, PredicateDisplay> = {}
+  display: Record<string, PredicateDisplay> = {},
+  mappings: OntologyMappings = DEFAULT_MAPPINGS
 ): OntologyPredicateGroup[] => {
   const groups: OntologyPredicateGroup[] = [];
   const subject = cell.curie;
@@ -202,7 +204,8 @@ export const ontologyPredicateGroups = (
     });
   };
 
-  const titleFor = (localName: string) => display[localName]?.label || labelFor(localName);
+  const titleFor = (localName: string) =>
+    display[localName]?.label || predicateLabel(mappings, localName);
 
   add("@id", [cell.curie]);
   add("Label", [cell.label]);

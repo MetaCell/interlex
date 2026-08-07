@@ -13,6 +13,7 @@ import CrossNomenclature, { TITLE as MAPPING_TITLE } from "./widgets/CrossNomenc
 import SourcePublication, { TITLE as PUBLICATION_TITLE } from "./widgets/SourcePublication";
 import RelatedCells, { TITLE as RELATED_TITLE } from "./widgets/RelatedCells";
 import { relatedBySource, hierarchyNeighbours } from "../services/ontologyGridService";
+import { useMappings } from "../config/mappingsAtom";
 import {
   hasDefinition,
   hasTranscriptomicProfile,
@@ -38,6 +39,8 @@ const COLUMNS = { xs: "1fr", lg: "26.5rem minmax(0, 1fr) 26.5rem" };
 const CellCard = ({ cell, data, group, termSlug, discussionHref, onNavigateToCell, onNavigateToRef }) => {
   const neighbours = useMemo(() => hierarchyNeighbours(data, cell), [data, cell]);
   const related = useMemo(() => relatedBySource(data, cell), [data, cell]);
+  // Only for `hasDefinition`; every widget reads the same atom for itself.
+  const mappings = useMappings();
 
   // One comment affordance per widget, prefilled with that widget's name (design 9272:85572).
   const commentFor = (widgetTitle) => (
@@ -119,7 +122,7 @@ const CellCard = ({ cell, data, group, termSlug, discussionHref, onNavigateToCel
   return (
     <Container sx={{ py: 3 }}>
       <Stack gap={3}>
-        {hasDefinition(cell) && <DefinitionBanner cell={cell} />}
+        {hasDefinition(cell, mappings) && <DefinitionBanner cell={cell} />}
 
         <Box sx={{ display: "grid", gridTemplateColumns: COLUMNS, gap: 4, alignItems: "start" }}>
           <Stack gap={4} sx={{ minWidth: 0 }}>

@@ -78,8 +78,8 @@ PropertyRow.propTypes = {
 };
 
 /**
- * A divider-separated run of property rows. Rows are built by the calling widget from
- * `cellCardConfig`, so order and membership are config, not JSX.
+ * A divider-separated run of property rows. Rows are built by the calling widget from its region
+ * of the mappings document, so order and membership are configuration, not JSX.
  */
 const PropertyList = ({ rows }) => {
   const visible = rows.filter((r) => r.required || r.prop?.values?.length);

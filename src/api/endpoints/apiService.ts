@@ -268,7 +268,13 @@ export const hasInterLexRecord = (slug: string, group: string = 'base'): Promise
     // so a term viewed under another group is still addressable through it.
     const probe = probeUriMapping(path)
       .then(found => (found || group === 'base' ? found : probeUriMapping(basePath)))
-      .catch(() => false);
+      .catch(() => {
+        // The probe itself failed (network error), not a confirmed "unmapped" answer from the
+        // backend — drop the cache entry so the next call retries instead of the tabs staying
+        // disabled for the rest of the session on a transient failure.
+        recordMappingCache.delete(key);
+        return false;
+      });
     recordMappingCache.set(key, probe);
   }
   return recordMappingCache.get(key) as Promise<boolean>;

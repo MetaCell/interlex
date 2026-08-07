@@ -23,4 +23,4 @@ does *not* define (the ones that bite when you introduce a new component). The
 `check-figma-design` skill covers working from the Figma file.
 
 ## Coding best practices
-- Avoid redundant comments: make the code the source of truth with proper naming and functions refactorings. Only use comments to explain obscure cross-component patch code
+- Avoid redundant comments: make the code the source of truth with proper naming and functions refactorings. Only use comments about the why some code is written, not the what nor the how. Clean comments that do not comply at the end of each session.

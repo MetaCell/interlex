@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import {
   ONTOLOGY_CATALOG,
   ontologyForTermSlug,
+  isIlxTermSlug,
 } from "../components/CellCards/config/gridConfig";
 import useCellTerm from "../components/CellCards/CellCard/useCellTerm";
 
@@ -27,8 +28,17 @@ export const usePublishContextOntology = (slug) => {
 
 /**
  * Which ontology is in context for this term: the `/ontology/{slug}/` the path was opened under
- * first, then the atom, then a catalogued ontology claiming the slug's prefix. Null for an ordinary
- * InterLex term, which must not load one.
+ * first — an explicit route beats every fallback below, including for an `ilx_`/`tmp_` slug that
+ * has been mapped to a catalogued ontology's cell and is being read on its ontology-scoped route.
+ * Absent that, a catalogued ontology claiming the slug's own prefix, then the atom (the last
+ * ontology route visited this session). Null for an ordinary InterLex term read on its plain
+ * route, which must not load one.
+ *
+ * The prefix match outranks the atom — a term that names a specific ontology by construction must
+ * resolve to that one even if the atom is still holding an unrelated ontology from an earlier
+ * page — and an `ilx_`/`tmp_` slug short-circuits to null rather than falling through to the atom:
+ * it addresses an ordinary InterLex term by construction, so on its plain route the atom (which
+ * nothing ever clears) must not get a vote for it either.
  *
  * The URL wins and is read synchronously so a shared deep link resolves on its first render; the
  * sync is one-way (URL -> atom), leaving react-router the only writer of the URL.
@@ -42,7 +52,9 @@ export const useContextOntologySlug = (termSlug) => {
     if (valid && valid !== stored) setStored(valid);
   }, [valid, stored, setStored]);
 
-  return valid || stored || ontologyForTermSlug(termSlug) || null;
+  if (valid) return valid;
+  if (isIlxTermSlug(termSlug)) return null;
+  return ontologyForTermSlug(termSlug) || stored || null;
 };
 
 /**

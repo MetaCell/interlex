@@ -2,10 +2,7 @@ import PropTypes from "prop-types";
 import { Typography, Chip, Divider, Box, Alert, Link } from "@mui/material";
 import { ArrowOutwardIcon } from "../../../../Icons";
 import CellCardWidget from "../CellCardWidget";
-import {
-  MARKER_GENE_PREDICATE,
-  SPARC_TRANSCRIPTOMICS_PREDICATE,
-} from "../../config/cellCardConfig";
+import { useMappings } from "../../config/mappingsAtom";
 
 export const TITLE = "Transcriptomic profile";
 
@@ -25,9 +22,14 @@ export const TITLE = "Transcriptomic profile";
  * when the triple is added" note is worth showing — it is guidance for curators, not for readers.
  */
 const TranscriptomicProfile = ({ cell, actions }) => {
+  const mappings = useMappings();
   const sparcLink = cell.annotations?.sparcTranscriptomicsLinks?.[0];
   const atlas = cell.annotations?.atlasAnnotation || [];
-  const genes = cell.properties[MARKER_GENE_PREDICATE]?.values || [];
+  const { markerGenePredicate } = mappings.regions.cellCard.transcriptomicProfile;
+  // Named from the field binding itself, so the note tells a curator the predicate the app is
+  // actually watching rather than a constant that could drift from it.
+  const [sparcPredicate] = mappings.fields.sparcTranscriptomicsLink.sources;
+  const genes = cell.properties[markerGenePredicate]?.values || [];
 
   return (
     <CellCardWidget title={TITLE} actions={actions}>
@@ -74,7 +76,7 @@ const TranscriptomicProfile = ({ cell, actions }) => {
           {/* Guidance for curators, in one sentence: emphasising the predicate name would mean
               typography at the call site, which the theme owns. */}
           <Typography variant="caption" sx={{ color: "text.disabled" }}>
-            {`SPARC Portal link appears when ${SPARC_TRANSCRIPTOMICS_PREDICATE} is added.`}
+            {`SPARC Portal link appears when ${sparcPredicate} is added.`}
           </Typography>
         </>
       )}

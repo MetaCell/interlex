@@ -22,31 +22,16 @@ import type {
   FacetValue,
   PredicateDisplay,
 } from "../components/CellCards/model/types";
+import type { FieldSource, FieldSources } from "../components/CellCards/model/mappings";
+import { DEFAULT_FIELD_SOURCES } from "../components/CellCards/config/mappingDefaults";
+
+// Which source fills which model field is configuration, not code: `FieldSources` binds `title`,
+// `description`, the citation and every annotation to an ordered list of predicates, so an
+// ontology that names its terms with `skos:prefLabel` needs no edit here. The model's own shape is
+// not configurable — a `CellTerm` always has a title and a description, whatever fills them.
+// See components/CellCards/model/mappings.ts and config/mappingDefaults.ts for the built-in list.
 
 // --- label + value helpers -------------------------------------------------
-
-// Display-label sources, ordered most-human-readable → machine-id last (spec §2.2 / §8).
-// Try the curated short label, then the standard label, then a title; only when a node
-// carries none of these do we fall back to its CURIE (the machine id). ilxtr:genLabel is
-// deliberately excluded — it is the verbose machine-generated string, never a title.
-const LABEL_KEYS = ["ilxtr:localLabel", "rdfs:label", "dc:title", "dcterms:title"];
-
-// Definition sources for the Terms table, best first. The first four are prose written by a
-// curator. The last two are fallbacks so the column still describes a term that has none of
-// those: ilxtr:genLabel is the phenotype string generated from the term's own axioms, and the
-// curator note is a last resort. Everything past CURATED_DEFINITION_KEYS is reported as
-// uncurated, so the UI can say where the text came from instead of passing generated output
-// off as a definition (the same care LABEL_KEYS takes in excluding genLabel as a *title*).
-const DEFINITION_KEYS = [
-  "definition",
-  "skos:definition",
-  "NIFRID:definition",
-  "rdfs:comment",
-  "ilxtr:genLabel",
-  "ilxtr:curatorNote",
-];
-
-const CURATED_DEFINITION_KEYS = 4;
 
 type LabelLike =
   | string
@@ -71,10 +56,6 @@ const firstString = (v: unknown): string | undefined => {
 
 const isBlankNode = (id: string): boolean => id.startsWith("_:");
 const isIri = (id: string): boolean => id.includes("://");
-
-// Some cells carry a "TEMP:MISSING_" placeholder meaning the phenotype is *not specified*.
-// It is not a real term, so it must never surface as a value / facet option / tile chip.
-const isMissingSentinel = (id: string): boolean => /^TEMP:MISSING/i.test(id);
 
 // --- prefix table: the parsed file's own @context ---------------------------
 
@@ -174,16 +155,124 @@ const indexGraph = (graph: GraphNode[]): Index => {
   return idx;
 };
 
-const labelFor = (id: string, idx: Index, prefixes: Prefixes): string => {
-  const node = idx.get(id);
-  if (node) {
-    for (const key of LABEL_KEYS) {
-      const s = firstString(node[key]);
-      if (s) return s;
+// A predicate key reduced to its local name, so a source can be matched whatever prefix the file
+// wrote it under. "rdfs:label" -> "label", "http://…/hasSPARCMap" -> "hasSPARCMap".
+const localNameOf = (key: string, prefixes: Prefixes): string =>
+  classify(key, prefixes).curie.split(":").pop() || "";
+
+// Where one predicate's values land on the model. Annotation fields are single-purpose — one
+// predicate fills one slot — so the configured sources are inverted once into a lookup the
+// per-node loop can hit directly, instead of testing every key against every field.
+type FieldTarget =
+  | { slot: "sources" }
+  | { slot: "refs"; field: "dataCitations" }
+  | { slot: "text"; field: "atlasAnnotation" | "curatorNotes" | "alertNotes" }
+  | { slot: "links"; field: "sparcTranscriptomicsLinks" | "sparcMaps" | "nervoSensusLinks" }
+  | { slot: "temporaryId" }
+  | { slot: "generatedLabel" }
+  | { slot: "errors" }
+  | { slot: "property" }
+  | { slot: "mapping"; evidence: MappingEvidence };
+
+interface ParseContext {
+  idx: Index;
+  prefixes: Prefixes;
+  fields: FieldSources;
+  // Exact key -> target, and (for fields declaring `matchLocalName`) local name -> target.
+  exact: Map<string, FieldTarget>;
+  local: Map<string, FieldTarget>;
+  // Upper-cased "this phenotype is not specified" id prefixes.
+  missing: string[];
+}
+
+const buildContext = (
+  idx: Index,
+  prefixes: Prefixes,
+  fields: FieldSources
+): ParseContext => {
+  const exact = new Map<string, FieldTarget>();
+  const local = new Map<string, FieldTarget>();
+
+  // First registration wins, so a key claimed by two fields behaves as the ordered checks it
+  // replaces did.
+  const claim = (field: FieldSource, target: FieldTarget) => {
+    for (const key of field.sources) {
+      if (!exact.has(key)) exact.set(key, target);
+      if (field.matchLocalName) {
+        const name = localNameOf(key, prefixes);
+        if (name && !local.has(name)) local.set(name, target);
+      }
+    }
+  };
+
+  claim(fields.literatureCitation, { slot: "sources" });
+  claim(fields.dataCitation, { slot: "refs", field: "dataCitations" });
+  claim(fields.atlasAnnotation, { slot: "text", field: "atlasAnnotation" });
+  claim(fields.curatorNote, { slot: "text", field: "curatorNotes" });
+  claim(fields.alertNote, { slot: "text", field: "alertNotes" });
+  claim(fields.temporaryId, { slot: "temporaryId" });
+  claim(fields.generatedLabel, { slot: "generatedLabel" });
+  claim(fields.error, { slot: "errors" });
+  claim(fields.sparcTranscriptomicsLink, { slot: "links", field: "sparcTranscriptomicsLinks" });
+  claim(fields.sparcMap, { slot: "links", field: "sparcMaps" });
+  claim(fields.nervoSensusLink, { slot: "links", field: "nervoSensusLinks" });
+  for (const [evidence, sources] of Object.entries(fields.crossNomenclature)) {
+    claim({ sources }, { slot: "mapping", evidence: evidence as MappingEvidence });
+  }
+  // Literal-valued predicates surfaced as properties (not neurdf refs), so they are facetable and
+  // can fill a tile row.
+  claim(fields.literalProperties, { slot: "property" });
+
+  return {
+    idx,
+    prefixes,
+    fields,
+    exact,
+    local,
+    missing: fields.missingValuePrefixes.map((p) => p.toUpperCase()),
+  };
+};
+
+const targetFor = (key: string, ctx: ParseContext): FieldTarget | undefined => {
+  const direct = ctx.exact.get(key);
+  if (direct) return direct;
+  if (!ctx.local.size || key.startsWith("neurdf.")) return undefined; // a phenotype family
+  return ctx.local.get(localNameOf(key, ctx.prefixes));
+};
+
+// The first of a field's sources this node actually carries a string for, and how far down the
+// fallback chain it was found (which is what tells a curated definition from a generated one).
+const firstFieldText = (
+  node: GraphNode | undefined,
+  field: FieldSource,
+  ctx: ParseContext
+): { text: string; rank: number } | undefined => {
+  if (!node) return undefined;
+  for (let rank = 0; rank < field.sources.length; rank++) {
+    const key = field.sources[rank];
+    const direct = firstString(node[key]);
+    if (direct) return { text: direct, rank };
+    if (!field.matchLocalName) continue;
+    const wanted = localNameOf(key, ctx.prefixes);
+    for (const candidate of Object.keys(node)) {
+      if (localNameOf(candidate, ctx.prefixes) !== wanted) continue;
+      const text = firstString(node[candidate]);
+      if (text) return { text, rank };
     }
   }
-  return classify(id, prefixes).curie; // fall back to a compact curie when no label exists
+  return undefined;
 };
+
+// Some cells carry a "TEMP:MISSING_" placeholder meaning the phenotype is *not specified*. It is
+// not a real term, so it must never surface as a value / facet option / tile chip.
+const isMissingSentinel = (id: string, ctx: ParseContext): boolean => {
+  const upper = id.toUpperCase();
+  return ctx.missing.some((prefix) => upper.startsWith(prefix));
+};
+
+const labelFor = (id: string, ctx: ParseContext): string =>
+  firstFieldText(ctx.idx.get(id), ctx.fields.title, ctx)?.text ||
+  classify(id, ctx.prefixes).curie; // fall back to a compact curie when no label exists
 
 // Turn a predicate value (ref object, array, @list, or literal) into ResolvedRefs.
 //
@@ -191,7 +280,7 @@ const labelFor = (id: string, idx: Index, prefixes: Prefixes): string => {
 // ({"@list":[{...},{...}]}), and `neurdf.eqv.uo:hasSomaLocatedIn` is the *only* soma-location
 // predicate on 61 of the 161 Precision cells. Treating a list object as an unrecognised value
 // silently dropped the property for all of them.
-const resolveValue = (raw: unknown, idx: Index, prefixes: Prefixes): ResolvedRef[] => {
+const resolveValue = (raw: unknown, ctx: ParseContext): ResolvedRef[] => {
   const out: ResolvedRef[] = [];
   const push = (item: unknown) => {
     if (item && typeof item === "object" && "@list" in (item as object)) {
@@ -201,16 +290,16 @@ const resolveValue = (raw: unknown, idx: Index, prefixes: Prefixes): ResolvedRef
     }
     if (item && typeof item === "object" && "@id" in (item as object)) {
       const id = String((item as JsonLdRefish)["@id"]);
-      if (isBlankNode(id) || isMissingSentinel(id)) return; // skip restriction blanks + "not specified" sentinels
-      const { curie, kind } = classify(id, prefixes);
-      out.push({ id, curie, label: labelFor(id, idx, prefixes), iri: toIri(id, prefixes), kind });
+      if (isBlankNode(id) || isMissingSentinel(id, ctx)) return; // skip restriction blanks + "not specified" sentinels
+      const { curie, kind } = classify(id, ctx.prefixes);
+      out.push({ id, curie, label: labelFor(id, ctx), iri: toIri(id, ctx.prefixes), kind });
     } else if (item && typeof item === "object" && "@value" in (item as object)) {
       // JSON-LD literal object, e.g. {"@value":"foo"} / {"@value":"foo","@language":"en"}
       const v = (item as { "@value"?: unknown })["@value"];
       const s = v == null ? "" : String(v);
       if (s) out.push({ id: s, curie: s, label: s, iri: "", kind: "literal" });
     } else if (typeof item === "string") {
-      if (isMissingSentinel(item)) return;
+      if (isMissingSentinel(item, ctx)) return;
       out.push({ id: item, curie: item, label: item, iri: "", kind: "literal" });
     }
   };
@@ -247,52 +336,6 @@ const parseNeurdfKey = (
   };
 };
 
-// A few literal-valued ilxtr predicates we surface directly (not neurdf refs). These land on
-// `properties`, so they are facetable and can appear on a tile row.
-const LITERAL_PREDICATES: Record<string, string> = {
-  "ilxtr:neurondmBaseClass": "neurondmBaseClass",
-};
-
-// Cross-nomenclature relations. The evidence type is derived from *which* relation it is,
-// since the graph has no dedicated evidence predicate.
-const MAPPING_PREDICATES: Record<string, MappingEvidence> = {
-  "TEMP:assertedSubClassOf": "described",
-  "TEMP:subClassOf": "described",
-  "TEMP:mapsTo": "inferred",
-};
-
-// Prose / id / dataset annotations. Deliberately kept off `properties` so widening the parser
-// cannot add new facets to the grid sidebar or new rows to a tile — they land on
-// `CellTerm.annotations` instead, which only the Cell Card reads.
-const TEXT_ANNOTATIONS = {
-  "ilxtr:atlasAnnotation": "atlasAnnotation",
-  "ilxtr:curatorNote": "curatorNotes",
-  "ilxtr:alertNote": "alertNotes",
-} as const;
-
-// Deep-link targets for the Cell Card's external widgets (SPARC Portal, SPARC Maps, NervoSensus).
-// None of these predicates occur in the shipped graph yet, and the front end must not need an edit
-// when they arrive — so they are matched by *local name* and every prefix works: `ilx:`, `ilxtr:`
-// or the expanded IRI all reduce to the same compact form, exactly as parsePredicateDisplay does
-// for the display annotations.
-//
-// They land on `annotations` rather than `properties` for the same reason TEXT_ANNOTATIONS does: a
-// deep-link URL is not a phenotype, and every key on `properties` becomes a facet option in the
-// grid sidebar as soon as the "Displayed properties" toggle is off.
-const LINK_ANNOTATIONS = {
-  hasSPARCTranscriptomicsLink: "sparcTranscriptomicsLinks",
-  hasSPARCMap: "sparcMaps",
-  hasNervoSensusLink: "nervoSensusLinks",
-} as const;
-
-type LinkAnnotationField = (typeof LINK_ANNOTATIONS)[keyof typeof LINK_ANNOTATIONS];
-
-const linkAnnotationField = (key: string, prefixes: Prefixes): LinkAnnotationField | undefined => {
-  if (key.startsWith("neurdf.")) return undefined; // a phenotype family, never a deep link
-  const localName = classify(key, prefixes).curie.split(":").pop() || "";
-  return LINK_ANNOTATIONS[localName as keyof typeof LINK_ANNOTATIONS];
-};
-
 // A source label like "DRG TG Calca+Bmpr1b human (Bhuiyan2024)" carries its provenance in a
 // trailing parenthetical; the Cross-Nomenclature table shows it as its own Source column.
 const trailingParenthetical = (label: string): string | undefined =>
@@ -312,25 +355,28 @@ const emptyAnnotations = (): CellAnnotations => ({
 const asType = (t: unknown): string[] =>
   Array.isArray(t) ? (t as string[]) : typeof t === "string" ? [t] : [];
 
-const subClassRefs = (node: GraphNode | undefined): string[] => {
+// The parents a node asserts, through whichever relation `fields.parent` binds (rdfs:subClassOf).
+const subClassRefs = (node: GraphNode | undefined, ctx: ParseContext): string[] => {
   if (!node) return [];
-  const s = node["rdfs:subClassOf"];
-  const arr = Array.isArray(s) ? s : [s];
-  return arr
-    .map((x) => (x && typeof x === "object" ? String((x as JsonLdRefish)["@id"] ?? "") : ""))
-    .filter(Boolean);
+  return ctx.fields.parent.sources.flatMap((key) => {
+    const s = node[key];
+    const arr = Array.isArray(s) ? s : [s];
+    return arr
+      .map((x) => (x && typeof x === "object" ? String((x as JsonLdRefish)["@id"] ?? "") : ""))
+      .filter(Boolean);
+  });
 };
 
-// Does `startId` reach `targetId` through the transitive rdfs:subClassOf chain?
-const reaches = (startId: string, targetId: string, idx: Index): boolean => {
+// Does `startId` reach `targetId` through the transitive parent chain?
+const reaches = (startId: string, targetId: string, ctx: ParseContext): boolean => {
   const seen = new Set<string>();
-  const stack = subClassRefs(idx.get(startId));
+  const stack = subClassRefs(ctx.idx.get(startId), ctx);
   while (stack.length) {
     const cur = stack.pop() as string;
     if (cur === targetId) return true;
     if (seen.has(cur)) continue;
     seen.add(cur);
-    stack.push(...subClassRefs(idx.get(cur)));
+    stack.push(...subClassRefs(ctx.idx.get(cur), ctx));
   }
   return false;
 };
@@ -343,9 +389,9 @@ const mergeValues = (existing: ResolvedRef[], incoming: ResolvedRef[]): Resolved
   return [...byId.values()];
 };
 
-const buildCell = (node: GraphNode, idx: Index, prefixes: Prefixes): CellTerm => {
+const buildCell = (node: GraphNode, ctx: ParseContext): CellTerm => {
   const id = String(node["@id"]);
-  const { curie } = classify(id, prefixes);
+  const { curie } = classify(id, ctx.prefixes);
   const properties: Record<string, CellProperty> = {};
   const negated: Record<string, CellProperty> = {};
   const annotations = emptyAnnotations();
@@ -353,61 +399,70 @@ const buildCell = (node: GraphNode, idx: Index, prefixes: Prefixes): CellTerm =>
   let sources: ResolvedRef[] = [];
 
   for (const [key, raw] of Object.entries(node)) {
-    if (key === "ilxtr:literatureCitation") {
-      sources = resolveValue(raw, idx, prefixes); // a cell may cite several publications
-      continue;
-    }
-    if (key === "ilxtr:dataCitation") {
-      annotations.dataCitations = resolveValue(raw, idx, prefixes);
-      continue;
-    }
-    if (key in TEXT_ANNOTATIONS) {
-      const field = TEXT_ANNOTATIONS[key as keyof typeof TEXT_ANNOTATIONS];
-      // These are plain strings in the graph; resolveValue normalises the literal shapes.
-      annotations[field] = resolveValue(raw, idx, prefixes).map((r) => r.label);
-      continue;
-    }
-    if (key === "ilxtr:hasTemporaryId") {
-      annotations.temporaryId = resolveValue(raw, idx, prefixes)[0]?.curie;
-      continue;
-    }
-    if (key === "ilxtr:genLabel") {
-      annotations.generatedLabel = firstString(raw);
-      continue;
-    }
-    if (key === "ilxtr:error") {
-      annotations.errors = resolveValue(raw, idx, prefixes).map((r) => r.curie);
-      continue;
-    }
-    const linkField = linkAnnotationField(key, prefixes);
-    if (linkField) {
-      // The same link can be asserted under more than one prefix; merge rather than overwrite.
-      annotations[linkField] = mergeValues(annotations[linkField], resolveValue(raw, idx, prefixes));
-      continue;
-    }
-    if (key in MAPPING_PREDICATES) {
-      const evidence = MAPPING_PREDICATES[key];
-      for (const ref of resolveValue(raw, idx, prefixes)) {
-        // A cell can be related to the same record by more than one relation; the stronger
-        // claim (an explicit description) wins over an inferred mapping.
-        const prev = mappings.find((m) => m.ref.id === ref.id);
-        if (prev) {
-          if (evidence === "described") prev.evidence = evidence;
-          continue;
+    // Where this predicate lands is `fields`, inverted into a lookup by `buildContext`. Annotations
+    // are deliberately kept off `properties`: everything on `properties` becomes a facet in the
+    // grid sidebar as soon as the "Displayed properties" toggle is off, and a curator note or a
+    // deep-link URL is not a phenotype.
+    const target = targetFor(key, ctx);
+    if (target) {
+      switch (target.slot) {
+        case "sources":
+          sources = resolveValue(raw, ctx); // a cell may cite several publications
+          break;
+        case "refs":
+          annotations[target.field] = resolveValue(raw, ctx);
+          break;
+        case "text":
+          // These are plain strings in the graph; resolveValue normalises the literal shapes.
+          annotations[target.field] = resolveValue(raw, ctx).map((r) => r.label);
+          break;
+        case "links":
+          // The same link can be asserted under more than one prefix; merge rather than overwrite.
+          annotations[target.field] = mergeValues(
+            annotations[target.field],
+            resolveValue(raw, ctx)
+          );
+          break;
+        case "temporaryId":
+          annotations.temporaryId = resolveValue(raw, ctx)[0]?.curie;
+          break;
+        case "generatedLabel":
+          annotations.generatedLabel = firstString(raw);
+          break;
+        case "errors":
+          annotations.errors = resolveValue(raw, ctx).map((r) => r.curie);
+          break;
+        case "mapping":
+          for (const ref of resolveValue(raw, ctx)) {
+            // A cell can be related to the same record by more than one relation; the stronger
+            // claim (an explicit description) wins over an inferred mapping.
+            const prev = mappings.find((m) => m.ref.id === ref.id);
+            if (prev) {
+              if (target.evidence === "described") prev.evidence = target.evidence;
+              continue;
+            }
+            mappings.push({
+              ref,
+              evidence: target.evidence,
+              source: trailingParenthetical(ref.label),
+            });
+          }
+          break;
+        case "property": {
+          // Keyed by local name, as every `CellProperty` is.
+          const local = localNameOf(key, ctx.prefixes);
+          const values = resolveValue(raw, ctx);
+          if (local && values.length) {
+            properties[local] = { localName: local, family: "eqv", negated: false, values };
+          }
+          break;
         }
-        mappings.push({ ref, evidence, source: trailingParenthetical(ref.label) });
       }
-      continue;
-    }
-    if (key in LITERAL_PREDICATES) {
-      const local = LITERAL_PREDICATES[key];
-      const values = resolveValue(raw, idx, prefixes);
-      if (values.length) properties[local] = { localName: local, family: "eqv", negated: false, values };
       continue;
     }
     const parsed = parseNeurdfKey(key);
     if (!parsed) continue; // skip @id/@type/owl:*/rdfs:*/etc.
-    const values = resolveValue(raw, idx, prefixes);
+    const values = resolveValue(raw, ctx);
     if (!values.length) continue;
     const bucket = parsed.negated ? negated : properties;
     const prev = bucket[parsed.localName];
@@ -427,14 +482,14 @@ const buildCell = (node: GraphNode, idx: Index, prefixes: Prefixes): CellTerm =>
     }
   }
 
-  const definition = definitionOf(node);
+  const definition = definitionOf(node, ctx);
 
   return {
     id,
     curie,
-    iri: toIri(id, prefixes),
-    label: labelFor(id, idx, prefixes),
-    rdfTypes: rdfTypesOf(node, prefixes),
+    iri: toIri(id, ctx.prefixes),
+    label: labelFor(id, ctx),
+    rdfTypes: rdfTypesOf(node, ctx.prefixes),
     definition: definition?.text,
     definitionCurated: definition?.curated,
     properties,
@@ -454,14 +509,16 @@ const rdfTypesOf = (node: GraphNode, prefixes: Prefixes): string[] => {
   return owl.length ? owl : all;
 };
 
+// Everything past `curatedDescriptionSources` is reported as uncurated, so the UI can say where
+// the text came from instead of passing generated output off as a definition.
 const definitionOf = (
-  node: GraphNode
+  node: GraphNode,
+  ctx: ParseContext
 ): { text: string; curated: boolean } | undefined => {
-  for (let i = 0; i < DEFINITION_KEYS.length; i++) {
-    const text = firstString(node[DEFINITION_KEYS[i]]);
-    if (text) return { text, curated: i < CURATED_DEFINITION_KEYS };
-  }
-  return undefined;
+  const hit = firstFieldText(node, ctx.fields.description, ctx);
+  return hit
+    ? { text: hit.text, curated: hit.rank < ctx.fields.curatedDescriptionSources }
+    : undefined;
 };
 
 // Build the subClassOf hierarchy over the in-scope terms.
@@ -476,8 +533,7 @@ const definitionOf = (
 const buildHierarchy = (
   rootClass: string,
   cells: CellTerm[],
-  idx: Index,
-  prefixes: Prefixes
+  ctx: ParseContext
 ): HierarchyNode[] => {
   if (!rootClass) return [];
   const inScope = new Set(cells.map((c) => c.id));
@@ -485,7 +541,7 @@ const buildHierarchy = (
   for (const cell of cells) {
     parentsOf.set(
       cell.id,
-      subClassRefs(idx.get(cell.id)).filter((p) => p === rootClass || inScope.has(p))
+      subClassRefs(ctx.idx.get(cell.id), ctx).filter((p) => p === rootClass || inScope.has(p))
     );
   }
 
@@ -527,9 +583,9 @@ const buildHierarchy = (
     return {
       id: path,
       termId,
-      label: cell ? cell.label : labelFor(termId, idx, prefixes),
-      curie: cell ? cell.curie : classify(termId, prefixes).curie,
-      iri: cell ? cell.iri : toIri(termId, prefixes),
+      label: cell ? cell.label : labelFor(termId, ctx),
+      curie: cell ? cell.curie : classify(termId, ctx.prefixes).curie,
+      iri: cell ? cell.iri : toIri(termId, ctx.prefixes),
       children: kids
         .map((kid) => nodeAt(kid, `${path}/${kid}`, nextSeen))
         .sort((a, b) => a.label.localeCompare(b.label)),
@@ -539,47 +595,51 @@ const buildHierarchy = (
   return [nodeAt(rootClass, rootClass, new Set())];
 };
 
-export const parseOntologyMeta = (graph: GraphNode[]): OntologyMeta => {
+// The ontology header. Title, description and version are fixed fields of the model; which
+// annotation fills each is `fields.ontologyTitle` / `ontologyDescription` / `ontologyVersion`.
+export const parseOntologyMeta = (
+  graph: GraphNode[],
+  fields: FieldSources = DEFAULT_FIELD_SOURCES,
+  prefixes: Prefixes = {}
+): OntologyMeta => {
+  // No graph index: these three read literals off the ontology node and never resolve a reference.
+  const ctx = buildContext(new Map(), prefixes, fields);
   const onto = graph.find((n) => asType(n["@type"]).includes("owl:Ontology"));
-  const iri = onto ? String(onto["@id"] ?? "") : "";
-  const title =
-    (onto &&
-      (firstString(onto["dc:title"]) ||
-        firstString(onto["dcterms:title"]) ||
-        firstString(onto["rdfs:label"]) ||
-        firstString(onto["skos:prefLabel"]))) ||
-    "Ontology";
-  const description =
-    onto &&
-    (firstString(onto["dc:description"]) ||
-      firstString(onto["dcterms:description"]) ||
-      firstString(onto["rdfs:comment"]));
-  const version = onto ? firstString(onto["owl:versionInfo"]) : undefined;
-  return { iri, title, description: description || undefined, version };
+  const title = firstFieldText(onto, fields.ontologyTitle, ctx)?.text || "Ontology";
+  return {
+    iri: onto ? String(onto["@id"] ?? "") : "",
+    title,
+    description: firstFieldText(onto, fields.ontologyDescription, ctx)?.text,
+    version: firstFieldText(onto, fields.ontologyVersion, ctx)?.text,
+  };
 };
 
 // Parse the graph into cells that are (transitively) subClassOf `rootClass`.
 // Row labels and tooltips ship inside the ontology: the ilxtr:* property nodes carry
 // ilxtr:displayLabel ("Soma location") and ilxtr:shortDefinition, which between them cover 14
 // of the 15 neurdf local names Precision cells use. Reading them here keeps the UI's wording
-// in the curators' hands instead of a hardcoded map in the front end — gridConfig's
-// PREDICATE_LABELS / PREDICATE_TOOLTIPS are only the fallback for what the file omits.
+// in the curators' hands instead of a hardcoded map in the front end — the mappings document's
+// `predicates` section is only the fallback for what the file omits. Which annotation carries
+// each is itself a field binding (`fields.predicateLabel` / `predicateDescription`).
 //
 // Keyed by *local name* (`hasSomaLocatedIn`), because that is how a CellProperty is keyed,
 // while the annotation lives on the `ilxtr:hasSomaLocatedIn` node.
 export const parsePredicateDisplay = (
   graph: GraphNode[],
-  prefixes: Prefixes = {}
+  prefixes: Prefixes = {},
+  fields: FieldSources = DEFAULT_FIELD_SOURCES
 ): Record<string, PredicateDisplay> => {
+  // No graph index: a display annotation is a literal on the property node, never a reference.
+  const ctx = buildContext(new Map(), prefixes, fields);
   const out: Record<string, PredicateDisplay> = {};
   for (const node of graph) {
     const id = node["@id"];
     if (typeof id !== "string") continue;
-    const label = firstString(node["ilxtr:displayLabel"]);
-    const description = firstString(node["ilxtr:shortDefinition"]);
+    const label = firstFieldText(node, fields.predicateLabel, ctx)?.text;
+    const description = firstFieldText(node, fields.predicateDescription, ctx)?.text;
     if (!label && !description) continue;
     // "ilxtr:hasSomaLocatedIn" and the expanded IRI both reduce to the same local name.
-    const localName = classify(id, prefixes).curie.split(":").pop() || "";
+    const localName = localNameOf(id, prefixes);
     if (!localName) continue;
     out[localName] = {
       localName,
@@ -590,22 +650,31 @@ export const parsePredicateDisplay = (
   return out;
 };
 
-export const parseNeurdf = (data: OntologyGraph, rootClass: string): ParsedOntology => {
+export const parseNeurdf = (
+  data: OntologyGraph,
+  rootClass: string,
+  fields: FieldSources = DEFAULT_FIELD_SOURCES
+): ParsedOntology => {
   const graph = data["@graph"] || [];
   // The file's own prefix declarations, which every curie <-> IRI conversion below reads.
   const prefixes = contextPrefixes(data["@context"]);
   const idx = indexGraph(graph);
-  const neurons = graph.filter((n) => asType(n["@type"]).includes("neurdf:Neuron"));
+  const ctx = buildContext(idx, prefixes, fields);
+  const cellTypes = fields.cellType.sources;
+  const neurons = graph.filter((n) => {
+    const types = asType(n["@type"]);
+    return cellTypes.some((t) => types.includes(t));
+  });
   const inScope = rootClass
-    ? neurons.filter((n) => reaches(String(n["@id"] ?? ""), rootClass, idx))
+    ? neurons.filter((n) => reaches(String(n["@id"] ?? ""), rootClass, ctx))
     : neurons;
-  const cells = inScope.map((n) => buildCell(n, idx, prefixes));
+  const cells = inScope.map((n) => buildCell(n, ctx));
   cells.sort((a, b) => a.label.localeCompare(b.label));
   return {
-    meta: parseOntologyMeta(graph),
+    meta: parseOntologyMeta(graph, fields, prefixes),
     cells,
-    hierarchy: buildHierarchy(rootClass, cells, idx, prefixes),
-    predicateDisplay: parsePredicateDisplay(graph, prefixes),
+    hierarchy: buildHierarchy(rootClass, cells, ctx),
+    predicateDisplay: parsePredicateDisplay(graph, prefixes, fields),
   };
 };
 

@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Alert, AlertTitle, Typography, Link } from "@mui/material";
 import TermValueLink from "./TermValueLink";
 import { toDoi } from "./citationService";
+import { useMappings } from "../config/mappingsAtom";
 
 const joinRefs = (values, conjunction = "and") =>
   values.map((v, i) => (
@@ -20,14 +21,20 @@ const joinRefs = (values, conjunction = "and") =>
  * `rdfs:comment`. (The parser's `definition` therefore always falls through to
  * `ilxtr:genLabel`, a ~300-character machine string — usable as a tooltip, not as prose.)
  *
- * Suppressed when fewer than two of species / soma location / marker genes are populated, so it
- * never renders a sentence with holes in it.
+ * Suppressed when too few of its tokens are populated (see `hasDefinition`), so it never renders a
+ * sentence with holes in it.
+ *
+ * The sentence's shape is fixed; which predicate fills each token is the `definition` region of the
+ * mappings document (spec §2.1).
  */
 const DefinitionBanner = ({ cell }) => {
-  const taxon = cell.properties.hasInstanceInTaxon?.values || [];
-  const soma = cell.properties.hasSomaLocatedIn?.values || [];
-  const genes = cell.properties.hasNucleicAcidExpressionPhenotype?.values || [];
-  const baseClass = cell.properties.neurondmBaseClass?.values?.[0];
+  const config = useMappings().regions.cellCard.definition;
+  const valuesOf = (localName) => (localName && cell.properties[localName]?.values) || [];
+  const taxon = valuesOf(config.species);
+  const somaProperty = config.somaLocation ? cell.properties[config.somaLocation] : undefined;
+  const soma = somaProperty?.values || [];
+  const genes = valuesOf(config.markerGenes);
+  const baseClass = valuesOf(config.cellClass)[0];
   const source = cell.sources?.[0];
   const doi = toDoi(source?.iri || source?.id);
 
@@ -41,7 +48,7 @@ const DefinitionBanner = ({ cell }) => {
         {soma.length > 0 && (
           <>
             {" "}
-            is located in {joinRefs(soma, cell.properties.hasSomaLocatedIn?.combinator === "or" ? "or" : "and")}
+            is located in {joinRefs(soma, somaProperty?.combinator === "or" ? "or" : "and")}
           </>
         )}
         {genes.length > 0 && <> and expresses {joinRefs(genes)}</>}

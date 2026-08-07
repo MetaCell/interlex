@@ -67,6 +67,10 @@ import { useTermRecordAvailability } from "../../hooks/useTermRecordAvailability
 
 const { gray200, gray500, gray600, error700 } = vars;
 
+// Groups that own a curated ontology (per ONTOLOGY_CATALOG) are first-class sources in their own
+// right, same as base — not a fork of it. Only a group outside this set is actually a fork.
+const CURATED_GROUPS = new Set(["base", ...Object.values(ONTOLOGY_CATALOG).map((entry) => entry.org)]);
+
 // Pull the InterLex id (ilx_/tmp_) out of an arbitrary IRI/string for membership checks.
 const extractIlxId = (value) => {
   const match = String(value || "").match(/(?:ilx|tmp)_\d+/i);
@@ -420,7 +424,7 @@ const SingleTermView = () => {
     }
   }, [tab, tabMapping, tabLabels, navigate, group, contextEntry, term, tabValue, versionHash, tabNames, DEFAULT_TAB_INDEX, location.search, isTermRecordPending]);
 
-  const isItFork = actualGroup === 'base' ? false : true; // Use actualGroup instead of group
+  const isItFork = !CURATED_GROUPS.has(actualGroup);
 
   // Memoize tab content to prevent unnecessary re-renders
   const tabContent = useMemo(() => {
@@ -565,7 +569,7 @@ const SingleTermView = () => {
               </Stack>
             </Grid>
             <Grid container mt="1.75rem">
-              <Grid item xs={12} lg={2}>
+              <Grid item xs={12} lg="auto">
                 <Stack direction="row" spacing=".75rem" alignItems="center">
                   <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
                     {/* The label is already known from the search (storedSearchTerm),
@@ -593,7 +597,7 @@ const SingleTermView = () => {
                   </Typography>
                 )}
               </Grid>
-              <Grid display="flex" justifyContent='end' mt=".56rem" item xs={12} lg={10}>
+              <Grid display="flex" justifyContent='end' mt=".56rem" item xs={12} lg>
                 <Stack direction="row" spacing="1rem" alignItems="center">
                   <Button type="string" color="secondary" startIcon={<ModeEditOutlineOutlinedIcon />} onClick={handleOpenEditTermDialog}>
                     Suggest changes

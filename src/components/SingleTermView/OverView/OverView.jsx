@@ -361,7 +361,9 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
       store.hierarchy$.next({ loading: false, ...ontologyHierarchy(ontology, focusId) });
       store.predicates$.next({
         loading: false,
-        data: focusCell ? ontologyPredicateGroups(focusCell, ontology?.predicateDisplay) : [],
+        data: focusCell
+          ? ontologyPredicateGroups(focusCell, ontology?.predicateDisplay, ontology?.mappings)
+          : [],
         focusId,
       });
     });

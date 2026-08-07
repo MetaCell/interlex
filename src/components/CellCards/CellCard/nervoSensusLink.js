@@ -3,8 +3,8 @@ import {
   NERVOSENSUS_SPECIES,
   NERVOSENSUS_SOMA,
   NERVOSENSUS_AXON,
-  MARKER_GENE_PREDICATE,
 } from "../config/cellCardConfig";
+import { DEFAULT_MAPPINGS } from "../config/mappingDefaults";
 
 /**
  * Build the NervoSensus deep link for a cell.
@@ -50,12 +50,14 @@ export const atlasCellKey = (cell) => {
 };
 
 /**
+ * @param {object} cell      the CellTerm
+ * @param {object} mappings  the loaded ontology's mappings (species/soma/axon/gene predicates)
  * @returns {{ href: string, precise: boolean, filters: string[] }}
  *   href     where the tile points
  *   precise  true when the link opens this exact cell rather than a filtered list
  *   filters  human-readable names of the filters applied, for the widget's caption
  */
-export const buildNervoSensusLink = (cell) => {
+export const buildNervoSensusLink = (cell, mappings = DEFAULT_MAPPINGS) => {
   // A curator-supplied per-cell link wins outright — it is more specific than anything we infer.
   // (`hasNervoSensusLink` has zero occurrences upstream today; this is the forward-compatible path.)
   const curated = cell?.annotations?.nervoSensusLinks?.[0];
@@ -75,25 +77,35 @@ export const buildNervoSensusLink = (cell) => {
   const atlas = atlasCellKey(cell);
   if (atlas) url.searchParams.set("atlasannotation", atlas);
 
-  const species = matchLabel(firstValue(cell, "hasInstanceInTaxon")?.label, NERVOSENSUS_SPECIES);
+  // Species and soma location read the same bindings the auto-generated description uses
+  // (`regions.cellCard.definition`): both features mean the same predicate, so repointing one
+  // for an ontology whose cells carry it under a different name keeps the two in agreement rather
+  // than requiring the operator to update two independent settings to stay in sync.
+  const { species: speciesPredicate, somaLocation: somaPredicate } = mappings.regions.cellCard.definition;
+  const { axonPredicate } = mappings.regions.cellCard.cellGrouping;
+
+  const speciesValue = firstValue(cell, speciesPredicate);
+  const species = matchLabel(speciesValue?.label, NERVOSENSUS_SPECIES);
   if (species) {
     url.searchParams.set("species", species);
     filters.push(species);
   }
 
-  const soma = matchLabel(firstValue(cell, "hasSomaLocatedIn")?.label, NERVOSENSUS_SOMA);
+  const somaValue = firstValue(cell, somaPredicate);
+  const soma = matchLabel(somaValue?.label, NERVOSENSUS_SOMA);
   if (soma) {
     url.searchParams.set("location", soma);
-    filters.push(firstValue(cell, "hasSomaLocatedIn").label);
+    filters.push(somaValue.label);
   }
 
-  const axon = matchLabel(firstValue(cell, "hasAxonPhenotype")?.label, NERVOSENSUS_AXON);
+  const axonValue = firstValue(cell, axonPredicate);
+  const axon = matchLabel(axonValue?.label, NERVOSENSUS_AXON);
   if (axon) {
     url.searchParams.set("axon", axon);
-    filters.push(firstValue(cell, "hasAxonPhenotype").label);
+    filters.push(axonValue.label);
   }
 
-  const gene = firstValue(cell, MARKER_GENE_PREDICATE);
+  const gene = firstValue(cell, mappings.regions.cellCard.transcriptomicProfile.markerGenePredicate);
   // Only a resolved symbol is useful; an unlabelled gene falls back to its CURIE
   // ("NCBIGene:667742"), which the app's gene filter has no option for.
   if (gene && gene.label && !gene.label.includes(":")) {

@@ -183,9 +183,10 @@ export default defineConfig({
       },
       // Any `{prefix}_{id}` term, not just ilx_/tmp_: once an npokb id is mapped to a record its
       // tabs light up, and they read this endpoint. The extension allow-list keeps the rule off
-      // asset paths, and `(?!data/)` off the local ontology copy — proxying that would send the
-      // Cell Card's ~16MB source upstream, where it 404s (nginx guards it with `location ^~`).
-      '^/(?!data/)[^/]+/[A-Za-z][A-Za-z0-9.-]*_[^/]*\\.(html|ttl|jsonld|n3|owl|csv)$': {
+      // asset paths, and `(?!data/|static/)` off the local ontology copy and the static dir —
+      // proxying either would send them upstream, where they 404 (nginx guards both with
+      // `location ^~`).
+      '^/(?!data/|static/)[^/]+/[A-Za-z][A-Za-z0-9.-]*_[^/]*\\.(html|ttl|jsonld|n3|owl|csv)$': {
         target: 'https://uri.olympiangods.org',
         changeOrigin: true,
         secure: false,
