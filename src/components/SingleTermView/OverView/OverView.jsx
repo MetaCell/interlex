@@ -1,8 +1,8 @@
 // SingleTermView/OverView/OverView.jsx
-import { Box, Divider, Grid, Snackbar, Alert } from "@mui/material";
+import { Box, Divider, Grid } from "@mui/material";
 import PropTypes from "prop-types";
 import RawDataViewer from "./RawDataViewer";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef } from "react";
 import {
   getMatchTerms,
   getRawData,
@@ -12,14 +12,8 @@ import {
 } from "../../../api/endpoints/apiService";
 import termParser from "../../../parsers/termParser";
 import { adaptVersionJsonLd } from "../../../parsers/versionAdapter";
-import { patchEndpointsIlx } from "../../../api/endpoints/interLexURIStructureAPI";
-import {
-  focusNodeFromJsonLd,
-  buildTripleDiff,
-  resolveStoredObject,
-} from "../../../parsers/predicateMutations";
 import { buildPredicateGroupsForFocus } from "../../../parsers/predicateParser";
-import { shortenIri, getObjectInputKind, buildExpandContext } from "../../../configuration/predicateConfig";
+import { shortenIri, getObjectInputKind } from "../../../configuration/predicateConfig";
 import {
   toHierarchyOptionsFromTriples,
   buildChildrenTreeFromTriples,
@@ -29,10 +23,10 @@ import {
 import { createOverviewStore } from "./overviewStore";
 import { DetailsSection, HierarchySection, PredicatesSection } from "./OverviewSections";
 import OverviewSideNav from "./OverviewSideNav";
-import { emitPredicateRowUpdate, makeRowKey } from "./predicateMutationBus";
 import { reportApiError } from "../../../api/apiErrorBus";
 import ApiErrorDialog from "../../common/ApiErrorDialog";
 import { GlobalDataContext } from "../../../contexts/DataContext";
+import { useEditSession } from "../../../contexts/editSession";
 
 // Reserved minimum heights while a section loads, so content arriving in one
 // section can't shove a section the user is already scrolled to.
@@ -132,26 +126,11 @@ const fetchHierarchiesData = async (curieLike, group) => {
   };
 };
 
-// patchTerm resolves with { status, term } on success, or the raw axios error
-// (its .catch returns it) on failure. Normalize to { ok, status, message }.
-const interpretPatchResult = (res) => {
-  const status = res?.status ?? res?.response?.status;
-  const ok = status === 200 || status === 201;
-  if (ok) return { ok, status, message: "" };
-
-  const body = res?.response?.data ?? res?.data ?? res?.message ?? "";
-  let message = typeof body === "string" ? body : JSON.stringify(body);
-  // Backend errors come back as small HTML pages: pull out the <p> text.
-  const para = message.match(/<p>([\s\S]*?)<\/p>/i);
-  message = (para ? para[1] : message.replace(/<[^>]*>/g, " "))
-    .replace(/&#34;/g, '"').replace(/&quot;/g, '"').replace(/&amp;/g, "&")
-    .replace(/\s+/g, " ").trim();
-  if (!message) message = status ? `Request failed (HTTP ${status})` : "Request failed";
-  return { ok, status, message };
-};
-
 const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, group = "base", versionHash }) => {
   const { curies } = useContext(GlobalDataContext);
+  // Edit mode is owned by the term header; the sections below only stage
+  // mutations into it, and the single PATCH happens on Save.
+  const { isEditing, stageMutation, setFocus, registerReload } = useEditSession();
   // Per-instance rxjs streams; each section subscribes to its own.
   const storeRef = useRef();
   if (!storeRef.current) storeRef.current = createOverviewStore();
@@ -164,9 +143,6 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
   const groupsRef = useRef([]);
   const jsonReadyRef = useRef(false);
   const groupsReadyRef = useRef(false);
-
-  // feedback for inline predicate edits (add/edit/delete)
-  const [mutationFeedback, setMutationFeedback] = useState(null);
 
   // Push merged predicates once both inputs (fresh .jsonld + transitive groups)
   // are ready; until then the section stays in its loading state.
@@ -436,58 +412,21 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
     }
   }, [store, group, searchTerm, maybePushPredicates]);
 
-  // Apply a single predicate triple add/edit/delete to the focus term and PATCH.
-  const handlePredicateMutation = useCallback(
-    async (mutation) => {
-      const jsonData = jsonDataRef.current;
-      const selectedValue = store.selectedValue$.getValue();
-      const patchId = (selectedValue?.id || searchTerm || "").split("/").pop();
+  // The session saves against the focus term (which the hierarchy can move) and
+  // refreshes these sections once its PATCH lands.
+  useEffect(() => {
+    registerReload(reloadAfterMutation);
+    return () => registerReload(null);
+  }, [registerReload, reloadAfterMutation]);
 
-      // Predicate groups are sourced from the "base" graph, so expand curies
-      // with the base @context. GET-first guarantees the predicate IRIs
-      // round-trip.
-      const baseDoc = await getRawData("base", patchId, "jsonld");
-      const jsonLdContext = baseDoc?.["@context"] || jsonData?.["@context"] || {};
-      // Merge known-term shorthands (e.g. "definition" → IAO IRI) under the
-      // JSON-LD context so bare predicate names expand to full IRIs.
-      const context = { ...buildExpandContext(curies?.base ?? []), ...jsonLdContext };
-      const node = focusNodeFromJsonLd(baseDoc) || focusNodeFromJsonLd(jsonData);
-      const subject = mutation.subject || node?.["@id"];
-      if (!subject) {
-        setMutationFeedback({ severity: "error", message: "Could not resolve the term subject" });
-        return;
-      }
-      const oldObject =
-        mutation.op === "edit" || mutation.op === "delete"
-          ? resolveStoredObject(node, mutation.predicate, mutation.oldValue)
-          : null;
-      const payload = buildTripleDiff(subject, { ...mutation, oldObject }, context);
+  useEffect(() => {
+    const sub = store.selectedValue$.subscribe((sv) => setFocus(sv));
+    return () => sub.unsubscribe();
+  }, [store, setFocus]);
 
-      const isEdit = mutation.op === "edit";
-      const rowKey = isEdit
-        ? makeRowKey(mutation.subject, mutation.predicate, mutation.oldValue)
-        : null;
-      try {
-        await patchEndpointsIlx(group, patchId, { data: payload });
-        setMutationFeedback({ severity: "success", message: "Change saved" });
-        if (isEdit) {
-          // Surgical update: only the edited row refreshes.
-          emitPredicateRowUpdate({ rowKey, newValue: mutation.newValue, status: "success" });
-        } else {
-          // add/delete change the table structure -> refresh predicates.
-          reloadAfterMutation();
-        }
-      } catch (e) {
-        console.error("handlePredicateMutation error:", e);
-        const { message } = interpretPatchResult(e);
-        setMutationFeedback({ severity: "error", message: message || "Could not save change" });
-        if (isEdit) emitPredicateRowUpdate({ rowKey, status: "error" });
-      }
-    },
-    [store, group, searchTerm, reloadAfterMutation, curies]
-  );
-
-  const onMutate = versionHash ? undefined : handlePredicateMutation;
+  // Editing is off outside edit mode and on a read-only version snapshot; the
+  // sections read `onMutate` being present as "this is editable".
+  const onMutate = versionHash || !isEditing ? undefined : stageMutation;
 
   return (
     <Box p="2.5rem 5rem" sx={{ overflow: "auto" }}>
@@ -497,7 +436,12 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
         <>
           <OverviewSideNav items={SIDE_NAV_ITEMS} />
           <Box id="overview-section-details">
-            <DetailsSection subject={store.details$} reserveHeight={DETAILS_MIN_HEIGHT} />
+            <DetailsSection
+              subject={store.details$}
+              group={group}
+              onMutate={onMutate}
+              reserveHeight={DETAILS_MIN_HEIGHT}
+            />
           </Box>
           <Box p="5rem 0">
             <Divider />
@@ -506,7 +450,10 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
                 <HierarchySection
                   subject={store.hierarchy$}
                   selectedSubject={store.selectedValue$}
+                  detailsSubject={store.details$}
                   onSelect={handleSelect}
+                  group={group}
+                  onMutate={onMutate}
                   reserveHeight={HIERARCHY_MIN_HEIGHT}
                 />
               </Grid>
@@ -522,31 +469,6 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
           </Box>
         </>
       )}
-      <Snackbar
-        open={!!mutationFeedback}
-        autoHideDuration={mutationFeedback?.severity === "error" ? null : 4000}
-        onClose={() => setMutationFeedback(null)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        {mutationFeedback ? (
-          <Alert
-            onClose={() => setMutationFeedback(null)}
-            severity={mutationFeedback.severity}
-            variant="filled"
-            sx={{
-              maxWidth: "32rem",
-              // theme forces IconButton bg white -> white close X becomes invisible
-              "& .MuiAlert-action .MuiIconButton-root": {
-                background: "transparent",
-                "&:hover": { background: "rgba(255,255,255,0.2)" },
-              },
-              "& .MuiAlert-action .MuiSvgIcon-root": { color: "#fff" },
-            }}
-          >
-            {mutationFeedback.message}
-          </Alert>
-        ) : undefined}
-      </Snackbar>
       <ApiErrorDialog />
     </Box>
   );

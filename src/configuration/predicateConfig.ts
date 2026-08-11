@@ -129,10 +129,17 @@ export const shortenIri = (
   return curie;
 };
 
-// Pull the InterLex id (ilx_/tmp_) out of an arbitrary IRI/string, lowercased.
+// Pull the InterLex id out of an arbitrary IRI/string, normalized to `ilx_0101431`.
+// Both spellings have to be understood: IRIs and slugs carry the underscore form
+// (`.../base/ilx_0101431`) while the term match endpoint reports a curie
+// (`ILX:0101431`), and the focus id can be either — matching only one form makes
+// every row look like it belongs to a different term.
 export const extractIlxId = (value: string): string | null => {
-  const match = String(value || "").match(/(?:ilx|tmp)_\d+/i);
-  return match ? match[0].toLowerCase() : null;
+  const raw = String(value || "");
+  const underscore = raw.match(/(?:ilx|tmp)_\d+/i);
+  if (underscore) return underscore[0].toLowerCase();
+  const curie = raw.match(/(ilx|tmp):(\d+)/i);
+  return curie ? `${curie[1].toLowerCase()}_${curie[2]}` : null;
 };
 
 // True when a row's subject refers to the focus term (so it lives on the focus

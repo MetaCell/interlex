@@ -26,5 +26,10 @@ module.exports = {
       files: ['test/**/*.js'],
       env: { jest: true, node: true, commonjs: true },
     },
+    {
+      // Playwright suite: config + specs run in node, not the browser.
+      files: ['tests/**/*.js'],
+      env: { node: true },
+    },
   ],
 }

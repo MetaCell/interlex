@@ -20,7 +20,6 @@ import CustomBreadcrumbs from "../common/CustomBreadcrumbs";
 import ForkRightIcon from '@mui/icons-material/ForkRight';
 import { vars } from "../../theme/variables";
 import OntologySearch from "./OntologySearch";
-import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import CopyLinkComponent from "../common/CopyLinkComponent";
 import BasicTabs from "../common/CustomTabs";
@@ -47,9 +46,10 @@ import CustomSingleSelect from "../common/CustomSingleSelect";
 import CustomButtonGroup from "../common/CustomButtonGroup";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CreateForkDialog from "./CreateForkDialog";
-import TermDialog from "../TermEditor/TermDialog";
+import TermEditActions from "./TermEditActions";
 import FeatureNotAvailableDialog from "../common/FeatureNotAvailableDialog";
 import { GlobalDataContext } from "../../contexts/DataContext";
+import { EditSessionProvider } from "../../contexts/EditSessionContext";
 import { getRawData } from "../../api/endpoints";
 import { getVersions, addEntityToOntology, getOntologyTerms } from "../../api/endpoints/apiService";
 import { reportApiError } from "../../api/apiErrorBus";
@@ -112,7 +112,6 @@ const SingleTermView = () => {
   const [toggleButtonValue, setToggleButtonValue] = useState('defaultView');
   const [selectedDataFormat, setSelectedDataFormat] = useState('JSON-LD');
   const [openRequestMergeDialog, setOpenRequestMergeDialog] = useState(false);
-  const [editTermDialogOpen, setEditTermDialogOpen] = useState(false);
   const [openForkDialog, setOpenForkDialog] = useState(false);
   const [featureNotAvailableDialog, setFeatureNotAvailableDialog] = useState(false);
 
@@ -231,14 +230,6 @@ const SingleTermView = () => {
 
   const handleClickDataFormatMenu = useCallback((event) => {
     setDataFormatAnchorEl(event.currentTarget);
-  }, []);
-
-  const handleOpenEditTermDialog = useCallback(() => {
-    setEditTermDialogOpen(true);
-  }, []);
-
-  const handleCloseEditTermDialog = useCallback(() => {
-    setEditTermDialogOpen(false);
   }, []);
 
   const handleCloseDataFormatMenu = useCallback(() => {
@@ -468,7 +459,7 @@ const SingleTermView = () => {
   ]
 
   return (
-    <>
+    <EditSessionProvider group={actualGroup} searchTerm={searchTerm} disabled={!!versionHash}>
       <Box display="flex" flexDirection="column" sx={{ minWidth: "100%" }}>
         <Box p="1.5rem 5rem 0rem 5rem">
           <Grid container>
@@ -510,9 +501,9 @@ const SingleTermView = () => {
               </Grid>
               <Grid display="flex" justifyContent='end' mt=".56rem" item xs={12} lg={10}>
                 <Stack direction="row" spacing="1rem" alignItems="center">
-                  <Button type="string" color="secondary" startIcon={<ModeEditOutlineOutlinedIcon />} onClick={handleOpenEditTermDialog}>
-                    Suggest changes
-                  </Button>
+                  {/* Editing applies to the Overview tab, which is where every
+                      field backed by a triple on this term lives. */}
+                  <TermEditActions visible={tabValue === OVERVIEW_TAB && !versionHash} />
                   <Divider orientation="vertical" flexItem />
                   {isItFork ? (
                     <Button type="string" color="secondary" startIcon={<RateReviewOutlinedIcon />} onClick={handleOpenFeatureNotAvailableDialog}>
@@ -580,7 +571,6 @@ const SingleTermView = () => {
       </Box>
       {/* TODO: Re-enable when merge request feature is implemented */}
       <RequestMergeChanges searchTerm={searchTerm} open={openRequestMergeDialog} handleClose={handleCloseRequestMergeDialog} />
-      <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} searchTerm={searchTerm} group={actualGroup} />
       <CreateForkDialog
         open={openForkDialog}
         handleClose={handleForkDialogClose}
@@ -606,7 +596,7 @@ const SingleTermView = () => {
           {ontologySnackbar?.message}
         </Alert>
       </Snackbar>
-    </>
+    </EditSessionProvider>
   )
 }
 
