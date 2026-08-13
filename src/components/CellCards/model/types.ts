@@ -75,7 +75,8 @@ export interface CellMapping {
 // the parse is the ontology→model seam and the fixture check pins them (checkParser.mjs), not
 // because something renders them: `curatorNotes` is destined for the Discussions thread as
 // system comments (spec §10.4), which is blocked on a service that 404s for every term id, and
-// the three link fields are the widgets' forward-compatible path — see LINK_ANNOTATIONS.
+// the three link fields are the widgets' forward-compatible path — see `fields.sparcMap` and its
+// neighbours in model/mappings.ts, which match the predicate under any prefix.
 export interface CellAnnotations {
   atlasAnnotation: string[]; // ilxtr:atlasAnnotation — Precision dataset annotation pills
   curatorNotes: string[]; // ilxtr:curatorNote — awaiting the Discussions wire-up (spec §10.4)
@@ -160,7 +161,8 @@ export interface Facet {
 
 // Display metadata for a predicate, read from the ontology itself: the 70 ilxtr:* property
 // nodes carry ilxtr:displayLabel + ilxtr:shortDefinition, which cover 14 of the 15 neurdf
-// local names used by Precision cells. gridConfig's hardcoded maps are only the fallback.
+// local names used by Precision cells. The mappings document's `predicates` section is only the
+// fallback for what the ontology omits.
 export interface PredicateDisplay {
   localName: string;
   label: string;
@@ -173,7 +175,7 @@ export interface PropertyRowModel {
   label: string;
   tooltip?: string;
   prop?: CellProperty; // absent => the row renders "not specified"
-  render?: "text" | "chip"; // carried through from the row's cellCardConfig entry
+  render?: "text" | "chip"; // carried through from the region's row entry
   required?: boolean; // keep the row (as "not specified") when the predicate is absent
 }
 

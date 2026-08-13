@@ -198,6 +198,18 @@ function MainContent() {
 						<Route index element={<OntologyGridPage />} />
 						<Route path="browse" element={<OntologyBrowsePage />} />
 					</Route>
+					{/* A term read inside an ontology: the same page as the plain term route below, with
+					    the context ontology named by the path. A sibling of the ontology route rather than a
+					    child of it — the term page brings its own header, and the layout route above would
+					    render the ontology's on top of it. */}
+					<Route
+						path="/:group/ontology/:ontologySlug/:term/:tab?"
+						element={
+							<PageContainer>
+								<SingleTermView />
+							</PageContainer>
+						}
+					/>
 					<Route path="/login" element={<Login />} />
 					<Route path="/register" element={<Register />} />
 					<Route path="/forgot" element={<ForgotPassword />} />

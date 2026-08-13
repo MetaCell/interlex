@@ -160,7 +160,33 @@ export default defineConfig({
           });
         },
       },
-      '^/[^/]+/(tmp|ilx)_.*\\.(html|ttl|jsonld|n3|owl|csv)$': {
+      // "Is this external id mapped to an InterLex record?" — 404 while unmapped, the record
+      // otherwise. Without this rule the request falls through to the SPA and every probe reads
+      // 200 + index.html, i.e. "mapped", which is exactly backwards.
+      '^/[^/]+/uris/.+': {
+        target: 'https://uri.olympiangods.org',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path, // keep full path
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq, req) => {
+            // pass through auth/cookies so mappings in a non-base group resolve
+            if (req.headers.authorization) proxyReq.setHeader('Authorization', req.headers.authorization);
+            if (req.headers.cookie) proxyReq.setHeader('Cookie', req.headers.cookie);
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            const origin = req.headers.origin;
+            if (origin) res.setHeader('Access-Control-Allow-Origin', origin);
+            res.setHeader('Access-Control-Allow-Credentials', 'true');
+          });
+        },
+      },
+      // Any `{prefix}_{id}` term, not just ilx_/tmp_: once an npokb id is mapped to a record its
+      // tabs light up, and they read this endpoint. The extension allow-list keeps the rule off
+      // asset paths, and `(?!data/|static/)` off the local ontology copy and the static dir —
+      // proxying either would send them upstream, where they 404 (nginx guards both with
+      // `location ^~`).
+      '^/(?!data/|static/)[^/]+/[A-Za-z][A-Za-z0-9.-]*_[^/]*\\.(html|ttl|jsonld|n3|owl|csv)$': {
         target: 'https://uri.olympiangods.org',
         changeOrigin: true,
         secure: false,

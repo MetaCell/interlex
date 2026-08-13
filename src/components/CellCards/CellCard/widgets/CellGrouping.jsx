@@ -5,6 +5,7 @@ import { ArrowOutwardIcon } from "../../../../Icons";
 import CellCardWidget from "../CellCardWidget";
 import { buildNervoSensusLink } from "../nervoSensusLink";
 import { NERVOSENSUS_VIEWS } from "../../config/cellCardConfig";
+import { useMappings } from "../../config/mappingsAtom";
 
 export const TITLE = "Interactive Cell Grouping";
 
@@ -36,7 +37,8 @@ const withParams = (href, params) => {
  * from the cell.
  */
 const CellGrouping = ({ cell, actions }) => {
-  const { href, precise, filters } = buildNervoSensusLink(cell);
+  const mappings = useMappings();
+  const { href, precise, filters } = buildNervoSensusLink(cell, mappings);
 
   return (
     <CellCardWidget title={TITLE} actions={actions}>

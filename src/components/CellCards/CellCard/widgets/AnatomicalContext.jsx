@@ -5,7 +5,7 @@ import CellCardWidget from "../CellCardWidget";
 import PropertyList, { PropertyRow } from "../PropertyList";
 import EmptyState from "../../../common/EmptyState";
 import { buildRows } from "../buildRows";
-import { ANATOMICAL_CONTEXT_ROWS } from "../../config/cellCardConfig";
+import { useMappings } from "../../config/mappingsAtom";
 
 export const TITLE = "Anatomical & Circuit Context";
 
@@ -24,6 +24,7 @@ export const TITLE = "Anatomical & Circuit Context";
  *   occurrences, so a drawn diagram would be decorative rather than data-bearing.
  */
 const AnatomicalContext = ({ cell, predicateDisplay, actions }) => {
+  const mappings = useMappings();
   // hasSPARCMap is a deep link, so the parser routes it to `annotations` rather than treating it
   // as a phenotype. Shaped into a CellProperty here so PropertyRow renders it like any other row.
   const sparcMaps = cell.annotations?.sparcMaps || [];
@@ -33,7 +34,14 @@ const AnatomicalContext = ({ cell, predicateDisplay, actions }) => {
 
   return (
     <CellCardWidget title={TITLE} actions={actions}>
-      <PropertyList rows={buildRows(ANATOMICAL_CONTEXT_ROWS, cell, predicateDisplay)} />
+      <PropertyList
+        rows={buildRows(
+          mappings.regions.cellCard.anatomicalContext.rows,
+          cell,
+          predicateDisplay,
+          mappings
+        )}
+      />
 
       {sparcMap ? (
         <Stack divider={<Divider />} gap={1}>

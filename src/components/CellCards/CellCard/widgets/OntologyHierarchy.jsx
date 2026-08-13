@@ -147,19 +147,6 @@ const OntologyHierarchy = ({ cell, hierarchy, rootLabel, onNavigate, actions }) 
   }, [mode, query, items, anchorPath]);
   const expandedItems = expanded ?? defaultExpanded;
 
-  // Every position of the term the page is on: a class with several parents (17 of them here) is
-  // highlighted wherever it appears, the same rule the tree's `isCurrent` styling follows.
-  const selectedItems = useMemo(() => {
-    const ids = [];
-    const walk = (nodes) =>
-      nodes.forEach((n) => {
-        if (n.termId === cell.id) ids.push(n.id);
-        walk(n.children || []);
-      });
-    walk(items);
-    return ids;
-  }, [items, cell.id]);
-
   // Scrolls the highlighted row into view inside the tree's own box. `block: "nearest"` keeps the
   // scroll inside that box while the widget itself is on screen.
   const reveal = useCallback(() => {
@@ -275,10 +262,10 @@ const OntologyHierarchy = ({ cell, hierarchy, rootLabel, onNavigate, actions }) 
           <Box ref={treeBoxRef} sx={{ maxHeight: "24rem", overflow: "auto" }}>
             <OntologyHierarchyTree
               items={items}
-              currentTermId={cell.id}
               expandedItems={expandedItems}
               onExpandedItemsChange={(_e, ids) => setExpanded(ids)}
-              selectedItems={selectedItems}
+              anchorTermId={cell.id}
+              anchorIsCurrent
               onSelectTerm={handleSelectTerm}
             />
           </Box>

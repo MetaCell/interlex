@@ -8,6 +8,8 @@ import { dirname, join } from "node:path";
 import { parseNeurdf, parsePredicateDisplay } from "../neurdfParser";
 import { hasTranscriptomicProfile } from "../../components/CellCards/CellCard/widgetVisibility";
 import { buildNervoSensusLink, atlasCellKey } from "../../components/CellCards/CellCard/nervoSensusLink";
+import { resolveMappings } from "../../components/CellCards/config/mappingsService";
+import { DEFAULT_MAPPINGS } from "../../components/CellCards/config/mappingDefaults";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const data = JSON.parse(readFileSync(join(here, "neurdf-precision-sample.jsonld"), "utf8"));
@@ -195,6 +197,47 @@ check(
   buildNervoSensusLink({}).href.startsWith("https://nervosensus.netlify.app/"),
   true
 );
+
+// --- runtime mappings ---------------------------------------------------------
+// The shipped configuration file and the built-in fallback must stay the same document: the
+// fallback exists so that a failed fetch renders what the file would have, and that guarantee is
+// only worth anything if nobody edits one without the other.
+console.log("\nmappings document");
+const shipped = JSON.parse(
+  readFileSync(join(here, "../../../public/config/cell-card-mappings.json"), "utf8")
+);
+check(
+  "public/config/cell-card-mappings.json resolves to DEFAULT_MAPPINGS",
+  resolveMappings(shipped, "precision"),
+  DEFAULT_MAPPINGS
+);
+
+// Rebinding a field moves where the model reads from, without changing the model's shape.
+const rebound = resolveMappings(
+  {
+    fields: {
+      title: ["ilxtr:genLabel", "rdfs:label"],
+      description: ["ilxtr:curatorNote"],
+      literalProperties: [],
+    },
+  },
+  "precision"
+).fields;
+const rebuilt = parseNeurdf(data, "ilxtr:NeuronPrecision", rebound);
+const rebuilt1067 = rebuilt.cells.find((c) => c.id === "npokb:1067");
+check(
+  "a rebound title reads the other annotation",
+  rebuilt1067.label,
+  byId["npokb:1067"].annotations.generatedLabel
+);
+check("…and the default did not", byId["npokb:1067"].label !== rebuilt1067.label, true);
+check("a rebound description follows too", rebuilt1067.definition, undefined);
+check(
+  "dropping a literal property drops it from `properties`",
+  "neurondmBaseClass" in rebuilt1067.properties,
+  false
+);
+check("while the rest of the model is untouched", rebuilt.cells.length, cells.length);
 
 console.log(failed ? `\n${failed} check(s) failed` : "\nall checks passed");
 process.exit(failed ? 1 : 0);

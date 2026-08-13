@@ -8,10 +8,15 @@ import {
   NEURDF_LOCAL_URL,
   PREFER_LOCAL_NEURDF,
   ONTOLOGY_CATALOG,
-  DISPLAYED_PROPERTIES,
-  PREDICATE_LABELS,
-  PREDICATE_TOOLTIPS,
 } from "../config/gridConfig";
+import { loadMappings } from "../config/mappingsService";
+import { DEFAULT_MAPPINGS } from "../config/mappingDefaults";
+import { publishMappings } from "../config/mappingsAtom";
+import {
+  displayedProperties,
+  predicateLabels,
+  predicateTooltips,
+} from "../config/mappingDefaults";
 import type {
   OntologyGraph,
   ParsedOntology,
@@ -19,6 +24,8 @@ import type {
   CellTerm,
   HierarchyNode,
 } from "../model/types";
+import type { FieldSources, OntologyMappings } from "../model/mappings";
+import { SOURCE_PREDICATE } from "../model/mappings";
 import type { OntologyEntry } from "../config/gridConfig";
 
 export interface LoadedOntology {
@@ -27,6 +34,9 @@ export interface LoadedOntology {
   cells: CellTerm[];
   hierarchy: HierarchyNode[];
   predicateDisplay: ParsedOntology["predicateDisplay"];
+  // Which predicate feeds which tile row / widget row / graph edge, fetched alongside the graph
+  // so a view never renders before it knows what to show. See config/mappingsService.
+  mappings: OntologyMappings;
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -109,17 +119,36 @@ const getGraph = (): Promise<OntologyGraph> => {
   return graphPromise;
 };
 
-// Parsed result cache, keyed by ontology slug (parse depends on the root class).
-const parsedCache = new Map<string, LoadedOntology>();
+// Parsed result cache, keyed by ontology slug (the parse depends on the root class *and* on the
+// field sources, so the sources it was produced with are kept alongside it). Split from the
+// composed result below so that a mappings fetch which failed on the first load is retried on the
+// next navigation, and only re-parses if the retry actually changed where a field reads from.
+const parsedCache = new Map<string, { fields: FieldSources; parsed: ParsedOntology }>();
+const loadedCache = new Map<string, LoadedOntology>();
 
 export const loadOntology = async (slug: string): Promise<LoadedOntology> => {
   const entry = ONTOLOGY_CATALOG[slug];
   if (!entry) throw new Error(`Unknown ontology "${slug}"`);
-  const cached = parsedCache.get(slug);
-  if (cached) return cached;
 
-  const graph = await getGraph();
-  const parsed = parseNeurdf(graph, entry.rootClass);
+  // Cheap and separately cached: resolved config comes back by identity, so an unchanged config
+  // hands back the very same LoadedOntology and the grid keeps its filter state.
+  const mappings = await loadMappings(slug);
+  // Published here rather than from an effect, so the components rendered from the result below
+  // never see one frame of the built-in configuration first.
+  publishMappings(mappings);
+  const cached = loadedCache.get(slug);
+  if (cached && cached.mappings === mappings) return cached;
+
+  let entryParse = parsedCache.get(slug);
+  if (entryParse?.fields !== mappings.fields) {
+    entryParse = {
+      fields: mappings.fields,
+      parsed: parseNeurdf(await getGraph(), entry.rootClass, mappings.fields),
+    };
+    parsedCache.set(slug, entryParse);
+  }
+  const parsed = entryParse.parsed;
+
   const loaded: LoadedOntology = {
     entry,
     // Header identity is read straight from the file's owl:Ontology node
@@ -128,8 +157,12 @@ export const loadOntology = async (slug: string): Promise<LoadedOntology> => {
     cells: parsed.cells,
     hierarchy: parsed.hierarchy,
     predicateDisplay: parsed.predicateDisplay,
+    mappings,
   };
-  parsedCache.set(slug, loaded);
+  // A `DEFAULT_MAPPINGS` result means the fetch failed and `loadMappings` will retry it on the
+  // next call — caching that here would let `peekOntology`'s synchronous fast path (see
+  // useCellTerm) serve the fallback forever instead of picking up the retry.
+  if (mappings !== DEFAULT_MAPPINGS) loadedCache.set(slug, loaded);
   return loaded;
 };
 
@@ -138,7 +171,7 @@ export const loadOntology = async (slug: string): Promise<LoadedOntology> => {
 // it unmounts the Cell Card and takes every widget's state with it. The hierarchy widget has to
 // survive a cell → cell navigation (spec §3.2), so `useCellTerm` reads through this instead and
 // only falls back to the async path on a cold load.
-export const peekOntology = (slug: string): LoadedOntology | undefined => parsedCache.get(slug);
+export const peekOntology = (slug: string): LoadedOntology | undefined => loadedCache.get(slug);
 
 // --- single-term selectors (Cell Card) ---------------------------------------
 
@@ -215,6 +248,83 @@ export const hierarchyNeighbours = (
   return { parents, children };
 };
 
+// --- hierarchy scopes (Browse) ------------------------------------------------
+
+// The two directions the Browse tab reads the subClassOf hierarchy in, around the class selected
+// in its tree: the terms below that class, or the terms above it.
+export const SUBCLASSES = "subclasses" as const;
+export const SUPERCLASSES = "superclasses" as const;
+export type HierarchyScope = typeof SUBCLASSES | typeof SUPERCLASSES;
+
+// termId -> its direct children / parents, collapsed out of the positional hierarchy. A class with
+// several parents is drawn at several paths, so the same edge is reached more than once; a Set per
+// side makes the adjacency the DAG the positions were expanded from.
+const adjacency = (roots: HierarchyNode[]) => {
+  const children = new Map<string, Set<string>>();
+  const parents = new Map<string, Set<string>>();
+  const add = (map: Map<string, Set<string>>, from: string, to: string) => {
+    const set = map.get(from);
+    if (set) set.add(to);
+    else map.set(from, new Set([to]));
+  };
+  const walk = (nodes: HierarchyNode[], parent?: string) => {
+    for (const node of nodes) {
+      if (parent) {
+        add(children, parent, node.termId);
+        add(parents, node.termId, parent);
+      }
+      walk(node.children, node.termId);
+    }
+  };
+  walk(roots);
+  return { children, parents };
+};
+
+// Everything reachable from `start` along one side of the adjacency, transitively.
+//
+// This is a union over *every* path, unlike the Cell Card hierarchy widget's ancestor spine
+// (`findPath`, first position only) — the widget has to draw one nested chain, while a term list is
+// a set and so takes them all. `start` is never in the result; whether the caller wants it back is
+// its own decision (see `scopedCells`).
+const closure = (start: string, edges: Map<string, Set<string>>): Set<string> => {
+  const out = new Set<string>();
+  const stack = [...(edges.get(start) || [])];
+  while (stack.length) {
+    const id = stack.pop() as string;
+    if (out.has(id)) continue;
+    out.add(id);
+    stack.push(...(edges.get(id) || []));
+  }
+  out.delete(start); // a subClassOf cycle can walk back to it
+  return out;
+};
+
+// The ontology's terms that sit under (or over) `termId`, in the parse's alphabetical order.
+//
+// The two directions are deliberately not symmetric, and the labels the Browse tab puts on them say
+// so. Downwards is "<term> and its sub classes" — it includes the class itself, because 126 of the
+// 161 Precision terms are leaves and a scope that dropped the very term you clicked would answer
+// most of the tree with an empty table. Upwards is "super class of <term>", a question about other
+// terms, which the term itself is not an answer to.
+//
+// Only terms are returned either way, so the ontology's root class — `ilxtr:NeuronPrecision`, what
+// the set is defined *against* rather than a member of it — never appears as a row. Reading upwards
+// from a top-level cell therefore lands on the empty list, which is the honest answer: no term in
+// this ontology is a superclass of it.
+export const scopedCells = (
+  data: LoadedOntology,
+  termId: string,
+  scope: HierarchyScope
+): CellTerm[] => {
+  const { children, parents } = adjacency(data.hierarchy);
+  if (scope === SUPERCLASSES) {
+    const above = closure(termId, parents);
+    return data.cells.filter((c) => above.has(c.id));
+  }
+  const below = closure(termId, children);
+  return data.cells.filter((c) => c.id === termId || below.has(c.id));
+};
+
 // Which predicates are present across the cells (+ "source" from literatureCitation).
 const presentNames = (cells: CellTerm[]): { found: Set<string>; hasSource: boolean } => {
   const found = new Set<string>();
@@ -227,22 +337,52 @@ const presentNames = (cells: CellTerm[]): { found: Set<string>; hasSource: boole
 };
 
 const isPresent = (n: string, found: Set<string>, hasSource: boolean): boolean =>
-  found.has(n) || (n === "source" && hasSource);
+  found.has(n) || (n === SOURCE_PREDICATE && hasSource);
 
 // Facet localnames in display order. displayedOnly=true keeps only the properties shown on
 // the tiles; otherwise every property found on the terms, the tile ones first.
-const facetNames = (cells: CellTerm[], displayedOnly: boolean): string[] => {
+const facetNames = (
+  cells: CellTerm[],
+  displayed: string[],
+  displayedOnly: boolean
+): string[] => {
   const { found, hasSource } = presentNames(cells);
-  const displayed = DISPLAYED_PROPERTIES.filter((n) => isPresent(n, found, hasSource));
-  if (displayedOnly) return displayed;
-  const rest = [...found].filter((n) => !DISPLAYED_PROPERTIES.includes(n)).sort();
-  return [...displayed, ...rest];
+  const shown = displayed.filter((n) => isPresent(n, found, hasSource));
+  if (displayedOnly) return shown;
+  // "source" lives on `cell.sources`, not `cell.properties`, so it never joins `found` on its
+  // own — add it back here so "show everything" can still recover the Source facet even when
+  // `tile.footer` (and therefore `displayed`) has been configured to hide the tile's source row.
+  const rest = [...found, ...(hasSource ? [SOURCE_PREDICATE] : [])]
+    .filter((n) => !displayed.includes(n))
+    .sort();
+  return [...shown, ...rest];
 };
 
-// A facet needs at least this many distinct options to be worth showing — filtering on a
-// single-option facet (e.g. Cell class = only "neuron") can't narrow anything.
-const MIN_FACET_OPTIONS = 2;
+// The ontology's own `ilxtr:displayLabel`/`ilxtr:shortDefinition` outrank the mappings document's
+// `predicates` section, same as the Cell Card's row labels (see buildRows.js) — a curator editing
+// a displayLabel upstream should rename a predicate everywhere it appears, not just on the card.
+const withPredicateDisplay = (
+  data: LoadedOntology
+): { titles: Record<string, string>; tooltips: Record<string, string> } => {
+  const titles = { ...predicateLabels(data.mappings) };
+  const tooltips = { ...predicateTooltips(data.mappings) };
+  for (const [localName, display] of Object.entries(data.predicateDisplay)) {
+    titles[localName] = display.label;
+    if (display.description) tooltips[localName] = display.description;
+  }
+  return { titles, tooltips };
+};
 
-// Facets built from the data. displayedOnly=true → only the properties shown on the tiles.
-export const getFacets = (cells: CellTerm[], displayedOnly: boolean): Facet[] =>
-  buildFacets(cells, facetNames(cells, displayedOnly), PREDICATE_LABELS, PREDICATE_TOOLTIPS, MIN_FACET_OPTIONS);
+// Facets built from the data. displayedOnly=true → only the properties shown on the tiles, which
+// the mappings define (see `displayedProperties`); the minimum option count is configured too —
+// a facet offering a single value (Cell class = only "neuron") can't narrow anything.
+export const getFacets = (data: LoadedOntology, displayedOnly: boolean): Facet[] => {
+  const { titles, tooltips } = withPredicateDisplay(data);
+  return buildFacets(
+    data.cells,
+    facetNames(data.cells, displayedProperties(data.mappings), displayedOnly),
+    titles,
+    tooltips,
+    data.mappings.regions.filters.minOptions
+  );
+};

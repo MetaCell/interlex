@@ -1,0 +1,194 @@
+{
+  "$comment": "Cell Cards configuration — cellcard-spec/mappings.md §1 (grid tile) and §2 (cell card). Fetched at runtime by src/components/CellCards/config/mappingsService.ts, so editing this file next to the served bundle changes what the views read, with no rebuild. Two parts: `fields` binds each fixed field of the data model to the source that fills it, best first (a fallback chain); `regions` lists the additional fields each part of the UI puts on screen. `default` applies to every ontology, `ontologies.<slug>` overrides it for one, and any key may be omitted — the layer beneath shows through (built-in values live in config/mappingDefaults.ts).",
+  "version": 1,
+
+  "default": {
+    "fields": {
+      "$comment": "Model fields and where they read from. `title` and `description` are ordered fallback chains — spec §1.1: 'ilxtr:localLabel (if no localLabel, then rdfs:label)'. Source keys are matched against the graph exactly as written, because `definition`, `skos:definition` and `NIFRID:definition` are three different sources sharing one local name. Where the prefix is not yet settled, `{ \"sources\": [...], \"matchLocalName\": true }` matches the predicate's local name under any prefix.",
+
+      "title": ["ilxtr:localLabel", "rdfs:label", "dc:title", "dcterms:title"],
+      "description": [
+        "definition",
+        "skos:definition",
+        "NIFRID:definition",
+        "rdfs:comment",
+        "ilxtr:genLabel",
+        "ilxtr:curatorNote"
+      ],
+      "curatedDescriptionSources": 4,
+
+      "cellType": ["neurdf:Neuron"],
+      "parent": ["rdfs:subClassOf"],
+
+      "literatureCitation": ["ilxtr:literatureCitation"],
+      "dataCitation": ["ilxtr:dataCitation"],
+      "atlasAnnotation": ["ilxtr:atlasAnnotation"],
+      "curatorNote": ["ilxtr:curatorNote"],
+      "alertNote": ["ilxtr:alertNote"],
+      "temporaryId": ["ilxtr:hasTemporaryId"],
+      "generatedLabel": ["ilxtr:genLabel"],
+      "error": ["ilxtr:error"],
+
+      "sparcTranscriptomicsLink": {
+        "sources": ["ilx:hasSPARCTranscriptomicsLink"],
+        "matchLocalName": true
+      },
+      "sparcMap": { "sources": ["ilx:hasSPARCMap"], "matchLocalName": true },
+      "nervoSensusLink": { "sources": ["ilx:hasNervoSensusLink"], "matchLocalName": true },
+
+      "literalProperties": ["ilxtr:neurondmBaseClass"],
+
+      "crossNomenclature": {
+        "described": ["TEMP:assertedSubClassOf", "TEMP:subClassOf"],
+        "inferred": ["TEMP:mapsTo"],
+        "proposed": []
+      },
+
+      "predicateLabel": ["ilxtr:displayLabel"],
+      "predicateDescription": ["ilxtr:shortDefinition"],
+
+      "ontologyTitle": ["dc:title", "dcterms:title", "rdfs:label", "skos:prefLabel"],
+      "ontologyDescription": ["dc:description", "dcterms:description", "rdfs:comment"],
+      "ontologyVersion": ["owl:versionInfo"],
+
+      "missingValuePrefixes": ["TEMP:MISSING"]
+    },
+
+    "$predicatesComment": "Row labels come from the ontology's own ilxtr:displayLabel where it has one; these are the fallback, plus the tooltip text from pyontutils neuron_phenotype_edges.csv (displayDescription). ilxtr:literatureCitation is addressed as `source` below: the parser lifts citations onto CellTerm.sources.",
+    "predicates": {
+      "ilxtr:neurondmBaseClass": { "label": "Cell class" },
+      "ilxtr:hasInstanceInTaxon": {
+        "label": "Species",
+        "tooltip": "Species the cell type is observed in."
+      },
+      "ilxtr:hasSomaLocatedIn": {
+        "label": "Soma location",
+        "tooltip": "Anatomical location of the cell body (soma)."
+      },
+      "ilxtr:hasCircuitRolePhenotype": {
+        "label": "Circuit role",
+        "tooltip": "Excitatory / inhibitory circuit role."
+      },
+      "ilxtr:hasFunctionalPhenotype": {
+        "label": "Physiology",
+        "tooltip": "Functional / physiological properties."
+      },
+      "ilxtr:hasAxonPhenotype": { "label": "Axon type", "tooltip": "Axon fiber type." },
+      "ilxtr:hasAdaptationPhenotype": { "label": "Adaptation" },
+      "ilxtr:hasThresholdPhenotype": { "label": "Threshold" },
+      "ilxtr:hasNeurotransmitterPhenotype": {
+        "label": "Neurotransmitter",
+        "tooltip": "Neurotransmitters the cell type produces or releases."
+      },
+      "ilxtr:hasNucleicAcidExpressionPhenotype": {
+        "label": "Marker genes",
+        "tooltip": "Marker genes expressed by the cell type."
+      },
+      "ilxtr:hasBiologicalSex": { "label": "Sex" },
+      "ilxtr:hasMorphologicalPhenotype": { "label": "Morphology" },
+      "ilxtr:literatureCitation": {
+        "label": "Source",
+        "tooltip": "Source publication for the cell type."
+      }
+    },
+
+    "regions": {
+      "tile": {
+        "$comment": "§1.1 Grid Tile: header chips (left to right), then the property rows, then the source footer. A row with no value hides itself and the tile shrinks. `tone` picks the chip palette; `label` pins a row label for the tile only.",
+        "headerChips": [
+          { "predicate": "ilxtr:neurondmBaseClass", "tone": "class" },
+          { "predicate": "ilxtr:hasAxonPhenotype", "tone": "subtype" },
+          { "predicate": "ilxtr:hasInstanceInTaxon", "tone": "species" }
+        ],
+        "rows": [
+          { "predicate": "ilxtr:hasSomaLocatedIn", "render": "text" },
+          { "predicate": "ilxtr:hasNucleicAcidExpressionPhenotype", "render": "chip" },
+          { "predicate": "ilxtr:hasFunctionalPhenotype", "render": "chip" }
+        ],
+        "footer": { "predicate": "ilxtr:literatureCitation" }
+      },
+
+      "filters": {
+        "$comment": "§1.2 Grid Filter Bar. `minOptions` hides a facet offering fewer distinct values — one option cannot narrow anything. `displayed` lists what the \"Displayed properties\" toggle restricts the sidebar to; omitted, it is derived from the tile above so the two cannot drift apart.",
+        "minOptions": 2
+      },
+
+      "cellCard": {
+        "definition": {
+          "$comment": "§2.1 Auto-Generated Description: one predicate per sentence token. The banner is suppressed unless `minPredicates` of species/somaLocation/markerGenes are populated, so it never renders a sentence with holes in it.",
+          "cellClass": "ilxtr:neurondmBaseClass",
+          "species": "ilxtr:hasInstanceInTaxon",
+          "somaLocation": "ilxtr:hasSomaLocatedIn",
+          "markerGenes": "ilxtr:hasNucleicAcidExpressionPhenotype",
+          "minPredicates": 2
+        },
+
+        "biologicalProperties": {
+          "$comment": "§2.2, in the design's order (Figma 9535:96273). Every row is `required`, so the table keeps a fixed shape and an absent phenotype reads \"not specified\" rather than disappearing.",
+          "rows": [
+            { "predicate": "ilxtr:hasInstanceInTaxon", "required": true },
+            { "predicate": "ilxtr:hasSomaLocatedIn", "required": true },
+            { "predicate": "ilxtr:neurondmBaseClass", "required": true },
+            { "predicate": "ilxtr:hasCircuitRolePhenotype", "required": true },
+            { "predicate": "ilxtr:hasFunctionalPhenotype", "required": true },
+            { "predicate": "ilxtr:hasAxonPhenotype", "required": true },
+            { "predicate": "ilxtr:hasAdaptationPhenotype", "required": true },
+            { "predicate": "ilxtr:hasThresholdPhenotype", "required": true },
+            { "predicate": "ilxtr:hasNeurotransmitterPhenotype", "required": true },
+            {
+              "predicate": "ilxtr:hasNucleicAcidExpressionPhenotype",
+              "render": "chip",
+              "required": true
+            }
+          ]
+        },
+
+        "anatomicalContext": {
+          "$comment": "§2.3 (Figma 9239:67695). Soma location repeats from Biological Properties by design — it is the anchor for the anatomical reading.",
+          "rows": [
+            { "predicate": "ilxtr:hasSomaLocatedIn", "required": true },
+            { "predicate": "ilxtr:hasAxonSensorySubcellularElementIn", "required": true },
+            { "predicate": "ilxtr:hasAxonPresynapticElementIn", "required": true },
+            { "predicate": "ilxtr:hasCircuitRolePhenotype", "required": true }
+          ]
+        },
+
+        "relationshipGraph": {
+          "$comment": "§2.4. Only the predicates listed here are drawn — every phenotype would make the graph unreadable. `kind` selects the stroke and must be one of subClassOf | assertedSubClassOf | somaLocation | expresses; `direction` places the target relative to the current node. The two structural edges come from the hierarchy and the mapping table, so they carry a label rather than a predicate.",
+          "predicates": [
+            {
+              "predicate": "ilxtr:hasSomaLocatedIn",
+              "kind": "somaLocation",
+              "label": "soma location",
+              "direction": "left"
+            },
+            {
+              "predicate": "ilxtr:hasNucleicAcidExpressionPhenotype",
+              "kind": "expresses",
+              "label": "expresses",
+              "direction": "right"
+            }
+          ],
+          "legend": [
+            { "kind": "subClassOf", "label": "Sub class of" },
+            { "kind": "somaLocation", "label": "Soma location" },
+            { "kind": "assertedSubClassOf", "label": "Asserted Subclass of" },
+            { "kind": "expresses", "label": "expresses" }
+          ],
+          "subClassOfLabel": "subclass of",
+          "assertedSubClassOfLabel": "asserted subclass of"
+        },
+
+        "transcriptomicProfile": {
+          "$comment": "§2.5. The gene chips read the same predicate as the Biological Properties row rather than duplicating the list.",
+          "markerGenePredicate": "ilxtr:hasNucleicAcidExpressionPhenotype"
+        }
+      }
+    }
+  },
+
+  "ontologies": {
+    "$comment": "Per-ontology overrides, keyed by the catalogue slug in config/gridConfig.ts. Precision uses the defaults above unchanged.",
+    "precision": {}
+  }
+}

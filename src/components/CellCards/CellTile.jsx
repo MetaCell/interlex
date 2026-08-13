@@ -2,7 +2,9 @@ import PropTypes from "prop-types";
 import { Box, Card, CardContent, Checkbox, Typography, Chip, Divider, Link } from "@mui/material";
 import { ArrowOutwardIcon, CheckboxDefault, CheckboxSelected } from "../../Icons";
 import { vars } from "../../theme/variables";
-import { TILE_HEADER_CHIPS, TILE_ROWS, labelFor, termLink } from "./config/gridConfig";
+import { termLink } from "./config/gridConfig";
+import { predicateLabel } from "./config/mappingDefaults";
+import { useMappings } from "./config/mappingsAtom";
 
 const { gray500, gray700, gray800, brand700 } = vars;
 
@@ -47,8 +49,18 @@ const CHECKBOX_SX = { p: 1, mt: -0.5, mr: -0.5 };
 // A cell record as a grid tile: header (title/id/chips + select checkbox) → property rows → source
 // footer. Apart from the checkbox and the source links, the tile interior is not clickable; the
 // whole tile navigates (handled by the grid).
-const CellTile = ({ cell, selected = false, onToggleSelect }) => {
-  const headerChips = TILE_HEADER_CHIPS.flatMap(({ localName, tone }) => {
+//
+// Which chips, which rows and which footer is `mappings.regions.tile`, fetched at runtime — spec
+// §1.1: "the organization can choose which header elements and property rows to display".
+const CellTile = ({ cell, predicateDisplay = {}, selected = false, onToggleSelect }) => {
+  const mappings = useMappings();
+  const { headerChips: chipConfig, rows: rowConfig, footer } = mappings.regions.tile;
+  // The ontology's own `ilxtr:displayLabel` outranks the mappings document's label, same
+  // precedence buildRows.js gives the Cell Card's rows — a curator's edit renames the predicate
+  // here too, not just on the card.
+  const labelFor = (localName) => predicateDisplay[localName]?.label || predicateLabel(mappings, localName);
+
+  const headerChips = chipConfig.flatMap(({ localName, tone }) => {
     const prop = cell.properties[localName];
     if (!prop) return [];
     return prop.values.map((v) => (
@@ -56,14 +68,16 @@ const CellTile = ({ cell, selected = false, onToggleSelect }) => {
     ));
   });
 
-  const rows = TILE_ROWS.map(({ localName, render }) => (
-    <PropertyRow
-      key={localName}
-      label={labelFor(localName)}
-      prop={cell.properties[localName]}
-      render={render}
-    />
-  )).filter((row) => row.props.prop);
+  const rows = rowConfig
+    .map(({ localName, render, label }) => (
+      <PropertyRow
+        key={localName}
+        label={label || labelFor(localName)}
+        prop={cell.properties[localName]}
+        render={render}
+      />
+    ))
+    .filter((row) => row.props.prop);
 
   return (
     <Card
@@ -117,7 +131,7 @@ const CellTile = ({ cell, selected = false, onToggleSelect }) => {
         </>
       )}
 
-      {cell.sources.length > 0 && (
+      {footer && cell.sources.length > 0 && (
         <>
           <Divider />
           <CardContent
@@ -130,7 +144,7 @@ const CellTile = ({ cell, selected = false, onToggleSelect }) => {
             }}
           >
             <Typography variant="body2" sx={{ color: gray500, flexShrink: 0 }}>
-              {labelFor("source")}
+              {labelFor(footer.localName)}
             </Typography>
             <Box display="flex" flexWrap="wrap" justifyContent="flex-end" gap={1}>
               {cell.sources.map((src) =>
@@ -165,6 +179,7 @@ const CellTile = ({ cell, selected = false, onToggleSelect }) => {
 
 CellTile.propTypes = {
   cell: PropTypes.object.isRequired,
+  predicateDisplay: PropTypes.object,
   selected: PropTypes.bool,
   onToggleSelect: PropTypes.func,
 };

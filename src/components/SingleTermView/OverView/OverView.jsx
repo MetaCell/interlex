@@ -27,6 +27,15 @@ import {
   dedupePredicateGroups,
 } from "../../../parsers/hierarchies-parser";
 import { createOverviewStore } from "./overviewStore";
+import {
+  ontologyDetails,
+  ontologyFocus,
+  ontologyHierarchy,
+  ontologyPredicateGroups,
+} from "../../../parsers/ontologyTermAdapter";
+import { findCell } from "../../CellCards/services/ontologyGridService";
+import { useContextTerm } from "../../../hooks/useContextOntology";
+import { useTermRecordAvailability } from "../../../hooks/useTermRecordAvailability";
 import { DetailsSection, HierarchySection, PredicatesSection } from "./OverviewSections";
 import OverviewSideNav from "./OverviewSideNav";
 import { emitPredicateRowUpdate, makeRowKey } from "./predicateMutationBus";
@@ -157,6 +166,20 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
   if (!storeRef.current) storeRef.current = createOverviewStore();
   const store = storeRef.current;
 
+  // The Overview's second source, for a term InterLex has no record of: the context ontology's own
+  // record, rendered through `ontologyTermAdapter` instead of the term API.
+  const {
+    cell: ontologyCell,
+    ontology,
+    loading: ontologyLoading,
+  } = useContextTerm(searchTerm);
+  // Only asked once the ontology has an answer, so an ordinary term page adds no probe of its own;
+  // the result is shared through the hook's module cache with the page shell's copy.
+  const termRecordAvailable = useTermRecordAvailability(searchTerm, group, Boolean(ontologyCell));
+  // The ontology is the *fallback*. An InterLex record, once curation creates one, is the term's
+  // real home and the only editable one, so it takes the tab back.
+  const fromOntology = Boolean(ontologyCell) && !versionHash && termRecordAvailable !== true;
+
   // Guards against stale async writes after the term/group changed.
   const loadTokenRef = useRef(0);
   // Latest raw inputs to the predicate merge (arrive independently).
@@ -192,9 +215,11 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
     [store, searchTerm, curies]
   );
 
-  // Live (head) load. Each fetch resolves and writes its own stream.
+  // Live (head) load. Each fetch resolves and writes its own stream. Skipped once the ontology is
+  // serving the term, and while that lookup is open: these requests 404 for such a term, and their
+  // failures would raise the shared error dialog over a page that renders fine without them.
   useEffect(() => {
-    if (versionHash) return undefined;
+    if (versionHash || fromOntology || ontologyLoading) return undefined;
     const token = ++loadTokenRef.current;
     const isStale = () => token !== loadTokenRef.current;
 
@@ -314,7 +339,41 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
       // eslint-disable-next-line react-hooks/exhaustive-deps
       loadTokenRef.current++;
     };
-  }, [group, searchTerm, versionHash, store, maybePushPredicates]);
+  }, [group, searchTerm, versionHash, store, maybePushPredicates, fromOntology, ontologyLoading]);
+
+  // Ontology load: the same three streams, filled from the parse. Synchronous throughout, so moving
+  // the hierarchy focus re-derives rather than fetching, and a focus the ontology has no record for
+  // (the root the cells hang from) still gets its hierarchy, just no predicates.
+  useEffect(() => {
+    if (!fromOntology) return undefined;
+    const token = ++loadTokenRef.current;
+    const isStale = () => token !== loadTokenRef.current;
+
+    const focus = ontologyFocus(ontologyCell);
+    store.details$.next({ loading: false, data: ontologyDetails(ontologyCell), jsonData: null });
+    // Before subscribing: selectedValue$ replays, so the subscription fills the other two streams.
+    store.selectedValue$.next(focus);
+
+    const sub = store.selectedValue$.subscribe((sv) => {
+      if (isStale()) return;
+      const focusId = sv?.id || focus.id;
+      const focusCell = ontology ? findCell(ontology, focusId) : null;
+      store.hierarchy$.next({ loading: false, ...ontologyHierarchy(ontology, focusId) });
+      store.predicates$.next({
+        loading: false,
+        data: focusCell
+          ? ontologyPredicateGroups(focusCell, ontology?.predicateDisplay, ontology?.mappings)
+          : [],
+        focusId,
+      });
+    });
+
+    return () => {
+      sub.unsubscribe();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      loadTokenRef.current++;
+    };
+  }, [fromOntology, ontologyCell, ontology, store]);
 
   // Version mode: load a single term-version snapshot through the same pipeline.
   useEffect(() => {
@@ -487,7 +546,9 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
     [store, group, searchTerm, reloadAfterMutation, curies]
   );
 
-  const onMutate = versionHash ? undefined : handlePredicateMutation;
+  // No `onMutate` -> Predicates renders read-only, as in version mode: neither has an InterLex
+  // record behind it to PATCH.
+  const onMutate = versionHash || fromOntology ? undefined : handlePredicateMutation;
 
   return (
     <Box p="2.5rem 5rem" sx={{ overflow: "auto" }}>
