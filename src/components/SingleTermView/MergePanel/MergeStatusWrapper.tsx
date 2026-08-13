@@ -25,7 +25,8 @@ const styles = {
     }),
     childrenWrapper: {
         position: "relative" as const,
-        zIndex: 1
+        zIndex: 1,
+        minWidth: 0,
     },
     status: (color: string) => ({
         border: `2px solid ${color}`,
@@ -48,6 +49,8 @@ const styles = {
 interface MergeStatusContainerProps {
     status: string;
     children: React.ReactNode;
+    /** Stretch to the full row width — used when the whole triple row is the change. */
+    fullWidth?: boolean;
 }
 
 const getStatusStyles = (status: string) => {
@@ -63,16 +66,20 @@ const getStatusStyles = (status: string) => {
     };
 };
 
-const MergeStatusWrapper: React.FC<MergeStatusContainerProps> = ({ children, status }) => {
+const MergeStatusWrapper: React.FC<MergeStatusContainerProps> = ({ children, status, fullWidth = false }) => {
     const { color, label } = getStatusStyles(status);
 
     return (
-        <Box sx={{ ...styles.statusContainer, ...styles.status(color) }}>
+        <Box sx={{
+            ...styles.statusContainer,
+            ...styles.status(color),
+            ...(fullWidth ? { width: "100%" } : {}),
+        }}>
             <Box sx={styles.overlay(color)} />
             <Typography component="span" sx={styles.label(color)}>
                 {label}
             </Typography>
-            <Box sx={styles.childrenWrapper}>{children}</Box>
+            <Box sx={{ ...styles.childrenWrapper, ...(fullWidth ? { width: "100%" } : {}) }}>{children}</Box>
         </Box>
     );
 };

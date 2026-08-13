@@ -30,6 +30,10 @@ export const termPredicates = {
     "ilxtr:hasExistingId" : {
         key : termKeys.existingID,
     },
+    // Version snapshots spell the same relation this way.
+    "ilxtr:hasExternalId" : {
+        key : termKeys.existingID,
+    },
     "isAbout" : {
         key : termKeys.hasIlxPreferredId
     },

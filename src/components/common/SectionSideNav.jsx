@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Box, Typography } from "@mui/material";
-import { vars } from "../../../theme/variables";
+import { vars } from "../../theme/variables";
 
 const { gray300, gray600, gray800, brand600 } = vars;
 
-// Fixed icon-rail nav for the Overview tab's sections. Tracks which section is
-// in view via IntersectionObserver and scrolls to a section on click - the top
-// entry (Details) doubles as the "back to top" affordance for the long page.
-const OverviewSideNav = ({ items }) => {
+// Fixed dot-rail nav for a long page's sections. Tracks which section is in view via
+// IntersectionObserver and scrolls to a section on click - the top entry doubles as the
+// "back to top" affordance. Each item's id must be on an element in the page.
+const SectionSideNav = ({ items }) => {
   const [activeId, setActiveId] = useState(items[0]?.id);
 
   useEffect(() => {
@@ -64,18 +64,18 @@ const OverviewSideNav = ({ items }) => {
             border: "none",
             background: "none",
             cursor: "pointer",
-            "&:hover .overview-side-nav-dot": {
+            "&:hover .section-side-nav-dot": {
               transform: "scale(1.6)",
               backgroundColor: activeId === id ? brand600 : gray600,
             },
-            "&:hover .overview-side-nav-label": {
+            "&:hover .section-side-nav-label": {
               opacity: 1,
               transform: "translateX(0)",
             },
           }}
         >
           <Typography
-            className="overview-side-nav-label"
+            className="section-side-nav-label"
             variant="body2"
             sx={{
               opacity: 0,
@@ -93,7 +93,7 @@ const OverviewSideNav = ({ items }) => {
             {label}
           </Typography>
           <Box
-            className="overview-side-nav-dot"
+            className="section-side-nav-dot"
             sx={{
               width: "0.625rem",
               height: "0.625rem",
@@ -109,7 +109,7 @@ const OverviewSideNav = ({ items }) => {
   );
 };
 
-OverviewSideNav.propTypes = {
+SectionSideNav.propTypes = {
   items: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
@@ -118,4 +118,4 @@ OverviewSideNav.propTypes = {
   ).isRequired,
 };
 
-export default OverviewSideNav;
+export default SectionSideNav;

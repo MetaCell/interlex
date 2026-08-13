@@ -21,7 +21,6 @@ import CustomBreadcrumbs from "../common/CustomBreadcrumbs";
 import ForkRightIcon from '@mui/icons-material/ForkRight';
 import { vars } from "../../theme/variables";
 import OntologySearch from "./OntologySearch";
-import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import CopyLinkComponent from "../common/CopyLinkComponent";
 import BasicTabs from "../common/CustomTabs";
@@ -29,7 +28,6 @@ import CustomButton from "../common/CustomButton";
 import OverView from "./OverView/OverView";
 import HistoryPanel from "./History/HistoryPanel";
 import VariantsPanel from "./Variants/VariantsPanel";
-// TODO: Re-enable when merge request feature is implemented
 import RequestMergeChanges from "./RequestMergeChanges";
 import {
   DownloadOutlined,
@@ -55,9 +53,10 @@ import CustomSingleSelect from "../common/CustomSingleSelect";
 import CustomButtonGroup from "../common/CustomButtonGroup";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CreateForkDialog from "./CreateForkDialog";
-import TermDialog from "../TermEditor/TermDialog";
+import TermEditActions from "./TermEditActions";
 import FeatureNotAvailableDialog from "../common/FeatureNotAvailableDialog";
 import { GlobalDataContext } from "../../contexts/DataContext";
+import { EditSessionProvider } from "../../contexts/EditSessionContext";
 import { getRawData } from "../../api/endpoints";
 import { getVersions, addEntityToOntology, getOntologyTerms } from "../../api/endpoints/apiService";
 import { reportApiError } from "../../api/apiErrorBus";
@@ -129,7 +128,6 @@ const SingleTermView = () => {
   const [toggleButtonValue, setToggleButtonValue] = useState('defaultView');
   const [selectedDataFormat, setSelectedDataFormat] = useState('JSON-LD');
   const [openRequestMergeDialog, setOpenRequestMergeDialog] = useState(false);
-  const [editTermDialogOpen, setEditTermDialogOpen] = useState(false);
   const [openForkDialog, setOpenForkDialog] = useState(false);
   const [featureNotAvailableDialog, setFeatureNotAvailableDialog] = useState(false);
 
@@ -301,24 +299,14 @@ const SingleTermView = () => {
     setDataFormatAnchorEl(event.currentTarget);
   }, []);
 
-  const handleOpenEditTermDialog = useCallback(() => {
-    setEditTermDialogOpen(true);
-  }, []);
-
-  const handleCloseEditTermDialog = useCallback(() => {
-    setEditTermDialogOpen(false);
-  }, []);
-
   const handleCloseDataFormatMenu = useCallback(() => {
     setDataFormatAnchorEl(null);
   }, []);
 
-  // TODO: Re-enable when merge request feature is implemented
-  // const handleOpenRequestMergeDialog = useCallback(() => {
-  //   setOpenRequestMergeDialog(true);
-  // }, []);
+  const handleOpenRequestMergeDialog = useCallback(() => {
+    setOpenRequestMergeDialog(true);
+  }, []);
 
-  // TODO: Re-enable when merge request feature is implemented
   const handleCloseRequestMergeDialog = useCallback(() => {
     setOpenRequestMergeDialog(false);
   }, []);
@@ -557,7 +545,7 @@ const SingleTermView = () => {
   ]
 
   return (
-    <>
+    <EditSessionProvider group={actualGroup} searchTerm={searchTerm} disabled={!!versionHash}>
       <Box display="flex" flexDirection="column" sx={{ minWidth: "100%" }}>
         <Box p="1.5rem 5rem 0rem 5rem">
           <Grid container>
@@ -599,15 +587,17 @@ const SingleTermView = () => {
               </Grid>
               <Grid display="flex" justifyContent='end' mt=".56rem" item xs={12} lg>
                 <Stack direction="row" spacing="1rem" alignItems="center">
-                  <Button type="string" color="secondary" startIcon={<ModeEditOutlineOutlinedIcon />} onClick={handleOpenEditTermDialog}>
-                    Suggest changes
-                  </Button>
+                  {/* Editing applies to the Overview tab, which is where every
+                      field backed by a triple on this term lives. */}
+                  <TermEditActions visible={tabValue === OVERVIEW_TAB && !versionHash} />
                   <Divider orientation="vertical" flexItem />
-                  {isItFork ? (
-                    <Button type="string" color="secondary" startIcon={<RateReviewOutlinedIcon />} onClick={handleOpenFeatureNotAvailableDialog}>
+                  {/* Only a variant has something to propose: the base group *is* curated.
+                      Opening the request writes to the fork's group, so it needs a session. */}
+                  {isItFork && user ? (
+                    <Button type="string" color="secondary" startIcon={<RateReviewOutlinedIcon />} onClick={handleOpenRequestMergeDialog}>
                       Request to merge changes to curated
                     </Button>
-                  ) : user ? (
+                  ) : user && !isItFork ? (
                     <Button type="string" color="secondary" startIcon={<ForkRightIcon />} onClick={handleOpenForkDialog}>
                       Create fork
                     </Button>
@@ -684,9 +674,14 @@ const SingleTermView = () => {
         )}
         {tabContent}
       </Box>
-      {/* TODO: Re-enable when merge request feature is implemented */}
-      <RequestMergeChanges searchTerm={searchTerm} open={openRequestMergeDialog} handleClose={handleCloseRequestMergeDialog} />
-      <TermDialog open={editTermDialogOpen} handleClose={handleCloseEditTermDialog} searchTerm={searchTerm} group={actualGroup} />
+      {isItFork && (
+        <RequestMergeChanges
+          term={searchTerm}
+          group={actualGroup}
+          open={openRequestMergeDialog}
+          handleClose={handleCloseRequestMergeDialog}
+        />
+      )}
       <CreateForkDialog
         open={openForkDialog}
         handleClose={handleForkDialogClose}
@@ -712,7 +707,7 @@ const SingleTermView = () => {
           {ontologySnackbar?.message}
         </Alert>
       </Snackbar>
-    </>
+    </EditSessionProvider>
   )
 }
 

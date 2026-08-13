@@ -8,31 +8,37 @@ import { vars } from "../../../theme/variables"
 const { gray800 } = vars
 
 interface ChipChangesProps {
-  data: string[]
-  compareData: string[]
+  data: string | string[]
+  compareData?: string | string[]
   status: string
   type?: string
   title: string
 }
 
+// termParser collapses a single-valued predicate to a scalar, so the same field arrives as a
+// string on one side and an array on the other; both sides are compared as lists.
+const asList = (value?: string | string[]): string[] =>
+  Array.isArray(value) ? value : value === undefined || value === null ? [] : [value];
+
 const ChipChanges: React.FC<ChipChangesProps> = ({ data, compareData = [], status, type="", title }) => {
-  const differences = compareArrays(data, compareData) || [];
+  const items = asList(data);
+  const differences = compareArrays(items, asList(compareData)) || [];
   return (
     <Stack spacing=".75rem">
       <Typography color={gray800} fontWeight={500}>
         {title}
       </Typography>
       <Box display="flex" flexWrap="wrap" gap={type === "chip-link" ? 0.5 : 1}>
-        {data.map((item: string, index: number) => {
+        {items.map((item: string, index: number) => {
           const isDifferent = differences.includes(item) || false
           const chipContent = (
             <Chip
               key={`${item}-${status}-${index}`}
               variant="outlined"
               className={`rounded ${type === "dual-text-chip" ? "dual-text-chip" : "IDchip-outlined"}`}
-              label={
-                type === "dual-text-chip" ? (<span>{item} <span>{item}</span></span>) : (item)
-              }
+              // The mock rendered the value twice (the theme dims a second, secondary span);
+              // a real synonym carries one value, so show it once.
+              label={item}
               icon={type === "chip-link" ? <OpenInNewOutlinedIcon /> : undefined}
             />
           )

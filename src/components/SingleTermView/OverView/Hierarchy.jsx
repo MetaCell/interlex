@@ -14,11 +14,13 @@ import { RestartAlt, TargetCross } from "../../../Icons";
 import SingleSearch from "../SingleSearch";
 import CustomizedTreeView from "../../common/CustomizedTreeView";
 import CustomSingleSelect from "../../common/CustomSingleSelect";
+import { EditableChipList } from "./EditableFields";
 import { API_CONFIG } from "../../../config";
 
 const { gray600, gray800 } = vars;
 const CHILDREN = 'children';
 const SUPERCLASSES = 'superclasses';
+const SUBCLASS_OF_PREDICATE = 'rdfs:subClassOf';
 
 // Find first tree item whose .iri matches focusIri
 const findFirstRenderedId = (items = [], focusIri) => {
@@ -69,7 +71,11 @@ const Hierarchy = ({
   treeChildren = [],
   treeSuperclasses = [],
   loading = false,
+  directSuperclasses = [],
+  group = "base",
+  onMutate,
 }) => {
+  const editing = !!onMutate;
   const [type, setType] = React.useState(SUPERCLASSES);
   const [currentId, setCurrentId] = React.useState(null);
   const [manualHighlightedIds, setManualHighlightedIds] = React.useState([]);
@@ -203,6 +209,25 @@ const Hierarchy = ({
       <Typography color={gray600} fontSize='.875rem'>
         Total number of first generation {type === CHILDREN ? CHILDREN : SUPERCLASSES}: {childCount}
       </Typography>
+
+      {editing && (
+        <Stack spacing='.75rem'>
+          <Divider />
+          <Typography color={gray800} fontWeight={500}>Direct superclasses</Typography>
+          <Typography color={gray600} fontSize='.875rem'>
+            Only the rdfs:subClassOf triples on this term can be changed here. Children are that
+            same relation on other terms, so they are edited from those terms.
+          </Typography>
+          <EditableChipList
+            predicate={SUBCLASS_OF_PREDICATE}
+            values={directSuperclasses}
+            kind='term'
+            group={group}
+            onMutate={onMutate}
+            addLabel='Add superclass'
+          />
+        </Stack>
+      )}
     </Box>
   );
 };
@@ -214,9 +239,12 @@ Hierarchy.propTypes = {
   }),
   selectedValue: PropTypes.shape({ id: PropTypes.string, label: PropTypes.string }),
   onSelect: PropTypes.func,
-  treeChildren: PropTypes.array,      
-  treeSuperclasses: PropTypes.array,  
+  treeChildren: PropTypes.array,
+  treeSuperclasses: PropTypes.array,
   loading: PropTypes.bool,
+  directSuperclasses: PropTypes.arrayOf(PropTypes.string),
+  group: PropTypes.string,
+  onMutate: PropTypes.func,
 };
 
 export default Hierarchy;

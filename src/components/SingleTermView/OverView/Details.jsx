@@ -9,13 +9,24 @@ import {
 import PropTypes from "prop-types";
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 import { formatTimestamp } from "../../../utils";
+import { EditableChipList, EditableTextValue } from "./EditableFields";
 
 import { vars } from "../../../theme/variables";
 const { gray800, gray500 } = vars;
 
 const RELATED_SYNONYM_IRI = "http://uri.interlex.org/base/ilx_0737162";
 
-const Details = ({ loading, data, jsonData }) => {
+// Predicates behind the editable fields of this section. They are the curies
+// the predicate table and the PATCH context use, so a synonym edited here and
+// one edited in the table collapse onto the same triple.
+const SYNONYM_PREDICATE = "ilxr:synonym";
+const RELATED_SYNONYM_PREDICATE = "ilx.anno.hasRelatedSynonym";
+const DEFINITION_PREDICATE = "definition";
+const EXISTING_ID_PREDICATE = "ilxtr:hasExistingId";
+
+// `onMutate` present means edit mode is on (OverView only passes it then).
+const Details = ({ loading, data, jsonData, group = "base", onMutate }) => {
+  const editing = !!onMutate;
   const handleChipClick = (url) => {
     window.open(url, '_blank');
   };
@@ -83,6 +94,29 @@ const Details = ({ loading, data, jsonData }) => {
             </Typography>
             {(() => {
               const { synonyms, related } = getSynonymGroups();
+              if (editing) {
+                return (
+                  <Stack spacing="1rem">
+                    <EditableChipList
+                      predicate={SYNONYM_PREDICATE}
+                      values={synonyms}
+                      group={group}
+                      onMutate={onMutate}
+                      addLabel="Add synonym"
+                    />
+                    <Stack spacing=".5rem">
+                      <Typography variant="caption" color={gray500}>Related</Typography>
+                      <EditableChipList
+                        predicate={RELATED_SYNONYM_PREDICATE}
+                        values={related}
+                        group={group}
+                        onMutate={onMutate}
+                        addLabel="Add related synonym"
+                      />
+                    </Stack>
+                  </Stack>
+                );
+              }
               return (
                 <Stack spacing=".5rem">
                   {synonyms.length > 0 && (
@@ -122,17 +156,29 @@ const Details = ({ loading, data, jsonData }) => {
             </Typography>
           </Stack>
         </Grid>
-        {processExistingIds(data?.existingID).length > 0 && (
+        {(editing || processExistingIds(data?.existingID).length > 0) && (
           <Grid item xs={12} lg={4}>
             <Stack spacing=".75rem">
               <Typography color={gray800} fontWeight={500}>
                 Existing IDs
               </Typography>
-              <Box display="flex" flexWrap="wrap" gap=".5rem">
-                {processExistingIds(data?.existingID).map((id) =>
-                  <Chip className="rounded IDchip-outlined" variant="outlined" key={id} label={id} icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(id)} />
-                )}
-              </Box>
+              {editing ? (
+                <EditableChipList
+                  predicate={EXISTING_ID_PREDICATE}
+                  values={processExistingIds(data?.existingID)}
+                  kind="term"
+                  group={group}
+                  onMutate={onMutate}
+                  addLabel="Add existing ID"
+                  chipClassName="rounded IDchip-outlined"
+                />
+              ) : (
+                <Box display="flex" flexWrap="wrap" gap=".5rem">
+                  {processExistingIds(data?.existingID).map((id) =>
+                    <Chip className="rounded IDchip-outlined" variant="outlined" key={id} label={id} icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(id)} />
+                  )}
+                </Box>
+              )}
             </Stack>
           </Grid>
         )}
@@ -143,9 +189,18 @@ const Details = ({ loading, data, jsonData }) => {
             <Typography color={gray800} fontWeight={500}>
               Description
             </Typography>
-            <Typography fontSize=".875rem" color={gray500}>
-              {data?.description}
-            </Typography>
+            {editing ? (
+              <EditableTextValue
+                predicate={DEFINITION_PREDICATE}
+                value={data?.description || ""}
+                onMutate={onMutate}
+                placeholder="Describe this term"
+              />
+            ) : (
+              <Typography fontSize=".875rem" color={gray500}>
+                {data?.description}
+              </Typography>
+            )}
           </Stack>
         </Grid>
       </Grid>
@@ -222,7 +277,9 @@ const Details = ({ loading, data, jsonData }) => {
 Details.propTypes = {
   loading: PropTypes.bool.isRequired,
   data: PropTypes.object,
-  jsonData: PropTypes.object
+  jsonData: PropTypes.object,
+  group: PropTypes.string,
+  onMutate: PropTypes.func
 };
 
 export default Details;

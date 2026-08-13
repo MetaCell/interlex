@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import ObjectInput from "./ObjectInput";
-import { Box, IconButton, Tooltip, Typography, Link, CircularProgress } from "@mui/material";
+import { Box, Chip, IconButton, Tooltip, Typography, Link } from "@mui/material";
 import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
@@ -10,6 +10,13 @@ import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined
 function isValidURL(value) {
   return /^https?:\/\/[\w.-]+(\.[a-z]{2,})(:\d+)?(\/.*)?$/i.test(value);
 }
+
+// Staged-change badge: the row already shows the value it will have once the
+// edit session is saved, so the badge is what says it isn't persisted yet.
+const STATUS_CHIP = {
+  added: { label: "New", color: "success" },
+  edited: { label: "Edited", color: "info" },
+};
 
 const TableRow = ({
   tableStyles,
@@ -20,16 +27,16 @@ const TableRow = ({
   index,
   columnWidth,
   editable = false,
-  pending = false,
+  status,
   objectKind = "text",
   group = "base",
   onEdit,
   onDelete,
 }) => {
   const { id, subject, predicate, object } = data;
-  const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(object);
+  const statusChip = STATUS_CHIP[status];
 
   const startEdit = () => {
     setDraft(object);
@@ -42,13 +49,11 @@ const TableRow = ({
   };
 
   return (
-    <Box sx={{ ...tableStyles.root, ...(pending && { opacity: 0.6, pointerEvents: "none" }) }}
-      draggable={!isEditing && !pending}
+    <Box sx={tableStyles.root}
+      draggable={!isEditing}
       onDragStart={e => onDragStart(id, index, e)}
       onDragEnter={e => onDragEnter(id, index, e)}
       onDragEnd={onDragEnd}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       <Box sx={{ width: columnWidth }}>
         <Tooltip title={subject}>
@@ -79,21 +84,24 @@ const TableRow = ({
             onCancel={cancelEdit}
           />
         ) : (
-          <Tooltip title={object}>
-            {isValidURL(object) ? (
-              <Link href={object} target="_blank" rel="noopener noreferrer">
-                {object}
-              </Link>
-            ) : (
-              <Typography>{object}</Typography>
+          <>
+            <Tooltip title={object}>
+              {isValidURL(object) ? (
+                <Link href={object} target="_blank" rel="noopener noreferrer">
+                  {object}
+                </Link>
+              ) : (
+                <Typography>{object}</Typography>
+              )}
+            </Tooltip>
+            {statusChip && (
+              <Chip size="small" color={statusChip.color} label={statusChip.label} />
             )}
-          </Tooltip>
+          </>
         )}
       </Box>
       <Box display="flex" sx={{ width: '6.25rem', justifyContent: "flex-end", alignItems: "center" }}>
-        {pending ? (
-          <CircularProgress size={16} />
-        ) : isEditing ? (
+        {isEditing ? (
           <>
             <Tooltip placement="top" title="Save">
               <IconButton onClick={confirmEdit}>
@@ -107,15 +115,17 @@ const TableRow = ({
             </Tooltip>
           </>
         ) : (
-          editable && isHovered && (
+          // Edit mode shows the controls outright — hover-to-reveal was the
+          // affordance back when any row could be edited at any time.
+          editable && (
             <>
               <Tooltip placement="top" title="Edit">
-                <IconButton onClick={startEdit}>
+                <IconButton onClick={startEdit} aria-label="Edit value">
                   <EditOutlinedIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
               <Tooltip placement="top" title="Delete">
-                <IconButton onClick={() => onDelete?.(data)}>
+                <IconButton onClick={() => onDelete?.(data)} aria-label="Delete value">
                   <DeleteOutlineOutlinedIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
@@ -135,7 +145,7 @@ TableRow.propTypes = {
   index: PropTypes.number.isRequired,
   columnWidth: PropTypes.number.isRequired,
   editable: PropTypes.bool,
-  pending: PropTypes.bool,
+  status: PropTypes.oneOf(["clean", "added", "edited"]),
   objectKind: PropTypes.oneOf(["term", "text"]),
   group: PropTypes.string,
   onEdit: PropTypes.func,

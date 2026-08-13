@@ -6,7 +6,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import {
   getObjectInputKind,
@@ -14,7 +14,7 @@ import {
   isReadOnlyPredicate,
   isRowOnFocus,
 } from "../../../configuration/predicateConfig";
-import { predicateRowUpdates$, makeRowKey } from "./predicateMutationBus";
+import { useEditSession } from "../../../contexts/editSession";
 
 import { vars } from "../../../theme/variables";
 const { gray100, gray50, gray600, gray500, brand600, gray700 } = vars;
@@ -121,8 +121,6 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
 
   const [adding, setAdding] = useState(false);
   const [newValue, setNewValue] = useState("");
-  // Row currently awaiting a PATCH response (shows an in-row loader).
-  const [pendingRowKey, setPendingRowKey] = useState(null);
 
   const targetRow = useRef();
   const sourceRow = useRef();
@@ -132,25 +130,44 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
     setTableContent(normalizeTableData(data));
   }, [data]);
 
-  // Terminal PATCH responses for an inline edit. On success, swap in the
-  // persisted value (only the changed row re-renders); on error, leave the
-  // original value untouched (revert). Either way the in-row loader clears.
-  useEffect(() => {
-    const sub = predicateRowUpdates$.subscribe(({ rowKey, newValue, status }) => {
-      setPendingRowKey((current) => (current === rowKey ? null : current));
-      if (status !== "success") return;
-      setTableContent((prev) => {
-        let changed = false;
-        const next = prev.map((row) => {
-          if (makeRowKey(row.subject, predicateTitle, row.object) !== rowKey) return row;
-          changed = true;
-          return { ...row, object: safe(newValue) };
-        });
-        return changed ? next : prev;
-      });
+  // Rows as the edit session says they will look once saved: edits in place,
+  // deletes gone, adds appended. Only rows that sit on the focus term can be
+  // staged, so inbound rows pass through untouched.
+  const { applyToValues } = useEditSession();
+  const focusSubject = tableContent.find((r) => isRowOnFocus(r.subject, focusId))?.subject;
+  const displayRows = useMemo(() => {
+    const focusObjects = tableContent
+      .filter((r) => isRowOnFocus(r.subject, focusId))
+      .map((r) => r.object);
+    const resolved = applyToValues(predicateTitle, focusObjects, focusSubject);
+    const byOriginal = new Map();
+    resolved.forEach((entry) => {
+      if (entry.original !== null) byOriginal.set(entry.original, entry);
     });
-    return () => sub.unsubscribe();
-  }, [predicateTitle]);
+
+    const rows = [];
+    tableContent.forEach((row) => {
+      if (!isRowOnFocus(row.subject, focusId)) {
+        rows.push(row);
+        return;
+      }
+      const entry = byOriginal.get(row.object);
+      if (!entry) return; // staged for deletion
+      rows.push({ ...row, object: entry.value, status: entry.status });
+    });
+    resolved
+      .filter((entry) => entry.original === null)
+      .forEach((entry, i) => {
+        rows.push({
+          id: `staged-add-${i}`,
+          subject: focusSubject || "",
+          predicate: predicateTitle,
+          object: entry.value,
+          status: "added",
+        });
+      });
+    return rows;
+  }, [tableContent, focusId, focusSubject, predicateTitle, applyToValues]);
 
   const move = (arr, fromIndex, toIndex) => {
     const element = arr[fromIndex];
@@ -205,7 +222,6 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
   };
 
   const handleEditRow = (row, value) => {
-    setPendingRowKey(makeRowKey(row.subject, predicateTitle, row.object));
     onMutate?.({ subject: row.subject, predicate: predicateTitle, op: "edit", kind: objectKind, oldValue: row.object, newValue: value });
   };
 
@@ -246,7 +262,7 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
         <Box sx={{ width: '6.25rem' }} />
       </Box>
 
-      {(tableContent || []).map((row, index) => (
+      {(displayRows || []).map((row, index) => (
         <TableRow
           key={`${row.id}-${index}`}
           tableStyles={tableStyles}
@@ -254,7 +270,7 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
           data={row}
           index={index}
           editable={!readOnly && !!onMutate && isRowOnFocus(row.subject, focusId)}
-          pending={pendingRowKey === makeRowKey(row.subject, predicateTitle, row.object)}
+          status={row.status}
           objectKind={objectKind}
           group={group}
           onEdit={handleEditRow}
