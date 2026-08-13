@@ -21,7 +21,8 @@ import RelationshipGraphSvg from "../RelationshipGraphSvg";
 import EmptyState from "../../../common/EmptyState";
 import { CloseIcon } from "../../../../Icons";
 import buildRelationGraph from "../buildRelationGraph";
-import { RELATION_LEGEND, FLAGGED_FOOTNOTE } from "../../config/cellCardConfig";
+import { FLAGGED_FOOTNOTE } from "../../config/cellCardConfig";
+import { useMappings } from "../../config/mappingsAtom";
 
 export const TITLE = "Relationship Graph";
 
@@ -57,10 +58,10 @@ LegendSwatch.propTypes = { kind: PropTypes.string.isRequired };
 // `hasFlagged` gates the footnote: nothing in the shipped graph produces "proposed" evidence, so
 // an unconditional footnote explains a marker no node can carry. Same rule as CrossNomenclature,
 // which describes the same asterisk.
-const Legend = ({ hasFlagged }) => (
+const Legend = ({ rows, hasFlagged }) => (
   <Stack gap={0.5}>
     <Stack direction="row" flexWrap="wrap" gap={2}>
-      {RELATION_LEGEND.map(({ kind, label }) => (
+      {rows.map(({ kind, label }) => (
         <Stack key={kind} direction="row" alignItems="center" gap={0.75}>
           <LegendSwatch kind={kind} />
           <Typography variant="caption" sx={{ color: "text.secondary" }}>
@@ -77,7 +78,7 @@ const Legend = ({ hasFlagged }) => (
   </Stack>
 );
 
-Legend.propTypes = { hasFlagged: PropTypes.bool };
+Legend.propTypes = { rows: PropTypes.array.isRequired, hasFlagged: PropTypes.bool };
 
 /**
  * §4.1 Relationship Graph (Figma 9478:72004 inline, 8917:35906 expanded).
@@ -88,8 +89,13 @@ Legend.propTypes = { hasFlagged: PropTypes.bool };
  * widget needs two (inline and in the dialog). The Overview tab's graphs are left untouched.
  */
 const RelationshipGraph = ({ cell, neighbours, onNavigate, actions }) => {
+  const mappings = useMappings();
   const [expanded, setExpanded] = useState(false);
-  const graph = useMemo(() => buildRelationGraph(cell, neighbours), [cell, neighbours]);
+  const graph = useMemo(
+    () => buildRelationGraph(cell, neighbours, mappings),
+    [cell, neighbours, mappings]
+  );
+  const legend = mappings.regions.cellCard.relationshipGraph.legend;
 
   // One node is always the cell itself; fewer than two means there is nothing to relate.
   const hasRelations = graph.nodes.length > 1;
@@ -128,7 +134,7 @@ const RelationshipGraph = ({ cell, neighbours, onNavigate, actions }) => {
               <Typography variant="body2">Legend</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <Legend hasFlagged={hasFlagged} />
+              <Legend rows={legend} hasFlagged={hasFlagged} />
             </AccordionDetails>
           </Accordion>
         </Paper>
@@ -136,17 +142,19 @@ const RelationshipGraph = ({ cell, neighbours, onNavigate, actions }) => {
         <EmptyState message="No related terms in this ontology." />
       )}
 
-      <Dialog open={expanded} onClose={() => setExpanded(false)} maxWidth="lg" fullWidth>
+      <Dialog open={expanded} onClose={() => setExpanded(false)} fullScreen>
         <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <IconButton onClick={() => setExpanded(false)} aria-label="Close" sx={{ ml: -1 }}>
             <CloseIcon />
           </IconButton>
           {TITLE}
         </DialogTitle>
-        <DialogContent>
-          <Stack gap={2}>
-            <RelationshipGraphSvg graph={graph} onSelect={handleSelect} />
-            <Legend hasFlagged={hasFlagged} />
+        <DialogContent sx={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
+          <Stack gap={2} sx={{ flex: 1, minHeight: 0 }}>
+            <Box sx={{ flex: 1, minHeight: 0 }}>
+              <RelationshipGraphSvg graph={graph} onSelect={handleSelect} height="100%" />
+            </Box>
+            <Legend rows={legend} hasFlagged={hasFlagged} />
           </Stack>
         </DialogContent>
       </Dialog>

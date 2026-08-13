@@ -6,7 +6,7 @@ import { vars } from "../../theme/variables";
 const { gray500 } = vars;
 
 // Responsive tile grid. Whole-tile click navigates; the per-tile checkbox selects instead.
-const CellTileGrid = ({ cells, onSelect, selectedIds, onToggleSelect }) => {
+const CellTileGrid = ({ cells, predicateDisplay, onSelect, selectedIds, onToggleSelect }) => {
   if (!cells.length) {
     return (
       <Box
@@ -41,6 +41,7 @@ const CellTileGrid = ({ cells, onSelect, selectedIds, onToggleSelect }) => {
         >
           <CellTile
             cell={cell}
+            predicateDisplay={predicateDisplay}
             selected={!!selectedIds[cell.id]}
             onToggleSelect={() => onToggleSelect(cell.id)}
           />
@@ -52,6 +53,7 @@ const CellTileGrid = ({ cells, onSelect, selectedIds, onToggleSelect }) => {
 
 CellTileGrid.propTypes = {
   cells: PropTypes.array.isRequired,
+  predicateDisplay: PropTypes.object,
   onSelect: PropTypes.func.isRequired,
   selectedIds: PropTypes.object.isRequired,
   onToggleSelect: PropTypes.func.isRequired,

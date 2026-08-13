@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import CellCardWidget from "../CellCardWidget";
 import PropertyList from "../PropertyList";
 import { buildRows } from "../buildRows";
-import { BIOLOGICAL_PROPERTY_ROWS } from "../../config/cellCardConfig";
+import { useMappings } from "../../config/mappingsAtom";
 
 export const TITLE = "Biological Properties";
 
@@ -20,11 +20,21 @@ export const TITLE = "Biological Properties";
  * populated it will arrive as a *separate predicate*, not a qualifier on a value, so the chip
  * needs a design revision rather than just data.
  */
-const BiologicalProperties = ({ cell, predicateDisplay, actions }) => (
-  <CellCardWidget title={TITLE} actions={actions}>
-    <PropertyList rows={buildRows(BIOLOGICAL_PROPERTY_ROWS, cell, predicateDisplay)} />
-  </CellCardWidget>
-);
+const BiologicalProperties = ({ cell, predicateDisplay, actions }) => {
+  const mappings = useMappings();
+  return (
+    <CellCardWidget title={TITLE} actions={actions}>
+      <PropertyList
+        rows={buildRows(
+          mappings.regions.cellCard.biologicalProperties.rows,
+          cell,
+          predicateDisplay,
+          mappings
+        )}
+      />
+    </CellCardWidget>
+  );
+};
 
 BiologicalProperties.propTypes = {
   cell: PropTypes.object.isRequired,

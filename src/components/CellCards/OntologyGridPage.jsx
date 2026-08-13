@@ -7,7 +7,8 @@ import CellTileGrid from "./CellTileGrid";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import CustomPagination from "../common/CustomPagination";
 import { getFacets, curieToSlug } from "./services/ontologyGridService";
-import { ONTOLOGY_PARAM } from "./config/gridConfig";
+import { termPath } from "./config/gridConfig";
+import { SOURCE_PREDICATE } from "./model/mappings";
 import { primeTermDataCache } from "../../hooks/useTermData";
 import { vars } from "../../theme/variables";
 
@@ -24,7 +25,7 @@ const cellText = (cell) => {
 
 // The value keys a cell exposes for a given facet.
 const cellFacetKeys = (cell, localName) => {
-  if (localName === "source") return cell.sources.map((s) => s.id);
+  if (localName === SOURCE_PREDICATE) return cell.sources.map((s) => s.id);
   return (cell.properties[localName]?.values || []).map((v) => v.id);
 };
 
@@ -50,7 +51,7 @@ const OntologyGridPage = () => {
   }, [data]);
 
   const cells = useMemo(() => data?.cells || [], [data]);
-  const facets = useMemo(() => getFacets(cells, displayedOnly), [cells, displayedOnly]);
+  const facets = useMemo(() => (data ? getFacets(data, displayedOnly) : []), [data, displayedOnly]);
   // Only currently-visible facets constrain results — a facet hidden by the
   // "Displayed properties" toggle must not silently filter (its checks are kept
   // but inert until it is shown again).
@@ -121,17 +122,16 @@ const OntologyGridPage = () => {
 
   // Tile click -> that cell's Cell Card (the tile's primary action, per the design).
   //
-  // Two things travel with the navigation. `?ontology=` is the context ontology, which is how the
-  // card knows which graph to resolve the term against. And the label is pushed into the term-data
-  // cache first: the term page would otherwise fetch `/{group}/npokb_998.jsonld`, which 404s for
-  // every Precision cell, and a cache hit skips the request entirely and titles the page at once.
+  // Two things travel with the navigation. The card is opened under this ontology's own path, which
+  // is how it knows which graph to resolve the term against. And the label is pushed into the
+  // term-data cache first: the term page would otherwise fetch `/{group}/npokb_998.jsonld`, which
+  // 404s for every Precision cell, and a cache hit skips the request entirely and titles the page
+  // at once.
   const openCellCard = useCallback(
     (cell) => {
       const slug = curieToSlug(cell.curie);
       primeTermDataCache(data.entry.org, slug, cell.label);
-      navigate(
-        `/${data.entry.org}/${slug}/cell-card?${ONTOLOGY_PARAM}=${encodeURIComponent(data.entry.slug)}`
-      );
+      navigate(termPath(data.entry.org, data.entry.slug, slug, "cell-card"));
     },
     [navigate, data]
   );
@@ -186,6 +186,7 @@ const OntologyGridPage = () => {
         <Box sx={{ flex: 1, overflowY: "auto", px: 4, py: 3 }}>
           <CellTileGrid
             cells={pageCells}
+            predicateDisplay={data?.predicateDisplay}
             onSelect={openCellCard}
             selectedIds={selectedIds}
             onToggleSelect={onToggleSelect}

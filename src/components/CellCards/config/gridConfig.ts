@@ -15,6 +15,11 @@ export interface OntologyEntry {
   description?: string;
   // neurdf root: cells are (transitively) subClassOf this; also shown as the header's curie tag.
   rootClass: string;
+  // CURIE prefixes this ontology names its own terms with. Part of its identity, so it belongs
+  // here rather than as a regex at a call site: it is what lets a term page recognise, from the
+  // slug alone and before anything is loaded, that this ontology is the only place the term can
+  // come from (`npokb_997` -> precision). See `ontologyForTermSlug`.
+  termPrefixes?: string[];
 }
 
 export const ONTOLOGY_CATALOG: Record<string, OntologyEntry> = {
@@ -28,32 +33,68 @@ export const ONTOLOGY_CATALOG: Record<string, OntologyEntry> = {
     curationStatus: "Curated",
     description: "HEAL-PRECISION neuron cell types (NPO).",
     rootClass: "ilxtr:NeuronPrecision",
+    // All 161 Precision cells are npokb-only today. Drop this once they are ingested with ILX ids:
+    // by then InterLex addresses them and the ontology stops being their only source.
+    termPrefixes: ["npokb"],
   },
 };
+
+const ontologySegment = (slug: string): string => `/ontology/${slug}`;
 
 // Canonical route to an ontology tab, mirroring the breadcrumb hierarchy:
 // /[organization]/ontology/[ontology slug](/[tab]).
 export const ontologyPath = (entry: OntologyEntry, tab = ""): string =>
-  `/${entry.org}/ontology/${entry.slug}${tab ? `/${tab}` : ""}`;
+  `/${entry.org}${ontologySegment(entry.slug)}${tab ? `/${tab}` : ""}`;
+
+// Route to a term page. A term read inside an ontology hangs off that ontology's path, so the URL
+// carries the context the Cell Card resolves against — /[org]/ontology/[slug]/[term](/[tab]) — and
+// the breadcrumb can name the ontology the user came through. Without a context ontology it is the
+// plain /[group]/[term](/[tab]) an InterLex term has always had.
+export const termPath = (
+  group: string,
+  ontologySlug: string | null | undefined,
+  termSlug: string,
+  tab = ""
+): string =>
+  `/${group}${ontologySlug ? ontologySegment(ontologySlug) : ""}/${termSlug}${tab ? `/${tab}` : ""}`;
 
 // The single hardcoded search result until an ontology search backend exists.
 export const HARDCODED_RESULTS: OntologyEntry[] = [ONTOLOGY_CATALOG.precision];
 
-// Context ontology assumed when a Cell Card is opened without an `?ontology=` param (a shared
-// link, or a term reached from search rather than from the grid). With one entry in the
-// catalog this is unambiguous; it becomes a real lookup once there are several.
+// Context ontology assumed when a Cell Card is opened on a path that does not name one (a term
+// reached from search rather than from the grid). With one entry in the catalog this is
+// unambiguous; it becomes a real lookup once there are several.
 export const DEFAULT_ONTOLOGY_SLUG = "precision";
 
-// Query param carrying the context ontology across a term-page navigation. Distinct from
-// DataContext.activeOntology, which is the *edit* target shown as a chip in the header.
-export const ONTOLOGY_PARAM = "ontology";
+// Which catalogued ontology declares the prefix this term slug carries — i.e. the ontology a term
+// page can fall back to when nothing else names a context (a shared link, a search hit). Undefined
+// for a slug no ontology claims, which is the signal not to load one at all: the ~16MB file must
+// never be fetched on an ordinary InterLex term page.
+export const ontologyForTermSlug = (slug?: string): string | undefined => {
+  const prefix = String(slug || "")
+    .match(/^([A-Za-z][A-Za-z0-9.-]*)[_:]/)?.[1]
+    ?.toLowerCase();
+  if (!prefix) return undefined;
+  return Object.values(ONTOLOGY_CATALOG).find((entry) =>
+    entry.termPrefixes?.some((p) => p.toLowerCase() === prefix)
+  )?.slug;
+};
 
-// Does this term slug address an InterLex record (`ilx_0101431`, `tmp_0381624`)? Precision cells
-// are npokb-only today, so it is false for them — and every feature backed by the InterLex term
-// API (Overview, Variants, Version history, Discussions) then has nothing to serve. One home for
-// the rule so the tabs SingleTermView disables and the links the Cell Card suppresses cannot
-// drift apart; it goes away once these cells are ingested with ILX ids.
+// Does this term slug address an InterLex record *by construction* (`ilx_0101431`,
+// `tmp_0381624`)? Anything else — a Precision cell's `npokb_991` — may still be addressable, but
+// only once curation maps it, which is a backend question: see `termUriMappingPath` and
+// `hasInterLexRecord`. Callers that gate term-API features (Overview, Variants, Version history,
+// Discussions) want the latter; this is only its synchronous shortcut.
 export const isIlxTermSlug = (slug?: string): boolean => /^(ilx|tmp)[_:]/i.test(slug || "");
+
+// Backend route answering "is this external id mapped to an InterLex record?":
+// `npokb_991` under `base` -> /base/uris/npokb/991, which 404s while unmapped. Split on the first
+// separator so a compound id (`obo_UBERON_0000955`) keeps its own underscores. Returns undefined
+// for a slug carrying no prefix, which the endpoint cannot address at all.
+export const termUriMappingPath = (group: string, slug?: string): string | undefined => {
+  const match = String(slug || "").match(/^([A-Za-z][A-Za-z0-9.-]*)[_:](.+)$/);
+  return match ? `/${group}/uris/${match[1]}/${match[2]}` : undefined;
+};
 
 // --- ontology tabs ----------------------------------------------------------
 
@@ -105,71 +146,11 @@ export const PREFER_LOCAL_NEURDF =
   import.meta.env?.VITE_PREFER_LOCAL_NEURDF !== "false";
 
 // --- predicate display metadata ---------------------------------------------
-
-// local name (family-stripped) -> human label. Any predicate not listed falls back
-// to its local name, so nothing is silently dropped ("render everything").
-export const PREDICATE_LABELS: Record<string, string> = {
-  neurondmBaseClass: "Cell class",
-  hasInstanceInTaxon: "Species",
-  hasSomaLocatedIn: "Soma location",
-  hasCircuitRolePhenotype: "Circuit role",
-  hasFunctionalPhenotype: "Physiology",
-  hasAxonPhenotype: "Axon type",
-  hasAdaptationPhenotype: "Adaptation",
-  hasThresholdPhenotype: "Threshold",
-  hasNeurotransmitterPhenotype: "Neurotransmitter",
-  hasNucleicAcidExpressionPhenotype: "Marker genes",
-  hasBiologicalSex: "Sex",
-  hasMorphologicalPhenotype: "Morphology",
-  source: "Source",
-};
-
-// Tooltip text sourced from pyontutils neuron_phenotype_edges.csv (displayDescription).
-export const PREDICATE_TOOLTIPS: Record<string, string> = {
-  hasInstanceInTaxon: "Species the cell type is observed in.",
-  hasSomaLocatedIn: "Anatomical location of the cell body (soma).",
-  hasFunctionalPhenotype: "Functional / physiological properties.",
-  hasAxonPhenotype: "Axon fiber type.",
-  hasNucleicAcidExpressionPhenotype: "Marker genes expressed by the cell type.",
-  hasNeurotransmitterPhenotype: "Neurotransmitters the cell type produces or releases.",
-  hasCircuitRolePhenotype: "Excitatory / inhibitory circuit role.",
-  source: "Source publication for the cell type.",
-};
-
-export const labelFor = (localName: string): string =>
-  PREDICATE_LABELS[localName] || localName;
-
-// --- tile layout ------------------------------------------------------------
-
-export type ChipTone = "class" | "subtype" | "species";
-
-// Header chips (left→right), from the mockup: class + fiber/subtype + species.
-export const TILE_HEADER_CHIPS: { localName: string; tone: ChipTone }[] = [
-  { localName: "neurondmBaseClass", tone: "class" },
-  { localName: "hasAxonPhenotype", tone: "subtype" },
-  { localName: "hasInstanceInTaxon", tone: "species" },
-];
-
-export type RowRender = "text" | "chip";
-
-// Ordered property rows shown on a tile (auto-hidden when empty).
-export const TILE_ROWS: { localName: string; render: RowRender }[] = [
-  { localName: "hasSomaLocatedIn", render: "text" },
-  { localName: "hasNucleicAcidExpressionPhenotype", render: "chip" },
-  { localName: "hasFunctionalPhenotype", render: "chip" },
-];
-
-// --- facets -----------------------------------------------------------------
-
-// The properties actually shown on a tile: header chips + rows + the footer source.
-// The "Displayed properties" toggle ON restricts facets to exactly these; OFF shows a
-// facet for every property found on the terms. Derived from the tile config above so the
-// two never drift apart.
-export const DISPLAYED_PROPERTIES: string[] = [
-  ...TILE_HEADER_CHIPS.map((c) => c.localName),
-  ...TILE_ROWS.map((r) => r.localName),
-  "source",
-];
+//
+// Predicate labels/tooltips, the tile layout and the facet configuration used to live here. They
+// are field *mappings*, which `cellcard-spec/mappings.md` §1.1 asks to be configurable per
+// ontology, so they now come from the runtime-fetched document — see `config/mappingsService` for
+// the fetch and `config/mappingDefaults` for the built-in fallback and the readers.
 
 // --- term links ---------------------------------------------------------------
 

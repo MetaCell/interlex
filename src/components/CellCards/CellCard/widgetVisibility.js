@@ -9,16 +9,21 @@
  * context image, which the design gives an explicit "not available" state.
  */
 
-// Species / soma location / marker genes. The auto-description needs at least two of these to
-// read as a sentence rather than a fragment (spec §6).
-const DESCRIPTION_PREDICATES = [
-  "hasInstanceInTaxon",
-  "hasSomaLocatedIn",
-  "hasNucleicAcidExpressionPhenotype",
-];
+import { DEFAULT_MAPPINGS } from "../config/mappingDefaults";
 
-export const hasDefinition = (cell) =>
-  DESCRIPTION_PREDICATES.filter((n) => cell.properties[n]?.values?.length).length >= 2;
+// Species / soma location / marker genes by default. The auto-description needs at least two of
+// them to read as a sentence rather than a fragment (spec §6) — the bindings and the minimum are
+// both the `definition` region of the mappings document, so an ontology whose cells are described
+// by other predicates still gets a banner. Counted straight off the same three bindings
+// `DefinitionBanner` reads (not a separately configured list), so the two cannot drift apart:
+// `cellClass` is excluded because its clause always falls back to "cell" and is never a hole.
+export const hasDefinition = (cell, mappings = DEFAULT_MAPPINGS) => {
+  const { species, somaLocation, markerGenes, minPredicates } = mappings.regions.cellCard.definition;
+  const populated = [species, somaLocation, markerGenes].filter(
+    (localName) => localName && cell.properties[localName]?.values?.length
+  ).length;
+  return populated >= minPredicates;
+};
 
 // Either the SPARC deep link or the atlas annotation pills. The link's triple does not exist in
 // the shipped ontology, so in practice this is the atlas-pill branch (54 of 161 cells).

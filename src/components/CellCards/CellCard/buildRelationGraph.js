@@ -1,8 +1,4 @@
-import {
-  RELATION_PREDICATES,
-  SUBCLASS_EDGE_LABEL,
-  ASSERTED_SUBCLASS_EDGE_LABEL,
-} from "../config/cellCardConfig";
+import { DEFAULT_MAPPINGS } from "../config/mappingDefaults";
 
 // A cell label carries its provenance as a trailing parenthetical — "DRG PEP3.2 (Krauter2025)".
 // The graph node shows the id and that provenance on its own line, so strip it from the title.
@@ -37,14 +33,16 @@ const refNode = (ref) => ({
  * asserted-subclass mappings fanned out below, and two lateral satellites — soma location to the
  * left and gene expression to the right.
  *
- * Which phenotype predicates may appear is `RELATION_PREDICATES` in cellCardConfig, not a
- * hardcoded list here: Fahim asked for this explicitly, because drawing every phenotype would
+ * Which phenotype predicates may appear is the mappings document's `relationshipGraph` region, not
+ * a hardcoded list here: Fahim asked for this explicitly, because drawing every phenotype would
  * make the graph unreadable.
  *
  * @param {object} cell      the CellTerm at the centre
  * @param {object} neighbours { parents, children } from hierarchyNeighbours
+ * @param {object} mappings  the loaded ontology's mappings
  */
-export const buildRelationGraph = (cell, neighbours = {}) => {
+export const buildRelationGraph = (cell, neighbours = {}, mappings = DEFAULT_MAPPINGS) => {
+  const config = mappings.regions.cellCard.relationshipGraph;
   const nodes = [cellNode(cell, true)];
   const edges = [];
   const seen = new Set([cell.id]);
@@ -64,7 +62,7 @@ export const buildRelationGraph = (cell, neighbours = {}) => {
         from: parent.id,
         to: cell.id,
         kind: "subClassOf",
-        label: SUBCLASS_EDGE_LABEL,
+        label: config.subClassOfLabel,
       });
     }
   }
@@ -84,7 +82,7 @@ export const buildRelationGraph = (cell, neighbours = {}) => {
         from: cell.id,
         to: mapping.ref.id,
         kind: "assertedSubClassOf",
-        label: ASSERTED_SUBCLASS_EDGE_LABEL,
+        label: config.assertedSubClassOfLabel,
       });
     }
   }
@@ -96,14 +94,14 @@ export const buildRelationGraph = (cell, neighbours = {}) => {
         from: cell.id,
         to: child.id,
         kind: "subClassOf",
-        label: SUBCLASS_EDGE_LABEL,
+        label: config.subClassOfLabel,
       });
     }
   }
 
   // Lateral phenotype satellites. Several values collapse into one node ("SCGN, ADRA2C" in the
   // design) so the graph shows the relation rather than one node per gene.
-  for (const predicate of RELATION_PREDICATES) {
+  for (const predicate of config.predicates) {
     const values = cell.properties[predicate.localName]?.values || [];
     if (!values.length) continue;
     const id = `${cell.id}::${predicate.localName}`;
