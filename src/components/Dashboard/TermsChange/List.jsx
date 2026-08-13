@@ -6,7 +6,7 @@ import { Box, List } from "@mui/material";
 import { vars } from "../../../theme/variables";
 const { gray50 } = vars;
 
-const ListTerms = ({ entries }) => {
+const ListTerms = ({ entries, viewerGroup }) => {
   const navigate = useNavigate();
 
   // The record's own url doubles as the in-app route (/<group>/pulls/<id>), which renders the
@@ -32,7 +32,7 @@ const ListTerms = ({ entries }) => {
             },
           }}
         >
-          <ListItem entry={entry} onRequestClick={onRequestClick} />
+          <ListItem entry={entry} onRequestClick={onRequestClick} viewerGroup={viewerGroup} />
         </Box>
       ))}
     </List>
@@ -41,6 +41,7 @@ const ListTerms = ({ entries }) => {
 
 ListTerms.propTypes = {
   entries: PropTypes.array,
+  viewerGroup: PropTypes.string,
 };
 
 export default ListTerms;

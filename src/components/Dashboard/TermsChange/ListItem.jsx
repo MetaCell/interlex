@@ -26,13 +26,16 @@ const visibilityHidden = {
   transition: 'opacity 0.3s ease-in-out'
 }
 
-const getRequestText = (entry) => {
+// An admin's dashboard lists everybody's requests, so the sentence has to say whose it is
+// rather than always addressing the reader as the author.
+const getRequestText = (entry, viewerGroup) => {
+  const mine = !!viewerGroup && entry.fromGroup === viewerGroup;
   switch (entry.status) {
     case PR_STATUS.REQUESTED:
-      return `You asked to merge:`;
+      return mine ? `You asked to merge:` : `${entry.fromGroup} asked to merge:`;
     case PR_STATUS.APPROVED:
     case PR_STATUS.REJECTED:
-      return `Your request to merge:`;
+      return mine ? `Your request to merge:` : `Request to merge:`;
     default:
       return `Merge request:`;
   }
@@ -51,7 +54,7 @@ const getRequestIcon = (status) => {
   }
 };
 
-const ListTermItem = ({ entry, onRequestClick }) => {
+const ListTermItem = ({ entry, onRequestClick, viewerGroup }) => {
   // The term page for one side of the request; absolute so window.open treats it as a URL
   // rather than prefixing a scheme onto a relative path.
   const termUrl = (group) => entry.termId
@@ -95,7 +98,7 @@ const ListTermItem = ({ entry, onRequestClick }) => {
           }}
           primary={
             <Box display="flex" alignItems="center" gap={0.5} flexWrap="wrap">
-              <Typography variant="body2" sx={{ color: gray700, fontWeight: 500 }}>{getRequestText(entry)}</Typography>
+              <Typography variant="body2" sx={{ color: gray700, fontWeight: 500 }}>{getRequestText(entry, viewerGroup)}</Typography>
               <Typography variant="body2" sx={{ color: brand600, fontWeight: 600, cursor: 'pointer' }}
                           onClick={() => openTerm(entry.fromGroup)}>{entry.fromGroup}</Typography>
               <Typography variant="body2" sx={{ color: gray700, fontWeight: 500 }}>to</Typography>
@@ -132,7 +135,8 @@ const ListTermItem = ({ entry, onRequestClick }) => {
 
 ListTermItem.propTypes = {
   entry: PropTypes.object.isRequired,
-  onRequestClick: PropTypes.func.isRequired
+  onRequestClick: PropTypes.func.isRequired,
+  viewerGroup: PropTypes.string
 };
 
 export default ListTermItem;

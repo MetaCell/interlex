@@ -4,9 +4,10 @@ import BasicTabs from "../../common/CustomTabs";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import CustomPagination from "../../common/CustomPagination";
-import { getPullRequests } from "../../../api/endpoints/apiService";
+import { getPullRequests, listAllPullRequests, getOrganizations } from "../../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../../contexts/DataContext";
-import { mapPullRecords, PR_STATUS } from "./pullRequests";
+import { mapPullRecord, mapPullRecords, PR_STATUS } from "./pullRequests";
+import { isAdminFromRoles } from "../../PullRequest/permissions";
 
 import { vars } from "../../../theme/variables";
 const { gray25, gray600 } = vars;
@@ -35,6 +36,8 @@ const TermsChange = () => {
   const [pullRequests, setPullRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [truncated, setTruncated] = useState(false);
 
   const handlePageChange = (event, value) => {
     setPage(value);
@@ -51,36 +54,56 @@ const TermsChange = () => {
     setLoading(true);
     setError(null);
 
-    const groups = Array.from(new Set([groupname, CURATED_GROUP]));
-    Promise.allSettled(groups.map(group => getPullRequests(group)))
-      .then(results => {
-        if (!active) return;
-        results.forEach((result, index) => {
-          if (result.status === 'rejected') {
-            console.error(`Error fetching pull requests for "${groups[index]}":`, result.reason);
-          }
-        });
+    const load = async () => {
+      const admin = await getOrganizations(groupname)
+        .then(isAdminFromRoles)
+        .catch(() => false);
+      if (!active) return;
+      setIsAdmin(admin);
 
-        const answered = results.filter(result => result.status === 'fulfilled');
-        // Only a total failure is an error: one group listing fine is enough to show something.
-        if (!answered.length) {
-          setError(results[0]?.reason?.message || 'Request failed');
-          setPullRequests([]);
-          setLoading(false);
-          return;
+      // `/<group>/pulls` only lists requests *into* that group, so these two answer "sent to
+      // me" and "sent to curated" — never the ones this user opened against someone else.
+      const groups = Array.from(new Set([groupname, CURATED_GROUP]));
+      const listed = await Promise.allSettled(groups.map(group => getPullRequests(group)));
+      listed.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          console.error(`Error fetching pull requests for "${groups[index]}":`, result.reason);
         }
-
-        // The same request comes back from both listings, so dedupe on its url, and keep only
-        // the ones this user is a party to — a curated listing carries everybody's.
-        const byId = new Map();
-        answered
-          .flatMap(result => mapPullRecords(result.value))
-          .filter(entry => entry.fromGroup === groupname || entry.toGroup === groupname)
-          .forEach(entry => byId.set(entry.id, entry));
-
-        setPullRequests([...byId.values()]);
-        setLoading(false);
       });
+
+      // Walking the id sequence is what finds the rest: this user's outgoing requests, and —
+      // for an admin, who curates every group — everybody else's.
+      const walked = await listAllPullRequests().catch(error => {
+        console.error('Error walking the pull request sequence:', error);
+        return { records: [], truncated: false };
+      });
+      if (!active) return;
+
+      const answered = listed.filter(result => result.status === 'fulfilled');
+      if (!answered.length && !walked.records.length) {
+        setError(listed[0]?.reason?.message || 'Request failed');
+        setPullRequests([]);
+        setLoading(false);
+        return;
+      }
+
+      // A request shows up in several of these, keyed by *pull id* rather than url: the same
+      // record read through two group paths reports two different urls for the one request.
+      // An admin reviews every group; everyone else sees only requests they are a party to.
+      const byId = new Map();
+      [
+        ...answered.flatMap(result => mapPullRecords(result.value)),
+        ...walked.records.map(mapPullRecord),
+      ]
+        .filter(entry => admin || entry.fromGroup === groupname || entry.toGroup === groupname)
+        .forEach(entry => byId.set(entry.pullId || entry.id, entry));
+
+      setPullRequests([...byId.values()]);
+      setTruncated(walked.truncated);
+      setLoading(false);
+    };
+
+    load();
     return () => { active = false; };
   }, [groupname]);
 
@@ -108,8 +131,18 @@ const TermsChange = () => {
     if (!visibleEntries.length) {
       return <Typography color={gray600}>{TABS[tabValue].empty}</Typography>;
     }
-    return <List entries={visibleEntries} />;
-  }, [loading, error, visibleEntries, tabValue]);
+    return (
+      <>
+        <List entries={visibleEntries} viewerGroup={groupname} />
+        {/* Say so rather than let a capped walk read as "this is all of them". */}
+        {truncated && (
+          <Typography color={gray600} fontSize=".875rem" mt="0.75rem">
+            Showing the first requests only — there are more than this view walks.
+          </Typography>
+        )}
+      </>
+    );
+  }, [loading, error, visibleEntries, tabValue, truncated, groupname]);
 
   return (
     <Box p='2.5rem 5rem' sx={{
@@ -119,7 +152,8 @@ const TermsChange = () => {
       backgroundColor: gray25
     }}>
       <Typography fontSize='1.5rem' color={gray600} fontWeight={600}>
-        My Pull Requests
+        {/* An admin curates every group, so this section is everybody's requests, not theirs. */}
+        {isAdmin ? 'All Pull Requests' : 'My Pull Requests'}
       </Typography>
       <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={TABS.map(tab => tab.label)} />
       {renderBody()}

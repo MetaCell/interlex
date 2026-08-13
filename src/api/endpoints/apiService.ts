@@ -707,6 +707,20 @@ export const getVariantTerm = async (variantUri: string, termId?: string) => {
   return versionToTerm(jsonld, termId);
 };
 
+/**
+ * GET /<group>/priv/role — the signed-in user's role in `group`.
+ * Used to decide whether the merge controls apply; returns null when there is no session or
+ * the user holds no role there (both answer 401).
+ */
+export const getUserRoleForGroup = async (group: string) => {
+  try {
+    return await createGetRequest<any, any>(`/${group}${API_CONFIG.REAL_API.USER_ROLE}`, "application/json")();
+  } catch (error: any) {
+    if (error?.response?.status !== 401) console.warn(`getUserRoleForGroup(${group}) failed:`, error);
+    return null;
+  }
+};
+
 /** GET /<group>/pulls — every merge request that group is involved in. */
 export const getPullRequests = async (group: string) => {
   return createGetRequest<any, any>(`/${group}${API_CONFIG.REAL_API.PULLS}`, "application/json")();
@@ -715,6 +729,41 @@ export const getPullRequests = async (group: string) => {
 /** GET /<group>/pulls/<pullId> — a single merge request, with its status log. */
 export const getPullRequest = async (group: string, pullId: string) => {
   return createGetRequest<any, any>(`/${group}${API_CONFIG.REAL_API.PULLS}/${pullId}`, "application/json")();
+};
+
+/**
+ * Every merge request the backend holds, found by walking the id sequence.
+ *
+ * `/<group>/pulls` only lists requests *into* that group, so a user's own outgoing requests are
+ * invisible from their group and nothing enumerates them — but a single record is readable from
+ * any group path (the path group is not cross-checked) and ids are one global sequence, so
+ * walking it is the only way to see the whole picture.
+ *
+ * Walks in batches and stops as soon as a whole batch comes back empty; `truncated` reports
+ * hitting `maxId` first, so a caller can say so rather than quietly showing a partial list.
+ */
+export const listAllPullRequests = async ({
+  group = 'base',
+  maxId = 200,
+  batchSize = 10,
+}: { group?: string; maxId?: number; batchSize?: number } = {}): Promise<{ records: any[]; truncated: boolean }> => {
+  const records: any[] = [];
+
+  for (let start = 1; start <= maxId; start += batchSize) {
+    const ids = Array.from(
+      { length: Math.min(batchSize, maxId - start + 1) },
+      (_, offset) => start + offset
+    );
+    const batch = await Promise.all(
+      // A 404 is the end of the sequence (or a gap in it), not a failure.
+      ids.map(id => getPullRequest(group, String(id)).catch(() => null))
+    );
+    const found = batch.filter(Boolean);
+    records.push(...found);
+    if (!found.length) return { records, truncated: false };
+  }
+
+  return { records, truncated: true };
 };
 
 /**

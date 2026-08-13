@@ -52,6 +52,7 @@ export const mapPullRecord = (record, index = 0) => {
   const termId = termIdFromSubject(record?.subject);
   return {
     id: record?.url || `${record?.subject}-${index}`,
+    pullId: String(record?.url || '').match(/\/pulls\/(\d+)/)?.[1] || null,
     path: appPathFromPullUrl(record?.url),
     status: bucketForStatus(record?.status),
     rawStatus: record?.status,

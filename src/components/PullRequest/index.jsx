@@ -1,11 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Alert, Box, Chip, CircularProgress, Divider, Stack, Typography } from "@mui/material";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CustomBreadcrumbs from "../common/CustomBreadcrumbs";
 import MergePanel from "../SingleTermView/MergePanel/MergePanel";
-import { getPullRequest, getVariantTerm } from "../../api/endpoints/apiService";
+import ReviewActions from "./ReviewActions";
+import CommentSection from "./CommentSection";
+import { mergeEligibility, normalizeRole, isAdminFromRoles } from "./permissions";
+import { getPullRequest, getVariantTerm, getUserRoleForGroup, getOrganizations } from "../../api/endpoints/apiService";
 import { mapPullRecord } from "../Dashboard/TermsChange/pullRequests";
+import { GlobalDataContext } from "../../contexts/DataContext";
 import { formatTimestamp } from "../../utils";
 
 import { vars } from "../../theme/variables";
@@ -18,16 +22,23 @@ const { gray200, gray500, gray600 } = vars;
  *
  * Both sides come from the record's variant URIs rather than the live terms, so the view keeps
  * showing what was actually proposed even after either term moves on.
+ *
+ * Reviewers — users with a role on the target group — additionally get the merge controls and
+ * the (not yet implemented) comment thread below the delta.
  */
 const PullRequestView = () => {
   const { group, pullId } = useParams();
   const navigate = useNavigate();
+  const { user } = useContext(GlobalDataContext);
 
   const [record, setRecord] = useState(null);
   const [baseTerm, setBaseTerm] = useState(null);
   const [variantTerm, setVariantTerm] = useState(null);
+  const [role, setRole] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     if (!group || !pullId) return;
@@ -58,7 +69,31 @@ const PullRequestView = () => {
       });
 
     return () => { active = false; };
-  }, [group, pullId]);
+  }, [group, pullId, reloadKey]);
+
+  // The merge is authorised against the request's *to* group, so that is the group to ask
+  // about — never the one in the URL, which a link could point anywhere.
+  const toGroup = record?.toGroup;
+  useEffect(() => {
+    if (!user?.groupname || !toGroup || toGroup === user.groupname) return;
+    let active = true;
+    getUserRoleForGroup(toGroup).then(data => {
+      if (active) setRole(normalizeRole(data));
+    });
+    return () => { active = false; };
+  }, [user?.groupname, toGroup]);
+
+  // An admin curates every group, so their status is read once, independent of this request.
+  useEffect(() => {
+    if (!user?.groupname) return;
+    let active = true;
+    getOrganizations(user.groupname)
+      .then(pairs => { if (active) setIsAdmin(isAdminFromRoles(pairs)); })
+      .catch(() => { /* not an admin, or no session */ });
+    return () => { active = false; };
+  }, [user?.groupname]);
+
+  const { canReview, canMerge, reason } = mergeEligibility({ user, record, role, isAdmin });
 
   const termLabel = variantTerm?.label || baseTerm?.label || record?.termId || '';
 
@@ -72,9 +107,66 @@ const PullRequestView = () => {
     if (record?.termId) navigate(`/${record.fromGroup}/${record.termId}/overview`);
   }, [navigate, record]);
 
+  const handleMerged = useCallback(() => setReloadKey(key => key + 1), []);
+
+  // The review block is only rendered for users the target group lets review. When it is
+  // absent, nothing sits under the delta, so the panels take the rest of the page instead of
+  // stopping short and leaving the reserved space empty.
+  const showReview = !!record && canReview && !loading && !error;
+
+  const renderDelta = () => {
+    if (error) {
+      return <Alert severity="error">Could not load this merge request: {error}</Alert>;
+    }
+    if (loading) {
+      return (
+        <Box display="flex" alignItems="center" justifyContent="center" minHeight="20rem">
+          <CircularProgress />
+        </Box>
+      );
+    }
+    if (!baseTerm || !variantTerm) {
+      return <Alert severity="warning">This merge request does not carry both sides of the comparison.</Alert>;
+    }
+    return (
+      <Box
+        display="flex"
+        sx={{
+          border: `1px solid ${gray200}`,
+          borderRadius: '0.5rem',
+          overflow: 'hidden',
+          // With review controls below, the delta takes a fixed slice of the viewport (and does
+          // not shrink further as a flex child) so the controls stay reachable and the page
+          // scrolls; without them, it fills the page and each panel scrolls on its own.
+          ...(showReview
+            ? { height: '65vh', flexShrink: 0 }
+            : { flexGrow: 1, minHeight: '20rem' }),
+        }}
+      >
+        <MergePanel data={baseTerm} compareData={variantTerm} status="delete" chipLabel={record?.toGroup || 'Curated'} />
+        <MergePanel data={variantTerm} compareData={baseTerm} status="add" chipLabel={record?.fromGroup || 'Variant'} />
+      </Box>
+    );
+  };
+
   return (
-    <Box display="flex" flexDirection="column" sx={{ minWidth: "100%" }}>
-      <Box p="1.5rem 5rem 1.5rem 5rem">
+    <Box
+      display="flex"
+      flexDirection="column"
+      sx={{
+        minWidth: "100%",
+        // Only the reviewer's page is tall enough to scroll; otherwise the panels own the
+        // overflow and the page itself stays put.
+        overflowY: showReview ? 'auto' : 'hidden',
+      }}
+    >
+      <Box
+        display="flex"
+        flexDirection="column"
+        flexGrow={1}
+        minHeight={0}
+        p="1.5rem 5rem 2.5rem 5rem"
+      >
         <CustomBreadcrumbs breadcrumbItems={breadcrumbItems} />
         <Stack direction="row" alignItems="center" spacing="0.75rem" mt="1.75rem">
           <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
@@ -83,7 +175,7 @@ const PullRequestView = () => {
           {record?.rawStatus && <Chip label={record.rawStatus} variant="outlined" />}
         </Stack>
         {record && (
-          <Stack direction="row" alignItems="center" spacing="1rem" mt="0.5rem">
+          <Stack direction="row" alignItems="center" spacing="1rem" mt="0.5rem" mb="1.75rem">
             <Typography fontSize=".875rem" color={gray500}>
               <Typography component="span" fontSize=".875rem" color={gray600} fontWeight={600}
                           sx={{ cursor: record.termId ? 'pointer' : 'default' }} onClick={handleTermClick}>
@@ -97,38 +189,23 @@ const PullRequestView = () => {
             </Typography>
           </Stack>
         )}
-      </Box>
 
-      {error ? (
-        <Box px="5rem" pb="2.5rem">
-          <Alert severity="error">Could not load this merge request: {error}</Alert>
-        </Box>
-      ) : loading ? (
-        <Box display="flex" alignItems="center" justifyContent="center" flexGrow={1} minHeight="20rem">
-          <CircularProgress />
-        </Box>
-      ) : !baseTerm || !variantTerm ? (
-        <Box px="5rem" pb="2.5rem">
-          <Alert severity="warning">
-            This merge request does not carry both sides of the comparison.
-          </Alert>
-        </Box>
-      ) : (
-        <Box display="flex" flexGrow={1} minHeight={0} sx={{ borderTop: `1px solid ${gray200}` }}>
-          <MergePanel
-            data={baseTerm}
-            compareData={variantTerm}
-            status="delete"
-            chipLabel={record?.toGroup || 'Curated'}
-          />
-          <MergePanel
-            data={variantTerm}
-            compareData={baseTerm}
-            status="add"
-            chipLabel={record?.fromGroup || 'Variant'}
-          />
-        </Box>
-      )}
+        {renderDelta()}
+
+        {showReview && (
+          <Stack spacing="2.5rem" mt="2.5rem">
+            <ReviewActions
+              record={{ ...record, pullId: record.pullId || pullId }}
+              group={record.toGroup}
+              canMerge={canMerge}
+              blockedReason={reason}
+              onMerged={handleMerged}
+            />
+            <Divider />
+            <CommentSection logs={record.logs} />
+          </Stack>
+        )}
+      </Box>
     </Box>
   );
 };
