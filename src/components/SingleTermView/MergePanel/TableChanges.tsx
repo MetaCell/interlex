@@ -1,11 +1,25 @@
-import React, { useRef, useState, useEffect } from "react"
+import React, { useRef, useState, useEffect, useMemo } from "react"
 import { Box, Typography, IconButton } from "@mui/material"
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import TableRow from "./TableRow"
+import { predicateRowKeys } from "./termDiff"
 import { vars } from "../../../theme/variables"
 
 const { gray100, gray600 } = vars;
+
+// Subject / predicate / object, shared by the header and every row so the two stay aligned.
+// Widths live on the cells themselves rather than on a parent selector, because a changed row
+// wraps its cells in the status container and would otherwise lose them.
+export const COLUMN_WIDTHS = ['40%', '30%', '30%'];
+
+export const cellSx = (width: string) => ({
+  width,
+  px: '0.75rem',
+  minWidth: 0,
+  display: 'flex',
+  alignItems: 'center',
+});
 
 const styles = {
   head: {
@@ -13,16 +27,6 @@ const styles = {
     p: '0.75rem 0 0.5rem',
     borderBottom: `1px solid ${gray100}`,
 
-    '& > .MuiBox-root': {
-      width: '20rem',
-      px: '0.75rem',
-      '&:first-of-type': {
-        width: 'calc(55% - 5.625rem)'
-      },
-      '&:last-of-type': {
-        width: 'calc(45% - 5.625rem)'
-      },
-    },
     '& .MuiTypography-root': {
       color: gray600,
       fontWeight: 500,
@@ -34,13 +38,24 @@ const styles = {
 
 export const TableChanges = ({ data, compareData, status }) => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  const [tableContent, setTableContent] = useState(data?.tableData);
+  const [tableContent, setTableContent] = useState(data?.tableData || []);
   const [tableHeader, setTableHeader] = useState([
     { key: 'subject', label: 'Subject', allowSort: false, direction: 'desc' },
     { key: 'predicate', label: 'Predicates', allowSort: false },
     { key: 'object', label: 'Objects', allowSort: true, direction: 'desc' },
-    { key: '', label: '' }
   ]);
+
+  // The panel is reused across terms and predicate groups, so follow the incoming rows.
+  useEffect(() => {
+    setTableContent(data?.tableData || []);
+  }, [data]);
+
+  // Rows the other side carries, keyed by triple: a row missing from this set is the delta
+  // (removed from curated, or added by the variant, depending on which panel renders it).
+  const compareRowKeys = useMemo(
+    () => predicateRowKeys(compareData ? [compareData] : []),
+    [compareData]
+  );
 
   const sourceRow = useRef<{ id: string; index: number } | null>(null);
   const targetRow = useRef<{ id: string; index: number } | null>(null);
@@ -116,7 +131,7 @@ export const TableChanges = ({ data, compareData, status }) => {
     <Box pb={1.5}>
       <Box sx={styles.head}>
         {tableHeader.map((head, index) => (
-          <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box key={index} sx={cellSx(COLUMN_WIDTHS[index])}>
             <Typography>{head.label}</Typography>
             {head.key && head.allowSort && (
               <IconButton
@@ -136,9 +151,9 @@ export const TableChanges = ({ data, compareData, status }) => {
       <Box>
         {tableContent.map((row, idx) => (
           <TableRow
-            key={`${row.id}-${idx}`}
+            key={`${row.id ?? row.object}-${idx}`}
             row={row}
-            compareRow={compareData?.tableData[idx]}
+            compareRowKeys={compareRowKeys}
             status={status}
             onDragStart={dragStart}
             onDragEnter={dragEnter}
@@ -152,4 +167,3 @@ export const TableChanges = ({ data, compareData, status }) => {
 }
 
 export default TableChanges;
-

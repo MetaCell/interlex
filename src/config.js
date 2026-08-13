@@ -37,6 +37,8 @@ export const API_CONFIG = {
         LOGOUT: "/priv/logout",
         USER_RECOVER: "/u/ops/user-recover",
         CHECK_ENTITY: "/priv/entity-check",
+        PULL_NEW: "/priv/pull-new",
+        PULLS: "/pulls",
         PASSWORD_CHANGE: "/priv/password_change",
         ORG_TERMS: "/contributions",
         ORG_ONTOLOGIES: "/ontologies",

@@ -22,7 +22,7 @@ import {
 } from "../../../parsers/hierarchies-parser";
 import { createOverviewStore } from "./overviewStore";
 import { DetailsSection, HierarchySection, PredicatesSection } from "./OverviewSections";
-import OverviewSideNav from "./OverviewSideNav";
+import SectionSideNav from "../../common/SectionSideNav";
 import { reportApiError } from "../../../api/apiErrorBus";
 import ApiErrorDialog from "../../common/ApiErrorDialog";
 import { GlobalDataContext } from "../../../contexts/DataContext";
@@ -434,7 +434,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
         <RawDataViewer dataId={searchTerm} dataFormat={selectedDataFormat} group={group} versionHash={versionHash} />
       ) : (
         <>
-          <OverviewSideNav items={SIDE_NAV_ITEMS} />
+          <SectionSideNav items={SIDE_NAV_ITEMS} />
           <Box id="overview-section-details">
             <DetailsSection
               subject={store.details$}

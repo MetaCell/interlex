@@ -118,6 +118,41 @@ export default defineConfig({
           });
         },
       },
+      // Merge requests are created with a JSON body and answered with 303 + Location,
+      // so this needs the same treatment as entity-new and must be matched before the
+      // generic /priv/ rule below (which forces a form-urlencoded content type).
+      '^/([^/]+)/priv/pull-new$': {
+        target: "https://uri.olympiangods.org",
+        secure: false,
+        changeOrigin: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq, req) => {
+            if (req.headers.authorization) proxyReq.setHeader('Authorization', req.headers.authorization);
+            if (req.headers.cookie) proxyReq.setHeader('Cookie', req.headers.cookie);
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            const location = proxyRes.headers['location'];
+            const origin = req.headers.origin;
+            if (proxyRes.statusCode === 303 && location) {
+              // Convert 303 → 200 + JSON body so fetch() can read the created pull URL.
+              res.setHeader('Content-Type', 'application/json');
+              res.setHeader('X-Redirect-Location', location);
+              if (origin) res.setHeader('Access-Control-Allow-Origin', origin);
+              res.setHeader('Access-Control-Allow-Credentials', 'true');
+              res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
+              res.writeHead(200);
+              res.end(JSON.stringify({ location }));
+              return;
+            }
+            if (origin) res.setHeader('Access-Control-Allow-Origin', origin);
+            res.setHeader('Access-Control-Allow-Credentials', 'true');
+            res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
+          });
+        },
+      },
       '^/([^/]+)/priv/(.*)': {
         target: "https://uri.olympiangods.org",
         secure: false,
@@ -245,6 +280,26 @@ export default defineConfig({
               res.setHeader('Access-Control-Allow-Origin', origin);
             }
             res.setHeader('Access-Control-Allow-Credentials', 'true');
+          });
+        },
+      },
+      // Merge request listing / single record / merge op: /<group>/pulls[/<id>[/ops/merge]]
+      '^/[^/]+/pulls(/.*)?$': {
+        target: 'https://uri.olympiangods.org',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path, // keep full path
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq, req) => {
+            if (req.headers.authorization) proxyReq.setHeader('Authorization', req.headers.authorization);
+            if (req.headers.cookie) proxyReq.setHeader('Cookie', req.headers.cookie);
+            if (req.method === 'POST') proxyReq.setHeader('Content-Type', 'application/json');
+          });
+          proxy.on('proxyRes', (proxyRes, req, res) => {
+            const origin = req.headers.origin;
+            if (origin) res.setHeader('Access-Control-Allow-Origin', origin);
+            res.setHeader('Access-Control-Allow-Credentials', 'true');
+            res.setHeader('Access-Control-Expose-Headers', 'X-Redirect-Location');
           });
         },
       },

@@ -21,6 +21,7 @@ import CurieEditor from "./components/CurieEditor";
 import SearchResults from "./components/SearchResults";
 import Organizations from "./components/organizations";
 import SingleTermView from "./components/SingleTermView";
+import PullRequestView from "./components/PullRequest";
 import OntologyPage from "./components/CellCards/OntologyPage";
 import OntologyGridPage from "./components/CellCards/OntologyGridPage";
 import OntologyBrowsePage from "./components/CellCards/OntologyBrowsePage";
@@ -220,6 +221,16 @@ function MainContent() {
 									<OrganizationsCurieEditor />
 								</PageContainer>
 							</ProtectedRoute>
+						}
+					/>
+					{/* /<group>/pulls/<id> is the backend's own (proxied) address for the
+					    record, so the in-app view lives alongside it at /pull-requests/. */}
+					<Route
+						path="/:group/pull-requests/:pullId"
+						element={
+							<PageContainer>
+								<PullRequestView />
+							</PageContainer>
 						}
 					/>
 					<Route

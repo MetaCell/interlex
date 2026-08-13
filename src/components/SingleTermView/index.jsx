@@ -27,7 +27,6 @@ import CustomButton from "../common/CustomButton";
 import OverView from "./OverView/OverView";
 import HistoryPanel from "./History/HistoryPanel";
 import VariantsPanel from "./Variants/VariantsPanel";
-// TODO: Re-enable when merge request feature is implemented
 import RequestMergeChanges from "./RequestMergeChanges";
 import {
   DownloadOutlined,
@@ -236,12 +235,10 @@ const SingleTermView = () => {
     setDataFormatAnchorEl(null);
   }, []);
 
-  // TODO: Re-enable when merge request feature is implemented
-  // const handleOpenRequestMergeDialog = useCallback(() => {
-  //   setOpenRequestMergeDialog(true);
-  // }, []);
+  const handleOpenRequestMergeDialog = useCallback(() => {
+    setOpenRequestMergeDialog(true);
+  }, []);
 
-  // TODO: Re-enable when merge request feature is implemented
   const handleCloseRequestMergeDialog = useCallback(() => {
     setOpenRequestMergeDialog(false);
   }, []);
@@ -505,11 +502,13 @@ const SingleTermView = () => {
                       field backed by a triple on this term lives. */}
                   <TermEditActions visible={tabValue === OVERVIEW_TAB && !versionHash} />
                   <Divider orientation="vertical" flexItem />
-                  {isItFork ? (
-                    <Button type="string" color="secondary" startIcon={<RateReviewOutlinedIcon />} onClick={handleOpenFeatureNotAvailableDialog}>
+                  {/* Only a variant has something to propose: the base group *is* curated.
+                      Opening the request writes to the fork's group, so it needs a session. */}
+                  {isItFork && user ? (
+                    <Button type="string" color="secondary" startIcon={<RateReviewOutlinedIcon />} onClick={handleOpenRequestMergeDialog}>
                       Request to merge changes to curated
                     </Button>
-                  ) : user ? (
+                  ) : user && !isItFork ? (
                     <Button type="string" color="secondary" startIcon={<ForkRightIcon />} onClick={handleOpenForkDialog}>
                       Create fork
                     </Button>
@@ -569,8 +568,14 @@ const SingleTermView = () => {
         )}
         {tabContent}
       </Box>
-      {/* TODO: Re-enable when merge request feature is implemented */}
-      <RequestMergeChanges searchTerm={searchTerm} open={openRequestMergeDialog} handleClose={handleCloseRequestMergeDialog} />
+      {isItFork && (
+        <RequestMergeChanges
+          term={searchTerm}
+          group={actualGroup}
+          open={openRequestMergeDialog}
+          handleClose={handleCloseRequestMergeDialog}
+        />
+      )}
       <CreateForkDialog
         open={openForkDialog}
         handleClose={handleForkDialogClose}

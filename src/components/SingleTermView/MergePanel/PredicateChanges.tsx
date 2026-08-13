@@ -5,6 +5,7 @@ import CallMadeIcon from "@mui/icons-material/CallMade"
 import ExpandIcon from '@mui/icons-material/Expand';
 import RemoveIcon from '@mui/icons-material/Remove';
 import TableChanges from "./TableChanges";
+import { findPredicateGroup } from "./termDiff";
 import { vars } from "../../../theme/variables"
 
 const { gray600, gray800 } = vars;
@@ -29,8 +30,10 @@ type PredicateChangesProps = {
 }
 
 export const PredicateChanges: React.FC<PredicateChangesProps> = ({ title, data, compareData, status }) => {
-  const [toggleButtonValue, setToggleButtonValue] = useState('compress');
-  const [expandedItems, setExpandedItems] = useState(data?.map(() => false) || []);
+  // Expanded by default: the triples are the point of the delta view, so opening every group
+  // by hand to find what changed defeats it. The collapse toggle is still there.
+  const [toggleButtonValue, setToggleButtonValue] = useState('expand');
+  const [expandedItems, setExpandedItems] = useState(data?.map(() => true) || []);
 
   const onToggleButtonChange = (event, newValue) => {
     if (newValue) {
@@ -78,7 +81,7 @@ export const PredicateChanges: React.FC<PredicateChangesProps> = ({ title, data,
           </ToggleButtonGroup>
         </Box>
       </Box>
-      {data.map((pred, index) => (
+      {(data || []).map((pred, index) => (
         <Accordion
           key={`${index}-${toggleButtonValue === 'expand'}`}
           disableGutters
@@ -108,7 +111,9 @@ export const PredicateChanges: React.FC<PredicateChangesProps> = ({ title, data,
             </Stack>
           </AccordionSummary>
           <AccordionDetails>
-            <TableChanges data={pred} compareData={compareData[index]} status={status} />
+            {/* Match the other side by predicate, not by position: the two terms rarely carry
+                the same predicate groups in the same order. */}
+            <TableChanges data={pred} compareData={findPredicateGroup(compareData, pred.title)} status={status} />
           </AccordionDetails>
         </Accordion>
       ))}

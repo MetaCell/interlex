@@ -3,6 +3,7 @@ import { API_CONFIG } from "../../config";
 import termParser from "../../parsers/termParser";
 import { jsonldToTriplesAndEdges, PART_OF_IRI } from '../../parsers/hierarchies-parser'
 import { buildPredicateGroupsForFocus } from "../../parsers/predicateParser";
+import versionToTerm from "../../parsers/variantParser";
 
 // Error enriched with the queried URL + the backend's message, so the UI can
 // show a meaningful dialog instead of a bare "HTTP 404".
@@ -584,4 +585,173 @@ export const getTermHierarchies = async ({
 
 export const checkPotentialMatches = async (group: string, data: any) => {
   return createPostRequest<any, any>(`/${group}${API_CONFIG.REAL_API.CHECK_ENTITY}`, { "Content-Type": "application/json" })(data);
+};
+
+/* ------------------------------------------------------------------ *
+ * Pull requests (variant → curated merge proposals)
+ * ------------------------------------------------------------------ */
+
+export interface PullRequestResult {
+  ok: boolean;
+  status: number;
+  /** URL of the created pull request, e.g. "http://host/base/pulls/3" */
+  pullUrl?: string;
+  /** Numeric id parsed out of pullUrl */
+  pullId?: string;
+  /** Human readable failure reason, set when ok === false */
+  error?: string;
+}
+
+// The backend answers create with 303 + Location. Dev (vite) and prod (nginx) proxies both
+// intercept it: the location arrives either as the X-Redirect-Location header or as a JSON
+// body ({location} from the proxies, {redirect} when the backend answers Accept: json itself).
+const readRedirectLocation = (resp: Response, raw: string): string => {
+  const header = resp.headers.get('x-redirect-location');
+  if (header) return header;
+  try {
+    const json = JSON.parse(raw);
+    return json?.location || json?.redirect || '';
+  } catch {
+    return '';
+  }
+};
+
+// Backend statuses documented for pull-new; anything else falls back to the response body.
+const PULL_NEW_ERRORS: Record<number, string> = {
+  401: 'You do not have permission to open a merge request from this fork.',
+  409: 'There is nothing to merge: this variant does not differ from the curated term.',
+  422: 'The merge request is missing required information or it is invalid.',
+};
+
+/**
+ * Open a merge request proposing the changes made in `groupFrom`'s variant of `termId`
+ * against the curated (`groupTo`, normally "base") version.
+ *
+ * POST /<group-from>/priv/pull-new — `group-from` must match the group in the path.
+ */
+export const createPullRequest = async ({
+  groupFrom,
+  groupTo = 'base',
+  termId,
+  perspectiveFrom,
+  perspectiveTo,
+}: {
+  groupFrom: string;
+  groupTo?: string;
+  termId: string;
+  perspectiveFrom?: string;
+  perspectiveTo?: string;
+}): Promise<PullRequestResult> => {
+  const endpoint = `/${groupFrom}${API_CONFIG.REAL_API.PULL_NEW}`;
+  const body: Record<string, string> = {
+    subject: `${API_CONFIG.INTERLEX_URL}/${groupFrom}/${termId}`,
+    'group-from': groupFrom,
+    'group-to': groupTo,
+  };
+  // Optional; the backend defaults them to the group names.
+  if (perspectiveFrom) body['perspective-name-from'] = perspectiveFrom;
+  if (perspectiveTo) body['perspective-name-to'] = perspectiveTo;
+
+  try {
+    const resp = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(body),
+    });
+
+    let raw = '';
+    try { raw = await resp.text(); } catch { /* body not readable */ }
+
+    const location = readRedirectLocation(resp, raw);
+    // 303 is the success path; the proxies rewrite it to 200 + JSON, so accept both.
+    if (location) {
+      return {
+        ok: true,
+        status: resp.status,
+        pullUrl: location,
+        pullId: location.match(/\/pulls\/(\d+)/)?.[1],
+      };
+    }
+
+    if (resp.ok) return { ok: true, status: resp.status };
+
+    return {
+      ok: false,
+      status: resp.status,
+      error: PULL_NEW_ERRORS[resp.status] || raw || `Request failed with HTTP ${resp.status}.`,
+    };
+  } catch (error: any) {
+    return { ok: false, status: 0, error: error?.message || String(error) };
+  }
+};
+
+/**
+ * Fetch one side of a merge request (`from-variant-uri` / `to-variant-uri`) and parse it into
+ * the Term shape the delta panels render.
+ *
+ * The record carries absolute backend URIs; only the path is used so the request goes through
+ * the app's own origin (and therefore the /versions proxy) instead of cross-origin.
+ */
+export const getVariantTerm = async (variantUri: string, termId?: string) => {
+  if (!variantUri) return null;
+
+  let path = variantUri;
+  try {
+    path = new URL(variantUri).pathname;
+  } catch {
+    /* already a path */
+  }
+
+  const jsonld = await createGetRequest<any, any>(path, "application/ld+json")();
+  return versionToTerm(jsonld, termId);
+};
+
+/** GET /<group>/pulls — every merge request that group is involved in. */
+export const getPullRequests = async (group: string) => {
+  return createGetRequest<any, any>(`/${group}${API_CONFIG.REAL_API.PULLS}`, "application/json")();
+};
+
+/** GET /<group>/pulls/<pullId> — a single merge request, with its status log. */
+export const getPullRequest = async (group: string, pullId: string) => {
+  return createGetRequest<any, any>(`/${group}${API_CONFIG.REAL_API.PULLS}/${pullId}`, "application/json")();
+};
+
+/**
+ * POST /<group>/pulls/<pullId>/ops/merge — accept a merge request.
+ * `<group>` must be the *to* group, and the identities come straight off the GET.
+ */
+export const mergePullRequest = async ({
+  group,
+  pullId,
+  expectedFromIdentity,
+  expectedToIdentity,
+}: {
+  group: string;
+  pullId: string;
+  expectedFromIdentity: string;
+  expectedToIdentity: string;
+}): Promise<{ ok: boolean; status: number; error?: string }> => {
+  const endpoint = `/${group}${API_CONFIG.REAL_API.PULLS}/${pullId}/ops/merge`;
+  try {
+    const resp = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        'expected-from-identity': expectedFromIdentity,
+        'expected-to-identity': expectedToIdentity,
+      }),
+    });
+    if (resp.ok) return { ok: true, status: resp.status };
+    let raw = '';
+    try { raw = await resp.text(); } catch { /* body not readable */ }
+    const messages: Record<number, string> = {
+      401: 'You do not have permission to merge this request.',
+      422: 'The merge request is missing the expected identities.',
+    };
+    return { ok: false, status: resp.status, error: messages[resp.status] || raw || `HTTP ${resp.status}` };
+  } catch (error: any) {
+    return { ok: false, status: 0, error: error?.message || String(error) };
+  }
 };

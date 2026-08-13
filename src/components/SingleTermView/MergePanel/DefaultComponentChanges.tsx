@@ -15,7 +15,8 @@ const isSentence = (text: string) => {
 
 const DefaultComponentChanges = ({ title, data, compareData, status }) => {
   const dataType = getDataType(data)
-  const differences = compareObjects(data, compareData)
+  // Only meaningful for the object branch, and the other side may be missing entirely.
+  const differences = dataType === "object" ? compareObjects(data, compareData || {}) : []
 
   const renderContent = () => {
     switch (dataType) {
