@@ -584,8 +584,23 @@ const SingleTermView = () => {
                     Note: This term is not available in &quot;{group}&quot; group. Showing data from &quot;base&quot; group instead.
                   </Typography>
                 )}
+                <Stack direction="row" spacing="1rem" alignItems="center" mt=".5rem">
+                  {termIdentityUrl ? (
+                    <CopyLinkComponent url={termIdentityUrl} />
+                  ) : (
+                    // Waiting on the ontology for a cell's IRI (see termIdentityUrl). The
+                    // placeholder holds the row's height so the tab bar below does not jump when
+                    // the link arrives.
+                    <Skeleton variant="text" width="20rem" height="2.5rem" />
+                  )}
+                  {graphId && (
+                    <Typography fontSize=".875rem" color={gray500}>
+                      Graph ID: {graphId}
+                    </Typography>
+                  )}
+                </Stack>
               </Grid>
-              <Grid display="flex" justifyContent='end' mt=".56rem" item xs={12} lg>
+              <Grid display="flex" justifyContent='end' alignItems='flex-start' mt=".56rem" item xs={12} lg>
                 <Stack direction="row" spacing="1rem" alignItems="center">
                   {/* Editing applies to the Overview tab, which is where every
                       field backed by a triple on this term lives. */}
@@ -625,23 +640,6 @@ const SingleTermView = () => {
                       <MenuItem key={dataFormat} onClick={() => handleDataFormatMenuItemClick(dataFormat)}>{dataFormat}</MenuItem>
                     ))}
                   </Menu>
-                </Stack>
-              </Grid>
-              <Grid item xs={6}>
-                <Stack direction="row" spacing="1rem" alignItems="center">
-                  {termIdentityUrl ? (
-                    <CopyLinkComponent url={termIdentityUrl} />
-                  ) : (
-                    // Waiting on the ontology for a cell's IRI (see termIdentityUrl). The
-                    // placeholder holds the row's height so the tab bar below does not jump when
-                    // the link arrives.
-                    <Skeleton variant="text" width="20rem" height="2.5rem" />
-                  )}
-                  {graphId && (
-                    <Typography fontSize=".875rem" color={gray500}>
-                      Graph ID: {graphId}
-                    </Typography>
-                  )}
                 </Stack>
               </Grid>
               <Grid item xs={12} mt="2rem" display='flex' alignItems='center' justifyContent='space-between'>
