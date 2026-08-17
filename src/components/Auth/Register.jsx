@@ -17,6 +17,7 @@ import { useCookies } from 'react-cookie';
 import PasswordField from "./UI/PasswordField";
 import { ArrowBack } from "@mui/icons-material";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { OrcidIcon } from "../../Icons";
 // import { GlobalDataContext } from "../../contexts/DataContext";
 
 const OLYMPIAN_GODS = import.meta.env.MODE === "production" ? "" : API_CONFIG.OLYMPIAN_GODS;
@@ -31,19 +32,35 @@ const closePopups = () => {
   popups.length = 0; // Clear the array
 }
 
-const schema = yup.object().shape({
+// Finishing an ORCID sign-in, the backend asks for "username, email, and optionally password" —
+// that account can already authenticate through ORCID. A plain registration has no other way in,
+// so there the password stays required.
+const buildSchema = (passwordOptional) => yup.object().shape({
   email: yup.string().email().required(),
   username: yup.string().required().min(3),
-  password: yup.string().required().min(10),
-  confirmPassword: yup.string()
-    .required('Please confirm your password')
-    .oneOf([yup.ref('password'), null], 'Passwords must match'),
+  password: passwordOptional ? yup.string().min(10) : yup.string().required().min(10),
+  confirmPassword: yup.string().when('password', {
+    is: (value) => !!value,
+    then: (field) => field
+      .required('Please confirm your password')
+      .oneOf([yup.ref('password')], 'Passwords must match'),
+    otherwise: (field) => field.optional(),
+  }),
 });
 
+// Where an ORCID-verified registration posts when the backend didn't name an endpoint itself.
+const ORCID_REGISTRATION_PATH = "/u/priv/user-new?from=orcid-login";
+
+// ORCID authenticated but no InterLex account is linked to it — what sent the user to this page.
+const NO_LINKED_ACCOUNT = 412;
+
 const Register = () => {
+  const orcidState = useLocation().state?.orcid;
   const [formData, setFormData] = React.useState({
     username: "",
-    email: "",
+    // ORCID reports an email only when the account made it public, so this is a head start when
+    // it is there and an ordinary empty field when it is not.
+    email: orcidState?.email || "",
     password: "",
     confirmPassword: "",
   });
@@ -56,6 +73,17 @@ const Register = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Arriving from an ORCID sign-in that found no InterLex account (412). The ORCID identity is
+  // already verified and its session established, so this registration only has to create the
+  // InterLex half: it posts to the orcid-new endpoint, which does not send the user back through
+  // ORCID authorization.
+  const orcid = location.state?.orcid || null;
+  const isOrcidVerified = Boolean(location.state && 'orcid' in location.state);
+  const registrationPath = isOrcidVerified
+    ? (location.state?.registrationPath || ORCID_REGISTRATION_PATH)
+    // Pre-existing: the plain form has always posted with this marker.
+    : `${API_CONFIG.REAL_API.NEWUSER_ILX}?from=orcid-login`;
+
   React.useEffect(() => {
     if (prevSnackbarOpen.current && !snackbarOpen) {
       closePopups();
@@ -66,13 +94,10 @@ const Register = () => {
   }, [snackbarOpen]);
 
   React.useEffect(() => {
-      let eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
-      let eventer = window[eventMethod];
-      let messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
-      eventer(messageEvent, function (e) {
+      const onMessage = function (e) {
         if (!(e.data?.orcid_meta || e.data?.redirect || e.data?.interlex)) return;
         const { cookies } = e.data;
-        const { code, errors, redirect } = e.data.interlex;
+        const { code, errors, redirect, groupname, message } = e.data.interlex;
 
         if (cookies) {
           const _cookies = JSON.parse(cookies);
@@ -95,6 +120,14 @@ const Register = () => {
             );
           }
         }
+
+        // Late arrivals from the ORCID sign-in that sent the user here: 412 is the very reason
+        // this page is open, and the registration endpoint's 200 is an instruction ("please
+        // complete registration by posting username, email, and optionally password"), not an
+        // account. Treating that 200 as success raised the "registration successful" snackbar and
+        // bounced the user to /login ten seconds after landing on the form.
+        if (code === NO_LINKED_ACCOUNT) return;
+        if (code === 200 && !groupname && message) return;
 
         if (redirect) {
           handleRedirectInPopup(redirect);
@@ -119,9 +152,13 @@ const Register = () => {
             auth: "An unknown error occurred. Please try again",
           }));
         }
-      });
+      };
 
+    // Removed on cleanup: this effect re-runs on every isLoading change, so without it each
+    // attempt left another live listener behind and one popup message ran the handler repeatedly.
+    window.addEventListener("message", onMessage);
     setIsLoading(false)
+    return () => window.removeEventListener("message", onMessage);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 
@@ -143,22 +180,28 @@ const Register = () => {
 
   const registerUser = async () => {
     try {
-      await schema.validate(formData, { abortEarly: false })
+      await buildSchema(isOrcidVerified).validate(formData, { abortEarly: false })
       setErrors({})
       setIsLoading(true);
 
       // send a POST request to the server with the form data in a popup window
       const dataForm = document.createElement("form");
-      dataForm.action = `${OLYMPIAN_GODS}${API_CONFIG.REAL_API.NEWUSER_ILX}?from=orcid-login&aspopup=true`;
+      dataForm.action = `${OLYMPIAN_GODS}${registrationPath}${registrationPath.includes("?") ? "&" : "?"}aspopup=true`;
       dataForm.method = "POST";
       dataForm.style.display = "none";
       dataForm.target = "postPopup";
       dataForm.enctype = "application/x-www-form-urlencoded";
-      for (const key in formData) {
+      // The verified ORCID travels with the form so the account is linked on creation. Empty
+      // fields are dropped rather than posted blank — the password is optional on this path.
+      const payload = Object.fromEntries(
+        Object.entries(orcid?.orcid ? { ...formData, orcid: orcid.orcid } : formData)
+          .filter(([, value]) => String(value ?? "").trim() !== "")
+      );
+      for (const key in payload) {
         const input = document.createElement("input");
         input.type = "hidden";
         input.name = key;
-        input.value = formData[key];
+        input.value = payload[key];
         dataForm.appendChild(input);
       }
       document.body.appendChild(dataForm);
@@ -202,7 +245,17 @@ const Register = () => {
             <ArrowBack />
             Return to page
           </Link>
-          <Typography variant="h4">Register a new account and join</Typography>
+          <Typography variant="h4">
+            {isOrcidVerified ? "Finish creating your InterLex account" : "Register a new account and join"}
+          </Typography>
+
+          {isOrcidVerified && (
+            <Alert severity="success" icon={<OrcidIcon />} sx={{ mt: 2 }}>
+              ORCID verified{orcid?.name ? ` as ${orcid.name}` : ""}
+              {orcid?.orcid ? ` (${orcid.orcid})` : ""}. No InterLex account is linked to it yet —
+              choose your InterLex credentials below to finish.
+            </Alert>
+          )}
 
           {errors.auth && <Alert severity="error" sx={{ mt: 2 }}>{errors.auth}</Alert>}
 
@@ -234,14 +287,14 @@ const Register = () => {
               </Grid>
               <Grid item xs={12}>
                 <PasswordField
-                  label="Password"
+                  label={isOrcidVerified ? "Password (optional)" : "Password"}
                   placeholder="Enter your password"
                   value={formData.password}
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
                   errorMessage={errors.password}
-                  isRequired
+                  isRequired={!isOrcidVerified}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -253,7 +306,7 @@ const Register = () => {
                     setFormData({ ...formData, confirmPassword: e.target.value })
                   }
                   errorMessage={errors.confirmPassword}
-                  isRequired
+                  isRequired={!isOrcidVerified}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -262,7 +315,12 @@ const Register = () => {
                     variant="contained"
                     color="primary"
                     onClick={registerUser}
-                    disabled={formData.password !== formData.confirmPassword || !formData.password || !formData.confirmPassword}
+                    // With ORCID already verified a blank password is a valid choice, so the only
+                    // bar is that whatever was typed matches its confirmation.
+                    disabled={
+                      formData.password !== formData.confirmPassword ||
+                      (!isOrcidVerified && (!formData.password || !formData.confirmPassword))
+                    }
                   >
                     Register
                   </Button>

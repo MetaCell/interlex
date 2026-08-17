@@ -258,8 +258,8 @@ const SingleTermView = () => {
     // ontology's own pages show (OntologyHeader) with this term appended. The ontology crumb is
     // built from the catalog entry, not from `group`, so a cell opened under another group still
     // points at the one page that ontology has.
-    if (contextEntry) {
-      return [
+    const trail = contextEntry
+      ? [
         { label: '', href: '/', icon: HomeOutlinedIcon },
         { label: contextEntry.community, href: `/${contextEntry.org}` },
         {
@@ -267,15 +267,26 @@ const SingleTermView = () => {
           href: ontologyPath(contextEntry),
         },
         { label: displayedTermLabel },
+      ]
+      : [
+        { label: '', href: '/', icon: HomeOutlinedIcon },
+        { label: 'Term search', href: `/${group}/search?searchTerm=${storedSearchTerm}` },
+        { label: group, href: '#' },
+        { label: displayedTermLabel },
       ];
-    }
+
+    // A variant is a snapshot *of* the term, reached through its Variants tab, so the trail
+    // continues past the term rather than ending on it: the term crumb becomes the way back to the
+    // term, then the tab it was opened from, then the variant itself.
+    if (!versionHash) return trail;
+    const termCrumb = trail[trail.length - 1];
     return [
-      { label: '', href: '/', icon: HomeOutlinedIcon },
-      { label: 'Term search', href: `/${group}/search?searchTerm=${storedSearchTerm}` },
-      { label: group, href: '#' },
-      { label: displayedTermLabel },
+      ...trail.slice(0, -1),
+      { ...termCrumb, href: termPath(group, contextEntry?.slug, term, tabNames[OVERVIEW_TAB]) },
+      { label: 'Variants', href: termPath(group, contextEntry?.slug, term, 'variants') },
+      { label: versionHash },
     ];
-  }, [group, displayedTermLabel, storedSearchTerm, contextEntry, contextOntologyData]);
+  }, [group, term, displayedTermLabel, storedSearchTerm, contextEntry, contextOntologyData, versionHash, tabNames]);
 
   // Optimize handlers with useCallback
   const handleChangeTabs = useCallback((event, newValue) => {

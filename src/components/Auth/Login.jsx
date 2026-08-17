@@ -40,6 +40,10 @@ const closePopups = () => {
   popups.length = 0; // Clear the array
 }
 
+// The ORCID identity authenticated fine but no InterLex account is linked to it. That is a
+// registration, not a failed login — and the ORCID half of it is already done.
+const NO_LINKED_ACCOUNT = 412;
+
 const Login = () => {
   const [formData, setFormData] = React.useState({
     username: "",
@@ -54,15 +58,25 @@ const Login = () => {
   const location = useLocation();
   const redirectTo = location.state?.from || "/";
 
+  // Hand the verified ORCID over to registration, which then asks only for the InterLex half.
+  // `registrationPath` is the endpoint the backend itself names for finishing the account, so the
+  // form posts where it was told to rather than to an address guessed here.
+  const goToOrcidRegistration = React.useCallback((orcidMeta, registrationPath) => {
+    closePopups();
+    setIsLoading(false);
+    navigate("/register", {
+      state: { from: redirectTo, orcid: orcidMeta || null, registrationPath: registrationPath || null },
+    });
+  }, [navigate, redirectTo]);
+
   React.useEffect(() => {
-    let eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
-    let eventer = window[eventMethod];
-    let messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
-    eventer(messageEvent, async function (e) {
+    const onMessage = async function (e) {
       if (e.data?.source === "react-devtools-bridge") return; // Ignore messages from React DevTools
       if (!(e.data?.orcid_meta || e.data?.redirect || e.data?.interlex)) return;
       const { cookies } = e.data;
       const { code, errors, redirect, groupname } = e.data.interlex;
+      // orcid-land-login reports the identity inside `interlex`; other steps put it at the top.
+      const orcidMeta = e.data.interlex.orcid_meta || e.data.orcid_meta;
 
       if (cookies) {
         const _cookies = JSON.parse(cookies);
@@ -92,8 +106,24 @@ const Login = () => {
         localStorage.setItem("token", sessionCookie)
       }
 
+      // Checked before `redirect`, which this response also carries: 412 names the registration
+      // endpoint there, and following it only walks the popup into a form asking for the very
+      // fields our own /register page collects.
+      if (code === NO_LINKED_ACCOUNT) {
+        goToOrcidRegistration(orcidMeta, redirect);
+        return;
+      }
+
       if (redirect) {
         handleRedirectInPopup(redirect);
+        return;
+      }
+
+      // The registration endpoint answers 200 with instructions and no groupname ("please complete
+      // registration by posting username, email, and optionally password") — a session that can
+      // sign nothing yet. Asking for settings here requests /undefined/priv/settings and 401s.
+      if (!groupname && code === 200) {
+        goToOrcidRegistration(orcidMeta, e.data.interlex.path || null);
         return;
       }
 
@@ -136,8 +166,14 @@ const Login = () => {
           auth: "An unknown error occurred. Please try again",
         }));
       }
-    });
+    };
+
+    // Removed on cleanup: this effect re-runs on every isLoading change, and without it each
+    // login attempt left another live listener behind — one popup message then ran the whole
+    // handler once per attempt so far, firing duplicate requests and duplicate navigations.
+    window.addEventListener("message", onMessage);
     setIsLoading(false)
+    return () => window.removeEventListener("message", onMessage);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 
@@ -198,6 +234,10 @@ const Login = () => {
         }
       } else {
         const { code, orcid_meta } = result.data;
+        if (code === NO_LINKED_ACCOUNT) {
+          goToOrcidRegistration(orcid_meta);
+          return;
+        }
         if (code === 200 || code === 302) {
           // TODO: the backend should return the groupname, for now is just returning a message.
           setUserData({ name: orcid_meta.name, id: orcid_meta.orcid });
@@ -207,6 +247,11 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Login error:", error);
+      // Same case as above, arriving as an HTTP status rather than in the body.
+      if (error?.response?.status === NO_LINKED_ACCOUNT) {
+        goToOrcidRegistration(error.response.data?.orcid_meta);
+        return;
+      }
       setErrors((prevErrors) => ({
         ...prevErrors,
         auth: error.message + " - " + error.errors?.[0] || " - An unknown error occurred. Please try again",
