@@ -11,6 +11,7 @@ import {
   MenuItem,
   CircularProgress,
   Alert,
+  Link,
   Skeleton,
   Snackbar
 } from "@mui/material";
@@ -414,6 +415,13 @@ const SingleTermView = () => {
 
   const isItFork = !CURATED_GROUPS.has(actualGroup);
 
+  // A fork shares its term id with the record it forked from, so the curated original is the same
+  // slug read under a curated group: the ontology's own org when the slug belongs to a catalogued
+  // ontology, otherwise base — the group that owns every other InterLex record.
+  const curatedGroup = contextEntry?.org || "base";
+  const curatedTermUrl = `http://uri.interlex.org/${curatedGroup}/${searchTerm}`;
+  const curatedTermPath = `${termPath(curatedGroup, contextEntry?.slug, searchTerm, tabNames[tabValue])}${location.search}`;
+
   // Memoize tab content to prevent unnecessary re-renders
   const tabContent = useMemo(() => {
     // Every tab but the Cell Card reads the InterLex term API, and whether it can answer for this
@@ -598,6 +606,20 @@ const SingleTermView = () => {
                       Graph ID: {graphId}
                     </Typography>
                   )}
+                {/* A fork is a copy of a curated record: name the original and offer the way back
+                    to it, so the reader can tell which of the two they are looking at. */}
+                {isItFork && (
+                  <>
+                    <Divider orientation="vertical" flexItem />
+                    <Link
+                      component="button"
+                      variant="body2"
+                      onClick={() => navigate(curatedTermPath)}
+                    >
+                      View curated term
+                    </Link>
+                  </>
+                )}
                 </Stack>
               </Grid>
               <Grid display="flex" justifyContent='end' alignItems='flex-start' mt=".56rem" item xs={12} lg>
