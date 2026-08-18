@@ -263,6 +263,41 @@ const firstFieldText = (
   return undefined;
 };
 
+// The same walk as `firstFieldText`, for a field that names a URL rather than saying something:
+// it answers an absolute IRI instead of the text. Both authoring shapes count — a reference
+// (`{"@id": …}`, how the graph writes MIRO:development_community) and an `xsd:anyURI` literal
+// (how this ontology's curators write every other link predicate, e.g. ilx:hasNervoSensusLink).
+const firstFieldIri = (
+  node: GraphNode | undefined,
+  field: FieldSource,
+  ctx: ParseContext
+): string | undefined => {
+  if (!node) return undefined;
+  const linkOf = (value: unknown): string | undefined => {
+    for (const item of Array.isArray(value) ? value : [value]) {
+      const id =
+        item && typeof item === "object" && !("@value" in (item as object))
+          ? String((item as JsonLdRefish)["@id"] ?? "")
+          : firstString(item);
+      const iri = id && toIri(id, ctx.prefixes);
+      if (iri) return iri;
+    }
+    return undefined;
+  };
+  for (const key of field.sources) {
+    const direct = linkOf(node[key]);
+    if (direct) return direct;
+    if (!field.matchLocalName) continue;
+    const wanted = localNameOf(key, ctx.prefixes);
+    for (const candidate of Object.keys(node)) {
+      if (localNameOf(candidate, ctx.prefixes) !== wanted) continue;
+      const iri = linkOf(node[candidate]);
+      if (iri) return iri;
+    }
+  }
+  return undefined;
+};
+
 // Some cells carry a "TEMP:MISSING_" placeholder meaning the phenotype is *not specified*. It is
 // not a real term, so it must never surface as a value / facet option / tile chip.
 const isMissingSentinel = (id: string, ctx: ParseContext): boolean => {
@@ -595,14 +630,15 @@ const buildHierarchy = (
   return [nodeAt(rootClass, rootClass, new Set())];
 };
 
-// The ontology header. Title, description and version are fixed fields of the model; which
-// annotation fills each is `fields.ontologyTitle` / `ontologyDescription` / `ontologyVersion`.
+// The ontology header. Title, description, version and community link are fixed fields of the
+// model; which annotation fills each is the matching `fields.ontology*` binding.
 export const parseOntologyMeta = (
   graph: GraphNode[],
   fields: FieldSources = DEFAULT_FIELD_SOURCES,
   prefixes: Prefixes = {}
 ): OntologyMeta => {
-  // No graph index: these three read literals off the ontology node and never resolve a reference.
+  // No graph index: every field here is a literal or an external reference on the ontology node,
+  // never a node the graph has to be walked for.
   const ctx = buildContext(new Map(), prefixes, fields);
   const onto = graph.find((n) => asType(n["@type"]).includes("owl:Ontology"));
   const title = firstFieldText(onto, fields.ontologyTitle, ctx)?.text || "Ontology";
@@ -611,6 +647,7 @@ export const parseOntologyMeta = (
     title,
     description: firstFieldText(onto, fields.ontologyDescription, ctx)?.text,
     version: firstFieldText(onto, fields.ontologyVersion, ctx)?.text,
+    communityLink: firstFieldIri(onto, fields.ontologyCommunityLink, ctx),
   };
 };
 

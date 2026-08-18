@@ -129,6 +129,9 @@ export interface OntologyMeta {
   title: string;
   description?: string;
   version?: string;
+  // Absolute IRI of the community that develops the ontology. Absent when the file asserts none,
+  // which is what hides the header's "Community hub" link.
+  communityLink?: string;
 }
 
 export interface ParsedOntology {

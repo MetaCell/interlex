@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Container, Typography, Chip, Stack } from "@mui/material";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import BreadcrumbBar from "../common/BreadcrumbBar";
+import CommunityHubLink from "../common/CommunityHubLink";
 import CustomTabs from "../common/CustomTabs";
 import { ONTOLOGY_TABS, ontologyPath } from "./config/gridConfig";
 import { vars } from "../../theme/variables";
@@ -27,6 +28,7 @@ const OntologyHeader = ({ data, tab }) => {
         ]}
         copyPath
         copyLabel="Permalink to ontology"
+        rightContent={<CommunityHubLink href={data.meta.communityLink} />}
       />
 
       {/* Header: title + curation status -> description -> version -> tags -> tabs.

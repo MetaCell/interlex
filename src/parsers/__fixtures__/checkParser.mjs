@@ -26,11 +26,20 @@ const check = (name, actual, expected) => {
   }
 };
 
-const { cells, predicateDisplay } = parseNeurdf(data, "ilxtr:NeuronPrecision");
+const { cells, predicateDisplay, meta } = parseNeurdf(data, "ilxtr:NeuronPrecision");
 const byId = Object.fromEntries(cells.map((c) => [c.id, c]));
 
 console.log("parseNeurdf");
 check("finds the three fixture cells", cells.length, 3);
+
+// The breadcrumb's "Community hub" link. IRI-valued, so it needs the reference reader rather than
+// the literal one the other header fields use — the failure mode is a silent `undefined` that
+// hides the link on an ontology that does name a community.
+check(
+  "the community link is read off the owl:Ontology node",
+  meta.communityLink,
+  "https://github.com/SciCrunch/NIF-Ontology"
+);
 
 // --- the @list regression -----------------------------------------------------
 // npokb:934 carries soma location ONLY as neurdf.eqv.uo:hasSomaLocatedIn, a JSON-LD @list.
@@ -145,6 +154,33 @@ check("deep links stay off properties", Object.keys(linked?.properties || {}), [
 // The bug this guards: the widgets used to look these up as `properties["ilx:has…"]`, a key the
 // parser never writes, so they could not light up even with the triple present.
 check("the Transcriptomic widget lights up on the link alone", hasTranscriptomicProfile(linked), true);
+
+// The community link the spec names, `ilxtr:developmentCommunity`, has zero occurrences today, so
+// how a curator will write it is unknown — and every *other* link predicate in this ontology is an
+// `xsd:anyURI` literal, not a reference. Reading only `@id` would hide the breadcrumb button on the
+// shape the spec's own predicate is most likely to arrive in.
+console.log("\ncommunity link authoring shapes (synthetic graph)");
+const communityMeta = (object) =>
+  parseNeurdf(
+    {
+      "@graph": [
+        {
+          "@id": "https://example.org/ontology.ttl",
+          "@type": "owl:Ontology",
+          "ilxtr:developmentCommunity": object,
+        },
+      ],
+    },
+    "ilxtr:NeuronPrecision"
+  ).meta.communityLink;
+check("a reference resolves", communityMeta({ "@id": "https://precision.example.org" }), "https://precision.example.org");
+check("an anyURI literal resolves", communityMeta("https://precision.example.org"), "https://precision.example.org");
+check(
+  "a typed literal resolves",
+  communityMeta({ "@value": "https://precision.example.org", "@type": "xsd:anyURI" }),
+  "https://precision.example.org"
+);
+check("an ontology asserting none has no link", parseNeurdf({ "@graph": [] }, "ilxtr:NeuronPrecision").meta.communityLink, undefined);
 
 // --- NervoSensus deep link -----------------------------------------------------
 // The Interactive Cell Grouping widget is unconditional (NervoSensus is one app, not per-cell

@@ -141,6 +141,9 @@ export const DEFAULT_FIELD_SOURCES: FieldSources = {
   ontologyTitle: exact("dc:title", "dcterms:title", "rdfs:label", "skos:prefLabel"),
   ontologyDescription: exact("dc:description", "dcterms:description", "rdfs:comment"),
   ontologyVersion: exact("owl:versionInfo"),
+  // The spec names `ilxtr:developmentCommunity`; the shipped graph carries MIRO's spelling of the
+  // same fact. Neither prefix is guaranteed to be in a given file's @context, hence `anyPrefix`.
+  ontologyCommunityLink: anyPrefix("ilxtr:developmentCommunity", "MIRO:development_community"),
 
   missingValuePrefixes: ["TEMP:MISSING"],
 };

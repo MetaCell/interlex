@@ -19,6 +19,8 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton';
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import CustomBreadcrumbs from "../common/CustomBreadcrumbs";
+import CommunityHubLink from "../common/CommunityHubLink";
+import GridViewLink from "../common/GridViewLink";
 import ForkRightIcon from '@mui/icons-material/ForkRight';
 import { vars } from "../../theme/variables";
 import OntologySearch from "./OntologySearch";
@@ -571,6 +573,17 @@ const SingleTermView = () => {
             <Grid container xs={12} lg={12} direction="row" alignItems="center" justifyContent="space-between">
               <CustomBreadcrumbs breadcrumbItems={breadcrumbItems} />
               <Stack direction="row" alignItems="center" gap={1}>
+                {/* The context ontology's two ways out, in the design's order: back to its grid,
+                    then off to its community. Grouped on `contextEntry` because §4.2 omits both
+                    entirely without a context — and the divider with them, since it is what
+                    separates them from the active-ontology selector. */}
+                {contextEntry && (
+                  <>
+                    <GridViewLink to={ontologyPath(contextEntry)} />
+                    <CommunityHubLink href={contextOntologyData?.meta?.communityLink} />
+                    <Divider orientation="vertical" flexItem />
+                  </>
+                )}
                 <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Active Ontology:</Typography>
                 <OntologySearch userGroupname={user?.groupname} />
               </Stack>
