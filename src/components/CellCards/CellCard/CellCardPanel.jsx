@@ -78,7 +78,8 @@ const CellCardPanel = ({ term, group }) => {
     [navigate, group, ontologySlug, search]
   );
 
-  // A graph node may be a cell (stay in the card) or an external term (open its own page).
+  // A graph node may be a cell (stay in the card) or another term (open its own page — still
+  // on InterLex, still under this context ontology; termLink never leaves for an external site).
   const goToRef = useCallback(
     (ref) => {
       const sibling = data?.cells?.find((c) => c.id === ref.id);
@@ -86,10 +87,10 @@ const CellCardPanel = ({ term, group }) => {
         goToCell(sibling);
         return;
       }
-      const href = termLink(ref);
+      const href = termLink(ref, { group, ontologySlug });
       if (href) window.open(href, "_blank", "noopener");
     },
-    [data, goToCell]
+    [data, goToCell, group, ontologySlug]
   );
 
   if (loading) {

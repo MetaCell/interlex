@@ -211,6 +211,17 @@ function MainContent() {
 							</PageContainer>
 						}
 					/>
+					{/* InterLex's record of an external term, addressed as dns/{host}/{path} — a term
+					    slug with slashes in it, which needs a catch-all instead of `:term`. SingleTermView
+					    reassembles the slug (and a trailing tab segment) from the splat. */}
+					<Route
+						path="/:group/ontology/:ontologySlug/dns/*"
+						element={
+							<PageContainer>
+								<SingleTermView />
+							</PageContainer>
+						}
+					/>
 					<Route path="/login" element={<Login />} />
 					<Route path="/register" element={<Register />} />
 					<Route path="/forgot" element={<ForgotPassword />} />
@@ -247,6 +258,17 @@ function MainContent() {
 					/>
 					<Route
 						path="/:group/:term/versions/:versionHash"
+						element={
+							<PageContainer>
+								<SingleTermView />
+							</PageContainer>
+						}
+					/>
+					{/* The dns/ form of the plain term route above, matching the backend's own address
+					    for an external term (uri.interlex.org/base/dns/…), so a copied identity URL
+					    resolves here too. */}
+					<Route
+						path="/:group/dns/*"
 						element={
 							<PageContainer>
 								<SingleTermView />

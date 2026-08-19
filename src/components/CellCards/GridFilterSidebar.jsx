@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useState, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -23,6 +23,7 @@ import {
 } from "../../Icons";
 import { vars } from "../../theme/variables";
 import { termLink } from "./config/gridConfig";
+import { useTermLinkContext } from "../../hooks/useContextOntology";
 
 const { gray200, gray300, gray400, gray500, gray600, gray700, gray800, brand700, brand800 } = vars;
 
@@ -82,6 +83,7 @@ FacetCheckbox.propTypes = {
 };
 
 const FacetGroup = ({ facet, checked, expanded, onToggle, onClear, onToggleExpanded }) => {
+  const linkContext = useTermLinkContext();
   const anyChecked = Object.values(checked || {}).some(Boolean);
   const expandable = facet.values.length > VISIBLE_LIMIT;
   const values = expanded ? facet.values : facet.values.slice(0, VISIBLE_LIMIT);
@@ -133,7 +135,7 @@ const FacetGroup = ({ facet, checked, expanded, onToggle, onClear, onToggleExpan
           max-content width and defeat the per-label ellipsis. */}
       <FormGroup sx={{ gap: 1.5, width: 1, minWidth: 0, flexWrap: "nowrap" }}>
         {values.map((v) => {
-          const href = termLink(v);
+          const href = termLink(v, linkContext);
           const labelSx = {
             ...ellipsis,
             flex: 1,
@@ -208,6 +210,28 @@ const GridFilterSidebar = ({
     (localName) => setExpanded((prev) => ({ ...prev, [localName]: !prev[localName] })),
     []
   );
+
+  // A filter arriving from a Cell Card (via the URL) can name a value below the collapsed
+  // VISIBLE_LIMIT cut — expand that facet, so the pane visibly matches the selection
+  // (mappings.md §2.2). Only *newly*-checked keys trigger this, so collapsing again sticks.
+  const seenChecked = useRef({});
+  useEffect(() => {
+    const prev = seenChecked.current;
+    seenChecked.current = checked;
+    const hidden = facets.filter((facet) => {
+      const sel = checked[facet.localName];
+      if (!sel) return false;
+      const shown = new Set(facet.values.slice(0, VISIBLE_LIMIT).map((v) => v.key));
+      return Object.entries(sel).some(
+        ([key, on]) => on && !prev[facet.localName]?.[key] && !shown.has(key)
+      );
+    });
+    if (hidden.length)
+      setExpanded((prevExpanded) => ({
+        ...prevExpanded,
+        ...Object.fromEntries(hidden.map((f) => [f.localName, true])),
+      }));
+  }, [checked, facets]);
 
   const expandable = facets.filter((f) => f.values.length > VISIBLE_LIMIT);
   const allExpanded = expandable.length > 0 && expandable.every((f) => expanded[f.localName]);

@@ -23,6 +23,7 @@ import type {
   Facet,
   CellTerm,
   HierarchyNode,
+  ResolvedRef,
 } from "../model/types";
 import type { FieldSources, OntologyMappings } from "../model/mappings";
 import { SOURCE_PREDICATE } from "../model/mappings";
@@ -199,6 +200,31 @@ export const findCell = (data: LoadedOntology, id: string): CellTerm | undefined
     (c) => c.id === wanted || c.curie === wanted || c.iri === wanted ||
       c.curie.toLowerCase() === lower || c.id.toLowerCase() === lower
   );
+};
+
+// InterLex's record of an *external* term is addressed as `dns/{host}/{path}` (see
+// `termSlugForIri`). Such a term is not a cell, but the ontology that references it still
+// asserts its label — so its page can be titled "dorsal root ganglion" from the graph even while
+// the backend has no document to serve for it. Scheme-insensitive, because the slug keeps none.
+export const findReferencedRef = (
+  data: LoadedOntology,
+  termSlug: string
+): ResolvedRef | undefined => {
+  const strip = (s: string) =>
+    s.replace(/^https?:\/\//i, "").replace(/\/+$/, "").toLowerCase();
+  const wanted = strip(termSlug.replace(/^dns\//, ""));
+  if (!wanted) return undefined;
+  const matches = (ref?: ResolvedRef) =>
+    Boolean(ref && ref.iri && strip(ref.iri) === wanted);
+  for (const cell of data.cells) {
+    for (const property of Object.values(cell.properties)) {
+      const hit = property.values.find(matches);
+      if (hit) return hit;
+    }
+    const mapped = cell.mappings.find((m) => matches(m.ref));
+    if (mapped) return mapped.ref;
+  }
+  return undefined;
 };
 
 // Sibling cells that cite the same publication ("Other cells from this source"). Excludes the

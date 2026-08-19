@@ -740,6 +740,29 @@ const theme = createTheme({
 						},
 					},
 				},
+				{
+					// The breadcrumb bar's context-ontology actions (Grid View / Community hub, Figma
+					// 9533:71971): 14px side padding, a 20px glyph, 6px to the label. Reaching those
+					// numbers means cancelling two MUI defaults the rest of the theme never addressed:
+					// `startIcon`'s -4px/8px margins, which override the root `gap` and pull the glyph
+					// into the padding, and the 0.02857em `letterSpacing` that typography.button carries
+					// over from its uppercase default. Scoped to this variant rather than fixed globally:
+					// every button in the app deviates the same way, and correcting that is its own change.
+					props: { variant: "breadcrumbAction" },
+					style: {
+						color: brand700,
+						padding: "0.625rem 0.875rem",
+						gap: "0.375rem",
+						letterSpacing: 0,
+						"&:hover": {
+							background: brand50,
+						},
+						"& .MuiButton-startIcon": {
+							marginLeft: 0,
+							marginRight: 0,
+						},
+					},
+				},
 			],
 			styleOverrides: {
 				root: {

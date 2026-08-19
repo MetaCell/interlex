@@ -1,4 +1,4 @@
-import { useMemo, Fragment } from "react";
+import { useMemo, useCallback, Fragment } from "react";
 import PropTypes from "prop-types";
 import { Box, Container, Stack, Divider } from "@mui/material";
 import DefinitionBanner from "./DefinitionBanner";
@@ -12,7 +12,8 @@ import CellGrouping, { TITLE as GROUPING_TITLE } from "./widgets/CellGrouping";
 import CrossNomenclature, { TITLE as MAPPING_TITLE } from "./widgets/CrossNomenclature";
 import SourcePublication, { TITLE as PUBLICATION_TITLE } from "./widgets/SourcePublication";
 import RelatedCells, { TITLE as RELATED_TITLE } from "./widgets/RelatedCells";
-import { relatedBySource, hierarchyNeighbours } from "../services/ontologyGridService";
+import { relatedBySource, hierarchyNeighbours, getFacets } from "../services/ontologyGridService";
+import { gridFilterPath } from "../config/gridConfig";
 import { useMappings } from "../config/mappingsAtom";
 import {
   hasDefinition,
@@ -42,6 +43,27 @@ const CellCard = ({ cell, data, group, termSlug, discussionHref, onNavigateToCel
   // Only for `hasDefinition`; every widget reads the same atom for itself.
   const mappings = useMappings();
 
+  // The facet options the grid actually offers, so a property row only gets its
+  // "filter grid view by" affordance when clicking it can narrow something — a predicate below
+  // `filters.minOptions` (or a value the grid never facets on) gets no icon rather than a link
+  // to an unfiltered grid.
+  const facetOptions = useMemo(() => {
+    const byFacet = new Map();
+    if (data.entry)
+      for (const facet of getFacets(data, false))
+        byFacet.set(facet.localName, new Set(facet.values.map((v) => v.key)));
+    return byFacet;
+  }, [data]);
+
+  const filterGridHref = useCallback(
+    (localName, values) => {
+      const options = facetOptions.get(localName);
+      const ids = values.map((v) => v.id).filter((id) => options?.has(id));
+      return ids.length ? gridFilterPath(data.entry, localName, ids) : undefined;
+    },
+    [facetOptions, data]
+  );
+
   // One comment affordance per widget, prefilled with that widget's name (design 9272:85572).
   const commentFor = (widgetTitle) => (
     <WidgetCommentButton
@@ -58,6 +80,7 @@ const CellCard = ({ cell, data, group, termSlug, discussionHref, onNavigateToCel
       key="bio"
       cell={cell}
       predicateDisplay={data.predicateDisplay}
+      filterGridHref={filterGridHref}
       actions={commentFor(BIO_TITLE)}
     />,
     <OntologyHierarchy

@@ -45,11 +45,13 @@ import Discussion from "./Discussion";
 import CellCardPanel from "../CellCards/CellCard/CellCardPanel";
 import {
   ONTOLOGY_CATALOG,
+  isDnsTermSlug,
   isIlxTermSlug,
   ontologyForTermSlug,
   ontologyPath,
   termPath,
 } from "../CellCards/config/gridConfig";
+import { findReferencedRef } from "../CellCards/services/ontologyGridService";
 import { useContextTerm } from "../../hooks/useContextOntology";
 import { CodeIcon } from "../../Icons";
 import CustomSingleSelect from "../common/CustomSingleSelect";
@@ -118,12 +120,24 @@ const buildDownloadFilename = (termId, label, ext) => {
 const CELL_CARD_TAB = 0;
 const OVERVIEW_TAB = 1;
 
+const TAB_NAMES = ['cell-card', 'overview', 'variants', 'history', 'discussions'];
+
+// InterLex's record of an external term is addressed as `dns/{host}/{path}` — a term slug with
+// slashes in it, which reaches this page as the catch-all of a /dns/* route rather than as
+// `:term`. The slug owns every segment except a trailing one naming a tab.
+const dnsRouteTermAndTab = (splat) => {
+  const segments = splat.split("/").filter(Boolean);
+  const tab = TAB_NAMES.includes(segments[segments.length - 1]) ? segments.pop() : undefined;
+  return { term: `dns/${segments.join("/")}`, tab };
+};
+
 // Can the URL select this tab? Disabled means "applies here, but has nothing to serve yet";
 // hidden means "does not apply to this term at all". Neither can be navigated to.
 const isTabSelectable = (tab) => Boolean(tab) && !tab.disabled && !tab.hidden;
 
 const SingleTermView = () => {
-  const { group, term, tab, versionHash, ontologySlug } = useParams();
+  const { group, term: termParam, tab: tabParam, versionHash, ontologySlug, "*": splat } = useParams();
+  const { term, tab } = splat ? dnsRouteTermAndTab(splat) : { term: termParam, tab: tabParam };
   const location = useLocation();
   const navigate = useNavigate();
   const [dataFormatAnchorEl, setDataFormatAnchorEl] = useState(null);
@@ -175,9 +189,22 @@ const SingleTermView = () => {
     [ontologySlug, term]
   );
 
-  const resolvedCellLabel = contextCell?.label || null;
+  // An external term (a dns/ slug) is not a cell, but the context ontology that references it
+  // still asserts its label — which is what titles its page while the backend has no record of
+  // it to serve. Whatever the backend does serve (termData) still outranks this.
+  const referencedRef = useMemo(
+    () =>
+      isDnsTermSlug(term) && contextOntologyData && !contextCell
+        ? findReferencedRef(contextOntologyData, term)
+        : undefined,
+    [term, contextOntologyData, contextCell]
+  );
 
-  const isCellTerm = Boolean(contextEntry);
+  const resolvedCellLabel = contextCell?.label || referencedRef?.label || null;
+
+  // A dns/ slug is by construction not one of the ontology's own cells, so even read under an
+  // ontology path it gets the plain term page: no Cell Card tab, Overview as the default.
+  const isCellTerm = Boolean(contextEntry) && !isDnsTermSlug(term);
 
   // The URL that names this term, which depends on what kind of term it is:
   //   - an `ilx_*` / `tmp_*` slug is an InterLex record, addressed by group
@@ -215,7 +242,7 @@ const SingleTermView = () => {
     'discussions': 4
   }), []);
 
-  const tabNames = useMemo(() => ['cell-card', 'overview', 'variants', 'history', 'discussions'], []);
+  const tabNames = TAB_NAMES;
   const tabLabels = useMemo(() => {
     // A precision cell's id is not mapped to an InterLex record yet, so the term API — and
     // therefore every tab that reads it — has nothing to serve for it. Disable those rather than
@@ -251,7 +278,12 @@ const SingleTermView = () => {
 
   // Memoize the displayed term label to prevent unnecessary re-renders
   const displayedTermLabel = useMemo(() => {
-    return termData || resolvedCellLabel || storedSearchTerm || searchTerm.toUpperCase().replace("_", ":");
+    // The CURIE-ish uppercase fallback only makes sense for a prefix_id slug; a dns/ slug reads
+    // best as the host/path it names.
+    const slugFallback = isDnsTermSlug(searchTerm)
+      ? searchTerm.slice("dns/".length)
+      : searchTerm.toUpperCase().replace("_", ":");
+    return termData || resolvedCellLabel || storedSearchTerm || slugFallback;
   }, [termData, resolvedCellLabel, storedSearchTerm, searchTerm]);
 
   // Memoize breadcrumb items to prevent unnecessary re-renders
@@ -432,7 +464,6 @@ const SingleTermView = () => {
   // slug read under a curated group: the ontology's own org when the slug belongs to a catalogued
   // ontology, otherwise base — the group that owns every other InterLex record.
   const curatedGroup = contextEntry?.org || "base";
-  const curatedTermUrl = `http://uri.interlex.org/${curatedGroup}/${searchTerm}`;
   const curatedTermPath = `${termPath(curatedGroup, contextEntry?.slug, searchTerm, tabNames[tabValue])}${location.search}`;
 
   // Memoize tab content to prevent unnecessary re-renders

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useOutletContext, useNavigate } from "react-router-dom";
+import { useOutletContext, useNavigate, useLocation } from "react-router-dom";
 import { Box, Typography, Stack } from "@mui/material";
 import GridFilterSidebar from "./GridFilterSidebar";
 import GridSearchBar from "./GridSearchBar";
@@ -7,7 +7,7 @@ import CellTileGrid from "./CellTileGrid";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import CustomPagination from "../common/CustomPagination";
 import { getFacets, curieToSlug } from "./services/ontologyGridService";
-import { termPath } from "./config/gridConfig";
+import { termPath, parseGridFilters } from "./config/gridConfig";
 import { SOURCE_PREDICATE } from "./model/mappings";
 import { primeTermDataCache } from "../../hooks/useTermData";
 import { vars } from "../../theme/variables";
@@ -29,11 +29,25 @@ const cellFacetKeys = (cell, localName) => {
   return (cell.properties[localName]?.values || []).map((v) => v.id);
 };
 
+// A URL filter can name a facet the tiles don't display (Adaptation, Threshold…), which the
+// "Displayed properties" toggle would keep both hidden and inert — such a link must arrive with
+// the toggle off, so the seeded filter is visible in the pane and actually constrains the grid.
+const needsAllFacets = (data, checked) => {
+  if (!data) return false;
+  const names = Object.keys(checked);
+  if (!names.length) return false;
+  const displayed = new Set(getFacets(data, true).map((f) => f.localName));
+  if (names.every((n) => displayed.has(n))) return false;
+  const all = new Set(getFacets(data, false).map((f) => f.localName));
+  return names.some((n) => !displayed.has(n) && all.has(n));
+};
+
 // The "Grid View" tab. The ontology itself is loaded by the OntologyPage layout route and
 // arrives through the outlet context, so switching tabs does not refetch it.
 const OntologyGridPage = () => {
   const { data } = useOutletContext();
   const navigate = useNavigate();
+  const location = useLocation();
   const [displayedOnly, setDisplayedOnly] = useState(true);
   const [checked, setChecked] = useState({}); // facet filter checks, keyed by facet localName
   const [selectedIds, setSelectedIds] = useState({}); // tiles picked via their checkbox
@@ -41,14 +55,19 @@ const OntologyGridPage = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(24);
 
+  // Facet checks carried by the URL — a Cell Card property row's grid icon links here
+  // pre-filtered (mappings.md §2.2).
+  const urlChecked = useMemo(() => parseGridFilters(location.search), [location.search]);
+
   useEffect(() => {
-    // Reset all filter/paging/selection state so it never leaks across ontologies.
-    setChecked({});
+    // Reset all filter/paging/selection state so it never leaks across ontologies, then seed
+    // the facet checks from the URL.
+    setChecked(urlChecked);
     setSelectedIds({});
     setWord("");
-    setDisplayedOnly(true);
+    setDisplayedOnly(!needsAllFacets(data, urlChecked));
     setPage(1);
-  }, [data]);
+  }, [data, urlChecked]);
 
   const cells = useMemo(() => data?.cells || [], [data]);
   const facets = useMemo(() => (data ? getFacets(data, displayedOnly) : []), [data, displayedOnly]);

@@ -20,7 +20,7 @@ export const TITLE = "Biological Properties";
  * populated it will arrive as a *separate predicate*, not a qualifier on a value, so the chip
  * needs a design revision rather than just data.
  */
-const BiologicalProperties = ({ cell, predicateDisplay, actions }) => {
+const BiologicalProperties = ({ cell, predicateDisplay, actions, filterGridHref }) => {
   const mappings = useMappings();
   return (
     <CellCardWidget title={TITLE} actions={actions}>
@@ -31,6 +31,7 @@ const BiologicalProperties = ({ cell, predicateDisplay, actions }) => {
           predicateDisplay,
           mappings
         )}
+        filterHref={filterGridHref}
       />
     </CellCardWidget>
   );
@@ -40,6 +41,10 @@ BiologicalProperties.propTypes = {
   cell: PropTypes.object.isRequired,
   predicateDisplay: PropTypes.object,
   actions: PropTypes.node,
+  // (localName, values) -> Grid View URL pre-filtered on them, or undefined when the grid
+  // offers no such facet. Meeting-3: the row text keeps opening the term URI; this feeds the
+  // per-row grid icon instead.
+  filterGridHref: PropTypes.func,
 };
 
 export default BiologicalProperties;

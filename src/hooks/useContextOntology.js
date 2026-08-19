@@ -58,6 +58,18 @@ export const useContextOntologySlug = (termSlug) => {
 };
 
 /**
+ * The context every term link on the current page carries: the group its URL is read under
+ * (`:group` on term routes, `:org` on ontology routes) and the context ontology to stay inside.
+ * One hook, shared by TermValueLink, the grid sidebar and the tiles, so a link can never resolve
+ * the context differently from the page it sits on. Feeds `termLink`'s second argument.
+ */
+export const useTermLinkContext = () => {
+  const { group, org, term } = useParams();
+  const ontologySlug = useContextOntologySlug(term);
+  return { group: group || org || "base", ontologySlug };
+};
+
+/**
  * The term as the context ontology describes it — the seam the page header, the tab bar, the
  * Overview and the Cell Card all read, so none of them has to tell the others what it found.
  *

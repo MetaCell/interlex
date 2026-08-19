@@ -5,6 +5,7 @@ import { vars } from "../../theme/variables";
 import { termLink } from "./config/gridConfig";
 import { predicateLabel } from "./config/mappingDefaults";
 import { useMappings } from "./config/mappingsAtom";
+import { useTermLinkContext } from "../../hooks/useContextOntology";
 
 const { gray500, gray700, gray800, brand700 } = vars;
 
@@ -54,6 +55,7 @@ const CHECKBOX_SX = { p: 1, mt: -0.5, mr: -0.5 };
 // §1.1: "the organization can choose which header elements and property rows to display".
 const CellTile = ({ cell, predicateDisplay = {}, selected = false, onToggleSelect }) => {
   const mappings = useMappings();
+  const linkContext = useTermLinkContext();
   const { headerChips: chipConfig, rows: rowConfig, footer } = mappings.regions.tile;
   // The ontology's own `ilxtr:displayLabel` outranks the mappings document's label, same
   // precedence buildRows.js gives the Cell Card's rows — a curator's edit renames the predicate
@@ -148,10 +150,10 @@ const CellTile = ({ cell, predicateDisplay = {}, selected = false, onToggleSelec
             </Typography>
             <Box display="flex" flexWrap="wrap" justifyContent="flex-end" gap={1}>
               {cell.sources.map((src) =>
-                termLink(src) ? (
+                termLink(src, linkContext) ? (
                   <Link
                     key={src.id}
-                    href={termLink(src)}
+                    href={termLink(src, linkContext)}
                     target="_blank"
                     rel="noopener"
                     underline="hover"

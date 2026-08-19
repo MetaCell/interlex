@@ -58,6 +58,41 @@ export const termPath = (
 ): string =>
   `/${group}${ontologySlug ? ontologySegment(ontologySlug) : ""}/${termSlug}${tab ? `/${tab}` : ""}`;
 
+// --- grid filter deep-links ---------------------------------------------------
+
+// Facet pre-selections carried to the Grid View in the URL: one `filter=<localName>:<valueId>`
+// param per checked value. The value id is a curie or IRI, so parsing splits on the FIRST colon.
+export const GRID_FILTER_PARAM = "filter";
+
+// The Grid View pre-filtered on one predicate — where a Cell Card property row's grid icon points
+// (mappings.md §2.2, revised in meeting-3: the row text keeps opening the term URI, the icon
+// returns to the grid filtered on that property).
+export const gridFilterPath = (
+  entry: OntologyEntry,
+  localName: string,
+  valueIds: string[]
+): string => {
+  const params = new URLSearchParams();
+  valueIds.forEach((id) => params.append(GRID_FILTER_PARAM, `${localName}:${id}`));
+  return `${ontologyPath(entry)}?${params.toString()}`;
+};
+
+// The grid page's inverse: URL search -> the filter sidebar's checked shape
+// ({ [facetLocalName]: { [valueId]: true } }). Malformed params are dropped, not errors.
+export const parseGridFilters = (
+  search: string
+): Record<string, Record<string, boolean>> => {
+  const checked: Record<string, Record<string, boolean>> = {};
+  for (const raw of new URLSearchParams(search).getAll(GRID_FILTER_PARAM)) {
+    const i = raw.indexOf(":");
+    if (i < 1 || i === raw.length - 1) continue;
+    const localName = raw.slice(0, i);
+    if (!checked[localName]) checked[localName] = {};
+    checked[localName][raw.slice(i + 1)] = true;
+  }
+  return checked;
+};
+
 // The single hardcoded search result until an ontology search backend exists.
 export const HARDCODED_RESULTS: OntologyEntry[] = [ONTOLOGY_CATALOG.precision];
 
@@ -86,6 +121,12 @@ export const ontologyForTermSlug = (slug?: string): string | undefined => {
 // `hasInterLexRecord`. Callers that gate term-API features (Overview, Variants, Version history,
 // Discussions) want the latter; this is only its synchronous shortcut.
 export const isIlxTermSlug = (slug?: string): boolean => /^(ilx|tmp)[_:]/i.test(slug || "");
+
+// Does this slug address InterLex's record of an *external* term — the `dns/{host}/{path}`
+// rewrite `termSlugForIri` produces? Such a term is by construction not one of a catalogued
+// ontology's own cells, so pages can gate cell-only affordances (the Cell Card tab) on the URL
+// alone, the same way `isIlxTermSlug` lets them.
+export const isDnsTermSlug = (slug?: string): boolean => /^dns\//.test(slug || "");
 
 // Backend route answering "is this external id mapped to an InterLex record?":
 // `npokb_991` under `base` -> /base/uris/npokb/991, which 404s while unmapped. Split on the first
@@ -154,46 +195,83 @@ export const PREFER_LOCAL_NEURDF =
 
 // --- term links ---------------------------------------------------------------
 
-const OLS_BASE = "https://www.ebi.ac.uk/ols4";
+// The host InterLex names its own records under. Anything else is an external authority.
+const INTERLEX_HOST = "uri.interlex.org";
 
-// Curie prefix -> OLS ontology id, for the OBO-library ontologies referenced by these terms.
-// A prefix that is absent is not an ontology OLS can show (NCBIGene is a sequence database,
-// a DOI is a paper), so those keep their own IRI.
-const OLS_ONTOLOGY_BY_PREFIX: Record<string, string> = {
-  UBERON: "uberon",
-  CHEBI: "chebi",
-  NCBITaxon: "ncbitaxon",
-};
-
-// InterLex renders its own ILX terms; this is the app's route for one.
-const interlexTermView = (curie: string): string | undefined => {
-  const match = /^ILX:(\d+)$/i.exec(curie);
-  // TODO point the group at the user's groupname once the API supports it — same TODO as
-  // SingleTermView/OverView/Hierarchy.jsx.
-  return match ? `/base/ilx_${match[1]}/overview` : undefined;
-};
-
-// Where a term opens (always a new tab), per the design decision: the internal view of the
-// term when there is one, otherwise OLS for an ontology term we cannot render ourselves.
-//
-// Checked against the configured backend: `base/ilx_*` resolves, while `npokb`, `ilxtr` and
-// `base/uberon_*` all answer 404. So an ILX term gets the internal view; an OBO term goes to
-// OLS, because serving the internal view of an *external* term is still owed by the backend;
-// and an InterLex-native term that is not an ILX id can only be named by its own IRI.
-export const termLink = (ref?: {
-  curie?: string;
-  iri?: string;
-}): string | undefined => {
-  if (!ref) return undefined;
-  const curie = ref.curie || "";
-  const internal = interlexTermView(curie);
-  if (internal) return internal;
-  const ontology = OLS_ONTOLOGY_BY_PREFIX[curie.split(":")[0]];
-  if (ontology) {
-    // OLS addresses a class by its IRI, encoded twice because the id is a path segment.
-    return ref.iri
-      ? `${OLS_BASE}/ontologies/${ontology}/classes/${encodeURIComponent(encodeURIComponent(ref.iri))}`
-      : `${OLS_BASE}/search?q=${encodeURIComponent(curie)}`;
+// The slug InterLex dereferences an IRI by (feedback, Tom): an InterLex-hosted IRI
+// (`http://uri.interlex.org/{group}/{slug}`) already carries it; any other host is rewritten to
+// InterLex's own record of the external term, `dns/{host}/{path}` —
+// uri.interlex.org/base/dns/purl.obolibrary.org/obo/UBERON_… — so the reader is never sent to
+// the external site itself. The rewrite applies only where the reference is *dereferenced*,
+// never to display: labels and CURIEs keep rendering exactly what the ontology states.
+// Undefined when the IRI yields no slug our routes can address: a non-http IRI, or an
+// InterLex path with extra segments (readable `/uris/…` URIs).
+export const termSlugForIri = (iri?: string): string | undefined => {
+  if (!iri) return undefined;
+  let url: URL;
+  try {
+    url = new URL(iri);
+  } catch {
+    return undefined;
   }
-  return ref.iri || undefined;
+  if (url.protocol !== "http:" && url.protocol !== "https:") return undefined;
+  const path = url.pathname.replace(/^\/+|\/+$/g, "");
+  if (url.host !== INTERLEX_HOST) return `dns/${url.host}/${path}`;
+  // /{group}/{slug}: the IRI's own group is dropped — the caller links under the group the
+  // reader is browsing, like every other termPath call.
+  const segments = path.split("/");
+  return segments.length === 2 ? segments[1] : undefined;
+};
+
+// A CURIE can name an addressable slug even when its IRI cannot (`npokb:1034` expands to the
+// multi-segment http://uri.interlex.org/npo/uris/neurons/1034): an ILX/TMP id is an InterLex
+// record by construction, and a prefix claimed by a catalogued ontology (npokb → precision) is
+// addressable through that ontology. Any other prefix stays unaddressed — the IRI decides.
+const slugFromCurie = (curie?: string): string | undefined => {
+  const match = /^(ILX|TMP):(\d+)$/i.exec(curie || "");
+  if (match) return `${match[1].toLowerCase()}_${match[2]}`;
+  const slug = (curie || "").replace(":", "_");
+  return ontologyForTermSlug(slug) ? slug : undefined;
+};
+
+// A DOI object is a literature citation, not a term: it keeps resolving to the publication.
+const isDoiIri = (iri: string): boolean => {
+  try {
+    return /^(?:dx\.)?doi\.org$/i.test(new URL(iri).host);
+  } catch {
+    return false;
+  }
+};
+
+// The context an InterLex term link carries: the group the page is read under and the context
+// ontology to stay inside (feedback, Sue/Tom: navigating away from a Cell Card must keep the
+// reader in the context ontology). Components resolve it with `useTermLinkContext`. External
+// terms ignore it — they have one canonical /base/dns/… address.
+export interface TermLinkContext {
+  group?: string;
+  ontologySlug?: string | null;
+}
+
+// Where a term opens (always a new tab). Never an external site (feedback, Tom: "they should
+// never be taken directly to purl.obolibrary.org…"): an external term goes to InterLex's
+// canonical record of it — the /base/dns/{host}/{path} form Tom specified, not the viewing
+// group's ontology path — while an InterLex term goes to its own page under the context
+// ontology when there is one. A literal, or an InterLex IRI our routes cannot address, falls
+// back to plain text / its own (still InterLex-hosted) IRI.
+export const termLink = (
+  ref?: { curie?: string; iri?: string },
+  context?: TermLinkContext
+): string | undefined => {
+  if (!ref) return undefined;
+  const iri = ref.iri || "";
+  if (isDoiIri(iri)) return iri;
+  const slug = termSlugForIri(iri) || slugFromCurie(ref.curie);
+  if (!slug) return iri || undefined;
+  if (isDnsTermSlug(slug)) return termPath("base", null, slug);
+  // A slug a catalogued ontology claims may be one of its cells, so its bare URL is left to
+  // resolve to the term's own default tab (the Cell Card). Any other InterLex slug names
+  // /overview outright: under an ontology path the bare URL would default to a Cell Card tab
+  // the term does not have.
+  const tab = ontologyForTermSlug(slug) ? "" : "overview";
+  return termPath(context?.group || "base", context?.ontologySlug, slug, tab);
 };
