@@ -92,6 +92,9 @@ export interface FieldSources {
   // IRI-valued, unlike the three above: it names the community that develops the ontology, which
   // is where the header's "Community hub" link points.
   ontologyCommunityLink: FieldSource;
+  // Where that link points when the ontology names no community of its own. Clearing it restores
+  // the stricter reading — a file that asserts nothing gets no link.
+  ontologyCommunityLinkFallback: string;
 
   // Placeholder object ids meaning "this phenotype is *not specified*". Not real terms, so they
   // must never surface as a value, a facet option or a tile chip. Matched as a prefix.

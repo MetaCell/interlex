@@ -141,9 +141,16 @@ export const DEFAULT_FIELD_SOURCES: FieldSources = {
   ontologyTitle: exact("dc:title", "dcterms:title", "rdfs:label", "skos:prefLabel"),
   ontologyDescription: exact("dc:description", "dcterms:description", "rdfs:comment"),
   ontologyVersion: exact("owl:versionInfo"),
-  // The spec names `ilxtr:developmentCommunity`; the shipped graph carries MIRO's spelling of the
-  // same fact. Neither prefix is guaranteed to be in a given file's @context, hence `anyPrefix`.
+  // TODO: confirm with the curators which annotation actually carries the Community hub link, and
+  // whether it also carries the badge's display name (§4.1 wants "PRECISION Community Hub", not a
+  // bare URL). Both spellings below are guesses: the spec names `ilxtr:developmentCommunity`, the
+  // shipped graph carries MIRO's `development_community` — which points at the GitHub repository,
+  // not at a community hub, so it may not be the intended source at all. Once the property is
+  // settled, bind it here and drop `ontologyCommunityLinkFallback`, which exists only to give the
+  // badge a destination while the question is open.
+  // Neither prefix is guaranteed to be in a given file's @context, hence `anyPrefix`.
   ontologyCommunityLink: anyPrefix("ilxtr:developmentCommunity", "MIRO:development_community"),
+  ontologyCommunityLinkFallback: "https://precision.scicrunch.org",
 
   missingValuePrefixes: ["TEMP:MISSING"],
 };

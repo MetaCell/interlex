@@ -4,8 +4,9 @@ import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined";
 
 // The context ontology's "leave the app" affordance, sitting at the right of the breadcrumb bar on
 // every page read inside an ontology (mappings.md §4.1). The destination is the community the file
-// itself names, so a term with no context ontology — and an ontology that asserts no community —
-// renders nothing at all, never a disabled button or a fallback destination.
+// itself names, or the configured `ontologyCommunityLinkFallback` when it names none. A page read
+// with no context ontology at all passes no href and so renders nothing — §4.2 wants that case
+// omitted from the layout entirely, never a disabled button or a stand-in destination.
 const CommunityHubLink = ({ href }) =>
   href ? (
     <Button

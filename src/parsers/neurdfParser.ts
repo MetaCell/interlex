@@ -647,7 +647,10 @@ export const parseOntologyMeta = (
     title,
     description: firstFieldText(onto, fields.ontologyDescription, ctx)?.text,
     version: firstFieldText(onto, fields.ontologyVersion, ctx)?.text,
-    communityLink: firstFieldIri(onto, fields.ontologyCommunityLink, ctx),
+    communityLink:
+      firstFieldIri(onto, fields.ontologyCommunityLink, ctx) ||
+      fields.ontologyCommunityLinkFallback ||
+      undefined,
   };
 };
 

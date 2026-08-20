@@ -50,6 +50,13 @@
       "ontologyTitle": ["dc:title", "dcterms:title", "rdfs:label", "skos:prefLabel"],
       "ontologyDescription": ["dc:description", "dcterms:description", "rdfs:comment"],
       "ontologyVersion": ["owl:versionInfo"],
+      "ontologyCommunityLink": {
+        "sources": ["ilxtr:developmentCommunity", "MIRO:development_community"],
+        "matchLocalName": true
+      },
+      "$ontologyCommunityLinkComment": "TODO: which annotation carries the Community hub link is not settled — the spec names ilxtr:developmentCommunity, the shipped graph carries MIRO:development_community pointing at the GitHub repository. Rebind this once the curators confirm the property, and clear the fallback below.",
+      "$ontologyCommunityLinkFallbackComment": "Where the \"Community hub\" link points when the ontology file names no community of its own. Set it to \"\" to show no link in that case.",
+      "ontologyCommunityLinkFallback": "https://precision.scicrunch.org",
 
       "missingValuePrefixes": ["TEMP:MISSING"]
     },

@@ -105,6 +105,7 @@ const FIELD_KEYS = [
   "ontologyTitle",
   "ontologyDescription",
   "ontologyVersion",
+  "ontologyCommunityLink",
 ] as const;
 
 // Fields the views cannot do without. Clearing one is legal — an empty source list is a real
@@ -143,6 +144,10 @@ const applyFields = (
   }
   fields.curatedDescriptionSources =
     asCount(section.curatedDescriptionSources) ?? base.curatedDescriptionSources;
+  // An explicit "" is a real answer here: it clears the fallback, so an ontology naming no
+  // community goes back to showing no "Community hub" link at all.
+  if (typeof section.ontologyCommunityLinkFallback === "string")
+    fields.ontologyCommunityLinkFallback = section.ontologyCommunityLinkFallback.trim();
   fields.missingValuePrefixes =
     asKeys(section.missingValuePrefixes) || base.missingValuePrefixes;
 

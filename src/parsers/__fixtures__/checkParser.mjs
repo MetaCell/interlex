@@ -180,7 +180,12 @@ check(
   communityMeta({ "@value": "https://precision.example.org", "@type": "xsd:anyURI" }),
   "https://precision.example.org"
 );
-check("an ontology asserting none has no link", parseNeurdf({ "@graph": [] }, "ilxtr:NeuronPrecision").meta.communityLink, undefined);
+// An ontology that names no community still gets a link: the configured fallback community.
+check(
+  "an ontology asserting none falls back to the configured community",
+  parseNeurdf({ "@graph": [] }, "ilxtr:NeuronPrecision").meta.communityLink,
+  DEFAULT_MAPPINGS.fields.ontologyCommunityLinkFallback
+);
 
 // --- NervoSensus deep link -----------------------------------------------------
 // The Interactive Cell Grouping widget is unconditional (NervoSensus is one app, not per-cell
