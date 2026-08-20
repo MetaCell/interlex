@@ -96,6 +96,7 @@ const CellCard = ({ cell, data, group, termSlug, discussionHref, onNavigateToCel
       key="anatomy"
       cell={cell}
       predicateDisplay={data.predicateDisplay}
+      filterGridHref={filterGridHref}
       actions={commentFor(ANATOMY_TITLE)}
     />,
   ];

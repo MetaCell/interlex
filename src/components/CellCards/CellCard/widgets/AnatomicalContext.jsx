@@ -23,7 +23,7 @@ export const TITLE = "Anatomical & Circuit Context";
  *   `ilxtr:hasLaminarTermination`, which would drive the laminae shading, also has zero
  *   occurrences, so a drawn diagram would be decorative rather than data-bearing.
  */
-const AnatomicalContext = ({ cell, predicateDisplay, actions }) => {
+const AnatomicalContext = ({ cell, predicateDisplay, actions, filterGridHref }) => {
   const mappings = useMappings();
   // hasSPARCMap is a deep link, so the parser routes it to `annotations` rather than treating it
   // as a phenotype. Shaped into a CellProperty here so PropertyRow renders it like any other row.
@@ -41,6 +41,7 @@ const AnatomicalContext = ({ cell, predicateDisplay, actions }) => {
           predicateDisplay,
           mappings
         )}
+        filterHref={filterGridHref}
       />
 
       {sparcMap ? (
@@ -68,6 +69,9 @@ AnatomicalContext.propTypes = {
   cell: PropTypes.object.isRequired,
   predicateDisplay: PropTypes.object,
   actions: PropTypes.node,
+  // Same contract as BiologicalProperties: (localName, values) -> pre-filtered Grid View URL.
+  // Not offered on the SPARC Maps row — those values are external deep links, not grid facets.
+  filterGridHref: PropTypes.func,
 };
 
 export default AnatomicalContext;
