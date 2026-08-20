@@ -18,6 +18,11 @@ import { CloseIcon, SendComment } from "../../../Icons";
 import { GlobalDataContext } from "../../../contexts/DataContext";
 import { postComment, commentPlaceholder, ANONYMOUS_AUTHOR } from "./commentService";
 
+// The discussions endpoint is still not deployed (see commentService), so the affordance stays
+// where the design puts it, inert, and says why on hover. Flip to true once the backend answers.
+const COMMENTS_ENABLED = false;
+const NOT_IMPLEMENTED = "Commenting on cell cards is not implemented yet.";
+
 /**
  * The per-widget comment affordance (Figma 9272:85572 "commenting on cell card").
  *
@@ -70,6 +75,18 @@ const WidgetCommentButton = ({ widgetTitle, cellLabel, termId, group = "base", d
       setSending(false);
     }
   };
+
+  if (!COMMENTS_ENABLED)
+    return (
+      <Tooltip title={NOT_IMPLEMENTED} arrow>
+        {/* A disabled button swallows pointer events, so the tooltip needs a wrapper to hang on. */}
+        <span>
+          <IconButton disabled aria-label={`Comment on ${widgetTitle}`}>
+            <ChatBubbleOutlineOutlinedIcon fontSize="small" />
+          </IconButton>
+        </span>
+      </Tooltip>
+    );
 
   return (
     <>
