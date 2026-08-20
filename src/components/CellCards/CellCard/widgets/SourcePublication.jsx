@@ -11,35 +11,36 @@ export const TITLE = "Source publication";
  * §5.1 Source Publication (Figma 9239:67920): the formatted citation for the cell's primary
  * source, plus a source-data pointer.
  *
- * The graph has only the DOI, so title / authors / journal / year come from CrossRef at render
- * time (see citationService). While that is in flight the widget shows skeletons; if it fails the
- * DOI link alone remains, which is exactly what the graph can support on its own.
+ * The graph has only the citation IRI — a DOI or, more often, a `PMID:` CURIE — so title /
+ * authors / journal / year come from Europe PMC at render time, with CrossRef behind it (see
+ * citationService). While that is in flight the widget shows skeletons; if it fails the bare link
+ * alone remains, which is exactly what the graph can support on its own.
  */
 const SourcePublication = ({ cell, actions }) => {
   const primary = cell.sources?.[0];
-  const doi = primary?.iri || primary?.id;
-  // Keyed by the DOI it was fetched for, and read only when that still matches. Navigating between
+  const citationIri = primary?.iri || primary?.id;
+  // Keyed by the IRI it was fetched for, and read only when that still matches. Navigating between
   // cells re-renders this widget rather than remounting it (see useCellTerm), so plain state would
   // caption the new cell with the previous cell's paper until the fetch came back.
   const [citation, setCitation] = useState(null);
 
   useEffect(() => {
-    if (!doi) return undefined;
+    if (!citationIri) return undefined;
     let active = true;
-    fetchCitation(doi).then((result) => {
-      if (active) setCitation({ doi, result });
+    fetchCitation(citationIri).then((result) => {
+      if (active) setCitation({ iri: citationIri, result });
     });
     return () => {
       active = false;
     };
-  }, [doi]);
+  }, [citationIri]);
 
   if (!primary) return null;
 
-  const resolved = citation?.doi === doi ? citation.result : null;
+  const resolved = citation?.iri === citationIri ? citation.result : null;
   // A source with no IRI at all is never fetched, so it is not "loading" — it renders whatever the
   // graph gave, which is the same fallback a failed lookup lands on.
-  const loading = Boolean(doi) && !resolved;
+  const loading = Boolean(citationIri) && !resolved;
 
   const dataCitation = cell.annotations?.dataCitations?.[0];
 
@@ -62,12 +63,12 @@ const SourcePublication = ({ cell, actions }) => {
             {[resolved?.authors, resolved?.journal, resolved?.year]
               .filter(Boolean)
               .join(resolved?.authors ? " " : ", ")}
-            {resolved?.doi && (
+            {(resolved?.doi || resolved?.pmid) && (
               <>
                 {[resolved?.authors, resolved?.journal, resolved?.year].some(Boolean) ? " · " : ""}
-                DOI:{" "}
+                {resolved.doi ? "DOI" : "PMID"}:{" "}
                 <Link href={resolved.url} target="_blank" rel="noopener">
-                  {resolved.doi}
+                  {resolved.doi || resolved.pmid}
                 </Link>
               </>
             )}

@@ -215,14 +215,17 @@ export interface RelationGraphModel {
   edges: RelationEdge[];
 }
 
-// Publication metadata resolved from a DOI via CrossRef (the graph has none — DOIs are bare
-// @id IRIs with no node), so every field is optional and the widget degrades to a bare link.
+// Publication metadata resolved from Europe PMC, or from CrossRef when Europe PMC does not index
+// the work (the graph has none — citations are bare @id IRIs with no node), so every field is
+// optional and the widget degrades to a bare link. `doi` and `pmid` are both present when the
+// source knows both; at least one carries the link.
 export interface Citation {
   doi: string;
+  pmid: string;
   url: string;
   title?: string;
   authors?: string;
   journal?: string;
   year?: string;
-  type?: string; // CrossRef "type", e.g. "posted-content" for a preprint
+  type?: string; // Europe PMC pubType ("Preprint") or CrossRef type ("posted-content")
 }

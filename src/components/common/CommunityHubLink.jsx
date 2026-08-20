@@ -9,7 +9,8 @@ import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined";
 const CommunityHubLink = ({ href }) =>
   href ? (
     <Button
-      variant="breadcrumbAction"
+      variant="text"
+      color="secondary"
       href={href}
       target="_blank"
       rel="noopener noreferrer"

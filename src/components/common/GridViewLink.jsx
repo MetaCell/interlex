@@ -9,7 +9,8 @@ import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
 const GridViewLink = ({ to }) =>
   to ? (
     <Button
-      variant="breadcrumbAction"
+      variant="text"
+      color="secondary"
       component={RouterLink}
       to={to}
       startIcon={<GridViewOutlinedIcon />}

@@ -26,6 +26,7 @@ import { vars } from "../../theme/variables";
 import OntologySearch from "./OntologySearch";
 import RateReviewOutlinedIcon from '@mui/icons-material/RateReviewOutlined';
 import CopyLinkComponent from "../common/CopyLinkComponent";
+import CopyPathLink from "../common/CopyPathLink";
 import BasicTabs from "../common/CustomTabs";
 import CustomButton from "../common/CustomButton";
 import OverView from "./OverView/OverView";
@@ -322,6 +323,29 @@ const SingleTermView = () => {
     ];
   }, [group, term, displayedTermLabel, storedSearchTerm, contextEntry, contextOntologyData, versionHash, tabNames]);
 
+  // What a reader copies off the breadcrumb: the canonical address of this page rather than
+  // whatever the address bar holds, so a shared link reopens the term under the same ontology it is
+  // being read in (mappings.md §4.3). Built from `contextEntry` — the path's own `/ontology/{slug}`
+  // or the one the term slug's prefix names — never from the last ontology visited, which would
+  // pass off session state as the recipient's context. A variant snapshot has its own route with
+  // no ontology segment, so there the current path already is the canonical one.
+  const permalink = useMemo(() => {
+    const path = versionHash
+      ? location.pathname
+      : termPath(group, contextEntry?.slug, term, tabNames[tabValue]);
+    return `${window.location.origin}${path}${location.search}`;
+  }, [versionHash, location.pathname, location.search, group, contextEntry, term, tabNames, tabValue]);
+
+  // The ontology the link preserves (mappings.md §4.2) is named in the tooltip rather than the
+  // label: spelled out inline it is wide enough to push the header's own controls onto a second
+  // row. Read off the same condition the URL above is built on, so the label cannot promise a
+  // context the copied link does not carry. Without one there is nothing to preserve and it is a
+  // plain copy of the term's address.
+  const contextTitle =
+    !versionHash && contextEntry && (contextOntologyData?.meta?.title || contextEntry.label);
+  const permalinkLabel = contextTitle ? "Permalink to term" : "Copy link";
+  const permalinkTooltip = contextTitle ? `Copy link, keeping the context of ${contextTitle}` : "Copy link";
+
   // Optimize handlers with useCallback
   const handleChangeTabs = useCallback((event, newValue) => {
     setTabValue(newValue);
@@ -602,7 +626,10 @@ const SingleTermView = () => {
         <Box p="1.5rem 5rem 0rem 5rem">
           <Grid container>
             <Grid container xs={12} lg={12} direction="row" alignItems="center" justifyContent="space-between">
-              <CustomBreadcrumbs breadcrumbItems={breadcrumbItems} />
+              <Stack direction="row" alignItems="center" gap={1.5} sx={{ minWidth: 0 }}>
+                <CustomBreadcrumbs breadcrumbItems={breadcrumbItems} />
+                <CopyPathLink permalink={permalink} label={permalinkLabel} tooltip={permalinkTooltip} />
+              </Stack>
               <Stack direction="row" alignItems="center" gap={1}>
                 {/* The context ontology's two ways out, in the design's order: back to its grid,
                     then off to its community. Grouped on `contextEntry` because §4.2 omits both
