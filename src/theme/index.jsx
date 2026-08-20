@@ -842,6 +842,18 @@ const theme = createTheme({
 					"&.outlined": {
 						border: `0.0625rem solid #CCD0D9`,
 					},
+
+					// The Cell Card property rows' "filter grid view by" control, styled after the design
+					// system's Buttons/Button, Hierarchy=Tertiary color, Icon=Only: resting Brand/700 (the
+					// row's hover variant, 9535:92211), hovered Brand/800 on a Brand/50 fill (State=Hover,
+					// 3287:429695). The root's 0.5rem radius above is already its rounded-8.
+					"&.filterGridAction": {
+						color: brand700,
+						"&:hover": {
+							background: brand50,
+							color: brand800,
+						},
+					},
 				},
 			},
 		},

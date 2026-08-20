@@ -25,7 +25,21 @@ const joinValues = (combinator) => (combinator === "or" ? " or " : combinator ==
 const revealFilterActionSx = {
   "&:hover .filterGridAction, &:focus-within .filterGridAction": { opacity: 1 },
 };
-const filterActionSx = { opacity: 0, p: 0, alignSelf: "center", flexShrink: 0 };
+// The negative margin keeps the hover pill from inflating the 20px text row.
+const filterActionSx = { opacity: 0, p: 0.5, my: -0.5 };
+// A tabular three-column row (the design's 50/50 label/value split, 9535:92212, with the
+// control between): label and value flex equally, so this fixed-width middle column pins every
+// row's control to the same x and the icons read as a column of their own.
+const labelColumnSx = { flex: 1, minWidth: 0 };
+const valueColumnSx = { flex: 1, minWidth: 0, display: "flex", justifyContent: "flex-end" };
+const filterColumnSx = {
+  flexShrink: 0,
+  width: "2.25rem",
+  alignSelf: "stretch",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+};
 
 export const PropertyRow = ({
   label,
@@ -39,35 +53,33 @@ export const PropertyRow = ({
   if (!values.length && !required) return null;
 
   const labelNode = (
-    <Typography variant="body2" sx={{ color: "text.secondary", flexShrink: 0 }}>
+    <Typography variant="body2" sx={{ color: "text.secondary" }}>
       {label}
     </Typography>
   );
 
   return (
-    <Stack
-      direction="row"
-      justifyContent="space-between"
-      alignItems="flex-start"
-      gap={1.5}
-      sx={revealFilterActionSx}
-    >
-      {/* The predicate's own ilxtr:shortDefinition, when the ontology ships one. */}
-      {tooltip ? (
-        <Tooltip title={tooltip} placement="top-start">
-          {/* Tooltip needs a DOM node that can hold a ref and receive hover. */}
-          <Box component="span" sx={{ display: "inline-flex", flexShrink: 0 }}>
-            {labelNode}
-          </Box>
-        </Tooltip>
-      ) : (
-        labelNode
-      )}
+    <Stack direction="row" alignItems="flex-start" gap={1} sx={revealFilterActionSx}>
+      <Box sx={labelColumnSx}>
+        {/* The predicate's own ilxtr:shortDefinition, when the ontology ships one. */}
+        {tooltip ? (
+          <Tooltip title={tooltip} placement="top-start">
+            {/* Tooltip needs a DOM node that can hold a ref and receive hover. */}
+            <Box component="span" sx={{ display: "inline-flex" }}>
+              {labelNode}
+            </Box>
+          </Tooltip>
+        ) : (
+          labelNode
+        )}
+      </Box>
 
-      <Stack direction="row" alignItems="flex-start" gap={1} sx={{ minWidth: 0 }}>
-        {/* The way back to the grid, pre-filtered on this row (meeting-3): clicking a value keeps
-            opening the term URI, so the filter action is its own control, marked with the same
-            icon as the Grid View button and sitting left of the value it filters by. */}
+      {/* The way back to the grid, pre-filtered on this row (meeting-3): clicking a value keeps
+          opening the term URI, so the filter action is its own control. The design marks it with
+          a "Filter Grid View by" text button; we keep the grid-view icon (it pairs with the Grid
+          View breadcrumb button) and take the design's placement and hover colour — see the
+          theme's MuiIconButton "&.filterGridAction". */}
+      <Box sx={filterColumnSx}>
         {filterTo && (
           <Tooltip title={`Filter grid view by ${label}`} placement="top">
             <IconButton
@@ -78,10 +90,13 @@ export const PropertyRow = ({
               aria-label={`Filter grid view by ${label}`}
               sx={filterActionSx}
             >
-              <GridViewOutlinedIcon fontSize="inherit" />
+              <GridViewOutlinedIcon fontSize="small" />
             </IconButton>
           </Tooltip>
         )}
+      </Box>
+
+      <Box sx={valueColumnSx}>
         {!values.length ? (
           // `notSpecified` is a theme variant: the greyed italic is a design token, not a call-site
           // style. See src/theme/index.jsx typography.
@@ -107,7 +122,7 @@ export const PropertyRow = ({
             ))}
           </Box>
         )}
-      </Stack>
+      </Box>
     </Stack>
   );
 };
