@@ -3,6 +3,7 @@ import { useOutletContext, useNavigate, useLocation } from "react-router-dom";
 import { Box, Typography, Stack } from "@mui/material";
 import GridFilterSidebar from "./GridFilterSidebar";
 import GridSearchBar from "./GridSearchBar";
+import GridBulkEditButton from "./GridBulkEditButton";
 import CellTileGrid from "./CellTileGrid";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import CustomPagination from "../common/CustomPagination";
@@ -93,6 +94,7 @@ const OntologyGridPage = () => {
     });
   }, [cells, checked, word, visibleFacets]);
 
+  const selectedCount = Object.keys(selectedIds).length;
   const total = filteredCells.length;
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
   const currentPage = Math.min(page, pageCount);
@@ -185,6 +187,7 @@ const OntologyGridPage = () => {
             Showing {pageCells.length} of {total} cells
           </Typography>
           <Stack direction="row" alignItems="center" gap={2}>
+            <GridBulkEditButton selectedCount={selectedCount} />
             <GridSearchBar value={word} onSubmit={onWord} />
             <Stack direction="row" alignItems="center" gap={1}>
               <Typography variant="caption" sx={{ fontSize: "0.875rem", color: gray600 }}>
