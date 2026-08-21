@@ -167,7 +167,7 @@ const OntologyGridPage = () => {
         onClear={onClear}
         onClearAll={onClearAll}
         displayedOnly={displayedOnly}
-        onToggleDisplayedOnly={() => setDisplayedOnly((v) => !v)}
+        onDisplayedOnlyChange={setDisplayedOnly}
       />
 
       <Box sx={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>

@@ -843,6 +843,20 @@ const theme = createTheme({
 						border: `0.0625rem solid #CCD0D9`,
 					},
 
+					// The filters sidebar header's Buttons/Button, Icon=Only (Figma 9674:65548): an
+					// outlined box around a 20px glyph, greyed out when the action has nothing to act on.
+					"&.filterSidebarAction": {
+						padding: "0.5rem",
+						color: gray700,
+						border: `0.0625rem solid ${gray200}`,
+						"&:hover": {
+							color: gray800,
+						},
+						"&.Mui-disabled": {
+							color: gray300,
+						},
+					},
+
 					// The Cell Card property rows' "filter grid view by" control, styled after the design
 					// system's Buttons/Button, Hierarchy=Tertiary color, Icon=Only: resting Brand/700 (the
 					// row's hover variant, 9535:92211), hovered Brand/800 on a Brand/50 fill (State=Hover,
@@ -1001,6 +1015,13 @@ const theme = createTheme({
 						flexDirection: "column",
 						gap: "1px",
 						padding: "0.25rem 0.375rem",
+					},
+					// A section label above a run of items ("Show"), Text xs/Regular in Gray/500.
+					"& .MuiListSubheader-root": {
+						padding: "0.25rem 0.5rem",
+						fontSize: "0.75rem",
+						lineHeight: "1.125rem",
+						color: gray500,
 					},
 					"& .MuiMenuItem-root": {
 						padding: "0.563rem 0.625rem",

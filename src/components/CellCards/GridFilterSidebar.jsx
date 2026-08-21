@@ -9,10 +9,13 @@ import {
   FormLabel,
   FormGroup,
   Button,
-  Switch,
   Checkbox,
-  FormControlLabel,
+  Divider,
   Link,
+  Menu,
+  MenuItem,
+  ListItemText,
+  ListSubheader,
 } from "@mui/material";
 import {
   CheckboxDefault,
@@ -20,12 +23,21 @@ import {
   CheckboxIndeterminate,
   HelpOutlinedIcon,
   ExpandRowsIcon,
+  CompressRowsIcon,
+  TuneIcon,
+  MenuCheckIcon,
 } from "../../Icons";
 import { vars } from "../../theme/variables";
 import { termLink } from "./config/gridConfig";
 import { useTermLinkContext } from "../../hooks/useContextOntology";
 
 const { gray200, gray300, gray400, gray500, gray600, gray700, gray800, brand700, brand800 } = vars;
+
+// The display settings menu (Figma 9671:64888): the facet scope is a choice of two, not a toggle.
+const DISPLAY_OPTIONS = [
+  { label: "All properties", displayedOnly: false },
+  { label: "Only properties in tiles", displayedOnly: true },
+];
 
 // Values shown per facet while collapsed; above it the expand control appears.
 const VISIBLE_LIMIT = 5;
@@ -202,9 +214,10 @@ const GridFilterSidebar = ({
   onClear,
   onClearAll,
   displayedOnly,
-  onToggleDisplayedOnly,
+  onDisplayedOnlyChange,
 }) => {
   const [expanded, setExpanded] = useState({});
+  const [settingsAnchor, setSettingsAnchor] = useState(null);
 
   const onToggleExpanded = useCallback(
     (localName) => setExpanded((prev) => ({ ...prev, [localName]: !prev[localName] })),
@@ -235,10 +248,15 @@ const GridFilterSidebar = ({
 
   const expandable = facets.filter((f) => f.values.length > VISIBLE_LIMIT);
   const allExpanded = expandable.length > 0 && expandable.every((f) => expanded[f.localName]);
-  const toggleAll = () =>
-    setExpanded(
-      allExpanded ? {} : Object.fromEntries(expandable.map((f) => [f.localName, true]))
-    );
+  const anyExpanded = expandable.some((f) => expanded[f.localName]);
+  const expandAll = () =>
+    setExpanded(Object.fromEntries(expandable.map((f) => [f.localName, true])));
+  const collapseAll = () => setExpanded({});
+
+  const selectDisplayedOnly = (value) => {
+    onDisplayedOnlyChange(value);
+    setSettingsAnchor(null);
+  };
 
   const anySelection = Object.values(checked).some((sel) =>
     Object.values(sel || {}).some(Boolean)
@@ -291,19 +309,62 @@ const GridFilterSidebar = ({
         >
           Filters
         </Typography>
-        <FormControlLabel
-          control={<Switch size="small" checked={displayedOnly} onChange={onToggleDisplayedOnly} />}
-          label={
-            <Typography variant="body2" noWrap sx={{ color: gray500 }}>
-              Displayed properties
-            </Typography>
-          }
-          sx={{ m: 0, gap: 0.5, flexShrink: 0 }}
-        />
-        <Tooltip title={allExpanded ? "Collapse all filters" : "Expand all filters"}>
-          <IconButton onClick={toggleAll} disabled={!expandable.length} sx={iconButtonSx}>
-            <ExpandRowsIcon />
+        <Tooltip title="Display settings">
+          <IconButton
+            className="filterSidebarAction"
+            onClick={(e) => setSettingsAnchor(e.currentTarget)}
+            sx={{ flexShrink: 0 }}
+            aria-label="Display settings"
+          >
+            <TuneIcon />
           </IconButton>
+        </Tooltip>
+        <Menu
+          anchorEl={settingsAnchor}
+          open={!!settingsAnchor}
+          onClose={() => setSettingsAnchor(null)}
+          slotProps={{ paper: { sx: { minWidth: "15rem" } } }}
+        >
+          <ListSubheader disableSticky>Show</ListSubheader>
+          {DISPLAY_OPTIONS.map((option) => (
+            <MenuItem
+              key={option.label}
+              role="menuitemradio"
+              aria-checked={displayedOnly === option.displayedOnly}
+              selected={displayedOnly === option.displayedOnly}
+              onClick={() => selectDisplayedOnly(option.displayedOnly)}
+              sx={{ gap: 1 }}
+            >
+              <ListItemText primary={option.label} />
+              {displayedOnly === option.displayedOnly && <MenuCheckIcon />}
+            </MenuItem>
+          ))}
+        </Menu>
+        <Divider orientation="vertical" sx={{ mx: "2px", height: "1.75rem" }} />
+        <Tooltip title={anyExpanded ? "Collapse all filters" : "No expanded filters"}>
+          {/* Wrapper: a disabled button fires no events, so the tooltip needs a host. */}
+          <Box component="span" sx={{ display: "inline-flex", flexShrink: 0 }}>
+            <IconButton
+              className="filterSidebarAction"
+              onClick={collapseAll}
+              disabled={!anyExpanded}
+              aria-label="Collapse all filters"
+            >
+              <CompressRowsIcon />
+            </IconButton>
+          </Box>
+        </Tooltip>
+        <Tooltip title={allExpanded ? "All filters expanded" : "Expand all filters"}>
+          <Box component="span" sx={{ display: "inline-flex", flexShrink: 0 }}>
+            <IconButton
+              className="filterSidebarAction"
+              onClick={expandAll}
+              disabled={allExpanded || !expandable.length}
+              aria-label="Expand all filters"
+            >
+              <ExpandRowsIcon />
+            </IconButton>
+          </Box>
         </Tooltip>
       </Box>
 
@@ -346,7 +407,7 @@ GridFilterSidebar.propTypes = {
   onClear: PropTypes.func.isRequired,
   onClearAll: PropTypes.func.isRequired,
   displayedOnly: PropTypes.bool.isRequired,
-  onToggleDisplayedOnly: PropTypes.func.isRequired,
+  onDisplayedOnlyChange: PropTypes.func.isRequired,
 };
 
 export default GridFilterSidebar;

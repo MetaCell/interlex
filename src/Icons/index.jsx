@@ -220,6 +220,55 @@ export const ExpandRowsIcon = () => (
 	</svg>
 );
 
+// Figma "v5/compress" — the Collapse-all counterpart of ExpandRowsIcon.
+export const CompressRowsIcon = () => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		width="20"
+		height="20"
+		viewBox="0 0 24 24"
+		fill="none"
+	>
+		<path
+			d="M8 19h3v3h2v-3h3l-4-4zm8-15h-3V1h-2v3H8l4 4zM4 9v2h16V9zm0 3h16v2H4z"
+			fill="currentColor"
+		/>
+	</svg>
+);
+
+// Figma "check" (384:5008) — marks the chosen option in a menu, Brand/600 as designed.
+export const MenuCheckIcon = () => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		width="20"
+		height="20"
+		viewBox="0 0 20 20"
+		fill="none"
+	>
+		<path
+			transform="translate(2.6702 4.4125)"
+			d="M4.65833 8.81667L1.18333 5.34167L0 6.51667L4.65833 11.175L14.6583 1.175L13.4833 0L4.65833 8.81667Z"
+			fill="#1C5F54"
+		/>
+	</svg>
+);
+
+// Figma "tune-v4" — opens the filters sidebar display settings.
+export const TuneIcon = () => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		width="20"
+		height="20"
+		viewBox="0 0 24 24"
+		fill="none"
+	>
+		<path
+			d="M3 17v2h6v-2zM3 5v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z"
+			fill="currentColor"
+		/>
+	</svg>
+);
+
 export const ForwardIcon = () => (
 	<svg
 		width="20"
