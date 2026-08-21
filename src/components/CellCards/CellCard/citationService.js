@@ -1,15 +1,16 @@
 /**
- * Publication metadata for a citation, from Europe PMC with CrossRef behind it.
+ * Publication metadata for a citation, from CrossRef with Europe PMC behind it.
  *
  * The ontology carries `ilxtr:literatureCitation` as a bare IRI with **no node in the graph** —
  * no title, no authors, no year for any citation. The spec anticipated this ("the publication
  * info should be retrieved from a DOI API based on the DOI"), so the Source Publication widget
  * resolves it at runtime.
  *
- * Europe PMC leads because most of those IRIs are `PMID:` CURIEs rather than DOIs, and it is the
- * only one of the two that can be queried by PMID at all: measured over the shipped graph it
- * answers 441 of the 467 resolvable citations against CrossRef's 160. CrossRef then catches what
- * Europe PMC's biomedical index does not carry — book chapters and non-indexed journals, 14 more.
+ * CrossRef leads for DOIs: measured over the shipped graph it answers 160 of the 172 DOI citations
+ * against Europe PMC's 146, and Europe PMC turned up none that CrossRef missed. Europe PMC still
+ * answers the majority of citations overall, because most of the IRIs are `PMID:` CURIEs and it is
+ * the only one of the two that can be queried by PMID at all — 295 of them, which never reach
+ * CrossRef because there is no DOI to ask it about.
  *
  * Failure is expected and cheap: on any error the widget falls back to the bare link, which is
  * what it had before. Nothing here ever blocks a card render.
@@ -63,8 +64,17 @@ const formatAuthors = (surnames) => {
   return surnames.length > 1 ? `${first} et al` : first;
 };
 
+// Both services stall rather than refuse when they are unhealthy — Europe PMC has been seen taking
+// 22s on a PMID it normally answers in 80ms — and a stalled lookup holds the widget on skeletons
+// for as long as it takes. A citation is enrichment, so it gets a deadline and then gives up.
+const REQUEST_TIMEOUT_MS = 8000;
+
 const fetchJson = async (url) => {
-  const res = await fetch(url, { headers: { Accept: "application/json" }, credentials: "omit" });
+  const res = await fetch(url, {
+    headers: { Accept: "application/json" },
+    credentials: "omit",
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+  });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 };
@@ -74,19 +84,15 @@ const fetchJson = async (url) => {
 const europePmcQuery = ({ doi, pmid, pmcid }) =>
   pmid ? `EXT_ID:${pmid} AND SRC:MED` : pmcid ? `PMCID:${pmcid}` : `DOI:"${doi}"`;
 
-const europePmcAuthors = (result) => {
-  const surnames = (result.authorList?.author || [])
-    .map((author) => author.lastName || author.collectiveName)
-    .filter(Boolean);
-  if (surnames.length) return formatAuthors(surnames);
-  // `authorString` is "Hancock MB, Peveto CA." — the surname leads each comma-separated entry.
-  return formatAuthors(
+// `authorString` is "Hancock MB, Peveto CA." — the surname leads each comma-separated entry. The
+// structured `authorList` would be tidier but only ships with `resultType=core`.
+const europePmcAuthors = (result) =>
+  formatAuthors(
     String(result.authorString || "")
       .split(",")
       .map((entry) => entry.trim().split(/\s+/)[0])
       .filter(Boolean),
   );
-};
 
 const mapEuropePmcResult = (result, ref) => {
   // Europe PMC lowercases the DOI it echoes back, so the ontology's own spelling wins when we had
@@ -99,18 +105,20 @@ const mapEuropePmcResult = (result, ref) => {
     url: refUrl({ doi, pmid, pmcid: ref.pmcid }),
     title: result.title || undefined,
     authors: europePmcAuthors(result),
-    // A preprint has no journal, and Europe PMC files its publisher (bioRxiv, Zenodo…) under
-    // bookOrReportDetails rather than journalInfo.
-    journal: result.journalInfo?.journal?.title || result.bookOrReportDetails?.publisher,
+    // `lite` carries the Medline abbreviation ("Neurosci Lett"), not the full journal name. A
+    // preprint has no journal at all, and its publisher (bioRxiv, Zenodo…) sits under
+    // bookOrReportDetails instead.
+    journal: result.journalTitle || result.bookOrReportDetails?.publisher,
     year: result.pubYear || undefined,
-    type: result.pubTypeList?.pubType?.[0],
   };
 };
 
 const fromEuropePmc = async (ref) => {
+  // `lite` is a 1KB response where `core` is 9KB, and the difference is all abstract text and
+  // structured author records that this widget never shows.
   const params = new URLSearchParams({
     query: europePmcQuery(ref),
-    resultType: "core",
+    resultType: "lite",
     format: "json",
     pageSize: "1",
   });
@@ -153,18 +161,20 @@ export const fetchCitation = async (value) => {
   if (cache.has(key)) return cache.get(key);
 
   const promise = (async () => {
-    try {
-      const found = await fromEuropePmc(ref);
-      if (found) return found;
-    } catch {
-      // Europe PMC unreachable or throwing 5xx — a DOI can still be tried against CrossRef.
-    }
     if (ref.doi) {
       try {
         return await fromCrossref(ref.doi);
       } catch {
-        // Unknown DOI, offline, or CrossRef down — the bare link is still useful.
+        // Unknown DOI, offline, or CrossRef down or stalled — Europe PMC may still have it.
       }
+    }
+    // Europe PMC is the only one of the two that can be queried by PMID, so a PubMed CURIE comes
+    // straight here; a DOI reaches it only once CrossRef has already failed on it.
+    try {
+      const found = await fromEuropePmc(ref);
+      if (found) return found;
+    } catch {
+      // Europe PMC unreachable, throwing 5xx, or past its deadline — the bare link still works.
     }
     return bare;
   })();

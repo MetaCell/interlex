@@ -12,7 +12,7 @@ export const TITLE = "Source publication";
  * source, plus a source-data pointer.
  *
  * The graph has only the citation IRI — a DOI or, more often, a `PMID:` CURIE — so title /
- * authors / journal / year come from Europe PMC at render time, with CrossRef behind it (see
+ * authors / journal / year come from CrossRef at render time, with Europe PMC behind it (see
  * citationService). While that is in flight the widget shows skeletons; if it fails the bare link
  * alone remains, which is exactly what the graph can support on its own.
  */

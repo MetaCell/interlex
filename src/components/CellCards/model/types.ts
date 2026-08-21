@@ -227,5 +227,5 @@ export interface Citation {
   authors?: string;
   journal?: string;
   year?: string;
-  type?: string; // Europe PMC pubType ("Preprint") or CrossRef type ("posted-content")
+  type?: string; // CrossRef type, e.g. "posted-content" for a preprint (absent on the Europe PMC path)
 }
