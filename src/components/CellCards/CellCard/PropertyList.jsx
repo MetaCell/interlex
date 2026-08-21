@@ -1,5 +1,6 @@
+import { Fragment } from "react";
 import PropTypes from "prop-types";
-import { Stack, Divider, Typography, Chip, Box, Tooltip, IconButton } from "@mui/material";
+import { Divider, Typography, Chip, Box, Tooltip, IconButton } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
 import TermValueLink from "./TermValueLink";
@@ -27,14 +28,28 @@ const revealFilterActionSx = {
 };
 // The negative margin keeps the hover pill from inflating the 20px text row.
 const filterActionSx = { opacity: 0, p: 0.5, my: -0.5 };
-// A tabular three-column row (the design's 50/50 label/value split, 9535:92212, with the
-// control between): label and value flex equally, so this fixed-width middle column pins every
-// row's control to the same x and the icons read as a column of their own.
-const labelColumnSx = { flex: 1, minWidth: 0 };
-const valueColumnSx = { flex: 1, minWidth: 0, display: "flex", justifyContent: "flex-end" };
+// The list is one shared CSS grid — label | control | value — so the columns are sized by the
+// *table*, not per row: labels get the widest label's width, the control column is fixed (every
+// row's icon at the same x), and the value column absorbs all remaining space instead of the
+// 50/50 split that wrapped long values beside a half-empty label column. Each row spans the
+// grid via subgrid so it keeps a real box of its own for the hover reveal above.
+const propertyTableSx = {
+  display: "grid",
+  gridTemplateColumns: "auto 2.25rem minmax(0, 1fr)",
+  alignItems: "start",
+  gap: 1,
+  "& > hr": { gridColumn: "1 / -1" },
+};
+const propertyRowSx = {
+  ...revealFilterActionSx,
+  gridColumn: "1 / -1",
+  display: "grid",
+  gridTemplateColumns: "subgrid",
+  alignItems: "start",
+};
+const labelColumnSx = { minWidth: 0 };
+const valueColumnSx = { minWidth: 0, display: "flex", justifyContent: "flex-end" };
 const filterColumnSx = {
-  flexShrink: 0,
-  width: "2.25rem",
   alignSelf: "stretch",
   display: "flex",
   justifyContent: "center",
@@ -59,7 +74,7 @@ export const PropertyRow = ({
   );
 
   return (
-    <Stack direction="row" alignItems="flex-start" gap={1} sx={revealFilterActionSx}>
+    <Box sx={propertyRowSx}>
       <Box sx={labelColumnSx}>
         {/* The predicate's own ilxtr:shortDefinition, when the ontology ships one. */}
         {tooltip ? (
@@ -123,7 +138,7 @@ export const PropertyRow = ({
           </Box>
         )}
       </Box>
-    </Stack>
+    </Box>
   );
 };
 
@@ -152,19 +167,21 @@ const PropertyList = ({ rows, filterHref }) => {
   if (!visible.length) return null;
 
   return (
-    <Stack divider={<Divider />} gap={1} sx={{ "& > hr": { my: 0 } }}>
-      {visible.map((row) => (
-        <PropertyRow
-          key={row.localName}
-          label={row.label}
-          tooltip={row.tooltip}
-          prop={row.prop}
-          render={row.render}
-          required={row.required}
-          filterTo={row.filterTo}
-        />
+    <Box sx={propertyTableSx}>
+      {visible.map((row, i) => (
+        <Fragment key={row.localName}>
+          {i > 0 && <Divider />}
+          <PropertyRow
+            label={row.label}
+            tooltip={row.tooltip}
+            prop={row.prop}
+            render={row.render}
+            required={row.required}
+            filterTo={row.filterTo}
+          />
+        </Fragment>
       ))}
-    </Stack>
+    </Box>
   );
 };
 

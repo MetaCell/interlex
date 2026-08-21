@@ -92,6 +92,7 @@
         "tooltip": "Marker genes expressed by the cell type."
       },
       "ilxtr:hasBiologicalSex": { "label": "Sex" },
+      "ilx:hasSPARCMap": { "label": "SPARC Maps" },
       "ilxtr:hasMorphologicalPhenotype": { "label": "Morphology" },
       "ilxtr:literatureCitation": {
         "label": "Source",

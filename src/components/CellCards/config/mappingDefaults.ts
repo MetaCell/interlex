@@ -188,6 +188,7 @@ const PREDICATES: Record<string, PredicateConfig> = {
     tooltip: "Marker genes expressed by the cell type.",
   },
   hasBiologicalSex: { label: "Sex" },
+  hasSPARCMap: { label: "SPARC Maps" },
   hasMorphologicalPhenotype: { label: "Morphology" },
   [SOURCE_PREDICATE]: {
     label: "Source",

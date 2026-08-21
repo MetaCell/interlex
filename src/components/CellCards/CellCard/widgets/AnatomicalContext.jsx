@@ -1,8 +1,8 @@
 import PropTypes from "prop-types";
-import { Stack, Divider } from "@mui/material";
+import { Divider } from "@mui/material";
 import ImageNotSupportedOutlinedIcon from "@mui/icons-material/ImageNotSupportedOutlined";
 import CellCardWidget from "../CellCardWidget";
-import PropertyList, { PropertyRow } from "../PropertyList";
+import PropertyList from "../PropertyList";
 import EmptyState from "../../../common/EmptyState";
 import { buildRows } from "../buildRows";
 import { useMappings } from "../../config/mappingsAtom";
@@ -28,31 +28,28 @@ const AnatomicalContext = ({ cell, predicateDisplay, actions, filterGridHref }) 
   // hasSPARCMap is a deep link, so the parser routes it to `annotations` rather than treating it
   // as a phenotype. Shaped into a CellProperty here so PropertyRow renders it like any other row.
   const sparcMaps = cell.annotations?.sparcMaps || [];
-  const sparcMap = sparcMaps.length
-    ? { localName: "hasSPARCMap", family: "eqv", negated: false, values: sparcMaps }
-    : undefined;
+  const rows = buildRows(
+    mappings.regions.cellCard.anatomicalContext.rows,
+    cell,
+    predicateDisplay,
+    mappings
+  );
+  if (sparcMaps.length) {
+    // Joins the same PropertyList so it shares the table's columns, with the label resolved
+    // through the standard chain (the ontology's own displayLabel, then the mappings document's
+    // `predicates` entry) instead of wording pinned here. Only the row's *membership* is the
+    // widget's: the values live on `annotations` (external map deep links, kept out of
+    // `properties` so they can never become grid facets), so a region row could not find them.
+    const [sparcRow] = buildRows([{ localName: "hasSPARCMap" }], cell, predicateDisplay, mappings);
+    rows.push({
+      ...sparcRow,
+      prop: { localName: "hasSPARCMap", family: "eqv", negated: false, values: sparcMaps },
+    });
+  }
 
   return (
     <CellCardWidget title={TITLE} actions={actions}>
-      <PropertyList
-        rows={buildRows(
-          mappings.regions.cellCard.anatomicalContext.rows,
-          cell,
-          predicateDisplay,
-          mappings
-        )}
-        filterHref={filterGridHref}
-      />
-
-      {sparcMap ? (
-        <Stack divider={<Divider />} gap={1}>
-          <PropertyRow
-            label="SPARC Maps"
-            prop={sparcMap}
-            render="text"
-          />
-        </Stack>
-      ) : null}
+      <PropertyList rows={rows} filterHref={filterGridHref} />
 
       <Divider />
 
