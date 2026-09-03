@@ -62,7 +62,7 @@ export const PropertyRow = ({
   prop,
   render = "text",
   required = false,
-  filterTo,
+  filter,
 }) => {
   const values = prop?.values || [];
   if (!values.length && !required) return null;
@@ -93,16 +93,28 @@ export const PropertyRow = ({
           opening the term URI, so the filter action is its own control. The design marks it with
           a "Filter Grid View by" text button; we keep the grid-view icon (it pairs with the Grid
           View breadcrumb button) and take the design's placement and hover colour — see the
-          theme's MuiIconButton "&.filterGridAction". */}
+          theme's MuiIconButton "&.filterGridAction". A `uniform` filter still navigates, but its
+          tooltip warns that every cell shares the value, so it cannot narrow the results. */}
       <Box sx={filterColumnSx}>
-        {filterTo && (
-          <Tooltip title={`Filter grid view by ${label}`} placement="top">
+        {filter?.to && (
+          <Tooltip
+            title={
+              filter.uniform
+                ? `All cells in this ontology share the same ${label}, so this cannot narrow the grid view`
+                : `Filter grid view by ${label}`
+            }
+            placement="top"
+          >
             <IconButton
               size="small"
               className="filterGridAction"
               component={RouterLink}
-              to={filterTo}
-              aria-label={`Filter grid view by ${label}`}
+              to={filter.to}
+              aria-label={
+                filter.uniform
+                  ? `Filter grid view by ${label} (all cells share this value)`
+                  : `Filter grid view by ${label}`
+              }
               sx={filterActionSx}
             >
               <GridViewOutlinedIcon fontSize="small" />
@@ -148,7 +160,9 @@ PropertyRow.propTypes = {
   prop: PropTypes.object,
   render: PropTypes.oneOf(["text", "chip"]),
   required: PropTypes.bool,
-  filterTo: PropTypes.string,
+  // { to } links to the pre-filtered grid; `uniform` swaps the tooltip for a warning that the
+  // filter cannot narrow the grid (every cell shares the value).
+  filter: PropTypes.shape({ to: PropTypes.string, uniform: PropTypes.bool }),
 };
 
 /**
@@ -160,7 +174,7 @@ const PropertyList = ({ rows, filterHref }) => {
     .filter((r) => r.required || r.prop?.values?.length)
     .map((row) => ({
       ...row,
-      filterTo: row.prop?.values?.length
+      filter: row.prop?.values?.length
         ? filterHref?.(row.localName, row.prop.values)
         : undefined,
     }));
@@ -177,7 +191,7 @@ const PropertyList = ({ rows, filterHref }) => {
             prop={row.prop}
             render={row.render}
             required={row.required}
-            filterTo={row.filterTo}
+            filter={row.filter}
           />
         </Fragment>
       ))}
@@ -196,8 +210,8 @@ PropertyList.propTypes = {
       required: PropTypes.bool,
     })
   ).isRequired,
-  // (localName, values) -> pre-filtered Grid View URL, or undefined when that predicate/value
-  // is not a facet the grid offers. Absent entirely on widgets (or contexts) without the
+  // (localName, values) -> { to: pre-filtered Grid View URL, uniform?: true } | undefined
+  // (see CellCard.filterGridHref). Absent entirely on widgets (or contexts) without the
   // filter-grid affordance.
   filterHref: PropTypes.func,
 };

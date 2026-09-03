@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { Typography, Chip, Divider, Box, Alert, Link } from "@mui/material";
-import { ArrowOutwardIcon } from "../../../../Icons";
+import ArrowOutwardOutlinedIcon from "@mui/icons-material/ArrowOutwardOutlined";
 import CellCardWidget from "../CellCardWidget";
 import { useMappings } from "../../config/mappingsAtom";
 
@@ -37,7 +37,7 @@ const TranscriptomicProfile = ({ cell, actions }) => {
         // A link tile, not a status message — the design gives it no severity icon.
         <Alert severity="info" icon={false}>
           <Link href={sparcLink.iri || sparcLink.id} target="_blank" rel="noopener">
-            Explore this cell type in the SPARC Portal <ArrowOutwardIcon />
+            Explore this cell type in the SPARC Portal <ArrowOutwardOutlinedIcon />
           </Link>
         </Alert>
       ) : (

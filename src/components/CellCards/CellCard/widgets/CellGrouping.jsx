@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { Stack, Typography, Button, Box, Link, Divider } from "@mui/material";
 import PolylineOutlinedIcon from "@mui/icons-material/PolylineOutlined";
-import { ArrowOutwardIcon } from "../../../../Icons";
+import ArrowOutwardOutlinedIcon from "@mui/icons-material/ArrowOutwardOutlined";
 import CellCardWidget from "../CellCardWidget";
 import { buildNervoSensusLink } from "../nervoSensusLink";
 import { NERVOSENSUS_VIEWS } from "../../config/cellCardConfig";
@@ -64,7 +64,7 @@ const CellGrouping = ({ cell, actions }) => {
           </Box>
         </Box>
         <Box component="span" className="tileAction">
-          <ArrowOutwardIcon />
+          <ArrowOutwardOutlinedIcon />
         </Box>
       </Button>
 

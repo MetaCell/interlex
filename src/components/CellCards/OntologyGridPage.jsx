@@ -37,9 +37,9 @@ const needsAllFacets = (data, checked) => {
   if (!data) return false;
   const names = Object.keys(checked);
   if (!names.length) return false;
-  const displayed = new Set(getFacets(data, true).map((f) => f.localName));
+  const displayed = new Set(getFacets(data, true, names).map((f) => f.localName));
   if (names.every((n) => displayed.has(n))) return false;
-  const all = new Set(getFacets(data, false).map((f) => f.localName));
+  const all = new Set(getFacets(data, false, names).map((f) => f.localName));
   return names.some((n) => !displayed.has(n) && all.has(n));
 };
 
@@ -71,7 +71,13 @@ const OntologyGridPage = () => {
   }, [data, urlChecked]);
 
   const cells = useMemo(() => data?.cells || [], [data]);
-  const facets = useMemo(() => (data ? getFacets(data, displayedOnly) : []), [data, displayedOnly]);
+  // URL-named facets stay in the pane even below `minOptions`, so a deep link filtering on a
+  // uniform-value predicate arrives visibly checked instead of silently inert.
+  const urlNames = useMemo(() => Object.keys(urlChecked), [urlChecked]);
+  const facets = useMemo(
+    () => (data ? getFacets(data, displayedOnly, urlNames) : []),
+    [data, displayedOnly, urlNames]
+  );
   // Only currently-visible facets constrain results — a facet hidden by the
   // "Displayed properties" toggle must not silently filter (its checks are kept
   // but inert until it is shown again).

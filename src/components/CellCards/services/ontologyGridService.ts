@@ -402,13 +402,24 @@ const withPredicateDisplay = (
 // Facets built from the data. displayedOnly=true → only the properties shown on the tiles, which
 // the mappings define (see `displayedProperties`); the minimum option count is configured too —
 // a facet offering a single value (Cell class = only "neuron") can't narrow anything.
-export const getFacets = (data: LoadedOntology, displayedOnly: boolean): Facet[] => {
+// `alwaysInclude` rescues named facets from that cut only: a Cell Card row can deep-link a filter
+// on a uniform-value predicate (its control warns it cannot narrow), and the pane must then show
+// that facet checked rather than silently ignoring the URL. It never adds a facet no cell carries.
+export const getFacets = (
+  data: LoadedOntology,
+  displayedOnly: boolean,
+  alwaysInclude: string[] = []
+): Facet[] => {
   const { titles, tooltips } = withPredicateDisplay(data);
-  return buildFacets(
+  const facets = buildFacets(
     data.cells,
     facetNames(data.cells, displayedProperties(data.mappings), displayedOnly),
     titles,
     tooltips,
-    data.mappings.regions.filters.minOptions
+    1
+  );
+  const minOptions = data.mappings.regions.filters.minOptions;
+  return facets.filter(
+    (facet) => facet.values.length >= minOptions || alwaysInclude.includes(facet.localName)
   );
 };

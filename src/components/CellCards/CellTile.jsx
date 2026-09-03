@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import { Box, Card, CardContent, Checkbox, Typography, Chip, Divider, Link } from "@mui/material";
-import { ArrowOutwardIcon, CheckboxDefault, CheckboxSelected } from "../../Icons";
+import ArrowOutwardOutlinedIcon from "@mui/icons-material/ArrowOutwardOutlined";
+import { CheckboxDefault, CheckboxSelected } from "../../Icons";
 import { vars } from "../../theme/variables";
 import { termLink } from "./config/gridConfig";
 import { predicateLabel } from "./config/mappingDefaults";
@@ -163,7 +164,7 @@ const CellTile = ({ cell, predicateDisplay = {}, selected = false, onToggleSelec
                     <Typography variant="body2" sx={{ color: brand700, fontWeight: 500 }}>
                       {src.label}
                     </Typography>
-                    <ArrowOutwardIcon />
+                    <ArrowOutwardOutlinedIcon />
                   </Link>
                 ) : (
                   <Typography key={src.id} variant="body2" sx={{ color: gray700 }}>

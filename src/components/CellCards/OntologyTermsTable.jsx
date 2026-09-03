@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { Box, IconButton, Link, Stack, Tooltip, Typography } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import OpenInNewOutlinedIcon from "@mui/icons-material/OpenInNewOutlined";
+import ArrowOutwardOutlinedIcon from "@mui/icons-material/ArrowOutwardOutlined";
 import GridSearchBar from "./GridSearchBar";
 import { termPath } from "./config/gridConfig";
 import { curieToSlug } from "./services/ontologyGridService";
@@ -86,7 +86,7 @@ const columns = [
           tabIndex={tabIndex}
           aria-label={`Open ${row.label} in a new tab`}
         >
-          <OpenInNewOutlinedIcon fontSize="inherit" />
+          <ArrowOutwardOutlinedIcon fontSize="inherit" />
         </IconButton>
       </Tooltip>
     ),

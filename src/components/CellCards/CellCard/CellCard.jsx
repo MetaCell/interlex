@@ -43,10 +43,8 @@ const CellCard = ({ cell, data, group, termSlug, discussionHref, onNavigateToCel
   // Only for `hasDefinition`; every widget reads the same atom for itself.
   const mappings = useMappings();
 
-  // The facet options the grid actually offers, so a property row only gets its
-  // "filter grid view by" affordance when clicking it can narrow something — a predicate below
-  // `filters.minOptions` (or a value the grid never facets on) gets no icon rather than a link
-  // to an unfiltered grid.
+  // The facet options the grid actually offers, so a property row's "filter grid view by"
+  // affordance links out only when clicking it can narrow something.
   const facetOptions = useMemo(() => {
     const byFacet = new Map();
     if (data.entry)
@@ -55,13 +53,27 @@ const CellCard = ({ cell, data, group, termSlug, discussionHref, onNavigateToCel
     return byFacet;
   }, [data]);
 
+  // What the row's filter control should be: `{ to }` linking to the pre-filtered grid, with
+  // `uniform: true` added for a predicate the cells carry but whose facet the grid drops —
+  // `filters.minOptions` cut it because every cell shares the value (Circuit role, Cell class).
+  // That control still navigates (the grid re-admits a URL-named facet), but its tooltip warns
+  // the filter cannot narrow anything; a silently missing icon there would read as a bug.
+  // A row whose values are not cell *properties* (SPARC Maps lives on `annotations`) gets none.
   const filterGridHref = useCallback(
     (localName, values) => {
+      if (!data.entry) return undefined;
       const options = facetOptions.get(localName);
-      const ids = values.map((v) => v.id).filter((id) => options?.has(id));
-      return ids.length ? gridFilterPath(data.entry, localName, ids) : undefined;
+      if (options) {
+        const ids = values.map((v) => v.id).filter((id) => options.has(id));
+        return ids.length ? { to: gridFilterPath(data.entry, localName, ids) } : undefined;
+      }
+      if (!cell.properties[localName]?.values?.length) return undefined;
+      return {
+        to: gridFilterPath(data.entry, localName, values.map((v) => v.id)),
+        uniform: true,
+      };
     },
-    [facetOptions, data]
+    [facetOptions, data, cell]
   );
 
   // One comment affordance per widget, prefilled with that widget's name (design 9272:85572).
