@@ -11,21 +11,28 @@ import { Stack, Typography, Box } from "@mui/material";
  * frames. This follows the existing OntologyHierarchyPanel pattern (Stack + sectionTitle), so
  * please don't "fix" it into a Card.
  */
-const CellCardWidget = ({ title, count, actions, children, id }) => (
+const CellCardWidget = ({ title, description, count, actions, children, id }) => (
   <Stack id={id} gap={2} sx={{ minWidth: 0 }}>
-    <Stack direction="row" alignItems="center" gap={1} sx={{ minHeight: "1.75rem" }}>
-      <Typography variant="sectionTitle">{title}</Typography>
-      {count != null && (
+    <Stack gap={0.5}>
+      <Stack direction="row" alignItems="center" gap={1} sx={{ minHeight: "1.75rem" }}>
+        <Typography variant="sectionTitle">{title}</Typography>
+        {count != null && (
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            {count}
+          </Typography>
+        )}
+        {/* Actions sit hard right; `mr: -1` pulls the icon button's hit area back so the glyph
+            lines up with the column edge rather than the padding. */}
+        {actions && (
+          <Box sx={{ ml: "auto", mr: -1, display: "flex", alignItems: "center", gap: 0.5 }}>
+            {actions}
+          </Box>
+        )}
+      </Stack>
+      {description && (
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          {count}
+          {description}
         </Typography>
-      )}
-      {/* Actions sit hard right; `mr: -1` pulls the icon button's hit area back so the glyph
-          lines up with the column edge rather than the padding. */}
-      {actions && (
-        <Box sx={{ ml: "auto", mr: -1, display: "flex", alignItems: "center", gap: 0.5 }}>
-          {actions}
-        </Box>
       )}
     </Stack>
     {children}
@@ -34,6 +41,8 @@ const CellCardWidget = ({ title, count, actions, children, id }) => (
 
 CellCardWidget.propTypes = {
   title: PropTypes.string.isRequired,
+  // Helper text under the title, e.g. Cross-Nomenclature's "Provisional mapping…" subheader.
+  description: PropTypes.string,
   // Secondary count beside the title, e.g. "21 cells" on Other cells from this source.
   count: PropTypes.string,
   actions: PropTypes.node,

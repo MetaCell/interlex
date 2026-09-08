@@ -53,14 +53,5 @@ export const NERVOSENSUS_AXON: Record<string, string> = {
 
 // --- badges ------------------------------------------------------------------
 
-// Cross-nomenclature evidence badge tones. The design uses Success / Warning / Purple; the
-// theme has no purple, so "proposed" falls back to an outlined chip rather than inlining a hex
-// at the call site. Raised with design rather than invented here.
-export const EVIDENCE_TONE: Record<string, "success" | "warning" | "outlined"> = {
-  described: "success",
-  inferred: "warning",
-  proposed: "outlined",
-};
-
 // Shown in place of a value when the predicate is absent (design: gray, italic).
 export const NOT_SPECIFIED = "not specified";

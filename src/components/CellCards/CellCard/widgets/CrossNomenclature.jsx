@@ -6,7 +6,6 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Chip,
   Typography,
   Divider,
   Stack,
@@ -14,55 +13,57 @@ import {
 } from "@mui/material";
 import CellCardWidget from "../CellCardWidget";
 import TermValueLink from "../TermValueLink";
-import { EVIDENCE_TONE, FLAGGED_FOOTNOTE } from "../../config/cellCardConfig";
+import { FLAGGED_FOOTNOTE } from "../../config/cellCardConfig";
+import { useMappings } from "../../config/mappingsAtom";
 
 export const TITLE = "Cross-Nomenclature Mapping";
+export const DESCRIPTION =
+  "Provisional mapping of possible relationships between cell types across publications.";
 
-// Evidence badge. "proposed" has no palette colour (the design uses Purple, which the theme does
-// not define), so it falls back to an outlined chip rather than inlining a hex here — the gap is
-// raised with design instead.
-const EvidenceChip = ({ evidence }) => {
-  const tone = EVIDENCE_TONE[evidence];
-  return tone === "outlined" ? (
-    <Chip label={evidence} variant="outlined" />
-  ) : (
-    <Chip label={evidence} color={tone} />
-  );
-};
-
-EvidenceChip.propTypes = { evidence: PropTypes.string.isRequired };
-
-// Column proportions are the design's (280 / 176 / 196 / 196 of 848) as percentages, so the table
-// keeps its shape as the card's middle column resizes. A long cell name then wraps to the two
-// 1.25rem lines the 4.5rem row already has room for, rather than pushing the other three columns
-// against the right edge.
+// Column proportions of 848 (33/33/34), so the table keeps its shape as the card's middle column
+// resizes. A long cell name then wraps rather than pushing the other columns against the edge.
 const COLUMNS = [
-  { label: "Cell name", width: "33%" },
-  { label: "Evidence", width: "21%" },
-  { label: "Source", width: "23%" },
-  { label: "Reference", width: "23%" },
+  { label: "Relationship", width: "33%" },
+  { label: "Cell Name", width: "33%" },
+  { label: "Source", width: "34%" },
 ];
+
+// The Cross-Nomenclature table's relationship label per predicate, read from the mappings
+// document rather than hardcoded here (issue #189: "displayLabel for predicates TEMP:mapsTo,
+// TEMP:assertedSubClassOf"). `TEMP:subClassOf` also lands on `cell.mappings` (it is claimed by
+// `fields.crossNomenclature`) but is deliberately not one of the graph's `crossNomenclature`
+// relations — see buildRelationGraph.js — so its label comes from `subClassOfLabel` instead. A
+// predicate outside both falls back to its local name rather than a wrong borrowed label.
+const relationshipLabel = (predicates, config) => {
+  const known = new Map(config.crossNomenclature.map((r) => [r.predicate, r.label]));
+  known.set("TEMP:subClassOf", config.subClassOfLabel);
+  return predicates.map((p) => known.get(p) || p.split(":").pop()).join(", ");
+};
 
 /**
  * §4.4 Cross-Nomenclature Mapping (Figma 9239:67833): how this cell type is named in other
  * nomenclatures.
  *
- * Evidence is derived from the *relation*, not from a dedicated predicate — there isn't one:
- * `TEMP:assertedSubClassOf` means the source explicitly describes this cell type ("described"),
- * `TEMP:mapsTo` means a computational mapping ("inferred"). The parser does that derivation, so
- * this component just renders it.
+ * Per issue #189, the table states the relationship explicitly rather than through an "Evidence"
+ * badge derived from it — the badge only ever read "described"/"inferred", which didn't say what
+ * relation it came from. The Source column still shows the label's trailing parenthetical
+ * (`m.source`, e.g. "Qi2024") rather than a fetched DOI citation: `m.ref` is a bare reference to
+ * the other nomenclature's term, with no citation IRI to resolve, and #187 hasn't yet settled how
+ * author/year should be formatted here.
  */
 const CrossNomenclature = ({ cell, actions }) => {
+  const mappingsConfig = useMappings();
+  const config = mappingsConfig.regions.cellCard.relationshipGraph;
   const mappings = cell.mappings || [];
   if (!mappings.length) return null;
 
   const hasFlagged = mappings.some((m) => m.evidence === "proposed");
 
   return (
-    <CellCardWidget title={TITLE} actions={actions}>
+    <CellCardWidget title={TITLE} description={DESCRIPTION} actions={actions}>
       {/* The design's table sits on its own outlined surface, which is what `component={Paper}`
           + `variant="outlined"` resolves to in the theme. TableContainer also brings the
-          horizontal scroll the four columns need once the card's middle column narrows. */}
+          horizontal scroll the columns need once the card's middle column narrows. */}
       <TableContainer component={Paper} variant="outlined">
         <Table size="small">
           <TableHead>
@@ -76,21 +77,18 @@ const CrossNomenclature = ({ cell, actions }) => {
           </TableHead>
           <TableBody>
             {mappings.map((m) => (
-              <TableRow key={`${m.ref.id}-${m.evidence}`}>
+              <TableRow key={m.ref.id}>
+                <TableCell>
+                  <Typography variant="body2">{relationshipLabel(m.predicates, config)}</Typography>
+                </TableCell>
                 <TableCell>
                   <TermValueLink value={m.ref} />
                   {m.evidence === "proposed" && "*"}
                 </TableCell>
-                <TableCell>
-                  <EvidenceChip evidence={m.evidence} />
-                </TableCell>
-                {/* Source and reference are Text sm/Regular; their Gray/600 comes from the
-                    theme's small-table cell, so `variant` is all these carry. */}
+                {/* Text sm/Regular, Gray/600, comes from the theme's small-table cell, so
+                    `variant` is all this carries. */}
                 <TableCell>
                   <Typography variant="body2">{m.source || "—"}</Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2">{m.ref.curie}</Typography>
                 </TableCell>
               </TableRow>
             ))}
