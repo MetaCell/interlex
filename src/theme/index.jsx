@@ -960,6 +960,24 @@ const theme = createTheme({
 				}
 			},
 		},
+		MuiButtonBase: {
+			styleOverrides: {
+				root: {
+					// A Relationship Graph legend row doubles as a filter — clicking it drops that relation
+					// kind from the graph — so it needs a button's hover and focus affordances.
+					"&.legendToggle": {
+						borderRadius: "0.375rem",
+						padding: "0.125rem 0.25rem",
+						"&:hover": {
+							background: gray25,
+						},
+						"&:focus-visible": {
+							boxShadow: `0 0 0 0.25rem ${alpha(brand500, 0.24)}`,
+						},
+					},
+				},
+			},
+		},
 		MuiAccordion: {
 			styleOverrides: {
 				root: {

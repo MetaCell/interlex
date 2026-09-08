@@ -8,6 +8,7 @@ import { dirname, join } from "node:path";
 import { parseNeurdf, parsePredicateDisplay } from "../neurdfParser";
 import { hasTranscriptomicProfile } from "../../components/CellCards/CellCard/widgetVisibility";
 import { buildNervoSensusLink, atlasCellKey } from "../../components/CellCards/CellCard/nervoSensusLink";
+import { buildRelationGraph } from "../../components/CellCards/CellCard/buildRelationGraph";
 import { resolveMappings } from "../../components/CellCards/config/mappingsService";
 import { DEFAULT_MAPPINGS } from "../../components/CellCards/config/mappingDefaults";
 
@@ -91,6 +92,41 @@ check(
   "provenance is split out of the label",
   c1007.mappings.every((m) => !m.source || !m.source.includes("(")),
   true
+);
+// The table folds relations into evidence, but the graph draws each relation as its own edge, so
+// every mapping must remember which key carried it.
+check(
+  "each mapping records the relation that carried it",
+  c1007.mappings.map((m) => [m.ref.id, m.predicates]).sort(),
+  [
+    ["npokb:1014", ["TEMP:assertedSubClassOf"]],
+    ["npokb:1037", ["TEMP:mapsTo"]],
+    ["npokb:1074", ["TEMP:assertedSubClassOf"]],
+    ["npokb:970", ["TEMP:mapsTo"]],
+  ]
+);
+
+// --- relationship graph --------------------------------------------------------
+// Edges run subject -> object: subclass-of leaves the cell and climbs into its superclass, and each
+// cross-nomenclature relation is its own edge kind instead of everything collapsing into "asserted
+// subclass of". The parent here is synthetic; buildRelationGraph only needs a CellTerm shape.
+console.log("\nrelationship graph (npokb:1007)");
+const graph = buildRelationGraph(c1007, { parents: [byId["npokb:1067"]] }, DEFAULT_MAPPINGS);
+const edgesOf = (kind) => graph.edges.filter((e) => e.kind === kind);
+check(
+  "subclass-of leaves the cell for its parent, pointing up",
+  edgesOf("subClassOf").map((e) => [e.from, e.to, e.direction]),
+  [["npokb:1007", "npokb:1067", "up"]]
+);
+check(
+  "asserted subclass of draws only TEMP:assertedSubClassOf objects, ranked with the parents",
+  edgesOf("assertedSubClassOf").map((e) => [e.to, e.direction]).sort(),
+  [["npokb:1014", "up"], ["npokb:1074", "up"]]
+);
+check(
+  "TEMP:mapsTo draws as its own edge kind, ranked with the children",
+  edgesOf("mapsTo").map((e) => [e.to, e.direction]).sort(),
+  [["npokb:1037", "down"], ["npokb:970", "down"]]
 );
 
 // --- display metadata read from the ontology ---------------------------------

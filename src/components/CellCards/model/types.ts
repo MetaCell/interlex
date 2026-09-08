@@ -64,6 +64,9 @@ export type MappingEvidence = "described" | "inferred" | "proposed";
 export interface CellMapping {
   ref: ResolvedRef; // the mapped cell (npokb record)
   evidence: MappingEvidence;
+  // The relation keys that carried the mapping, as written in the graph (e.g. "TEMP:mapsTo").
+  // The table folds them into `evidence`; the relationship graph draws each one as its own edge.
+  predicates: string[];
   source?: string; // parenthetical provenance carried in the mapped term's label, e.g. "Bhuiyan2024"
 }
 
@@ -186,6 +189,7 @@ export interface PropertyRowModel {
 export type RelationEdgeKind =
   | "subClassOf"
   | "assertedSubClassOf"
+  | "mapsTo"
   | "somaLocation"
   | "expresses";
 
@@ -203,10 +207,10 @@ export interface RelationEdge {
   to: string;
   kind: RelationEdgeKind;
   label: string;
-  // Which side of the current node the target sits on, copied from the RelationPredicate that
-  // produced the edge. Optional because the structural edges (subClassOf, assertedSubClassOf)
-  // leave it unset and take dagre's ranks; RelationshipGraphSvg pins the "left"/"right" ones
-  // itself, so dropping this field silently collapses every satellite onto a default rank.
+  // Which side of the current node the target sits on. "up" puts `to` on the rank above `from`
+  // (a subclass-of edge points at the superclass, so the arrow climbs), "down" on the rank below;
+  // RelationshipGraphSvg pins the "left"/"right" satellites itself, so dropping this field
+  // silently collapses every satellite onto a default rank. Unset behaves as "down".
   direction?: "up" | "down" | "left" | "right";
 }
 

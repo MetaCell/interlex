@@ -17,6 +17,7 @@
 // re-point the title at another annotation says just that.
 
 import type {
+  CrossNomenclatureEdge,
   FieldSource,
   MappingChip,
   MappingRelation,
@@ -170,6 +171,7 @@ const predicateOf = (entry: unknown): string | undefined => {
 const TONES: MappingChip["tone"][] = ["class", "subtype", "species"];
 const RENDERS: NonNullable<MappingRow["render"]>[] = ["text", "chip"];
 const DIRECTIONS: MappingRelation["direction"][] = ["up", "down", "left", "right"];
+const VERTICAL: CrossNomenclatureEdge["direction"][] = ["up", "down"];
 
 // Every list reader below shares one rule: an explicit empty list is a real answer ("nothing
 // here"), but a non-empty list where every entry failed to parse is a mistake — falling back to
@@ -232,6 +234,40 @@ const readRelations = (raw: unknown, label: string): MappingRelation[] | undefin
     return [{ localName, kind: kind as RelationEdgeKind, label: relationLabel, direction }];
   });
   return droppedEntirely(label, list, relations) ? undefined : relations;
+};
+
+// Unlike every other region entry, `predicate` is kept verbatim rather than reduced to a local
+// name: it is matched against the relation keys the parser recorded on each mapping, which are the
+// graph's own keys — the same rule as the `fields.crossNomenclature` sources that claim them.
+const readCrossNomenclatureEdges = (
+  raw: unknown,
+  label: string
+): CrossNomenclatureEdge[] | undefined => {
+  const list = asList(raw);
+  if (!list) return undefined;
+  const edges = list.flatMap((entry) => {
+    const object = asRecord(entry) || {};
+    const predicate = asText(object.predicate);
+    const kind = asText(object.kind);
+    const edgeLabel = asText(object.label);
+    if (!predicate || !kind || !edgeLabel) return [];
+    if (!isRelationEdgeKind(kind)) {
+      warn(`ignoring cross-nomenclature edge "${predicate}": unknown edge kind "${kind}"`);
+      return [];
+    }
+    // An unrecognised direction keeps the edge and fans it out below, where the design put every
+    // cross-nomenclature record: the predicate is the mapping, the side is layout.
+    const direction = asText(object.direction) as CrossNomenclatureEdge["direction"] | undefined;
+    return [
+      {
+        predicate,
+        kind: kind as RelationEdgeKind,
+        label: edgeLabel,
+        direction: direction && VERTICAL.includes(direction) ? direction : "down",
+      },
+    ];
+  });
+  return droppedEntirely(label, list, edges) ? undefined : edges;
 };
 
 const readLegend = (
@@ -354,14 +390,16 @@ const applyRegions = (
         predicates:
           readRelations(graph?.predicates, "cellCard.relationshipGraph.predicates") ||
           base.cellCard.relationshipGraph.predicates,
+        crossNomenclature:
+          readCrossNomenclatureEdges(
+            graph?.crossNomenclature,
+            "cellCard.relationshipGraph.crossNomenclature"
+          ) || base.cellCard.relationshipGraph.crossNomenclature,
         legend:
           readLegend(graph?.legend, "cellCard.relationshipGraph.legend") ||
           base.cellCard.relationshipGraph.legend,
         subClassOfLabel:
           asText(graph?.subClassOfLabel) || base.cellCard.relationshipGraph.subClassOfLabel,
-        assertedSubClassOfLabel:
-          asText(graph?.assertedSubClassOfLabel) ||
-          base.cellCard.relationshipGraph.assertedSubClassOfLabel,
       },
       transcriptomicProfile: {
         markerGenePredicate:

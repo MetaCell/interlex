@@ -7,6 +7,7 @@ import {
   Typography,
   IconButton,
   Tooltip,
+  ButtonBase,
   Accordion,
   AccordionSummary,
   AccordionDetails,
@@ -14,10 +15,12 @@ import {
   DialogTitle,
   DialogContent,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import OpenInFullOutlinedIcon from "@mui/icons-material/OpenInFullOutlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CellCardWidget from "../CellCardWidget";
 import RelationshipGraphSvg from "../RelationshipGraphSvg";
+import { ARROW_HEADS, arrowHeadProps, edgeStyle } from "../relationEdgeStyle";
 import EmptyState from "../../../common/EmptyState";
 import { CloseIcon } from "../../../../Icons";
 import buildRelationGraph from "../buildRelationGraph";
@@ -26,49 +29,62 @@ import { useMappings } from "../../config/mappingsAtom";
 
 export const TITLE = "Relationship Graph";
 
-// The legend's line samples, drawn with the same dash patterns as the edges themselves.
-const LEGEND_DASH = {
-  subClassOf: "2 4",
-  somaLocation: "6 4",
-  assertedSubClassOf: undefined,
-  expresses: undefined,
+// The legend's line samples, drawn from the same style table and arrowheads as the edges.
+const SWATCH_W = 32;
+const SWATCH_H = 12;
+const LegendSwatch = ({ kind, hidden }) => {
+  const { palette } = useTheme();
+  const { stroke: kindStroke, dash, head, bidirectional } = edgeStyle(kind, palette);
+  const stroke = hidden ? palette.action.disabled : kindStroke;
+  const { d, length } = ARROW_HEADS[head];
+  const headProps = arrowHeadProps(head, stroke, palette);
+  const mid = SWATCH_H / 2;
+  return (
+    <Box component="svg" width={SWATCH_W} height={SWATCH_H} sx={{ flexShrink: 0 }}>
+      <line
+        x1={bidirectional ? length : 0}
+        y1={mid}
+        x2={SWATCH_W - length}
+        y2={mid}
+        stroke={stroke}
+        strokeWidth={1.5}
+        strokeDasharray={dash}
+      />
+      <path d={d} transform={`translate(${SWATCH_W} ${mid})`} {...headProps} />
+      {bidirectional && <path d={d} transform={`translate(0 ${mid}) rotate(180)`} {...headProps} />}
+    </Box>
+  );
 };
 
-const LegendSwatch = ({ kind }) => (
-  <Box
-    component="svg"
-    width={20}
-    height={8}
-    sx={{ flexShrink: 0, color: kind === "expresses" ? "primary.main" : "grey.400" }}
-  >
-    <line
-      x1="0"
-      y1="4"
-      x2="20"
-      y2="4"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      strokeDasharray={LEGEND_DASH[kind]}
-    />
-  </Box>
-);
-
-LegendSwatch.propTypes = { kind: PropTypes.string.isRequired };
+LegendSwatch.propTypes = { kind: PropTypes.string.isRequired, hidden: PropTypes.bool };
 
 // `hasFlagged` gates the footnote: nothing in the shipped graph produces "proposed" evidence, so
 // an unconditional footnote explains a marker no node can carry. Same rule as CrossNomenclature,
 // which describes the same asterisk.
-const Legend = ({ rows, hasFlagged }) => (
+const Legend = ({ rows, hasFlagged, hiddenKinds, onToggleKind }) => (
   <Stack gap={0.5}>
     <Stack direction="row" flexWrap="wrap" gap={2}>
-      {rows.map(({ kind, label }) => (
-        <Stack key={kind} direction="row" alignItems="center" gap={0.75}>
-          <LegendSwatch kind={kind} />
-          <Typography variant="caption" sx={{ color: "text.secondary" }}>
-            {label}
-          </Typography>
-        </Stack>
-      ))}
+      {rows.map(({ kind, label }) => {
+        const hidden = hiddenKinds.has(kind);
+        return (
+          <Tooltip key={kind} title={hidden ? "Show in graph" : "Hide from graph"}>
+            <ButtonBase
+              className="legendToggle"
+              onClick={() => onToggleKind(kind)}
+              aria-pressed={!hidden}
+              sx={{ display: "flex", alignItems: "center", gap: 0.75 }}
+            >
+              <LegendSwatch kind={kind} hidden={hidden} />
+              <Typography
+                variant="caption"
+                sx={{ color: hidden ? "text.disabled" : "text.secondary" }}
+              >
+                {label}
+              </Typography>
+            </ButtonBase>
+          </Tooltip>
+        );
+      })}
     </Stack>
     {hasFlagged && (
       <Typography variant="caption" sx={{ color: "text.disabled" }}>
@@ -78,7 +94,12 @@ const Legend = ({ rows, hasFlagged }) => (
   </Stack>
 );
 
-Legend.propTypes = { rows: PropTypes.array.isRequired, hasFlagged: PropTypes.bool };
+Legend.propTypes = {
+  rows: PropTypes.array.isRequired,
+  hasFlagged: PropTypes.bool,
+  hiddenKinds: PropTypes.instanceOf(Set).isRequired,
+  onToggleKind: PropTypes.func.isRequired,
+};
 
 /**
  * §4.1 Relationship Graph (Figma 9478:72004 inline, 8917:35906 expanded).
@@ -91,15 +112,33 @@ Legend.propTypes = { rows: PropTypes.array.isRequired, hasFlagged: PropTypes.boo
 const RelationshipGraph = ({ cell, neighbours, onNavigate, actions }) => {
   const mappings = useMappings();
   const [expanded, setExpanded] = useState(false);
+  const [hiddenKinds, setHiddenKinds] = useState(() => new Set());
   const graph = useMemo(
     () => buildRelationGraph(cell, neighbours, mappings),
     [cell, neighbours, mappings]
   );
   const legend = mappings.regions.cellCard.relationshipGraph.legend;
 
-  // One node is always the cell itself; fewer than two means there is nothing to relate.
+  // Excluding a relation kind thins out a crowded graph. The edges are passed through by identity,
+  // never copied: the layout keys its geometry on the edge objects themselves.
+  const shownGraph = useMemo(() => {
+    if (!hiddenKinds.size) return graph;
+    const edges = graph.edges.filter((e) => !hiddenKinds.has(e.kind));
+    const related = new Set(edges.flatMap((e) => [e.from, e.to]));
+    return { nodes: graph.nodes.filter((n) => n.isCurrent || related.has(n.id)), edges };
+  }, [graph, hiddenKinds]);
+
+  const toggleKind = (kind) =>
+    setHiddenKinds((current) => {
+      const next = new Set(current);
+      if (!next.delete(kind)) next.add(kind);
+      return next;
+    });
+
+  // One node is always the cell itself; fewer than two means there is nothing to relate. Measured
+  // on the unfiltered graph, so hiding every kind leaves the frame — and its legend — in place.
   const hasRelations = graph.nodes.length > 1;
-  const hasFlagged = graph.nodes.some((n) => n.flagged);
+  const hasFlagged = shownGraph.nodes.some((n) => n.flagged);
 
   const handleSelect = (node) => {
     if (node.ref && onNavigate) {
@@ -126,7 +165,7 @@ const RelationshipGraph = ({ cell, neighbours, onNavigate, actions }) => {
         // (`.graphFrame`) rather than from a call-site `sx`.
         <Paper variant="outlined" className="graphFrame">
           <Box sx={{ p: 2 }}>
-            <RelationshipGraphSvg graph={graph} onSelect={handleSelect} />
+            <RelationshipGraphSvg graph={shownGraph} onSelect={handleSelect} />
           </Box>
           {/* The design puts the legend in a collapsed bar at the bottom of the graph frame. */}
           <Accordion disableGutters elevation={0} square>
@@ -134,7 +173,12 @@ const RelationshipGraph = ({ cell, neighbours, onNavigate, actions }) => {
               <Typography variant="body2">Legend</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <Legend rows={legend} hasFlagged={hasFlagged} />
+              <Legend
+                rows={legend}
+                hasFlagged={hasFlagged}
+                hiddenKinds={hiddenKinds}
+                onToggleKind={toggleKind}
+              />
             </AccordionDetails>
           </Accordion>
         </Paper>
@@ -152,9 +196,14 @@ const RelationshipGraph = ({ cell, neighbours, onNavigate, actions }) => {
         <DialogContent sx={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
           <Stack gap={2} sx={{ flex: 1, minHeight: 0 }}>
             <Box sx={{ flex: 1, minHeight: 0 }}>
-              <RelationshipGraphSvg graph={graph} onSelect={handleSelect} height="100%" />
+              <RelationshipGraphSvg graph={shownGraph} onSelect={handleSelect} height="100%" />
             </Box>
-            <Legend rows={legend} hasFlagged={hasFlagged} />
+            <Legend
+              rows={legend}
+              hasFlagged={hasFlagged}
+              hiddenKinds={hiddenKinds}
+              onToggleKind={toggleKind}
+            />
           </Stack>
         </DialogContent>
       </Dialog>

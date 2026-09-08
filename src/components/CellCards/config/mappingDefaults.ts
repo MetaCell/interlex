@@ -267,15 +267,27 @@ export const DEFAULT_MAPPINGS: OntologyMappings = {
             direction: "right",
           },
         ],
-        // In the order the expanded dialog shows them (Figma 8917:35906).
+        // TEMP:subClassOf also lands on `mappings` (as "described") but is not drawn: the curators
+        // asked for the asserted-subclass edge to show that predicate's objects only.
+        crossNomenclature: [
+          {
+            predicate: "TEMP:assertedSubClassOf",
+            kind: "assertedSubClassOf",
+            label: "asserted subclass of",
+            direction: "up",
+          },
+          { predicate: "TEMP:mapsTo", kind: "mapsTo", label: "consistent with", direction: "down" },
+        ],
+        // In the order the expanded dialog shows them (Figma 8917:35906), "consistent with" added
+        // beside the asserted-subclass entry it was split from.
         legend: [
           { kind: "subClassOf", label: "Sub class of" },
           { kind: "somaLocation", label: "Soma location" },
           { kind: "assertedSubClassOf", label: "Asserted Subclass of" },
+          { kind: "mapsTo", label: "Consistent with" },
           { kind: "expresses", label: "expresses" },
         ],
         subClassOfLabel: "subclass of",
-        assertedSubClassOfLabel: "asserted subclass of",
       },
       transcriptomicProfile: {
         markerGenePredicate: "hasNucleicAcidExpressionPhenotype",

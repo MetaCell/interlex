@@ -469,16 +469,19 @@ const buildCell = (node: GraphNode, ctx: ParseContext): CellTerm => {
           break;
         case "mapping":
           for (const ref of resolveValue(raw, ctx)) {
-            // A cell can be related to the same record by more than one relation; the stronger
-            // claim (an explicit description) wins over an inferred mapping.
+            // A cell can be related to the same record by more than one relation; the table keeps
+            // one row where the stronger claim (an explicit description) wins over an inferred
+            // mapping, while every relation is kept for the graph to draw.
             const prev = mappings.find((m) => m.ref.id === ref.id);
             if (prev) {
               if (target.evidence === "described") prev.evidence = target.evidence;
+              if (!prev.predicates.includes(key)) prev.predicates.push(key);
               continue;
             }
             mappings.push({
               ref,
               evidence: target.evidence,
+              predicates: [key],
               source: trailingParenthetical(ref.label),
             });
           }

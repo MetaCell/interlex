@@ -29,9 +29,19 @@ const refNode = (ref) => ({
 /**
  * Build the relationship-graph model for one cell (§4.1, Figma 9478:72004).
  *
- * Shape, per the design: the subClassOf parent above, the current cell in the middle, its
- * asserted-subclass mappings fanned out below, and two lateral satellites — soma location to the
- * left and gene expression to the right.
+ * Shape: the current cell in the middle; above it, on one rank, its subClassOf parents and the
+ * cross-nomenclature types it is asserted a subclass of; below it, its subClassOf children and the
+ * records it is consistent with; and two lateral satellites — soma location to the left and gene
+ * expression to the right. Which rank a cross-nomenclature relation takes is its configured
+ * `direction`.
+ *
+ * Every edge runs subject -> object, so its arrow reads the way the relation does: a subclass-of
+ * edge climbs from the subclass to its superclass, and `direction` tells the layout which rank the
+ * object takes. (The mockup pointed subclass-of down into the cell and fanned every mapping out
+ * below; the curators asked for both to change.)
+ *
+ * Edges are pushed hierarchy first: the layout fans a side's relation kinds out left to right in
+ * order of first appearance, so the hierarchy sits left above and below.
  *
  * Which phenotype predicates may appear is the mappings document's `relationshipGraph` region, not
  * a hardcoded list here: Fahim asked for this explicitly, because drawing every phenotype would
@@ -54,47 +64,53 @@ export const buildRelationGraph = (cell, neighbours = {}, mappings = DEFAULT_MAP
     return true;
   };
 
-  // Parents above (dotted "subclass of"). The edge runs parent -> cell so the layout puts the
-  // parent on the rank *above* and the arrow points down into the current node, as designed.
+  // Parents above (dotted "subclass of"): the cell is the subclass, so the arrow climbs into them.
   for (const parent of neighbours.parents || []) {
     if (add(cellNode(parent, false))) {
       edges.push({
-        from: parent.id,
-        to: cell.id,
+        from: cell.id,
+        to: parent.id,
         kind: "subClassOf",
         label: config.subClassOfLabel,
+        direction: "up",
       });
     }
   }
 
-  // Cross-nomenclature mappings below ("asserted subclass of"). These are the sibling records in
-  // other nomenclatures, which is what the design fans out under the current node.
+  // Direct subClassOf children, on the rank below: each child is the subclass, so its arrow climbs
+  // into the current node.
+  for (const child of neighbours.children || []) {
+    if (add(cellNode(child, false))) {
+      edges.push({
+        from: child.id,
+        to: cell.id,
+        kind: "subClassOf",
+        label: config.subClassOfLabel,
+        direction: "up",
+      });
+    }
+  }
+
+  // Cross-nomenclature relations, one edge kind per configured predicate, to the sibling records
+  // in other nomenclatures. A record reached by two relations is one node with two edges: they are
+  // different claims.
   //
   // `flagged` draws the dashed border and the asterisk, and it means what the legend's footnote
   // says: proposed evidence only. The parser derives evidence from the relation, which yields only
   // "described" and "inferred" in the shipped graph, so no node is flagged today — the marker
   // waits on a curator "don't add" flag. The legend footnote is shown only when one appears.
-  for (const mapping of cell.mappings || []) {
-    const node = refNode(mapping.ref);
-    node.flagged = mapping.evidence === "proposed";
-    if (add(node)) {
+  for (const relation of config.crossNomenclature) {
+    for (const mapping of cell.mappings || []) {
+      if (!mapping.predicates.includes(relation.predicate)) continue;
+      const node = refNode(mapping.ref);
+      node.flagged = mapping.evidence === "proposed";
+      add(node);
       edges.push({
         from: cell.id,
         to: mapping.ref.id,
-        kind: "assertedSubClassOf",
-        label: config.assertedSubClassOfLabel,
-      });
-    }
-  }
-
-  // Direct subClassOf children, on the rank below (cell -> child, arrow pointing down at them).
-  for (const child of neighbours.children || []) {
-    if (add(cellNode(child, false))) {
-      edges.push({
-        from: cell.id,
-        to: child.id,
-        kind: "subClassOf",
-        label: config.subClassOfLabel,
+        kind: relation.kind,
+        label: relation.label,
+        direction: relation.direction,
       });
     }
   }

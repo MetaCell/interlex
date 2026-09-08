@@ -162,7 +162,7 @@
         },
 
         "relationshipGraph": {
-          "$comment": "§2.4. Only the predicates listed here are drawn — every phenotype would make the graph unreadable. `kind` selects the stroke and must be one of subClassOf | assertedSubClassOf | somaLocation | expresses; `direction` places the target relative to the current node. The two structural edges come from the hierarchy and the mapping table, so they carry a label rather than a predicate.",
+          "$comment": "§2.4. Only the predicates listed here are drawn — every phenotype would make the graph unreadable. `predicates` are the lateral phenotype satellites: `kind` selects the stroke and must be one of subClassOf | assertedSubClassOf | mapsTo | somaLocation | expresses; `direction` places the target relative to the current node. `crossNomenclature` picks which of the `fields.crossNomenclature` relations the graph draws, each as its own edge and caption, matched on the relation key exactly as written in the graph — one claimed there but not listed here stays in the Cross-Nomenclature table and off the graph (TEMP:subClassOf today). Its `direction` is `up` to rank the targets with the parents (a subclass claim) or `down` to rank them with the children. The subclass-of edges come from the hierarchy, so they carry only a label.",
           "predicates": [
             {
               "predicate": "ilxtr:hasSomaLocatedIn",
@@ -177,14 +177,28 @@
               "direction": "right"
             }
           ],
+          "crossNomenclature": [
+            {
+              "predicate": "TEMP:assertedSubClassOf",
+              "kind": "assertedSubClassOf",
+              "label": "asserted subclass of",
+              "direction": "up"
+            },
+            {
+              "predicate": "TEMP:mapsTo",
+              "kind": "mapsTo",
+              "label": "consistent with",
+              "direction": "down"
+            }
+          ],
           "legend": [
             { "kind": "subClassOf", "label": "Sub class of" },
             { "kind": "somaLocation", "label": "Soma location" },
             { "kind": "assertedSubClassOf", "label": "Asserted Subclass of" },
+            { "kind": "mapsTo", "label": "Consistent with" },
             { "kind": "expresses", "label": "expresses" }
           ],
-          "subClassOfLabel": "subclass of",
-          "assertedSubClassOfLabel": "asserted subclass of"
+          "subClassOfLabel": "subclass of"
         },
 
         "transcriptomicProfile": {

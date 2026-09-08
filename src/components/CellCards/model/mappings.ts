@@ -145,9 +145,23 @@ export interface MappingRelation {
 export const RELATION_EDGE_KINDS: RelationEdgeKind[] = [
   "subClassOf",
   "assertedSubClassOf",
+  "mapsTo",
   "somaLocation",
   "expresses",
 ];
+
+// A cross-nomenclature relation the graph fans out below the current cell, and as which edge.
+// `predicate` is the relation key as written in the graph ("TEMP:mapsTo"), matched verbatim like
+// the `fields.crossNomenclature` sources that land it on `CellTerm.mappings` in the first place: a
+// predicate listed here but claimed by neither evidence class never reaches the graph.
+export interface CrossNomenclatureEdge {
+  predicate: string;
+  kind: RelationEdgeKind;
+  label: string; // the caption drawn on the connector
+  // "up" ranks the targets with the parents (a subclass claim points at superclasses), "down" with
+  // the children.
+  direction: "up" | "down";
+}
 
 export interface TileRegion {
   headerChips: MappingChip[];
@@ -180,9 +194,11 @@ export interface DefinitionRegion {
 
 export interface RelationshipGraphRegion {
   predicates: MappingRelation[];
+  crossNomenclature: CrossNomenclatureEdge[];
   legend: { kind: RelationEdgeKind; label: string }[];
+  // The subclass-of edges come from the hierarchy rather than a predicate, so they carry only a
+  // caption.
   subClassOfLabel: string;
-  assertedSubClassOfLabel: string;
 }
 
 export interface CellCardRegion {
