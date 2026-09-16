@@ -13,6 +13,7 @@ import theme from "./theme";
 import PropTypes from "prop-types";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import ApiErrorDialog from "./components/common/ApiErrorDialog";
 import Login from "./components/Auth/Login";
 import HomePage from "./components/HomePage";
 import Dashboard from "./components/Dashboard";
@@ -321,6 +322,7 @@ const Layout = ({ children }) => {
 			{!isAuthPath && <Header />}
 			{children}
 			{!isAuthPath && <Footer />}
+			<ApiErrorDialog />
 		</Box>
 	);
 };

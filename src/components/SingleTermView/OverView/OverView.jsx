@@ -33,7 +33,6 @@ import { useTermRecordAvailability } from "../../../hooks/useTermRecordAvailabil
 import { DetailsSection, HierarchySection, PredicatesSection } from "./OverviewSections";
 import SectionSideNav from "../../common/SectionSideNav";
 import { reportApiError } from "../../../api/apiErrorBus";
-import ApiErrorDialog from "../../common/ApiErrorDialog";
 import { GlobalDataContext } from "../../../contexts/DataContext";
 import { useEditSession } from "../../../contexts/editSession";
 
@@ -529,7 +528,6 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
           </Box>
         </>
       )}
-      <ApiErrorDialog />
     </Box>
   );
 };

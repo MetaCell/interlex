@@ -66,7 +66,6 @@ import { EditSessionProvider } from "../../contexts/EditSessionContext";
 import { getRawData } from "../../api/endpoints";
 import { getVersions, addEntityToOntology, getOntologyTerms } from "../../api/endpoints/apiService";
 import { reportApiError } from "../../api/apiErrorBus";
-import ApiErrorDialog from "../common/ApiErrorDialog";
 import { useTermData } from "../../hooks/useTermData";
 import { useTermRecordAvailability } from "../../hooks/useTermRecordAvailability";
 
@@ -798,7 +797,6 @@ const SingleTermView = () => {
         open={featureNotAvailableDialog}
         onClose={handleCloseFeatureNotAvailableDialog}
       />
-      <ApiErrorDialog />
       <Snackbar
         open={!!ontologySnackbar}
         autoHideDuration={4000}
