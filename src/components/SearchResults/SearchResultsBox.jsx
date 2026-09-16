@@ -146,12 +146,14 @@ const SearchResultsBox = ({
                 <p>table</p>
             )}
 
-            <CustomPagination
-                rowCount={totalItems}
-                rowsPerPage={itemsPerPage}
-                page={page}
-                onPageChange={handlePageChange}
-            />
+            {!loading && totalItems > 0 && (
+                <CustomPagination
+                    rowCount={totalItems}
+                    rowsPerPage={itemsPerPage}
+                    page={page}
+                    onPageChange={handlePageChange}
+                />
+            )}
         </Box>
     );
 };
