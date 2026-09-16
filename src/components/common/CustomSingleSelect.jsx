@@ -6,10 +6,11 @@ import {vars} from "../../theme/variables";
 const {gray700, gray300, gray500} = vars
 
 const CustomSingleSelect = ({value, onChange, options, FormControlSX, SelectSX, isFormControlFullWidth, placeholder}) => {
+  const hasValue = !!value || value === 0;
   return(
-    <FormControl sx={{ minWidth: 75, ...FormControlSX }} fullWidth={isFormControlFullWidth}>
+    <FormControl sx={{ minWidth: hasValue ? 75 : 160, ...FormControlSX }} fullWidth={isFormControlFullWidth}>
       {
-        !value && value !== 0 && <InputLabel
+        !hasValue && <InputLabel
           sx={{
             transform: "translate(0, 0.625rem) scale(1)",
             transformOrigin: "top left",
