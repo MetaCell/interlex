@@ -238,6 +238,17 @@ export const getSelectedTermLabel = async (searchTerm: string, group: string = '
   }
 };
 
+// Whether `termID` has a record of its own under `group` — no fallback to base, since the
+// caller wants to know about this exact group (e.g. confirming a fork's curated original).
+export const termExistsInGroup = async (group: string, termID: string): Promise<boolean> => {
+  try {
+    await createGetRequest<JsonLdResponse, any>(`/${group}/${termID}.jsonld`)();
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 // --- InterLex record mapping --------------------------------------------------------------
 //
 // A Precision cell is addressed by an external id (`npokb_991`), and the term API can only serve

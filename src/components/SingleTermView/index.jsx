@@ -64,7 +64,7 @@ import FeatureNotAvailableDialog from "../common/FeatureNotAvailableDialog";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { EditSessionProvider } from "../../contexts/EditSessionContext";
 import { getRawData } from "../../api/endpoints";
-import { getVersions, addEntityToOntology, getOntologyTerms } from "../../api/endpoints/apiService";
+import { getVersions, addEntityToOntology, getOntologyTerms, termExistsInGroup } from "../../api/endpoints/apiService";
 import { reportApiError } from "../../api/apiErrorBus";
 import { useTermData } from "../../hooks/useTermData";
 import { useTermRecordAvailability } from "../../hooks/useTermRecordAvailability";
@@ -481,13 +481,30 @@ const SingleTermView = () => {
     }
   }, [tab, tabMapping, tabLabels, navigate, group, contextEntry, term, tabValue, versionHash, tabNames, DEFAULT_TAB_INDEX, location.search, isTermRecordPending]);
 
-  const isItFork = !CURATED_GROUPS.has(actualGroup);
+  const isInPersonalNamespace = !CURATED_GROUPS.has(actualGroup);
 
   // A fork shares its term id with the record it forked from, so the curated original is the same
   // slug read under a curated group: the ontology's own org when the slug belongs to a catalogued
   // ontology, otherwise base — the group that owns every other InterLex record.
   const curatedGroup = contextEntry?.org || "base";
   const curatedTermPath = `${termPath(curatedGroup, contextEntry?.slug, searchTerm, tabNames[tabValue])}${location.search}`;
+
+  // A term living outside the curated groups is only a fork if a curated original with the same
+  // id actually exists — a term made from scratch via "Add a new term" never has one.
+  const [hasCuratedOriginal, setHasCuratedOriginal] = useState(false);
+  useEffect(() => {
+    if (!isInPersonalNamespace || !searchTerm) {
+      setHasCuratedOriginal(false);
+      return;
+    }
+    let active = true;
+    termExistsInGroup(curatedGroup, searchTerm).then(exists => {
+      if (active) setHasCuratedOriginal(exists);
+    });
+    return () => { active = false; };
+  }, [isInPersonalNamespace, curatedGroup, searchTerm]);
+
+  const isItFork = isInPersonalNamespace && hasCuratedOriginal;
 
   // Memoize tab content to prevent unnecessary re-renders
   const tabContent = useMemo(() => {
@@ -715,7 +732,7 @@ const SingleTermView = () => {
                     <Button type="string" color="secondary" startIcon={<RateReviewOutlinedIcon />} onClick={handleOpenRequestMergeDialog}>
                       Request to merge changes to curated
                     </Button>
-                  ) : user && !isItFork ? (
+                  ) : !isInPersonalNamespace && user ? (
                     <Button type="string" color="secondary" startIcon={<ForkRightIcon />} onClick={handleOpenForkDialog}>
                       Create fork
                     </Button>
