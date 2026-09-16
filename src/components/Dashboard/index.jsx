@@ -1,5 +1,6 @@
 import {Box} from "@mui/material";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import EditBulkTermsDialog from "./EditBulkTerms/EditBulkTermsDialog";
 import Variants from "./Variants";
 import Ontologies from "./Ontologies";
@@ -7,6 +8,7 @@ import TermsChange from "./TermsChange";
 import Organizations from "./Organizations";
 import User from "./User";
 import SectionSideNav from "../common/SectionSideNav";
+import { GlobalDataContext } from "../../contexts/DataContext";
 
 // Ids are set on the wrappers below; labels match each section's heading.
 const SIDE_NAV_ITEMS = [
@@ -19,6 +21,17 @@ const SIDE_NAV_ITEMS = [
 const Dashboard = () => {
   const [openEditBulkTerms, setOpenEditBulkTerms] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
+  const { group } = useParams();
+  const { user } = useContext(GlobalDataContext);
+  const navigate = useNavigate();
+
+  // The dashboard is always the logged-in user's own — the URL's :group is not
+  // a viewing target, so a mismatch means a stale/foreign link, not another user's data.
+  useEffect(() => {
+    if (user?.groupname && group !== user.groupname) {
+      navigate(`/${user.groupname}/dashboard`, { replace: true });
+    }
+  }, [group, user?.groupname, navigate]);
 
   const handleCloseEditBulkTerms = () => {
     setOpenEditBulkTerms(false);
@@ -27,6 +40,10 @@ const Dashboard = () => {
   const handleOpenEditBulkTerms = () => {
     setOpenEditBulkTerms(true);
   };
+
+  if (user?.groupname && group !== user.groupname) {
+    return null;
+  }
 
   return (
     <Box flex={1} display='flex' flexDirection='column'>

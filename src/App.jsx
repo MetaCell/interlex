@@ -184,9 +184,11 @@ function MainContent() {
 					<Route
 						path="/:group/dashboard"
 						element={
-							<PageContainer>
-								<Dashboard />
-							</PageContainer>
+							<ProtectedRoute>
+								<PageContainer>
+									<Dashboard />
+								</PageContainer>
+							</ProtectedRoute>
 						}
 					/>
 					<Route
