@@ -9,15 +9,19 @@ import { getTermDiscussions } from "../../../api/endpoints/apiService";
 
 const { gray25, gray200, gray700 } = vars;
 
-const Discussion = (term) => {
+const Discussion = ({ term }) => {
   const [comments, setComments] = useState([]);
   const commentsEndRef = useRef(null);
   const [discussions, setDiscussions] = useState([]);
   const [showMockWarning, setShowMockWarning] = useState(true);
 
   const getDiscussions = async () =>  {
-    const data = await getTermDiscussions("base", term)
-    setDiscussions(data)
+    try {
+      const data = await getTermDiscussions("base", term)
+      setDiscussions(Array.isArray(data) ? data : [])
+    } catch (error) {
+      setDiscussions([])
+    }
   }
   
   useEffect(() => {
@@ -75,7 +79,7 @@ const Discussion = (term) => {
               }}
             >
               {discussions.map((comment, index) => (
-                <TimeLine key={index} comment={comment} hideConnector={index === comments.length - 1} />
+                <TimeLine key={index} comment={comment} hideConnector={index === discussions.length - 1} />
               ))}
               <div ref={commentsEndRef} />
             </Box>

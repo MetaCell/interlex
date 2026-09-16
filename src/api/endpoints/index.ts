@@ -138,6 +138,9 @@ export const getMatchTerms = async (group, term, filters = {}) => {
     });
 };
 
+// Strips credentials (e.g. ?apikey=...) so URLs are safe to log or show to users.
+const redactUrl = (url: string) => url.replace(/([?&](?:apikey|api_key|key|token)=)[^&]*/gi, "$1***");
+
 const fetchData = async (url, method = "GET", data: object | null = null) => {
     try {
         const response = await axios({
@@ -158,10 +161,15 @@ const fetchData = async (url, method = "GET", data: object | null = null) => {
         }
         return response.data;
     } catch (error) {
-        console.error(`API Error at ${url}:`, error);
+        console.error(`API Error at ${redactUrl(url)}:`, error);
         throw error;
     }
 };
+
+// Escapes Elasticsearch query_string reserved characters so free-text search
+// input can't be interpreted as query syntax and break the query.
+const ES_RESERVED_CHARS = /([+\-=&|><!(){}[\]^"~*?:\\/])/g;
+const escapeQueryString = (query: string) => query.replace(ES_RESERVED_CHARS, "\\$1");
 
 export const elasticSearch = async (
   query: string,
@@ -185,7 +193,7 @@ export const elasticSearch = async (
       console.error("Failed to fetch total count from Elasticsearch:", error);
       reportApiError({
         context: `Search "${query}"`,
-        url,
+        url: redactUrl(url),
         status: error?.status ?? error?.response?.status,
         message: error?.message || "Request failed",
       });
@@ -208,7 +216,7 @@ export const elasticSearch = async (
     console.error("Error when performing elastic search", error);
     reportApiError({
       context: `Search "${query}"`,
-      url,
+      url: redactUrl(url),
       status: error?.status ?? error?.response?.status,
       message: error?.message || "Request failed",
     });
@@ -224,7 +232,7 @@ const buildQuery = (query: string) => ({
           "fields": [
             "*"
           ],
-          "query": query,
+          "query": escapeQueryString(query),
           "type": "cross_fields",
           "default_operator": "and",
           "lenient": "true"

@@ -69,9 +69,9 @@ const TimeLine = ({ comment, hideConnector }) => {
           {!hideConnector && <TimelineConnector/>}
         </TimelineSeparator>
         <TimelineContent component='div'>
-          <Typography className='thread-header'>{comment.senderUserName} on {comment.timestamp}</Typography>
+          <Typography className='thread-header'>{comment?.senderUserName} on {comment?.timestamp}</Typography>
           <Box className='message-container comment'>
-            <Typography className='thread-header' dangerouslySetInnerHTML={{ __html: comment.message }} />
+            <Typography className='thread-header' dangerouslySetInnerHTML={{ __html: comment?.message }} />
           </Box>
         </TimelineContent>
       </TimelineItem>
