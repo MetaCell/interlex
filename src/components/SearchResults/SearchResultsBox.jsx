@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useContext } from 'react';
+import { useState, useEffect, useMemo, useContext, useRef } from 'react';
 import ListView from './ListView';
 import PropTypes from 'prop-types';
 import { TableChartIcon, ListIcon } from '../../Icons';
@@ -58,6 +58,16 @@ const SearchResultsBox = ({
     const [itemsPerPage, setItemsPerPage] = useState(defaultSize);
     const { user } = useContext(GlobalDataContext);
 
+    // A fresh search clears pageResults to [] while the first page is fetched. That fetch goes
+    // through the same debounced fetchPage as page/size clicks, so without this it sits behind a
+    // 500ms wait with nothing on screen and no spinner (loading already flipped off after the
+    // count/filters request). Flushing only that first call closes the gap; later page/size
+    // changes still debounce normally since something is already showing by then.
+    const firstPageLoadedRef = useRef(false);
+    useEffect(() => {
+        firstPageLoadedRef.current = false;
+    }, [searchTerm]);
+
     useEffect(() => {
         if (!hasActiveFilters) {
             const from = (page - 1) * itemsPerPage;
@@ -66,6 +76,10 @@ const SearchResultsBox = ({
 
             if (size > 0) {
                 fetchPage(from, size);
+                if (!firstPageLoadedRef.current) {
+                    firstPageLoadedRef.current = true;
+                    fetchPage.flush();
+                }
             }
         }
     }, [page, itemsPerPage, totalItems, fetchPage, hasActiveFilters]);
