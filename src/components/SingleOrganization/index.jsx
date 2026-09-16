@@ -22,6 +22,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { useNavigate, useParams } from "react-router-dom";
 import CustomButton from "../common/CustomButton";
 import OrganizationCard from "./OrganizationCard";
+import EmptyState from "../common/EmptyState";
 import CreateForkDialog from "./CreateForkDialog";
 import ForkRightIcon from '@mui/icons-material/ForkRight';
 import CustomPagination from "../common/CustomPagination";
@@ -67,11 +68,13 @@ const useOrganizationData = (id) => {
     const [organizationOntologies, setOrganizationOntologies] = useState([]);
     const [userRole, setUserRole] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [notFound, setNotFound] = useState(false);
     const { user } = useContext(GlobalDataContext);
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
+            setNotFound(false);
             try {
                 // TODO: Replace with real backend endpoints when they are implemented
                 // Currently handling 501 errors gracefully for unimplemented endpoints
@@ -146,8 +149,13 @@ const useOrganizationData = (id) => {
                 }
             } catch (error) {
                 console.error("Error fetching organization data", error);
-                // Set empty data on error to prevent UI issues
-                setOrganization({ name: id });
+                if (error?.response?.status === 404) {
+                    setNotFound(true);
+                    setOrganization(null);
+                } else {
+                    // Transient/backend error unrelated to existence: keep the page usable.
+                    setOrganization({ name: id });
+                }
                 setOrganizationTerms([]);
                 setOrganizationCuries([]);
                 setOrganizationOntologies([]);
@@ -180,7 +188,7 @@ const useOrganizationData = (id) => {
         }
     };
 
-    return { organization, organizationCuries, organizationTerms, organizationOntologies, userRole, loading, refreshOntologies };
+    return { organization, organizationCuries, organizationTerms, organizationOntologies, userRole, loading, notFound, refreshOntologies };
 };
 
 const SingleOrganization = () => {
@@ -201,7 +209,7 @@ const SingleOrganization = () => {
     const navigate = useNavigate();
     const { title } = useParams(); // Get organization name from URL params
 
-    const { organization, organizationTerms, organizationOntologies, userRole, loading, refreshOntologies } = useOrganizationData(title);
+    const { organization, organizationTerms, organizationOntologies, userRole, loading, notFound, refreshOntologies } = useOrganizationData(title);
 
     useEffect(() => {
         if (Array.isArray(organizationTerms) && organizationTerms.length > 0) {
@@ -290,6 +298,31 @@ const SingleOrganization = () => {
     const handleCloseManageOrgModal = () => setOpenManageOrgModal(false);
     // const handleOpenLeaveModal = () => setOpenLeaveModal(true);
     // const handleCloseLeaveModal = () => setOpenLeaveModal(false);
+
+    if (loading) {
+        return (
+            <Box flex={1} display="flex" alignItems="center" justifyContent="center">
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (notFound) {
+        return (
+            <Box flex={1} display="flex" alignItems="center" justifyContent="center">
+                <EmptyState
+                    message={`Organization "${title}" not found`}
+                    supportingText="Check the URL or go back to the homepage."
+                    actions={
+                        <Button variant="contained" onClick={() => navigate("/")}>
+                            Go to homepage
+                        </Button>
+                    }
+                />
+            </Box>
+        );
+    }
+
     return (
         <>
             <Box flex={1} display='flex' flexDirection='column'>
