@@ -14,11 +14,11 @@ const SUBCLASS_OF_IRI = "http://www.w3.org/2000/01/rdf-schema#subClassOf";
 // `reserveHeight` keeps a minimum footprint while loading so late-arriving
 // content above a section can't shove a section you are already scrolled to.
 
-export const DetailsSection = memo(function DetailsSection({ subject, group, onMutate, reserveHeight }) {
+export const DetailsSection = memo(function DetailsSection({ subject, group, termVersion, onMutate, reserveHeight }) {
   const { loading, data, jsonData } = useObservable(subject);
   return (
     <Box sx={{ minHeight: loading ? reserveHeight : undefined }}>
-      <Details loading={loading} data={data} jsonData={jsonData} group={group} onMutate={onMutate} />
+      <Details loading={loading} data={data} jsonData={jsonData} group={group} termVersion={termVersion} onMutate={onMutate} />
     </Box>
   );
 });
@@ -26,6 +26,7 @@ export const DetailsSection = memo(function DetailsSection({ subject, group, onM
 DetailsSection.propTypes = {
   subject: PropTypes.object.isRequired,
   group: PropTypes.string,
+  termVersion: PropTypes.object,
   onMutate: PropTypes.func,
   reserveHeight: PropTypes.number,
 };

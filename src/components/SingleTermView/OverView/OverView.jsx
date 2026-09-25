@@ -134,7 +134,7 @@ const fetchHierarchiesData = async (curieLike, group) => {
   };
 };
 
-const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, group = "base", versionHash }) => {
+const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, group = "base", versionHash, termVersion }) => {
   const { curies } = useContext(GlobalDataContext);
   // Edit mode is owned by the term header; the sections below only stage
   // mutations into it, and the single PATCH happens on Save.
@@ -498,6 +498,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
             <DetailsSection
               subject={store.details$}
               group={group}
+              termVersion={termVersion}
               onMutate={onMutate}
               reserveHeight={DETAILS_MIN_HEIGHT}
             />
@@ -538,6 +539,7 @@ OverView.propTypes = {
   selectedDataFormat: PropTypes.string,
   group: PropTypes.string,
   versionHash: PropTypes.string,
+  termVersion: PropTypes.object,
 };
 
 export default OverView;

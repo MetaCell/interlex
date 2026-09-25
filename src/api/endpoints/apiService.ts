@@ -61,20 +61,11 @@ type LabelType =
 
 interface GraphNode {
   'rdfs:label'?: LabelType;
-  'owl:versionIRI'?: { '@id'?: string };
 }
 
 interface JsonLdResponse {
   '@graph'?: GraphNode[];
 }
-
-// owl:versionIRI is normally a full IRI (.../version/<id>/...); pull out the
-// bare identity-graph id, mirroring Details.jsx's versionDisplay logic.
-const extractGraphId = (graph?: GraphNode[]): string | undefined => {
-  const versionIRI = graph?.[graph.length - 1]?.['owl:versionIRI']?.['@id'];
-  if (!versionIRI) return undefined;
-  return versionIRI.includes('/version/') ? versionIRI.split('/version/')[1]?.split('/')[0] : versionIRI;
-};
 
 const BASE_EXTENSION = "jsonld";
 
@@ -181,7 +172,7 @@ export const changePassword = (group: string, data: { username: string; currentP
   return createPostRequest<any, any>(endpoint, { "Content-Type": "application/x-www-form-urlencoded" })(data);
 };
 
-export const getSelectedTermLabel = async (searchTerm: string, group: string = 'base'): Promise<{ label: string | undefined; actualGroup: string; graphId: string | undefined }> => {
+export const getSelectedTermLabel = async (searchTerm: string, group: string = 'base'): Promise<{ label: string | undefined; actualGroup: string }> => {
   try {
     const primaryUrl = `/${group}/${searchTerm}.jsonld`;
     const response = await fetchOnce(primaryUrl, () => createGetRequest<JsonLdResponse, any>(primaryUrl)());
@@ -201,8 +192,7 @@ export const getSelectedTermLabel = async (searchTerm: string, group: string = '
 
     return {
       label: label ? getLabelValue(label) : undefined,
-      actualGroup: group,
-      graphId: extractGraphId(response['@graph'])
+      actualGroup: group
     };
   } catch (err: any) {
     console.error(err.message);
@@ -226,15 +216,14 @@ export const getSelectedTermLabel = async (searchTerm: string, group: string = '
 
         return {
           label: fallbackLabel ? getLabelValue(fallbackLabel) : undefined,
-          actualGroup: 'base',
-          graphId: extractGraphId(fallbackResponse['@graph'])
+          actualGroup: 'base'
         };
       } catch (fallbackErr: any) {
         console.error('Fallback request also failed:', fallbackErr.message);
-        return { label: undefined, actualGroup: group, graphId: undefined };
+        return { label: undefined, actualGroup: group };
       }
     }
-    return { label: undefined, actualGroup: group, graphId: undefined };
+    return { label: undefined, actualGroup: group };
   }
 };
 

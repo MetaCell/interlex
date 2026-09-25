@@ -25,7 +25,7 @@ const DEFINITION_PREDICATE = "definition";
 const EXISTING_ID_PREDICATE = "ilxtr:hasExistingId";
 
 // `onMutate` present means edit mode is on (OverView only passes it then).
-const Details = ({ loading, data, jsonData, group = "base", onMutate }) => {
+const Details = ({ loading, data, jsonData, group = "base", termVersion, onMutate }) => {
   const editing = !!onMutate;
   const handleChipClick = (url) => {
     window.open(url, '_blank');
@@ -66,12 +66,9 @@ const Details = ({ loading, data, jsonData, group = "base", onMutate }) => {
   }
   const graphArray = jsonData?.["@graph"] || [];
   const lastGraphItem = graphArray[graphArray.length - 1]
-  const versionIRI = lastGraphItem?.["owl:versionIRI"]?.["@id"];
-  // versionIRI is normally a full IRI (.../version/<id>/...); a term-version
-  // snapshot surfaces the bare identity-graph hash instead.
-  const versionDisplay = versionIRI?.includes('/version/')
-    ? versionIRI.split('/version/')[1]?.split('/')[0]
-    : versionIRI;
+  const versionDisplay = termVersion
+    ? `v${termVersion.number} · ${termVersion.identityGraph.slice(0, 8)}`
+    : "";
   // Blank, not "Invalid date", when the document carries no owl:versionInfo — as an ontology-backed
   // term never does.
   const versionInfoRaw = lastGraphItem?.["owl:versionInfo"];
@@ -279,6 +276,10 @@ Details.propTypes = {
   data: PropTypes.object,
   jsonData: PropTypes.object,
   group: PropTypes.string,
+  termVersion: PropTypes.shape({
+    number: PropTypes.number.isRequired,
+    identityGraph: PropTypes.string.isRequired,
+  }),
   onMutate: PropTypes.func
 };
 

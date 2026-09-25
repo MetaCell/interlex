@@ -65,11 +65,12 @@ import { GlobalDataContext } from "../../contexts/DataContext";
 import { EditSessionProvider } from "../../contexts/EditSessionContext";
 import { getRawData } from "../../api/endpoints";
 import { getVersions, addEntityToOntology, getOntologyTerms, termExistsInGroup } from "../../api/endpoints/apiService";
+import { resolveTermVersion } from "../../parsers/termVersion";
 import { reportApiError } from "../../api/apiErrorBus";
 import { useTermData } from "../../hooks/useTermData";
 import { useTermRecordAvailability } from "../../hooks/useTermRecordAvailability";
 
-const { gray200, gray500, gray600, error700 } = vars;
+const { gray200, gray600, error700 } = vars;
 
 // Groups that own a curated ontology (per ONTOLOGY_CATALOG) are first-class sources in their own
 // right, same as base — not a fork of it. Only a group outside this set is actually a fork.
@@ -149,7 +150,7 @@ const SingleTermView = () => {
   const [featureNotAvailableDialog, setFeatureNotAvailableDialog] = useState(false);
 
   // Use the optimized term data hook instead of manual fetching
-  const { termData, actualGroup, graphId, isUsingFallback, isLoadingTerm } = useTermData(term, group);
+  const { termData, actualGroup, isUsingFallback, isLoadingTerm } = useTermData(term, group);
 
   const [versionsData, setVersionsData] = useState(null);
   const [versionsLoading, setVersionsLoading] = useState(true);
@@ -452,6 +453,11 @@ const SingleTermView = () => {
     return () => { active = false; };
   }, [actualGroup, searchTerm]);
 
+  const termVersion = useMemo(
+    () => resolveTermVersion(versionsData, actualGroup, versionHash),
+    [versionsData, actualGroup, versionHash]
+  );
+
   // Optimize tab URL synchronization
   useEffect(() => {
     // A URL can name a tab this term has no data for — `/cell-card` on a term that is not a cell
@@ -524,7 +530,7 @@ const SingleTermView = () => {
       case CELL_CARD_TAB:
         return <CellCardPanel term={searchTerm} group={group} />;
       case OVERVIEW_TAB:
-        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible && !servedByOntology} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} />;
+        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible && !servedByOntology} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} termVersion={termVersion} />;
       case 2:
         return <VariantsPanel searchTerm={searchTerm} group={actualGroup} versionsData={versionsData} versionsLoading={versionsLoading} versionsError={versionsError} onDismissError={clearVersionsError} />;
       case 3:
@@ -532,9 +538,9 @@ const SingleTermView = () => {
       case 4:
         return <Discussion term={searchTerm} />;
       default:
-        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible && !servedByOntology} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} />;
+        return <OverView searchTerm={searchTerm} isCodeViewVisible={isCodeViewVisible && !servedByOntology} selectedDataFormat={selectedDataFormat} group={actualGroup} versionHash={versionHash} termVersion={termVersion} />;
     }
-  }, [tabValue, searchTerm, group, servedByOntology, isCodeViewVisible, selectedDataFormat, actualGroup, versionHash, versionsData, versionsLoading, versionsError, clearVersionsError, isTermRecordPending]);
+  }, [tabValue, searchTerm, group, servedByOntology, isCodeViewVisible, selectedDataFormat, actualGroup, versionHash, termVersion, versionsData, versionsLoading, versionsError, clearVersionsError, isTermRecordPending]);
 
   // Memoize the toggle button group for overview tab
   const toggleButtonGroup = useMemo(() => {
@@ -698,11 +704,6 @@ const SingleTermView = () => {
                     // placeholder holds the row's height so the tab bar below does not jump when
                     // the link arrives.
                     <Skeleton variant="text" width="20rem" height="2.5rem" />
-                  )}
-                  {graphId && (
-                    <Typography fontSize=".875rem" color={gray500}>
-                      Graph ID: {graphId}
-                    </Typography>
                   )}
                 {/* A fork is a copy of a curated record: name the original and offer the way back
                     to it, so the reader can tell which of the two they are looking at. */}
