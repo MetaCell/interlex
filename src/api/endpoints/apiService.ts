@@ -631,6 +631,35 @@ export const checkPotentialMatches = async (group: string, data: any) => {
   return createPostRequest<any, any>(`/${group}${API_CONFIG.REAL_API.CHECK_ENTITY}`, { "Content-Type": "application/json" })(data);
 };
 
+export type PropertyRdfType = 'owl:ObjectProperty' | 'owl:AnnotationProperty';
+
+export type CreatePropertyResult =
+  | { iri: string }
+  | { clashes: string[] }
+  | { error: string };
+
+// A new predicate is an ordinary entity typed as an OWL property. entity-new
+// answers a clash with a bare 409, so entity-check runs first to name the
+// existing IRIs instead. Domain, range, definition etc. are added later by
+// editing the new term like any other.
+export const createProperty = async (
+  group: string,
+  { rdfType, label, exact = [] }: { rdfType: PropertyRdfType; label: string; exact?: string[] }
+): Promise<CreatePropertyResult> => {
+  const data = { 'rdf-type': rdfType, label, exact };
+  try {
+    await checkPotentialMatches(group, data);
+  } catch (error: any) {
+    const existing = error?.response?.data?.existing;
+    if (error?.response?.status === 409 && existing) return { clashes: Object.keys(existing) };
+    return { error: error?.message || 'Could not check for existing predicates' };
+  }
+
+  const { termId, status } = await createNewEntity({ group, data });
+  if (!termId) return { error: `Could not create the predicate (HTTP ${status})` };
+  return { iri: `${API_CONFIG.INTERLEX_URL}/${group}/${termId}` };
+};
+
 /* ------------------------------------------------------------------ *
  * Pull requests (variant → curated merge proposals)
  * ------------------------------------------------------------------ */

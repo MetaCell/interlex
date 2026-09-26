@@ -84,7 +84,7 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible, focusI
             id={`panel${index + 1}-header`}
           >
             <Stack direction='row' spacing='.25rem'>
-              <Typography>{pred.title}</Typography>
+              <Typography>{pred.label || pred.title}</Typography>
             </Stack>
             <Stack direction='row' alignItems='center' spacing='.75rem'>
               <Typography color={gray600} fontSize='.875rem'>

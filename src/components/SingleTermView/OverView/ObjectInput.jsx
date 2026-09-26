@@ -17,10 +17,17 @@ const inputSx = {
   "& .MuiOutlinedInput-notchedOutline": { borderColor: gray300 },
 };
 
+const moveCaretToEnd = (e) => {
+  const { length } = e.target.value;
+  e.target.setSelectionRange(length, length);
+};
+
 // Inline editor for a predicate object. Behaviour depends on `kind`:
 //  - "text": plain text box (e.g. ilxr:synonym, definition)
 //  - "term": term-search combobox that also accepts an exact URI (freeSolo)
-const ObjectInput = ({ kind, value, onChange, onConfirm, onCancel, group = "base", autoFocus = true }) => {
+// A `multiline` text box grows with its content; Enter still confirms there, so
+// a newline takes Shift+Enter.
+const ObjectInput = ({ kind, value, onChange, onConfirm, onCancel, group = "base", autoFocus = true, multiline = false }) => {
   const [terms, setTerms] = useState([]);
   const [inputValue, setInputValue] = useState(value || "");
 
@@ -38,7 +45,7 @@ const ObjectInput = ({ kind, value, onChange, onConfirm, onCancel, group = "base
   }, [kind, inputValue, fetchTerms]);
 
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       onConfirm?.();
     } else if (e.key === "Escape") {
@@ -85,6 +92,11 @@ const ObjectInput = ({ kind, value, onChange, onConfirm, onCancel, group = "base
       <TextField
         fullWidth
         autoFocus={autoFocus}
+        multiline={multiline}
+        minRows={multiline ? 3 : undefined}
+        maxRows={multiline ? 12 : undefined}
+        size={multiline ? "small" : undefined}
+        onFocus={multiline ? moveCaretToEnd : undefined}
         value={inputValue}
         placeholder="Enter a value"
         onChange={(e) => {
@@ -106,6 +118,7 @@ ObjectInput.propTypes = {
   onCancel: PropTypes.func,
   group: PropTypes.string,
   autoFocus: PropTypes.bool,
+  multiline: PropTypes.bool,
 };
 
 export default ObjectInput;

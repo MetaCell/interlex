@@ -31,7 +31,10 @@ export const EditableChipList = ({
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState("");
 
-  const resolved = applyToValues(predicate, values, subject);
+  // Staged adds lead, right under the control that created them.
+  const resolved = applyToValues(predicate, values, subject).sort(
+    (a, b) => (b.status === "added") - (a.status === "added")
+  );
 
   const cancelAdd = () => {
     setAdding(false);
@@ -48,18 +51,6 @@ export const EditableChipList = ({
 
   return (
     <Stack spacing=".5rem" alignItems="flex-start">
-      <Box display="flex" flexWrap="wrap" gap=".5rem">
-        {resolved.map((entry) => (
-          <Chip
-            key={`${entry.value}-${entry.status}`}
-            className={chipClassName}
-            variant="outlined"
-            color={chipColorFor(entry.status)}
-            label={entry.value}
-            onDelete={() => remove(entry)}
-          />
-        ))}
-      </Box>
       {adding ? (
         <Box display="flex" alignItems="center" gap=".5rem" width={1}>
           <ObjectInput
@@ -86,6 +77,18 @@ export const EditableChipList = ({
           {addLabel}
         </Button>
       )}
+      <Box display="flex" flexWrap="wrap" gap=".5rem">
+        {resolved.map((entry) => (
+          <Chip
+            key={`${entry.value}-${entry.status}`}
+            className={chipClassName}
+            variant="outlined"
+            color={chipColorFor(entry.status)}
+            label={entry.value}
+            onDelete={() => remove(entry)}
+          />
+        ))}
+      </Box>
     </Stack>
   );
 };

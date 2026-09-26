@@ -1,11 +1,9 @@
 import TableRow from "./TableRow";
 import PropTypes from 'prop-types';
-import ObjectInput from "./ObjectInput";
-import { Box, IconButton, Tooltip, Typography } from "@mui/material";
+import CellEditor from "./CellEditor";
+import { Box, Button, IconButton, Typography } from "@mui/material";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
-import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import {
@@ -107,7 +105,8 @@ function normalizeTableData(data) {
 // ---------- component ----------
 const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
   const predicateTitle = data?.title || "";
-  const objectKind = getObjectInputKind(predicateTitle);
+  const predicateLabel = data?.label || predicateTitle;
+  const objectKind = data?.objectKind || getObjectInputKind(predicateTitle);
   const addable = isAddablePredicate(predicateTitle);
   const readOnly = isReadOnlyPredicate(predicateTitle);
 
@@ -122,6 +121,9 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
   const [adding, setAdding] = useState(false);
   const [newValue, setNewValue] = useState("");
 
+  // State rather than a ref: the cell mounts in the same render that opens the
+  // editor, and the editor needs it as its anchor.
+  const [newObjectCell, setNewObjectCell] = useState(null);
   const targetRow = useRef();
   const sourceRow = useRef();
 
@@ -131,7 +133,7 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
   }, [data]);
 
   // Rows as the edit session says they will look once saved: edits in place,
-  // deletes gone, adds appended. Only rows that sit on the focus term can be
+  // deletes gone, adds first — next to the "+" that created them. Only rows that sit on the focus term can be
   // staged, so inbound rows pass through untouched.
   const { applyToValues } = useEditSession();
   const focusSubject = tableContent.find((r) => isRowOnFocus(r.subject, focusId))?.subject;
@@ -145,7 +147,15 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
       if (entry.original !== null) byOriginal.set(entry.original, entry);
     });
 
-    const rows = [];
+    const rows = resolved
+      .filter((entry) => entry.original === null)
+      .map((entry, i) => ({
+        id: `staged-add-${i}`,
+        subject: focusSubject || focusId || "",
+        predicate: predicateLabel,
+        object: entry.value,
+        status: "added",
+      }));
     tableContent.forEach((row) => {
       if (!isRowOnFocus(row.subject, focusId)) {
         rows.push(row);
@@ -155,19 +165,8 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
       if (!entry) return; // staged for deletion
       rows.push({ ...row, object: entry.value, status: entry.status });
     });
-    resolved
-      .filter((entry) => entry.original === null)
-      .forEach((entry, i) => {
-        rows.push({
-          id: `staged-add-${i}`,
-          subject: focusSubject || "",
-          predicate: predicateTitle,
-          object: entry.value,
-          status: "added",
-        });
-      });
     return rows;
-  }, [tableContent, focusId, focusSubject, predicateTitle, applyToValues]);
+  }, [tableContent, focusId, focusSubject, predicateTitle, predicateLabel, applyToValues]);
 
   const move = (arr, fromIndex, toIndex) => {
     const element = arr[fromIndex];
@@ -221,21 +220,25 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
     return <ArrowDownwardIcon fontSize="small" style={{ opacity: 0.3 }} />;
   };
 
+  // A staged add's subject cell is for display only (the focus id stands in
+  // when the term has no stored row to take the IRI from); unset, the save
+  // resolves the focus node itself.
+  const mutationSubject = (row) => (row.status === "added" ? focusSubject : row.subject);
+
   const handleEditRow = (row, value) => {
-    onMutate?.({ subject: row.subject, predicate: predicateTitle, op: "edit", kind: objectKind, oldValue: row.object, newValue: value });
+    onMutate?.({ subject: mutationSubject(row), predicate: predicateTitle, op: "edit", kind: objectKind, oldValue: row.object, newValue: value });
   };
 
   const handleDeleteRow = (row) =>
-    onMutate?.({ subject: row.subject, predicate: predicateTitle, op: "delete", kind: objectKind, oldValue: row.object });
+    onMutate?.({ subject: mutationSubject(row), predicate: predicateTitle, op: "delete", kind: objectKind, oldValue: row.object });
 
   const startAdd = () => { setNewValue(""); setAdding(true); };
   const cancelAdd = () => { setAdding(false); setNewValue(""); };
   const confirmAdd = () => {
     const value = newValue.trim();
-    if (!value) return;
+    if (!value) return cancelAdd();
     // reuse the subject already on this group's rows when present (exact stored IRI)
-    const subject = tableContent.find((r) => isRowOnFocus(r.subject, focusId))?.subject;
-    onMutate?.({ subject, predicate: predicateTitle, op: "add", kind: objectKind, newValue: value });
+    onMutate?.({ subject: focusSubject, predicate: predicateTitle, op: "add", kind: objectKind, newValue: value });
     cancelAdd();
   };
 
@@ -262,6 +265,37 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
         <Box sx={{ width: '6.25rem' }} />
       </Box>
 
+      {addable && !!onMutate && (
+        <Box sx={tableStyles.root} className={adding ? undefined : "secondary"}>
+          {adding ? (
+            <>
+              <Box sx={{ width: columnWidth }}>
+                <Typography>{focusSubject}</Typography>
+              </Box>
+              <Box sx={{ width: columnWidth }}>
+                <Typography>{predicateLabel}</Typography>
+              </Box>
+              <Box sx={{ width: columnWidth }} ref={setNewObjectCell} />
+              <Box sx={{ width: '6.25rem' }} />
+              <CellEditor
+                anchorEl={newObjectCell}
+                title={predicateLabel}
+                kind={objectKind}
+                value={newValue}
+                group={group}
+                onChange={setNewValue}
+                onConfirm={confirmAdd}
+                onCancel={cancelAdd}
+              />
+            </>
+          ) : (
+            <Button size="small" color="secondary" startIcon={<AddOutlinedIcon />} onClick={startAdd}>
+              Add value
+            </Button>
+          )}
+        </Box>
+      )}
+
       {(displayRows || []).map((row, index) => (
         <TableRow
           key={`${row.id}-${index}`}
@@ -269,7 +303,7 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
           columnWidth={columnWidth}
           data={row}
           index={index}
-          editable={!readOnly && !!onMutate && isRowOnFocus(row.subject, focusId)}
+          editable={!readOnly && !!onMutate && (row.status === "added" || isRowOnFocus(row.subject, focusId))}
           status={row.status}
           objectKind={objectKind}
           group={group}
@@ -280,47 +314,6 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
           onDragEnd={dragEnd}
         />
       ))}
-
-      {adding && (
-        <Box sx={tableStyles.root}>
-          <Box sx={{ width: columnWidth }} />
-          <Box sx={{ width: columnWidth }}>
-            <Typography>{predicateTitle}</Typography>
-          </Box>
-          <Box sx={{ width: columnWidth }}>
-            <ObjectInput
-              kind={objectKind}
-              value={newValue}
-              group={group}
-              onChange={setNewValue}
-              onConfirm={confirmAdd}
-              onCancel={cancelAdd}
-            />
-          </Box>
-          <Box display="flex" sx={{ width: '6.25rem', justifyContent: "flex-end" }}>
-            <Tooltip placement="top" title="Save">
-              <IconButton onClick={confirmAdd}>
-                <CheckOutlinedIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-            <Tooltip placement="top" title="Cancel">
-              <IconButton onClick={cancelAdd}>
-                <CloseOutlinedIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Box>
-      )}
-
-      {addable && !!onMutate && !adding && (
-        <Box sx={tableStyles.root}>
-          <Box sx={{ paddingLeft: '0 !important' }}>
-            <IconButton onClick={startAdd}>
-              <AddOutlinedIcon />
-            </IconButton>
-          </Box>
-        </Box>
-      )}
     </Box>
   );
 };
@@ -328,11 +321,13 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
 CustomizedTable.propTypes = {
   data: PropTypes.shape({
     title: PropTypes.string,
+    label: PropTypes.string,
     count: PropTypes.number,
     tableData: PropTypes.array, // legacy
     rows: PropTypes.array,      // new
     values: PropTypes.array,    // new alias
-    edges: PropTypes.array      // fallback
+    edges: PropTypes.array,     // fallback
+    objectKind: PropTypes.oneOf(["term", "text"]),
   }),
   focusId: PropTypes.string,
   group: PropTypes.string,
