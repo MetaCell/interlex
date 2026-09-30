@@ -17,6 +17,10 @@ import { useEditSession } from "../../../contexts/editSession";
 // list keeps its shape while being edited.
 const chipColorFor = (status) => (status === "added" ? "success" : status === "edited" ? "info" : "default");
 
+// Beside a field's title: the field shows the values it will have once saved, so this is what
+// says they are not persisted yet. Same badge the predicate table puts on a staged row.
+export const EditedChip = () => <Chip size="small" color="info" label="Edited" />;
+
 export const EditableChipList = ({
   predicate,
   values = [],
@@ -26,6 +30,7 @@ export const EditableChipList = ({
   onMutate,
   addLabel = "Add",
   chipClassName = "rounded",
+  formatLabel,
 }) => {
   const { applyToValues } = useEditSession();
   const [adding, setAdding] = useState(false);
@@ -78,16 +83,22 @@ export const EditableChipList = ({
         </Button>
       )}
       <Box display="flex" flexWrap="wrap" gap=".5rem">
-        {resolved.map((entry) => (
-          <Chip
-            key={`${entry.value}-${entry.status}`}
-            className={chipClassName}
-            variant="outlined"
-            color={chipColorFor(entry.status)}
-            label={entry.value}
-            onDelete={() => remove(entry)}
-          />
-        ))}
+        {resolved.map((entry) => {
+          const chip = (
+            <Chip
+              key={`${entry.value}-${entry.status}`}
+              className={chipClassName}
+              variant="outlined"
+              color={chipColorFor(entry.status)}
+              label={formatLabel ? formatLabel(entry.value) : entry.value}
+              onDelete={() => remove(entry)}
+            />
+          );
+          // A shortened label stands in for the value, so the value itself stays one hover away.
+          return formatLabel ? (
+            <Tooltip key={`${entry.value}-${entry.status}`} title={entry.value} arrow>{chip}</Tooltip>
+          ) : chip;
+        })}
       </Box>
     </Stack>
   );
@@ -102,6 +113,7 @@ EditableChipList.propTypes = {
   onMutate: PropTypes.func,
   addLabel: PropTypes.string,
   chipClassName: PropTypes.string,
+  formatLabel: PropTypes.func,
 };
 
 // Single-valued literal (definition): staged as an edit of the stored value, or

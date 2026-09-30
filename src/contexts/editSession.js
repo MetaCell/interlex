@@ -20,10 +20,15 @@ const nextId = () => `pending-${++entrySeq}`;
 // Fold one add/edit/delete into the pending list, collapsing it against what is
 // already staged: editing a staged add rewrites that add, deleting a staged add
 // drops it, editing a value back to its original removes the entry entirely.
+//
+// Entries are matched on `predicateIri`, the expanded predicate: the Overview fields and the
+// predicate table spell the same predicate differently (the table shortens with whatever curies
+// the session has), and only the expanded form is shared. `predicate` keeps the caller's spelling,
+// which is what locates the stored value in the document on save.
 export const stage = (list, mutation) => {
-  const { subject, predicate, kind, op, focusId } = mutation;
+  const { subject, predicate, predicateIri, kind, op, focusId } = mutation;
   const matches = (e) =>
-    samePredicate(e.predicate, predicate) &&
+    samePredicate(e.predicateIri, predicateIri) &&
     sameSubject(e.subject, subject) &&
     sameFocus(e.focusId, focusId);
 
@@ -31,7 +36,7 @@ export const stage = (list, mutation) => {
     if (!String(mutation.newValue ?? "").trim()) return list;
     return [
       ...list,
-      { id: nextId(), focusId, subject, predicate, kind, op: "add", newValue: mutation.newValue },
+      { id: nextId(), focusId, subject, predicate, predicateIri, kind, op: "add", newValue: mutation.newValue },
     ];
   }
 
@@ -61,6 +66,7 @@ export const stage = (list, mutation) => {
         focusId,
         subject,
         predicate,
+        predicateIri,
         kind,
         op: "edit",
         oldValue: mutation.oldValue,
@@ -79,6 +85,7 @@ export const stage = (list, mutation) => {
       focusId: entry.focusId,
       subject: entry.subject,
       predicate: entry.predicate,
+      predicateIri: entry.predicateIri,
       kind: entry.kind,
       op: "delete",
       oldValue: entry.oldValue,
@@ -87,16 +94,16 @@ export const stage = (list, mutation) => {
   }
   return [
     ...list,
-    { id: nextId(), focusId, subject, predicate, kind, op: "delete", oldValue: mutation.oldValue },
+    { id: nextId(), focusId, subject, predicate, predicateIri, kind, op: "delete", oldValue: mutation.oldValue },
   ];
 };
 
 // Original values + pending, in display order: edits in place, deletes dropped,
 // adds appended. `status` lets a section flag what changed.
-export const resolveValues = (pending, predicate, values = [], subject, focusId) => {
+export const resolveValues = (pending, predicateIri, values = [], subject, focusId) => {
   const entries = pending.filter(
     (e) =>
-      samePredicate(e.predicate, predicate) &&
+      samePredicate(e.predicateIri, predicateIri) &&
       sameSubject(e.subject, subject) &&
       sameFocus(e.focusId, focusId)
   );
@@ -118,6 +125,16 @@ export const resolveValues = (pending, predicate, values = [], subject, focusId)
     .forEach((e) => out.push({ value: e.newValue, original: null, status: "added" }));
   return out;
 };
+
+// Whether anything is staged against any of `predicateIris` on the focus term. Read off the pending
+// list rather than resolveValues, which drops deleted values and so cannot report a removal.
+export const hasPendingFor = (pending, predicateIris, subject, focusId) =>
+  pending.some(
+    (e) =>
+      predicateIris.some((predicateIri) => samePredicate(e.predicateIri, predicateIri)) &&
+      sameSubject(e.subject, subject) &&
+      sameFocus(e.focusId, focusId)
+  );
 
 // patchEndpointsIlx rejects with the raw axios error on failure. Normalize to
 // { ok, status, message }, digging the backend's message out of its HTML page.
@@ -152,6 +169,7 @@ const INERT = {
   stageMutation: () => {},
   applyToValues: (_predicate, values = []) =>
     values.map((v) => ({ value: v, original: v, status: "clean" })),
+  hasPendingChanges: () => false,
   setFocus: () => {},
   registerReload: () => {},
 };

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
 import CellEditor from "./CellEditor";
 import { Box, Chip, IconButton, Tooltip, Typography, Link } from "@mui/material";
@@ -14,6 +14,7 @@ function isValidURL(value) {
 const STATUS_CHIP = {
   added: { label: "New", color: "success" },
   edited: { label: "Edited", color: "info" },
+  deleted: { label: "Removed", color: "error" },
 };
 
 const TableRow = ({
@@ -23,7 +24,8 @@ const TableRow = ({
   onDragEnter,
   onDragEnd,
   index,
-  columnWidth,
+  columnFlex,
+  actionsWidth,
   editable = false,
   status,
   objectKind = "text",
@@ -34,7 +36,6 @@ const TableRow = ({
   const { id, subject, predicate, object } = data;
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(object);
-  const objectCellRef = useRef(null);
   const statusChip = STATUS_CHIP[status];
 
   const startEdit = () => {
@@ -55,7 +56,7 @@ const TableRow = ({
       onDragEnter={e => onDragEnter(id, index, e)}
       onDragEnd={onDragEnd}
     >
-      <Box sx={{ width: columnWidth }}>
+      <Box sx={{ flex: columnFlex.subject }}>
         <Tooltip title={subject}>
           {isValidURL(subject) ? (
             <Link href={subject} target="_blank" rel="noopener noreferrer">
@@ -66,14 +67,14 @@ const TableRow = ({
           )}
         </Tooltip>
       </Box>
-      <Box sx={{ width: columnWidth }}>
+      <Box sx={{ flex: columnFlex.predicate }}>
         <Tooltip title={predicate}>
           <Typography>
             {predicate}
           </Typography>
         </Tooltip>
       </Box>
-      <Box sx={{ width: columnWidth }} ref={objectCellRef} onDoubleClick={editable ? startEdit : undefined}>
+      <Box sx={{ flex: columnFlex.object }} onDoubleClick={editable ? startEdit : undefined}>
         <Tooltip title={object}>
           {isValidURL(object) ? (
             <Link href={object} target="_blank" rel="noopener noreferrer">
@@ -86,37 +87,38 @@ const TableRow = ({
         {statusChip && (
           <Chip size="small" color={statusChip.color} label={statusChip.label} sx={{ flexShrink: 0 }} />
         )}
-        {isEditing && (
-          <CellEditor
-            anchorEl={objectCellRef.current}
-            title={predicate}
-            kind={objectKind}
-            value={draft}
-            group={group}
-            onChange={setDraft}
-            onConfirm={confirmEdit}
-            onCancel={cancelEdit}
-          />
-        )}
       </Box>
-      <Box display="flex" sx={{ width: '6.25rem', justifyContent: "flex-end", alignItems: "center" }}>
-        {/* Edit mode shows the controls outright — hover-to-reveal was the
-            affordance back when any row could be edited at any time. */}
-        {editable && (
-          <>
-            <Tooltip placement="top" title="Edit">
-              <IconButton onClick={startEdit} aria-label="Edit value">
-                <EditOutlinedIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-            <Tooltip placement="top" title="Delete">
-              <IconButton onClick={() => onDelete?.(data)} aria-label="Delete value">
-                <DeleteOutlineOutlinedIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </>
-        )}
-      </Box>
+      {actionsWidth && (
+        <Box display="flex" sx={{ width: actionsWidth, flexShrink: 0, justifyContent: "flex-end", alignItems: "center" }}>
+          {/* Edit mode shows the controls outright — hover-to-reveal was the
+              affordance back when any row could be edited at any time. */}
+          {editable && (
+            <>
+              <Tooltip placement="top" title="Edit">
+                <IconButton onClick={startEdit} aria-label="Edit value">
+                  <EditOutlinedIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip placement="top" title="Delete">
+                <IconButton onClick={() => onDelete?.(data)} aria-label="Delete value">
+                  <DeleteOutlineOutlinedIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </>
+          )}
+        </Box>
+      )}
+      {isEditing && (
+        <CellEditor
+          title={predicate}
+          kind={objectKind}
+          value={draft}
+          group={group}
+          onChange={setDraft}
+          onConfirm={confirmEdit}
+          onCancel={cancelEdit}
+        />
+      )}
     </Box>);
 };
 
@@ -127,9 +129,14 @@ TableRow.propTypes = {
   onDragEnter: PropTypes.func.isRequired,
   onDragEnd: PropTypes.func.isRequired,
   index: PropTypes.number.isRequired,
-  columnWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+  columnFlex: PropTypes.shape({
+    subject: PropTypes.number.isRequired,
+    predicate: PropTypes.number.isRequired,
+    object: PropTypes.number.isRequired,
+  }).isRequired,
+  actionsWidth: PropTypes.string,
   editable: PropTypes.bool,
-  status: PropTypes.oneOf(["clean", "added", "edited"]),
+  status: PropTypes.oneOf(["clean", "added", "edited", "deleted"]),
   objectKind: PropTypes.oneOf(["term", "text"]),
   group: PropTypes.string,
   onEdit: PropTypes.func,

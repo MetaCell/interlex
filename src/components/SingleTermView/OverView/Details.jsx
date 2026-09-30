@@ -7,26 +7,63 @@ import {
   Typography
 } from "@mui/material";
 import PropTypes from "prop-types";
+import { useContext, useMemo } from "react";
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 import { formatTimestamp } from "../../../utils";
-import { EditableChipList, EditableTextValue } from "./EditableFields";
+import { EditableChipList, EditableTextValue, EditedChip } from "./EditableFields";
+import { useEditSession } from "../../../contexts/editSession";
+import { focusNodeFromJsonLd, nodeKeyForPredicate } from "../../../parsers/predicateMutations";
+import { buildExpandContext, shortenIri } from "../../../configuration/predicateConfig";
+import { GlobalDataContext } from "../../../contexts/DataContext";
 
 import { vars } from "../../../theme/variables";
 const { gray800, gray500 } = vars;
 
-const RELATED_SYNONYM_IRI = "http://uri.interlex.org/base/ilx_0737162";
+// Predicates behind the editable fields of this section, as base spells them. A document may spell
+// them otherwise — a fork keys related synonyms as `ilx.<group>.anno.hasRelatedSynonym`, and
+// existing ids come as either of two relations — so each field is read from, and edited under, the
+// key the term's own document uses: the one the predicate table groups it by and the one a
+// removal has to name to match the stored triple. The first spelling is used when the term has
+// no value yet.
+const FIELD_PREDICATES = {
+  synonyms: ["ilxr:synonym"],
+  related: ["ilx.anno.hasRelatedSynonym"],
+  existingIds: ["ilxtr:hasExternalId", "ilxtr:hasExistingId"],
+  description: ["definition"],
+};
 
-// Predicates behind the editable fields of this section. They are the curies
-// the predicate table and the PATCH context use, so a synonym edited here and
-// one edited in the table collapse onto the same triple.
-const SYNONYM_PREDICATE = "ilxr:synonym";
-const RELATED_SYNONYM_PREDICATE = "ilx.anno.hasRelatedSynonym";
-const DEFINITION_PREDICATE = "definition";
-const EXISTING_ID_PREDICATE = "ilxtr:hasExistingId";
+const fieldKeysOf = (jsonData) => {
+  const node = focusNodeFromJsonLd(jsonData);
+  const context = { ...(jsonData?.["@context"] || {}), ...buildExpandContext() };
+  return Object.fromEntries(
+    Object.entries(FIELD_PREDICATES).map(([field, predicates]) => [
+      field,
+      nodeKeyForPredicate(node, predicates, context) ?? predicates[0],
+    ])
+  );
+};
+
+const literalsOf = (value) =>
+  (Array.isArray(value) ? value : value == null ? [] : [value])
+    .map((v) => (typeof v === "string" ? v : v?.["@value"] ?? null))
+    .filter(Boolean);
 
 // `onMutate` present means edit mode is on (OverView only passes it then).
 const Details = ({ loading, data, jsonData, group = "base", termVersion, onMutate }) => {
   const editing = !!onMutate;
+  const { hasPendingChanges } = useEditSession();
+  const { curies } = useContext(GlobalDataContext);
+  // Every namespace the app knows — the user's own, then the curated and latest sets — so an id
+  // reads as a curie wherever any of them covers it; shortenIri leaves an unmatched IRI as is.
+  const knownCuries = useMemo(
+    () => [...(curies?.base ?? []), ...(curies?.curated ?? []), ...(curies?.latest ?? [])],
+    [curies]
+  );
+  const existingIdLabel = (iri) => shortenIri(iri, knownCuries);
+  const fieldKeys = fieldKeysOf(jsonData);
+  const synonymsEdited = editing && hasPendingChanges([fieldKeys.synonyms, fieldKeys.related]);
+  const existingIdsEdited = editing && hasPendingChanges([fieldKeys.existingIds]);
+  const descriptionEdited = editing && hasPendingChanges([fieldKeys.description]);
   const handleChipClick = (url) => {
     window.open(url, '_blank');
   };
@@ -43,15 +80,8 @@ const Details = ({ loading, data, jsonData, group = "base", termVersion, onMutat
   const getSynonymGroups = () => {
     const synonyms = processExistingIds(data?.synonym);
     const synonymSet = new Set(synonyms);
-    const graph = jsonData?.["@graph"];
-    const focusNode = Array.isArray(graph)
-      ? graph.find(n => String(n?.["@type"] || "").toLowerCase().includes("class")) || null
-      : null;
-    const relatedRaw = focusNode?.[RELATED_SYNONYM_IRI];
-    const relatedArr = Array.isArray(relatedRaw) ? relatedRaw : relatedRaw ? [relatedRaw] : [];
-    const related = relatedArr
-      .map(v => (typeof v === "string" ? v : v?.["@value"] || null))
-      .filter(v => v && !synonymSet.has(v));
+    const related = literalsOf(focusNodeFromJsonLd(jsonData)?.[fieldKeys.related])
+      .filter((v) => !synonymSet.has(v));
     return { synonyms, related };
   };
 
@@ -75,23 +105,26 @@ const Details = ({ loading, data, jsonData, group = "base", termVersion, onMutat
       <Grid container>
         <Grid item xs={12} lg={5}>
           <Stack spacing=".75rem">
-            <Typography
-              id="synonyms"
-              color={gray800}
-              fontWeight={500}
-              component="a"
-              href="#synonyms"
-              sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { textDecoration: 'underline' } }}
-            >
-              Synonyms
-            </Typography>
+            <Stack direction="row" spacing=".5rem" alignItems="center">
+              <Typography
+                id="synonyms"
+                color={gray800}
+                fontWeight={500}
+                component="a"
+                href="#synonyms"
+                sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { textDecoration: 'underline' } }}
+              >
+                Synonyms
+              </Typography>
+              {synonymsEdited && <EditedChip />}
+            </Stack>
             {(() => {
               const { synonyms, related } = getSynonymGroups();
               if (editing) {
                 return (
                   <Stack spacing="1rem">
                     <EditableChipList
-                      predicate={SYNONYM_PREDICATE}
+                      predicate={fieldKeys.synonyms}
                       values={synonyms}
                       group={group}
                       onMutate={onMutate}
@@ -100,7 +133,7 @@ const Details = ({ loading, data, jsonData, group = "base", termVersion, onMutat
                     <Stack spacing=".5rem">
                       <Typography variant="caption" color={gray500}>Related</Typography>
                       <EditableChipList
-                        predicate={RELATED_SYNONYM_PREDICATE}
+                        predicate={fieldKeys.related}
                         values={related}
                         group={group}
                         onMutate={onMutate}
@@ -152,24 +185,30 @@ const Details = ({ loading, data, jsonData, group = "base", termVersion, onMutat
         {(editing || processExistingIds(data?.existingID).length > 0) && (
           <Grid item xs={12} lg={4}>
             <Stack spacing=".75rem">
-              <Typography color={gray800} fontWeight={500}>
-                Existing IDs
-              </Typography>
+              <Stack direction="row" spacing=".5rem" alignItems="center">
+                <Typography color={gray800} fontWeight={500}>
+                  Existing IDs
+                </Typography>
+                {existingIdsEdited && <EditedChip />}
+              </Stack>
               {editing ? (
                 <EditableChipList
-                  predicate={EXISTING_ID_PREDICATE}
+                  predicate={fieldKeys.existingIds}
                   values={processExistingIds(data?.existingID)}
                   kind="term"
                   group={group}
                   onMutate={onMutate}
                   addLabel="Add existing ID"
                   chipClassName="rounded IDchip-outlined"
+                  formatLabel={existingIdLabel}
                 />
               ) : (
                 <Box display="flex" flexWrap="wrap" gap=".5rem">
-                  {processExistingIds(data?.existingID).map((id) =>
-                    <Chip className="rounded IDchip-outlined" variant="outlined" key={id} label={id} icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(id)} />
-                  )}
+                  {processExistingIds(data?.existingID).map((id) => (
+                    <Tooltip key={id} title={id} arrow>
+                      <Chip className="rounded IDchip-outlined" variant="outlined" label={existingIdLabel(id)} icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(id)} />
+                    </Tooltip>
+                  ))}
                 </Box>
               )}
             </Stack>
@@ -179,12 +218,15 @@ const Details = ({ loading, data, jsonData, group = "base", termVersion, onMutat
       <Grid container mt="2.5rem">
         <Grid item xs={12}>
           <Stack spacing=".75rem">
-            <Typography color={gray800} fontWeight={500}>
-              Description
-            </Typography>
+            <Stack direction="row" spacing=".5rem" alignItems="center">
+              <Typography color={gray800} fontWeight={500}>
+                Description
+              </Typography>
+              {descriptionEdited && <EditedChip />}
+            </Stack>
             {editing ? (
               <EditableTextValue
-                predicate={DEFINITION_PREDICATE}
+                predicate={fieldKeys.description}
                 value={data?.description || ""}
                 onMutate={onMutate}
                 placeholder="Describe this term"

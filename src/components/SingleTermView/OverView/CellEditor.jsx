@@ -1,28 +1,14 @@
 import PropTypes from "prop-types";
-import { Button, Popover, Stack, Typography } from "@mui/material";
+import { Button, Card, CardContent, Stack, Typography } from "@mui/material";
 import ObjectInput from "./ObjectInput";
 
-const MIN_EDITOR_WIDTH_REM = 28;
-
-// Airtable-style field editor: the cell expands into a card that sits over its
-// neighbours, so a long value can be read and edited whole instead of through a
-// one-line slot a third of the table wide. Clicking away keeps the edit, as in
-// Airtable; only Esc or Cancel discards it.
-const CellEditor = ({ anchorEl, title, kind, value, group, onChange, onConfirm, onCancel }) => {
-  const cellWidth = anchorEl?.getBoundingClientRect().width ?? 0;
-
-  const handleClose = (_event, reason) => (reason === "escapeKeyDown" ? onCancel() : onConfirm());
-
-  return (
-    <Popover
-      open={Boolean(anchorEl)}
-      anchorEl={anchorEl}
-      onClose={handleClose}
-      anchorOrigin={{ vertical: "top", horizontal: "left" }}
-      transformOrigin={{ vertical: "top", horizontal: "left" }}
-      slotProps={{ paper: { sx: { width: `max(${cellWidth}px, ${MIN_EDITOR_WIDTH_REM}rem)`, maxWidth: "calc(100vw - 2rem)" } } }}
-    >
-      <Stack spacing={1.5} p={1.5}>
+// Airtable-style field editor, opened inside its row: the row grows to hold it rather than the card
+// floating over the rows below, so several rows of a predicate can be open for editing at once and
+// none of them is hidden behind another. Only Save/Enter keeps the edit; Esc or Cancel discards it.
+const CellEditor = ({ title, kind, value, group, onChange, onConfirm, onCancel }) => (
+  <Card raised sx={{ flexBasis: "100%", mt: 1 }}>
+    <CardContent>
+      <Stack spacing={1.5}>
         {title && <Typography variant="caption" color="text.secondary">{title}</Typography>}
         <ObjectInput
           kind={kind}
@@ -43,12 +29,11 @@ const CellEditor = ({ anchorEl, title, kind, value, group, onChange, onConfirm, 
           </Stack>
         </Stack>
       </Stack>
-    </Popover>
-  );
-};
+    </CardContent>
+  </Card>
+);
 
 CellEditor.propTypes = {
-  anchorEl: PropTypes.instanceOf(Element),
   title: PropTypes.string,
   kind: PropTypes.oneOf(["term", "text"]).isRequired,
   value: PropTypes.string,

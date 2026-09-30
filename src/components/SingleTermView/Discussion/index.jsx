@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { Box, Grid, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
 import ConstructionOutlinedIcon from "@mui/icons-material/ConstructionOutlined";
 import DiscussionList from "./List";
@@ -97,6 +98,10 @@ const Discussion = ({ term }) => {
       </Grid>
     </Box>
   );
+};
+
+Discussion.propTypes = {
+  term: PropTypes.string,
 };
 
 export default Discussion;

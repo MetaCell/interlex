@@ -30,6 +30,8 @@ const tableStyles = {
   root: {
     padding: '.5rem',
     display: 'flex',
+    // Lets an open CellEditor take a line of its own beneath the cells.
+    flexWrap: 'wrap',
     alignItems: 'center',
     border: '1px solid transparent',
     position: 'relative',
@@ -61,6 +63,12 @@ const tableStyles = {
     },
   },
 };
+
+// Share of the row each column grows into. Every row of a group repeats the same subject and
+// predicate, so the object — the one value that differs, and the longest — gets the most room.
+const COLUMN_FLEX = { subject: 2, predicate: 1, object: 3 };
+// Holds the edit/delete icons; outside edit mode there are none, so no room is reserved.
+const ACTIONS_WIDTH = '3.5rem';
 
 // ---------- helpers ----------
 const safe = (v) => (v == null ? "" : String(v));
@@ -123,7 +131,6 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
 
   // State rather than a ref: the cell mounts in the same render that opens the
   // editor, and the editor needs it as its anchor.
-  const [newObjectCell, setNewObjectCell] = useState(null);
   const targetRow = useRef();
   const sourceRow = useRef();
 
@@ -133,7 +140,8 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
   }, [data]);
 
   // Rows as the edit session says they will look once saved: edits in place,
-  // deletes gone, adds first — next to the "+" that created them. Only rows that sit on the focus term can be
+  // adds first, and deletes kept but marked, so a removal is as visible as any other change until
+  // Save — dropping the row would leave nothing to say it is staged — next to the "+" that created them. Only rows that sit on the focus term can be
   // staged, so inbound rows pass through untouched.
   const { applyToValues } = useEditSession();
   const focusSubject = tableContent.find((r) => isRowOnFocus(r.subject, focusId))?.subject;
@@ -162,8 +170,7 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
         return;
       }
       const entry = byOriginal.get(row.object);
-      if (!entry) return; // staged for deletion
-      rows.push({ ...row, object: entry.value, status: entry.status });
+      rows.push(entry ? { ...row, object: entry.value, status: entry.status } : { ...row, status: "deleted" });
     });
     return rows;
   }, [tableContent, focusId, focusSubject, predicateTitle, predicateLabel, applyToValues]);
@@ -242,14 +249,13 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
     cancelAdd();
   };
 
-  const tableWidth = 800;
-  const columnWidth = "100%";
+  const showActions = !!onMutate;
 
   return (
-    <Box pb={1.5} width={1} sx={{ maxWidth: `${tableWidth}px` }}>
+    <Box pb={1.5} width={1}>
       <Box sx={tableStyles.head}>
         {tableHeader.map((head, index) => (
-          <Box key={index} sx={{ display: 'flex', alignItems: 'center', width: columnWidth }}>
+          <Box key={index} sx={{ display: 'flex', alignItems: 'center', flex: COLUMN_FLEX[head.key], minWidth: 0 }}>
             <Typography>{head.label}</Typography>
             {head.key && head.allowSort && (
               <IconButton
@@ -262,23 +268,22 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
             )}
           </Box>
         ))}
-        <Box sx={{ width: '6.25rem' }} />
+        {showActions && <Box sx={{ width: ACTIONS_WIDTH, flexShrink: 0 }} />}
       </Box>
 
       {addable && !!onMutate && (
         <Box sx={tableStyles.root} className={adding ? undefined : "secondary"}>
           {adding ? (
             <>
-              <Box sx={{ width: columnWidth }}>
+              <Box sx={{ flex: COLUMN_FLEX.subject }}>
                 <Typography>{focusSubject}</Typography>
               </Box>
-              <Box sx={{ width: columnWidth }}>
+              <Box sx={{ flex: COLUMN_FLEX.predicate }}>
                 <Typography>{predicateLabel}</Typography>
               </Box>
-              <Box sx={{ width: columnWidth }} ref={setNewObjectCell} />
-              <Box sx={{ width: '6.25rem' }} />
+              <Box sx={{ flex: COLUMN_FLEX.object }} />
+              <Box sx={{ width: ACTIONS_WIDTH, flexShrink: 0 }} />
               <CellEditor
-                anchorEl={newObjectCell}
                 title={predicateLabel}
                 kind={objectKind}
                 value={newValue}
@@ -300,10 +305,11 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
         <TableRow
           key={`${row.id}-${index}`}
           tableStyles={tableStyles}
-          columnWidth={columnWidth}
+          columnFlex={COLUMN_FLEX}
+          actionsWidth={showActions ? ACTIONS_WIDTH : undefined}
           data={row}
           index={index}
-          editable={!readOnly && !!onMutate && (row.status === "added" || isRowOnFocus(row.subject, focusId))}
+          editable={!readOnly && !!onMutate && row.status !== "deleted" && (row.status === "added" || isRowOnFocus(row.subject, focusId))}
           status={row.status}
           objectKind={objectKind}
           group={group}
