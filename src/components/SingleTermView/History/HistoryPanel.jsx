@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from 'prop-types';
 import HistoryItem from "./HistoryItem";
-import { Box, List, CircularProgress } from "@mui/material";
+import { Box, List } from "@mui/material";
 import { vars } from "../../../theme/variables";
 
 const { gray50 } = vars;
@@ -27,11 +27,7 @@ const HistoryPanel = ({ /*searchTerm, group = "base",*/ versionsData, versionsLo
         );
     }, [versionsData]);
 
-    if (versionsLoading) {
-        return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-            <CircularProgress />
-        </Box>
-    }
+    if (versionsLoading) return null;
 
     if (!versions.length) return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         No version history found

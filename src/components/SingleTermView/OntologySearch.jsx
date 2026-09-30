@@ -17,6 +17,7 @@ import FolderSharedOutlinedIcon from '@mui/icons-material/FolderSharedOutlined';
 import { vars } from "../../theme/variables";
 import { getOrganizationsOntologies, getOntologyTerms } from "../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../contexts/DataContext";
+import { useReportLoading } from "../../contexts/pageLoading";
 
 const { brand600, gray50, gray300, gray400, white, gray700, gray200, paperShadow } = vars;
 
@@ -90,6 +91,7 @@ const OntologySearch = ({ placeholder, fullWidth = false, disabled, extra, userG
   const [selectedValue, setSelectedValue] = useState(null);
   const [ontologies, setOntologies] = useState([]);
   const [loading, setLoading] = useState(false);
+  useReportLoading(loading);
   const autocompleteRef = useRef(null);
   const popperRef = useRef(null);
   
