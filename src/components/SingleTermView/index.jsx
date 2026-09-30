@@ -59,13 +59,14 @@ import CustomSingleSelect from "../common/CustomSingleSelect";
 import CustomButtonGroup from "../common/CustomButtonGroup";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CreateForkDialog from "./CreateForkDialog";
+import ExistingForkDialog from "./ExistingForkDialog";
 import TermEditActions from "./TermEditActions";
 import FeatureNotAvailableDialog from "../common/FeatureNotAvailableDialog";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { EditSessionProvider } from "../../contexts/EditSessionContext";
 import { getRawData } from "../../api/endpoints";
 import { getVersions, addEntityToOntology, getOntologyTerms, termExistsInGroup } from "../../api/endpoints/apiService";
-import { resolveTermVersion } from "../../parsers/termVersion";
+import { hasForkIn, resolveTermVersion } from "../../parsers/termVersion";
 import { reportApiError } from "../../api/apiErrorBus";
 import { useTermData } from "../../hooks/useTermData";
 import { useTermRecordAvailability } from "../../hooks/useTermRecordAvailability";
@@ -147,6 +148,8 @@ const SingleTermView = () => {
   const [selectedDataFormat, setSelectedDataFormat] = useState('JSON-LD');
   const [openRequestMergeDialog, setOpenRequestMergeDialog] = useState(false);
   const [openForkDialog, setOpenForkDialog] = useState(false);
+  const [openExistingForkDialog, setOpenExistingForkDialog] = useState(false);
+  const [scratchNotAvailableOpen, setScratchNotAvailableOpen] = useState(false);
   const [featureNotAvailableDialog, setFeatureNotAvailableDialog] = useState(false);
 
   // Use the optimized term data hook instead of manual fetching
@@ -361,8 +364,34 @@ const SingleTermView = () => {
     setOpenForkDialog(false);
   }, []);
 
+  // Every group's variants of the term are listed in its versions, so a group that already
+  // published one owns a fork: forking again would fail on the backend with a misleading error.
+  const hasExistingFork = useMemo(
+    () => hasForkIn(versionsData, user?.groupname),
+    [versionsData, user?.groupname]
+  );
+
   const handleOpenForkDialog = useCallback(() => {
-    setOpenForkDialog(true);
+    if (hasExistingFork) {
+      setOpenExistingForkDialog(true);
+    } else {
+      setOpenForkDialog(true);
+    }
+  }, [hasExistingFork]);
+
+  const handleExistingForkDialogClose = useCallback(() => {
+    setOpenExistingForkDialog(false);
+  }, []);
+
+  const handleUseExistingFork = useCallback(() => {
+    setOpenExistingForkDialog(false);
+    navigate(`/${user?.groupname}/${searchTerm}/overview`);
+  }, [navigate, user?.groupname, searchTerm]);
+
+  // Scratch versions are not supported by the backend yet; this is only their entry point.
+  const handleStartForkFromScratch = useCallback(() => {
+    setOpenExistingForkDialog(false);
+    setScratchNotAvailableOpen(true);
   }, []);
 
   const handleClickDataFormatMenu = useCallback((event) => {
@@ -734,7 +763,7 @@ const SingleTermView = () => {
                       Request to merge changes to curated
                     </Button>
                   ) : !isInPersonalNamespace && user ? (
-                    <Button type="string" color="secondary" startIcon={<ForkRightIcon />} onClick={handleOpenForkDialog}>
+                    <Button type="string" color="secondary" startIcon={<ForkRightIcon />} onClick={handleOpenForkDialog} disabled={versionsLoading}>
                       Create fork
                     </Button>
                   ) : null}
@@ -809,7 +838,21 @@ const SingleTermView = () => {
         termLabel={displayedTermLabel}
         group={actualGroup}
       />
-      
+      <ExistingForkDialog
+        open={openExistingForkDialog}
+        handleClose={handleExistingForkDialogClose}
+        groupname={user?.groupname}
+        termLabel={displayedTermLabel}
+        onUseExisting={handleUseExistingFork}
+        onStartFromScratch={handleStartForkFromScratch}
+      />
+      <FeatureNotAvailableDialog
+        open={scratchNotAvailableOpen}
+        onClose={() => setScratchNotAvailableOpen(false)}
+        title="Scratch version not available yet"
+        message="Starting a scratch version of a term you have already forked is not implemented yet. You can keep working on your existing fork in the meantime."
+      />
+
       {/* Feature Not Available Dialog */}
       <FeatureNotAvailableDialog
         open={featureNotAvailableDialog}
