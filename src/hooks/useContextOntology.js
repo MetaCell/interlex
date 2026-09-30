@@ -3,6 +3,7 @@ import { atom, useAtom, useSetAtom } from "jotai";
 import { useParams } from "react-router-dom";
 import {
   ONTOLOGY_CATALOG,
+  ontologyEntry,
   ontologyForTermSlug,
   isIlxTermSlug,
 } from "../components/CellCards/config/gridConfig";
@@ -18,12 +19,12 @@ import useCellTerm from "../components/CellCards/CellCard/useCellTerm";
  */
 export const contextOntologyAtom = atom(null);
 
-/** Publish the ontology a route *is*, so terms opened from it inherit the context. */
-export const usePublishContextOntology = (slug) => {
-  const setSlug = useSetAtom(contextOntologyAtom);
+/** Publish the ontology a route *is* (its `ontologyEntry`), so terms opened from it inherit the context. */
+export const usePublishContextOntology = (entry) => {
+  const setEntry = useSetAtom(contextOntologyAtom);
   useEffect(() => {
-    if (slug && ONTOLOGY_CATALOG[slug]) setSlug(slug);
-  }, [slug, setSlug]);
+    if (entry) setEntry(entry);
+  }, [entry, setEntry]);
 };
 
 /**
@@ -43,18 +44,18 @@ export const usePublishContextOntology = (slug) => {
  * The URL wins and is read synchronously so a shared deep link resolves on its first render; the
  * sync is one-way (URL -> atom), leaving react-router the only writer of the URL.
  */
-export const useContextOntologySlug = (termSlug) => {
+export const useContextOntologyEntry = (termSlug) => {
   const [stored, setStored] = useAtom(contextOntologyAtom);
-  const { ontologySlug: fromUrl } = useParams();
-  const valid = fromUrl && ONTOLOGY_CATALOG[fromUrl] ? fromUrl : null;
+  const { group, ontologySlug } = useParams();
+  const fromUrl = ontologyEntry(group, ontologySlug) || null;
 
   useEffect(() => {
-    if (valid && valid !== stored) setStored(valid);
-  }, [valid, stored, setStored]);
+    if (fromUrl && fromUrl !== stored) setStored(fromUrl);
+  }, [fromUrl, stored, setStored]);
 
-  if (valid) return valid;
+  if (fromUrl) return fromUrl;
   if (isIlxTermSlug(termSlug)) return null;
-  return ontologyForTermSlug(termSlug) || stored || null;
+  return ONTOLOGY_CATALOG[ontologyForTermSlug(termSlug)] || stored || null;
 };
 
 /**
@@ -65,7 +66,7 @@ export const useContextOntologySlug = (termSlug) => {
  */
 export const useTermLinkContext = () => {
   const { group, org, term } = useParams();
-  const ontologySlug = useContextOntologySlug(term);
+  const ontologySlug = useContextOntologyEntry(term)?.slug ?? null;
   return { group: group || org || "base", ontologySlug };
 };
 
@@ -76,9 +77,9 @@ export const useTermLinkContext = () => {
  * `cell` null with `loading` false means "no ontology record": fall back to the InterLex term API.
  */
 export const useContextTerm = (termSlug) => {
-  const ontologySlug = useContextOntologySlug(termSlug);
-  const { cell, data, loading, error } = useCellTerm(termSlug, ontologySlug);
-  return { ontologySlug, ontology: data, cell, loading, error };
+  const entry = useContextOntologyEntry(termSlug);
+  const { cell, data, loading, error } = useCellTerm(termSlug, entry);
+  return { ontologySlug: entry?.slug ?? null, ontology: data, cell, loading, error };
 };
 
 export default useContextTerm;

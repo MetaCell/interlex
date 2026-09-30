@@ -108,10 +108,16 @@ export const DEFAULT_FIELD_SOURCES: FieldSources = {
   ),
   curatedDescriptionSources: 4,
 
-  cellType: exact("neurdf:Neuron"),
+  // Spelled out: an ontology InterLex serialises for a group may declare no `neurdf` prefix at all.
+  cellType: exact("http://uri.interlex.org/tgbugs/uris/readable/neurdf/Neuron"),
   parent: exact("rdfs:subClassOf"),
 
   literatureCitation: exact("ilxtr:literatureCitation"),
+  // What Tom puts on every DOI (#187): the short citation exactly as it should read, and the
+  // title. Neither is in the shipped graph yet, so until they land every citation renders as its
+  // DOI.
+  citationLabel: exact("skos:prefLabel"),
+  citationTitle: exact("dc:title", "dcterms:title"),
   dataCitation: exact("ilxtr:dataCitation"),
   atlasAnnotation: exact("ilxtr:atlasAnnotation"),
   curatorNote: exact("ilxtr:curatorNote"),

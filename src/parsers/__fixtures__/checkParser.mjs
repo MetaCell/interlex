@@ -5,7 +5,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { parseNeurdf, parsePredicateDisplay } from "../neurdfParser";
+import { parseNeurdf, parsePredicateDisplay, buildFacets } from "../neurdfParser";
 import { hasTranscriptomicProfile } from "../../components/CellCards/CellCard/widgetVisibility";
 import { buildNervoSensusLink, atlasCellKey } from "../../components/CellCards/CellCard/nervoSensusLink";
 import { buildRelationGraph } from "../../components/CellCards/CellCard/buildRelationGraph";
@@ -128,6 +128,15 @@ check(
   edgesOf("mapsTo").map((e) => [e.to, e.direction]).sort(),
   [["npokb:1037", "down"], ["npokb:970", "down"]]
 );
+// A record the cell is both a subclass of and consistent with is drawn once per side, so each
+// relation gets its own path instead of one crossing the graph to reach the other's box.
+const superAndMapped = { id: "npokb:1037", curie: "npokb:1037", label: "DRG Rxfp1 (Krauter2025)", iri: "" };
+const twice = buildRelationGraph(c1007, { parents: [superAndMapped] }, DEFAULT_MAPPINGS);
+check(
+  "a record related in both directions gets a box per side",
+  twice.nodes.filter((n) => n.ref?.id === "npokb:1037").map((n) => n.id).sort(),
+  ["npokb:1037", "npokb:1037::below"]
+);
 
 // --- display metadata read from the ontology ---------------------------------
 console.log("\npredicate display metadata");
@@ -151,6 +160,8 @@ check(
 // only holds if the parser (a) matches the predicate whatever prefix it arrives under and (b) keeps
 // it off `properties`, where every key becomes a facet option in the grid sidebar.
 const linkGraph = {
+  // Only what the cell type needs: `ilx:` stays undeclared on purpose (see below).
+  "@context": { neurdf: "http://uri.interlex.org/tgbugs/uris/readable/neurdf/" },
   "@graph": [
     {
       "@id": "npokb:9001",
@@ -190,6 +201,63 @@ check("deep links stay off properties", Object.keys(linked?.properties || {}), [
 // The bug this guards: the widgets used to look these up as `properties["ilx:has…"]`, a key the
 // parser never writes, so they could not light up even with the triple present.
 check("the Transcriptomic widget lights up on the link alone", hasTranscriptomicProfile(linked), true);
+
+// An ontology a group assembles in InterLex comes back with generated prefix labels (`ns1:` for
+// neurdf.ent, `ns2:` for neurdf.eqv), no `neurdf` prefix, and the cell type spelled out. Same
+// IRIs, so it must parse to the same cells.
+console.log("\nre-prefixed neurdf (generated labels)");
+const relabel = new Map(
+  Object.keys(data["@context"])
+    .filter((prefix) => prefix.startsWith("neurdf."))
+    .map((prefix, i) => [prefix, `ns${i + 1}`])
+);
+const relabelKey = (key) => {
+  const at = key.indexOf(":");
+  return at > 0 && relabel.has(key.slice(0, at)) ? `${relabel.get(key.slice(0, at))}${key.slice(at)}` : key;
+};
+const neurdfBase = data["@context"].neurdf;
+const reprefixed = {
+  "@context": Object.fromEntries(
+    Object.entries(data["@context"])
+      .filter(([prefix]) => prefix !== "neurdf")
+      .map(([prefix, base]) => [relabel.get(prefix) || prefix, base])
+  ),
+  "@graph": data["@graph"].map((node) =>
+    Object.fromEntries(
+      Object.entries(node).map(([key, value]) => [
+        relabelKey(key),
+        key === "@type"
+          ? [value].flat().map((t) => t.replace(/^neurdf:/, neurdfBase))
+          : value,
+      ])
+    )
+  ),
+};
+check("the fixture declares neurdf predicate families to relabel", relabel.size > 0, true);
+check(
+  "the same cells, properties and hierarchy come out",
+  (({ cells: c, hierarchy: h }) => ({ c, h }))(parseNeurdf(reprefixed, "ilxtr:NeuronPrecision")),
+  { c: cells, h: parseNeurdf(data, "ilxtr:NeuronPrecision").hierarchy }
+);
+
+console.log("\nno root class (a group's own ontology)");
+const unrooted = parseNeurdf(data, "");
+const subClassParents = (id) =>
+  [data["@graph"].find((n) => n["@id"] === id)?.["rdfs:subClassOf"] ?? []].flat().map((r) => r?.["@id"]);
+check(
+  "every neuron is in scope, not only the ones under a root class",
+  unrooted.cells.length,
+  data["@graph"].filter((n) => [n["@type"]].flat().includes("neurdf:Neuron")).length
+);
+check("the ontology document stands in as the root", unrooted.hierarchy[0]?.termId, meta.iri);
+check(
+  "its top level is the cells with no parent among them",
+  unrooted.hierarchy[0]?.children.length > 0 &&
+    unrooted.hierarchy[0].children.every((n) =>
+      !subClassParents(n.termId).some((p) => cells.some((c) => c.id === p))
+    ),
+  true
+);
 
 // The community link the spec names, `ilxtr:developmentCommunity`, has zero occurrences today, so
 // how a curator will write it is unknown — and every *other* link predicate in this ontology is an
@@ -273,6 +341,72 @@ check(
   "a cell with nothing mappable still links to the app",
   buildNervoSensusLink({}).href.startsWith("https://nervosensus.netlify.app/"),
   true
+);
+
+// --- literature citations (#187) ----------------------------------------------
+// Every Precision cell cites a DOI, and the shipped graph has no node for any of them — so today
+// each source must read as its whole DOI, never the last path segment ("sciadv.adj9173") that the
+// generic compaction used to leave behind.
+console.log("\nliterature citations (#187)");
+const [source934] = byId["npokb:934"].sources;
+check(
+  "a DOI compacts to doi:<the whole DOI> and still links to doi.org",
+  { label: source934.label, curie: source934.curie, iri: source934.iri },
+  {
+    label: "doi:10.1126/sciadv.adj9173",
+    curie: "doi:10.1126/sciadv.adj9173",
+    iri: "https://doi.org/10.1126/sciadv.adj9173",
+  }
+);
+check(
+  "the source facet offers the same label",
+  buildFacets(cells, ["source"], {})[0]?.values.map((v) => v.label).sort(),
+  ["doi:10.1016/j.cell.2024.02.006", "doi:10.1101/2025.11.05.686654", "doi:10.1126/sciadv.adj9173"]
+);
+
+// Tom will put a `skos:prefLabel` (the short citation, as it should read) and a `dc:title` on every
+// DOI, but neither is upstream yet, hence a synthetic graph.
+const DOI = "https://doi.org/10.1126/sciadv.adj9173";
+const citingGraph = (work, context = {}) => ({
+  "@context": { neurdf: "http://uri.interlex.org/tgbugs/uris/readable/neurdf/", ...context },
+  "@graph": [
+    {
+      "@id": "npokb:9002",
+      "@type": ["owl:Class", "neurdf:Neuron"],
+      "rdfs:label": "synthetic cited cell",
+      "rdfs:subClassOf": [{ "@id": "ilxtr:NeuronPrecision" }],
+      "ilxtr:literatureCitation": { "@id": DOI },
+    },
+    ...(work ? [{ "@id": DOI, ...work }] : []),
+  ],
+});
+const sourceOf = (work, context) =>
+  parseNeurdf(citingGraph(work, context), "ilxtr:NeuronPrecision").cells[0]?.sources[0];
+const TITLE = "Spatial transcriptomics of dorsal root ganglia";
+const described = sourceOf({ "skos:prefLabel": "Bhuiyan et al., 2024", "dc:title": TITLE });
+check("a described work is labelled by its skos:prefLabel, verbatim", described?.label, "Bhuiyan et al., 2024");
+check("…keeping the DOI as its curie", described?.curie, "doi:10.1126/sciadv.adj9173");
+check("…with its title alongside for the Source Publication widget", described?.title, TITLE);
+check(
+  "a title alone does not become the label, as the term title chain would make it",
+  sourceOf({ "dc:title": TITLE })?.label,
+  "doi:10.1126/sciadv.adj9173"
+);
+// Some cells in the wider graph cite a record rather than a paper (`mmset2cn:4`, which has a label).
+check(
+  "a cited record keeps its own label",
+  sourceOf({ "rdfs:label": "otic ganglion statement" })?.label,
+  "otic ganglion statement"
+);
+check(
+  "the short citation outranks a record's own label",
+  sourceOf({ "rdfs:label": "otic ganglion statement", "skos:prefLabel": "Bhuiyan et al., 2024" })?.label,
+  "Bhuiyan et al., 2024"
+);
+check(
+  "a DOI prefix the file declares wins over the built-in doi: form",
+  sourceOf(undefined, { DOI: "https://doi.org/" })?.curie,
+  "DOI:10.1126/sciadv.adj9173"
 );
 
 // --- runtime mappings ---------------------------------------------------------

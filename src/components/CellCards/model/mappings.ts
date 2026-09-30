@@ -62,6 +62,10 @@ export interface FieldSources {
 
   // Annotations that are not phenotypes. One model field each; see CellAnnotations.
   literatureCitation: FieldSource;
+  // Read off the cited work's own node rather than the cell's, and so never claimed from a cell:
+  // the label and title of each of `CellTerm.sources`.
+  citationLabel: FieldSource;
+  citationTitle: FieldSource;
   dataCitation: FieldSource;
   atlasAnnotation: FieldSource;
   curatorNote: FieldSource;

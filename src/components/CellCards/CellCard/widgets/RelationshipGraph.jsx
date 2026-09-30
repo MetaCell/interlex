@@ -34,24 +34,28 @@ const SWATCH_W = 32;
 const SWATCH_H = 12;
 const LegendSwatch = ({ kind, hidden }) => {
   const { palette } = useTheme();
-  const { stroke: kindStroke, dash, head, bidirectional } = edgeStyle(kind, palette);
+  const { stroke: kindStroke, dash, head } = edgeStyle(kind, palette);
   const stroke = hidden ? palette.action.disabled : kindStroke;
-  const { d, length } = ARROW_HEADS[head];
-  const headProps = arrowHeadProps(head, stroke, palette);
+  const arrow = ARROW_HEADS[head];
   const mid = SWATCH_H / 2;
   return (
     <Box component="svg" width={SWATCH_W} height={SWATCH_H} sx={{ flexShrink: 0 }}>
       <line
-        x1={bidirectional ? length : 0}
+        x1={0}
         y1={mid}
-        x2={SWATCH_W - length}
+        x2={SWATCH_W - (arrow?.length ?? 0)}
         y2={mid}
         stroke={stroke}
         strokeWidth={1.5}
         strokeDasharray={dash}
       />
-      <path d={d} transform={`translate(${SWATCH_W} ${mid})`} {...headProps} />
-      {bidirectional && <path d={d} transform={`translate(0 ${mid}) rotate(180)`} {...headProps} />}
+      {arrow && (
+        <path
+          d={arrow.d}
+          transform={`translate(${SWATCH_W} ${mid})`}
+          {...arrowHeadProps(head, stroke, palette)}
+        />
+      )}
     </Box>
   );
 };

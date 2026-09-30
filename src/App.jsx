@@ -7,7 +7,8 @@ import {
 	Route,
 	Navigate,
 	useLocation,
-	useNavigate
+	useNavigate,
+	useParams
 } from "react-router-dom";
 import theme from "./theme";
 import PropTypes from "prop-types";
@@ -46,6 +47,16 @@ const PageContainer = ({ children }) => {
 			{children}
 		</Box>
 	);
+};
+
+// The address InterLex gives an ontology a group keeps (uri.interlex.org/{group}/ontologies/uris/
+// {name}), so a copied identity URL resolves here too. It redirects rather than rendering in place:
+// everything below it (.jsonld, /spec, /version/…) is the backend's, proxied, and no tab of the
+// page could ever live there.
+const OntologyIdentityRedirect = () => {
+	const { group, name } = useParams();
+	const { search } = useLocation();
+	return <Navigate to={`/${group}/ontology/${name}${search}`} replace />;
 };
 
 const ProtectedRoute = ({ children }) => {
@@ -202,6 +213,7 @@ function MainContent() {
 						<Route index element={<OntologyGridPage />} />
 						<Route path="browse" element={<OntologyBrowsePage />} />
 					</Route>
+					<Route path="/:group/ontologies/uris/:name" element={<OntologyIdentityRedirect />} />
 					{/* A term read inside an ontology: the same page as the plain term route below, with
 					    the context ontology named by the path. A sibling of the ontology route rather than a
 					    child of it — the term page brings its own header, and the layout route above would

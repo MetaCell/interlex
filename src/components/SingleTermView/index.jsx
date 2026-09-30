@@ -48,6 +48,7 @@ import {
   ONTOLOGY_CATALOG,
   isDnsTermSlug,
   isIlxTermSlug,
+  ontologyEntry,
   ontologyForTermSlug,
   ontologyPath,
   termPath,
@@ -186,8 +187,8 @@ const SingleTermView = () => {
   // ~16MB load. Deliberately not the resolved `contextCell`: that lands later and would move the
   // default tab under a user already reading one.
   const contextEntry = useMemo(
-    () => ONTOLOGY_CATALOG[ontologySlug] || ONTOLOGY_CATALOG[ontologyForTermSlug(term)] || null,
-    [ontologySlug, term]
+    () => ontologyEntry(group, ontologySlug) || ONTOLOGY_CATALOG[ontologyForTermSlug(term)] || null,
+    [group, ontologySlug, term]
   );
 
   // An external term (a dns/ slug) is not a cell, but the context ontology that references it

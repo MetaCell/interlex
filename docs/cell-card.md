@@ -37,7 +37,6 @@ src/components/CellCards/CellCard/
 ├── buildRows.js             config rows + cell -> row models
 ├── widgetVisibility.js      which widgets have anything to show
 ├── useCellTerm.js           the data hook
-├── citationService.js       DOI -> CrossRef
 ├── commentService.js        discussion thread access
 ├── nervoSensusLink.js       NervoSensus deep-link builder
 └── widgets/                 the nine widgets
@@ -64,11 +63,17 @@ Supporting changes outside that directory:
 404s on every one of them (§5.1). Everything comes from the neurdf ontology graph.
 
 ```
-useCellTerm(termSlug, ontologySlug)
-  └─ loadOntology(slug)                     memoised: graphPromise (fetch) + parsedCache (parse)
+useCellTerm(termSlug, entry)               entry = ontologyEntry(group, ontologySlug)
+  └─ loadOntology(entry)                    memoised: graphs (fetch, per dataUrl) + parsedCache (parse)
        └─ parseNeurdf(graph, rootClass)     -> { cells, hierarchy, predicateDisplay, meta }
   └─ findCell(data, termSlug)               "npokb_998" -> "npokb:998"
 ```
+
+`ontologyEntry` answers the catalogued entry for a known slug (`precision`, read from the neurdf
+file) and otherwise an ontology the group keeps in InterLex: `/{group}/ontology/{name}` reads
+`/{group}/ontologies/uris/{name}.jsonld`, with no root class, so every neuron in the document is a
+cell and the document itself roots the hierarchy. The backend's own address for it,
+`/{group}/ontologies/uris/{name}`, redirects to that route.
 
 Both memos are module-level, so arriving from a grid tile costs **no network and no reparse**;
 a cold deep-link pays a ~16MB fetch plus a 39,788-node parse before the first render.
@@ -276,12 +281,53 @@ a `d3.cluster()` dendrogram taking a single predicate group, and it resolves `d3
 plus a global `d3.selectAll(".node--leaf-g")`, so two instances collide — and this widget needs two
 (inline and in the expanded dialog). Two layout details that are not optional:
 
-- parent edges run `parent → cell` so the parent lands on the rank *above*;
+- edges run subject → object, so a subclass-of edge leaves the subclass and its arrow climbs into
+  the superclass (the mockup pointed it the other way; the curators asked for the reversal). dagre
+  ranks the tail above the head, so an edge with `direction: "up"` enters the layout reversed;
 - dagre fixes the rank but **not the order within it**, so the soma-location and expression
-  satellites are pinned by hand to the left and right of the current node.
+  satellites are pinned by hand to the left and right of the current node;
+- every relation kind on a side of the current node is a path of its own: its nodes packed as one
+  group beside the other kinds' groups, the whole row centred on the cell, and its own trunk
+  leaving the cell's face, its own run and its own caption — the lines follow the boxes. Sharing
+  one trunk made one relation read as a branch of the other, nesting the groups let one kind's
+  drops cut through the other kind's run, and balancing the seam between groups instead of the
+  boxes pushed the row off to one side. The runs on a side share one height, except that a group
+  whose run reaches over another group's boxes keeps the nearer level and pushes the covered group
+  a level out, so nothing crosses. dagre only supplies the ranks here (`layoutSide`);
+- the rank above holds the subClassOf parents *and* the asserted-subclass targets (a subclass
+  claim points at superclasses), the rank below the children and the "consistent with" records —
+  each cross-nomenclature relation's `direction` in the mappings document decides. A record related
+  in both directions (a superclass the cell is also "consistent with"; eleven cells have one) is
+  drawn once per side, since one box can only take one rank and the other relation's path would
+  otherwise cross the graph and run into the first relation's drop;
+- edge styles follow UML class-diagram notation rather than the mockup's dash mix
+  (`relationEdgeStyle.js`): generalisation (solid, hollow triangle) for subclass-of, realisation
+  (dashed, hollow triangle — "conforms to a description made elsewhere") for asserted subclass-of,
+  association (solid, filled arrowhead) for the properties, and with no arrowhead at either end —
+  navigable both ways — for the symmetric "consistent with"; heads at both ends were tried, but the
+  edges share one trunk, so every head at the cell end landed on the same spot. The legend draws
+  its swatches from the same table.
+- each legend row is a toggle: clicking it drops that relation kind's edges, and the nodes left
+  without one, so a crowded graph can be thinned to the relations being read. The exclusions are
+  shared by the inline and expanded views, and the frame stays put when every kind is off.
 
-Which predicates the graph may draw is `RELATION_PREDICATES` in `cellCardConfig.ts`, per Fahim's
-request — adding a predicate there is the only way to get another edge kind.
+Which predicates the graph may draw is the mappings document's `regions.cellCard.relationshipGraph`,
+per Fahim's request: `predicates` for the lateral phenotype satellites and `crossNomenclature` for
+the relations fanned out below the cell, each bound to an edge kind and caption
+(`TEMP:assertedSubClassOf` → "asserted subclass of", `TEMP:mapsTo` → "consistent with").
+`TEMP:subClassOf` is claimed by `fields.crossNomenclature`, so it still fills the Cross-Nomenclature
+table, but is not listed for the graph — the curators want the asserted-subclass edge to show that
+predicate's objects only.
+
+**The Cross-Nomenclature table's Relationship column reads the same captions** (issue #189): one
+label per predicate on `cell.mappings[].predicates`, with `TEMP:subClassOf` falling back to
+`subClassOfLabel` rather than one of the graph's two configured captions, since it isn't among
+them. The table's Source column still shows the mapped label's trailing parenthetical
+(`m.source`, e.g. "Qi2024") rather than the mapped record's citation. #187 has since settled the
+citation format (§6), and 94 of the 104 mapped records carry an `ilxtr:literatureCitation` of their
+own, but the parse does not lift it onto `CellMapping` yet. The old "Evidence" badge (described/inferred) is
+gone: it only restated which relation produced the row, which the Relationship column now says
+directly.
 
 **NervoSensus is a tool, not per-cell data**, so the Interactive Cell Grouping widget renders
 unconditionally. Gating it on `hasNervoSensusLink` (zero occurrences) meant it never appeared at
@@ -298,9 +344,14 @@ vocabulary — which was checked against the deployed build, byte-identical to t
 - Deliberately no copy of the app's 22 cell keys here: unknown values are ignored by its own
   `<select>` lookup, so passing them costs nothing while duplicating its vocabulary would rot.
 
-**Publication metadata comes from CrossRef** at render time (`citationService.js`) — DOIs in the
-graph are bare `@id` IRIs with no node. One promise per DOI is cached, since siblings share a
-publication. Failure degrades to the bare DOI link; it never blocks a render.
+**Citations are read from the ontology, never fetched** (#187). A source is labelled by the cited
+work's own `skos:prefLabel` (`fields.citationLabel`), which Tom writes as the short citation exactly
+as it should read ("Bhuiyan et al., 2024"), so the front end does no citation formatting of its own;
+without one it reads as the DOI, in Tom's `doi:10.1126/sciadv.adj9173` form. That one label is what
+the tile footer, the source facet, the Definition banner, "Other cells from this source" and the
+Source Publication widget show; the widget adds the `dc:title` above it (`fields.citationTitle`) and
+no journal, at the curators' request. The shipped graph has no node for any citation yet, so today
+every source reads as its DOI.
 
 **Custom looks go in the theme, not `sx`.** The NervoSensus tile is `MuiButton` `variant="tile"`;
 `sx` at call sites is layout only. The tile is a `Button component="a"`, so the whole card is one

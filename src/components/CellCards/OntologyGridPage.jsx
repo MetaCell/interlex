@@ -20,7 +20,9 @@ const PAGE_SIZES = [12, 24, 48, 96];
 const cellText = (cell) => {
   const parts = [cell.label, cell.curie];
   Object.values(cell.properties).forEach((p) => p.values.forEach((v) => parts.push(v.label)));
-  cell.sources.forEach((s) => parts.push(s.label));
+  // The curie too: a source's label is its short citation once the ontology names the author, and
+  // the DOI should still find it.
+  cell.sources.forEach((s) => parts.push(s.label, s.curie));
   return parts.join(" ").toLowerCase();
 };
 

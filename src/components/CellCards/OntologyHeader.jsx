@@ -55,9 +55,9 @@ const OntologyHeader = ({ data, tab }) => {
           <Typography variant="body2" sx={{ color: gray500 }}>
             Tags
           </Typography>
-          <Chip label={data.entry.type} color="secondary" />
+          {data.entry.type && <Chip label={data.entry.type} color="secondary" />}
           <Chip label={data.entry.community} color="success" />
-          <Chip label={data.entry.rootClass} variant="outlined" />
+          {data.entry.rootClass && <Chip label={data.entry.rootClass} variant="outlined" />}
         </Stack>
 
         <CustomTabs

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useLocation, Outlet } from "react-router-dom";
 import { Box, Typography, CircularProgress, Button } from "@mui/material";
 import OntologyHeader from "./OntologyHeader";
-import { ONTOLOGY_TABS } from "./config/gridConfig";
+import { ONTOLOGY_TABS, ontologyEntry } from "./config/gridConfig";
 import { loadOntology } from "./services/ontologyGridService";
 import { usePublishContextOntology } from "../../hooks/useContextOntology";
 import { vars } from "../../theme/variables";
@@ -13,10 +13,11 @@ const { gray500, gray600 } = vars;
 // and renders the shared header. Each tab is a child route and reads the parsed ontology from
 // the outlet context, so switching tabs never refetches.
 const OntologyPage = () => {
-  const { slug } = useParams();
+  const { org, slug } = useParams();
   const { pathname } = useLocation();
+  const entry = ontologyEntry(org, slug);
   // Reading this ontology *is* the context, for terms later opened on a path that does not name one.
-  usePublishContextOntology(slug);
+  usePublishContextOntology(entry);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
@@ -32,7 +33,7 @@ const OntologyPage = () => {
     let active = true;
     setLoading(true);
     setError(null);
-    loadOntology(slug)
+    loadOntology(entry)
       .then((res) => {
         if (active) setData(res);
       })
@@ -45,7 +46,7 @@ const OntologyPage = () => {
     return () => {
       active = false;
     };
-  }, [slug, reloadKey]);
+  }, [entry, reloadKey]);
 
   if (loading) {
     return (

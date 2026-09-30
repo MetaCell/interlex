@@ -47,9 +47,9 @@ const relationshipLabel = (predicates, config) => {
  * Per issue #189, the table states the relationship explicitly rather than through an "Evidence"
  * badge derived from it — the badge only ever read "described"/"inferred", which didn't say what
  * relation it came from. The Source column still shows the label's trailing parenthetical
- * (`m.source`, e.g. "Qi2024") rather than a fetched DOI citation: `m.ref` is a bare reference to
- * the other nomenclature's term, with no citation IRI to resolve, and #187 hasn't yet settled how
- * author/year should be formatted here.
+ * (`m.source`, e.g. "Qi2024") rather than the mapped record's own citation: `m.ref` is a bare
+ * reference to the other nomenclature's term, and the parse does not lift that record's
+ * `ilxtr:literatureCitation` onto the mapping yet.
  */
 const CrossNomenclature = ({ cell, actions }) => {
   const mappingsConfig = useMappings();

@@ -34,6 +34,14 @@ export interface ResolvedRef {
   kind: RefKind;
 }
 
+// A literature citation, described by the cited work's own node rather than a publisher API
+// (#187). `label` is that node's short citation ("Bhuiyan et al., 2024"), which Tom writes in the
+// form it should be read in; while the graph has none, it is the `curie`, the whole DOI
+// (`doi:10.1126/sciadv.adj9173`).
+export interface SourceRef extends ResolvedRef {
+  title?: string;
+}
+
 export type PredicateFamily = "eqv" | "ent";
 
 // How multiple values on one predicate combine. neurdf encodes this in the family segment:
@@ -109,7 +117,7 @@ export interface CellTerm {
   properties: Record<string, CellProperty>;
   // Negated phenotypes (neurdf.*.neg) keyed by local name — rendered with a "not" modifier.
   negated: Record<string, CellProperty>;
-  sources: ResolvedRef[]; // ilxtr:literatureCitation (a cell may have several)
+  sources: SourceRef[]; // ilxtr:literatureCitation (a cell may have several)
   // Cross-nomenclature mappings (TEMP:assertedSubClassOf / TEMP:mapsTo / TEMP:subClassOf).
   mappings: CellMapping[];
   annotations: CellAnnotations;
@@ -194,6 +202,8 @@ export type RelationEdgeKind =
   | "expresses";
 
 export interface RelationNode {
+  // The record's id, or `<id>::above` / `<id>::below` for the second box of a record related in
+  // both directions (see buildRelationGraph); `ref` is the same record either way.
   id: string;
   label: string;
   subtitle?: string; // e.g. "npokb:998 · Bhuiyan2025"
@@ -217,19 +227,4 @@ export interface RelationEdge {
 export interface RelationGraphModel {
   nodes: RelationNode[];
   edges: RelationEdge[];
-}
-
-// Publication metadata resolved from Europe PMC, or from CrossRef when Europe PMC does not index
-// the work (the graph has none — citations are bare @id IRIs with no node), so every field is
-// optional and the widget degrades to a bare link. `doi` and `pmid` are both present when the
-// source knows both; at least one carries the link.
-export interface Citation {
-  doi: string;
-  pmid: string;
-  url: string;
-  title?: string;
-  authors?: string;
-  journal?: string;
-  year?: string;
-  type?: string; // CrossRef type, e.g. "posted-content" for a preprint (absent on the Europe PMC path)
 }

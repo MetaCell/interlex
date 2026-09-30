@@ -1,8 +1,7 @@
 import { Fragment } from "react";
 import PropTypes from "prop-types";
-import { Alert, AlertTitle, Typography, Link } from "@mui/material";
+import { Alert, AlertTitle, Typography } from "@mui/material";
 import TermValueLink from "./TermValueLink";
-import { toDoi } from "./citationService";
 import { useMappings } from "../config/mappingsAtom";
 
 const joinRefs = (values, conjunction = "and") =>
@@ -36,7 +35,6 @@ const DefinitionBanner = ({ cell }) => {
   const genes = valuesOf(config.markerGenes);
   const baseClass = valuesOf(config.cellClass)[0];
   const source = cell.sources?.[0];
-  const doi = toDoi(source?.iri || source?.id);
 
   return (
     // The design's banner is a brand-tinted panel with a title, and carries no status icon.
@@ -56,14 +54,7 @@ const DefinitionBanner = ({ cell }) => {
         {source && (
           <>
             {" "}
-            To access the source nomenclature, view{" "}
-            {doi ? (
-              <Link href={`https://doi.org/${doi}`} target="_blank" rel="noopener">
-                {source.label && source.label !== source.curie ? source.label : doi}
-              </Link>
-            ) : (
-              <TermValueLink value={source} />
-            )}
+            To access the source nomenclature, view <TermValueLink value={source} />
             {"."}
           </>
         )}

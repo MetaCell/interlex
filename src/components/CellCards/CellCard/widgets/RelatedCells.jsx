@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
-import { Stack, Typography, List, ListItem, ListItemButton, ListItemText, Link, Box } from "@mui/material";
+import { Stack, Typography, List, ListItem, ListItemButton, ListItemText, Box } from "@mui/material";
 import CellCardWidget from "../CellCardWidget";
-import { toDoi } from "../citationService";
+import TermValueLink from "../TermValueLink";
 
 export const TITLE = "Other cells from this source";
 
@@ -21,16 +21,13 @@ const MAX_LIST_HEIGHT = "32rem";
 const RelatedCells = ({ cell, related, onSelect, actions }) => {
   if (!related?.length) return null;
 
-  const doi = toDoi(cell.sources?.[0]?.iri || cell.sources?.[0]?.id);
+  const source = cell.sources?.[0];
 
   return (
     <CellCardWidget title={TITLE} count={`${related.length} cells`} actions={actions}>
-      {doi && (
+      {source && (
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          Sharing DOI:{" "}
-          <Link href={`https://doi.org/${doi}`} target="_blank" rel="noopener">
-            {doi}
-          </Link>
+          Source: <TermValueLink value={source} />
         </Typography>
       )}
 

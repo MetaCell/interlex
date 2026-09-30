@@ -3,12 +3,7 @@
 // API later without touching the components (they depend only on this contract).
 
 import { parseNeurdf, buildFacets } from "../../../parsers/neurdfParser";
-import {
-  NEURDF_URL,
-  NEURDF_LOCAL_URL,
-  PREFER_LOCAL_NEURDF,
-  ONTOLOGY_CATALOG,
-} from "../config/gridConfig";
+import { PREFER_LOCAL_NEURDF } from "../config/gridConfig";
 import { loadMappings } from "../config/mappingsService";
 import { DEFAULT_MAPPINGS } from "../config/mappingDefaults";
 import { publishMappings } from "../config/mappingsAtom";
@@ -19,6 +14,7 @@ import {
 } from "../config/mappingDefaults";
 import type {
   OntologyGraph,
+  GraphNode,
   ParsedOntology,
   Facet,
   CellTerm,
@@ -42,6 +38,14 @@ export interface LoadedOntology {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+// JSON-LD compacts a document holding a single node to that node, without a @graph — which is what
+// InterLex serves for an ontology no term has been added to yet.
+const asGraphDocument = (data: Partial<OntologyGraph> & GraphNode): OntologyGraph => {
+  if (!data || Array.isArray(data["@graph"]) || !data["@id"]) return data as OntologyGraph;
+  const { "@context": context, ...node } = data;
+  return { "@context": context, "@graph": [node] };
+};
+
 // The endpoint is flaky on the ~16MB body — retry, then fall back to a served copy.
 const fetchGraph = async (url: string): Promise<OntologyGraph> => {
   const res = await fetch(url, {
@@ -56,7 +60,7 @@ const fetchGraph = async (url: string): Promise<OntologyGraph> => {
   }
   let data: OntologyGraph;
   try {
-    data = JSON.parse(text) as OntologyGraph;
+    data = asGraphDocument(JSON.parse(text));
   } catch {
     throw new Error(`Malformed JSON-LD from ${url}`);
   }
@@ -71,13 +75,11 @@ const LIVE_RETRIES = 3;
 // Upstream is slow and flaky on the 16MB body, so it gets retries with backoff. The baked
 // same-origin copy is a static file — it either exists or it does not, and retrying a 404 just
 // delays the real attempt.
-const fetchLocal = () => fetchGraph(NEURDF_LOCAL_URL);
-
-const fetchUpstream = async (): Promise<OntologyGraph> => {
+const fetchWithRetry = async (url: string): Promise<OntologyGraph> => {
   let lastErr: unknown;
   for (let i = 0; i < LIVE_RETRIES; i++) {
     try {
-      return await fetchGraph(NEURDF_URL);
+      return await fetchGraph(url);
     } catch (err) {
       lastErr = err;
       if (i < LIVE_RETRIES - 1) await sleep(600 * (i + 1));
@@ -86,7 +88,12 @@ const fetchUpstream = async (): Promise<OntologyGraph> => {
   throw lastErr instanceof Error ? lastErr : new Error("Failed to load ontology data");
 };
 
-const loadGraphWithRetry = async (): Promise<OntologyGraph> => {
+// Only an ontology with a baked copy goes through the shim above; a group's ontology is a small
+// document InterLex serves directly.
+const loadGraph = async ({ dataUrl, localDataUrl }: OntologyEntry): Promise<OntologyGraph> => {
+  if (!localDataUrl) return fetchGraph(dataUrl);
+  const fetchLocal = () => fetchGraph(localDataUrl);
+  const fetchUpstream = () => fetchWithRetry(dataUrl);
   // Preferred source first (the baked copy in production), the other as the safety net, so a
   // missing bake or a down upstream still leaves the page working.
   const [primary, secondary] = PREFER_LOCAL_NEURDF
@@ -108,45 +115,43 @@ const loadGraphWithRetry = async (): Promise<OntologyGraph> => {
   throw primaryErr instanceof Error ? primaryErr : new Error("Failed to load ontology data");
 };
 
-// Fetch + JSON.parse only once per session.
-let graphPromise: Promise<OntologyGraph> | null = null;
-const getGraph = (): Promise<OntologyGraph> => {
-  if (!graphPromise) {
-    graphPromise = loadGraphWithRetry().catch((err) => {
-      graphPromise = null; // allow retry on next mount after a failure
-      throw err;
-    });
-  }
-  return graphPromise;
+// Fetch + JSON.parse only once per session, per document.
+const graphs = new Map<string, Promise<OntologyGraph>>();
+const getGraph = (entry: OntologyEntry): Promise<OntologyGraph> => {
+  const pending = graphs.get(entry.dataUrl);
+  if (pending) return pending;
+  const request = loadGraph(entry).catch((err) => {
+    graphs.delete(entry.dataUrl); // allow retry on next mount after a failure
+    throw err;
+  });
+  graphs.set(entry.dataUrl, request);
+  return request;
 };
 
-// Parsed result cache, keyed by ontology slug (the parse depends on the root class *and* on the
+// Parsed result cache, keyed by ontology entry (the parse depends on the root class *and* on the
 // field sources, so the sources it was produced with are kept alongside it). Split from the
 // composed result below so that a mappings fetch which failed on the first load is retried on the
 // next navigation, and only re-parses if the retry actually changed where a field reads from.
-const parsedCache = new Map<string, { fields: FieldSources; parsed: ParsedOntology }>();
-const loadedCache = new Map<string, LoadedOntology>();
+const parsedCache = new Map<OntologyEntry, { fields: FieldSources; parsed: ParsedOntology }>();
+const loadedCache = new Map<OntologyEntry, LoadedOntology>();
 
-export const loadOntology = async (slug: string): Promise<LoadedOntology> => {
-  const entry = ONTOLOGY_CATALOG[slug];
-  if (!entry) throw new Error(`Unknown ontology "${slug}"`);
-
+export const loadOntology = async (entry: OntologyEntry): Promise<LoadedOntology> => {
   // Cheap and separately cached: resolved config comes back by identity, so an unchanged config
   // hands back the very same LoadedOntology and the grid keeps its filter state.
-  const mappings = await loadMappings(slug);
+  const mappings = await loadMappings(entry.slug);
   // Published here rather than from an effect, so the components rendered from the result below
   // never see one frame of the built-in configuration first.
   publishMappings(mappings);
-  const cached = loadedCache.get(slug);
+  const cached = loadedCache.get(entry);
   if (cached && cached.mappings === mappings) return cached;
 
-  let entryParse = parsedCache.get(slug);
+  let entryParse = parsedCache.get(entry);
   if (entryParse?.fields !== mappings.fields) {
     entryParse = {
       fields: mappings.fields,
-      parsed: parseNeurdf(await getGraph(), entry.rootClass, mappings.fields),
+      parsed: parseNeurdf(await getGraph(entry), entry.rootClass || "", mappings.fields),
     };
-    parsedCache.set(slug, entryParse);
+    parsedCache.set(entry, entryParse);
   }
   const parsed = entryParse.parsed;
 
@@ -163,7 +168,7 @@ export const loadOntology = async (slug: string): Promise<LoadedOntology> => {
   // A `DEFAULT_MAPPINGS` result means the fetch failed and `loadMappings` will retry it on the
   // next call — caching that here would let `peekOntology`'s synchronous fast path (see
   // useCellTerm) serve the fallback forever instead of picking up the retry.
-  if (mappings !== DEFAULT_MAPPINGS) loadedCache.set(slug, loaded);
+  if (mappings !== DEFAULT_MAPPINGS) loadedCache.set(entry, loaded);
   return loaded;
 };
 
@@ -172,7 +177,8 @@ export const loadOntology = async (slug: string): Promise<LoadedOntology> => {
 // it unmounts the Cell Card and takes every widget's state with it. The hierarchy widget has to
 // survive a cell → cell navigation (spec §3.2), so `useCellTerm` reads through this instead and
 // only falls back to the async path on a cold load.
-export const peekOntology = (slug: string): LoadedOntology | undefined => loadedCache.get(slug);
+export const peekOntology = (entry: OntologyEntry): LoadedOntology | undefined =>
+  loadedCache.get(entry);
 
 // --- single-term selectors (Cell Card) ---------------------------------------
 

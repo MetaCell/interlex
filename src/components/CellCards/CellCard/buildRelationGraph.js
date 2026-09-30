@@ -1,27 +1,23 @@
 import { DEFAULT_MAPPINGS } from "../config/mappingDefaults";
 
-// A cell label carries its provenance as a trailing parenthetical — "DRG PEP3.2 (Krauter2025)".
-// The graph node shows the id and that provenance on its own line, so strip it from the title.
-const splitProvenance = (label = "") => {
-  const m = /^(.*?)\s*\(([^()]+)\)\s*$/.exec(label);
-  return m ? { title: m[1], provenance: m[2] } : { title: label, provenance: undefined };
-};
+// A label (with its provenance parenthetical, e.g. "DRG PEP3.2 (Krauter2025)") is never split
+// across the title and subtitle lines — Filippo asked that a label always stay intact on its own
+// line, truncated with an ellipsis rather than divided. The subtitle carries the curie alone.
+const cellNode = (cell, isCurrent) => ({
+  id: cell.id,
+  label: cell.label || cell.curie,
+  subtitle: cell.label ? cell.curie : undefined,
+  isCurrent,
+  ref: { id: cell.id, curie: cell.curie, label: cell.label, iri: cell.iri, kind: "interlex" },
+});
 
-const cellNode = (cell, isCurrent) => {
-  const { title, provenance } = splitProvenance(cell.label);
-  return {
-    id: cell.id,
-    label: title || cell.curie,
-    // Figma draws "npokb:998 · Bhuiyan2025" beneath the title.
-    subtitle: [cell.curie, provenance].filter(Boolean).join(" · "),
-    isCurrent,
-    ref: { id: cell.id, curie: cell.curie, label: cell.label, iri: cell.iri, kind: "interlex" },
-  };
-};
-
+// Every cross-nomenclature target is itself an npokb record (`CellMapping.ref`), the same as the
+// current cell and its hierarchy neighbours — so it carries the same internal id, shown the same
+// way `cellNode` shows one, instead of the box going without.
 const refNode = (ref) => ({
   id: ref.id,
   label: ref.label || ref.curie,
+  subtitle: ref.label ? ref.curie : undefined,
   isCurrent: false,
   ref,
 });
@@ -43,6 +39,11 @@ const refNode = (ref) => ({
  * Edges are pushed hierarchy first: the layout fans a side's relation kinds out left to right in
  * order of first appearance, so the hierarchy sits left above and below.
  *
+ * A record related in both directions — a superclass the cell is also "consistent with", which the
+ * shipped graph has eleven of — is drawn once per side. One box can only take one rank, so the
+ * other relation's path would have to cross the whole graph to reach it and run into the first
+ * relation's drop; two boxes give each relation its own entry.
+ *
  * Which phenotype predicates may appear is the mappings document's `relationshipGraph` region, not
  * a hardcoded list here: Fahim asked for this explicitly, because drawing every phenotype would
  * make the graph unreadable.
@@ -56,38 +57,34 @@ export const buildRelationGraph = (cell, neighbours = {}, mappings = DEFAULT_MAP
   const nodes = [cellNode(cell, true)];
   const edges = [];
   const seen = new Set([cell.id]);
+  const sideOf = new Map();
 
-  const add = (node) => {
-    if (seen.has(node.id)) return false;
-    seen.add(node.id);
-    nodes.push(node);
-    return true;
+  // Returns the id to draw the edge against: the node itself, or its copy on the other side.
+  const place = (node, side) => {
+    const first = sideOf.get(node.id);
+    const id = first === undefined || first === side ? node.id : `${node.id}::${side}`;
+    if (!seen.has(id)) {
+      seen.add(id);
+      if (first === undefined) sideOf.set(node.id, side);
+      nodes.push({ ...node, id });
+    }
+    return id;
   };
 
-  // Parents above (dotted "subclass of"): the cell is the subclass, so the arrow climbs into them.
+  // Parents above ("subclass of"): the cell is the subclass, so the arrow climbs into them.
   for (const parent of neighbours.parents || []) {
-    if (add(cellNode(parent, false))) {
-      edges.push({
-        from: cell.id,
-        to: parent.id,
-        kind: "subClassOf",
-        label: config.subClassOfLabel,
-        direction: "up",
-      });
+    const to = place(cellNode(parent, false), "above");
+    if (!edges.some((e) => e.to === to && e.kind === "subClassOf")) {
+      edges.push({ from: cell.id, to, kind: "subClassOf", label: config.subClassOfLabel, direction: "up" });
     }
   }
 
   // Direct subClassOf children, on the rank below: each child is the subclass, so its arrow climbs
   // into the current node.
   for (const child of neighbours.children || []) {
-    if (add(cellNode(child, false))) {
-      edges.push({
-        from: child.id,
-        to: cell.id,
-        kind: "subClassOf",
-        label: config.subClassOfLabel,
-        direction: "up",
-      });
+    const from = place(cellNode(child, false), "below");
+    if (!edges.some((e) => e.from === from && e.kind === "subClassOf")) {
+      edges.push({ from, to: cell.id, kind: "subClassOf", label: config.subClassOfLabel, direction: "up" });
     }
   }
 
@@ -104,10 +101,10 @@ export const buildRelationGraph = (cell, neighbours = {}, mappings = DEFAULT_MAP
       if (!mapping.predicates.includes(relation.predicate)) continue;
       const node = refNode(mapping.ref);
       node.flagged = mapping.evidence === "proposed";
-      add(node);
+      const to = place(node, relation.direction === "up" ? "above" : "below");
       edges.push({
         from: cell.id,
-        to: mapping.ref.id,
+        to,
         kind: relation.kind,
         label: relation.label,
         direction: relation.direction,

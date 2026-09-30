@@ -296,7 +296,7 @@ const RelationshipGraphSvg = ({ graph, onSelect, height }) => {
     const fromNode = nodeById.get(edge.from);
     const toNode = nodeById.get(edge.to);
     if (!from || !to || !fromNode || !toNode) return null;
-    const { stroke, dash, bidirectional } = edgeStyle(edge.kind, palette);
+    const { stroke, dash, head } = edgeStyle(edge.kind, palette);
 
     let d;
     if (isLateral(edge)) {
@@ -319,8 +319,7 @@ const RelationshipGraphSvg = ({ graph, onSelect, height }) => {
         stroke={stroke}
         strokeWidth={1.5}
         strokeDasharray={dash}
-        markerStart={bidirectional ? `url(#arrow-${edge.kind})` : undefined}
-        markerEnd={`url(#arrow-${edge.kind})`}
+        markerEnd={ARROW_HEADS[head] ? `url(#arrow-${edge.kind})` : undefined}
       />
     );
   });
@@ -338,6 +337,7 @@ const RelationshipGraphSvg = ({ graph, onSelect, height }) => {
         <defs>
           {RELATION_EDGE_KINDS.map((kind) => {
             const { stroke, head } = edgeStyle(kind, palette);
+            if (!ARROW_HEADS[head]) return null;
             return (
               // Sized in user units so the head is the same shape the legend draws.
               <marker

@@ -7,7 +7,9 @@
 //     another nomenclature's cell type is;
 //   - soma location, expresses: association — a solid line with a filled arrowhead at the value;
 //     "expresses" keeps the brand colour from the design;
-//   - consistent with (TEMP:mapsTo): a symmetric claim, so an association headed at both ends.
+//   - consistent with (TEMP:mapsTo): a symmetric claim, so an association with no arrowhead at
+//     either end — UML's mark for one navigable both ways. Arrowheads at both ends were tried and
+//     read badly: the edges share one trunk, so every head at the cell end landed on the same spot.
 // One table for the graph's connectors and the legend's swatches, so the two cannot drift apart.
 export const edgeStyle = (kind, palette) => {
   switch (kind) {
@@ -16,7 +18,7 @@ export const edgeStyle = (kind, palette) => {
     case "assertedSubClassOf":
       return { stroke: palette.grey[500], dash: "6 4", head: "hollow" };
     case "mapsTo":
-      return { stroke: palette.grey[500], head: "filled", bidirectional: true };
+      return { stroke: palette.grey[500], head: "none" };
     case "expresses":
       return { stroke: palette.primary.main, head: "filled" };
     case "somaLocation":
@@ -26,7 +28,8 @@ export const edgeStyle = (kind, palette) => {
 };
 
 // Arrowhead outlines with the tip at the origin, pointing along +x, in px for a 1.5px line. The
-// hollow one is filled with the paper colour so the line does not show through it.
+// hollow one is filled with the paper colour so the line does not show through it. "none" has no
+// entry: an edge with that head draws no marker.
 export const ARROW_HEADS = {
   filled: { d: "M 0 0 L -7 -3.5 L -7 3.5 z", length: 7 },
   hollow: { d: "M 0 0 L -10 -4.5 L -10 4.5 z", length: 10 },

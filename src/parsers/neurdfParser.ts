@@ -21,6 +21,7 @@ import type {
   Facet,
   FacetValue,
   PredicateDisplay,
+  SourceRef,
 } from "../components/CellCards/model/types";
 import type { FieldSource, FieldSources } from "../components/CellCards/model/mappings";
 import { DEFAULT_FIELD_SOURCES } from "../components/CellCards/config/mappingDefaults";
@@ -85,8 +86,10 @@ export const contextPrefixes = (context?: Record<string, unknown>): Prefixes => 
   return out;
 };
 
+const DOI_IRI = /^https?:\/\/(?:dx\.)?doi\.org\/(10\.\d{4,9}\/.+)$/i;
+
 // Compact an @id (curie or IRI) into { curie, kind } against the @context.
-const classify = (id: string, prefixes: Prefixes): { curie: string; kind: RefKind } => {
+const classify =(id: string, prefixes: Prefixes): { curie: string; kind: RefKind } => {
   if (!isIri(id)) {
     // already a curie like "npokb:1067", "NCBIGene:233222", "ilxtr:SensoryPhenotype"
     const prefix = id.split(":")[0];
@@ -107,6 +110,11 @@ const classify = (id: string, prefixes: Prefixes): { curie: string; kind: RefKin
   if (best) {
     return { curie: `${bestPrefix}:${id.slice(best.length)}`, kind: kindForPrefix(bestPrefix, id) };
   }
+  // A DOI is its whole path: the tail alone ("sciadv.adj9173") is not one anybody recognises. Tom's
+  // display form is `doi:10.1126/sciadv.adj9173` (#187). The `/` keeps it from compacting as a
+  // qname, so the file declares no prefix for it and it is spelled out here, after any it does.
+  const doi = DOI_IRI.exec(id)?.[1];
+  if (doi) return { curie: `doi:${doi}`, kind: "external" };
   const tail = id.split(/[/#]/).filter(Boolean).pop() || id;
   return { curie: tail, kind: "external" };
 };
@@ -236,7 +244,7 @@ const buildContext = (
 const targetFor = (key: string, ctx: ParseContext): FieldTarget | undefined => {
   const direct = ctx.exact.get(key);
   if (direct) return direct;
-  if (!ctx.local.size || key.startsWith("neurdf.")) return undefined; // a phenotype family
+  if (!ctx.local.size || parseNeurdfKey(key, ctx.prefixes)) return undefined; // a phenotype family
   return ctx.local.get(localNameOf(key, ctx.prefixes));
 };
 
@@ -345,29 +353,46 @@ const resolveValue = (raw: unknown, ctx: ParseContext): ResolvedRef[] => {
 
 type JsonLdRefish = { "@id"?: unknown };
 
+// Labelled from the cited work's own node ahead of the title chain every other reference goes
+// through: that chain ends in `dc:title`, which would caption each source with the paper's full
+// title. A label the chain finds elsewhere (a cited record's `rdfs:label`) still stands.
+const citedWork = (ref: ResolvedRef, ctx: ParseContext): SourceRef => {
+  const node = ctx.idx.get(ref.id);
+  const title = firstFieldText(node, ctx.fields.citationTitle, ctx)?.text;
+  const label = firstFieldText(node, ctx.fields.citationLabel, ctx)?.text;
+  return { ...ref, label: label || (ref.label === title ? ref.curie : ref.label), title };
+};
+
 // --- neurdf predicate families ---------------------------------------------
 
-// "neurdf.eqv:hasSomaLocatedIn"                -> { family:'eqv', negated:false, localName:… }
-// "neurdf.eqv.neg:hasMorphologicalPhenotype"   -> { family:'eqv', negated:true, … }
-// "neurdf.eqv.uo:hasSomaLocatedIn"             -> { …, combinator:'or'  }  (owl:unionOf)
-// "neurdf.eqv.io:hasExpressionPhenotype"       -> { …, combinator:'and' }  (owl:intersectionOf)
+// Recognised by IRI, never by the prefix label a file binds it to: the published NPO file writes
+// `neurdf.eqv:`, while InterLex serialises an ontology a group assembles with generated labels
+// (`ns2:`) for the very same namespace.
+const NEURDF_PREDICATE_BASE = "http://uri.interlex.org/tgbugs/uris/readable/neurdf/pred/";
+
+// ".../pred/eqv/hasSomaLocatedIn"               (neurdf.eqv:)     -> { family:'eqv', negated:false, localName:… }
+// ".../pred/eqv/neg/hasMorphologicalPhenotype"  (neurdf.eqv.neg:) -> { family:'eqv', negated:true, … }
+// ".../pred/eqv/union/hasSomaLocatedIn"         (neurdf.eqv.uo:)  -> { …, combinator:'or'  }  (owl:unionOf)
+// ".../pred/eqv/intsec/hasExpressionPhenotype"  (neurdf.eqv.io:)  -> { …, combinator:'and' }  (owl:intersectionOf)
 const parseNeurdfKey = (
-  key: string
+  key: string,
+  prefixes: Prefixes
 ): {
   family: "eqv" | "ent";
   negated: boolean;
   combinator?: ValueCombinator;
   localName: string;
 } | null => {
-  if (!key.startsWith("neurdf.")) return null;
-  const [prefix, local] = key.split(":");
-  if (!local) return null;
-  const fam = prefix.replace("neurdf.", ""); // "eqv" | "ent" | "eqv.neg" | "eqv.uo" | "eqv.io" | …
+  const iri = toIri(key, prefixes);
+  if (!iri.startsWith(NEURDF_PREDICATE_BASE)) return null;
+  const [family, ...qualifiers] = iri.slice(NEURDF_PREDICATE_BASE.length).split("/");
+  const localName = qualifiers.pop();
+  if (!localName) return null;
   return {
-    family: fam.startsWith("ent") ? "ent" : "eqv",
-    negated: fam.endsWith(".neg"),
-    combinator: fam.endsWith(".uo") ? "or" : fam.endsWith(".io") ? "and" : undefined,
-    localName: local,
+    family: family === "ent" ? "ent" : "eqv",
+    negated: qualifiers.includes("neg"),
+    combinator: qualifiers.includes("union") ? "or" : qualifiers.includes("intsec") ? "and" : undefined,
+    localName,
   };
 };
 
@@ -431,7 +456,7 @@ const buildCell = (node: GraphNode, ctx: ParseContext): CellTerm => {
   const negated: Record<string, CellProperty> = {};
   const annotations = emptyAnnotations();
   const mappings: CellMapping[] = [];
-  let sources: ResolvedRef[] = [];
+  let sources: SourceRef[] = [];
 
   for (const [key, raw] of Object.entries(node)) {
     // Where this predicate lands is `fields`, inverted into a lookup by `buildContext`. Annotations
@@ -442,7 +467,8 @@ const buildCell = (node: GraphNode, ctx: ParseContext): CellTerm => {
     if (target) {
       switch (target.slot) {
         case "sources":
-          sources = resolveValue(raw, ctx); // a cell may cite several publications
+          // a cell may cite several publications
+          sources = resolveValue(raw, ctx).map((ref) => citedWork(ref, ctx));
           break;
         case "refs":
           annotations[target.field] = resolveValue(raw, ctx);
@@ -498,7 +524,7 @@ const buildCell = (node: GraphNode, ctx: ParseContext): CellTerm => {
       }
       continue;
     }
-    const parsed = parseNeurdfKey(key);
+    const parsed = parseNeurdfKey(key, ctx.prefixes);
     if (!parsed) continue; // skip @id/@type/owl:*/rdfs:*/etc.
     const values = resolveValue(raw, ctx);
     if (!values.length) continue;
@@ -605,7 +631,9 @@ const buildHierarchy = (
     // Keep a parent only when no *other* parent already reaches it: that other parent is the
     // more specific one, and this link is the entailed shortcut.
     const direct = parents.filter((p) => !parents.some((q) => q !== p && ancestorsOf(q).has(p)));
-    for (const parent of direct.length ? direct : parents) {
+    // No parent in scope only happens when the root is not a class the terms were selected by
+    // reaching; they are then its top level.
+    for (const parent of direct.length ? direct : parents.length ? parents : [rootClass]) {
       const siblings = childrenOf.get(parent);
       if (siblings) siblings.push(cell.id);
       else childrenOf.set(parent, [cell.id]);
@@ -703,20 +731,22 @@ export const parseNeurdf = (
   const prefixes = contextPrefixes(data["@context"]);
   const idx = indexGraph(graph);
   const ctx = buildContext(idx, prefixes, fields);
-  const cellTypes = fields.cellType.sources;
-  const neurons = graph.filter((n) => {
-    const types = asType(n["@type"]);
-    return cellTypes.some((t) => types.includes(t));
-  });
+  // Compared as IRIs, since the same class can be a curie in one file and spelled out in another.
+  const expand = (id: string) => toIri(id, prefixes) || id;
+  const cellTypes = new Set(fields.cellType.sources.map(expand));
+  const neurons = graph.filter((n) => asType(n["@type"]).some((t) => cellTypes.has(expand(t))));
   const inScope = rootClass
     ? neurons.filter((n) => reaches(String(n["@id"] ?? ""), rootClass, ctx))
     : neurons;
   const cells = inScope.map((n) => buildCell(n, ctx));
   cells.sort((a, b) => a.label.localeCompare(b.label));
+  const meta = parseOntologyMeta(graph, fields, prefixes);
   return {
-    meta: parseOntologyMeta(graph, fields, prefixes),
+    meta,
     cells,
-    hierarchy: buildHierarchy(rootClass, cells, ctx),
+    // Without a root class the document itself is what scopes the terms, so it stands in as the
+    // root their hierarchy hangs from.
+    hierarchy: buildHierarchy(rootClass || meta.iri, cells, ctx),
     predicateDisplay: parsePredicateDisplay(graph, prefixes, fields),
   };
 };

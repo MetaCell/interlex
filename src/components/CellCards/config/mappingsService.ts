@@ -90,6 +90,8 @@ const FIELD_KEYS = [
   "cellType",
   "parent",
   "literatureCitation",
+  "citationLabel",
+  "citationTitle",
   "dataCitation",
   "atlasAnnotation",
   "curatorNote",

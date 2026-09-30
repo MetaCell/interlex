@@ -17,10 +17,13 @@
       ],
       "curatedDescriptionSources": 4,
 
-      "cellType": ["neurdf:Neuron"],
+      "cellType": ["http://uri.interlex.org/tgbugs/uris/readable/neurdf/Neuron"],
       "parent": ["rdfs:subClassOf"],
 
       "literatureCitation": ["ilxtr:literatureCitation"],
+      "$citationComment": "Read off the cited work's own node, not the cell's (#187). `citationLabel` is the short citation exactly as the views show it (\"Bhuiyan et al., 2024\"); a citation without one shows its DOI (doi:10.1126/…). `citationTitle` is the paper title, shown in the Source Publication widget only.",
+      "citationLabel": ["skos:prefLabel"],
+      "citationTitle": ["dc:title", "dcterms:title"],
       "dataCitation": ["ilxtr:dataCitation"],
       "atlasAnnotation": ["ilxtr:atlasAnnotation"],
       "curatorNote": ["ilxtr:curatorNote"],

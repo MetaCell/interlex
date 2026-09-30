@@ -2,19 +2,53 @@
 // Kept outside the ontology (per design decision): predicate -> display label / tooltip,
 // which predicates seed tiles vs facets, and the (currently hardcoded) ontology catalog.
 
+// --- data source ------------------------------------------------------------
+
+// The reasoned neurdf JSON-LD, upstream (requested with Accept: application/ld+json).
+// ACAO:* on the endpoint lets the browser fetch it directly; the body is served as
+// text/plain, so the service JSON.parses the text rather than trusting content-type.
+//
+// NOTE: scripts/fetch-neurdf.mjs parses this constant to know what to download. Renaming it
+// breaks that script loudly (by design) — update both together.
+export const NEURDF_URL =
+  "https://uri.olympiangods.org/base/ontologies/dns/raw.githubusercontent.com/SciCrunch/NIF-Ontology/neurons/ttl/npo-merged-reasoned-neurdf.ttl";
+
+// Same-origin copy. In production the container's entrypoint downloads it into the served /data/
+// directory shortly after start (deploy/fetch-neurdf-at-start.sh); locally, `yarn fetch-data` puts
+// it in public/. It is not in the image, so it is **often absent** — during the first few tens of
+// seconds of a container's life, or if the fetch failed, or in dev before anyone ran the script.
+//
+// Preferred when present, because upstream has no caching yet: ~9s for the 16MB body, flaky enough
+// to need three retries, versus a local static GET nginx serves gzipped (1.3MB) with a long
+// max-age. Absent, it 404s in milliseconds and the loader moves on to upstream — the same path the
+// app used before any of this existed.
+//
+// Temporary shim: once the source server caches, delete this and PREFER_LOCAL_NEURDF along with
+// the entrypoint script and the nginx /data/ location.
+export const NEURDF_LOCAL_URL = "/data/npo-merged-neurdf.jsonld";
+
+// Try the local copy first, then upstream. Set VITE_PREFER_LOCAL_NEURDF=false to invert this —
+// useful in development when you want to verify against whatever the source is serving now.
+export const PREFER_LOCAL_NEURDF =
+  import.meta.env?.VITE_PREFER_LOCAL_NEURDF !== "false";
+
 // --- ontology catalog (stands in for the not-yet-built search backend) ------
 
 export interface OntologyEntry {
   slug: string; // ontology URL segment, e.g. "precision"
   org: string; // owning organization's URL segment (the app's /:title org route)
   label: string; // friendly search-result name (the header title comes from the file, not this)
-  type: string; // shown as a result type chip + a header tag
-  curie: string; // ontology file identity, shown under the search result (submittedBy)
+  type?: string; // shown as a result type chip + a header tag
+  curie?: string; // ontology file identity, shown under the search result (submittedBy)
   community: string; // owning community/organization, shown as the org breadcrumb crumb + tag
   curationStatus?: string; // e.g. "Curated" — badge shown next to the title
   description?: string;
   // neurdf root: cells are (transitively) subClassOf this; also shown as the header's curie tag.
-  rootClass: string;
+  // Absent when the document itself is the scope: every neuron in it is a cell.
+  rootClass?: string;
+  // The JSON-LD behind the ontology, and a same-origin copy tried first when there is one.
+  dataUrl: string;
+  localDataUrl?: string;
   // CURIE prefixes this ontology names its own terms with. Part of its identity, so it belongs
   // here rather than as a regex at a call site: it is what lets a term page recognise, from the
   // slug alone and before anything is loaded, that this ontology is the only place the term can
@@ -36,7 +70,37 @@ export const ONTOLOGY_CATALOG: Record<string, OntologyEntry> = {
     // All 161 Precision cells are npokb-only today. Drop this once they are ingested with ILX ids:
     // by then InterLex addresses them and the ontology stops being their only source.
     termPrefixes: ["npokb"],
+    dataUrl: NEURDF_URL,
+    localDataUrl: NEURDF_LOCAL_URL,
   },
+};
+
+// Every other ontology is one a group keeps in InterLex, served at /{group}/ontologies/uris/{name}
+// under the same name the app routes it by. Memoized because hooks key their effects on the
+// entry, so the same ontology has to resolve to the same object on every render.
+const groupOntologies = new Map<string, OntologyEntry>();
+
+const groupOntologyEntry = (group: string, name: string): OntologyEntry => {
+  const key = `${group}/${name}`;
+  let entry = groupOntologies.get(key);
+  if (!entry) {
+    entry = {
+      slug: name,
+      org: group,
+      label: name,
+      community: group,
+      dataUrl: `/${encodeURIComponent(group)}/ontologies/uris/${encodeURIComponent(name)}.jsonld`,
+    };
+    groupOntologies.set(key, entry);
+  }
+  return entry;
+};
+
+// The ontology an /{group}/ontology/{slug} path names. A catalogued slug keeps its one page
+// whatever group the path is read under, as it always has.
+export const ontologyEntry = (group?: string, slug?: string): OntologyEntry | undefined => {
+  if (!slug) return undefined;
+  return ONTOLOGY_CATALOG[slug] || (group ? groupOntologyEntry(group, slug) : undefined);
 };
 
 const ontologySegment = (slug: string): string => `/ontology/${slug}`;
@@ -155,36 +219,6 @@ export const ONTOLOGY_TABS: OntologyTab[] = [
   { label: "Version History" },
   { label: "Discussions" },
 ];
-
-// --- data source ------------------------------------------------------------
-
-// The reasoned neurdf JSON-LD, upstream (requested with Accept: application/ld+json).
-// ACAO:* on the endpoint lets the browser fetch it directly; the body is served as
-// text/plain, so the service JSON.parses the text rather than trusting content-type.
-//
-// NOTE: scripts/fetch-neurdf.mjs parses this constant to know what to download. Renaming it
-// breaks that script loudly (by design) — update both together.
-export const NEURDF_URL =
-  "https://uri.olympiangods.org/base/ontologies/dns/raw.githubusercontent.com/SciCrunch/NIF-Ontology/neurons/ttl/npo-merged-reasoned-neurdf.ttl";
-
-// Same-origin copy. In production the container's entrypoint downloads it into the served /data/
-// directory shortly after start (deploy/fetch-neurdf-at-start.sh); locally, `yarn fetch-data` puts
-// it in public/. It is not in the image, so it is **often absent** — during the first few tens of
-// seconds of a container's life, or if the fetch failed, or in dev before anyone ran the script.
-//
-// Preferred when present, because upstream has no caching yet: ~9s for the 16MB body, flaky enough
-// to need three retries, versus a local static GET nginx serves gzipped (1.3MB) with a long
-// max-age. Absent, it 404s in milliseconds and the loader moves on to upstream — the same path the
-// app used before any of this existed.
-//
-// Temporary shim: once the source server caches, delete this and PREFER_LOCAL_NEURDF along with
-// the entrypoint script and the nginx /data/ location.
-export const NEURDF_LOCAL_URL = "/data/npo-merged-neurdf.jsonld";
-
-// Try the local copy first, then upstream. Set VITE_PREFER_LOCAL_NEURDF=false to invert this —
-// useful in development when you want to verify against whatever the source is serving now.
-export const PREFER_LOCAL_NEURDF =
-  import.meta.env?.VITE_PREFER_LOCAL_NEURDF !== "false";
 
 // --- predicate display metadata ---------------------------------------------
 //

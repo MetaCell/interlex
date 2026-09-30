@@ -33,6 +33,7 @@ const scopeCaption = (scope, termLabel, anchorIsRoot) =>
 const OntologyBrowsePage = () => {
   const { data } = useOutletContext();
   const { entry, hierarchy, cells } = data;
+  const rootTermId = hierarchy[0]?.termId;
 
   // The ontology's root class is the starting selection the design calls for, and reading down
   // from it is every term in the set — so the table opens on the full list, as it always has.
@@ -41,8 +42,8 @@ const OntologyBrowsePage = () => {
   const [scope, setScope] = useState(SUBCLASSES);
 
   const rootAnchor = useMemo(
-    () => ({ termId: entry.rootClass, label: localName(entry.rootClass) }),
-    [entry.rootClass]
+    () => ({ termId: rootTermId, label: localName(rootTermId) }),
+    [rootTermId]
   );
   const anchor = selected ?? rootAnchor;
 
@@ -52,9 +53,9 @@ const OntologyBrowsePage = () => {
   const selectTerm = useCallback(
     (node) =>
       setSelected(
-        node.termId === entry.rootClass ? null : { termId: node.termId, label: node.label }
+        node.termId === rootTermId ? null : { termId: node.termId, label: node.label }
       ),
-    [entry.rootClass]
+    [rootTermId]
   );
 
   // Back to the opening view. Reading *up* from the root is the one scope that is empty by

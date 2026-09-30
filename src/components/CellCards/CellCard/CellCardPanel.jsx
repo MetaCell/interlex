@@ -118,7 +118,7 @@ const CellCardPanel = ({ term, group }) => {
   }
 
   if (!cell) {
-    const entry = ONTOLOGY_CATALOG[ontologySlug] || ONTOLOGY_CATALOG.precision;
+    const entry = data?.entry || ONTOLOGY_CATALOG.precision;
     return (
       <EmptyState
         sx={{ width: "100%" }}
