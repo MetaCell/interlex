@@ -1,6 +1,6 @@
 import {
   Box,
-  Chip, CircularProgress,
+  Chip,
   Grid,
   Stack,
   Tooltip,
@@ -55,11 +55,7 @@ const Details = ({ loading, data, jsonData, group = "base", termVersion, onMutat
     return { synonyms, related };
   };
 
-  if (loading) {
-    return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <CircularProgress />
-    </Box>
-  }
+  if (loading) return null;
 
   if (!data) {
     return <div>No data available</div>;

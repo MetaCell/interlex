@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useMemo, useCallback } from "react";
+import { Fragment, useState, useEffect, useContext, useMemo, useCallback } from "react";
 import {
   Box,
   Button,
@@ -9,10 +9,8 @@ import {
   Typography,
   Menu,
   MenuItem,
-  CircularProgress,
   Alert,
   Link,
-  Skeleton,
   Snackbar
 } from "@mui/material";
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -60,13 +58,15 @@ import CustomSingleSelect from "../common/CustomSingleSelect";
 import CustomButtonGroup from "../common/CustomButtonGroup";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CreateForkDialog from "./CreateForkDialog";
+import ExistingForkDialog from "./ExistingForkDialog";
 import TermEditActions from "./TermEditActions";
 import FeatureNotAvailableDialog from "../common/FeatureNotAvailableDialog";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { EditSessionProvider } from "../../contexts/EditSessionContext";
+import { PageLoadingProvider } from "../../contexts/PageLoadingContext";
 import { getRawData } from "../../api/endpoints";
 import { getVersions, addEntityToOntology, getOntologyTerms, termExistsInGroup } from "../../api/endpoints/apiService";
-import { resolveTermVersion } from "../../parsers/termVersion";
+import { hasForkIn, resolveTermVersion } from "../../parsers/termVersion";
 import { reportApiError } from "../../api/apiErrorBus";
 import { useTermData } from "../../hooks/useTermData";
 import { useTermRecordAvailability } from "../../hooks/useTermRecordAvailability";
@@ -148,6 +148,8 @@ const SingleTermView = () => {
   const [selectedDataFormat, setSelectedDataFormat] = useState('JSON-LD');
   const [openRequestMergeDialog, setOpenRequestMergeDialog] = useState(false);
   const [openForkDialog, setOpenForkDialog] = useState(false);
+  const [openExistingForkDialog, setOpenExistingForkDialog] = useState(false);
+  const [scratchNotAvailableOpen, setScratchNotAvailableOpen] = useState(false);
   const [featureNotAvailableDialog, setFeatureNotAvailableDialog] = useState(false);
 
   // Use the optimized term data hook instead of manual fetching
@@ -157,6 +159,11 @@ const SingleTermView = () => {
   const [versionsLoading, setVersionsLoading] = useState(true);
   const [versionsError, setVersionsError] = useState(null);
   const clearVersionsError = useCallback(() => setVersionsError(null), []);
+
+  // Bumped when this page writes a new variant. Forking a term already viewed under the user's own
+  // group lands on the same URL, so nothing else would tell the term API reads to run again.
+  const [termRevision, setTermRevision] = useState(0);
+  const handleForkCreated = useCallback(() => setTermRevision((revision) => revision + 1), []);
 
   // Remove redundant query logic - use term from URL params directly
   const searchTerm = term;
@@ -362,8 +369,34 @@ const SingleTermView = () => {
     setOpenForkDialog(false);
   }, []);
 
+  // Every group's variants of the term are listed in its versions, so a group that already
+  // published one owns a fork: forking again would fail on the backend with a misleading error.
+  const hasExistingFork = useMemo(
+    () => hasForkIn(versionsData, user?.groupname),
+    [versionsData, user?.groupname]
+  );
+
   const handleOpenForkDialog = useCallback(() => {
-    setOpenForkDialog(true);
+    if (hasExistingFork) {
+      setOpenExistingForkDialog(true);
+    } else {
+      setOpenForkDialog(true);
+    }
+  }, [hasExistingFork]);
+
+  const handleExistingForkDialogClose = useCallback(() => {
+    setOpenExistingForkDialog(false);
+  }, []);
+
+  const handleUseExistingFork = useCallback(() => {
+    setOpenExistingForkDialog(false);
+    navigate(`/${user?.groupname}/${searchTerm}/overview`);
+  }, [navigate, user?.groupname, searchTerm]);
+
+  // Scratch versions are not supported by the backend yet; this is only their entry point.
+  const handleStartForkFromScratch = useCallback(() => {
+    setOpenExistingForkDialog(false);
+    setScratchNotAvailableOpen(true);
   }, []);
 
   const handleClickDataFormatMenu = useCallback((event) => {
@@ -444,7 +477,10 @@ const SingleTermView = () => {
   }, [termData, updateStoredSearchTerm]);
 
   useEffect(() => {
-    if (!actualGroup || !searchTerm) return;
+    if (!actualGroup || !searchTerm) {
+      setVersionsLoading(false);
+      return;
+    }
     let active = true;
     setVersionsLoading(true);
     setVersionsError(null);
@@ -452,7 +488,7 @@ const SingleTermView = () => {
       .then(data => { if (active) { setVersionsData(data); setVersionsLoading(false); } })
       .catch(err => { if (active) { setVersionsError(err); setVersionsLoading(false); } });
     return () => { active = false; };
-  }, [actualGroup, searchTerm]);
+  }, [actualGroup, searchTerm, termRevision]);
 
   const termVersion = useMemo(
     () => resolveTermVersion(versionsData, actualGroup, versionHash),
@@ -498,20 +534,34 @@ const SingleTermView = () => {
 
   // A term living outside the curated groups is only a fork if a curated original with the same
   // id actually exists — a term made from scratch via "Add a new term" never has one.
-  const [hasCuratedOriginal, setHasCuratedOriginal] = useState(false);
+  // `undefined` while the check is in flight.
+  const [hasCuratedOriginal, setHasCuratedOriginal] = useState(undefined);
   useEffect(() => {
     if (!isInPersonalNamespace || !searchTerm) {
       setHasCuratedOriginal(false);
       return;
     }
     let active = true;
+    setHasCuratedOriginal(undefined);
     termExistsInGroup(curatedGroup, searchTerm).then(exists => {
       if (active) setHasCuratedOriginal(exists);
     });
     return () => { active = false; };
   }, [isInPersonalNamespace, curatedGroup, searchTerm]);
 
-  const isItFork = isInPersonalNamespace && hasCuratedOriginal;
+  // Every group reads through to the curated record, so the term answering under this group proves
+  // nothing: only a variant the group published itself makes it a fork.
+  const hasOwnVariant = useMemo(() => hasForkIn(versionsData, actualGroup), [versionsData, actualGroup]);
+  const isItFork = isInPersonalNamespace && hasOwnVariant && hasCuratedOriginal === true;
+
+  // Viewed under the user's own group without a fork there, the page is only reading through to
+  // the curated record, which is therefore what a new fork copies.
+  const forkSourceGroup = actualGroup === user?.groupname ? curatedGroup : actualGroup;
+  const isCuratedOriginalPending = isInPersonalNamespace && hasCuratedOriginal === undefined;
+
+  // What the header itself waits on; the tabs report their own loading through the provider.
+  const isHeaderLoading =
+    isLoadingTerm || versionsLoading || isCuratedOriginalPending || isTermRecordPending || contextLoading;
 
   // Memoize tab content to prevent unnecessary re-renders
   const tabContent = useMemo(() => {
@@ -519,13 +569,7 @@ const SingleTermView = () => {
     // cell is still being probed. Mounting one now would fire a request that 404s — raising the
     // shared error dialog over a tab we are a moment away from redirecting off. The Cell Card
     // reads the ontology graph instead, so it starts its (much heavier) load straight away.
-    if (isTermRecordPending && tabValue !== CELL_CARD_TAB) {
-      return (
-        <Box display="flex" justifyContent="center" p="3rem">
-          <CircularProgress size={24} />
-        </Box>
-      );
-    }
+    if (isTermRecordPending && tabValue !== CELL_CARD_TAB) return null;
 
     switch (tabValue) {
       case CELL_CARD_TAB:
@@ -604,10 +648,6 @@ const SingleTermView = () => {
     }
   }, [activeOntology, actualGroup, searchTerm, setOntologyData]);
 
-  const handleCreateFork = () => {
-    handleOpenFeatureNotAvailableDialog();
-  };
-
   const handleAddToAnotherOntology = () => {
     handleOpenFeatureNotAvailableDialog();
   };
@@ -627,7 +667,7 @@ const SingleTermView = () => {
     ...(user ? [{
       icon: <ForkRightOutlinedIcon fontSize="small" />,
       label: "Create fork",
-      action: handleCreateFork
+      action: handleOpenForkDialog
     }] : []),
     {
       icon: <FolderCopyOutlinedIcon fontSize="small" />,
@@ -645,187 +685,193 @@ const SingleTermView = () => {
 
   return (
     <EditSessionProvider group={actualGroup} searchTerm={searchTerm} disabled={!!versionHash}>
-      <Box display="flex" flexDirection="column" sx={{ minWidth: "100%" }}>
-        <Box p="1.5rem 5rem 0rem 5rem">
-          <Grid container>
-            <Grid container xs={12} lg={12} direction="row" alignItems="center" justifyContent="space-between">
-              <Stack direction="row" alignItems="center" gap={1.5} sx={{ minWidth: 0 }}>
-                <CustomBreadcrumbs breadcrumbItems={breadcrumbItems} />
-                <CopyPathLink permalink={permalink} label={permalinkLabel} tooltip={permalinkTooltip} />
-              </Stack>
-              <Stack direction="row" alignItems="center" gap={1}>
-                {/* The context ontology's two ways out, in the design's order: back to its grid,
-                    then off to its community. Grouped on `contextEntry` because §4.2 omits both
-                    entirely without a context — and the divider with them, since it is what
-                    separates them from the active-ontology selector. */}
-                {contextEntry && (
-                  <>
-                    <GridViewLink to={ontologyPath(contextEntry)} />
-                    <CommunityHubLink href={contextOntologyData?.meta?.communityLink} />
-                    <Divider orientation="vertical" flexItem />
-                  </>
-                )}
-                <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Active Ontology:</Typography>
-                <OntologySearch userGroupname={user?.groupname} />
-              </Stack>
-            </Grid>
-            <Grid container mt="1.75rem">
-              <Grid item xs={12} lg="auto">
-                <Stack direction="row" spacing=".75rem" alignItems="center">
-                  <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
-                    {/* The label is already known from the search (storedSearchTerm),
-                        so show it immediately and only fall back to a spinner on a
-                        cold direct load where we have nothing to display yet. */}
-                    {isLoadingTerm && !termData && !storedSearchTerm ? (
-                      <CircularProgress size={20} />
-                    ) : (
-                      displayedTermLabel
-                    )}
-                  </Typography>
-                  {isItFork ? <Chip label="Fork" variant="outlined" /> : null}
+      <PageLoadingProvider loading={isHeaderLoading}>
+        <Box display="flex" flexDirection="column" sx={{ minWidth: "100%" }}>
+          <Box p="1.5rem 5rem 0rem 5rem">
+            <Grid container>
+              <Grid container xs={12} lg={12} direction="row" alignItems="center" justifyContent="space-between">
+                <Stack direction="row" alignItems="center" gap={1.5} sx={{ minWidth: 0 }}>
+                  <CustomBreadcrumbs breadcrumbItems={breadcrumbItems} />
+                  <CopyPathLink permalink={permalink} label={permalinkLabel} tooltip={permalinkTooltip} />
                 </Stack>
-                {isUsingFallback && (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: 'warning.main',
-                      fontSize: '0.875rem',
-                      fontStyle: 'italic',
-                      mt: '0.5rem'
-                    }}
-                  >
-                    Note: This term is not available in &quot;{group}&quot; group. Showing data from &quot;base&quot; group instead.
-                  </Typography>
-                )}
-                <Stack direction="row" spacing="1rem" alignItems="center" mt=".5rem">
-                  {termIdentityUrl ? (
-                    <CopyLinkComponent url={termIdentityUrl} />
-                  ) : (
-                    // Waiting on the ontology for a cell's IRI (see termIdentityUrl). The
-                    // placeholder holds the row's height so the tab bar below does not jump when
-                    // the link arrives.
-                    <Skeleton variant="text" width="20rem" height="2.5rem" />
+                <Stack direction="row" alignItems="center" gap={1}>
+                  {/* The context ontology's two ways out, in the design's order: back to its grid,
+                      then off to its community. Grouped on `contextEntry` because §4.2 omits both
+                      entirely without a context — and the divider with them, since it is what
+                      separates them from the active-ontology selector. */}
+                  {contextEntry && (
+                    <>
+                      <GridViewLink to={ontologyPath(contextEntry)} />
+                      <CommunityHubLink href={contextOntologyData?.meta?.communityLink} />
+                      <Divider orientation="vertical" flexItem />
+                    </>
                   )}
-                {/* A fork is a copy of a curated record: name the original and offer the way back
-                    to it, so the reader can tell which of the two they are looking at. */}
-                {isItFork && (
-                  <>
-                    <Divider orientation="vertical" flexItem />
-                    <Link
-                      component="button"
+                  <Typography variant="caption" sx={{ fontSize: '0.875rem', color: gray600 }}>Active Ontology:</Typography>
+                  <OntologySearch userGroupname={user?.groupname} />
+                </Stack>
+              </Grid>
+              <Grid container mt="1.75rem">
+                <Grid item xs={12} lg="auto">
+                  <Stack direction="row" spacing=".75rem" alignItems="center">
+                    <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
+                      {displayedTermLabel}
+                    </Typography>
+                    {isItFork ? <Chip label="Fork" variant="outlined" /> : null}
+                  </Stack>
+                  {isUsingFallback && (
+                    <Typography
                       variant="body2"
-                      onClick={() => navigate(curatedTermPath)}
+                      sx={{
+                        color: 'warning.main',
+                        fontSize: '0.875rem',
+                        fontStyle: 'italic',
+                        mt: '0.5rem'
+                      }}
                     >
-                      View curated term
-                    </Link>
-                  </>
-                )}
-                </Stack>
-              </Grid>
-              <Grid display="flex" justifyContent='end' alignItems='flex-start' mt=".56rem" item xs={12} lg>
-                <Stack direction="row" spacing="1rem" alignItems="center">
-                  {/* Editing applies to the Overview tab, which is where every
-                      field backed by a triple on this term lives. */}
-                  <TermEditActions visible={tabValue === OVERVIEW_TAB && !versionHash} />
-                  <Divider orientation="vertical" flexItem />
-                  {/* Only a variant has something to propose: the base group *is* curated.
-                      Opening the request writes to the fork's group, so it needs a session. */}
-                  {isItFork && user ? (
-                    <Button type="string" color="secondary" startIcon={<RateReviewOutlinedIcon />} onClick={handleOpenRequestMergeDialog}>
-                      Request to merge changes to curated
-                    </Button>
-                  ) : !isInPersonalNamespace && user ? (
-                    <Button type="string" color="secondary" startIcon={<ForkRightIcon />} onClick={handleOpenForkDialog}>
-                      Create fork
-                    </Button>
-                  ) : null}
+                      Note: This term is not available in &quot;{group}&quot; group. Showing data from &quot;base&quot; group instead.
+                    </Typography>
+                  )}
+                  <Stack direction="row" spacing="1rem" alignItems="center" mt=".5rem">
+                    {termIdentityUrl && <CopyLinkComponent url={termIdentityUrl} />}
+                  {/* A fork is a copy of a curated record: name the original and offer the way back
+                      to it, so the reader can tell which of the two they are looking at. */}
+                  {isItFork && (
+                    <>
+                      <Divider orientation="vertical" flexItem />
+                      <Link
+                        component="button"
+                        variant="body2"
+                        onClick={() => navigate(curatedTermPath)}
+                      >
+                        View curated term
+                      </Link>
+                    </>
+                  )}
+                  </Stack>
+                </Grid>
+                <Grid display="flex" justifyContent='end' alignItems='flex-start' mt=".56rem" item xs={12} lg>
+                  <Stack direction="row" spacing="1rem" alignItems="center">
+                    {/* Editing applies to the Overview tab, which is where every
+                        field backed by a triple on this term lives. */}
+                    <TermEditActions visible={tabValue === OVERVIEW_TAB && !versionHash} />
+                    <Divider orientation="vertical" flexItem />
+                    {/* Only a variant has something to propose: the base group *is* curated.
+                        Opening the request writes to the fork's group, so it needs a session. */}
+                    {isItFork && user && (
+                      <Button type="string" color="secondary" startIcon={<RateReviewOutlinedIcon />} onClick={handleOpenRequestMergeDialog}>
+                        Request to merge changes to curated
+                      </Button>
+                    )}
+                    {/* Offered on every term, forks included: it is also the way into a scratch
+                        version once the user already holds a fork. */}
+                    {user && (
+                      <Button type="string" color="secondary" startIcon={<ForkRightIcon />} onClick={handleOpenForkDialog} disabled={versionsLoading}>
+                        Create fork
+                      </Button>
+                    )}
 
-                  <CustomButtonGroup
-                    variant="outlined"
-                    options={menuOptions}
-                    sx={{ 
-                      minWidth: "18.75rem",
-                      "& .MuiList-root > :last-child": {
-                        borderTop: `1px solid ${gray200}`,
-                        color: error700
-                      }
-                    }}
-                  />
+                    <CustomButtonGroup
+                      variant="outlined"
+                      options={menuOptions}
+                      sx={{ 
+                        minWidth: "18.75rem",
+                        "& .MuiList-root > :last-child": {
+                          borderTop: `1px solid ${gray200}`,
+                          color: error700
+                        }
+                      }}
+                    />
 
-                  <CustomButton onClick={handleClickDataFormatMenu}><DownloadOutlined fontSize="medium" />Download as</CustomButton>
-                  <Menu
-                    anchorEl={dataFormatAnchorEl}
-                    open={openDataFormatMenu}
-                    onClose={handleCloseDataFormatMenu}
-                  >
-                    {dataFormats.map(dataFormat => (
-                      <MenuItem key={dataFormat} onClick={() => handleDataFormatMenuItemClick(dataFormat)}>{dataFormat}</MenuItem>
-                    ))}
-                  </Menu>
-                </Stack>
-              </Grid>
-              <Grid item xs={12} mt="2rem" display='flex' alignItems='center' justifyContent='space-between'>
-                <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={tabLabels} />
-                {toggleButtonGroup}
+                    <CustomButton onClick={handleClickDataFormatMenu}><DownloadOutlined fontSize="medium" />Download as</CustomButton>
+                    <Menu
+                      anchorEl={dataFormatAnchorEl}
+                      open={openDataFormatMenu}
+                      onClose={handleCloseDataFormatMenu}
+                    >
+                      {dataFormats.map(dataFormat => (
+                        <MenuItem key={dataFormat} onClick={() => handleDataFormatMenuItemClick(dataFormat)}>{dataFormat}</MenuItem>
+                      ))}
+                    </Menu>
+                  </Stack>
+                </Grid>
+                <Grid item xs={12} mt="2rem" display='flex' alignItems='center' justifyContent='space-between'>
+                  <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={tabLabels} />
+                  {toggleButtonGroup}
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
+          </Box>
+          {versionHash && (
+            <Box px="5rem" pt="1.5rem">
+              <Alert
+                severity="info"
+                onClose={() => navigate(`/${group}/${term}/overview`)}
+                closeText="Back to current term"
+              >
+                Viewing a historical version of this term (identity graph <code>{versionHash}</code>). This snapshot is read-only.
+              </Alert>
+            </Box>
+          )}
+          {/* Why nothing on the Overview is editable: the record shown is the ontology's, not InterLex's. */}
+          {!versionHash && servedByOntology && tabValue === OVERVIEW_TAB && (
+            <Box px="5rem" pt="1.5rem">
+              <Alert severity="info">
+                This term has no InterLex record yet, so its Overview is read from{" "}
+                {contextOntologyData?.meta?.title || "the context ontology"} and is read-only. Curate
+                it by editing that ontology.
+              </Alert>
+            </Box>
+          )}
+          <Fragment key={termRevision}>{tabContent}</Fragment>
         </Box>
-        {versionHash && (
-          <Box px="5rem" pt="1.5rem">
-            <Alert
-              severity="info"
-              onClose={() => navigate(`/${group}/${term}/overview`)}
-              closeText="Back to current term"
-            >
-              Viewing a historical version of this term (identity graph <code>{versionHash}</code>). This snapshot is read-only.
-            </Alert>
-          </Box>
+        {isItFork && (
+          <RequestMergeChanges
+            term={searchTerm}
+            group={actualGroup}
+            open={openRequestMergeDialog}
+            handleClose={handleCloseRequestMergeDialog}
+          />
         )}
-        {/* Why nothing on the Overview is editable: the record shown is the ontology's, not InterLex's. */}
-        {!versionHash && servedByOntology && tabValue === OVERVIEW_TAB && (
-          <Box px="5rem" pt="1.5rem">
-            <Alert severity="info">
-              This term has no InterLex record yet, so its Overview is read from{" "}
-              {contextOntologyData?.meta?.title || "the context ontology"} and is read-only. Curate
-              it by editing that ontology.
-            </Alert>
-          </Box>
-        )}
-        {tabContent}
-      </Box>
-      {isItFork && (
-        <RequestMergeChanges
-          term={searchTerm}
-          group={actualGroup}
-          open={openRequestMergeDialog}
-          handleClose={handleCloseRequestMergeDialog}
+        <CreateForkDialog
+          open={openForkDialog}
+          handleClose={handleForkDialogClose}
+          onForkCreated={handleForkCreated}
+          user={user}
+          searchTerm={searchTerm}
+          termLabel={displayedTermLabel}
+          group={forkSourceGroup}
         />
-      )}
-      <CreateForkDialog
-        open={openForkDialog}
-        handleClose={handleForkDialogClose}
-        user={user}
-        searchTerm={searchTerm}
-        termLabel={displayedTermLabel}
-        group={actualGroup}
-      />
-      
-      {/* Feature Not Available Dialog */}
-      <FeatureNotAvailableDialog
-        open={featureNotAvailableDialog}
-        onClose={handleCloseFeatureNotAvailableDialog}
-      />
-      <Snackbar
-        open={!!ontologySnackbar}
-        autoHideDuration={4000}
-        onClose={() => setOntologySnackbar(null)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={() => setOntologySnackbar(null)} severity={ontologySnackbar?.severity} sx={{ width: '100%' }}>
-          {ontologySnackbar?.message}
-        </Alert>
-      </Snackbar>
+        <ExistingForkDialog
+          open={openExistingForkDialog}
+          handleClose={handleExistingForkDialogClose}
+          groupname={user?.groupname}
+          termLabel={displayedTermLabel}
+          onUseExisting={handleUseExistingFork}
+          onStartFromScratch={handleStartForkFromScratch}
+        />
+        <FeatureNotAvailableDialog
+          open={scratchNotAvailableOpen}
+          onClose={() => setScratchNotAvailableOpen(false)}
+          title="Scratch version not available yet"
+          message="Starting a scratch version of a term you have already forked is not implemented yet. You can keep working on your existing fork in the meantime."
+        />
+
+        {/* Feature Not Available Dialog */}
+        <FeatureNotAvailableDialog
+          open={featureNotAvailableDialog}
+          onClose={handleCloseFeatureNotAvailableDialog}
+        />
+        <Snackbar
+          open={!!ontologySnackbar}
+          autoHideDuration={4000}
+          onClose={() => setOntologySnackbar(null)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert onClose={() => setOntologySnackbar(null)} severity={ontologySnackbar?.severity} sx={{ width: '100%' }}>
+            {ontologySnackbar?.message}
+          </Alert>
+        </Snackbar>
+      </PageLoadingProvider>
     </EditSessionProvider>
   )
 }

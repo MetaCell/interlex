@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { a11yLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import { getRawData, getTermVersion } from '../../../api/endpoints/apiService';
+import { useReportLoading } from '../../../contexts/pageLoading';
 
 import { vars } from '../../../theme/variables';
 const { gray25, gray200, gray500 } = vars;
@@ -26,8 +27,8 @@ const formatExtensions = {
 
 const RawDataViewer = ({ dataId, dataFormat, group = "base", versionHash }) => {
     const [formattedData, setFormattedData] = useState(null);
-    // eslint-disable-next-line no-unused-vars
     const [loading, setLoading] = useState(true);
+    useReportLoading(loading);
 
     useEffect(() => {
         setFormattedData(null);
@@ -37,10 +38,16 @@ const RawDataViewer = ({ dataId, dataFormat, group = "base", versionHash }) => {
         const request = versionHash
             ? getTermVersion(group, dataId, versionHash)
             : getRawData(group, dataId, formatExtensions[dataFormat]);
-        request.then(rawResponse => {
-            setFormattedData(JSON.stringify(rawResponse, null, 2));
-            setLoading(false);
-        });
+        let active = true;
+        request
+            .then(rawResponse => {
+                if (active) setFormattedData(JSON.stringify(rawResponse, null, 2));
+            })
+            .catch(error => console.error('Error loading raw data:', error))
+            .finally(() => {
+                if (active) setLoading(false);
+            });
+        return () => { active = false; };
     }, [dataId, dataFormat, group, versionHash]);
 
     return (
@@ -66,8 +73,8 @@ const RawDataViewer = ({ dataId, dataFormat, group = "base", versionHash }) => {
                 >
                     {formattedData}
                 </SyntaxHighlighter>
-            ) : (
-                <div>Loading...</div>
+            ) : !loading && (
+                <div>No data available</div>
             )}
         </div>
     );
