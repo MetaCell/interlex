@@ -7,8 +7,8 @@ import {
   Typography
 } from "@mui/material";
 import PropTypes from "prop-types";
-import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 import { formatTimestamp } from "../../../utils";
+import IriChip from "../../common/IriChip";
 import { EditableChipList, EditableTextValue } from "./EditableFields";
 
 import { vars } from "../../../theme/variables";
@@ -27,9 +27,6 @@ const EXISTING_ID_PREDICATE = "ilxtr:hasExistingId";
 // `onMutate` present means edit mode is on (OverView only passes it then).
 const Details = ({ loading, data, jsonData, group = "base", termVersion, onMutate }) => {
   const editing = !!onMutate;
-  const handleChipClick = (url) => {
-    window.open(url, '_blank');
-  };
 
   const processExistingIds = (existingID) => {
     if (Array.isArray(existingID)) {
@@ -168,11 +165,12 @@ const Details = ({ loading, data, jsonData, group = "base", termVersion, onMutat
                   onMutate={onMutate}
                   addLabel="Add existing ID"
                   chipClassName="rounded IDchip-outlined"
+                  renderChip={(id, chipProps) => <IriChip iri={id} context={jsonData?.["@context"]} {...chipProps} />}
                 />
               ) : (
                 <Box display="flex" flexWrap="wrap" gap=".5rem">
                   {processExistingIds(data?.existingID).map((id) =>
-                    <Chip className="rounded IDchip-outlined" variant="outlined" key={id} label={id} icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(id)} />
+                    <IriChip className="rounded IDchip-outlined" key={id} iri={id} context={jsonData?.["@context"]} />
                   )}
                 </Box>
               )}

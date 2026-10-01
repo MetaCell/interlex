@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { ListIcon, StartIcon } from '../../Icons';
 import CustomSingleSelect from '../common/CustomSingleSelect';
 import CopyLinkComponent from '../common/CopyLinkComponent';
+import IriChip from '../common/IriChip';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 import { Box, Typography, IconButton, Tooltip, Stack, Divider, Grid, CircularProgress, Chip } from '@mui/material';
 
 import { vars } from '../../theme/variables';
@@ -15,10 +15,6 @@ export default function TermSidebar({ open, loading, onToggle, data }) {
 
     const handleNumberOfPagesChange = (v) => {
         setNumberOfVisiblePages(v);
-    };
-
-    const handleChipClick = (id) => {
-        console.log('Chip clicked', id);
     };
 
     if (loading) {
@@ -125,7 +121,7 @@ export default function TermSidebar({ open, loading, onToggle, data }) {
                                         </Typography>
                                         <Box display="flex" flexWrap="wrap" gap=".5rem">
                                             {data?.existingID?.map((id) => (
-                                                <Chip className="rounded IDchip-outlined" variant="outlined" key={id} label={id} icon={<OpenInNewOutlinedIcon />} onClick={() => handleChipClick(id)} />
+                                                <IriChip className="rounded IDchip-outlined" key={id} iri={id} />
                                             ))}
                                         </Box>
                                     </Stack>
