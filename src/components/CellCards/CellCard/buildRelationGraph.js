@@ -27,9 +27,9 @@ const refNode = (ref) => ({
  *
  * Shape: the current cell in the middle; above it, on one rank, its subClassOf parents and the
  * cross-nomenclature types it is asserted a subclass of; below it, its subClassOf children and the
- * records it is consistent with; and two lateral satellites — soma location to the left and gene
- * expression to the right. Which rank a cross-nomenclature relation takes is its configured
- * `direction`.
+ * records it is consistent with; and the lateral satellites — soma location to the left and gene
+ * expression to the right, one box per value unless the values form a union. Which rank a
+ * cross-nomenclature relation takes is its configured `direction`.
  *
  * Every edge runs subject -> object, so its arrow reads the way the relation does: a subclass-of
  * edge climbs from the subclass to its superclass, and `direction` tells the layout which rank the
@@ -112,27 +112,38 @@ export const buildRelationGraph = (cell, neighbours = {}, mappings = DEFAULT_MAP
     }
   }
 
-  // Lateral phenotype satellites. Several values collapse into one node ("SCGN, ADRA2C" in the
-  // design) so the graph shows the relation rather than one node per gene.
+  // Lateral phenotype satellites, one node per value. The design collapsed them into one box
+  // ("SCGN, ADRA2C"), which a cell expressing 21 genes truncated to its first three. A union is
+  // the exception: "dorsal root ganglion or trigeminal ganglion" is one claim, and an edge per
+  // value would assert both, so it stays one box worded the way PropertyList words it. The id is
+  // scoped by edge kind, so a term two predicates of one kind both name stays one box, and a
+  // satellite never merges with a hierarchy node the layout places elsewhere.
   for (const predicate of config.predicates) {
-    const values = cell.properties[predicate.localName]?.values || [];
-    if (!values.length) continue;
-    const id = `${cell.id}::${predicate.localName}`;
-    nodes.push({
-      id,
-      label: values.map((v) => v.label || v.curie).join(", "),
-      isCurrent: false,
-      // A single value is navigable; a collapsed list has no one target.
-      ref: values.length === 1 ? values[0] : undefined,
-    });
-    seen.add(id);
-    edges.push({
-      from: cell.id,
-      to: id,
-      kind: predicate.kind,
-      label: predicate.label,
-      direction: predicate.direction,
-    });
+    const property = cell.properties[predicate.localName];
+    const values = property?.values || [];
+    const boxes =
+      property?.combinator === "or" && values.length > 1
+        ? [{ key: values.map((v) => v.id).join("|"), values }]
+        : values.map((v) => ({ key: v.id, values: [v] }));
+    for (const box of boxes) {
+      const id = `${cell.id}::${predicate.kind}::${box.key}`;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      nodes.push({
+        id,
+        label: box.values.map((v) => v.label || v.curie).join(" or "),
+        isCurrent: false,
+        // A union has no one target to navigate to.
+        ref: box.values.length === 1 ? box.values[0] : undefined,
+      });
+      edges.push({
+        from: cell.id,
+        to: id,
+        kind: predicate.kind,
+        label: predicate.label,
+        direction: predicate.direction,
+      });
+    }
   }
 
   return { nodes, edges };

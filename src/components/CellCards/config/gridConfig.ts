@@ -66,7 +66,6 @@ export const ONTOLOGY_CATALOG: Record<string, OntologyEntry> = {
     community: "Precision",
     curationStatus: "Curated",
     description: "HEAL-PRECISION neuron cell types (NPO).",
-    rootClass: "ilxtr:NeuronPrecision",
     // All 161 Precision cells are npokb-only today. Drop this once they are ingested with ILX ids:
     // by then InterLex addresses them and the ontology stops being their only source.
     termPrefixes: ["npokb"],

@@ -670,7 +670,7 @@ const SingleTermView = () => {
               </Stack>
             </Grid>
             <Grid container mt="1.75rem">
-              <Grid item xs={12} lg="auto">
+              <Grid item xs={12} lg>
                 <Stack direction="row" spacing=".75rem" alignItems="center">
                   <Typography color={gray600} fontSize="1.875rem" fontWeight={600}>
                     {/* The label is already known from the search (storedSearchTerm),
@@ -722,7 +722,7 @@ const SingleTermView = () => {
                 )}
                 </Stack>
               </Grid>
-              <Grid display="flex" justifyContent='end' alignItems='flex-start' mt=".56rem" item xs={12} lg>
+              <Grid display="flex" justifyContent='end' alignItems='flex-start' mt=".56rem" item xs={12} lg="auto">
                 <Stack direction="row" spacing="1rem" alignItems="center">
                   {/* Editing applies to the Overview tab, which is where every
                       field backed by a triple on this term lives. */}

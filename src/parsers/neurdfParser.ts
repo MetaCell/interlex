@@ -56,7 +56,7 @@ const firstString = (v: unknown): string | undefined => {
 };
 
 const isBlankNode = (id: string): boolean => id.startsWith("_:");
-const isIri = (id: string): boolean => id.includes("://");
+export const isIri = (id: string): boolean => id.includes("://");
 
 // --- prefix table: the parsed file's own @context ---------------------------
 
@@ -86,6 +86,22 @@ export const contextPrefixes = (context?: Record<string, unknown>): Prefixes => 
   return out;
 };
 
+// The longest declared base that covers the IRI wins, since a context routinely declares both a
+// family and its members (".../obo/" and ".../obo/UBERON_") and only the longer one names the
+// term. The base must leave a local part behind, which is what stops a term definition — an IRI
+// complete in itself — from being read as a prefix.
+export const compactIri = (iri: string, prefixes: Prefixes): string | undefined => {
+  let best = "";
+  let bestPrefix = "";
+  for (const [prefix, base] of Object.entries(prefixes)) {
+    if (base.length > best.length && iri.length > base.length && iri.startsWith(base)) {
+      best = base;
+      bestPrefix = prefix;
+    }
+  }
+  return best ? `${bestPrefix}:${iri.slice(best.length)}` : undefined;
+};
+
 const DOI_IRI = /^https?:\/\/(?:dx\.)?doi\.org\/(10\.\d{4,9}\/.+)$/i;
 
 // Compact an @id (curie or IRI) into { curie, kind } against the @context.
@@ -95,21 +111,8 @@ const classify =(id: string, prefixes: Prefixes): { curie: string; kind: RefKind
     const prefix = id.split(":")[0];
     return { curie: id, kind: kindForPrefix(prefix, id) };
   }
-  // Full IRI: compact it against the longest declared base that covers it, since a context
-  // routinely declares both a family and its members (".../obo/" and ".../obo/UBERON_") and only
-  // the longer one names the term. The base must leave a local part behind, which is what stops a
-  // term definition — an IRI complete in itself — from being read as a prefix.
-  let best = "";
-  let bestPrefix = "";
-  for (const [prefix, base] of Object.entries(prefixes)) {
-    if (base.length > best.length && id.length > base.length && id.startsWith(base)) {
-      best = base;
-      bestPrefix = prefix;
-    }
-  }
-  if (best) {
-    return { curie: `${bestPrefix}:${id.slice(best.length)}`, kind: kindForPrefix(bestPrefix, id) };
-  }
+  const curie = compactIri(id, prefixes);
+  if (curie) return { curie, kind: kindForPrefix(curie.split(":")[0], id) };
   // A DOI is its whole path: the tail alone ("sciadv.adj9173") is not one anybody recognises. Tom's
   // display form is `doi:10.1126/sciadv.adj9173` (#187). The `/` keeps it from compacting as a
   // qname, so the file declares no prefix for it and it is spelled out here, after any it does.
@@ -143,7 +146,7 @@ const kindForPrefix = (prefix: string, id: string): RefKind => {
 // Full IRI for linking out: expand a curie through the @context, pass an IRI through. "" when the
 // file declares no base for the prefix, which the UI reads as "not addressable" and renders as
 // plain text rather than a dead link.
-const toIri = (id: string, prefixes: Prefixes): string => {
+export const toIri = (id: string, prefixes: Prefixes): string => {
   if (isIri(id)) return id;
   const [prefix, ...rest] = id.split(":");
   const base = prefixes[prefix];

@@ -137,6 +137,43 @@ check(
   twice.nodes.filter((n) => n.ref?.id === "npokb:1037").map((n) => n.id).sort(),
   ["npokb:1037", "npokb:1037::below"]
 );
+// One box per gene: the design's single comma-joined box truncated a 21-gene cell to its first
+// three names. The genes are synthetic; the fixture's npokb:1007 expresses only one.
+const genes = ["NCBIGene:59350", "NCBIGene:12310", "NCBIGene:20604"].map((id) => ({ id, curie: id, label: id, iri: "" }));
+const expressing = {
+  ...c1007,
+  properties: {
+    ...c1007.properties,
+    hasNucleicAcidExpressionPhenotype: { ...c1007.properties.hasNucleicAcidExpressionPhenotype, values: genes },
+  },
+};
+const perGene = buildRelationGraph(expressing, {}, DEFAULT_MAPPINGS);
+check(
+  "each expressed gene is its own navigable box on its own edge",
+  perGene.edges
+    .filter((e) => e.kind === "expresses")
+    .map((e) => perGene.nodes.find((n) => n.id === e.to)?.ref?.id),
+  genes.map((g) => g.id)
+);
+// A union is one claim: an edge per value would assert the cell is located in both.
+const geneUnion = buildRelationGraph(
+  {
+    ...expressing,
+    properties: {
+      ...expressing.properties,
+      hasNucleicAcidExpressionPhenotype: { ...expressing.properties.hasNucleicAcidExpressionPhenotype, combinator: "or" },
+    },
+  },
+  {},
+  DEFAULT_MAPPINGS
+);
+check(
+  "a union of genes stays one box, worded with 'or'",
+  geneUnion.edges
+    .filter((e) => e.kind === "expresses")
+    .map((e) => geneUnion.nodes.find((n) => n.id === e.to)?.label),
+  [genes.map((g) => g.label).join(" or ")]
+);
 
 // --- display metadata read from the ontology ---------------------------------
 console.log("\npredicate display metadata");

@@ -4,7 +4,7 @@
 //
 // These render only while edit mode is on — the read-only views elsewhere are
 // left untouched so the default screen is unchanged.
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import PropTypes from "prop-types";
 import { Box, Button, Chip, IconButton, Stack, TextField, Tooltip } from "@mui/material";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
@@ -17,6 +17,8 @@ import { useEditSession } from "../../../contexts/editSession";
 // list keeps its shape while being edited.
 const chipColorFor = (status) => (status === "added" ? "success" : status === "edited" ? "info" : "default");
 
+const renderValueChip = (value, chipProps) => <Chip variant="outlined" label={value} {...chipProps} />;
+
 export const EditableChipList = ({
   predicate,
   values = [],
@@ -26,6 +28,7 @@ export const EditableChipList = ({
   onMutate,
   addLabel = "Add",
   chipClassName = "rounded",
+  renderChip = renderValueChip,
 }) => {
   const { applyToValues } = useEditSession();
   const [adding, setAdding] = useState(false);
@@ -79,14 +82,13 @@ export const EditableChipList = ({
       )}
       <Box display="flex" flexWrap="wrap" gap=".5rem">
         {resolved.map((entry) => (
-          <Chip
-            key={`${entry.value}-${entry.status}`}
-            className={chipClassName}
-            variant="outlined"
-            color={chipColorFor(entry.status)}
-            label={entry.value}
-            onDelete={() => remove(entry)}
-          />
+          <Fragment key={`${entry.value}-${entry.status}`}>
+            {renderChip(entry.value, {
+              className: chipClassName,
+              color: chipColorFor(entry.status),
+              onDelete: () => remove(entry),
+            })}
+          </Fragment>
         ))}
       </Box>
     </Stack>
@@ -102,6 +104,7 @@ EditableChipList.propTypes = {
   onMutate: PropTypes.func,
   addLabel: PropTypes.string,
   chipClassName: PropTypes.string,
+  renderChip: PropTypes.func,
 };
 
 // Single-valued literal (definition): staged as an edit of the stored value, or

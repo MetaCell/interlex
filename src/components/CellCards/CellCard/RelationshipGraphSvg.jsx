@@ -21,6 +21,11 @@ const TRUNK_INSET = 16; // a side group's trunk leaves the current node's face t
 const NODE_SEP = 40;
 const PAD = 16;
 const LABEL_MAX_CHARS = 20;
+const LATERAL_TRUNK = 128; // from the current node to its first satellite column, room for the caption
+const SATELLITE_ROWS = 8; // boxes per satellite column before another opens further out
+const SATELLITE_GAP = 8; // between two stacked satellites
+const SATELLITE_COLUMN_GAP = 32;
+const SATELLITE_BRANCH = 16; // from a column's bus into its boxes
 
 const nodeHeight = (n) => (n.subtitle ? NODE_H_2 : NODE_H_1);
 
@@ -149,6 +154,63 @@ const layoutSide = (edges, above, current, positions, nodeById) => {
 };
 
 /**
+ * Lay out the satellites on one side of the current node, one box per value.
+ *
+ * They stack in columns centred on the current node's row, and once a column holds SATELLITE_ROWS
+ * the rest open further out: one column of 35 genes would dwarf the rest of the graph. Every edge
+ * leaves the current node's face along one trunk to the first column's bus and branches into its
+ * box; an outer column is reached over a spine above the boxes and down its own bus, so no
+ * connector crosses a box. A tall block reaches into the ranks above and below, so it is pushed
+ * out past any hierarchy box level with it.
+ *
+ * Works in an outward coordinate (`sign * x`) so both sides share one code path. Returns each
+ * edge's polyline and one caption per relation kind. Mutates `positions` for the side's nodes.
+ */
+const layoutLateral = (edges, current, positions, nodeById, obstacles) => {
+  const ids = [...new Set(edges.map((e) => e.to))].filter((id) => nodeById.has(id));
+  if (!ids.length) return { points: new Map(), captions: [] };
+  const sign = edges[0].direction === "left" ? -1 : 1;
+  const cur = positions.get(current.id);
+
+  const columns = Math.ceil(ids.length / SATELLITE_ROWS);
+  const rows = Math.ceil(ids.length / columns);
+  const boxH = Math.max(...ids.map((id) => nodeHeight(nodeById.get(id))));
+  const pitch = boxH + SATELLITE_GAP;
+  const top = cur.y - (rows * pitch - SATELLITE_GAP) / 2;
+  const bottom = top + rows * pitch - SATELLITE_GAP;
+  const spineY = top - SATELLITE_GAP;
+
+  const face = sign * cur.x + nodeWidth(current) / 2;
+  const blocking = obstacles
+    .filter((o) => o.y + o.h / 2 > spineY && o.y - o.h / 2 < bottom)
+    .map((o) => sign * o.x + o.w / 2);
+  let near = Math.max(face + LATERAL_TRUNK, ...blocking.map((u) => u + NODE_SEP + SATELLITE_BRANCH));
+  const firstBus = near - SATELLITE_BRANCH;
+  const toXY = ([u, y]) => [sign * u, y];
+
+  const pointsById = new Map();
+  for (let c = 0; c < columns; c++) {
+    const column = ids.slice(c * rows, (c + 1) * rows);
+    const bus = near - SATELLITE_BRANCH;
+    column.forEach((id, r) => {
+      const y = top + boxH / 2 + r * pitch;
+      positions.set(id, { x: sign * (near + nodeWidth(nodeById.get(id)) / 2), y });
+      const reach = c === 0 ? [[firstBus, y]] : [[firstBus, spineY], [bus, spineY], [bus, y]];
+      pointsById.set(id, [[face, cur.y], [firstBus, cur.y], ...reach, [near, y]].map(toXY));
+    });
+    near += Math.max(...column.map((id) => nodeWidth(nodeById.get(id)))) + SATELLITE_COLUMN_GAP;
+  }
+
+  const points = new Map(edges.map((e) => [e, pointsById.get(e.to)]));
+  const captions = kindsOf(edges).map((kind) => ({
+    x: (sign * (face + firstBus)) / 2,
+    y: cur.y,
+    label: clampCaption(edges.find((e) => e.kind === kind).label),
+  }));
+  return { points, captions };
+};
+
+/**
  * Lay out and draw the relationship graph.
  *
  * dagre computes ranks and positions; we draw the SVG ourselves so nodes keep the design's
@@ -156,8 +218,8 @@ const layoutSide = (edges, above, current, positions, nodeById) => {
  *
  * dagre guarantees the *rank* but the order within a rank is heuristic, so the ranks next to the
  * current node are laid out by hand (layoutSide), and the lateral satellites (soma location,
- * expresses) are excluded from the layout graph entirely and pinned left and right of the current
- * node once it has a position.
+ * expresses) are excluded from the layout graph entirely and stacked left and right of the current
+ * node once it has a position (layoutLateral).
  */
 const RelationshipGraphSvg = ({ graph, onSelect, height }) => {
   const theme = useTheme();
@@ -212,21 +274,19 @@ const RelationshipGraphSvg = ({ graph, onSelect, height }) => {
       captions.push(...side.captions);
     }
 
-    // Pin each satellite on its own side of the current node, on the same rank.
-    const currentPos = positions.get(current.id);
-    for (const edge of lateral) {
-      const node = nodeById.get(edge.to);
-      if (!node) continue;
-      // Half of each box plus room for the caption between them.
-      const offset = nodeWidth(current) / 2 + nodeWidth(node) / 2 + 128;
-      positions.set(edge.to, {
-        x: currentPos.x + (edge.direction === "left" ? -offset : offset),
-        y: currentPos.y,
-      });
+    const obstacles = graph.nodes
+      .filter((n) => !n.isCurrent && !lateralIds.has(n.id) && positions.has(n.id))
+      .map((n) => ({ ...positions.get(n.id), w: nodeWidth(n), h: nodeHeight(n) }));
+    const lateralPoints = new Map();
+    for (const direction of ["left", "right"]) {
+      const edges = lateral.filter((e) => e.direction === direction);
+      const side = layoutLateral(edges, current, positions, nodeById, obstacles);
+      side.points.forEach((points, edge) => lateralPoints.set(edge, points));
+      captions.push(...side.captions);
     }
 
-    // Recompute the extent, since the hand-laid ranks and the pinned satellites sit outside
-    // dagre's own bounds.
+    // Recompute the extent, since the hand-laid ranks, the satellites and the spine over an outer
+    // satellite column all sit outside dagre's own bounds.
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
@@ -241,18 +301,28 @@ const RelationshipGraphSvg = ({ graph, onSelect, height }) => {
       minY = Math.min(minY, p.y - h / 2);
       maxY = Math.max(maxY, p.y + h / 2);
     }
+    for (const points of lateralPoints.values()) {
+      for (const [, y] of points) {
+        minY = Math.min(minY, y);
+        maxY = Math.max(maxY, y);
+      }
+    }
 
     // Shift into a 0-based viewBox with padding on every side.
     const dx = PAD - minX;
     const dy = PAD - minY;
     for (const [id, p] of positions) positions.set(id, { x: p.x + dx, y: p.y + dy });
     for (const [edge, geo] of geometry) geometry.set(edge, { ...geo, trunkX: geo.trunkX + dx, runY: geo.runY + dy });
+    for (const [edge, points] of lateralPoints) {
+      lateralPoints.set(edge, points.map(([x, y]) => [x + dx, y + dy]));
+    }
 
     return {
       nodeById,
       positions,
       current,
       geometry,
+      lateralPoints,
       captions: captions.map((c) => ({ ...c, x: c.x + dx, y: c.y + dy })),
       width: maxX - minX + PAD * 2,
       height: maxY - minY + PAD * 2,
@@ -267,13 +337,8 @@ const RelationshipGraphSvg = ({ graph, onSelect, height }) => {
   // Orthogonal connectors — the design's right-angled elbows rather than dagre's spline points.
   // A vertical edge runs from the current node's face down its kind's trunk, along the run, then
   // drops into the node, drawn from `from` to `to` so the arrowhead lands on the object; a lateral
-  // one is a straight line between the facing sides.
-  const lateralPath = (from, to, fromNode, toNode, direction) => {
-    const sign = direction === "left" ? -1 : 1;
-    const x1 = from.x + (sign * nodeWidth(fromNode)) / 2;
-    const x2 = to.x - (sign * nodeWidth(toNode)) / 2;
-    return `M ${x1} ${from.y} L ${x2} ${to.y}`;
-  };
+  // one follows the polyline layoutLateral routed for it.
+  const polyline = (points) => `M ${points.map((pt) => pt.join(" ")).join(" L ")}`;
   const verticalPath = (edge, { trunkX, runY, sign }) => {
     const node = nodeById.get(otherEnd(edge, current.id));
     const cur = positions.get(current.id);
@@ -285,26 +350,19 @@ const RelationshipGraphSvg = ({ graph, onSelect, height }) => {
       [p.x, p.y - (sign * nodeHeight(node)) / 2],
     ];
     if (edge.to === current.id) points.reverse();
-    return `M ${points.map((pt) => pt.join(" ")).join(" L ")}`;
+    return polyline(points);
   };
 
-  const captions = [...layout.captions];
-  const lateralCaptioned = new Set();
+  const { captions } = layout;
   const paths = graph.edges.map((edge, i) => {
-    const from = positions.get(edge.from);
-    const to = positions.get(edge.to);
-    const fromNode = nodeById.get(edge.from);
-    const toNode = nodeById.get(edge.to);
-    if (!from || !to || !fromNode || !toNode) return null;
+    if (!positions.has(edge.from) || !positions.has(edge.to)) return null;
     const { stroke, dash, head } = edgeStyle(edge.kind, palette);
 
     let d;
     if (isLateral(edge)) {
-      d = lateralPath(from, to, fromNode, toNode, edge.direction);
-      if (!lateralCaptioned.has(edge.kind)) {
-        lateralCaptioned.add(edge.kind);
-        captions.push({ x: (from.x + to.x) / 2, y: from.y, label: clampCaption(edge.label) });
-      }
+      const points = layout.lateralPoints.get(edge);
+      if (!points) return null;
+      d = polyline(points);
     } else {
       const geo = layout.geometry.get(edge);
       if (!geo) return null;

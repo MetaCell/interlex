@@ -178,6 +178,12 @@
               "kind": "expresses",
               "label": "expresses",
               "direction": "right"
+            },
+            {
+              "predicate": "ilxtr:hasExpressionPhenotype",
+              "kind": "expresses",
+              "label": "expresses",
+              "direction": "right"
             }
           ],
           "crossNomenclature": [

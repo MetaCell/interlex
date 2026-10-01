@@ -285,7 +285,12 @@ plus a global `d3.selectAll(".node--leaf-g")`, so two instances collide — and 
   the superclass (the mockup pointed it the other way; the curators asked for the reversal). dagre
   ranks the tail above the head, so an edge with `direction: "up"` enters the layout reversed;
 - dagre fixes the rank but **not the order within it**, so the soma-location and expression
-  satellites are pinned by hand to the left and right of the current node;
+  satellites are laid out by hand to the left and right of the current node — one box per value
+  (the design's single "SCGN, ADRA2C" box cut a 21-gene cell down to three names), except a union
+  (`combinator: "or"`, the soma location of 61 Precision cells), which is one claim and stays one
+  "A or B" box, as in the property list. The boxes stack in
+  columns of up to eight that open outwards, each box on its own branch off one trunk. A tall
+  block is pushed out past any hierarchy box level with it;
 - every relation kind on a side of the current node is a path of its own: its nodes packed as one
   group beside the other kinds' groups, the whole row centred on the cell, and its own trunk
   leaving the cell's face, its own run and its own caption — the lines follow the boxes. Sharing
