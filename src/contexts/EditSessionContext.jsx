@@ -17,6 +17,7 @@ import { patchEndpointsIlx } from "../api/endpoints/interLexURIStructureAPI";
 import { buildExpandContext } from "../configuration/predicateConfig";
 import {
   buildTripleDiff,
+  canonicalInterlexIri,
   expandIri,
   focusNodeFromJsonLd,
   resolveStoredObject,
@@ -24,6 +25,7 @@ import {
 import { GlobalDataContext } from "./DataContext";
 import {
   EditSessionContext,
+  hasPendingFor,
   interpretPatchResult,
   resolveValues,
   stage,
@@ -61,18 +63,38 @@ export const EditSessionProvider = ({ group, searchTerm, disabled = false, child
     setIsEditing(false);
   }, []);
 
+  // Predicates are base-graph terms; see save() for why they expand against the base curies.
+  const expandContext = useMemo(
+    () => buildExpandContext(curies?.curated?.length ? curies.curated : (curies?.base ?? [])),
+    [curies]
+  );
+  const toPredicateIri = useCallback(
+    (predicate) => canonicalInterlexIri(expandIri(predicate, expandContext)),
+    [expandContext]
+  );
+
   const stageMutation = useCallback(
     (mutation) => {
       if (!mutation?.predicate || !mutation?.op) return;
-      setPending((list) => stage(list, { ...mutation, focusId: focusId || searchTerm || null }));
+      setPending((list) => stage(list, {
+        ...mutation,
+        predicateIri: toPredicateIri(mutation.predicate),
+        focusId: focusId || searchTerm || null,
+      }));
     },
-    [focusId, searchTerm]
+    [focusId, searchTerm, toPredicateIri]
   );
 
   const applyToValues = useCallback(
     (predicate, values, subject) =>
-      resolveValues(pending, predicate, values, subject, focusId || searchTerm || null),
-    [pending, focusId, searchTerm]
+      resolveValues(pending, toPredicateIri(predicate), values, subject, focusId || searchTerm || null),
+    [pending, focusId, searchTerm, toPredicateIri]
+  );
+
+  const hasPendingChanges = useCallback(
+    (predicates, subject) =>
+      hasPendingFor(pending, predicates.map(toPredicateIri), subject, focusId || searchTerm || null),
+    [pending, focusId, searchTerm, toPredicateIri]
   );
 
   const save = useCallback(async () => {
@@ -113,8 +135,7 @@ export const EditSessionProvider = ({ group, searchTerm, disabled = false, child
         // "bad predicate". So expand from the base curies (kept intact under
         // `curated`), and let those win over the document's own @context, which
         // stays underneath as the fallback for anything we don't know.
-        const baseCuries = curies?.curated?.length ? curies.curated : (curies?.base ?? []);
-        const context = { ...jsonLdContext, ...buildExpandContext(baseCuries) };
+        const context = { ...jsonLdContext, ...expandContext };
         const node = focusNodeFromJsonLd(doc);
         const focusSubject = node?.["@id"];
 
@@ -165,7 +186,7 @@ export const EditSessionProvider = ({ group, searchTerm, disabled = false, child
     } finally {
       setSaving(false);
     }
-  }, [pending, searchTerm, curies, group]);
+  }, [pending, searchTerm, expandContext, group]);
 
   const value = useMemo(
     () => ({
@@ -179,12 +200,13 @@ export const EditSessionProvider = ({ group, searchTerm, disabled = false, child
       save,
       stageMutation,
       applyToValues,
+      hasPendingChanges,
       setFocus,
       registerReload,
     }),
     [
       available, isEditing, saving, pending, startEdit, cancelEdit, save,
-      stageMutation, applyToValues, setFocus, registerReload,
+      stageMutation, applyToValues, hasPendingChanges, setFocus, registerReload,
     ]
   );
 

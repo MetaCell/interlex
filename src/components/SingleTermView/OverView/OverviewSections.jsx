@@ -5,6 +5,7 @@ import Details from "./Details";
 import Hierarchy from "./Hierarchy";
 import Predicates from "./Predicates";
 import { useObservable } from "./overviewStore";
+import { useReportLoading } from "../../../contexts/pageLoading";
 import { focusNodeFromJsonLd } from "../../../parsers/predicateMutations";
 
 const SUBCLASS_OF_IRI = "http://www.w3.org/2000/01/rdf-schema#subClassOf";
@@ -16,6 +17,7 @@ const SUBCLASS_OF_IRI = "http://www.w3.org/2000/01/rdf-schema#subClassOf";
 
 export const DetailsSection = memo(function DetailsSection({ subject, group, termVersion, onMutate, reserveHeight }) {
   const { loading, data, jsonData } = useObservable(subject);
+  useReportLoading(loading);
   return (
     <Box sx={{ minHeight: loading ? reserveHeight : undefined }}>
       <Details loading={loading} data={data} jsonData={jsonData} group={group} termVersion={termVersion} onMutate={onMutate} />
@@ -41,6 +43,7 @@ export const HierarchySection = memo(function HierarchySection({
   reserveHeight,
 }) {
   const { loading, options, treeChildren, treeSuperclasses } = useObservable(subject);
+  useReportLoading(loading);
   const selectedValue = useObservable(selectedSubject);
   // Direct superclasses are the only editable part of the hierarchy: they are
   // rdfs:subClassOf triples ON the focus node. Children are the same predicate
@@ -89,6 +92,7 @@ export const PredicatesSection = memo(function PredicatesSection({
   reserveHeight,
 }) {
   const { loading, data, focusId } = useObservable(subject);
+  useReportLoading(loading);
   return (
     <Box sx={{ minHeight: loading ? reserveHeight : undefined }}>
       <Predicates

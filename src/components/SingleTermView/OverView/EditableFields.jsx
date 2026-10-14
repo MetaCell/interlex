@@ -19,6 +19,10 @@ const chipColorFor = (status) => (status === "added" ? "success" : status === "e
 
 const renderValueChip = (value, chipProps) => <Chip variant="outlined" label={value} {...chipProps} />;
 
+// Beside a field's title: the field shows the values it will have once saved, so this is what
+// says they are not persisted yet. Same badge the predicate table puts on a staged row.
+export const EditedChip = () => <Chip size="small" color="info" label="Edited" />;
+
 export const EditableChipList = ({
   predicate,
   values = [],

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Box, CircularProgress } from '@mui/material';
+import { Box } from '@mui/material';
 import VariantsTable from './VariantsTable';
 import ErrorModal from '../../common/ErrorModal';
 
@@ -49,11 +49,7 @@ const mapVersionsToRows = (data) => {
 const VariantsPanel = ({ searchTerm, group = "base", versionsData, versionsLoading, versionsError, onDismissError }) => {
     const variants = React.useMemo(() => mapVersionsToRows(versionsData), [versionsData]);
 
-    if (versionsLoading) {
-        return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
-            <CircularProgress />
-        </Box>
-    }
+    if (versionsLoading) return null;
 
     if (versionsError) {
         return <ErrorModal

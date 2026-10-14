@@ -5,7 +5,6 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import ObjectInput from "./ObjectInput";
 import PredicatesAccordion from "./PredicatesAccordion";
 import CreatePredicateDialog from "./CreatePredicateDialog";
-import CircularProgress from '@mui/material/CircularProgress';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import CheckOutlinedIcon from "@mui/icons-material/CheckOutlined";
 import CloseOutlinedIcon from "@mui/icons-material/CloseOutlined";
@@ -119,11 +118,7 @@ const Predicates = ({ data, isGraphVisible, loading, focusId, group, onMutate })
     setCreateDialog({ open: false, initialLabel: "" });
   };
 
-  if (loading) {
-    return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <CircularProgress />
-    </Box>
-  }
+  if (loading) return null;
 
   return (
     <Box display="flex" flexDirection="column" gap=".75rem">

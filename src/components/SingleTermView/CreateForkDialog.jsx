@@ -27,7 +27,7 @@ HeaderRightSideContent.propTypes = {
   isSaving: PropTypes.bool,
 };
 
-const CreateForkDialog = ({ open, handleClose, user, searchTerm, termLabel, group }) => {
+const CreateForkDialog = ({ open, handleClose, onForkCreated, user, searchTerm, termLabel, group }) => {
   const navigate = useNavigate();
   const [ownerNotSupportedOpen, setOwnerNotSupportedOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -45,6 +45,7 @@ const CreateForkDialog = ({ open, handleClose, user, searchTerm, termLabel, grou
       if (result.ok) {
         handleClose();
         navigate(`/${groupname}/${searchTerm}/overview`);
+        onForkCreated?.();
       } else {
         setSaveError(`Fork creation failed (status ${result.status}). Please try again.`);
       }
@@ -140,6 +141,7 @@ const CreateForkDialog = ({ open, handleClose, user, searchTerm, termLabel, grou
 CreateForkDialog.propTypes = {
   open: PropTypes.bool,
   handleClose: PropTypes.func,
+  onForkCreated: PropTypes.func,
   user: PropTypes.object,
   searchTerm: PropTypes.string,
   termLabel: PropTypes.string,

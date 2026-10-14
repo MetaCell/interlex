@@ -7,7 +7,6 @@ import {
   Divider,
   Stack,
   Typography,
-  CircularProgress
 } from "@mui/material";
 import { vars } from "../../../theme/variables";
 import { RestartAlt, TargetCross } from "../../../Icons";
@@ -141,11 +140,7 @@ const Hierarchy = ({
     [items, searchTerm]
   );
 
-  if (loading) {
-    return <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <CircularProgress />
-    </Box>
-  }
+  if (loading) return null;
 
 
   return (

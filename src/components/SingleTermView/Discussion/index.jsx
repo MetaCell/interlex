@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { Box, Grid, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
 import ConstructionOutlinedIcon from "@mui/icons-material/ConstructionOutlined";
 import DiscussionList from "./List";
@@ -6,6 +7,7 @@ import { vars } from "../../../theme/variables";
 import { useState, useRef, useEffect } from "react";
 import CommentEditor from "./CommentEditor";
 import { getTermDiscussions } from "../../../api/endpoints/apiService";
+import { useReportLoading } from "../../../contexts/pageLoading";
 
 const { gray25, gray200, gray700 } = vars;
 
@@ -14,6 +16,8 @@ const Discussion = ({ term }) => {
   const commentsEndRef = useRef(null);
   const [discussions, setDiscussions] = useState([]);
   const [showMockWarning, setShowMockWarning] = useState(true);
+  const [loading, setLoading] = useState(true);
+  useReportLoading(loading);
 
   const getDiscussions = async () =>  {
     try {
@@ -21,6 +25,8 @@ const Discussion = ({ term }) => {
       setDiscussions(Array.isArray(data) ? data : [])
     } catch (error) {
       setDiscussions([])
+    } finally {
+      setLoading(false)
     }
   }
   
@@ -92,6 +98,10 @@ const Discussion = ({ term }) => {
       </Grid>
     </Box>
   );
+};
+
+Discussion.propTypes = {
+  term: PropTypes.string,
 };
 
 export default Discussion;

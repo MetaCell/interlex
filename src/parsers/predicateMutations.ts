@@ -106,6 +106,22 @@ export const expandIri = (term: string, context: Json = {}): string => {
   return vocab ? vocab + term : term;
 };
 
+// A group's documents name InterLex terms under the group's own namespace
+// (…/dariodippi/ilx_0737162); it is the same term base names (…/base/ilx_0737162).
+export const canonicalInterlexIri = (iri: string): string =>
+  String(iri ?? "").replace(
+    /^http:\/\/uri\.interlex\.org\/[^/]+\/((?:ilx|tmp)_\d+)$/i,
+    "http://uri.interlex.org/base/$1"
+  );
+
+// The key `node` stores a predicate under, whichever spelling (curie, full IRI, group-namespaced)
+// the document uses; `undefined` when the node does not carry it.
+export const nodeKeyForPredicate = (node: Json, predicates: string[], context: Json = {}): string | undefined => {
+  const canonical = (term: string) => canonicalInterlexIri(expandIri(term, context));
+  const wanted = new Set(predicates.map(canonical));
+  return Object.keys(node || {}).find((key) => wanted.has(canonical(key)));
+};
+
 // Build the { add, del } triple diff for a single mutation.
 // `oldObject` (when supplied) is the exact stored object resolved from the
 // graph and is used verbatim for `del` so it matches precisely.

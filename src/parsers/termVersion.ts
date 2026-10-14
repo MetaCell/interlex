@@ -84,3 +84,10 @@ export const resolveTermVersion = (
   if (!target) return undefined;
   return { number: history.indexOf(target) + 1, identityGraph: target.identityGraph };
 };
+
+/** Has `group` published any version of the term, i.e. does it already hold a fork of it? */
+export const hasForkIn = (versionsData: VersionsData | null | undefined, group?: string): boolean =>
+  Boolean(group) &&
+  (versionsData?.versions ?? []).some((version) =>
+    (version.appears_in ?? []).some((appearance) => forkOf(appearance.uri) === group)
+  );

@@ -14,6 +14,8 @@ import PropTypes from "prop-types";
 import Graph from "../../GraphViewer/Graph";
 import CustomizedTable from "./CustomizedTable";
 import ViewDiagramDialog from "./ViewDiagramDialog";
+import { EditedChip } from "./EditableFields";
+import { useEditSession } from "../../../contexts/editSession";
 
 import { FullscreenOutlined } from "@mui/icons-material";
 import { TableChartIcon, GraphIcon } from "../../../Icons";
@@ -29,6 +31,7 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible, focusI
   const [openViewDiagram, setOpenViewDiagram] = React.useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [expandedItems, setExpandedItems] = useState(data?.map(() => false) || []);
+  const { hasPendingChanges } = useEditSession();
 
   const onToggleButtonChange = (index) => (event, newValue) => {
     if (newValue) {
@@ -83,8 +86,9 @@ const PredicatesAccordion = ({ data, expandAllPredicates, isGraphVisible, focusI
             aria-controls={`panel${index + 1}-content`}
             id={`panel${index + 1}-header`}
           >
-            <Stack direction='row' spacing='.25rem'>
+            <Stack direction='row' spacing='.5rem' alignItems='center'>
               <Typography>{pred.label || pred.title}</Typography>
+              {hasPendingChanges([pred.title]) && <EditedChip />}
             </Stack>
             <Stack direction='row' alignItems='center' spacing='.75rem'>
               <Typography color={gray600} fontSize='.875rem'>

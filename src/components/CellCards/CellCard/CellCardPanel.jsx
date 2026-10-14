@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import PropTypes from "prop-types";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Box, Container, Stack, Skeleton, Alert, AlertTitle, Button, Typography } from "@mui/material";
+import { Box, Container, Stack, Alert, AlertTitle, Button, Typography } from "@mui/material";
 import CellCard from "./CellCard";
 import EmptyState from "../../common/EmptyState";
 import { useContextTerm } from "../../../hooks/useContextOntology";
@@ -14,9 +14,6 @@ import {
 } from "../config/gridConfig";
 import { useTermRecordAvailability } from "../../../hooks/useTermRecordAvailability";
 
-// A three-column skeleton, so the (unavoidable) whole-ontology load reads as the page arriving
-// rather than as a blank panel. Cold entry pays a ~16MB fetch + a 39,788-node parse before the
-// first cell can render; navigating from the grid hits the memoized parse and skips both.
 // PageContainer fixes the page height and expects each tab to scroll internally (OverView does the
 // same). Without this the card runs on underneath the site footer.
 //
@@ -28,26 +25,6 @@ const Scroll = ({ children }) => (
 );
 
 Scroll.propTypes = { children: PropTypes.node };
-
-const LoadingSkeleton = () => (
-  <Container
-    sx={{
-      display: "grid",
-      gridTemplateColumns: { xs: "1fr", lg: "26.5rem minmax(0, 1fr) 26.5rem" },
-      gap: 4,
-      py: 3,
-    }}
-  >
-    {[0, 1, 2].map((col) => (
-      <Stack key={col} gap={1}>
-        <Skeleton variant="text" width="45%" height={28} />
-        {Array.from({ length: col === 1 ? 8 : 6 }).map((_, i) => (
-          <Skeleton key={i} variant="text" />
-        ))}
-      </Stack>
-    ))}
-  </Container>
-);
 
 /**
  * The Cell Card tab: resolves the term against the context ontology and renders the card.
@@ -93,13 +70,8 @@ const CellCardPanel = ({ term, group }) => {
     [data, goToCell, group, ontologySlug]
   );
 
-  if (loading) {
-    return (
-      <Scroll>
-        <LoadingSkeleton />
-      </Scroll>
-    );
-  }
+  // The page's loading overlay covers the ontology load (a ~16MB fetch + parse on cold entry).
+  if (loading) return null;
 
   if (error) {
     return (
