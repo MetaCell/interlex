@@ -123,9 +123,31 @@ export const termPath = (
 
 // --- grid filter deep-links ---------------------------------------------------
 
-// Facet pre-selections carried to the Grid View in the URL: one `filter=<localName>:<valueId>`
-// param per checked value. The value id is a curie or IRI, so parsing splits on the FIRST colon.
+// The Grid View's facet checks live in its URL, so the address bar is always a shareable link to
+// the filtered grid, and a Cell Card row deep-links in through the same param: one
+// `filter=<localName>:<valueId>` per checked value. The Source facet travels the same way, its
+// values being the cited DOIs (`filter=source:https://doi.org/10.…`). The value id is a curie or
+// IRI, so parsing splits on the FIRST colon.
 export const GRID_FILTER_PARAM = "filter";
+
+// { [facetLocalName]: { [valueId]: checked } }
+export type GridFilters = Record<string, Record<string, boolean>>;
+
+// `:` and `/` are legal in a query (RFC 3986 §3.4); left literal, a copied link reads
+// `source:https://doi.org/…` instead of a run of %3A%2F%2F.
+const readableQuery = (params: URLSearchParams): string =>
+  params.toString().replace(/%3A/gi, ":").replace(/%2F/gi, "/");
+
+// Other params in `search` are kept: the filters are not the only thing a URL may carry.
+export const gridFilterSearch = (search: string, checked: GridFilters): string => {
+  const params = new URLSearchParams(search);
+  params.delete(GRID_FILTER_PARAM);
+  for (const [localName, values] of Object.entries(checked))
+    for (const [id, on] of Object.entries(values))
+      if (on) params.append(GRID_FILTER_PARAM, `${localName}:${id}`);
+  const query = readableQuery(params);
+  return query ? `?${query}` : "";
+};
 
 // The Grid View pre-filtered on one predicate — where a Cell Card property row's grid icon points
 // (mappings.md §2.2, revised in meeting-3: the row text keeps opening the term URI, the icon
@@ -134,18 +156,14 @@ export const gridFilterPath = (
   entry: OntologyEntry,
   localName: string,
   valueIds: string[]
-): string => {
-  const params = new URLSearchParams();
-  valueIds.forEach((id) => params.append(GRID_FILTER_PARAM, `${localName}:${id}`));
-  return `${ontologyPath(entry)}?${params.toString()}`;
-};
+): string =>
+  `${ontologyPath(entry)}${gridFilterSearch("", {
+    [localName]: Object.fromEntries(valueIds.map((id) => [id, true])),
+  })}`;
 
-// The grid page's inverse: URL search -> the filter sidebar's checked shape
-// ({ [facetLocalName]: { [valueId]: true } }). Malformed params are dropped, not errors.
-export const parseGridFilters = (
-  search: string
-): Record<string, Record<string, boolean>> => {
-  const checked: Record<string, Record<string, boolean>> = {};
+// The inverse: URL search -> checked shape. Malformed params are dropped, not errors.
+export const parseGridFilters = (search: string): GridFilters => {
+  const checked: GridFilters = {};
   for (const raw of new URLSearchParams(search).getAll(GRID_FILTER_PARAM)) {
     const i = raw.indexOf(":");
     if (i < 1 || i === raw.length - 1) continue;

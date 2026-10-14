@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useOutletContext, useNavigate, useLocation } from "react-router-dom";
 import { Box, Typography, Stack } from "@mui/material";
 import GridFilterSidebar from "./GridFilterSidebar";
@@ -8,7 +8,7 @@ import CellTileGrid from "./CellTileGrid";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import CustomPagination from "../common/CustomPagination";
 import { getFacets, curieToSlug } from "./services/ontologyGridService";
-import { termPath, parseGridFilters } from "./config/gridConfig";
+import { termPath, parseGridFilters, gridFilterSearch } from "./config/gridConfig";
 import { SOURCE_PREDICATE } from "./model/mappings";
 import { primeTermDataCache } from "../../hooks/useTermData";
 import { vars } from "../../theme/variables";
@@ -50,32 +50,47 @@ const needsAllFacets = (data, checked) => {
 const OntologyGridPage = () => {
   const { data } = useOutletContext();
   const navigate = useNavigate();
-  const location = useLocation();
+  const { pathname, search } = useLocation();
   const [displayedOnly, setDisplayedOnly] = useState(true);
-  const [checked, setChecked] = useState({}); // facet filter checks, keyed by facet localName
   const [selectedIds, setSelectedIds] = useState({}); // tiles picked via their checkbox
   const [word, setWord] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(24);
 
-  // Facet checks carried by the URL — a Cell Card property row's grid icon links here
-  // pre-filtered (mappings.md §2.2).
-  const urlChecked = useMemo(() => parseGridFilters(location.search), [location.search]);
+  // Facet checks, keyed by facet localName. The URL is their only store (see GRID_FILTER_PARAM),
+  // so a Cell Card property row's grid icon (mappings.md §2.2) and a copied address bar land on
+  // the same filtered grid.
+  const checked = useMemo(() => parseGridFilters(search), [search]);
+
+  // The pane's own last URL write. Arriving from elsewhere resets the page, but the pane's own
+  // writes must not: a click would clear the word filter and the tile selection, and snap the
+  // display setting back to tile properties whenever the new checks leave needsAllFacets false.
+  const ownWrite = useRef(null);
 
   useEffect(() => {
-    // Reset all filter/paging/selection state so it never leaks across ontologies, then seed
-    // the facet checks from the URL.
-    setChecked(urlChecked);
+    const own = ownWrite.current;
+    if (own && own.data === data && own.search === search) return;
+    // Reset all filter/paging/selection state so it never leaks across ontologies.
     setSelectedIds({});
     setWord("");
-    setDisplayedOnly(!needsAllFacets(data, urlChecked));
+    setDisplayedOnly(!needsAllFacets(data, checked));
     setPage(1);
-  }, [data, urlChecked]);
+  }, [data, search, checked]);
+
+  const writeChecked = useCallback(
+    (update) => {
+      const next = gridFilterSearch(search, update(checked));
+      ownWrite.current = { data, search: next };
+      navigate({ pathname, search: next }, { replace: true });
+      setPage(1);
+    },
+    [data, pathname, search, checked, navigate]
+  );
 
   const cells = useMemo(() => data?.cells || [], [data]);
   // URL-named facets stay in the pane even below `minOptions`, so a deep link filtering on a
   // uniform-value predicate arrives visibly checked instead of silently inert.
-  const urlNames = useMemo(() => Object.keys(urlChecked), [urlChecked]);
+  const urlNames = useMemo(() => Object.keys(checked), [checked]);
   const facets = useMemo(
     () => (data ? getFacets(data, displayedOnly, urlNames) : []),
     [data, displayedOnly, urlNames]
@@ -111,28 +126,27 @@ const OntologyGridPage = () => {
     [filteredCells, currentPage, pageSize]
   );
 
-  const onToggle = useCallback((localName, key) => {
-    setChecked((prev) => ({
-      ...prev,
-      [localName]: { ...prev[localName], [key]: !prev[localName]?.[key] },
-    }));
-    setPage(1);
-  }, []);
+  const onToggle = useCallback(
+    (localName, key) =>
+      writeChecked((prev) => ({
+        ...prev,
+        [localName]: { ...prev[localName], [key]: !prev[localName]?.[key] },
+      })),
+    [writeChecked]
+  );
 
-  const onClear = useCallback((localName) => {
-    setChecked((prev) => {
-      const next = { ...prev };
-      delete next[localName];
-      return next;
-    });
-    setPage(1);
-  }, []);
+  const onClear = useCallback(
+    (localName) =>
+      writeChecked((prev) => {
+        const next = { ...prev };
+        delete next[localName];
+        return next;
+      }),
+    [writeChecked]
+  );
 
   // Master checkbox in the filter header — drops every facet selection at once.
-  const onClearAll = useCallback(() => {
-    setChecked({});
-    setPage(1);
-  }, []);
+  const onClearAll = useCallback(() => writeChecked(() => ({})), [writeChecked]);
 
   // Tile selection. Kept across paging and filtering — a tile scrolled out of view stays picked.
   const onToggleSelect = useCallback((id) => {
