@@ -104,20 +104,25 @@ export const compactIri = (iri: string, prefixes: Prefixes): string | undefined 
 
 const DOI_IRI = /^https?:\/\/(?:dx\.)?doi\.org\/(10\.\d{4,9}\/.+)$/i;
 
-// Compact an @id (curie or IRI) into { curie, kind } against the @context.
-const classify =(id: string, prefixes: Prefixes): { curie: string; kind: RefKind } => {
-  if (!isIri(id)) {
-    // already a curie like "npokb:1067", "NCBIGene:233222", "ilxtr:SensoryPhenotype"
-    const prefix = id.split(":")[0];
-    return { curie: id, kind: kindForPrefix(prefix, id) };
-  }
+// An @id in the one compact spelling, whichever the file used: JSON-LD compaction leaves an IRI
+// whole when its prefix ends in `_` (NCBITaxon, UBERON, ILX) but not in `/` (MBA, NCBIGene), so
+// the same kind of term arrives either way. A curie stays as written; an IRI the @context covers
+// becomes its curie; anything else stays whole, never shortened to a tail that may name others.
+export const toCompactId = (id: string, prefixes: Prefixes): string => {
+  if (!isIri(id)) return id;
   const curie = compactIri(id, prefixes);
-  if (curie) return { curie, kind: kindForPrefix(curie.split(":")[0], id) };
+  if (curie) return curie;
   // A DOI is its whole path: the tail alone ("sciadv.adj9173") is not one anybody recognises. Tom's
   // display form is `doi:10.1126/sciadv.adj9173` (#187). The `/` keeps it from compacting as a
   // qname, so the file declares no prefix for it and it is spelled out here, after any it does.
   const doi = DOI_IRI.exec(id)?.[1];
-  if (doi) return { curie: `doi:${doi}`, kind: "external" };
+  return doi ? `doi:${doi}` : id;
+};
+
+// Compact an @id (curie or IRI) into { curie, kind } against the @context.
+const classify =(id: string, prefixes: Prefixes): { curie: string; kind: RefKind } => {
+  const compact = toCompactId(id, prefixes);
+  if (!isIri(compact)) return { curie: compact, kind: kindForPrefix(compact.split(":")[0], id) };
   const tail = id.split(/[/#]/).filter(Boolean).pop() || id;
   return { curie: tail, kind: "external" };
 };
@@ -338,15 +343,22 @@ const resolveValue = (raw: unknown, ctx: ParseContext): ResolvedRef[] => {
       const id = String((item as JsonLdRefish)["@id"]);
       if (isBlankNode(id) || isMissingSentinel(id, ctx)) return; // skip restriction blanks + "not specified" sentinels
       const { curie, kind } = classify(id, ctx.prefixes);
-      out.push({ id, curie, label: labelFor(id, ctx), iri: toIri(id, ctx.prefixes), kind });
+      out.push({
+        id,
+        compactId: toCompactId(id, ctx.prefixes),
+        curie,
+        label: labelFor(id, ctx),
+        iri: toIri(id, ctx.prefixes),
+        kind,
+      });
     } else if (item && typeof item === "object" && "@value" in (item as object)) {
       // JSON-LD literal object, e.g. {"@value":"foo"} / {"@value":"foo","@language":"en"}
       const v = (item as { "@value"?: unknown })["@value"];
       const s = v == null ? "" : String(v);
-      if (s) out.push({ id: s, curie: s, label: s, iri: "", kind: "literal" });
+      if (s) out.push({ id: s, compactId: s, curie: s, label: s, iri: "", kind: "literal" });
     } else if (typeof item === "string") {
       if (isMissingSentinel(item, ctx)) return;
-      out.push({ id: item, curie: item, label: item, iri: "", kind: "literal" });
+      out.push({ id: item, compactId: item, curie: item, label: item, iri: "", kind: "literal" });
     }
   };
   if (Array.isArray(raw)) raw.forEach(push);
@@ -785,11 +797,11 @@ export const buildFacets = (
           : cell.properties[localName];
       if (!prop) continue;
       for (const v of prop.values) {
-        const existing = counts.get(v.id);
+        const existing = counts.get(v.compactId);
         if (existing) existing.count += 1;
         else
-          counts.set(v.id, {
-            key: v.id,
+          counts.set(v.compactId, {
+            key: v.compactId,
             label: v.label,
             curie: v.curie,
             iri: v.iri,

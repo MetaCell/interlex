@@ -28,9 +28,27 @@ const cellText = (cell) => {
 
 // The value keys a cell exposes for a given facet.
 const cellFacetKeys = (cell, localName) => {
-  if (localName === SOURCE_PREDICATE) return cell.sources.map((s) => s.id);
-  return (cell.properties[localName]?.values || []).map((v) => v.id);
+  if (localName === SOURCE_PREDICATE) return cell.sources.map((s) => s.compactId);
+  return (cell.properties[localName]?.values || []).map((v) => v.compactId);
 };
+
+// A link shared before the URL was compacted spells values as the file wrote them, often as full
+// IRIs. Mapped to the compact form they still filter, and the pane's next write tidies the URL.
+const compactIdsByRawId = (cells) => {
+  const byRaw = new Map();
+  for (const cell of cells)
+    for (const values of [cell.sources, ...Object.values(cell.properties).map((p) => p.values)])
+      for (const v of values) byRaw.set(v.id, v.compactId);
+  return byRaw;
+};
+
+const withCompactIds = (checked, byRaw) =>
+  Object.fromEntries(
+    Object.entries(checked).map(([localName, values]) => [
+      localName,
+      Object.fromEntries(Object.entries(values).map(([id, on]) => [byRaw.get(id) || id, on])),
+    ])
+  );
 
 // A URL filter can name a facet the tiles don't display (Adaptation, Threshold…), which the
 // "Displayed properties" toggle would keep both hidden and inert — such a link must arrive with
@@ -60,7 +78,11 @@ const OntologyGridPage = () => {
   // Facet checks, keyed by facet localName. The URL is their only store (see GRID_FILTER_PARAM),
   // so a Cell Card property row's grid icon (mappings.md §2.2) and a copied address bar land on
   // the same filtered grid.
-  const checked = useMemo(() => parseGridFilters(search), [search]);
+  const compactIds = useMemo(() => compactIdsByRawId(data?.cells || []), [data]);
+  const checked = useMemo(
+    () => withCompactIds(parseGridFilters(search), compactIds),
+    [search, compactIds]
+  );
 
   // The pane's own last URL write. Arriving from elsewhere resets the page, but the pane's own
   // writes must not: a click would clear the word filter and the tile selection, and snap the

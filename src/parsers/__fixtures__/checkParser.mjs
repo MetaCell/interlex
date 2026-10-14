@@ -5,7 +5,13 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { parseNeurdf, parsePredicateDisplay, buildFacets } from "../neurdfParser";
+import {
+  parseNeurdf,
+  parsePredicateDisplay,
+  buildFacets,
+  contextPrefixes,
+  toCompactId,
+} from "../neurdfParser";
 import { hasTranscriptomicProfile } from "../../components/CellCards/CellCard/widgetVisibility";
 import { buildNervoSensusLink, atlasCellKey } from "../../components/CellCards/CellCard/nervoSensusLink";
 import { buildRelationGraph } from "../../components/CellCards/CellCard/buildRelationGraph";
@@ -399,6 +405,35 @@ check(
   "the source facet offers the same label",
   buildFacets(cells, ["source"], {})[0]?.values.map((v) => v.label).sort(),
   ["doi:10.1016/j.cell.2024.02.006", "doi:10.1101/2025.11.05.686654", "doi:10.1126/sciadv.adj9173"]
+);
+
+// Filters (and the grid URL) key values by compactId. JSON-LD compaction leaves an IRI whole when
+// its prefix ends in `_`, so the file spells NCBITaxon/UBERON values as IRIs and MBA/NCBIGene ones
+// as curies; the key must not depend on which.
+console.log("\nfacet keys are compact ids");
+const prefixes = contextPrefixes(data["@context"]);
+const facetKeys = (localName) =>
+  buildFacets(cells, [localName], {})[0]?.values.map((v) => v.key).sort();
+check("an IRI under a `_` prefix compacts through the @context", facetKeys("hasInstanceInTaxon"), [
+  "NCBITaxon:10090",
+  "NCBITaxon:10141",
+  "NCBITaxon:9544",
+  "NCBITaxon:9606",
+]);
+check(
+  "a curie stays as written",
+  toCompactId("NCBIGene:233222", prefixes),
+  "NCBIGene:233222"
+);
+check("a DOI keys as doi:<the whole DOI>", facetKeys("source"), [
+  "doi:10.1016/j.cell.2024.02.006",
+  "doi:10.1101/2025.11.05.686654",
+  "doi:10.1126/sciadv.adj9173",
+]);
+check(
+  "an IRI no prefix covers stays whole, not its ambiguous tail",
+  toCompactId("http://uri.interlex.org/composer/uris/set/pain1/10", prefixes),
+  "http://uri.interlex.org/composer/uris/set/pain1/10"
 );
 
 // Tom will put a `skos:prefLabel` (the short citation, as it should read) and a `dc:title` on every

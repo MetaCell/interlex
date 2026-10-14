@@ -28,6 +28,9 @@ export type RefKind =
 // A resolved value: an object reference (or literal) with a human label + link target.
 export interface ResolvedRef {
   id: string; // the raw @id as it appears in the graph (curie or IRI), or the literal string
+  // The same identity spelled one way however the file wrote it — what the grid filters by and
+  // puts in its URL. Unlike `curie`, never lossy: an IRI no prefix covers stays whole.
+  compactId: string;
   curie: string; // compact form for display fallback
   label: string; // human label (resolved from the graph) or the literal / curie fallback
   iri: string; // full IRI to link out to ("" for literals)
@@ -156,7 +159,7 @@ export interface ParsedOntology {
 
 // A filter facet built from the data values across all cells.
 export interface FacetValue {
-  key: string; // ResolvedRef.id — the stable value identity
+  key: string; // ResolvedRef.compactId — the stable value identity
   label: string;
   curie: string; // compact form, which is what decides where the value links to
   iri: string;

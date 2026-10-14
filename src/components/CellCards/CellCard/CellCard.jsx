@@ -64,12 +64,12 @@ const CellCard = ({ cell, data, group, termSlug, discussionHref, onNavigateToCel
       if (!data.entry) return undefined;
       const options = facetOptions.get(localName);
       if (options) {
-        const ids = values.map((v) => v.id).filter((id) => options.has(id));
+        const ids = values.map((v) => v.compactId).filter((id) => options.has(id));
         return ids.length ? { to: gridFilterPath(data.entry, localName, ids) } : undefined;
       }
       if (!cell.properties[localName]?.values?.length) return undefined;
       return {
-        to: gridFilterPath(data.entry, localName, values.map((v) => v.id)),
+        to: gridFilterPath(data.entry, localName, values.map((v) => v.compactId)),
         uniform: true,
       };
     },
