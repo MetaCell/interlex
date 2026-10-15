@@ -1,0 +1,12 @@
+[
+  "ilxtr:displayLabel",
+  "skos:prefLabel",
+  "ilxtr:localLabel",
+  "ilxtr:genLabel",
+  "ilxtr:origLabel",
+  "ilxtr:simpleLabel",
+  "ilxtr:simpleLocalLabel",
+  "rdfs:label",
+  "skos:altLabel",
+  "skos:hiddenLabel"
+]

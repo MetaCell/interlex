@@ -16,6 +16,7 @@ import {
   ADDABLE_PREDICATES,
   getObjectInputKind,
   isReadOnlyPredicate,
+  sortByPredicatePriority,
 } from "../../../configuration/predicateConfig";
 import { samePredicate, useEditSession } from "../../../contexts/editSession";
 import { vars } from "../../../theme/variables";
@@ -85,7 +86,7 @@ const Predicates = ({ data, isGraphVisible, loading, focusId, group, onMutate })
         objectKind: entry.kind,
       });
     });
-    return staged.length ? [...staged, ...loadedPredicates] : loadedPredicates;
+    return sortByPredicatePriority([...staged, ...loadedPredicates]);
   }, [pending, applyToValues, loadedPredicates, predicateOptions]);
 
   const onToggleButtonChange = (_e, v) => v && setToggleButtonValue(v);
