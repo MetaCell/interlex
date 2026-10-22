@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useLocation, Outlet } from "react-router-dom";
 import { Box, Typography, CircularProgress, Button } from "@mui/material";
 import OntologyHeader from "./OntologyHeader";
+import CollapsingHeaderLayout from "../common/CollapsingHeaderLayout";
 import { ONTOLOGY_TABS, ontologyEntry } from "./config/gridConfig";
 import { loadOntology } from "./services/ontologyGridService";
 import { usePublishContextOntology } from "../../hooks/useContextOntology";
@@ -73,10 +74,9 @@ const OntologyPage = () => {
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", width: 1, height: 1, overflow: "hidden" }}>
-      <OntologyHeader data={data} tab={tab} />
+    <CollapsingHeaderLayout header={<OntologyHeader data={data} tab={tab} />}>
       <Outlet context={{ data }} />
-    </Box>
+    </CollapsingHeaderLayout>
   );
 };
 
