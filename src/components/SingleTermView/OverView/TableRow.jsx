@@ -17,6 +17,18 @@ const STATUS_CHIP = {
   deleted: { label: "Removed", color: "error" },
 };
 
+// Owns the draft so every opening starts from the row's current value, whether
+// the row opened itself or the whole predicate was put in edit mode.
+const RowEditor = ({ initialValue, onConfirm, ...editorProps }) => {
+  const [draft, setDraft] = useState(initialValue);
+  return <CellEditor {...editorProps} value={draft} onChange={setDraft} onConfirm={() => onConfirm(draft.trim())} />;
+};
+
+RowEditor.propTypes = {
+  initialValue: PropTypes.string,
+  onConfirm: PropTypes.func.isRequired,
+};
+
 const TableRow = ({
   tableStyles,
   data,
@@ -27,6 +39,8 @@ const TableRow = ({
   columnFlex,
   actionsWidth,
   editable = false,
+  isEditing = false,
+  onEditingChange,
   status,
   objectKind = "text",
   group = "base",
@@ -34,24 +48,19 @@ const TableRow = ({
   onDelete,
 }) => {
   const { id, subject, predicate, object } = data;
-  const [isEditing, setIsEditing] = useState(false);
-  const [draft, setDraft] = useState(object);
   const statusChip = STATUS_CHIP[status];
+  const editorOpen = editable && isEditing;
 
-  const startEdit = () => {
-    setDraft(object);
-    setIsEditing(true);
-  };
-  const cancelEdit = () => setIsEditing(false);
-  const confirmEdit = () => {
-    setIsEditing(false);
-    const next = draft.trim();
+  const startEdit = () => onEditingChange?.(true);
+  const cancelEdit = () => onEditingChange?.(false);
+  const confirmEdit = (next) => {
+    onEditingChange?.(false);
     if (next && next !== object) onEdit?.(data, next);
   };
 
   return (
     <Box sx={tableStyles.root}
-      draggable={!isEditing}
+      draggable={!editorOpen}
       onDragStart={e => onDragStart(id, index, e)}
       onDragEnter={e => onDragEnter(id, index, e)}
       onDragEnd={onDragEnd}
@@ -108,13 +117,12 @@ const TableRow = ({
           )}
         </Box>
       )}
-      {isEditing && (
-        <CellEditor
+      {editorOpen && (
+        <RowEditor
           title={predicate}
           kind={objectKind}
-          value={draft}
+          initialValue={object}
           group={group}
-          onChange={setDraft}
           onConfirm={confirmEdit}
           onCancel={cancelEdit}
         />
@@ -136,6 +144,8 @@ TableRow.propTypes = {
   }).isRequired,
   actionsWidth: PropTypes.string,
   editable: PropTypes.bool,
+  isEditing: PropTypes.bool,
+  onEditingChange: PropTypes.func,
   status: PropTypes.oneOf(["clean", "added", "edited", "deleted"]),
   objectKind: PropTypes.oneOf(["term", "text"]),
   group: PropTypes.string,

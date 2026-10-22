@@ -1,9 +1,10 @@
 import TableRow from "./TableRow";
 import PropTypes from 'prop-types';
 import CellEditor from "./CellEditor";
-import { Box, Button, IconButton, Typography } from "@mui/material";
+import { Box, Button, IconButton, Tooltip, Typography } from "@mui/material";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import EditNoteOutlinedIcon from '@mui/icons-material/EditNoteOutlined';
 import { useEffect, useMemo, useRef, useState } from "react";
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import {
@@ -128,6 +129,7 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
 
   const [adding, setAdding] = useState(false);
   const [newValue, setNewValue] = useState("");
+  const [editingIds, setEditingIds] = useState(() => new Set());
 
   // State rather than a ref: the cell mounts in the same render that opens the
   // editor, and the editor needs it as its anchor.
@@ -137,6 +139,7 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
   // keep table in sync with prop `data`
   useEffect(() => {
     setTableContent(normalizeTableData(data));
+    setEditingIds(new Set());
   }, [data]);
 
   // Rows as the edit session says they will look once saved: edits in place,
@@ -174,6 +177,20 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
     });
     return rows;
   }, [tableContent, focusId, focusSubject, predicateTitle, predicateLabel, applyToValues]);
+
+  const isRowEditable = (row) =>
+    !readOnly && !!onMutate && row.status !== "deleted" && (row.status === "added" || isRowOnFocus(row.subject, focusId));
+  const editableIds = displayRows.filter(isRowEditable).map((row) => row.id);
+  const allEditing = editableIds.length > 0 && editableIds.every((id) => editingIds.has(id));
+
+  const toggleEditAll = () => setEditingIds(allEditing ? new Set() : new Set(editableIds));
+  const setRowEditing = (id) => (editing) =>
+    setEditingIds((prev) => {
+      const next = new Set(prev);
+      if (editing) next.add(id);
+      else next.delete(id);
+      return next;
+    });
 
   const move = (arr, fromIndex, toIndex) => {
     const element = arr[fromIndex];
@@ -268,7 +285,23 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
             )}
           </Box>
         ))}
-        {showActions && <Box sx={{ width: ACTIONS_WIDTH, flexShrink: 0 }} />}
+        {showActions && (
+          <Box sx={{ width: ACTIONS_WIDTH, flexShrink: 0, display: 'flex', justifyContent: 'flex-end' }}>
+            {editableIds.length > 0 && (
+              <Tooltip placement="top" title={allEditing ? "Close all editors" : "Edit all values"}>
+                <IconButton
+                  size="small"
+                  color={allEditing ? "primary" : "default"}
+                  onClick={toggleEditAll}
+                  aria-label={allEditing ? "Close all editors" : "Edit all values"}
+                  aria-pressed={allEditing}
+                >
+                  <EditNoteOutlinedIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
+        )}
       </Box>
 
       {addable && !!onMutate && (
@@ -309,7 +342,9 @@ const CustomizedTable = ({ data, focusId, group = "base", onMutate }) => {
           actionsWidth={showActions ? ACTIONS_WIDTH : undefined}
           data={row}
           index={index}
-          editable={!readOnly && !!onMutate && row.status !== "deleted" && (row.status === "added" || isRowOnFocus(row.subject, focusId))}
+          editable={isRowEditable(row)}
+          isEditing={editingIds.has(row.id)}
+          onEditingChange={setRowEditing(row.id)}
           status={row.status}
           objectKind={objectKind}
           group={group}

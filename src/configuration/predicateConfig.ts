@@ -2,6 +2,8 @@
 // Decides, per predicate, whether the "+" (add) is shown, whether rows can be
 // edited/deleted, and what kind of object input to render.
 
+import predicatePriority from "./predicatePriority.json";
+
 const norm = (title: string): string => String(title || "").trim().toLowerCase();
 
 // Single-valued predicates: no "+" to add another triple of this type.
@@ -55,6 +57,18 @@ export const ADDABLE_PREDICATES: Array<{ title: string; label: string }> = [
   { title: "ilx.partOf", label: "Part of" },
   { title: "definition", label: "Definition" },
 ];
+
+const PREDICATE_PRIORITY = new Map<string, number>(
+  predicatePriority.map((title, rank) => [norm(title), rank])
+);
+
+const priorityOf = (title: string): number =>
+  PREDICATE_PRIORITY.get(norm(title)) ?? PREDICATE_PRIORITY.size;
+
+// Predicates listed in predicatePriority.json come first, in list order; the
+// rest keep their incoming order after them.
+export const sortByPredicatePriority = <T extends { title: string }>(groups: T[]): T[] =>
+  [...groups].sort((a, b) => priorityOf(a.title) - priorityOf(b.title));
 
 // TODO(predicates-freshness): part of the temporary .jsonld-override workaround
 // in OverView (see that TODO). Remove shortenIri/KNOWN_PREFIXES/KNOWN_TERMS once
