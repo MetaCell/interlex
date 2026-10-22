@@ -15,6 +15,9 @@ import {
 import { hasTranscriptomicProfile } from "../../components/CellCards/CellCard/widgetVisibility";
 import { buildNervoSensusLink, atlasCellKey } from "../../components/CellCards/CellCard/nervoSensusLink";
 import { buildRelationGraph } from "../../components/CellCards/CellCard/buildRelationGraph";
+import { hierarchyNeighbours } from "../../components/CellCards/services/ontologyGridService";
+import { primaryPath, superclassTree } from "../../components/CellCards/model/hierarchy";
+import { ontologyHierarchy } from "../ontologyTermAdapter";
 import { resolveMappings } from "../../components/CellCards/config/mappingsService";
 import { DEFAULT_MAPPINGS } from "../../components/CellCards/config/mappingDefaults";
 
@@ -117,7 +120,8 @@ check(
 // cross-nomenclature relation is its own edge kind instead of everything collapsing into "asserted
 // subclass of". The parent here is synthetic; buildRelationGraph only needs a CellTerm shape.
 console.log("\nrelationship graph (npokb:1007)");
-const graph = buildRelationGraph(c1007, { parents: [byId["npokb:1067"]] }, DEFAULT_MAPPINGS);
+const linkTo = (term, secondary = false) => ({ term, secondary });
+const graph = buildRelationGraph(c1007, { parents: [linkTo(byId["npokb:1067"])] }, DEFAULT_MAPPINGS);
 const edgesOf = (kind) => graph.edges.filter((e) => e.kind === kind);
 check(
   "subclass-of leaves the cell for its parent, pointing up",
@@ -137,7 +141,7 @@ check(
 // A record the cell is both a subclass of and consistent with is drawn once per side, so each
 // relation gets its own path instead of one crossing the graph to reach the other's box.
 const superAndMapped = { id: "npokb:1037", curie: "npokb:1037", label: "DRG Rxfp1 (Krauter2025)", iri: "" };
-const twice = buildRelationGraph(c1007, { parents: [superAndMapped] }, DEFAULT_MAPPINGS);
+const twice = buildRelationGraph(c1007, { parents: [linkTo(superAndMapped)] }, DEFAULT_MAPPINGS);
 check(
   "a record related in both directions gets a box per side",
   twice.nodes.filter((n) => n.ref?.id === "npokb:1037").map((n) => n.id).sort(),
@@ -161,6 +165,13 @@ check(
     .map((e) => perGene.nodes.find((n) => n.id === e.to)?.ref?.id),
   genes.map((g) => g.id)
 );
+check(
+  "a satellite box shows its term's curie under the label",
+  perGene.edges
+    .filter((e) => e.kind === "expresses")
+    .map((e) => perGene.nodes.find((n) => n.id === e.to)?.subtitle),
+  genes.map((g) => (g.label ? g.curie : undefined))
+);
 // A union is one claim: an edge per value would assert the cell is located in both.
 const geneUnion = buildRelationGraph(
   {
@@ -179,6 +190,13 @@ check(
     .filter((e) => e.kind === "expresses")
     .map((e) => geneUnion.nodes.find((n) => n.id === e.to)?.label),
   [genes.map((g) => g.label).join(" or ")]
+);
+check(
+  "a union box has no single curie to show",
+  geneUnion.edges
+    .filter((e) => e.kind === "expresses")
+    .map((e) => geneUnion.nodes.find((n) => n.id === e.to)?.subtitle),
+  [undefined]
 );
 
 // --- display metadata read from the ontology ---------------------------------
@@ -292,14 +310,103 @@ check(
   unrooted.cells.length,
   data["@graph"].filter((n) => [n["@type"]].flat().includes("neurdf:Neuron")).length
 );
-check("the ontology document stands in as the root", unrooted.hierarchy[0]?.termId, meta.iri);
+// The document scopes the terms but is not their superclass, so it is no row of the tree.
 check(
-  "its top level is the cells with no parent among them",
-  unrooted.hierarchy[0]?.children.length > 0 &&
-    unrooted.hierarchy[0].children.every((n) =>
-      !subClassParents(n.termId).some((p) => cells.some((c) => c.id === p))
+  "the ontology document is not a row",
+  JSON.stringify(unrooted.hierarchy).includes(JSON.stringify(meta.iri)),
+  false
+);
+check(
+  "the roots are the cells with no parent among them",
+  unrooted.hierarchy.length > 0 &&
+    unrooted.hierarchy.every(
+      (n) => !subClassParents(n.termId).some((p) => cells.some((c) => c.id === p))
     ),
   true
+);
+
+// --- several superclasses -------------------------------------------------------
+// The fixture's three cells have one parent each, so the DAG case is synthetic. A and B are top
+// level and C is under A; D is under B (depth 1) and C (depth 2), E under A and B (a tie).
+console.log("\nseveral superclasses (synthetic graph)");
+const dagCell = (id, label, parents) => ({
+  "@id": id,
+  "@type": ["owl:Class", "neurdf:Neuron"],
+  "rdfs:label": label,
+  "rdfs:subClassOf": parents.map((p) => ({ "@id": p })),
+});
+const dag = parseNeurdf(
+  {
+    "@context": { neurdf: "http://uri.interlex.org/tgbugs/uris/readable/neurdf/" },
+    "@graph": [
+      dagCell("ex:A", "Alpha", []),
+      dagCell("ex:B", "Beta", []),
+      dagCell("ex:C", "Gamma", ["ex:A"]),
+      dagCell("ex:D", "Delta", ["ex:B", "ex:C"]),
+      dagCell("ex:E", "Epsilon", ["ex:A", "ex:B"]),
+      dagCell("ex:F", "Zeta", ["ex:D"]),
+    ],
+  },
+  ""
+);
+const rows = [];
+const walkRows = (nodes, parent) =>
+  nodes.forEach((n) => {
+    rows.push({ term: n.termId, parent, secondary: Boolean(n.secondary), kids: n.children.length });
+    walkRows(n.children, n.termId);
+  });
+walkRows(dag.hierarchy);
+const rowsOf = (term) => rows.filter((r) => r.term === term);
+check("every class has exactly one own row", ["ex:A", "ex:B", "ex:C", "ex:D", "ex:E", "ex:F"].map((t) => rowsOf(t).filter((r) => !r.secondary).length), [1, 1, 1, 1, 1, 1]);
+check("the parent closest to the root is the primary one", rowsOf("ex:D").filter((r) => !r.secondary).map((r) => r.parent), ["ex:B"]);
+check("the deeper parent gets an asterisked leaf", rowsOf("ex:D").filter((r) => r.secondary).map((r) => [r.parent, r.kids]), [["ex:C", 0]]);
+check("a tie goes to the parent drawn first", rowsOf("ex:E").filter((r) => !r.secondary).map((r) => r.parent), ["ex:A"]);
+check("a subtree is drawn once, under the own row", rowsOf("ex:F").map((r) => [r.parent, r.secondary]), [["ex:D", false]]);
+check("the asterisked leaf names the primary parent", dag.hierarchy.find((n) => n.termId === "ex:A").children.find((n) => n.termId === "ex:C").children.find((n) => n.termId === "ex:D")?.primaryParentLabel, "Beta");
+check("the primary path runs through the primary parent", primaryPath(dag.hierarchy, "ex:D")?.map((n) => n.termId), ["ex:B", "ex:D"]);
+check(
+  "the superclass view draws every parent, the primary chain first and the further one asterisked",
+  JSON.stringify(superclassTree(dag.hierarchy, "ex:D"), ["termId", "secondary", "children"]),
+  JSON.stringify(
+    [
+      { termId: "ex:B", children: [{ termId: "ex:D", children: [] }] },
+      { termId: "ex:A", children: [{ termId: "ex:C", children: [{ termId: "ex:D", secondary: true, children: [] }] }] },
+    ],
+    ["termId", "secondary", "children"]
+  )
+);
+const dagData = { cells: dag.cells, hierarchy: dag.hierarchy };
+const dagCellD = dag.cells.find((c) => c.id === "ex:D");
+const neighboursOfD = hierarchyNeighbours(dagData, dagCellD);
+check(
+  "the graph's parents are the tree's, the primary one first and the other asterisked",
+  neighboursOfD.parents.map((l) => [l.term.id, l.secondary]),
+  [["ex:B", false], ["ex:C", true]]
+);
+check(
+  "a child filed elsewhere is asterisked from its other parent too",
+  hierarchyNeighbours(dagData, dag.cells.find((c) => c.id === "ex:C")).children.map((l) => [l.term.id, l.secondary]),
+  [["ex:D", true]]
+);
+const dGraph = buildRelationGraph(dagCellD, neighboursOfD, DEFAULT_MAPPINGS);
+check(
+  "the graph marks the further parent, and only it",
+  dGraph.nodes.filter((n) => n.secondary).map((n) => n.id),
+  ["ex:C"]
+);
+check(
+  "the Overview's superclass tree is the same rows",
+  JSON.stringify(ontologyHierarchy(dag, "ex:D").treeSuperclasses, ["iri", "children"]),
+  JSON.stringify(superclassTree(dag.hierarchy, "ex:D"), ["curie", "children"]).replaceAll('"curie"', '"iri"')
+);
+check("…and its children tree starts at the own row", ontologyHierarchy(dag, "ex:D").treeChildren.map((n) => n.children.length), [1]);
+// A configured root class is a real superclass: a row of the tree, and so a parent in the graph.
+const rooted = parseNeurdf(data, "ilxtr:NeuronPrecision");
+const topLevel = rooted.cells.find((c) => rooted.hierarchy[0].children.some((n) => n.termId === c.id));
+check(
+  "a configured root class is the graph parent of a top-level cell",
+  hierarchyNeighbours(rooted, topLevel).parents.map((l) => [l.term.id, l.secondary]),
+  [["ilxtr:NeuronPrecision", false]]
 );
 
 // The community link the spec names, `ilxtr:developmentCommunity`, has zero occurrences today, so

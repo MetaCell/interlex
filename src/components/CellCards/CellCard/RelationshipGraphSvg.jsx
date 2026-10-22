@@ -471,7 +471,7 @@ const RelationshipGraphSvg = ({ graph, onSelect, height }) => {
               >
                 {/* Truncate to the box rather than overflow it; <title> carries the full text. */}
                 {clamp(node.label, w)}
-                {node.flagged ? "*" : ""}
+                {node.flagged || node.secondary ? "*" : ""}
               </text>
               {node.subtitle && (
                 <text
@@ -484,7 +484,7 @@ const RelationshipGraphSvg = ({ graph, onSelect, height }) => {
                   {clamp(node.subtitle, w)}
                 </text>
               )}
-              <title>{[node.label, node.subtitle].filter(Boolean).join(" — ")}</title>
+              <title>{[node.label, node.subtitle, node.note].filter(Boolean).join(" — ")}</title>
             </g>
           );
         })}

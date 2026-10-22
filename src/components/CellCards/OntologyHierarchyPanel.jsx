@@ -6,7 +6,8 @@ import OntologyHierarchyTree from "./OntologyHierarchyTree";
 import { RestartAlt, TargetCross } from "../../Icons";
 
 // The "Ontology hierarchy" widget: the subClassOf tree of the ontology, opened on its root class
-// (the starting selection the design calls for).
+// (the starting selection the design calls for) or, when it configures none, on its top-level
+// terms with nothing selected.
 //
 // The tree always shows the whole hierarchy — clicking a term picks what the Terms table beside it
 // lists, so re-scoping the tree to the choice would take away the rows the user browses *with*.
@@ -21,11 +22,16 @@ const OntologyHierarchyPanel = ({
   onSelectTerm,
   onSelectRoot,
 }) => {
-  const rootIds = useMemo(() => hierarchy.map((node) => node.id), [hierarchy]);
+  // A lone root is the configured root class, opened so the first view lists the terms under it;
+  // the roots of a forest are those terms already.
+  const rootIds = useMemo(
+    () => (hierarchy.length === 1 ? [hierarchy[0].id] : []),
+    [hierarchy]
+  );
   const [expandedItems, setExpandedItems] = useState(rootIds);
 
-  // Both buttons put the scope back on the root class; they differ in what they do to the tree.
-  // Reset closes it back to the opening view, while focus only makes sure the root is open.
+  // Both buttons put the scope back on the whole ontology; they differ in what they do to the tree.
+  // Reset closes it back to the opening view, while focus only makes sure a root class is open.
   const handleReset = useCallback(() => {
     setExpandedItems(rootIds);
     onSelectRoot();
@@ -59,8 +65,8 @@ const OntologyHierarchyPanel = ({
         <Button
           variant="outlined"
           onClick={handleFocusRoot}
-          aria-label="Select the root class"
-          title="Select the root class"
+          aria-label="Select the whole ontology"
+          title="Select the whole ontology"
           sx={{ p: "0.625rem 0.5625rem", minWidth: "0.0625rem" }}
         >
           <TargetCross />
@@ -83,8 +89,9 @@ const OntologyHierarchyPanel = ({
 
 OntologyHierarchyPanel.propTypes = {
   hierarchy: PropTypes.array.isRequired,
-  // The class the table is scoped to; highlighted at every position it occupies.
-  anchorTermId: PropTypes.string.isRequired,
+  // The class the table is scoped to; highlighted at every position it occupies. Absent while the
+  // table lists the whole ontology.
+  anchorTermId: PropTypes.string,
   scope: PropTypes.string.isRequired,
   scopeOptions: PropTypes.arrayOf(
     PropTypes.shape({ value: PropTypes.string, label: PropTypes.string })

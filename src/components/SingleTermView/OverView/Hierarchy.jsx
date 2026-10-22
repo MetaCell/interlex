@@ -42,6 +42,21 @@ const toIri = (idLike) => {
   return idLike;
 };
 
+// The superclass tree is a forest of paths that each end at the focus, one per direct parent, so the
+// direct superclasses are the parents of the focus's rows — the first root's children only count
+// them while there is a single chain.
+const countDirectParents = (items = [], focusIri) => {
+  const parents = new Set();
+  const walk = (nodes, parent) => {
+    for (const node of nodes || []) {
+      if (node?.iri === focusIri && parent) parents.add(parent.iri);
+      walk(node?.children, node);
+    }
+  };
+  walk(items);
+  return parents.size;
+};
+
 // Collect all item ids that match a filter (id | label | iri)
 const collectMatchingIds = (items = [], term = "") => {
   if (!term) return [];
@@ -85,7 +100,10 @@ const Hierarchy = ({
   const [searchTerm, setSearchTerm] = React.useState("");
 
   const items = type === CHILDREN ? treeChildren : treeSuperclasses;
-  const childCount = items?.[0]?.children?.length || 0;
+  const firstGenerationCount =
+    type === CHILDREN
+      ? items?.[0]?.children?.length || 0
+      : countDirectParents(items, toIri(selectedValue?.id));
 
   React.useEffect(() => {
     const focusIri = toIri(selectedValue?.id);
@@ -202,7 +220,7 @@ const Hierarchy = ({
       />
 
       <Typography color={gray600} fontSize='.875rem'>
-        Total number of first generation {type === CHILDREN ? CHILDREN : SUPERCLASSES}: {childCount}
+        Total number of first generation {type === CHILDREN ? CHILDREN : SUPERCLASSES}: {firstGenerationCount}
       </Typography>
 
       {editing && (

@@ -8,6 +8,11 @@ import { SUBCLASSES, SUPERCLASSES, scopedCells } from "./services/ontologyGridSe
 // Local name of a curie or IRI: "ilxtr:NeuronPrecision" -> "NeuronPrecision".
 const localName = (id) => String(id).split(/[:/#]/).filter(Boolean).pop() || id;
 
+// The opening view, with no class picked: every term. Named after the ontology rather than as
+// anything's sub classes — without a root class there is no class above the top-level terms, and
+// the document that scopes them is not one.
+const wholeOntology = (title) => `all terms in ${title}`;
+
 // The "Type:" select names the direction *first*. These labels carry a term name that runs to 75
 // characters, and the select is one control in a row that also holds a label, a divider and two
 // buttons inside a one-third panel — so it ellipsises, and whatever trails the term name is the
@@ -18,8 +23,8 @@ const scopeOption = (scope, termLabel) =>
 // The caption over the table has a line to itself, so there it can be exact: reading down includes
 // the selected class (see `scopedCells`), unless that class is the ontology's root, which is not
 // one of its terms and so is never a row.
-const scopeCaption = (scope, termLabel, anchorIsRoot) =>
-  scope === SUBCLASSES && !anchorIsRoot
+const scopeCaption = (scope, termLabel, anchorIsTerm) =>
+  scope === SUBCLASSES && anchorIsTerm
     ? `${termLabel} and its sub classes`
     : scopeOption(scope, termLabel);
 
@@ -32,20 +37,20 @@ const scopeCaption = (scope, termLabel, anchorIsRoot) =>
 // off state owned here, their common parent.
 const OntologyBrowsePage = () => {
   const { data } = useOutletContext();
-  const { entry, hierarchy, cells } = data;
-  const rootTermId = hierarchy[0]?.termId;
+  const { entry, meta, hierarchy, cells } = data;
+  // Only a configured root class is a row of the tree; otherwise the tree is a forest.
+  const rootTermId = entry.rootClass ? hierarchy[0]?.termId : undefined;
 
-  // The ontology's root class is the starting selection the design calls for, and reading down
-  // from it is every term in the set — so the table opens on the full list, as it always has.
-  // `selected` holds only an explicit choice; null is that default.
+  // The table opens on the full list, as it always has: the root class when there is one (the
+  // starting selection the design calls for), the whole ontology otherwise. `selected` holds only
+  // an explicit choice; null is that default.
   const [selected, setSelected] = useState(null);
   const [scope, setScope] = useState(SUBCLASSES);
 
-  const rootAnchor = useMemo(
-    () => ({ termId: rootTermId, label: localName(rootTermId) }),
-    [rootTermId]
-  );
-  const anchor = selected ?? rootAnchor;
+  const anchor = useMemo(() => {
+    if (selected) return selected;
+    return rootTermId ? { termId: rootTermId, label: localName(rootTermId) } : null;
+  }, [selected, rootTermId]);
 
   // Choosing the root again is choosing the default: the root node's own label is its bare curie
   // (it carries no rdfs:label), and letting that reach the select would rename the scope the user
@@ -66,16 +71,22 @@ const OntologyBrowsePage = () => {
     setScope(SUBCLASSES);
   }, []);
 
+  // With nothing to read around, there is no direction to choose: the one option is every term.
   const scopeOptions = useMemo(
     () =>
-      [SUBCLASSES, SUPERCLASSES].map((value) => ({
-        value,
-        label: scopeOption(value, anchor.label),
-      })),
-    [anchor.label]
+      anchor
+        ? [SUBCLASSES, SUPERCLASSES].map((value) => ({
+            value,
+            label: scopeOption(value, anchor.label),
+          }))
+        : [{ value: SUBCLASSES, label: wholeOntology(meta.title) }],
+    [anchor, meta.title]
   );
 
-  const terms = useMemo(() => scopedCells(data, anchor.termId, scope), [data, anchor.termId, scope]);
+  const terms = useMemo(
+    () => (anchor ? scopedCells(data, anchor.termId, scope) : cells),
+    [data, cells, anchor, scope]
+  );
 
   // Side by side the two panels each own the full height and scroll internally. Once they
   // stack (below md) a full-height panel would push the other off-screen, so there they take
@@ -88,7 +99,7 @@ const OntologyBrowsePage = () => {
         <Grid item xs={12} md={4} sx={{ height: panelHeight, minHeight: 0 }}>
           <OntologyHierarchyPanel
             hierarchy={hierarchy}
-            anchorTermId={anchor.termId}
+            anchorTermId={anchor?.termId}
             scope={scope}
             scopeOptions={scopeOptions}
             onScopeChange={setScope}
@@ -100,12 +111,16 @@ const OntologyBrowsePage = () => {
           <OntologyTermsTable
             cells={terms}
             entry={entry}
-            scopeDescription={scopeCaption(scope, anchor.label, selected === null)}
+            scopeDescription={
+              anchor
+                ? scopeCaption(scope, anchor.label, selected !== null)
+                : wholeOntology(meta.title)
+            }
             // The table only ever runs out of rows reading upwards: reading down always holds at
             // least the selected term, so the other case left is an ontology with no terms at all.
             emptyMessage={
               cells.length
-                ? `No term in this ontology is a super class of ${anchor.label}.`
+                ? `No term in this ontology is a super class of ${anchor?.label}.`
                 : "This ontology has no terms."
             }
           />

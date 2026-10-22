@@ -607,14 +607,21 @@ const definitionOf = (
 // children. A transitive reduction drops every parent that another parent already implies,
 // which recovers the curated shape (here 4 levels deep under the root).
 //
-// The result is a DAG, not a tree: 15 of the Precision terms have more than one direct parent.
-// Each is rendered under every parent, so node ids are the path that reached them.
+// The reduced links are still a DAG, not a tree: several dozen terms of the merged NPO file keep
+// more than one direct parent. Drawing a term's whole subtree under each of them left every view
+// to pick its own "main" path — the Cell Card's widget took the first one a depth-first walk met,
+// the relationship graph took them all — so they disagreed. Instead each term is filed under one
+// *primary* parent, the one closest to the root (Filippo's rule), and its subtree hangs there;
+// under every other parent it is a `secondary` leaf, drawn with an asterisk.
+//
+// Without a root class the result is a forest: the terms no in-scope term is a superclass of are
+// its roots. The ontology document scopes those terms but is not a class they are a subclass of,
+// so it is no row of the tree (Filippo).
 const buildHierarchy = (
   rootClass: string,
   cells: CellTerm[],
   ctx: ParseContext
 ): HierarchyNode[] => {
-  if (!rootClass) return [];
   const inScope = new Set(cells.map((c) => c.id));
   const parentsOf = new Map<string, string[]>();
   for (const cell of cells) {
@@ -646,8 +653,8 @@ const buildHierarchy = (
     // Keep a parent only when no *other* parent already reaches it: that other parent is the
     // more specific one, and this link is the entailed shortcut.
     const direct = parents.filter((p) => !parents.some((q) => q !== p && ancestorsOf(q).has(p)));
-    // No parent in scope only happens when the root is not a class the terms were selected by
-    // reaching; they are then its top level.
+    // No parent in scope: a top-level term, filed under the root class or, without one, under the
+    // empty key the forest's roots are read from.
     for (const parent of direct.length ? direct : parents.length ? parents : [rootClass]) {
       const siblings = childrenOf.get(parent);
       if (siblings) siblings.push(cell.id);
@@ -656,24 +663,53 @@ const buildHierarchy = (
   }
 
   const byId = new Map(cells.map((c) => [c.id, c]));
-  // `seen` is the current path — it stops a subClassOf cycle from recursing forever.
-  const nodeAt = (termId: string, path: string, seen: Set<string>): HierarchyNode => {
+  const termFields = (termId: string) => {
     const cell = byId.get(termId);
-    const kids = seen.has(termId) ? [] : childrenOf.get(termId) || [];
-    const nextSeen = new Set(seen).add(termId);
     return {
-      id: path,
       termId,
       label: cell ? cell.label : labelFor(termId, ctx),
       curie: cell ? cell.curie : classify(termId, ctx.prefixes).curie,
       iri: cell ? cell.iri : toIri(termId, ctx.prefixes),
-      children: kids
-        .map((kid) => nodeAt(kid, `${path}/${kid}`, nextSeen))
-        .sort((a, b) => a.label.localeCompare(b.label)),
     };
   };
+  const labelOf = (termId: string) => termFields(termId).label;
+  for (const kids of childrenOf.values()) kids.sort((a, b) => labelOf(a).localeCompare(labelOf(b)));
 
-  return [nodeAt(rootClass, rootClass, new Set())];
+  // Breadth-first over the label-ordered rows, so the parent that first reaches a term is the
+  // closest to the root, and among equally close ones the one drawn first: a reader scanning the
+  // tree meets a term's own position before any asterisked one at the same depth. A term the root
+  // reaches through no chain of links is never placed, as before.
+  const primaryParentOf = new Map<string, string>();
+  const queue = [rootClass];
+  for (let i = 0; i < queue.length; i++) {
+    for (const kid of childrenOf.get(queue[i]) || []) {
+      if (kid === rootClass || primaryParentOf.has(kid)) continue;
+      primaryParentOf.set(kid, queue[i]);
+      queue.push(kid);
+    }
+  }
+
+  // Recursion follows primary links only, which get one step further from the root each time, so a
+  // subClassOf cycle closes on a secondary leaf instead of recursing forever.
+  const childrenAt = (termId: string, path: string): HierarchyNode[] =>
+    (childrenOf.get(termId) || []).map((kid) => {
+      const kidPath = path ? `${path}/${kid}` : kid;
+      const primaryParent = primaryParentOf.get(kid);
+      if (primaryParent === termId) {
+        return { id: kidPath, ...termFields(kid), children: childrenAt(kid, kidPath) };
+      }
+      return {
+        id: kidPath,
+        ...termFields(kid),
+        children: [],
+        secondary: true,
+        primaryParentLabel: primaryParent && labelOf(primaryParent),
+      };
+    });
+
+  return rootClass
+    ? [{ id: rootClass, ...termFields(rootClass), children: childrenAt(rootClass, rootClass) }]
+    : childrenAt(rootClass, "");
 };
 
 // The ontology header. Title, description, version and community link are fixed fields of the
@@ -759,9 +795,7 @@ export const parseNeurdf = (
   return {
     meta,
     cells,
-    // Without a root class the document itself is what scopes the terms, so it stands in as the
-    // root their hierarchy hangs from.
-    hierarchy: buildHierarchy(rootClass || meta.iri, cells, ctx),
+    hierarchy: buildHierarchy(rootClass, cells, ctx),
     predicateDisplay: parsePredicateDisplay(graph, prefixes, fields),
   };
 };

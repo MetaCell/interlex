@@ -243,40 +243,52 @@ export const relatedBySource = (data: LoadedOntology, cell: CellTerm): CellTerm[
   );
 };
 
-// Direct subClassOf parents and children of a cell, as ResolvedRefs. Both come from the
-// hierarchy the parse already reduced (transitive edges removed), so a cell does not list its
-// grandparents. Restricted to cells in scope — a parent outside the ontology (ilxtr:
-// NeuronPrecision itself) is not a navigable cell card.
+// The other end of one direct subClassOf link of a cell. The link is `secondary` when it is not
+// the subclass's primary one — the link the tree draws as the subclass's asterisked leaf.
+export interface HierarchyNeighbour {
+  term: Pick<CellTerm, "id" | "curie" | "label" | "iri">;
+  secondary: boolean;
+  // On a secondary link: where the subclass's own position hangs instead.
+  primaryParentLabel?: string;
+}
+
+// Direct subClassOf parents and children of a cell, read off the positions the hierarchy tree
+// draws, so the graph and the tree agree on the links and on which of them is primary. The
+// hierarchy is already reduced (transitive edges removed), so a cell does not list its
+// grandparents. A configured root class is a parent like any other, and gets the tree's own
+// fields since it has no cell record; without one, a top-level cell has no parent at all.
 export const hierarchyNeighbours = (
   data: LoadedOntology,
   cell: CellTerm
-): { parents: CellTerm[]; children: CellTerm[] } => {
-  const parents: CellTerm[] = [];
-  const children: CellTerm[] = [];
-  const seenParent = new Set<string>();
-  const seenChild = new Set<string>();
+): { parents: HierarchyNeighbour[]; children: HierarchyNeighbour[] } => {
   const byTermId = new Map(data.cells.map((c) => [c.id, c]));
+  // A link is primary or not by the subclass's position under the parent, whichever end the cell is.
+  const linkTo = (other: HierarchyNode, subclassPosition: HierarchyNode): HierarchyNeighbour => ({
+    term: byTermId.get(other.termId) || {
+      id: other.termId,
+      curie: other.curie,
+      label: other.label,
+      iri: other.iri,
+    },
+    secondary: Boolean(subclassPosition.secondary),
+    primaryParentLabel: subclassPosition.primaryParentLabel,
+  });
 
+  const parents: HierarchyNeighbour[] = [];
+  let children: HierarchyNeighbour[] = [];
+  // Every position of the cell sits under a different parent; only its own position has children.
   const walk = (nodes: HierarchyNode[], parent?: HierarchyNode) => {
     for (const node of nodes) {
       if (node.termId === cell.id) {
-        const p = parent && byTermId.get(parent.termId);
-        if (p && !seenParent.has(p.id)) {
-          seenParent.add(p.id);
-          parents.push(p);
-        }
-        for (const child of node.children) {
-          const c = byTermId.get(child.termId);
-          if (c && !seenChild.has(c.id)) {
-            seenChild.add(c.id);
-            children.push(c);
-          }
-        }
+        if (parent) parents.push(linkTo(parent, node));
+        if (!node.secondary) children = node.children.map((child) => linkTo(child, child));
       }
       walk(node.children, node);
     }
   };
   walk(data.hierarchy);
+  // The primary parent leads, so the graph draws it first in its row.
+  parents.sort((a, b) => Number(a.secondary) - Number(b.secondary));
   return { parents, children };
 };
 
@@ -288,9 +300,9 @@ export const SUBCLASSES = "subclasses" as const;
 export const SUPERCLASSES = "superclasses" as const;
 export type HierarchyScope = typeof SUBCLASSES | typeof SUPERCLASSES;
 
-// termId -> its direct children / parents, collapsed out of the positional hierarchy. A class with
-// several parents is drawn at several paths, so the same edge is reached more than once; a Set per
-// side makes the adjacency the DAG the positions were expanded from.
+// termId -> its direct children / parents, collapsed out of the positional hierarchy. Every link is
+// one position — the subclass's own under its primary parent, an asterisked leaf under each other —
+// so walking the positions recovers the DAG they were expanded from, secondary links included.
 const adjacency = (roots: HierarchyNode[]) => {
   const children = new Map<string, Set<string>>();
   const parents = new Map<string, Set<string>>();
@@ -314,10 +326,10 @@ const adjacency = (roots: HierarchyNode[]) => {
 
 // Everything reachable from `start` along one side of the adjacency, transitively.
 //
-// This is a union over *every* path, unlike the Cell Card hierarchy widget's ancestor spine
-// (`findPath`, first position only) — the widget has to draw one nested chain, while a term list is
-// a set and so takes them all. `start` is never in the result; whether the caller wants it back is
-// its own decision (see `scopedCells`).
+// This is a union over *every* path, which the Cell Card widget's superclass tree is not: that one
+// reaches each direct parent by its primary chain only, so a parent's own further parents are not
+// rows there, while a term list is a set and so takes them all. `start` is never in the result;
+// whether the caller wants it back is its own decision (see `scopedCells`).
 const closure = (start: string, edges: Map<string, Set<string>>): Set<string> => {
   const out = new Set<string>();
   const stack = [...(edges.get(start) || [])];

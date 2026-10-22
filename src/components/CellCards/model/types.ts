@@ -129,6 +129,10 @@ export interface CellTerm {
 // One position of a class in the subClassOf hierarchy. A class with several parents is
 // rendered under each of them, so `id` is the path that reached it (unique per position)
 // while `termId` is the class itself (shared across its positions).
+//
+// Only one of those positions is the class's own: the one under its *primary* parent, which
+// holds its subtree. Every other position is a `secondary` leaf — the asterisked "also filed
+// here" row — so a subtree is drawn once, and every view reads the same parent as the main one.
 export interface HierarchyNode {
   id: string; // e.g. "ilxtr:NeuronPrecision/npokb:1075/npokb:1014"
   termId: string;
@@ -136,6 +140,9 @@ export interface HierarchyNode {
   curie: string;
   iri: string;
   children: HierarchyNode[];
+  secondary?: boolean;
+  // On a secondary position: the parent the class's own position hangs from.
+  primaryParentLabel?: string;
 }
 
 export interface OntologyMeta {

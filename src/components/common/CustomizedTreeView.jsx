@@ -25,13 +25,16 @@ const HoverActions = styled('span')(() => ({
 }));
 
 const StyledTreeItemBase = (props) => {
+  // The lookups arrive through slotProps and must not reach the DOM.
   const {
     label,
     currentId,
     highlightedIds,
     itemId,
     idToIri,
-    idToHasChildren
+    idToHasChildren,
+    idToSecondaryNote,
+    ...treeItemProps
   } = props;
 
   const isCurrent = currentId && itemId === currentId;
@@ -39,15 +42,24 @@ const StyledTreeItemBase = (props) => {
   const isLeaf = idToHasChildren?.get(itemId) === false;
 
   const iri = idToIri?.get(itemId) || itemId;
+  // An item filed again under a further parent carries an asterisk saying where it really sits.
+  const secondaryNote = idToSecondaryNote?.get(itemId);
 
   return (
     <TreeItem
-      {...props}
+      {...treeItemProps}
+      itemId={itemId}
       label={
         <StyledLabel className="tree-item-label">
           <span style={{ fontWeight: isHighlighted ? 600 : 400 }}>
             {label}
           </span>
+
+          {secondaryNote && (
+            <Tooltip title={secondaryNote}>
+              <span>*</span>
+            </Tooltip>
+          )}
 
           {isCurrent && (
             <Chip
@@ -106,7 +118,8 @@ StyledTreeItemBase.propTypes = {
   highlightedIds: PropTypes.arrayOf(PropTypes.string),
   itemId: PropTypes.string,
   idToIri: PropTypes.instanceOf(Map),
-  idToHasChildren: PropTypes.instanceOf(Map)
+  idToHasChildren: PropTypes.instanceOf(Map),
+  idToSecondaryNote: PropTypes.instanceOf(Map)
 };
 
 const kidsOf = (n, getItemChildren) => {
@@ -141,9 +154,10 @@ const CustomizedTreeView = ({
   const rootIds = useMemo(() => (items || []).map(getItemId), [items, getItemId]);
 
   // index useful metadata for slots (fast lookups in item renderer)
-  const { idToIri, idToHasChildren } = useMemo(() => {
+  const { idToIri, idToHasChildren, idToSecondaryNote } = useMemo(() => {
     const iriMap = new Map();
     const hasChildrenMap = new Map();
+    const secondaryNoteMap = new Map();
     const stack = [...items];
     while (stack.length) {
       const node = stack.pop();
@@ -151,9 +165,10 @@ const CustomizedTreeView = ({
       const kids = kidsOf(node, getItemChildren);
       iriMap.set(id, node?.iri ?? null);
       hasChildrenMap.set(id, kids.length > 0);
+      if (node?.secondaryNote) secondaryNoteMap.set(id, node.secondaryNote);
       stack.push(...kids);
     }
-    return { idToIri: iriMap, idToHasChildren: hasChildrenMap };
+    return { idToIri: iriMap, idToHasChildren: hasChildrenMap, idToSecondaryNote: secondaryNoteMap };
   }, [items, getItemChildren, getItemId]);
 
   // compute path to current node
@@ -235,7 +250,8 @@ const CustomizedTreeView = ({
           currentId,
           highlightedIds,
           idToIri,
-          idToHasChildren
+          idToHasChildren,
+          idToSecondaryNote
         }
       }}
     />

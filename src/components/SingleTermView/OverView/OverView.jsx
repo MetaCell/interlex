@@ -318,7 +318,7 @@ const OverView = ({ searchTerm, isCodeViewVisible = false, selectedDataFormat, g
 
   // Ontology load: the same three streams, filled from the parse. Synchronous throughout, so moving
   // the hierarchy focus re-derives rather than fetching, and a focus the ontology has no record for
-  // (the root the cells hang from) still gets its hierarchy, just no predicates.
+  // (a configured root class) still gets its hierarchy, just no predicates.
   useEffect(() => {
     if (!fromOntology) return undefined;
     const token = ++loadTokenRef.current;

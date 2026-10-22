@@ -8,6 +8,15 @@
 
 export const FLAGGED_FOOTNOTE = '* flagged "don\'t add" → proposed only';
 
+// The hierarchy files a class with several superclasses under the one closest to the root; every
+// other subClassOf link is drawn, in the tree and in the graph alike, with this asterisk.
+export const SECONDARY_LINK_FOOTNOTE =
+  "* not the primary superclass: the hierarchy files the subclass under the one closest to the root";
+export const secondaryPlacementNote = (primaryParentLabel?: string): string =>
+  primaryParentLabel
+    ? `Also filed here; its primary place is under ${primaryParentLabel}`
+    : "Also filed here; its primary place is elsewhere in the hierarchy";
+
 // --- NervoSensus -------------------------------------------------------------
 
 // NervoSensus is a single application, not a per-cell resource, so the Interactive Cell Grouping

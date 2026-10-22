@@ -11,7 +11,9 @@ import type {
   ResolvedRef,
 } from "../components/CellCards/model/types";
 import { DEFAULT_MAPPINGS, predicateLabel } from "../components/CellCards/config/mappingDefaults";
+import { secondaryPlacementNote } from "../components/CellCards/config/cellCardConfig";
 import type { OntologyMappings } from "../components/CellCards/model/mappings";
+import { primaryPath, superclassTree } from "../components/CellCards/model/hierarchy";
 
 // The CURIE is the term's identity throughout this mode: the hierarchy focus, a tree node's `iri`
 // and a predicate row's subject must all match, and `Hierarchy` passes a non-ILX id through
@@ -48,6 +50,8 @@ export interface OntologyTreeItem {
   label: string;
   iri: string;
   children: OntologyTreeItem[];
+  // On the asterisked "also filed here" leaf (see HierarchyNode): the asterisk's tooltip.
+  secondaryNote?: string;
 }
 
 export interface OntologyHierarchyOption {
@@ -72,52 +76,8 @@ const toTreeItem = (node: HierarchyNode): OntologyTreeItem => ({
   label: node.label,
   iri: node.curie,
   children: node.children.map(toTreeItem),
+  ...(node.secondary && { secondaryNote: secondaryPlacementNote(node.primaryParentLabel) }),
 });
-
-// Any position of the class will do: the parse computes children per class, not per position.
-const findNode = (nodes: HierarchyNode[], termId: string): HierarchyNode | undefined => {
-  for (const node of nodes) {
-    if (node.termId === termId) return node;
-    const hit = findNode(node.children, termId);
-    if (hit) return hit;
-  }
-  return undefined;
-};
-
-// The hierarchy is a DAG: 15 Precision cells have several parents, and the superclass tree shows
-// every way of reaching the term, as the API path's forest does.
-const pathsTo = (
-  nodes: HierarchyNode[],
-  termId: string,
-  trail: HierarchyNode[] = []
-): HierarchyNode[][] => {
-  const out: HierarchyNode[][] = [];
-  for (const node of nodes) {
-    const here = [...trail, node];
-    if (node.termId === termId) out.push(here);
-    else out.push(...pathsTo(node.children, termId, here));
-  }
-  return out;
-};
-
-// Folded into one forest, so two parents render as two branches of one root, not two trees.
-const mergePaths = (paths: HierarchyNode[][]): OntologyTreeItem[] => {
-  const roots: OntologyTreeItem[] = [];
-  for (const path of paths) {
-    let level = roots;
-    let id = "";
-    for (const node of path) {
-      id = id ? `${id}/${node.termId}` : node.termId;
-      let item = level.find((candidate) => candidate.iri === node.curie);
-      if (!item) {
-        item = { id, label: node.label, iri: node.curie, children: [] };
-        level.push(item);
-      }
-      level = item.children;
-    }
-  }
-  return roots;
-};
 
 const collectOptions = (items: OntologyTreeItem[]): OntologyHierarchyOption[] => {
   const byId = new Map<string, string>();
@@ -135,7 +95,7 @@ const collectOptions = (items: OntologyTreeItem[]): OntologyHierarchyOption[] =>
 
 /**
  * Both hierarchy directions for one class, from the tree the parse already reduced. Keyed by
- * `termId`, so it answers for a class with no record of its own — the root the cells hang from.
+ * `termId`, so it answers for a class with no record of its own — a configured root class.
  */
 export const ontologyHierarchy = (
   ontology: Pick<ParsedOntology, "hierarchy"> | null | undefined,
@@ -144,9 +104,13 @@ export const ontologyHierarchy = (
   const roots = ontology?.hierarchy;
   if (!roots?.length || !termId) return EMPTY_HIERARCHY;
 
-  const self = findNode(roots, termId);
+  // The class's own position: the only one that holds its children.
+  const path = primaryPath(roots, termId);
+  const self = path?.[path.length - 1];
   const treeChildren = self ? [toTreeItem(self)] : [];
-  const treeSuperclasses = mergePaths(pathsTo(roots, termId));
+  // The same rows the Cell Card's superclass view draws: every direct parent, the further ones
+  // ending in the class's asterisked leaf.
+  const treeSuperclasses = superclassTree(roots, termId).map(toTreeItem);
 
   return {
     options: {

@@ -24,7 +24,7 @@ import { ARROW_HEADS, arrowHeadProps, edgeStyle } from "../relationEdgeStyle";
 import EmptyState from "../../../common/EmptyState";
 import { CloseIcon } from "../../../../Icons";
 import buildRelationGraph from "../buildRelationGraph";
-import { FLAGGED_FOOTNOTE } from "../../config/cellCardConfig";
+import { FLAGGED_FOOTNOTE, SECONDARY_LINK_FOOTNOTE } from "../../config/cellCardConfig";
 import { useMappings } from "../../config/mappingsAtom";
 
 export const TITLE = "Relationship Graph";
@@ -64,8 +64,9 @@ LegendSwatch.propTypes = { kind: PropTypes.string.isRequired, hidden: PropTypes.
 
 // `hasFlagged` gates the footnote: nothing in the shipped graph produces "proposed" evidence, so
 // an unconditional footnote explains a marker no node can carry. Same rule as CrossNomenclature,
-// which describes the same asterisk.
-const Legend = ({ rows, hasFlagged, hiddenKinds, onToggleKind }) => (
+// which describes the same asterisk. The secondary-superclass asterisk is explained the same way,
+// only when a node carries it.
+const Legend = ({ rows, hasFlagged, hasSecondary, hiddenKinds, onToggleKind }) => (
   <Stack gap={0.5}>
     <Stack direction="row" flexWrap="wrap" gap={2}>
       {rows.map(({ kind, label }) => {
@@ -95,12 +96,18 @@ const Legend = ({ rows, hasFlagged, hiddenKinds, onToggleKind }) => (
         {FLAGGED_FOOTNOTE}
       </Typography>
     )}
+    {hasSecondary && (
+      <Typography variant="caption" color="text.disabled">
+        {SECONDARY_LINK_FOOTNOTE}
+      </Typography>
+    )}
   </Stack>
 );
 
 Legend.propTypes = {
   rows: PropTypes.array.isRequired,
   hasFlagged: PropTypes.bool,
+  hasSecondary: PropTypes.bool,
   hiddenKinds: PropTypes.instanceOf(Set).isRequired,
   onToggleKind: PropTypes.func.isRequired,
 };
@@ -143,6 +150,7 @@ const RelationshipGraph = ({ cell, neighbours, onNavigate, actions }) => {
   // on the unfiltered graph, so hiding every kind leaves the frame — and its legend — in place.
   const hasRelations = graph.nodes.length > 1;
   const hasFlagged = shownGraph.nodes.some((n) => n.flagged);
+  const hasSecondary = shownGraph.nodes.some((n) => n.secondary);
 
   const handleSelect = (node) => {
     if (node.ref && onNavigate) {
@@ -180,6 +188,7 @@ const RelationshipGraph = ({ cell, neighbours, onNavigate, actions }) => {
               <Legend
                 rows={legend}
                 hasFlagged={hasFlagged}
+                hasSecondary={hasSecondary}
                 hiddenKinds={hiddenKinds}
                 onToggleKind={toggleKind}
               />
@@ -205,6 +214,7 @@ const RelationshipGraph = ({ cell, neighbours, onNavigate, actions }) => {
             <Legend
               rows={legend}
               hasFlagged={hasFlagged}
+              hasSecondary={hasSecondary}
               hiddenKinds={hiddenKinds}
               onToggleKind={toggleKind}
             />

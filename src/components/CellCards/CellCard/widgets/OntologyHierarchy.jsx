@@ -7,6 +7,7 @@ import GridSearchBar from "../../GridSearchBar";
 import CustomSingleSelect from "../../../common/CustomSingleSelect";
 import EmptyState from "../../../common/EmptyState";
 import { RestartAlt, TargetCross } from "../../../../Icons";
+import { primaryPath, superclassTree } from "../../model/hierarchy";
 
 export const TITLE = "Ontology hierarchy";
 
@@ -16,17 +17,6 @@ const ROOT_SUBCLASSES = "root";
 const SUPERCLASSES = "superclasses";
 const SUBCLASSES = "subclasses";
 
-/** Path of hierarchy nodes from a root down to the first position of `termId`. */
-const findPath = (nodes, termId, trail = []) => {
-  for (const node of nodes) {
-    const next = [...trail, node];
-    if (node.termId === termId) return next;
-    const deeper = findPath(node.children || [], termId, next);
-    if (deeper) return deeper;
-  }
-  return null;
-};
-
 /** The tree with only the nodes that match, plus the ancestors needed to reach them. */
 const prune = (nodes, matches) =>
   nodes.reduce((kept, node) => {
@@ -35,8 +25,38 @@ const prune = (nodes, matches) =>
     return kept;
   }, []);
 
-const countNodes = (nodes) =>
-  nodes.reduce((n, node) => n + 1 + countNodes(node.children || []), 0);
+/** The tree without the rows `keep` rejects, each one's children lifted into its place. */
+const collapse = (nodes, keep) =>
+  nodes.flatMap((node) => {
+    const children = collapse(node.children || [], keep);
+    return keep(node) ? [{ ...node, children }] : children;
+  });
+
+/**
+ * One row per class at each level, the class's own row winning over an asterisked one: collapsing
+ * the superclass tree can lift both rows of the anchor side by side.
+ */
+const oneRowPerTerm = (nodes) => {
+  const byTerm = new Map();
+  for (const node of nodes) {
+    const kept = byTerm.get(node.termId);
+    if (!kept || (kept.secondary && !node.secondary)) byTerm.set(node.termId, node);
+  }
+  return [...byTerm.values()].map((node) => ({ ...node, children: oneRowPerTerm(node.children) }));
+};
+
+/** Distinct classes in a tree: an asterisked row is a class already counted at its own row. */
+const countTerms = (nodes, except) => {
+  const ids = new Set();
+  const walk = (list) =>
+    list.forEach((n) => {
+      ids.add(n.termId);
+      walk(n.children || []);
+    });
+  walk(nodes);
+  ids.delete(except);
+  return ids.size;
+};
 
 // How long the tree has to stop mutating before the highlighted row is scrolled to; see
 // requestReveal. Long enough to bridge a slow re-render, short enough not to read as a delay.
@@ -57,10 +77,9 @@ const allIds = (nodes) => {
 /**
  * §3.2 Ontology Hierarchy (Figma 9239:67685).
  *
- * Shows a cell's position in the subClassOf tree, in one of three scopes: the whole ontology from
- * its root class, or the *anchor* term's ancestor spine / direct children. The full tree fits here
- * — 181 positions, four levels deep — so the scoped views are a readability choice for a 424px
- * column, not a size limit.
+ * Shows a cell's position in the subClassOf tree, in one of three scopes: the whole ontology, or
+ * the *anchor* term's superclasses / direct children. The scoped views are a readability choice
+ * for a 424px column, not a size limit.
  *
  * The anchor is deliberately *not* the term the page is on. Clicking a term navigates the card,
  * and the requirement is that the tree does not move when it does: "when you click through the
@@ -70,9 +89,11 @@ const allIds = (nodes) => {
  * select honest: the option text describes the tree it produces, never the term you drifted to.
  *
  * The tree is built from the parse's already-reduced hierarchy (transitive edges removed), so a
- * cell does not list its grandparents as parents.
+ * cell does not list its grandparents as parents. A class with several superclasses is read from
+ * its own position, under its primary parent; the superclass view also draws each further parent,
+ * ending in the class's asterisked row — the same links, marked the same way, as the graph's.
  */
-const OntologyHierarchy = ({ cell, hierarchy, rootLabel, onNavigate, actions }) => {
+const OntologyHierarchy = ({ cell, hierarchy, rootLabel, ontologyTitle, onNavigate, actions }) => {
   const [mode, setMode] = useState(SUPERCLASSES);
   const [query, setQuery] = useState("");
   // The term the tree is read around, and the expansion the user has since chosen (null = the
@@ -82,16 +103,16 @@ const OntologyHierarchy = ({ cell, hierarchy, rootLabel, onNavigate, actions }) 
   const [expanded, setExpanded] = useState(null);
   const treeBoxRef = useRef(null);
 
-  const anchorPath = useMemo(() => findPath(hierarchy || [], anchorId), [hierarchy, anchorId]);
+  const anchorPath = useMemo(() => primaryPath(hierarchy || [], anchorId), [hierarchy, anchorId]);
   const anchorNode = anchorPath?.[anchorPath.length - 1];
-  const ancestors = useMemo(() => (anchorPath ? anchorPath.slice(0, -1) : []), [anchorPath]);
   // Falls back to the cell's own label so the select still reads sensibly for a term the
   // hierarchy does not place.
   const anchorLabel = anchorNode?.label || cell.label;
 
   // The rendered tree, plus what it is showing out of what exists — the count line below reports
   // the filtered figure, so it can never contradict the rows on screen. Both counts exclude the
-  // row the tree hangs from, which is not one of its own sub/superclasses.
+  // class the tree hangs from — a configured root class, or the anchor — which is not one of its
+  // own sub/superclasses.
   const { items, shown, total } = useMemo(() => {
     const needle = query.trim().toLowerCase();
     const matches = (label) => !needle || label.toLowerCase().includes(needle);
@@ -99,30 +120,28 @@ const OntologyHierarchy = ({ cell, hierarchy, rootLabel, onNavigate, actions }) 
 
     if (mode === ROOT_SUBCLASSES) {
       const kept = needle ? prune(roots, matches) : roots;
+      const rootClassId = rootLabel ? roots[0]?.termId : undefined;
       return {
         items: kept,
-        shown: countNodes(kept) - kept.length,
-        total: countNodes(roots) - roots.length,
+        shown: countTerms(kept, rootClassId),
+        total: countTerms(roots, rootClassId),
       };
     }
 
     if (!anchorNode) return { items: [], shown: 0, total: 0 };
 
     if (mode === SUPERCLASSES) {
-      // Ancestors, outermost first, each nesting the next — the spine on its own. The query
-      // applies here too: leaving it out silently ignored the search box in this direction.
-      // Dropping a non-matching intermediate is honest because subClassOf is transitive, so a
-      // collapsed spine still only claims "ancestor of".
-      const spine = ancestors.filter((a) => matches(a.label));
+      // The query applies here too: leaving it out silently ignored the search box in this
+      // direction. Dropping a non-matching intermediate is honest because subClassOf is
+      // transitive, so a collapsed chain still only claims "ancestor of".
+      const tree = superclassTree(roots, anchorId);
+      const kept = needle
+        ? oneRowPerTerm(collapse(tree, (n) => n.termId === anchorId || matches(n.label)))
+        : tree;
       return {
-        items: [
-          spine.reduceRight((child, node) => ({ ...node, children: [child] }), {
-            ...anchorNode,
-            children: [],
-          }),
-        ],
-        shown: spine.length,
-        total: ancestors.length,
+        items: kept,
+        shown: countTerms(kept, anchorId),
+        total: countTerms(tree, anchorId),
       };
     }
 
@@ -134,33 +153,36 @@ const OntologyHierarchy = ({ cell, hierarchy, rootLabel, onNavigate, actions }) 
       shown: children.length,
       total: all.length,
     };
-  }, [hierarchy, anchorNode, ancestors, mode, query]);
+  }, [hierarchy, rootLabel, anchorId, anchorNode, mode, query]);
 
   // Open the scoped views completely: one spine, or one level of children, has nothing worth
   // hiding, and the design shows it open. The whole ontology opens only down to the anchor, so
   // the widget is not a wall of rows — unless a filter is on, where the point is to see the hits.
   const defaultExpanded = useMemo(() => {
     if (mode === ROOT_SUBCLASSES && !query.trim()) {
-      return anchorPath ? anchorPath.map((n) => n.id) : items.map((n) => n.id);
+      return anchorPath ? anchorPath.map((n) => n.id) : [];
     }
     return allIds(items);
   }, [mode, query, items, anchorPath]);
   const expandedItems = expanded ?? defaultExpanded;
 
-  // Scrolls the highlighted row into view inside the tree's own box. `block: "nearest"` keeps the
-  // scroll inside that box while the widget itself is on screen.
+  // Scrolls the highlighted row into view inside the tree's own box — the term's own row, not an
+  // asterisked one that happens to be drawn above it. `block: "nearest"` keeps the scroll inside
+  // that box while the widget itself is on screen.
   const reveal = useCallback(() => {
-    treeBoxRef.current
-      ?.querySelector('[aria-selected="true"]')
-      ?.scrollIntoView({ block: "nearest" });
+    const box = treeBoxRef.current;
+    const row =
+      box?.querySelector('[aria-selected="true"]:not([data-secondary])') ||
+      box?.querySelector('[aria-selected="true"]');
+    row?.scrollIntoView({ block: "nearest" });
   }, []);
 
   // Waits for the tree to settle before scrolling, rather than for a render or a fixed delay:
   // RichTreeView draws its rows from its own item store, some renders after the props change, and
-  // building 181 rows can outlast a frame — so at effect time (and often a frame or two later) the
-  // row to scroll to is not in the DOM yet, and scrolling early is spent on the outgoing tree. The
-  // trailing timeout is what handles the opposite case, re-anchoring on the term the tree already
-  // shows, where nothing changes at all.
+  // building the whole ontology's rows can outlast a frame — so at effect time (and often a frame
+  // or two later) the row to scroll to is not in the DOM yet, and scrolling early is spent on the
+  // outgoing tree. The trailing timeout is what handles the opposite case, re-anchoring on the
+  // term the tree already shows, where nothing changes at all.
   const requestReveal = useCallback(() => {
     const box = treeBoxRef.current;
     if (!box) return;
@@ -219,8 +241,10 @@ const OntologyHierarchy = ({ cell, hierarchy, rootLabel, onNavigate, actions }) 
   );
 
   // Named once so the select option and the count line below cannot describe different things.
+  // Without a root class the whole tree is named after the ontology, not as its subclasses: the
+  // document scopes the terms but is no superclass of them.
   const typeLabel = {
-    [ROOT_SUBCLASSES]: `sub class of ${rootLabel}`,
+    [ROOT_SUBCLASSES]: rootLabel ? `sub class of ${rootLabel}` : `classes in ${ontologyTitle}`,
     [SUPERCLASSES]: `super class of ${anchorLabel}`,
     [SUBCLASSES]: `sub class of ${anchorLabel}`,
   };
@@ -256,9 +280,9 @@ const OntologyHierarchy = ({ cell, hierarchy, rootLabel, onNavigate, actions }) 
 
       {items.length ? (
         <>
-          {/* The scoped views are a handful of rows, but the whole ontology is 181 — it scrolls in
-              its own box rather than stretching the column past the widgets below it, the same way
-              the Browse tab's hierarchy sidebar does. */}
+          {/* The scoped views are a handful of rows, but the whole ontology is far more — it
+              scrolls in its own box rather than stretching the column past the widgets below it,
+              the same way the Browse tab's hierarchy sidebar does. */}
           <Box ref={treeBoxRef} sx={{ maxHeight: "24rem", overflow: "auto" }}>
             <OntologyHierarchyTree
               items={items}
@@ -294,8 +318,10 @@ const OntologyHierarchy = ({ cell, hierarchy, rootLabel, onNavigate, actions }) 
 OntologyHierarchy.propTypes = {
   cell: PropTypes.object.isRequired,
   hierarchy: PropTypes.array,
-  // Display name of the ontology's root class, used in the select and the count line.
+  // Display name of the ontology's root class, used in the select and the count line. Absent when
+  // the ontology configures none, and the whole tree is then named after `ontologyTitle`.
   rootLabel: PropTypes.string,
+  ontologyTitle: PropTypes.string,
   // Opens a term clicked in the tree, as a ResolvedRef-shaped { id, curie, iri }.
   onNavigate: PropTypes.func,
   actions: PropTypes.node,

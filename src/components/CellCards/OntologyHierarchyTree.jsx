@@ -1,10 +1,11 @@
 import PropTypes from "prop-types";
 import { forwardRef, useMemo } from "react";
-import { Link, Stack, Typography } from "@mui/material";
+import { Link, Stack, Tooltip, Typography } from "@mui/material";
 import { RichTreeView } from "@mui/x-tree-view/RichTreeView";
 import { TreeItem } from "@mui/x-tree-view/TreeItem";
 import ExpandLessOutlinedIcon from "@mui/icons-material/ExpandLessOutlined";
 import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined";
+import { secondaryPlacementNote } from "./config/cellCardConfig";
 
 // Tree row: label + the term's CURIE, per the design. The CURIE is dropped when it *is* the
 // label (a class with no rdfs:label falls back to its curie, and showing it twice is noise).
@@ -17,6 +18,10 @@ import ChevronRightOutlinedIcon from "@mui/icons-material/ChevronRightOutlined";
 // What activation *does* is the caller's business (`onSelectTerm`): the Browse tab scopes its
 // Terms table to the clicked class, the Cell Card navigates to it. Neither is a document link, so
 // the label is a button.
+//
+// A secondary row — the class again under a parent that is not its primary one — is a leaf with an
+// asterisk whose tooltip names the primary parent, where its subtree is. The row is marked on the
+// DOM too, so a caller scrolling to "the" position of a class can pass over these.
 const HierarchyTreeItem = forwardRef(function HierarchyTreeItem(props, ref) {
   // `meta` and `onSelectTerm` arrive via slotProps and must not reach the DOM.
   const { meta, onSelectTerm, label, itemId, ...treeItemProps } = props;
@@ -27,6 +32,7 @@ const HierarchyTreeItem = forwardRef(function HierarchyTreeItem(props, ref) {
       {...treeItemProps}
       ref={ref}
       itemId={itemId}
+      data-secondary={node?.secondary || undefined}
       label={
         <Stack direction="row" alignItems="center" gap={1} sx={{ minWidth: 0 }}>
           {/* The anchor of the tree is marked two ways: the row's selected background, and the
@@ -56,6 +62,13 @@ const HierarchyTreeItem = forwardRef(function HierarchyTreeItem(props, ref) {
               {label}
             </Typography>
           )}
+          {node?.secondary && (
+            <Tooltip title={secondaryPlacementNote(node.primaryParentLabel)}>
+              <Typography variant="body2" color="text.secondary">
+                *
+              </Typography>
+            </Tooltip>
+          )}
           {curie && curie !== label && (
             <Typography variant="body2" color="text.secondary" noWrap>
               {curie}
@@ -84,8 +97,8 @@ const OntologyHierarchyTree = ({
 }) => {
   // itemId -> { node, curie, isCurrent }, plus the anchor's positions, resolved in one walk here
   // so neither the item slot nor the caller needs a walk of its own. `anchorTermId` is a *term*
-  // id: a class with several parents (17 of these) appears at more than one path, and every one
-  // of those positions is the anchor.
+  // id: a class with several parents appears at more than one path — its own position and an
+  // asterisked leaf under each further parent — and every one of those positions is the anchor.
   const { meta, selectedItems } = useMemo(() => {
     const map = new Map();
     const positions = [];

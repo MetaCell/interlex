@@ -11,6 +11,14 @@ const cellNode = (cell, isCurrent) => ({
   ref: { id: cell.id, curie: cell.curie, label: cell.label, iri: cell.iri, kind: "interlex" },
 });
 
+// A subClassOf neighbour's box. A secondary link — not the subclass's primary one — carries the
+// asterisk the hierarchy tree gives it, and the tooltip names the primary superclass instead.
+const hierarchyNode = (link, note) => ({
+  ...cellNode(link.term, false),
+  secondary: link.secondary,
+  note: link.secondary && link.primaryParentLabel ? note : undefined,
+});
+
 // Every cross-nomenclature target is itself an npokb record (`CellMapping.ref`), the same as the
 // current cell and its hierarchy neighbours — so it carries the same internal id, shown the same
 // way `cellNode` shows one, instead of the box going without.
@@ -48,6 +56,9 @@ const refNode = (ref) => ({
  * a hardcoded list here: Fahim asked for this explicitly, because drawing every phenotype would
  * make the graph unreadable.
  *
+ * A cell filed under several superclasses shows them all above it, the primary one first; the
+ * others carry the hierarchy tree's asterisk, as does a child the tree files under another parent.
+ *
  * @param {object} cell      the CellTerm at the centre
  * @param {object} neighbours { parents, children } from hierarchyNeighbours
  * @param {object} mappings  the loaded ontology's mappings
@@ -72,8 +83,9 @@ export const buildRelationGraph = (cell, neighbours = {}, mappings = DEFAULT_MAP
   };
 
   // Parents above ("subclass of"): the cell is the subclass, so the arrow climbs into them.
-  for (const parent of neighbours.parents || []) {
-    const to = place(cellNode(parent, false), "above");
+  for (const link of neighbours.parents || []) {
+    const note = `also a superclass; the primary one is ${link.primaryParentLabel}`;
+    const to = place(hierarchyNode(link, note), "above");
     if (!edges.some((e) => e.to === to && e.kind === "subClassOf")) {
       edges.push({ from: cell.id, to, kind: "subClassOf", label: config.subClassOfLabel, direction: "up" });
     }
@@ -81,8 +93,9 @@ export const buildRelationGraph = (cell, neighbours = {}, mappings = DEFAULT_MAP
 
   // Direct subClassOf children, on the rank below: each child is the subclass, so its arrow climbs
   // into the current node.
-  for (const child of neighbours.children || []) {
-    const from = place(cellNode(child, false), "below");
+  for (const link of neighbours.children || []) {
+    const note = `also a subclass here; its primary superclass is ${link.primaryParentLabel}`;
+    const from = place(hierarchyNode(link, note), "below");
     if (!edges.some((e) => e.from === from && e.kind === "subClassOf")) {
       edges.push({ from, to: cell.id, kind: "subClassOf", label: config.subClassOfLabel, direction: "up" });
     }
@@ -129,12 +142,14 @@ export const buildRelationGraph = (cell, neighbours = {}, mappings = DEFAULT_MAP
       const id = `${cell.id}::${predicate.kind}::${box.key}`;
       if (seen.has(id)) continue;
       seen.add(id);
+      // A union has no one target to navigate to, nor one curie to show.
+      const target = box.values.length === 1 ? box.values[0] : undefined;
       nodes.push({
         id,
         label: box.values.map((v) => v.label || v.curie).join(" or "),
+        subtitle: target?.label ? target.curie : undefined,
         isCurrent: false,
-        // A union has no one target to navigate to.
-        ref: box.values.length === 1 ? box.values[0] : undefined,
+        ref: target,
       });
       edges.push({
         from: cell.id,
