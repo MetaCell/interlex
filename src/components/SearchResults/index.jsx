@@ -1,20 +1,25 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { debounce } from 'lodash';
-import { useQuery } from '../../helpers';
 import SearchResultsBox from './SearchResultsBox';
 import FiltersSidebar from '../Sidebar/FiltersSidebar';
 import { elasticSearch } from '../../api/endpoints';
+import { parseFilterQuery, filterQuerySearch } from '../../helpers/filterQuery';
 
 const SearchResults = () => {
     const [loading, setLoading] = useState(true);
     const [filters, setFilters] = useState([]);
-    const [checkedLabels, setCheckedLabels] = useState({});
     const [allResults, setAllResults] = useState([]);
     const [pageResults, setPageResults] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
-    const query = useQuery();
-    const searchTerm = query.get('searchTerm');
+    const navigate = useNavigate();
+    const { pathname, search } = useLocation();
+    const searchTerm = new URLSearchParams(search).get('searchTerm');
+
+    // The URL is the only store of the checks, so a copied address bar reproduces the filtered
+    // results, and a new search from the header (which writes only `searchTerm`) starts unfiltered.
+    const checkedLabels = useMemo(() => parseFilterQuery(search), [search]);
 
     const hasActiveFilters = useMemo(() => {
         return Object.values(checkedLabels).some(category =>
@@ -59,13 +64,14 @@ const SearchResults = () => {
     const fetchPage = useMemo(() => debounce(loadPageData, 500), [loadPageData]);
 
     const handleCheckboxChange = (category, label) => {
-        setCheckedLabels(prev => ({
-            ...prev,
+        const next = {
+            ...checkedLabels,
             [category]: {
-                ...prev[category],
-                [label]: !prev[category]?.[label]
+                ...checkedLabels[category],
+                [label]: !checkedLabels[category]?.[label]
             }
-        }));
+        };
+        navigate({ pathname, search: filterQuerySearch(search, next) }, { replace: true });
 
         setPageResults([]);
     };

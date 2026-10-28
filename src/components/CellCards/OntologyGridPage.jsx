@@ -8,7 +8,8 @@ import CellTileGrid from "./CellTileGrid";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import CustomPagination from "../common/CustomPagination";
 import { getFacets, curieToSlug } from "./services/ontologyGridService";
-import { termPath, parseGridFilters, gridFilterSearch } from "./config/gridConfig";
+import { termPath } from "./config/gridConfig";
+import { parseFilterQuery, filterQuerySearch } from "../../helpers/filterQuery";
 import { SOURCE_PREDICATE } from "./model/mappings";
 import { primeTermDataCache } from "../../hooks/useTermData";
 import { vars } from "../../theme/variables";
@@ -75,12 +76,12 @@ const OntologyGridPage = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(24);
 
-  // Facet checks, keyed by facet localName. The URL is their only store (see GRID_FILTER_PARAM),
+  // Facet checks, keyed by facet localName. The URL is their only store (see FILTER_PARAM),
   // so a Cell Card property row's grid icon (mappings.md §2.2) and a copied address bar land on
   // the same filtered grid.
   const compactIds = useMemo(() => compactIdsByRawId(data?.cells || []), [data]);
   const checked = useMemo(
-    () => withCompactIds(parseGridFilters(search), compactIds),
+    () => withCompactIds(parseFilterQuery(search), compactIds),
     [search, compactIds]
   );
 
@@ -101,7 +102,7 @@ const OntologyGridPage = () => {
 
   const writeChecked = useCallback(
     (update) => {
-      const next = gridFilterSearch(search, update(checked));
+      const next = filterQuerySearch(search, update(checked));
       ownWrite.current = { data, search: next };
       navigate({ pathname, search: next }, { replace: true });
       setPage(1);
