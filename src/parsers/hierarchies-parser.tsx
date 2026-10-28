@@ -1,9 +1,14 @@
+import { resolveDisplayText } from '../configuration/displayPredicates';
+
 export const ILX_PART_OF = 'Is part of';
 export const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 export const OWL_OBJECT_PROPERTY = 'owl:';
 
 export const RDFS_LABEL = 'http://www.w3.org/2000/01/rdf-schema#label';
 export const PART_OF_IRI = 'http://uri.interlex.org/base/ilx_0112785';
+
+const nodeLabel = (n: any): string | undefined =>
+  resolveDisplayText(n, 'hierarchyNode') ?? firstString(n['label']);
 
 type NodeRef = { id: string; label: string };
 type Edge = { from: NodeRef; to: NodeRef };
@@ -50,7 +55,7 @@ export function jsonldToTriplesAndEdges(jsonld: any): { triples: Triple[]; edges
   const labelById = new Map<string, string>();
   for (const n of graph) {
     const id = n['@id']; if (!id) continue;
-    const lbl = firstString(n['rdfs:label']) ?? firstString(n['label']);
+    const lbl = nodeLabel(n);
     if (lbl) labelById.set(id, lbl);
   }
 
@@ -70,8 +75,7 @@ export function jsonldToTriplesAndEdges(jsonld: any): { triples: Triple[]; edges
     // rdf:type
     for (const t of ids(n['@type'])) addTriple(s, RDF_TYPE, t);
 
-    // rdfs:label
-    const lbl = firstString(n['rdfs:label']) ?? firstString(n['label']);
+    const lbl = nodeLabel(n);
     if (lbl) addTriple(s, RDFS_LABEL, undefined, lbl);
 
     // ilx.partOf in ALL its forms

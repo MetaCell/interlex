@@ -1,0 +1,38 @@
+{
+  "termTitle": [
+    "ilxtr:displayLabel",
+    "skos:prefLabel",
+    "ilxtr:localLabel",
+    "ilxtr:genLabel",
+    "ilxtr:origLabel",
+    "ilxtr:simpleLabel",
+    "ilxtr:simpleLocalLabel",
+    "rdfs:label",
+    "skos:altLabel",
+    "skos:hiddenLabel"
+  ],
+  "termLabel": [
+    "ilxtr:displayLabel",
+    "skos:prefLabel",
+    "ilxtr:localLabel",
+    "ilxtr:genLabel",
+    "ilxtr:origLabel",
+    "ilxtr:simpleLabel",
+    "ilxtr:simpleLocalLabel",
+    "rdfs:label",
+    "skos:altLabel",
+    "skos:hiddenLabel"
+  ],
+  "hierarchyNode": [
+    "ilxtr:displayLabel",
+    "skos:prefLabel",
+    "ilxtr:localLabel",
+    "ilxtr:genLabel",
+    "ilxtr:origLabel",
+    "ilxtr:simpleLabel",
+    "ilxtr:simpleLocalLabel",
+    "rdfs:label",
+    "skos:altLabel",
+    "skos:hiddenLabel"
+  ]
+}

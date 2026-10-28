@@ -80,6 +80,7 @@ const KNOWN_PREFIXES: Array<[string, string]> = [
   ["ilxr", "http://uri.interlex.org/base/readable/"],
   ["ilxtr", "http://uri.interlex.org/tgbugs/uris/readable/"],
   ["rdfs", "http://www.w3.org/2000/01/rdf-schema#"],
+  ["skos", "http://www.w3.org/2004/02/skos/core#"],
   ["owl", "http://www.w3.org/2002/07/owl#"],
   ["rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#"],
   ["xsd", "http://www.w3.org/2001/XMLSchema#"],

@@ -2,6 +2,7 @@ import { Term, Terms } from "./../model/frontend/terms";
 import { termKeys, termPredicates } from "../configuration/model";
 import { defaultTermFiltersSections } from "../configuration/filters";
 import { shortenIri } from "../configuration/predicateConfig";
+import { resolveDisplayText } from "../configuration/displayPredicates";
 
 /**
  * Takes in raw term data object from server and formats it into Term object 
@@ -104,6 +105,7 @@ export const getTerm = (data) => {
     });
 
     term.predicates = predicatesFormatted;
+    term.label = resolveDisplayText(matchedObject, "termLabel") ?? term.label;
 
     return term;
 };

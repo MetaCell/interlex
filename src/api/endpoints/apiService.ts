@@ -5,6 +5,7 @@ import { jsonldToTriplesAndEdges, PART_OF_IRI } from '../../parsers/hierarchies-
 import { buildPredicateGroupsForFocus } from "../../parsers/predicateParser";
 import versionToTerm from "../../parsers/variantParser";
 import { termUriMappingPath } from "../../components/CellCards/config/gridConfig";
+import { resolveDisplayText } from "../../configuration/displayPredicates";
 
 // Error enriched with the queried URL + the backend's message, so the UI can
 // show a meaningful dialog instead of a bare "HTTP 404".
@@ -54,17 +55,8 @@ interface ForgotPasswordReguest {
   username: string;
 }
 
-type LabelType =
-  | string
-  | { '@value': string; '@language'?: string }
-  | Array<string | { '@value': string; '@language'?: string }>;
-
-interface GraphNode {
-  'rdfs:label'?: LabelType;
-}
-
 interface JsonLdResponse {
-  '@graph'?: GraphNode[];
+  '@graph'?: Array<Record<string, any>>;
 }
 
 const BASE_EXTENSION = "jsonld";
@@ -177,21 +169,8 @@ export const getSelectedTermLabel = async (searchTerm: string, group: string = '
     const primaryUrl = `/${group}/${searchTerm}.jsonld`;
     const response = await fetchOnce(primaryUrl, () => createGetRequest<JsonLdResponse, any>(primaryUrl)());
 
-    const label = response['@graph']?.[0]?.['rdfs:label'];
-
-    const getLabelValue = (label: LabelType): string => {
-      if (typeof label === 'string') return label;
-      if (Array.isArray(label)) {
-        const en = label.find(
-          l => typeof l === 'string' || (typeof l === 'object' && l?.['@language'] === 'en')
-        );
-        return typeof en === 'string' ? en : en?.['@value'] || '';
-      }
-      return label?.['@value'] || '';
-    };
-
     return {
-      label: label ? getLabelValue(label) : undefined,
+      label: resolveDisplayText(response['@graph']?.[0], 'termTitle'),
       actualGroup: group
     };
   } catch (err: any) {
@@ -201,21 +180,8 @@ export const getSelectedTermLabel = async (searchTerm: string, group: string = '
       try {
         const fallbackUrl = `/base/${searchTerm}.jsonld`;
         const fallbackResponse = await fetchOnce(fallbackUrl, () => createGetRequest<JsonLdResponse, any>(fallbackUrl)());
-        const fallbackLabel = fallbackResponse['@graph']?.[0]?.['rdfs:label'];
-
-        const getLabelValue = (label: LabelType): string => {
-          if (typeof label === 'string') return label;
-          if (Array.isArray(label)) {
-            const en = label.find(
-              l => typeof l === 'string' || (typeof l === 'object' && l?.['@language'] === 'en')
-            );
-            return typeof en === 'string' ? en : en?.['@value'] || '';
-          }
-          return label?.['@value'] || '';
-        };
-
         return {
-          label: fallbackLabel ? getLabelValue(fallbackLabel) : undefined,
+          label: resolveDisplayText(fallbackResponse['@graph']?.[0], 'termTitle'),
           actualGroup: 'base'
         };
       } catch (fallbackErr: any) {
