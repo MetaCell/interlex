@@ -8,13 +8,16 @@ import MessageDialog from "../../common/MessageDialog";
 import { getOrganizationsOntologies } from "../../../api/endpoints/apiService";
 import {Box, ButtonGroup, CircularProgress, Grid, Stack, Typography} from "@mui/material";
 import { GlobalDataContext } from "../../../contexts/DataContext";
+import { useNavigate } from "react-router-dom";
+import { ontologyEntryForSpecUri, ontologyPath } from "../../CellCards/config/gridConfig";
 
 import { vars } from "../../../theme/variables";
 const { gray600 } = vars;
 
-const NOT_IMPLEMENTED_MESSAGE = "The cell card overview is not yet implemented";
+const UNROUTABLE_ONTOLOGY_MESSAGE = "This ontology is kept under a nested path the ontology viewer cannot open yet.";
 
 const Ontologies = () => {
+  const navigate = useNavigate();
   const { user } = useContext(GlobalDataContext);
   const groupname = user?.groupname;
   const [loading, setLoading] = useState(false);
@@ -76,9 +79,13 @@ const Ontologies = () => {
     setPage(value);
   };
 
-  const handleSelectOntology = () => {
-    // Placeholder until the cell card overview component is developed.
-    setMessage(NOT_IMPLEMENTED_MESSAGE);
+  const handleSelectOntology = (ontology) => {
+    const entry = ontologyEntryForSpecUri(ontology.description);
+    if (entry) {
+      navigate(ontologyPath(entry));
+    } else {
+      setMessage(UNROUTABLE_ONTOLOGY_MESSAGE);
+    }
   };
 
   return (
@@ -127,7 +134,7 @@ const Ontologies = () => {
           }
         </Grid>}
         <CustomPagination rowCount={ontologies?.length} rowsPerPage={numberOfVisiblePages} page={page} onPageChange={handlePageChange} />
-        {message && <MessageDialog title="Cell card overview" open={!!message} handleClose={() => setMessage('')} message={message} />}
+        {message && <MessageDialog title="Ontology viewer" open={!!message} handleClose={() => setMessage('')} message={message} />}
       </Box>
   );
 };

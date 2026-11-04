@@ -11,7 +11,7 @@
 // the Predicates table too.
 import PropTypes from "prop-types";
 import { useCallback, useContext, useMemo, useRef, useState } from "react";
-import { Alert, Snackbar } from "@mui/material";
+import FeedbackSnackbar from "../components/common/FeedbackSnackbar";
 import { getRawData } from "../api/endpoints/apiService";
 import { patchEndpointsIlx } from "../api/endpoints/interLexURIStructureAPI";
 import { buildExpandContext } from "../configuration/predicateConfig";
@@ -213,31 +213,7 @@ export const EditSessionProvider = ({ group, searchTerm, disabled = false, child
   return (
     <EditSessionContext.Provider value={value}>
       {children}
-      <Snackbar
-        open={!!feedback}
-        autoHideDuration={feedback?.severity === "error" ? null : 4000}
-        onClose={() => setFeedback(null)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        {feedback ? (
-          <Alert
-            onClose={() => setFeedback(null)}
-            severity={feedback.severity}
-            variant="filled"
-            sx={{
-              maxWidth: "32rem",
-              // theme forces IconButton bg white -> white close X becomes invisible
-              "& .MuiAlert-action .MuiIconButton-root": {
-                background: "transparent",
-                "&:hover": { background: "rgba(255,255,255,0.2)" },
-              },
-              "& .MuiAlert-action .MuiSvgIcon-root": { color: "#fff" },
-            }}
-          >
-            {feedback.message}
-          </Alert>
-        ) : undefined}
-      </Snackbar>
+      <FeedbackSnackbar feedback={feedback} onClose={() => setFeedback(null)} />
     </EditSessionContext.Provider>
   );
 };

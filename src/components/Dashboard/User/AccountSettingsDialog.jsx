@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import { useState, useContext } from "react";
-import { Box, Divider, Button, Typography, Avatar, Stack, Grid, TextField, Link, Snackbar } from "@mui/material";
+import { Box, Divider, Button, Typography, Avatar, Stack, Grid, TextField, Link } from "@mui/material";
+import FeedbackSnackbar from "../../common/FeedbackSnackbar";
 import CustomizedDialog from "../../common/CustomizedDialog";
 import PasswordField from "./PasswordField";
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
@@ -36,8 +37,7 @@ const AccountSettingsDialog = ({
 }) => {
     const { user: contextUser } = useContext(GlobalDataContext);
     const [showPasswordField, setShowPasswordField] = useState(false);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [feedback, setFeedback] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         email: user?.email,
@@ -62,8 +62,7 @@ const AccountSettingsDialog = ({
 
         // Validate passwords match
         if (formData.newPassword !== formData.confirmPassword) {
-            setSnackbarMessage("New passwords do not match");
-            setSnackbarOpen(true);
+            setFeedback({ severity: "error", message: "New passwords do not match" });
             return;
         }
 
@@ -81,8 +80,7 @@ const AccountSettingsDialog = ({
                 newPassword: formData.newPassword,
             });
 
-            setSnackbarMessage("Password changed successfully");
-            setSnackbarOpen(true);
+            setFeedback({ severity: "success", message: "Password changed successfully" });
             setShowPasswordField(false);
             setFormData(prev => ({
                 ...prev,
@@ -94,12 +92,10 @@ const AccountSettingsDialog = ({
             console.error("Password change error:", error);
             
             // Check if it's a 501 error (not implemented)
-            if (error?.response?.status === 501) {
-                setSnackbarMessage("Endpoint not yet implemented, 501");
-            } else {
-                setSnackbarMessage("Failed to change password. Please try again.");
-            }
-            setSnackbarOpen(true);
+            const message = error?.response?.status === 501
+                ? "Endpoint not yet implemented, 501"
+                : "Failed to change password. Please try again.";
+            setFeedback({ severity: "error", message });
         } finally {
             setIsSubmitting(false);
         }
@@ -248,13 +244,7 @@ const AccountSettingsDialog = ({
                     </Grid>
                 </Grid>
             </Box>
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={6000}
-                onClose={() => setSnackbarOpen(false)}
-                message={snackbarMessage}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-            />
+            <FeedbackSnackbar feedback={feedback} onClose={() => setFeedback(null)} />
         </CustomizedDialog>
     );
 };

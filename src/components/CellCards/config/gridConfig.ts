@@ -97,6 +97,15 @@ const groupOntologyEntry = (group: string, name: string): OntologyEntry => {
   return entry;
 };
 
+// A group's ontology as /{group}/ontologies lists it: by its spec URI,
+// …/{group}/ontologies/uris/{name}/spec. One kept under a nested path has no app route.
+export const ontologyEntryForSpecUri = (specUri?: string): OntologyEntry | undefined => {
+  const match = String(specUri || "").match(/\/([^/]+)\/ontologies\/uris\/([^/]+)\/spec\/?$/);
+  return match
+    ? groupOntologyEntry(decodeURIComponent(match[1]), decodeURIComponent(match[2]))
+    : undefined;
+};
+
 // The ontology an /{group}/ontology/{slug} path names. A catalogued slug keeps its one page
 // whatever group the path is read under, as it always has.
 export const ontologyEntry = (group?: string, slug?: string): OntologyEntry | undefined => {

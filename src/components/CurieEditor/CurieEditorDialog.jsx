@@ -1,7 +1,8 @@
 import * as React from "react";
 import PropTypes from 'prop-types';
 import { EditNoteIcon } from "../../Icons";
-import { Box, Button, Snackbar, Alert } from "@mui/material";
+import { Box, Button } from "@mui/material";
+import FeedbackSnackbar from "../common/FeedbackSnackbar";
 import StatusDialog from "../common/StatusDialog";
 import CustomizedDialog from "../common/CustomizedDialog";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -65,16 +66,10 @@ const CurieEditorDialog = ({ open, handleClose, onSubmit, children, isFromOrgani
                 finishButtonEndIcon={<ArrowForwardIcon />}
                 actionButtonStartIcon={<EditNoteIcon />}
             />
-            <Snackbar
-                open={!!saveError}
-                autoHideDuration={6000}
+            <FeedbackSnackbar
+                feedback={saveError ? { severity: 'error', message: saveError } : null}
                 onClose={() => setSaveError(null)}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert severity="error" onClose={() => setSaveError(null)} sx={{ width: '100%' }}>
-                    {saveError}
-                </Alert>
-            </Snackbar>
+            />
         </>
     )
 }

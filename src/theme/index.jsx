@@ -1371,6 +1371,14 @@ const theme = createTheme({
 					backgroundColor: error25,
 					borderColor: error200,
 				},
+				// MuiIconButton's white background would hide the white close icon on a filled Alert.
+				filled: {
+					"& .MuiAlert-action .MuiIconButton-root": {
+						background: "transparent",
+						color: "inherit",
+						"&:hover": { background: "rgba(255, 255, 255, 0.16)" },
+					},
+				},
 				message: {
 					padding: 0,
 					width: "100%",

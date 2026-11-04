@@ -8,10 +8,10 @@ import {
   Typography,
   Alert,
   CircularProgress,
-  Snackbar,
 } from "@mui/material";
 import * as yup from "yup";
 import CustomFormField from "../common/CustomFormField";
+import FeedbackSnackbar from "../common/FeedbackSnackbar";
 import { API_CONFIG } from "../../config";
 import { useCookies } from 'react-cookie';
 import PasswordField from "./UI/PasswordField";
@@ -330,12 +330,10 @@ const Register = () => {
           </form>
         </Paper>
       </Box>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={10000}
+      <FeedbackSnackbar
+        feedback={snackbarOpen ? { severity: "success", message: "User Registration successful, please login with your credentials" } : null}
         onClose={() => setSnackbarOpen(false)}
-        message="User Registration successful, please login with your credentials"
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        autoHideDuration={10000}
       />
     </>
   );

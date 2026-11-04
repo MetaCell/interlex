@@ -18,7 +18,8 @@ import FirstStepContent from "./FirstStepContent";
 import SecondStepContent from "./SecondStepContent";
 import StatusStep from "../../common/StatusStep";
 import { GlobalDataContext } from "../../../contexts/DataContext";
-import { createNewEntity, addEntityToOntology, patchTermPredicates } from "../../../api/endpoints/apiService";
+import { createNewEntity, patchTermPredicates } from "../../../api/endpoints/apiService";
+import { useAddToActiveOntology } from "../../../hooks/useAddToActiveOntology";
 import { buildExpandContext } from "../../../configuration/predicateConfig";
 import { expandIri } from "../../../parsers/predicateMutations";
 import { getAddTermStatusProps } from '../termStatusProps';
@@ -129,7 +130,8 @@ const AddNewTermDialog = ({ open, handleClose }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [ontologyChecked, setOntologyChecked] = useState(false);
     const secondStepRef = useRef(null);
-    const { user, activeOntology, curies } = useContext(GlobalDataContext);
+    const { user, curies } = useContext(GlobalDataContext);
+    const addToActiveOntology = useAddToActiveOntology();
 
     const isCreateButtonDisabled = useMemo(() => {
         if (hasExactMatch) return true;
@@ -210,12 +212,8 @@ const AddNewTermDialog = ({ open, handleClose }) => {
                 return;
             }
 
-            if (ontologyChecked && activeOntology?.description) {
-                await addEntityToOntology({
-                    group: groupName,
-                    ontologyUri: activeOntology.description,
-                    termId: response.termId,
-                });
+            if (ontologyChecked) {
+                await addToActiveOntology(response.termId);
             }
 
             setAddTermResponse(response.termId);
@@ -226,7 +224,7 @@ const AddNewTermDialog = ({ open, handleClose }) => {
         } finally {
             setLoading(false);
         }
-    }, [termValue, selectedType, user, hasExactMatch, ontologyChecked, activeOntology]);
+    }, [termValue, selectedType, user, hasExactMatch, ontologyChecked, addToActiveOntology]);
 
     const handleFinish = useCallback(() => {
         const groupName = user?.groupname || "base";

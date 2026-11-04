@@ -14,6 +14,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { apiError$ } from "../../api/apiErrorBus";
+import { readableErrorMessage } from "../../api/errorMessage";
 import { vars } from "../../theme/variables";
 
 const { gray100, gray200, gray600, gray800, error500, error700 } = vars;
@@ -96,7 +97,7 @@ const ApiErrorDialog = () => {
                 </Box>
               )}
               <Typography variant="body2" sx={{ color: gray600, wordBreak: "break-word" }}>
-                {error?.message || "The backend did not return a message."}
+                {readableErrorMessage(error?.message) || "The backend did not return a message."}
               </Typography>
             </Box>
           ))}

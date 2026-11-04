@@ -10,8 +10,7 @@ import {
   Menu,
   MenuItem,
   Alert,
-  Link,
-  Snackbar
+  Link
 } from "@mui/material";
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import ToggleButton from '@mui/material/ToggleButton';
@@ -56,6 +55,7 @@ import { useContextTerm } from "../../hooks/useContextOntology";
 import { CodeIcon } from "../../Icons";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import CustomButtonGroup from "../common/CustomButtonGroup";
+import FeedbackSnackbar from "../common/FeedbackSnackbar";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import CreateForkDialog from "./CreateForkDialog";
 import ExistingForkDialog from "./ExistingForkDialog";
@@ -65,9 +65,9 @@ import { GlobalDataContext } from "../../contexts/DataContext";
 import { EditSessionProvider } from "../../contexts/EditSessionContext";
 import { PageLoadingProvider } from "../../contexts/PageLoadingContext";
 import { getRawData } from "../../api/endpoints";
-import { getVersions, addEntityToOntology, getOntologyTerms, termExistsInGroup } from "../../api/endpoints/apiService";
+import { getVersions, termExistsInGroup } from "../../api/endpoints/apiService";
+import { useAddToActiveOntology } from "../../hooks/useAddToActiveOntology";
 import { hasForkIn, resolveTermVersion } from "../../parsers/termVersion";
-import { reportApiError } from "../../api/apiErrorBus";
 import { useTermData } from "../../hooks/useTermData";
 import { useTermRecordAvailability } from "../../hooks/useTermRecordAvailability";
 
@@ -168,7 +168,7 @@ const SingleTermView = () => {
   // Remove redundant query logic - use term from URL params directly
   const searchTerm = term;
   const openDataFormatMenu = Boolean(dataFormatAnchorEl);
-  const { storedSearchTerm, updateStoredSearchTerm, user, activeOntology, setOntologyData } = useContext(GlobalDataContext);
+  const { storedSearchTerm, updateStoredSearchTerm, user, activeOntology } = useContext(GlobalDataContext);
   const [ontologySnackbar, setOntologySnackbar] = useState(null); // { severity, message }
 
   // The term as the context ontology describes it. The term API can supply neither label nor IRI
@@ -629,24 +629,12 @@ const SingleTermView = () => {
     );
   }, [tabValue, servedByOntology, isCodeViewVisible, selectedDataFormat, toggleButtonValue, onToggleButtonChange]);
 
+  const addToActiveOntology = useAddToActiveOntology();
   const handleAddToActiveOntology = useCallback(async () => {
-    if (!activeOntology || !actualGroup || !searchTerm) return;
-    const ontologyUri = activeOntology.description || activeOntology.url;
-    const result = await addEntityToOntology({ group: actualGroup, ontologyUri, termId: searchTerm });
-    if (result.success) {
+    if (await addToActiveOntology(searchTerm)) {
       setOntologySnackbar({ severity: 'success', message: `Term added to "${activeOntology.label}".` });
-      getOntologyTerms(ontologyUri)
-        .then(terms => setOntologyData({ ...activeOntology, terms }))
-        .catch(() => {});
-    } else {
-      reportApiError({
-        context: `Add term to ontology "${activeOntology.label}"`,
-        url: result.url || ontologyUri,
-        status: result.status,
-        message: result.body || result.error || 'Request failed with no body.',
-      });
     }
-  }, [activeOntology, actualGroup, searchTerm, setOntologyData]);
+  }, [addToActiveOntology, searchTerm, activeOntology]);
 
   const handleAddToAnotherOntology = () => {
     handleOpenFeatureNotAvailableDialog();
@@ -861,16 +849,7 @@ const SingleTermView = () => {
           open={featureNotAvailableDialog}
           onClose={handleCloseFeatureNotAvailableDialog}
         />
-        <Snackbar
-          open={!!ontologySnackbar}
-          autoHideDuration={4000}
-          onClose={() => setOntologySnackbar(null)}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        >
-          <Alert onClose={() => setOntologySnackbar(null)} severity={ontologySnackbar?.severity} sx={{ width: '100%' }}>
-            {ontologySnackbar?.message}
-          </Alert>
-        </Snackbar>
+        <FeedbackSnackbar feedback={ontologySnackbar} onClose={() => setOntologySnackbar(null)} />
       </PageLoadingProvider>
     </EditSessionProvider>
   )

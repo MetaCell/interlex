@@ -6,6 +6,8 @@ import { buildPredicateGroupsForFocus } from "../../parsers/predicateParser";
 import versionToTerm from "../../parsers/variantParser";
 import { termUriMappingPath } from "../../components/CellCards/config/gridConfig";
 import { resolveDisplayText } from "../../configuration/displayPredicates";
+import { extractIlxId } from "../../configuration/predicateConfig";
+import { readableErrorMessage } from "../errorMessage";
 
 // Error enriched with the queried URL + the backend's message, so the UI can
 // show a meaningful dialog instead of a bare "HTTP 404".
@@ -15,8 +17,6 @@ export interface ApiRequestError extends Error {
   body?: string;
 }
 
-// Read a failed Response body and turn it into a clean, short message. Backend
-// errors are often small HTML pages, so pull the <p> text / strip tags.
 const buildRequestError = async (resp: Response, url: string): Promise<ApiRequestError> => {
   let raw = "";
   try {
@@ -24,10 +24,7 @@ const buildRequestError = async (resp: Response, url: string): Promise<ApiReques
   } catch {
     /* body not readable */
   }
-  const para = raw.match(/<p>([\s\S]*?)<\/p>/i);
-  let message = (para ? para[1] : raw.replace(/<[^>]*>/g, " "))
-    .replace(/&#34;/g, '"').replace(/&quot;/g, '"').replace(/&amp;/g, "&")
-    .replace(/\s+/g, " ").trim();
+  let message = readableErrorMessage(raw);
   if (message.length > 400) message = `${message.slice(0, 400)}…`;
 
   const err = new Error(`HTTP ${resp.status}`) as ApiRequestError;
@@ -141,9 +138,18 @@ export const getOntologyTerms = async (ontologyUri: string): Promise<string[]> =
     const jsonld = await resp.json();
     const graph = Array.isArray(jsonld?.["@graph"]) ? jsonld["@graph"] : [];
 
-    const ids = graph
+    // A spec document is one node naming its members through include-subject, a single object
+    // when there is one member; a built ontology lists them as nodes of its @graph.
+    const specMembers = Object.entries(jsonld ?? {})
+      .filter(([key]) => key.endsWith("include-subject"))
+      .flatMap(([, value]) => (Array.isArray(value) ? value : [value]))
+      .map((member: any) => (typeof member === "string" ? member : member?.["@id"]));
+    const graphMembers = graph
       .filter((node: any) => node?.["@type"] !== "owl:Ontology")
-      .map((node: any) => extractIlxId(node?.["@id"]))
+      .map((node: any) => node?.["@id"]);
+
+    const ids = [...specMembers, ...graphMembers]
+      .map((iri) => extractIlxId(iri))
       .filter(Boolean) as string[];
 
     // De-duplicate
@@ -325,24 +331,28 @@ export const createFork = async (
   return { ok: resp.ok, status: resp.status };
 };
 
+// The spec PATCH only accepts a term's base IRI on the reference host: any other host, or the
+// owning group in place of `base`, is rejected with a 422.
+const ontologyMemberIri = (termId: string) =>
+  `${API_CONFIG.INTERLEX_URL}/base/${extractIlxId(termId) ?? termId}`;
+
 export const addEntityToOntology = async ({
-  group,
   ontologyUri,
   termId,
 }: {
-  group: string;
   ontologyUri: string;
   termId: string;
 }): Promise<{ success: boolean; status?: number; url?: string; body?: string; error?: string }> => {
-  const specUrl = ontologyUri.replace(API_CONFIG.INTERLEX_URL, API_CONFIG.BASE_URL);
-  const termIri = `${API_CONFIG.OLYMPIAN_GODS}/${group}/${termId}`;
+  // Same-origin path whatever host the listing gave the spec URI under, so the proxy carries the
+  // session to the backend.
+  const specUrl = new URL(ontologyUri, API_CONFIG.BASE_URL).pathname;
 
   try {
     const resp = await fetch(specUrl, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ add: [termIri], del: [] }),
+      body: JSON.stringify({ add: [ontologyMemberIri(termId)] }),
       redirect: 'manual',
     });
     const ok = resp.ok || resp.status === 0;

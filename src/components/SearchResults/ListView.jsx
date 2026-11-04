@@ -1,18 +1,21 @@
 import PropTypes from "prop-types";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomButton from '../common/CustomButton';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import CreateNewFolderOutlinedIcon from '@mui/icons-material/CreateNewFolderOutlined';
-import { Box, Typography, Grid, Stack, Chip, CircularProgress, Snackbar, Alert } from '@mui/material';
+import { Box, Typography, Grid, Stack, Chip, CircularProgress } from '@mui/material';
+import FeedbackSnackbar from '../common/FeedbackSnackbar';
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { primeTermDataCache } from "../../hooks/useTermData";
+import { useAddToActiveOntology } from "../../hooks/useAddToActiveOntology";
+import { extractIlxId } from "../../configuration/predicateConfig";
 
 import { vars } from '../../theme/variables';
 const { gray200, gray500, gray700, brand50, brand200, brand600, brand700, error50, error300, error700 } = vars;
 
 
-const TitleSection = ({ searchResult, onAddToActiveOntology }) => {
+const TitleSection = ({ searchResult, hasActiveOntology, isInActiveOntology, onAddToActiveOntology }) => {
     const handleAddClick = (e) => {
         // Don't navigate to the term page - keep the user on the results list
         e.stopPropagation();
@@ -25,7 +28,7 @@ const TitleSection = ({ searchResult, onAddToActiveOntology }) => {
                 <Typography variant='h6' sx={{ color: gray700 }}>{searchResult.label || searchResult.name}</Typography>
                 <Chip label={searchResult.type} variant="outlined" />
             </Stack>
-            {searchResult.ontologyIsActive ? (
+            {!hasActiveOntology ? null : isInActiveOntology ? (
                 <CustomButton
                     sx={{
                         opacity: 0,
@@ -133,7 +136,7 @@ const InfoSection = ({ searchResult }) => {
 const ListView = ({ searchResults, loading }) => {
     const navigate = useNavigate();
     const { updateStoredSearchTerm, user, activeOntology } = useContext(GlobalDataContext);
-    const [snackbar, setSnackbar] = useState({ open: false, message: '' });
+    const [feedback, setFeedback] = useState(null);
 
     const handleClick = (searchResult) => {
         updateStoredSearchTerm(searchResult?.label);
@@ -143,16 +146,26 @@ const ListView = ({ searchResults, loading }) => {
         navigate(`/${groupName}/${searchResult?.ilx}/overview`);
     };
 
-    const handleAddToActiveOntology = (searchResult) => {
-        const term = searchResult?.label || searchResult?.name || 'Term';
-        const ontologyName = activeOntology?.label || activeOntology?.title || 'the active ontology';
-        // TODO: wire the actual add-to-ontology API once available
-        setSnackbar({ open: true, message: `“${term}” added to ${ontologyName}` });
-    };
+    const addToActiveOntology = useAddToActiveOntology();
+    const [pendingTermId, setPendingTermId] = useState(null);
 
-    const handleSnackbarClose = (_, reason) => {
-        if (reason === 'clickaway') return;
-        setSnackbar((prev) => ({ ...prev, open: false }));
+    const activeOntologyTermIds = useMemo(
+        () => new Set((activeOntology?.terms || []).map(extractIlxId)),
+        [activeOntology]
+    );
+    const isInActiveOntology = (searchResult) => activeOntologyTermIds.has(extractIlxId(searchResult?.ilx));
+
+    const handleAddToActiveOntology = async (searchResult) => {
+        if (pendingTermId) return;
+        setPendingTermId(searchResult.ilx);
+        try {
+            if (await addToActiveOntology(searchResult.ilx)) {
+                const term = searchResult.label || searchResult.name || 'Term';
+                setFeedback({ severity: 'success', message: `“${term}” added to ${activeOntology.label}` });
+            }
+        } finally {
+            setPendingTermId(null);
+        }
     };
 
 
@@ -197,7 +210,12 @@ const ListView = ({ searchResults, loading }) => {
                         }}
                     >
                         <Grid item lg={12} xs={12}>
-                            <TitleSection searchResult={searchResult} onAddToActiveOntology={handleAddToActiveOntology} />
+                            <TitleSection
+                                searchResult={searchResult}
+                                hasActiveOntology={!!activeOntology}
+                                isInActiveOntology={isInActiveOntology(searchResult)}
+                                onAddToActiveOntology={handleAddToActiveOntology}
+                            />
                         </Grid>
                         <Grid item lg={12} xs={12} mt={2}>
                             <Description description={searchResult.definition} />
@@ -208,30 +226,7 @@ const ListView = ({ searchResults, loading }) => {
                     </Grid>
                 </Box>
             ))}
-            <Snackbar
-                open={snackbar.open}
-                autoHideDuration={3000}
-                onClose={handleSnackbarClose}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-            >
-                <Alert
-                    onClose={handleSnackbarClose}
-                    severity="success"
-                    variant="filled"
-                    sx={{
-                        width: '100%',
-                        // Global MuiIconButton override forces a white background; reset it so the
-                        // white close icon stays visible on the green Alert.
-                        '& .MuiIconButton-root': {
-                            background: 'transparent',
-                            color: '#fff',
-                            '&:hover': { background: 'rgba(255, 255, 255, 0.16)' },
-                        },
-                    }}
-                >
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
+            <FeedbackSnackbar feedback={feedback} onClose={() => setFeedback(null)} />
         </Box>
     );
 };
@@ -242,6 +237,8 @@ Description.propTypes = {
 
 TitleSection.propTypes = {
     searchResult: PropTypes.object,
+    hasActiveOntology: PropTypes.bool,
+    isInActiveOntology: PropTypes.bool,
     onAddToActiveOntology: PropTypes.func
 };
 

@@ -5,11 +5,7 @@ import { vars } from "../../../theme/variables";
 const {gray500, gray700, gray200, brand600, brand200, brand50 } = vars;
 
 const OntologyCard = ({ ontology, onSelect }) => {
-  const handleClick = () => {
-    // The cell card overview component is not built yet - the parent shows a
-    // placeholder dialog for now.
-    onSelect(ontology);
-  };
+  const handleClick = () => onSelect(ontology);
 
   return (
     <Grid item xs={12} lg={6} sx={{ cursor: 'pointer' }} onClick={handleClick}>
