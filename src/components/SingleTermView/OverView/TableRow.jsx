@@ -4,10 +4,35 @@ import CellEditor from "./CellEditor";
 import { Box, Chip, IconButton, Tooltip, Typography, Link } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import { iriLink } from "../../CellCards/config/gridConfig";
+import { useTermLinkContext } from "../../../hooks/useContextOntology";
 
 function isValidURL(value) {
   return /^https?:\/\/[\w.-]+(\.[a-z]{2,})(:\d+)?(\/.*)?$/i.test(value);
 }
+
+// The cell shows the stored IRI verbatim; only an InterLex link target is rewritten, so it opens
+// the term in this app rather than at whichever implementation uri.interlex.org serves. A new tab, so following a
+// link never drops the edit session staged on this page.
+const IriCell = ({ value, linkContext }) => {
+  const href = isValidURL(value) ? iriLink(value, linkContext) : undefined;
+  return (
+    <Tooltip title={value}>
+      {href ? (
+        <Link href={href} target="_blank" rel="noopener noreferrer">
+          {value}
+        </Link>
+      ) : (
+        <Typography>{value}</Typography>
+      )}
+    </Tooltip>
+  );
+};
+
+IriCell.propTypes = {
+  value: PropTypes.string,
+  linkContext: PropTypes.object.isRequired,
+};
 
 // Staged-change badge: the row already shows the value it will have once the
 // edit session is saved, so the badge is what says it isn't persisted yet.
@@ -48,6 +73,7 @@ const TableRow = ({
   onDelete,
 }) => {
   const { id, subject, predicate, object } = data;
+  const linkContext = useTermLinkContext();
   const statusChip = STATUS_CHIP[status];
   const editorOpen = editable && isEditing;
 
@@ -66,15 +92,7 @@ const TableRow = ({
       onDragEnd={onDragEnd}
     >
       <Box sx={{ flex: columnFlex.subject }}>
-        <Tooltip title={subject}>
-          {isValidURL(subject) ? (
-            <Link href={subject} target="_blank" rel="noopener noreferrer">
-              {subject}
-            </Link>
-          ) : (
-            <Typography>{subject}</Typography>
-          )}
-        </Tooltip>
+        <IriCell value={subject} linkContext={linkContext} />
       </Box>
       <Box sx={{ flex: columnFlex.predicate }}>
         <Tooltip title={predicate}>
@@ -84,15 +102,7 @@ const TableRow = ({
         </Tooltip>
       </Box>
       <Box sx={{ flex: columnFlex.object }} onDoubleClick={editable ? startEdit : undefined}>
-        <Tooltip title={object}>
-          {isValidURL(object) ? (
-            <Link href={object} target="_blank" rel="noopener noreferrer">
-              {object}
-            </Link>
-          ) : (
-            <Typography>{object}</Typography>
-          )}
-        </Tooltip>
+        <IriCell value={object} linkContext={linkContext} />
         {statusChip && (
           <Chip size="small" color={statusChip.color} label={statusChip.label} sx={{ flexShrink: 0 }} />
         )}

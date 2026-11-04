@@ -8,6 +8,8 @@ import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 import { useEffect, useMemo, useRef, useState } from "react";
 import { vars } from "../../theme/variables";
+import { iriLink } from "../CellCards/config/gridConfig";
+import { useTermLinkContext } from "../../hooks/useContextOntology";
 
 const { gray500, brand200, brand50 } = vars;
 
@@ -31,7 +33,7 @@ const StyledTreeItemBase = (props) => {
     currentId,
     highlightedIds,
     itemId,
-    idToIri,
+    idToHref,
     idToHasChildren,
     idToSecondaryNote,
     ...treeItemProps
@@ -40,8 +42,7 @@ const StyledTreeItemBase = (props) => {
   const isCurrent = currentId && itemId === currentId;
   const isHighlighted = Array.isArray(highlightedIds) && highlightedIds.includes(itemId);
   const isLeaf = idToHasChildren?.get(itemId) === false;
-
-  const iri = idToIri?.get(itemId) || itemId;
+  const href = idToHref?.get(itemId);
   // An item filed again under a further parent carries an asterisk saying where it really sits.
   const secondaryNote = idToSecondaryNote?.get(itemId);
 
@@ -82,18 +83,14 @@ const StyledTreeItemBase = (props) => {
           )}
 
           {/* Leaf-only hover action: open in new tab */}
-          {isLeaf && (
+          {isLeaf && href && (
             <HoverActions className="hover-actions">
               <Tooltip title="Open term in new tab">
                 <IconButton
                   size="small"
                   onClick={(e) => {
                     e.stopPropagation();
-                    try {
-                      window.open(iri, "_blank", "noopener,noreferrer");
-                    } catch {
-                      window.open(String(iri), "_blank");
-                    }
+                    window.open(href, "_blank", "noopener,noreferrer");
                   }}
                 >
                   <OpenInNewOutlinedIcon fontSize="inherit" />
@@ -117,7 +114,7 @@ StyledTreeItemBase.propTypes = {
   currentId: PropTypes.string,
   highlightedIds: PropTypes.arrayOf(PropTypes.string),
   itemId: PropTypes.string,
-  idToIri: PropTypes.instanceOf(Map),
+  idToHref: PropTypes.instanceOf(Map),
   idToHasChildren: PropTypes.instanceOf(Map),
   idToSecondaryNote: PropTypes.instanceOf(Map)
 };
@@ -149,13 +146,14 @@ const CustomizedTreeView = ({
   defaultExpanded = false
 }) => {
   const [expanded, setExpanded] = useState([]);
+  const { group, ontologySlug } = useTermLinkContext();
 
   // precompute roots for safety (keeps tree visible even if expanded becomes empty)
   const rootIds = useMemo(() => (items || []).map(getItemId), [items, getItemId]);
 
   // index useful metadata for slots (fast lookups in item renderer)
-  const { idToIri, idToHasChildren, idToSecondaryNote } = useMemo(() => {
-    const iriMap = new Map();
+  const { idToHref, idToHasChildren, idToSecondaryNote } = useMemo(() => {
+    const hrefMap = new Map();
     const hasChildrenMap = new Map();
     const secondaryNoteMap = new Map();
     const stack = [...items];
@@ -163,13 +161,13 @@ const CustomizedTreeView = ({
       const node = stack.pop();
       const id = getItemId(node);
       const kids = kidsOf(node, getItemChildren);
-      iriMap.set(id, node?.iri ?? null);
+      hrefMap.set(id, iriLink(node?.iri || id, { group, ontologySlug }));
       hasChildrenMap.set(id, kids.length > 0);
       if (node?.secondaryNote) secondaryNoteMap.set(id, node.secondaryNote);
       stack.push(...kids);
     }
-    return { idToIri: iriMap, idToHasChildren: hasChildrenMap, idToSecondaryNote: secondaryNoteMap };
-  }, [items, getItemChildren, getItemId]);
+    return { idToHref: hrefMap, idToHasChildren: hasChildrenMap, idToSecondaryNote: secondaryNoteMap };
+  }, [items, getItemChildren, getItemId, group, ontologySlug]);
 
   // compute path to current node
   const pathToCurrent = useMemo(
@@ -249,7 +247,7 @@ const CustomizedTreeView = ({
         item: {
           currentId,
           highlightedIds,
-          idToIri,
+          idToHref,
           idToHasChildren,
           idToSecondaryNote
         }

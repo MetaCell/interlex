@@ -4,9 +4,14 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { Box, IconButton, Tooltip, Button } from '@mui/material';
 
 import { vars } from "../../theme/variables";
+import { iriLink } from "../CellCards/config/gridConfig";
+import { useTermLinkContext } from "../../hooks/useContextOntology";
 const { brand700 } = vars
 
+// Shows and copies the canonical IRI (the identifier people cite), but opens it in this app:
+// uri.interlex.org may serve another InterLex implementation.
 const CopyLinkComponent = ({ url }) => {
+  const href = iriLink(url, useTermLinkContext());
   const handleCopy = () => {
     navigator.clipboard.writeText(url)
   };
@@ -22,7 +27,7 @@ const CopyLinkComponent = ({ url }) => {
         },
         padding: 0
       }}>
-        <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
+        {href ? <a href={href} target="_blank" rel="noopener noreferrer">{url}</a> : url}
       </Button>
       <Tooltip title="Copy to clipboard">
         <IconButton onClick={handleCopy} aria-label="copy" p={0}>

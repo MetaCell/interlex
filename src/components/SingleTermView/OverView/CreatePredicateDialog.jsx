@@ -22,6 +22,8 @@ import {
 import CustomizedRadio from "../../common/CustomizedRadio";
 import { createProperty } from "../../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../../contexts/DataContext";
+import { iriLink } from "../../CellCards/config/gridConfig";
+import { useTermLinkContext } from "../../../hooks/useContextOntology";
 
 // entity-new also accepts owl:Class and the CDE placeholders, and rejects
 // owl:DatatypeProperty, so these two are the only predicate types on offer.
@@ -42,6 +44,7 @@ const PROPERTY_TYPES = [
 
 const CreatePredicateDialog = ({ open, initialLabel = "", onClose, onCreated }) => {
   const { user } = useContext(GlobalDataContext);
+  const linkContext = useTermLinkContext();
   const [label, setLabel] = useState(initialLabel);
   const [rdfType, setRdfType] = useState(PROPERTY_TYPES[0].rdfType);
   const [synonyms, setSynonyms] = useState([]);
@@ -160,11 +163,14 @@ const CreatePredicateDialog = ({ open, initialLabel = "", onClose, onCreated }) 
             <Alert severity="warning">
               A term with this label or synonym already exists:
               <Stack component="ul" pl={2} m={0}>
-                {clashes.map((iri) => (
-                  <li key={iri}>
-                    <Link href={iri} target="_blank" rel="noopener noreferrer">{iri}</Link>
-                  </li>
-                ))}
+                {clashes.map((iri) => {
+                  const href = iriLink(iri, linkContext);
+                  return (
+                    <li key={iri}>
+                      {href ? <Link href={href} target="_blank" rel="noopener noreferrer">{iri}</Link> : iri}
+                    </li>
+                  );
+                })}
               </Stack>
             </Alert>
           )}

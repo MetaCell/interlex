@@ -38,7 +38,7 @@ const toIri = (idLike) => {
   if (/^https?:\/\//i.test(idLike)) return idLike;
   const m = String(idLike).match(/^ILX:(\d+)$/i);
   // TODO replace base to point to groupname when the API supports it
-  if (m) return `${API_CONFIG.INTERLEX_URL}base/ilx_${m[1]}`;
+  if (m) return `${API_CONFIG.INTERLEX_URL}/base/ilx_${m[1]}`;
   return idLike;
 };
 

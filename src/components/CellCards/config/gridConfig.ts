@@ -261,6 +261,27 @@ const isDoiIri = (iri: string): boolean => {
   }
 };
 
+// The ontology identity IRI ({group}/ontologies/uris/{name}) has an in-app route of its own.
+const ONTOLOGY_IDENTITY_PATH = /^\/[^/]+\/ontologies\/uris\/[^/]+$/;
+
+// Where an InterLex IRI no term route addresses opens. Never the IRI itself (feedback, Tom): the
+// uri.interlex.org host may serve another InterLex implementation, so following the identifier
+// would take the reader out of this app. Readable predicates, npo/uris/… and the like have no page
+// here and render as text.
+const unaddressedInterLexPath = (url: URL): string | undefined => {
+  const path = url.pathname.replace(/\/+$/, "");
+  return ONTOLOGY_IDENTITY_PATH.test(path) ? path : undefined;
+};
+
+const interLexUrl = (iri: string): URL | undefined => {
+  try {
+    const url = new URL(iri);
+    return url.host === INTERLEX_HOST ? url : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 // The context an InterLex term link carries: the group the page is read under and the context
 // ontology to stay inside (feedback, Sue/Tom: navigating away from a Cell Card must keep the
 // reader in the context ontology). Components resolve it with `useTermLinkContext`. External
@@ -274,8 +295,8 @@ export interface TermLinkContext {
 // never be taken directly to purl.obolibrary.org…"): an external term goes to InterLex's
 // canonical record of it — the /base/dns/{host}/{path} form Tom specified, not the viewing
 // group's ontology path — while an InterLex term goes to its own page under the context
-// ontology when there is one. A literal, or an InterLex IRI our routes cannot address, falls
-// back to plain text / its own (still InterLex-hosted) IRI.
+// ontology when there is one. A literal, or an InterLex IRI our routes cannot address, renders
+// as plain text.
 export const termLink = (
   ref?: { curie?: string; iri?: string },
   context?: TermLinkContext
@@ -284,7 +305,10 @@ export const termLink = (
   const iri = ref.iri || "";
   if (isDoiIri(iri)) return iri;
   const slug = termSlugForIri(iri) || slugFromCurie(ref.curie);
-  if (!slug) return iri || undefined;
+  if (!slug) {
+    const url = interLexUrl(iri);
+    return url ? unaddressedInterLexPath(url) : iri || undefined;
+  }
   if (isDnsTermSlug(slug)) return termPath("base", null, slug);
   // A slug a catalogued ontology claims may be one of its cells, so its bare URL is left to
   // resolve to the term's own default tab (the Cell Card). Any other InterLex slug names
@@ -293,3 +317,9 @@ export const termLink = (
   const tab = ontologyForTermSlug(slug) ? "" : "overview";
   return termPath(context?.group || "base", context?.ontologySlug, slug, tab);
 };
+
+// Where a raw IRI opens on the term page. Only an InterLex IRI is rewritten into this app; any
+// other keeps its own address, unlike termLink's dns/ rewrite for Cell Cards: here an object is
+// as often a page in its own right (braininfo, Wikipedia, a query string and all) as a term.
+export const iriLink = (iri: string, context?: TermLinkContext): string | undefined =>
+  interLexUrl(iri) ? termLink({ iri }, context) : iri;
