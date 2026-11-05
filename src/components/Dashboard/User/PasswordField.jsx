@@ -15,6 +15,7 @@ const PasswordField = ({ value, name, placeholder, handleChange, error, helperTe
                 name={name}
                 value={value}
                 onChange={handleChange}
+                error={Boolean(error)}
                 size="small"
                 actionButton={
                     <Button
@@ -30,7 +31,11 @@ const PasswordField = ({ value, name, placeholder, handleChange, error, helperTe
                     {helperText}
                 </Typography>
             )}
-            {error && <Typography variant="body2" sx={{ color: "#F04438", marginTop: "0.375rem" }}>{`${error.charAt(0).toUpperCase() + error.slice(1)}`}</Typography>}
+            {error && (
+                <Typography variant="body2" color="error" sx={{ mt: "0.375rem" }}>
+                    {`${error.charAt(0).toUpperCase() + error.slice(1)}`}
+                </Typography>
+            )}
         </div>
     )
 }
@@ -39,7 +44,7 @@ PasswordField.propTypes = {
     placeholder: PropTypes.string,
     name: PropTypes.string.isRequired,
     value: PropTypes.string.isRequired,
-    error: PropTypes.bool,
+    error: PropTypes.string,
     helperText: PropTypes.string,
     handleChange: PropTypes.func.isRequired
 };

@@ -102,10 +102,11 @@ const AccountSettingsDialog = ({
     }
 
     const userGroupname = user?.groupname.charAt(0).toUpperCase() + user?.groupname.slice(1)
-    const isPasswordFormValid = formData.currentPassword.trim() !== "" && 
-                               formData.newPassword.trim() !== "" && 
-                               formData.confirmPassword.trim() !== "" && 
-                               formData.newPassword === formData.confirmPassword;
+    const passwordsMismatch = formData.confirmPassword !== "" && formData.newPassword !== formData.confirmPassword;
+    const isPasswordFormValid = formData.currentPassword.trim() !== "" &&
+                               formData.newPassword.trim() !== "" &&
+                               formData.confirmPassword.trim() !== "" &&
+                               !passwordsMismatch;
 
 
     return (
@@ -209,6 +210,7 @@ const AccountSettingsDialog = ({
                                         value={formData.confirmPassword}
                                         handleChange={(e) => handleInputChange("confirmPassword", e.target.value)}
                                         placeholder="Confirm new password"
+                                        error={passwordsMismatch ? "Passwords do not match" : undefined}
                                     />
                                 </Box>
                             </Grid>
