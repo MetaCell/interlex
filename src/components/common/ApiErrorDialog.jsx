@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useReducer } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -21,27 +21,51 @@ const { gray100, gray200, gray600, gray800, error500, error700 } = vars;
 
 // Listens on the API error bus and shows a modal listing the requests that
 // failed, with the queried URL and the message returned by the backend.
+const errorKey = (error) => `${error?.context || ""}|${error?.url || ""}|${error?.status || ""}`;
+
+const INITIAL_STATE = { open: false, errors: [] };
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "report": {
+      const isKnown = state.errors.some((e) => errorKey(e) === errorKey(action.error));
+      if (isKnown) return state;
+      // A failure arriving while the dialog fades out starts a fresh list rather than reviving the
+      // ones the user just dismissed.
+      const errors = state.open ? [...state.errors, action.error] : [action.error];
+      return { open: true, errors };
+    }
+    case "dismiss":
+      return { ...state, open: false };
+    case "exited":
+      return state.open ? state : INITIAL_STATE;
+    default:
+      return state;
+  }
+};
+
 const ApiErrorDialog = () => {
-  const [errors, setErrors] = useState([]);
+  const [{ open, errors }, dispatch] = useReducer(reducer, INITIAL_STATE);
 
   useEffect(() => {
-    const sub = apiError$.subscribe((error) => {
-      setErrors((prev) => {
-        const key = `${error?.context || ""}|${error?.url || ""}|${error?.status || ""}`;
-        // Avoid stacking the exact same failure multiple times.
-        if (prev.some((e) => `${e.context || ""}|${e.url || ""}|${e.status || ""}` === key)) {
-          return prev;
-        }
-        return [...prev, error];
-      });
-    });
+    const sub = apiError$.subscribe((error) => dispatch({ type: "report", error }));
     return () => sub.unsubscribe();
   }, []);
 
-  const handleClose = () => setErrors([]);
+  const handleClose = () => dispatch({ type: "dismiss" });
+
+  // The list is kept until the exit transition ends: emptying it on dismiss re-renders the fading
+  // dialog with no content, which shows up as a second, smaller dialog behind the closing one.
+  const handleExited = () => dispatch({ type: "exited" });
 
   return (
-    <Dialog open={errors.length > 0} onClose={handleClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      TransitionProps={{ onExited: handleExited }}
+      maxWidth="sm"
+      fullWidth
+    >
       <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1, pr: 6 }}>
         <ErrorOutlineIcon sx={{ color: error500 }} />
         <Typography component="span" sx={{ fontWeight: 600, color: gray800 }}>
