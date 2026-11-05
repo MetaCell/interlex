@@ -1,32 +1,37 @@
 import PropTypes from 'prop-types';
-import {FormControl, InputLabel, MenuItem, Select} from "@mui/material";
+import {Box, FormControl, MenuItem, Select} from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 import {vars} from "../../theme/variables";
 const {gray700, gray300, gray500} = vars
 
+const optionValue = (option) => (typeof option === 'object' ? option.value : option);
+const optionLabel = (option) => (typeof option === 'object' ? option.label : option);
+
 const CustomSingleSelect = ({value, onChange, options, FormControlSX, SelectSX, isFormControlFullWidth, placeholder}) => {
   const hasValue = !!value || value === 0;
-  return(
-    <FormControl sx={{ minWidth: hasValue ? 75 : 160, ...FormControlSX }} fullWidth={isFormControlFullWidth}>
-      {
-        !hasValue && <InputLabel
-          sx={{
-            transform: "translate(0, 0.625rem) scale(1)",
-            transformOrigin: "top left",
-            left: ".75rem",
-            fontSize: '1rem !important',
-            lineHeight: 1,
-            fontWeight: '400 !important',
-            color: `${gray500} !important`
-          }}
-          id="single-select-label">
+
+  // The placeholder is rendered as the select's own value, not as a floating label, so the box
+  // sizes to it and keeps the arrow icon's area clear of the text.
+  const renderValue = (selected) => {
+    if (!hasValue) {
+      return (
+        <Box component="span" sx={{ fontSize: '1rem', fontWeight: 400, color: gray500 }}>
           {placeholder || 'Select an option'}
-        </InputLabel>
-      }
+        </Box>
+      );
+    }
+    const selectedOption = options?.find((option) => optionValue(option) === selected);
+    return selectedOption === undefined ? selected : optionLabel(selectedOption);
+  };
+
+  return(
+    <FormControl sx={{ minWidth: 75, ...FormControlSX }} fullWidth={isFormControlFullWidth}>
       <Select
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        displayEmpty
+        renderValue={renderValue}
         IconComponent={KeyboardArrowDownIcon}
         sx={{
           color: gray700,
@@ -36,6 +41,9 @@ const CustomSingleSelect = ({value, onChange, options, FormControlSX, SelectSX, 
           background: '#fff',
           '& .MuiOutlinedInput-input': {
             padding: '0.625rem 0.875rem'
+          },
+          '& .MuiSelect-select.MuiInputBase-input.MuiOutlinedInput-input': {
+            paddingRight: '2.75rem'
           },
           '& .MuiOutlinedInput-notchedOutline': {
             borderColor: gray300
@@ -49,7 +57,7 @@ const CustomSingleSelect = ({value, onChange, options, FormControlSX, SelectSX, 
         }}
       >
         {
-          options?.map((option, i) => <MenuItem key={i} value={typeof option === 'object' ? option.value : option}>{typeof option === 'object' ? option.label : option}</MenuItem>)
+          options?.map((option, i) => <MenuItem key={i} value={optionValue(option)}>{optionLabel(option)}</MenuItem>)
         }
       </Select>
     </FormControl>
