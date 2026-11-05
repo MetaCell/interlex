@@ -77,15 +77,11 @@ const Details = ({ loading, data, jsonData, group = "base", termVersion, onMutat
   if (!data) {
     return <div>No data available</div>;
   }
-  const graphArray = jsonData?.["@graph"] || [];
-  const lastGraphItem = graphArray[graphArray.length - 1]
   const versionDisplay = termVersion
     ? `v${termVersion.number} · ${termVersion.identityGraph.slice(0, 8)}`
     : "";
-  // Blank, not "Invalid date", when the document carries no owl:versionInfo — as an ontology-backed
-  // term never does.
-  const versionInfoRaw = lastGraphItem?.["owl:versionInfo"];
-  const versionInfo = versionInfoRaw ? formatTimestamp(versionInfoRaw) : "";
+  // Blank, not "Invalid date", for a term with no published version, such as an ontology-backed one.
+  const lastModified = termVersion ? formatTimestamp(termVersion.modifiedAt) : "";
 
   return (
     <>
@@ -285,7 +281,7 @@ const Details = ({ loading, data, jsonData, group = "base", termVersion, onMutat
               Last modify timestamp
             </Typography>
             <Typography fontSize=".875rem" color={gray500}>
-              {versionInfo}
+              {lastModified}
             </Typography>
           </Stack>
         </Grid>
@@ -302,6 +298,7 @@ Details.propTypes = {
   termVersion: PropTypes.shape({
     number: PropTypes.number.isRequired,
     identityGraph: PropTypes.string.isRequired,
+    modifiedAt: PropTypes.string.isRequired,
   }),
   onMutate: PropTypes.func
 };

@@ -1,6 +1,6 @@
 // The backend keeps no version counter. A term's persisted versions are content hashes (identity
-// graphs) listed by /{group}/{term}/versions, while the owl:versionIRI on its .jsonld is stamped
-// with the response time and so changes on every load. A version's number is therefore its
+// graphs) listed by /{group}/{term}/versions, while the owl:versionIRI and owl:versionInfo on its
+// .jsonld are stamped with the response time and so change on every load. A version's number is therefore its
 // position in its fork's history, oldest first.
 
 interface Appearance {
@@ -20,6 +20,7 @@ interface VersionsData {
 export interface TermVersion {
   number: number;
   identityGraph: string;
+  modifiedAt: string;
 }
 
 interface HistoryEntry {
@@ -82,7 +83,10 @@ export const resolveTermVersion = (
   }
 
   if (!target) return undefined;
-  return { number: history.indexOf(target) + 1, identityGraph: target.identityGraph };
+  // A pinned version is dated like its History entry; the current one by when the group last moved
+  // to it, which is later than its first appearance when a change was reverted.
+  const modifiedAt = new Date(identityGraph ? target.firstSeen : target.lastSeen).toISOString();
+  return { number: history.indexOf(target) + 1, identityGraph: target.identityGraph, modifiedAt };
 };
 
 /** Has `group` published any version of the term, i.e. does it already hold a fork of it? */
