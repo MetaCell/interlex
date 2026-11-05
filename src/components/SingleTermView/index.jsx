@@ -65,9 +65,9 @@ import { GlobalDataContext } from "../../contexts/DataContext";
 import { EditSessionProvider } from "../../contexts/EditSessionContext";
 import { PageLoadingProvider } from "../../contexts/PageLoadingContext";
 import { getRawData } from "../../api/endpoints";
-import { getVersions, termExistsInGroup } from "../../api/endpoints/apiService";
+import { getVersions } from "../../api/endpoints/apiService";
 import { useAddToActiveOntology } from "../../hooks/useAddToActiveOntology";
-import { hasForkIn, resolveTermVersion } from "../../parsers/termVersion";
+import { hasForkIn, hasVersionsOutside, resolveTermVersion } from "../../parsers/termVersion";
 import { useTermData } from "../../hooks/useTermData";
 import { useTermRecordAvailability } from "../../hooks/useTermRecordAvailability";
 
@@ -532,36 +532,24 @@ const SingleTermView = () => {
   const curatedGroup = contextEntry?.org || "base";
   const curatedTermPath = `${termPath(curatedGroup, contextEntry?.slug, searchTerm, tabNames[tabValue])}${location.search}`;
 
-  // A term living outside the curated groups is only a fork if a curated original with the same
-  // id actually exists — a term made from scratch via "Add a new term" never has one.
-  // `undefined` while the check is in flight.
-  const [hasCuratedOriginal, setHasCuratedOriginal] = useState(undefined);
-  useEffect(() => {
-    if (!isInPersonalNamespace || !searchTerm) {
-      setHasCuratedOriginal(false);
-      return;
-    }
-    let active = true;
-    setHasCuratedOriginal(undefined);
-    termExistsInGroup(curatedGroup, searchTerm).then(exists => {
-      if (active) setHasCuratedOriginal(exists);
-    });
-    return () => { active = false; };
-  }, [isInPersonalNamespace, curatedGroup, searchTerm]);
-
-  // Every group reads through to the curated record, so the term answering under this group proves
-  // nothing: only a variant the group published itself makes it a fork.
-  const hasOwnVariant = useMemo(() => hasForkIn(versionsData, actualGroup), [versionsData, actualGroup]);
-  const isItFork = isInPersonalNamespace && hasOwnVariant && hasCuratedOriginal === true;
+  // Every group reads through to other groups' records, so neither the term answering under this
+  // group nor under a curated one proves a fork. Its versions do: a fork holds the group's own
+  // variant on top of versions published elsewhere, while a term made from scratch via "Add a new
+  // term" was only ever published by the group that created it.
+  const isItFork = useMemo(
+    () =>
+      isInPersonalNamespace &&
+      hasForkIn(versionsData, actualGroup) &&
+      hasVersionsOutside(versionsData, actualGroup),
+    [isInPersonalNamespace, versionsData, actualGroup]
+  );
 
   // Viewed under the user's own group without a fork there, the page is only reading through to
   // the curated record, which is therefore what a new fork copies.
   const forkSourceGroup = actualGroup === user?.groupname ? curatedGroup : actualGroup;
-  const isCuratedOriginalPending = isInPersonalNamespace && hasCuratedOriginal === undefined;
 
   // What the header itself waits on; the tabs report their own loading through the provider.
-  const isHeaderLoading =
-    isLoadingTerm || versionsLoading || isCuratedOriginalPending || isTermRecordPending || contextLoading;
+  const isHeaderLoading = isLoadingTerm || versionsLoading || isTermRecordPending || contextLoading;
 
   // Memoize tab content to prevent unnecessary re-renders
   const tabContent = useMemo(() => {

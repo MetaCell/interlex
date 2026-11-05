@@ -89,6 +89,12 @@ export const resolveTermVersion = (
   return { number: history.indexOf(target) + 1, identityGraph: target.identityGraph, modifiedAt };
 };
 
+/** Was any version of the term published somewhere other than `group`? */
+export const hasVersionsOutside = (versionsData: VersionsData | null | undefined, group?: string): boolean =>
+  (versionsData?.versions ?? []).some((version) =>
+    (version.appears_in ?? []).some((appearance) => forkOf(appearance.uri) !== group)
+  );
+
 /** Has `group` published any version of the term, i.e. does it already hold a fork of it? */
 export const hasForkIn = (versionsData: VersionsData | null | undefined, group?: string): boolean =>
   Boolean(group) &&
