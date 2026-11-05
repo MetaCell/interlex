@@ -16,6 +16,7 @@ import type {
   MappingEvidence,
   ValueCombinator,
   OntologyMeta,
+  OntologySpec,
   ParsedOntology,
   HierarchyNode,
   Facet,
@@ -430,6 +431,8 @@ const emptyAnnotations = (): CellAnnotations => ({
 const asType = (t: unknown): string[] =>
   Array.isArray(t) ? (t as string[]) : typeof t === "string" ? [t] : [];
 
+const isOntologyNode = (n: GraphNode): boolean => asType(n["@type"]).includes("owl:Ontology");
+
 // The parents a node asserts, through whichever relation `fields.parent` binds (rdfs:subClassOf).
 const subClassRefs = (node: GraphNode | undefined, ctx: ParseContext): string[] => {
   if (!node) return [];
@@ -722,7 +725,7 @@ export const parseOntologyMeta = (
   // No graph index: every field here is a literal or an external reference on the ontology node,
   // never a node the graph has to be walked for.
   const ctx = buildContext(new Map(), prefixes, fields);
-  const onto = graph.find((n) => asType(n["@type"]).includes("owl:Ontology"));
+  const onto = graph.find(isOntologyNode);
   const title = firstFieldText(onto, fields.ontologyTitle, ctx)?.text || "Ontology";
   return {
     iri: onto ? String(onto["@id"] ?? "") : "",
@@ -772,6 +775,23 @@ export const parsePredicateDisplay = (
   return out;
 };
 
+// Every annotation the ontology's header carries, in the order the file states them. Values resolve
+// against the whole graph, so a term the header points at reads by its label.
+const parseOntologySpec = (graph: GraphNode[], ctx: ParseContext): OntologySpec => {
+  const onto = graph.find(isOntologyNode);
+  const header = Object.entries(onto || {})
+    .filter(([key]) => !key.startsWith("@"))
+    .map(([key, raw]) => ({
+      predicate: toCompactId(key, ctx.prefixes),
+      values: resolveValue(raw, ctx),
+    }))
+    .filter((row) => row.values.length > 0);
+  const hasTerms = graph.some(
+    (n) => n !== onto && typeof n["@id"] === "string" && !isBlankNode(n["@id"])
+  );
+  return { header, hasTerms };
+};
+
 export const parseNeurdf = (
   data: OntologyGraph,
   rootClass: string,
@@ -794,6 +814,7 @@ export const parseNeurdf = (
   const meta = parseOntologyMeta(graph, fields, prefixes);
   return {
     meta,
+    spec: parseOntologySpec(graph, ctx),
     cells,
     hierarchy: buildHierarchy(rootClass, cells, ctx),
     predicateDisplay: parsePredicateDisplay(graph, prefixes, fields),

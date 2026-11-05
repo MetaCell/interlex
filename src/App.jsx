@@ -27,6 +27,8 @@ import PullRequestView from "./components/PullRequest";
 import OntologyPage from "./components/CellCards/OntologyPage";
 import OntologyGridPage from "./components/CellCards/OntologyGridPage";
 import OntologyBrowsePage from "./components/CellCards/OntologyBrowsePage";
+import OntologySpecPage from "./components/CellCards/OntologySpecPage";
+import { SPECIFICATION_TAB } from "./components/CellCards/config/gridConfig";
 import { GlobalDataProvider } from "./contexts/DataContext";
 import ResetPassword from "./components/Auth/ResetPassword";
 import ForgotPassword from "./components/Auth/ForgotPassword";
@@ -212,6 +214,7 @@ function MainContent() {
 					>
 						<Route index element={<OntologyGridPage />} />
 						<Route path="browse" element={<OntologyBrowsePage />} />
+						<Route path={SPECIFICATION_TAB} element={<OntologySpecPage />} />
 					</Route>
 					<Route path="/:group/ontologies/uris/:name" element={<OntologyIdentityRedirect />} />
 					{/* A term read inside an ontology: the same page as the plain term route below, with

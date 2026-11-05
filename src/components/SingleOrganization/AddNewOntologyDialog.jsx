@@ -5,13 +5,16 @@ import StatusDialog from "../common/StatusDialog";
 import CustomFormField from "../common/CustomFormField";
 import { Stack, Button, Grid, Box, TextField, InputAdornment, Typography } from "@mui/material";
 import CustomizedDialog from "../common/CustomizedDialog";
-import ImportFileTab from "./../TermEditor/ImportFileTab";
 import BasicTabs from "../common/CustomTabs";
-import { useState, useCallback } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { createNewOntology, getOntologyTerms } from "../../api/endpoints/apiService";
+import { ontologyEntry, ontologyPath, SPECIFICATION_TAB } from "../CellCards/config/gridConfig";
 import { API_CONFIG } from "../../config";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { useContext } from "react";
+
+const MANUAL_TAB = 0;
 
 const HeaderRightSideContent = ({ handleClose, onAddNewOntology, disabled, ready }) => {
     return (
@@ -46,11 +49,9 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
         created: false,
         message: "Your ontology “Nervous system” has been added. Click 'Go to Ontology' to go see the result, or add a new ontology."
     });
-    const [files, setFiles] = useState([]);
-    const [url, setUrl] = useState('');
-    const [tabValue, setTabValue] = useState(0);
     const [setAsActive, setSetAsActive] = useState(false);
     const { user, refreshOntologies, setOntologyData } = useContext(GlobalDataContext);
+    const navigate = useNavigate();
 
     // group used both for the POST endpoint and the immutable URI prefix shown to the user
     const groupForUri = organizationName || user?.groupname || "base";
@@ -62,9 +63,6 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
             title: "",
             description: ""
         });
-        setFiles([]);
-        setUrl('');
-        setTabValue(0);
         setSetAsActive(false);
         setOpenStatusDialog(false);
         setNewOntologyResponse({
@@ -88,11 +86,10 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
         const groupname = groupForUri;
 
         // The URI suffix typed by the user IS the ontology name - no mangling / random suffix.
-        const ontologyName = (newOntology?.uri || files?.[0]?.data?.title || "").trim();
+        const ontologyName = newOntology.uri.trim();
         if (!ontologyName) return;
 
         const title = newOntology.title.trim() || ontologyName;
-        const subjects = files?.[0]?.data?.subjects;
 
         setSubmitting(true);
         try {
@@ -100,52 +97,46 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
                 groupname,
                 ontologyName,
                 title,
-                subjects,
             });
 
-            let ontologyResponseMessage = "Ontology created successfully!"
-
-            if (result.created) {
-                if (result.jsonldAvailable === false) {
-                    ontologyResponseMessage += " Note: Ontology viewing is currently disabled as the backend implementation is not yet available."
-                }
-            } else {
-                ontologyResponseMessage = "Failed to create ontology"
+            if (!result.created) {
+                const failureMessage = "Failed to create ontology";
                 console.error('❌ Failed to create ontology:', result.error);
+                setOpenStatusDialog(true);
+                setNewOntologyResponse({ title: ontologyName, description: failureMessage, message: failureMessage, created: false });
+                return;
             }
 
-            setOpenStatusDialog(true);
-            setNewOntologyResponse({ title: ontologyName, description: ontologyResponseMessage, message: ontologyResponseMessage, created: result.created });
+            refreshOntologies();
 
-            // If ontology was created successfully, trigger refresh
-            if (result.created) {
-                refreshOntologies();
-
-                // Honor the "Set as active ontology" checkbox: push the freshly
-                // created ontology into global context so the active-ontology
-                // selector reflects it. The object shape mirrors the transformed
-                // ontologies produced in OntologySearch (label/badge/id/description/url).
-                if (setAsActive) {
-                    const ontologyUri = `${API_CONFIG.INTERLEX_URL}/${groupname}/ontologies/uris/${ontologyName}/spec`;
-                    const activeOntology = {
-                        label: title,
-                        badge: groupname,
-                        selected: true,
-                        id: result.newOntologyID || ontologyUri,
-                        description: ontologyUri,
-                        url: result.location,
-                    };
-                    setOntologyData(activeOntology);
-                    // Enrich with member terms once fetched, same as OntologySearch.onSetActive.
-                    getOntologyTerms(ontologyUri)
-                        .then((terms) => setOntologyData({ ...activeOntology, terms }))
-                        .catch(() => setOntologyData({ ...activeOntology, terms: [] }));
-                }
-
-                if (onOntologyAdded) {
-                    onOntologyAdded();
-                }
+            // Honor the "Set as active ontology" checkbox: push the freshly
+            // created ontology into global context so the active-ontology
+            // selector reflects it. The object shape mirrors the transformed
+            // ontologies produced in OntologySearch (label/badge/id/description/url).
+            if (setAsActive) {
+                const ontologyUri = `${API_CONFIG.INTERLEX_URL}/${groupname}/ontologies/uris/${ontologyName}/spec`;
+                const activeOntology = {
+                    label: title,
+                    badge: groupname,
+                    selected: true,
+                    id: result.newOntologyID || ontologyUri,
+                    description: ontologyUri,
+                    url: result.location,
+                };
+                setOntologyData(activeOntology);
+                // Enrich with member terms once fetched, same as OntologySearch.onSetActive.
+                getOntologyTerms(ontologyUri)
+                    .then((terms) => setOntologyData({ ...activeOntology, terms }))
+                    .catch(() => setOntologyData({ ...activeOntology, terms: [] }));
             }
+
+            if (onOntologyAdded) {
+                onOntologyAdded();
+            }
+
+            // A new ontology is empty, so its header is the only thing there is to look at.
+            handleDialogClose();
+            navigate(ontologyPath(ontologyEntry(groupname, ontologyName), SPECIFICATION_TAB));
         } finally {
             setSubmitting(false);
         }
@@ -174,196 +165,6 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
         handleClose();
     }
 
-    const handleChangeUrl = useCallback((event) => {
-        setUrl(event.target.value);
-    }, []);
-
-    const handleFilesSelected = useCallback((newFiles) => {
-        // Process each file to extract data
-        const processFiles = async () => {
-            const processedFiles = await Promise.all(
-                newFiles.map(async (file) => {
-                    const fileWithId = {
-                        ...file,
-                        id: `${file.name}-${Date.now()}-${Math.random().toString(36).substring(2)}`,
-                        name: file.name, // Explicitly preserve name
-                        size: file.size, // Explicitly preserve size  
-                        type: file.type, // Explicitly preserve type
-                        progress: 100, // Assume upload is complete
-                        data: null
-                    };
-
-                    // Process JSON, JSON-LD, CSV, and TTL files
-                    if (file.name.endsWith('.json') || file.name.endsWith('.jsonld') || file.name.endsWith('.csv') || file.name.endsWith('.ttl')) {
-                        try {
-                            const text = await new Promise((resolve, reject) => {
-                                const reader = new FileReader();
-                                reader.onload = (e) => resolve(e.target.result);
-                                reader.onerror = reject;
-                                reader.readAsText(file);
-                            });
-
-                            let subjects = [];
-                            let title = '';
-
-                            if (file.name.endsWith('.csv')) {
-                                // Handle CSV format
-                                const lines = text.split('\n').filter(line => line.trim());
-                                if (lines.length > 0) {
-                                    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-                                    
-                                    // Look for title in first line if it's not headers
-                                    if (!headers.includes('subject') && !headers.includes('subjects')) {
-                                        title = lines[0].split(',')[0]?.trim() || '';
-                                        // Extract subjects from remaining lines
-                                        subjects = lines.slice(1)
-                                            .map(line => line.split(',')[0]?.trim())
-                                            .filter(Boolean);
-                                    } else {
-                                        // Extract data based on headers
-                                        const titleIndex = headers.findIndex(h => h.includes('title') || h.includes('name'));
-                                        const subjectIndex = headers.findIndex(h => h.includes('subject'));
-                                        
-                                        lines.slice(1).forEach(line => {
-                                            const values = line.split(',').map(v => v.trim());
-                                            if (titleIndex >= 0 && !title && values[titleIndex]) {
-                                                title = values[titleIndex];
-                                            }
-                                            if (subjectIndex >= 0 && values[subjectIndex]) {
-                                                subjects.push(values[subjectIndex]);
-                                            }
-                                        });
-                                    }
-                                }
-                            } else if (file.name.endsWith('.ttl')) {
-                                // Handle TTL (Turtle) format
-                                const lines = text.split('\n').filter(line => line.trim());
-                                
-                                // Extract title from comments or @base/@prefix declarations
-                                for (const line of lines) {
-                                    const trimmedLine = line.trim();
-                                    
-                                    // Look for title in comments
-                                    if (trimmedLine.startsWith('#') && 
-                                        (trimmedLine.toLowerCase().includes('title:') || 
-                                         trimmedLine.toLowerCase().includes('name:'))) {
-                                        const match = trimmedLine.match(/(?:title|name):\s*(.+)/i);
-                                        if (match && !title) {
-                                            title = match[1].trim();
-                                        }
-                                    }
-                                    
-                                    // Look for rdfs:label or dc:title
-                                    if (trimmedLine.includes('rdfs:label') || trimmedLine.includes('dc:title')) {
-                                        const match = trimmedLine.match(/(?:rdfs:label|dc:title)\s+["']([^"']+)["']/);
-                                        if (match && !title) {
-                                            title = match[1].trim();
-                                        }
-                                    }
-                                }
-                                
-                                // Extract subjects from RDF type declarations
-                                for (const line of lines) {
-                                    const trimmedLine = line.trim();
-                                    
-                                    // Look for 'a' (rdf:type) declarations
-                                    if (trimmedLine.includes(' a ') && !trimmedLine.startsWith('#')) {
-                                        const match = trimmedLine.match(/\s+a\s+([^;\s.]+)/);
-                                        if (match) {
-                                            const subject = match[1].trim();
-                                            if (subject && !subjects.includes(subject)) {
-                                                subjects.push(subject);
-                                            }
-                                        }
-                                    }
-                                    
-                                    // Look for rdf:type declarations
-                                    if (trimmedLine.includes('rdf:type') && !trimmedLine.startsWith('#')) {
-                                        const match = trimmedLine.match(/rdf:type\s+([^;\s.]+)/);
-                                        if (match) {
-                                            const subject = match[1].trim();
-                                            if (subject && !subjects.includes(subject)) {
-                                                subjects.push(subject);
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                                // If no title found, try to extract from filename
-                                if (!title) {
-                                    title = file.name.replace('.ttl', '').replace(/[-_]/g, ' ');
-                                }
-                            } else {
-                                // Handle JSON and JSON-LD formats
-                                const jsonData = JSON.parse(text);
-                                
-                                // Extract title
-                                title = jsonData.title || jsonData.name || jsonData['@title'] || 
-                                       jsonData.ontology?.title || jsonData.ontology?.name || '';
-                                
-                                // Handle JSON-LD format
-                                if (jsonData['@graph'] && Array.isArray(jsonData['@graph'])) {
-                                    // Extract subjects from @graph array
-                                    subjects = jsonData['@graph']
-                                        .filter(item => item['@type'])
-                                        .map(item => item['@type'])
-                                        .flat()
-                                        .filter((subject, index, array) => array.indexOf(subject) === index); // Remove duplicates
-                                    
-                                    // Also try to get title from @graph if not found
-                                    if (!title) {
-                                        const ontologyItem = jsonData['@graph'].find(item => 
-                                            item['@type'] === 'owl:Ontology' || 
-                                            item['rdfs:label'] || 
-                                            item['dc:title']
-                                        );
-                                        if (ontologyItem) {
-                                            title = ontologyItem['rdfs:label'] || ontologyItem['dc:title'] || '';
-                                        }
-                                    }
-                                }
-                                // Handle simple JSON format
-                                else if (jsonData.subjects && Array.isArray(jsonData.subjects)) {
-                                    subjects = jsonData.subjects;
-                                }
-                                // Try to extract from other common structures
-                                else if (jsonData.data && jsonData.data.subjects) {
-                                    subjects = jsonData.data.subjects;
-                                }
-                                // Handle array of objects with @type
-                                else if (Array.isArray(jsonData)) {
-                                    subjects = jsonData
-                                        .filter(item => item['@type'])
-                                        .map(item => item['@type'])
-                                        .flat()
-                                        .filter((subject, index, array) => array.indexOf(subject) === index);
-                                }
-                            }
-
-                            fileWithId.data = { subjects: subjects || [], title: title || '' };
-                        } catch (error) {
-                            console.error('Error processing file:', file.name, error);
-                            fileWithId.data = { subjects: [], title: '' };
-                        }
-                    }
-
-                    return fileWithId;
-                })
-            );
-
-            // Replace any existing files with the new one (single file only)
-            setFiles(processedFiles.slice(0, 1)); // Only keep the first file
-        };
-
-        processFiles();
-    }, []);
-
-    const handleChangeTabs = useCallback((_, newValue) => setTabValue(newValue), []);
-
-    const handleFileDelete = useCallback((index) => {
-        setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
-    }, []);
-
     return (
         <>
             <CustomizedDialog
@@ -381,8 +182,9 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
             >
                 <Box display="flex" height={1}>
                     <Box sx={{ px: '3.25rem', pt: '1.75rem', pb: '2.5rem', flex: 1, overflowY: 'auto' }}>
-                        <BasicTabs tabValue={tabValue} handleChange={handleChangeTabs} tabs={["Manually", "Import"]} />
-                        {tabValue === 0 && (
+                        {/* Importing a file is a separate backend process that does not exist yet (sprint 28 Oct). */}
+                        <BasicTabs tabValue={MANUAL_TAB} handleChange={() => {}} tabs={["Manually", { label: "Import", disabled: true }]} />
+                        {(
                             <Grid container spacing={5.5} sx={{ marginTop: 0 }}>
                                 <Grid item xs={12} lg={12}>
                                     <Stack direction="column" mb={1}>
@@ -437,7 +239,6 @@ const AddNewOntologyDialog = ({ open, handleClose, onOntologyAdded, organization
                                 </Grid>
                             </Grid>
                         )}
-                        {tabValue === 1 && <ImportFileTab files={files} url={url} onFilesChange={handleFilesSelected} onChangeUrl={handleChangeUrl} onFileDelete={handleFileDelete} />}
                     </Box>
                 </Box>
             </CustomizedDialog>

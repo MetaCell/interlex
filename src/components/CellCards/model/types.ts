@@ -155,8 +155,21 @@ export interface OntologyMeta {
   communityLink?: string;
 }
 
+// One annotation on the ontology's owl:Ontology node, as the Specification tab lists it.
+export interface OntologySpecRow {
+  predicate: string; // compact form of the annotation property
+  values: ResolvedRef[];
+}
+
+export interface OntologySpec {
+  header: OntologySpecRow[];
+  // False for an ontology no term has been added to yet: its document is the header alone.
+  hasTerms: boolean;
+}
+
 export interface ParsedOntology {
   meta: OntologyMeta;
+  spec: OntologySpec;
   cells: CellTerm[];
   hierarchy: HierarchyNode[]; // roots of the subClassOf tree (the root class, when there is one)
   // Row labels / tooltips read from the ontology's own ilxtr:displayLabel + shortDefinition,

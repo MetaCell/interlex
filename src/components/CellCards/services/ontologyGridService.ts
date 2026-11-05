@@ -28,6 +28,7 @@ import type { OntologyEntry } from "../config/gridConfig";
 export interface LoadedOntology {
   entry: OntologyEntry;
   meta: ParsedOntology["meta"];
+  spec: ParsedOntology["spec"];
   cells: CellTerm[];
   hierarchy: HierarchyNode[];
   predicateDisplay: ParsedOntology["predicateDisplay"];
@@ -160,6 +161,7 @@ export const loadOntology = async (entry: OntologyEntry): Promise<LoadedOntology
     // Header identity is read straight from the file's owl:Ontology node
     // (title/description/version) — no hardcoded overrides.
     meta: parsed.meta,
+    spec: parsed.spec,
     cells: parsed.cells,
     hierarchy: parsed.hierarchy,
     predicateDisplay: parsed.predicateDisplay,

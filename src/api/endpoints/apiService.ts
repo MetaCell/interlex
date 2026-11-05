@@ -371,18 +371,15 @@ export const createNewOntology = async ({
   groupname,
   ontologyName,
   title,
-  subjects,
 }: {
   groupname: string;
   ontologyName: string;
   title: string;
-  subjects: string[];
 }) => {
   const endpoint = `/${groupname}/ontologies/uris/${ontologyName}/spec`;
 
   const data = {
     title: title,
-    subjects: subjects,
   };
 
   const headers = {

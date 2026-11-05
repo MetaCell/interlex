@@ -203,10 +203,13 @@ export interface OntologyTab {
 
 // The tabs from the design. Only the two carrying a `path` are built; the rest are rendered
 // disabled so the bar matches the design without offering dead links.
+// A just-created ontology lands here: it has no terms yet, so its header is all there is to see.
+export const SPECIFICATION_TAB = "specification";
+
 export const ONTOLOGY_TABS: OntologyTab[] = [
   { label: "Grid View", path: "" },
   { label: "Browse", path: "browse" },
-  { label: "Specification" },
+  { label: "Specification", path: SPECIFICATION_TAB },
   { label: "Overview" },
   { label: "Variants" },
   { label: "Version History" },
