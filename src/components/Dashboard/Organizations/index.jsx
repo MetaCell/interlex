@@ -7,6 +7,7 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import OrganizationsList from "../../common/OrganizationsList";
 import CustomViewButton from "../../common/CustomViewButton";
 import MessageDialog from "../../common/MessageDialog";
+import FeatureNotAvailableDialog from "../../common/FeatureNotAvailableDialog";
 import { GlobalDataContext } from "../../../contexts/DataContext";
 
 const { gray600, gray200 } = vars;
@@ -14,6 +15,7 @@ const { gray600, gray200 } = vars;
 
 const Organizations = () => {
   const [open, setOpen] = useState(false);
+  const [joinNotAvailableOpen, setJoinNotAvailableOpen] = useState(false);
   const { user } = useContext(GlobalDataContext);
   const groupname = user?.groupname || "base";
 
@@ -80,6 +82,7 @@ const Organizations = () => {
           <Button
             variant="outlined"
             startIcon={<AddOutlinedIcon />}
+            onClick={() => setJoinNotAvailableOpen(true)}
           >
             Join an organization
           </Button>
@@ -89,6 +92,12 @@ const Organizations = () => {
       {message && (
         <MessageDialog open={open} title="Create a new organization" handleClose={handleClose} message={message} />
       )}
+      <FeatureNotAvailableDialog
+        open={joinNotAvailableOpen}
+        onClose={() => setJoinNotAvailableOpen(false)}
+        title="Joining an organization is not available yet"
+        message="Joining an organization is not implemented yet. If you need any help, please contact support at support@interlex.org."
+      />
     </Box>
   );
 };
