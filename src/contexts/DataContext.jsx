@@ -1,7 +1,12 @@
 import PropTypes from 'prop-types';
 import { createContext, useState, useEffect, useRef } from "react";
 import { API_CONFIG } from '../config';
-import { getOrganizationsCuries } from '../api/endpoints/apiService';
+import { getOrganizationsCuries, getOntologyTerms } from '../api/endpoints/apiService';
+import {
+  readStoredActiveOntology,
+  storeActiveOntology,
+  clearStoredActiveOntology,
+} from './activeOntologyStorage';
 
 const GlobalDataContext = createContext();
 
@@ -24,7 +29,7 @@ const transformCuriesResponse = (response) => {
 
 const GlobalDataProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [activeOntology, setActiveOntology] = useState(null);
+  const [activeOntology, setActiveOntology] = useState(() => readStoredActiveOntology()?.ontology ?? null);
   const [searchOrganizationFilters, setSearchOrganizationFilters] = useState(null);
   const [searchTypeFilter, setSearchTypeFilter] = useState(null);
   const [predicatesSingleTermState, setPredicatesSingleTermState] = useState(false);
@@ -52,6 +57,35 @@ const GlobalDataProvider = ({ children }) => {
       setUser(JSON.parse(userSettings));
     }
     setLoading(false);
+  }, []);
+
+  const userGroupname = user?.groupname;
+
+  // A stored selection belongs to the session that made it: logging out, a session found expired on
+  // load, or another group logging in on this browser drops it.
+  useEffect(() => {
+    if (loading) return;
+    if (!userGroupname || readStoredActiveOntology()?.owner !== userGroupname) {
+      setActiveOntology(null);
+      clearStoredActiveOntology();
+    }
+  }, [loading, userGroupname]);
+
+  useEffect(() => {
+    if (!userGroupname) return;
+    if (activeOntology) storeActiveOntology(userGroupname, activeOntology);
+    else clearStoredActiveOntology();
+  }, [activeOntology, userGroupname]);
+
+  useEffect(() => {
+    const restored = readStoredActiveOntology()?.ontology;
+    if (!restored) return undefined;
+    let cancelled = false;
+    getOntologyTerms(restored.description || restored.url).then((terms) => {
+      if (cancelled) return;
+      setActiveOntology((current) => (current?.id === restored.id ? { ...current, terms } : current));
+    });
+    return () => { cancelled = true; };
   }, []);
 
   // Fetch /base/curies once — populates Curated + Latest, and "My curies" fallback when unauthenticated

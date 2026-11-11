@@ -48,6 +48,7 @@ export const API_CONFIG = {
     SESSION_DATA: {
         SETTINGS: "settings",
         COOKIE: "session",
+        ACTIVE_ONTOLOGY: "activeOntology",
     },
     OLYMPIAN_GODS : "https://uri.olympiangods.org",
     BASE_SCICRUNCH_URL: "/api/elasticsearch?apikey=",
