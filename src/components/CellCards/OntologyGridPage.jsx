@@ -7,8 +7,7 @@ import GridBulkEditButton from "./GridBulkEditButton";
 import CellTileGrid from "./CellTileGrid";
 import CustomSingleSelect from "../common/CustomSingleSelect";
 import CustomPagination from "../common/CustomPagination";
-import { getFacets, curieToSlug } from "./services/ontologyGridService";
-import { termPath } from "./config/gridConfig";
+import { getFacets, curieToSlug, ontologyTermHref } from "./services/ontologyGridService";
 import { parseFilterQuery, filterQuerySearch } from "../../helpers/filterQuery";
 import { SOURCE_PREDICATE } from "./model/mappings";
 import { primeTermDataCache } from "../../hooks/useTermData";
@@ -195,9 +194,10 @@ const OntologyGridPage = () => {
   // at once.
   const openCellCard = useCallback(
     (cell) => {
-      const slug = curieToSlug(cell.curie);
-      primeTermDataCache(data.entry.org, slug, cell.label);
-      navigate(termPath(data.entry.org, data.entry.slug, slug, "cell-card"));
+      const href = ontologyTermHref(data.entry, cell, "cell-card");
+      if (!href) return;
+      if (!data.entry.sourceUrl) primeTermDataCache(data.entry.org, curieToSlug(cell.curie), cell.label);
+      navigate(href);
     },
     [navigate, data]
   );

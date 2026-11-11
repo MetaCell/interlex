@@ -3,7 +3,7 @@
 // API later without touching the components (they depend only on this contract).
 
 import { parseNeurdf, buildFacets } from "../../../parsers/neurdfParser";
-import { PREFER_LOCAL_NEURDF } from "../config/gridConfig";
+import { PREFER_LOCAL_NEURDF, termLink, termPath } from "../config/gridConfig";
 import { loadMappings } from "../config/mappingsService";
 import { DEFAULT_MAPPINGS } from "../config/mappingDefaults";
 import { publishMappings } from "../config/mappingsAtom";
@@ -196,6 +196,18 @@ export const slugToCurie = (slug: string): string => {
 };
 
 export const curieToSlug = (curie: string): string => (curie || "").replace(":", "_");
+
+// Where a term listed by an ontology opens. A term of a routed ontology stays under that
+// ontology's path; one of an ontology opened by URL has no such path, and opens wherever its IRI
+// leads — its InterLex page, or InterLex's record of an external term.
+export const ontologyTermHref = (
+  entry: OntologyEntry,
+  cell: Pick<CellTerm, "curie" | "iri">,
+  tab = ""
+): string | undefined =>
+  entry.sourceUrl
+    ? termLink(cell, { group: entry.org, ontologySlug: null })
+    : termPath(entry.org, entry.slug, curieToSlug(cell.curie), tab);
 
 // Find one cell by any of the identifiers a link might carry: the URL slug, the CURIE, or the
 // full IRI. Matching is case-insensitive on the prefix only ("NPOKB:998" is the same record),

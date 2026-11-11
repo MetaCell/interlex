@@ -5,6 +5,7 @@ import {
   ONTOLOGY_CATALOG,
   ontologyEntry,
   ontologyForTermSlug,
+  ontologyRouteSlug,
   isIlxTermSlug,
 } from "../components/CellCards/config/gridConfig";
 import useCellTerm from "../components/CellCards/CellCard/useCellTerm";
@@ -66,7 +67,7 @@ export const useContextOntologyEntry = (termSlug) => {
  */
 export const useTermLinkContext = () => {
   const { group, org, term } = useParams();
-  const ontologySlug = useContextOntologyEntry(term)?.slug ?? null;
+  const ontologySlug = ontologyRouteSlug(useContextOntologyEntry(term));
   return { group: group || org || "base", ontologySlug };
 };
 
@@ -79,7 +80,7 @@ export const useTermLinkContext = () => {
 export const useContextTerm = (termSlug) => {
   const entry = useContextOntologyEntry(termSlug);
   const { cell, data, loading, error } = useCellTerm(termSlug, entry);
-  return { ontologySlug: entry?.slug ?? null, ontology: data, cell, loading, error };
+  return { ontologySlug: ontologyRouteSlug(entry), ontology: data, cell, loading, error };
 };
 
 export default useContextTerm;

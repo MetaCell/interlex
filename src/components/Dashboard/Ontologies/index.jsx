@@ -9,12 +9,12 @@ import { getOrganizationsOntologies } from "../../../api/endpoints/apiService";
 import {Box, ButtonGroup, CircularProgress, Grid, Stack, Typography} from "@mui/material";
 import { GlobalDataContext } from "../../../contexts/DataContext";
 import { useNavigate } from "react-router-dom";
-import { ontologyEntryForSpecUri, ontologyPath } from "../../CellCards/config/gridConfig";
+import { ontologyEntryForUrl, ontologyPath } from "../../CellCards/config/gridConfig";
 
 import { vars } from "../../../theme/variables";
 const { gray600 } = vars;
 
-const UNROUTABLE_ONTOLOGY_MESSAGE = "This ontology is kept under a nested path the ontology viewer cannot open yet.";
+const UNROUTABLE_ONTOLOGY_MESSAGE = "This ontology has no address the ontology viewer can open.";
 
 const Ontologies = () => {
   const navigate = useNavigate();
@@ -80,7 +80,7 @@ const Ontologies = () => {
   };
 
   const handleSelectOntology = (ontology) => {
-    const entry = ontologyEntryForSpecUri(ontology.description);
+    const entry = ontologyEntryForUrl(ontology.description);
     if (entry) {
       navigate(ontologyPath(entry));
     } else {

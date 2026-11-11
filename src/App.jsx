@@ -28,7 +28,7 @@ import OntologyPage from "./components/CellCards/OntologyPage";
 import OntologyGridPage from "./components/CellCards/OntologyGridPage";
 import OntologyBrowsePage from "./components/CellCards/OntologyBrowsePage";
 import OntologySpecPage from "./components/CellCards/OntologySpecPage";
-import { SPECIFICATION_TAB } from "./components/CellCards/config/gridConfig";
+import { SPECIFICATION_TAB, URL_ONTOLOGY_SEGMENT } from "./components/CellCards/config/gridConfig";
 import { GlobalDataProvider } from "./contexts/DataContext";
 import ResetPassword from "./components/Auth/ResetPassword";
 import ForgotPassword from "./components/Auth/ForgotPassword";
@@ -60,6 +60,14 @@ const OntologyIdentityRedirect = () => {
 	const { search } = useLocation();
 	return <Navigate to={`/${group}/ontology/${name}${search}`} replace />;
 };
+
+const ontologyTabRoutes = (
+	<>
+		<Route index element={<OntologyGridPage />} />
+		<Route path="browse" element={<OntologyBrowsePage />} />
+		<Route path={SPECIFICATION_TAB} element={<OntologySpecPage />} />
+	</>
+);
 
 const ProtectedRoute = ({ children }) => {
 	const { user } = useContext(GlobalDataContext);
@@ -212,9 +220,20 @@ function MainContent() {
 							</PageContainer>
 						}
 					>
-						<Route index element={<OntologyGridPage />} />
-						<Route path="browse" element={<OntologyBrowsePage />} />
-						<Route path={SPECIFICATION_TAB} element={<OntologySpecPage />} />
+						{ontologyTabRoutes}
+					</Route>
+					{/* Any ontology InterLex serves, named by its URL (?url=…): one with no route of its
+					    own, such as an external ontology or a group's ontology kept under a nested path.
+					    Takes the same tabs. */}
+					<Route
+						path={URL_ONTOLOGY_SEGMENT}
+						element={
+							<PageContainer>
+								<OntologyPage />
+							</PageContainer>
+						}
+					>
+						{ontologyTabRoutes}
 					</Route>
 					<Route path="/:group/ontologies/uris/:name" element={<OntologyIdentityRedirect />} />
 					{/* A term read inside an ontology: the same page as the plain term route below, with

@@ -5,8 +5,7 @@ import { Box, IconButton, Link, Stack, Tooltip, Typography } from "@mui/material
 import { DataGrid } from "@mui/x-data-grid";
 import ArrowOutwardOutlinedIcon from "@mui/icons-material/ArrowOutwardOutlined";
 import GridSearchBar from "./GridSearchBar";
-import { termPath } from "./config/gridConfig";
-import { curieToSlug } from "./services/ontologyGridService";
+import { ontologyTermHref } from "./services/ontologyGridService";
 
 // Most of these terms describe themselves in far more than the two lines the design's row
 // allows, so the text is capped at two and the cell's title carries the whole thing.
@@ -112,7 +111,7 @@ const OntologyTermsTable = ({ cells, entry, scopeDescription, emptyMessage }) =>
         id: cell.id,
         label: cell.label,
         curie: cell.curie,
-        href: termPath(entry.org, entry.slug, curieToSlug(cell.curie)),
+        href: ontologyTermHref(entry, cell),
         rdfType: cell.rdfTypes.join(", "),
         definition: cell.definition || "",
         definitionCurated: cell.definitionCurated ?? true,

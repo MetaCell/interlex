@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useOutletContext } from "react-router-dom";
+import { Link as RouterLink, useOutletContext } from "react-router-dom";
 import {
   Alert,
   AlertTitle,
@@ -15,18 +15,45 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { isIri } from "../../parsers/neurdfParser";
+import { iriLink, ontologyEntryForUrl, ontologyPath } from "./config/gridConfig";
+import { useTermLinkContext } from "../../hooks/useContextOntology";
 
-// The header names things outside InterLex as often as terms in it (imported ontology files, the
-// community's site), so an IRI links to itself rather than through the term-page rewrite.
-const SpecValue = ({ value }) =>
-  value.iri ? (
-    <Link href={value.iri} target="_blank" rel="noopener" variant="body2" title={value.iri}>
-      {value.label || value.curie}
+const OWL = "http://www.w3.org/2002/07/owl#";
+const ONTOLOGY_VALUED_PROPERTIES = ["imports", "priorVersion", "backwardCompatibleWith", "incompatibleWith"];
+const ONTOLOGY_VALUED_PREDICATES = new Set(
+  ONTOLOGY_VALUED_PROPERTIES.flatMap((name) => [`owl:${name}`, `${OWL}${name}`])
+);
+
+// The header names things outside InterLex as often as terms in it (the community's site, a
+// licence), and those keep their own address. An ontology it points at opens in this viewer and
+// an InterLex IRI on its term page, so neither takes the reader out of the app. An InterLex IRI
+// with no page here (the owl:versionIRI the backend stamps per response) has nothing to open.
+const hrefFor = (predicate, iri, linkContext) => {
+  if (ONTOLOGY_VALUED_PREDICATES.has(predicate)) {
+    const entry = ontologyEntryForUrl(iri);
+    if (entry) return ontologyPath(entry);
+  }
+  return iriLink(iri, linkContext);
+};
+
+const isInAppPath = (href) => href.startsWith("/");
+
+const SpecValue = ({ value, href }) => {
+  const text = value.label || value.curie;
+  if (!href) return <Typography variant="body2">{text}</Typography>;
+  if (isInAppPath(href)) {
+    return (
+      <Link component={RouterLink} to={href} variant="body2" title={value.iri}>
+        {text}
+      </Link>
+    );
+  }
+  return (
+    <Link href={href} target="_blank" rel="noopener" variant="body2" title={value.iri}>
+      {text}
     </Link>
-  ) : (
-    <Typography variant="body2">{value.label}</Typography>
   );
+};
 
 SpecValue.propTypes = {
   value: PropTypes.shape({
@@ -34,6 +61,7 @@ SpecValue.propTypes = {
     curie: PropTypes.string,
     iri: PropTypes.string,
   }).isRequired,
+  href: PropTypes.string,
 };
 
 const NoTermsYet = () => (
@@ -48,10 +76,11 @@ const NoTermsYet = () => (
 // annotation, read from the same document the other tabs are built from.
 const OntologySpecPage = () => {
   const { data } = useOutletContext();
-  const { meta, spec } = data;
+  const { entry, meta, spec } = data;
+  const linkContext = useTermLinkContext();
 
   return (
-    <Container sx={{ py: 3 }}>
+    <Container sx={{ flex: 1, minHeight: 0, overflowY: "auto", py: 3 }}>
       <Stack gap={3}>
         {!spec.hasTerms && <NoTermsYet />}
         <TableContainer component={Paper} variant="outlined">
@@ -67,7 +96,7 @@ const OntologySpecPage = () => {
                 <TableRow>
                   <TableCell>Identifier</TableCell>
                   <TableCell>
-                    <SpecValue value={{ label: meta.iri, iri: isIri(meta.iri) ? meta.iri : "" }} />
+                    <SpecValue value={{ label: meta.iri, iri: meta.iri }} href={ontologyPath(entry)} />
                   </TableCell>
                 </TableRow>
               )}
@@ -77,7 +106,11 @@ const OntologySpecPage = () => {
                   <TableCell>
                     <Stack gap={0.5}>
                       {row.values.map((value) => (
-                        <SpecValue key={value.id} value={value} />
+                        <SpecValue
+                          key={value.id}
+                          value={value}
+                          href={value.iri ? hrefFor(row.predicate, value.iri, linkContext) : undefined}
+                        />
                       ))}
                     </Stack>
                   </TableCell>
