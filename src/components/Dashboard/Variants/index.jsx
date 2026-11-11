@@ -9,6 +9,7 @@ import { getOrganizationsTerms } from "../../../api/endpoints/apiService";
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 import {Box, Button, ButtonGroup, CircularProgress, Divider, Grid, Stack, Typography} from "@mui/material";
 import { GlobalDataContext } from "../../../contexts/DataContext";
+import { contributedTerms } from "../listings";
 
 import { vars } from "../../../theme/variables";
 const { gray600, gray200 } = vars;
@@ -32,20 +33,7 @@ const Variants = ({handleOpenEditBulkTerms}) => {
     if (!groupname) return;
     setLoading(true);
     getOrganizationsTerms(groupname).then(data => {
-      const seen = new Set();
-      const parsed = (Array.isArray(data) ? data : [])
-        .filter(([iri]) => {
-          if (seen.has(iri)) return false;
-          seen.add(iri);
-          return true;
-        })
-        .map(([iri, label, lastModified]) => {
-          const idMatch = iri.match(/((?:tmp|ilx)_\d+)/i);
-          const termId = idMatch ? idMatch[1] : iri;
-          const status = termId.toLowerCase().startsWith('tmp_') ? 'draft' : 'published';
-          return { id: termId, iri, label, lastModified, status };
-        });
-      setTerms(parsed);
+      setTerms(contributedTerms(data));
       setPage(1);
       setLoading(false);
     }).catch(err => {

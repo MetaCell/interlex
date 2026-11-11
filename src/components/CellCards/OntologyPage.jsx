@@ -1,16 +1,19 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { useParams, useLocation, useSearchParams, Outlet, Navigate } from "react-router-dom";
+import { useParams, useLocation, Navigate } from "react-router-dom";
 import { Box, Typography, CircularProgress, Button } from "@mui/material";
 import OntologyHeader from "./OntologyHeader";
+import OntologyGridPage from "./OntologyGridPage";
+import OntologyBrowsePage from "./OntologyBrowsePage";
+import OntologySpecPage from "./OntologySpecPage";
+import { OntologyDataContext } from "./OntologyDataContext";
 import CollapsingHeaderLayout from "../common/CollapsingHeaderLayout";
 import {
-  ONTOLOGY_TABS,
-  ONTOLOGY_URL_PARAM,
-  URL_ONTOLOGY_SEGMENT,
+  SPECIFICATION_TAB,
+  ontologyAtServedLocation,
   ontologyEntry,
-  ontologyEntryForUrl,
   ontologyPath,
+  splitOntologyTab,
 } from "./config/gridConfig";
 import { loadOntology } from "./services/ontologyGridService";
 import { usePublishContextOntology } from "../../hooks/useContextOntology";
@@ -38,32 +41,36 @@ CenteredMessage.propTypes = {
   action: PropTypes.node,
 };
 
-// Layout route for one ontology: owns the (single, ~16MB) load plus the loading/error states,
-// and renders the shared header. Each tab is a child route and reads the parsed ontology from
-// the outlet context, so switching tabs never refetches.
-//
-// Mounted twice: under /:org/ontology/:slug, and under /ontology?url=… for an ontology named by
-// its URL, which may be any ontology InterLex serves, not only one with a route of its own.
-const OntologyPage = () => {
+const TAB_PAGES = {
+  "": OntologyGridPage,
+  browse: OntologyBrowsePage,
+  [SPECIFICATION_TAB]: OntologySpecPage,
+};
+
+// The ontology a location names, and which of its tabs. Under /:org/ontology/:slug the slug names
+// it; under /:group/ontologies/* it is the backend's own address for it, which may be any ontology
+// InterLex serves, not only one with a route of its own.
+const useOntologyLocation = () => {
   const { org, slug } = useParams();
-  const { pathname, search } = useLocation();
-  const [searchParams] = useSearchParams();
-  const sourceUrl = slug ? null : searchParams.get(ONTOLOGY_URL_PARAM);
-  const entry = slug ? ontologyEntry(org, slug) : ontologyEntryForUrl(sourceUrl);
-  // A URL naming an ontology the app already routes opens on that canonical page instead.
-  const redirectsToRoute = Boolean(sourceUrl && entry && !entry.sourceUrl);
+  const { pathname } = useLocation();
+  if (!slug) return { ...ontologyAtServedLocation(pathname), served: true };
+  const { tab } = splitOntologyTab(pathname.split(`/ontology/${slug}`)[1] || "");
+  return { entry: ontologyEntry(org, slug), tab, served: false };
+};
+
+// Owns the (single, ~16MB) load of one ontology plus the loading/error states, renders the shared
+// header and the current tab, so switching tabs never refetches.
+const OntologyPage = () => {
+  const { search } = useLocation();
+  const { entry, tab, served } = useOntologyLocation();
+  // A served address naming an ontology the app already routes opens on that canonical page instead.
+  const redirectsToRoute = Boolean(served && entry && !entry.servedPath);
   // Reading this ontology *is* the context, for terms later opened on a path that does not name one.
   usePublishContextOntology(redirectsToRoute ? undefined : entry);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
-
-  // The trailing segment after the ontology's own path identifies the tab ("" = Grid View).
-  const tail = pathname.split(slug ? `/ontology/${slug}` : URL_ONTOLOGY_SEGMENT)[1] || "";
-  const tab = ONTOLOGY_TABS.some((t) => t.path && `/${t.path}` === tail)
-    ? tail.slice(1)
-    : "";
 
   useEffect(() => {
     if (!entry || redirectsToRoute) return undefined;
@@ -86,19 +93,11 @@ const OntologyPage = () => {
   }, [entry, redirectsToRoute, reloadKey]);
 
   if (redirectsToRoute) {
-    const params = new URLSearchParams(search);
-    params.delete(ONTOLOGY_URL_PARAM);
-    const rest = params.toString();
-    return <Navigate to={ontologyPath(entry, tab, rest ? `?${rest}` : "")} replace />;
+    return <Navigate to={ontologyPath(entry, tab, search)} replace />;
   }
 
   if (!entry) {
-    return (
-      <CenteredMessage
-        title="This address does not name an ontology."
-        detail={sourceUrl ? `No ontology can be opened from "${sourceUrl}".` : "The ontology URL is missing."}
-      />
-    );
+    return <CenteredMessage title="This address does not name an ontology." />;
   }
 
   if (loading) {
@@ -123,9 +122,12 @@ const OntologyPage = () => {
     );
   }
 
+  const TabPage = TAB_PAGES[tab];
   return (
     <CollapsingHeaderLayout header={<OntologyHeader data={data} tab={tab} />}>
-      <Outlet context={{ data }} />
+      <OntologyDataContext.Provider value={data}>
+        <TabPage />
+      </OntologyDataContext.Provider>
     </CollapsingHeaderLayout>
   );
 };

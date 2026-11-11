@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOntologyData } from "./OntologyDataContext";
 import { Container, Grid } from "@mui/material";
 import OntologyHierarchyPanel from "./OntologyHierarchyPanel";
 import OntologyTermsTable from "./OntologyTermsTable";
@@ -36,7 +36,7 @@ const scopeCaption = (scope, termLabel, anchorIsTerm) =>
 // `figma-grid-skeleton.md` §"do not interact" — which this supersedes.) Both halves therefore hang
 // off state owned here, their common parent.
 const OntologyBrowsePage = () => {
-  const { data } = useOutletContext();
+  const data = useOntologyData();
   const { entry, meta, hierarchy, cells } = data;
   // Only a configured root class is a row of the tree; otherwise the tree is a forest.
   const rootTermId = entry.rootClass ? hierarchy[0]?.termId : undefined;

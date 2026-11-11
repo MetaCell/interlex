@@ -9,12 +9,10 @@ import { getOrganizationsOntologies } from "../../../api/endpoints/apiService";
 import {Box, ButtonGroup, CircularProgress, Grid, Stack, Typography} from "@mui/material";
 import { GlobalDataContext } from "../../../contexts/DataContext";
 import { useNavigate } from "react-router-dom";
-import { ontologyEntryForUrl, ontologyPath } from "../../CellCards/config/gridConfig";
+import { listedOntologies, ontologyViewerPath, UNROUTABLE_ONTOLOGY_MESSAGE } from "../listings";
 
 import { vars } from "../../../theme/variables";
 const { gray600 } = vars;
-
-const UNROUTABLE_ONTOLOGY_MESSAGE = "This ontology has no address the ontology viewer can open.";
 
 const Ontologies = () => {
   const navigate = useNavigate();
@@ -37,26 +35,7 @@ const Ontologies = () => {
     if (!groupname) return;
     setLoading(true);
     getOrganizationsOntologies(groupname).then(data => {
-      // Same transform as OntologySearch: derive a readable label, fall back to
-      // an identifier parsed from the spec URI when there's no title.
-      const parsed = (Array.isArray(data) ? data : []).map((ontology, index) => {
-        let fallbackLabel = `Unknown Ontology ${ontology.id || index + 1}`;
-        if (ontology.uri) {
-          const uriParts = ontology.uri.split('/');
-          const specIndex = uriParts.findIndex(part => part === 'spec');
-          if (specIndex > 0) {
-            fallbackLabel = `Ontology ${uriParts[specIndex - 1]}`;
-          }
-        }
-        return {
-          label: ontology.title || fallbackLabel,
-          badge: groupname,
-          id: ontology.id || `ontology-${index}`,
-          description: ontology.uri,
-          url: ontology.url,
-        };
-      });
-      setOntologies(parsed);
+      setOntologies(listedOntologies(data, groupname));
       setPage(1);
       setLoading(false);
     }).catch(err => {
@@ -80,9 +59,9 @@ const Ontologies = () => {
   };
 
   const handleSelectOntology = (ontology) => {
-    const entry = ontologyEntryForUrl(ontology.description);
-    if (entry) {
-      navigate(ontologyPath(entry));
+    const path = ontologyViewerPath(ontology);
+    if (path) {
+      navigate(path);
     } else {
       setMessage(UNROUTABLE_ONTOLOGY_MESSAGE);
     }

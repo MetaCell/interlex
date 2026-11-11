@@ -52,9 +52,10 @@ export interface OntologyEntry {
   // The JSON-LD behind the ontology, and a same-origin copy tried first when there is one.
   dataUrl: string;
   localDataUrl?: string;
-  // The URL an ontology without a route of its own was opened by: it is then addressed as
-  // /ontology?url=…, and its terms open on their plain routes rather than under an ontology path.
-  sourceUrl?: string;
+  // Where the backend serves an ontology with no /[org]/ontology/[slug] route of its own, under
+  // /[org]/ontologies/ (`dns/{host}/{path}`, or a group's nested `uris/…`). The app addresses it
+  // there too, and its terms open on their plain routes rather than under an ontology path.
+  servedPath?: string;
   // CURIE prefixes this ontology names its own terms with. Part of its identity, so it belongs
   // here rather than as a regex at a call site: it is what lets a term page recognise, from the
   // slug alone and before anything is loaded, that this ontology is the only place the term can
@@ -112,8 +113,10 @@ const groupOntologyEntry = (group: string, name: string): OntologyEntry => {
 // backend the app reads them from.
 const INTERLEX_ONTOLOGY_HOSTS = new Set(["uri.interlex.org", new URL(API_CONFIG.OLYMPIAN_GODS).host]);
 
+const ONTOLOGIES_SEGMENT = "ontologies";
 const INTERLEX_ONTOLOGY_PATH = /^\/([^/]+)\/ontologies\/(.+)$/;
 const GROUP_ONTOLOGY_NAME = /^uris\/([^/]+)$/;
+const SERVED_ONTOLOGY_PATH = /^(dns|uris)\/./;
 
 // A group's ontology is listed by its spec URI (…/uris/{name}/spec), but the viewer reads the whole
 // ontology at its identity. Only `uris/` paths are trimmed: a dns/ path is an external IRI, kept
@@ -121,25 +124,18 @@ const GROUP_ONTOLOGY_NAME = /^uris\/([^/]+)$/;
 const ontologyIdentityPath = (path: string): string =>
   path.startsWith("uris/") ? path.replace(/\/spec\/?$|\/$/, "") : path;
 
-// Where InterLex serves the ontology a URL names. Its own ontologies are read from the backend at
-// the same path, by identity or by spec URI (/{group}/ontologies/… and …/spec alike); any other
-// URL is an external ontology, read from InterLex's record of it at /base/ontologies/dns/{host}/
-// {path}, never from the external site. The path is kept verbatim — a trailing slash is part of
-// the identity (`purl.org/dc/elements/1.1/`) — and a fragment is percent-encoded into it
-// (`22-rdf-syntax-ns#` -> `22-rdf-syntax-ns%23`), as the backend addresses those ontologies.
-// `URL.hash` is empty for a bare trailing "#", which is exactly how such an ontology is named.
+// InterLex's record of an external ontology lives at dns/{host}/{path}. The path is kept verbatim —
+// a trailing slash is part of the identity (`purl.org/dc/elements/1.1/`) — and a fragment is
+// percent-encoded into it (`22-rdf-syntax-ns#` -> `22-rdf-syntax-ns%23`), as the backend addresses
+// those ontologies. `URL.hash` is empty for a bare trailing "#", which is exactly how such an
+// ontology is named.
 const fragmentOf = (url: URL): string => {
   const at = url.href.indexOf("#");
   return at < 0 ? "" : url.href.slice(at);
 };
 
-const ontologyDataUrlFor = (url: URL): string | undefined => {
-  if (INTERLEX_ONTOLOGY_HOSTS.has(url.host)) {
-    const match = url.pathname.match(INTERLEX_ONTOLOGY_PATH);
-    return match ? backendUrl(`/${match[1]}/ontologies/${ontologyIdentityPath(match[2])}`) : undefined;
-  }
-  return backendUrl(`/base/ontologies/dns/${url.host}${url.pathname}${encodeURIComponent(fragmentOf(url))}`);
-};
+const dnsOntologyPath = (url: URL): string =>
+  `dns/${url.host}${url.pathname}${encodeURIComponent(fragmentOf(url))}`;
 
 const parseHttpUrl = (value?: string | null): URL | undefined => {
   try {
@@ -150,40 +146,40 @@ const parseHttpUrl = (value?: string | null): URL | undefined => {
   }
 };
 
-const urlOntologies = new Map<string, OntologyEntry>();
+const servedOntologies = new Map<string, OntologyEntry>();
 
-// The ontology a URL names, as the viewer opens it. One the app already routes resolves to that
-// entry — a group's /uris/{name} ontology, or a catalogued one read from the same document — so it
-// keeps its canonical page; anything else (an external ontology, a group's ontology kept under a
-// nested path) gets an entry of its own, opened through /ontology?url=…. Undefined for a value
+// The ontology InterLex serves at /{group}/ontologies/{path}, where the path is either `uris/…`, a
+// group's own ontology, or `dns/{host}/{path}`, InterLex's record of an external one. The app
+// mirrors that address one to one, so `path` stays percent-encoded exactly as the backend reads
+// it, and the ontology is read from that address even when a catalogued ontology happens to be
+// backed by the same document. Only a group's /uris/{name} ontology resolves to another entry: that
+// is the same address under the app's /{group}/ontology/{name} route.
+export const ontologyEntryForServedPath = (group?: string, path?: string): OntologyEntry | undefined => {
+  if (!group || !path || !SERVED_ONTOLOGY_PATH.test(path)) return undefined;
+  const identityPath = ontologyIdentityPath(path);
+  const groupName = identityPath.match(GROUP_ONTOLOGY_NAME)?.[1];
+  if (groupName) return groupOntologyEntry(group, decodeURIComponent(groupName));
+
+  const dataUrl = backendUrl(`/${encodeURIComponent(group)}/${ONTOLOGIES_SEGMENT}/${identityPath}`);
+  let entry = servedOntologies.get(dataUrl);
+  if (!entry) {
+    const name = decodeURIComponent(identityPath.split("/").filter(Boolean).pop() || identityPath);
+    entry = { slug: name, org: group, label: name, community: group, dataUrl, servedPath: identityPath };
+    servedOntologies.set(dataUrl, entry);
+  }
+  return entry;
+};
+
+// The ontology a URL names, as the viewer opens it: an InterLex address (/{group}/ontologies/…,
+// by identity or by spec URI) is read at the same path, and any other URL is an external ontology,
+// read from InterLex's record of it under base, never from the external site. Undefined for a value
 // that is not an http(s) URL of an ontology.
 export const ontologyEntryForUrl = (value?: string | null): OntologyEntry | undefined => {
   const url = parseHttpUrl(value);
-  const dataUrl = url && ontologyDataUrlFor(url);
-  if (!url || !dataUrl) return undefined;
-
-  const catalogued = Object.values(ONTOLOGY_CATALOG).find((entry) => entry.dataUrl === dataUrl);
-  if (catalogued) return catalogued;
-
-  const dataPath = new URL(dataUrl).pathname;
-  const [, group, path] = dataPath.match(INTERLEX_ONTOLOGY_PATH) || [];
-  const groupName = path?.match(GROUP_ONTOLOGY_NAME)?.[1];
-  if (groupName) return groupOntologyEntry(decodeURIComponent(group), decodeURIComponent(groupName));
-
-  let entry = urlOntologies.get(dataUrl);
-  if (!entry) {
-    const name = decodeURIComponent(dataPath.split("/").filter(Boolean).pop() || url.host);
-    entry = {
-      slug: name,
-      org: decodeURIComponent(group),
-      label: name,
-      community: decodeURIComponent(group),
-      dataUrl,
-      sourceUrl: url.href,
-    };
-    urlOntologies.set(dataUrl, entry);
-  }
-  return entry;
+  if (!url) return undefined;
+  if (!INTERLEX_ONTOLOGY_HOSTS.has(url.host)) return ontologyEntryForServedPath("base", dnsOntologyPath(url));
+  const [, group, path] = url.pathname.match(INTERLEX_ONTOLOGY_PATH) || [];
+  return group ? ontologyEntryForServedPath(decodeURIComponent(group), path) : undefined;
 };
 
 // The ontology an /{group}/ontology/{slug} path names. A catalogued slug keeps its one page
@@ -195,25 +191,43 @@ export const ontologyEntry = (group?: string, slug?: string): OntologyEntry | un
 
 const ontologySegment = (slug: string): string => `/ontology/${slug}`;
 
-export const ONTOLOGY_URL_PARAM = "url";
-
-// The route segment an ontology opened by URL lives under: /ontology(/[tab])?url=[ontology URL].
-export const URL_ONTOLOGY_SEGMENT = "/ontology";
+const tabSuffix = (tab: string): string => (tab ? `/${tab}` : "");
 
 // Canonical route to an ontology tab, mirroring the breadcrumb hierarchy:
-// /[organization]/ontology/[ontology slug](/[tab]), or /ontology(/[tab])?url=… for one opened by URL.
-export const ontologyPath = (entry: OntologyEntry, tab = "", search = ""): string => {
-  const tabSegment = tab ? `/${tab}` : "";
-  if (!entry.sourceUrl) return `/${entry.org}${ontologySegment(entry.slug)}${tabSegment}${search}`;
-  const params = new URLSearchParams(search);
-  params.set(ONTOLOGY_URL_PARAM, entry.sourceUrl);
-  return `${URL_ONTOLOGY_SEGMENT}${tabSegment}?${params}`;
+// /[organization]/ontology/[ontology slug](/[tab]), or, for an ontology with no route of its own,
+// the backend's own address for it, /[group]/ontologies/[served path](/[tab]). The tab is always
+// joined with its own "/", so a served path ending in one keeps it (`…/1.1//specification`).
+export const ontologyPath = (entry: OntologyEntry, tab = "", search = ""): string =>
+  entry.servedPath
+    ? `/${entry.org}/${ONTOLOGIES_SEGMENT}/${entry.servedPath}${tabSuffix(tab)}${search}`
+    : `/${entry.org}${ontologySegment(entry.slug)}${tabSuffix(tab)}${search}`;
+
+const ontologyTabNamed = (segment: string): string | undefined =>
+  ONTOLOGY_TABS.find((t) => t.path && t.path === segment)?.path;
+
+// Splits the trailing tab segment off whatever follows an ontology's own route, the way
+// `ontologyPath` joined it. The served path owns every other segment.
+export const splitOntologyTab = (path: string): { path: string; tab: string } => {
+  const at = path.lastIndexOf("/");
+  const tab = at < 0 ? undefined : ontologyTabNamed(path.slice(at + 1));
+  return tab ? { path: path.slice(0, at), tab } : { path, tab: "" };
 };
 
-// The ontology slug a term link carries to stay inside this ontology. Null for one opened by URL:
-// no /[org]/ontology/[slug] route resolves it, so its terms open on their plain routes.
+// The ontology a /[group]/ontologies/[served path](/[tab]) location names. Read off the raw
+// pathname rather than the route's splat, which react-router hands back percent-decoded: the served
+// path has to reach the backend exactly as it was addressed (`22-rdf-syntax-ns%23`).
+export const ontologyAtServedLocation = (
+  pathname: string
+): { entry?: OntologyEntry; tab: string } => {
+  const [, group, rest = ""] = pathname.match(INTERLEX_ONTOLOGY_PATH) || [];
+  const { path, tab } = splitOntologyTab(rest);
+  return { entry: group ? ontologyEntryForServedPath(decodeURIComponent(group), path) : undefined, tab };
+};
+
+// The ontology slug a term link carries to stay inside this ontology. Null for one with no
+// /[org]/ontology/[slug] route, whose terms open on their plain routes.
 export const ontologyRouteSlug = (entry?: OntologyEntry | null): string | null =>
-  entry && !entry.sourceUrl ? entry.slug : null;
+  entry && !entry.servedPath ? entry.slug : null;
 
 // Route to a term page. A term read inside an ontology hangs off that ontology's path, so the URL
 // carries the context the Cell Card resolves against — /[org]/ontology/[slug]/[term](/[tab]) — and

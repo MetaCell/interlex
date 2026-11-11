@@ -4,8 +4,8 @@ import { loadOntology, peekOntology, findCell } from "../services/ontologyGridSe
 /**
  * Resolve one cell from a context ontology.
  *
- * The Cell Card lives on the term page, which is outside the ontology layout route, so it
- * cannot read the parsed graph off `useOutletContext`. It calls the same `loadOntology` the
+ * The Cell Card lives on the term page, which is outside OntologyPage, so it
+ * cannot read the parsed graph off `useOntologyData`. It calls the same `loadOntology` the
  * grid uses instead: that memoizes both the ~16MB fetch and the parse at module level, so
  * arriving from a grid tile costs no network and no reparse, while a cold deep-link still
  * works on its own.

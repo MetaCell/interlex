@@ -21,7 +21,13 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate, useParams } from "react-router-dom";
 import CustomButton from "../common/CustomButton";
-import OrganizationCard from "./OrganizationCard";
+import VariantCard from "../Dashboard/Variants/VariantCard";
+import OntologyCard from "../Dashboard/Ontologies/OntologyCard";
+import { AddTermToActiveOntology, DownloadOntology } from "./ListingActions";
+import CustomBreadcrumbs from "../common/CustomBreadcrumbs";
+import SectionSideNav from "../common/SectionSideNav";
+import MessageDialog from "../common/MessageDialog";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import EmptyState from "../common/EmptyState";
 import CreateForkDialog from "./CreateForkDialog";
 import ForkRightIcon from '@mui/icons-material/ForkRight';
@@ -40,9 +46,15 @@ import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutl
 import { getOrganizationsCuries, getOrganizationsTerms, getOrganizationsOntologies, getOrganizations } from "../../api/endpoints/apiService";
 import { GlobalDataContext } from "../../contexts/DataContext";
 import { useContext } from "react";
+import { contributedTerms, listedOntologies, ontologyViewerPath, UNROUTABLE_ONTOLOGY_MESSAGE } from "../Dashboard/listings";
 
 import { vars } from "../../theme/variables";
 const { gray25, gray200, gray500, gray600 } = vars;
+
+const SIDE_NAV_ITEMS = [
+    { id: "organization-section-terms", label: "Organization terms" },
+    { id: "organization-section-ontologies", label: "Organization ontologies" },
+];
 
 const generatePageOptions = (totalItems) => {
     // Generate options that work well with 2-items-per-row layout
@@ -82,7 +94,7 @@ const useOrganizationData = (id) => {
                     getOrganizationsTerms(id).catch(error => {
                         if (error?.response?.status === 501) {
                             console.warn('Terms endpoint not implemented yet (501), using empty array');
-                            return { results: [] };
+                            return [];
                         }
                         throw error;
                     }),
@@ -106,7 +118,7 @@ const useOrganizationData = (id) => {
                 
                 // For organization data, we'll create a simple object with the name
                 setOrganization({ name: id });
-                setOrganizationTerms(termsRes?.results || []);
+                setOrganizationTerms(contributedTerms(termsRes));
                 
                 // Transform curies data: handle both array and object response formats
                 let curiesObject;
@@ -129,7 +141,7 @@ const useOrganizationData = (id) => {
                     setOrganizationCuries([]);
                 }
                 
-                setOrganizationOntologies(ontologiesRes || []);
+                setOrganizationOntologies(listedOntologies(ontologiesRes, id));
                 
                 // Fetch user role for this organization
                 if (user?.groupname) {
@@ -180,8 +192,9 @@ const useOrganizationData = (id) => {
                 }
                 throw error;
             });
-            setOrganizationOntologies(ontologiesRes || []);
-            return ontologiesRes || [];
+            const ontologies = listedOntologies(ontologiesRes, id);
+            setOrganizationOntologies(ontologies);
+            return ontologies;
         } catch (error) {
             console.error("Error refreshing ontologies", error);
             return [];
@@ -205,6 +218,7 @@ const SingleOrganization = () => {
     const [openManageOrgModal, setOpenManageOrgModal] = useState(false);
     const [termsPageOptions, setTermPageOptions] = useState([]);
     const [ontologiesPageOptions, setOntologiesPageOptions] = useState([]);
+    const [message, setMessage] = useState('');
 
     const navigate = useNavigate();
     const { title } = useParams(); // Get organization name from URL params
@@ -273,6 +287,15 @@ const SingleOrganization = () => {
         setActiveStep(0);
     };
 
+    const handleSelectOntology = (ontology) => {
+        const path = ontologyViewerPath(ontology);
+        if (path) {
+            navigate(path);
+        } else {
+            setMessage(UNROUTABLE_ONTOLOGY_MESSAGE);
+        }
+    };
+
     const handleOpenOntologyDialog = () => setOpenAddOntology(true);
     const handleCloseOntologyDialog = () => setOpenAddOntology(false);
     
@@ -327,21 +350,17 @@ const SingleOrganization = () => {
         <>
             <Box flex={1} display='flex' flexDirection='column'>
                 <Box sx={{ p: "2.25rem 5rem", backgroundColor: gray25, width: '100%', gap: '1.75rem', display: 'flex', flexDirection: 'column' }}>
+                    <CustomBreadcrumbs breadcrumbItems={[
+                        { label: '', href: '/', icon: HomeOutlinedIcon },
+                        { label: organization?.name || title },
+                    ]} />
                     <Box display='flex' alignItems='center' justifyContent='space-between'>
                         <Box display='flex' alignItems='center' gap={2}>
-                            <Typography variant="h4" component="h1" sx={{ fontWeight: 600, color: gray600 }}>
+                            <Typography component="h1" color={gray600} fontSize="1.875rem" fontWeight={600}>
                                 {organization?.name || title}
                             </Typography>
                             {userRole && (
-                                <Chip 
-                                    label={userRole} 
-                                    size="small"
-                                    color="primary"
-                                    sx={{ 
-                                        textTransform: 'capitalize',
-                                        fontWeight: 500
-                                    }}
-                                />
+                                <Chip className="darkGreen rounded" variant="outlined" label={userRole} />
                             )}
                         </Box>
                         <Stack direction="row" spacing="1rem" alignItems="center">
@@ -375,7 +394,8 @@ const SingleOrganization = () => {
                     </Grid>
                 </Box>
                 <Box flexGrow={1} overflow='auto'>
-                    <Box p='2.5rem 5rem' sx={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+                    <SectionSideNav items={SIDE_NAV_ITEMS} />
+                    <Box id="organization-section-terms" p='2.5rem 5rem' sx={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Typography fontSize='1.5rem' color={gray600} fontWeight={600}>
                                 Organization terms
@@ -422,8 +442,12 @@ const SingleOrganization = () => {
                                             (termsPage - 1) * termsPerPage, 
                                             termsPage * termsPerPage
                                         )
-                                        .map((data, index) => (
-                                            <OrganizationCard data={data} key={index} />
+                                        .map((term) => (
+                                            <VariantCard
+                                                term={term}
+                                                key={term.iri}
+                                                action={<AddTermToActiveOntology label={term.label} />}
+                                            />
                                         ))
                                 ) : (
                                     <Typography 
@@ -449,10 +473,10 @@ const SingleOrganization = () => {
                             />
                         )}
                     </Box>
-                    <Box p='2.5rem 5rem' sx={{ display: 'flex', flexDirection: 'column', gap: '1.75rem', backgroundColor: gray25 }}>
+                    <Box id="organization-section-ontologies" p='2.5rem 5rem' sx={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Typography fontSize='1.5rem' color={gray600} fontWeight={600}>
-                                Organization Ontology
+                                Organization ontologies
                             </Typography>
                             <Box display="flex" alignItems="center" gap={2} justifyContent="end">
                                 <Stack direction="row" alignItems="center" gap={1}>
@@ -496,8 +520,13 @@ const SingleOrganization = () => {
                                             (ontologiesPage - 1) * ontologiesPerPage, 
                                             ontologiesPage * ontologiesPerPage
                                         )
-                                        .map((data, index) => (
-                                            <OrganizationCard data={data} key={index} isOntology={true} />
+                                        .map((ontology) => (
+                                            <OntologyCard
+                                                ontology={ontology}
+                                                key={ontology.id}
+                                                onSelect={handleSelectOntology}
+                                                action={<DownloadOntology />}
+                                            />
                                         ))
                                 ) : (
                                     <Typography 
@@ -534,6 +563,7 @@ const SingleOrganization = () => {
             />
             <CreateForkDialog open={openFork} handleClose={handleCloseForkDialog} onSubmit={() => console.log("Create a new fork!")} />
             {/* <LeaveModal open={openLeaveModal} handleClose={handleCloseLeaveModal} /> */}
+            {message && <MessageDialog title="Ontology viewer" open={!!message} handleClose={() => setMessage('')} message={message} />}
             
             {/* Manage Organization Modal */}
             <Dialog 

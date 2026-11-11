@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
-import { Link as RouterLink, useOutletContext } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
+import { useOntologyData } from "./OntologyDataContext";
 import {
   Alert,
   AlertTitle,
@@ -75,7 +76,7 @@ const NoTermsYet = () => (
 // The "Specification" tab: the ontology's own header (its owl:Ontology node), one row per
 // annotation, read from the same document the other tabs are built from.
 const OntologySpecPage = () => {
-  const { data } = useOutletContext();
+  const data = useOntologyData();
   const { entry, meta, spec } = data;
   const linkContext = useTermLinkContext();
 

@@ -116,16 +116,19 @@ const loadGraph = async ({ dataUrl, localDataUrl }: OntologyEntry): Promise<Onto
   throw primaryErr instanceof Error ? primaryErr : new Error("Failed to load ontology data");
 };
 
-// Fetch + JSON.parse only once per session, per document.
+// Fetch + JSON.parse only once per session, per source. Keyed by the same-origin copy as well: an
+// ontology addressed by its served path must be read from there, never from a catalogued
+// ontology's baked copy of the same document.
 const graphs = new Map<string, Promise<OntologyGraph>>();
 const getGraph = (entry: OntologyEntry): Promise<OntologyGraph> => {
-  const pending = graphs.get(entry.dataUrl);
+  const key = `${entry.dataUrl} ${entry.localDataUrl ?? ""}`;
+  const pending = graphs.get(key);
   if (pending) return pending;
   const request = loadGraph(entry).catch((err) => {
-    graphs.delete(entry.dataUrl); // allow retry on next mount after a failure
+    graphs.delete(key); // allow retry on next mount after a failure
     throw err;
   });
-  graphs.set(entry.dataUrl, request);
+  graphs.set(key, request);
   return request;
 };
 
@@ -198,14 +201,14 @@ export const slugToCurie = (slug: string): string => {
 export const curieToSlug = (curie: string): string => (curie || "").replace(":", "_");
 
 // Where a term listed by an ontology opens. A term of a routed ontology stays under that
-// ontology's path; one of an ontology opened by URL has no such path, and opens wherever its IRI
+// ontology's path; one of an ontology addressed by its served path has no such path, and opens wherever its IRI
 // leads — its InterLex page, or InterLex's record of an external term.
 export const ontologyTermHref = (
   entry: OntologyEntry,
   cell: Pick<CellTerm, "curie" | "iri">,
   tab = ""
 ): string | undefined =>
-  entry.sourceUrl
+  entry.servedPath
     ? termLink(cell, { group: entry.org, ontologySlug: null })
     : termPath(entry.org, entry.slug, curieToSlug(cell.curie), tab);
 

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { useOutletContext, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useOntologyData } from "./OntologyDataContext";
 import { Box, Typography, Stack } from "@mui/material";
 import GridFilterSidebar from "./GridFilterSidebar";
 import GridSearchBar from "./GridSearchBar";
@@ -63,10 +64,10 @@ const needsAllFacets = (data, checked) => {
   return names.some((n) => !displayed.has(n) && all.has(n));
 };
 
-// The "Grid View" tab. The ontology itself is loaded by the OntologyPage layout route and
-// arrives through the outlet context, so switching tabs does not refetch it.
+// The "Grid View" tab. The ontology itself is loaded by OntologyPage and
+// arrives through OntologyDataContext, so switching tabs does not refetch it.
 const OntologyGridPage = () => {
-  const { data } = useOutletContext();
+  const data = useOntologyData();
   const navigate = useNavigate();
   const { pathname, search } = useLocation();
   const [displayedOnly, setDisplayedOnly] = useState(true);
@@ -196,7 +197,7 @@ const OntologyGridPage = () => {
     (cell) => {
       const href = ontologyTermHref(data.entry, cell, "cell-card");
       if (!href) return;
-      if (!data.entry.sourceUrl) primeTermDataCache(data.entry.org, curieToSlug(cell.curie), cell.label);
+      if (!data.entry.servedPath) primeTermDataCache(data.entry.org, curieToSlug(cell.curie), cell.label);
       navigate(href);
     },
     [navigate, data]

@@ -261,7 +261,69 @@ const theme = createTheme({
 						boxShadow: `0 0 0 4px ${alpha(brand500, 0.24)}`
 					}
 				}
-			}
+			},
+			variants: [
+				// A row of the dashboards' term / ontology listings: a ruled entry rather than a boxed
+				// card, marked on hover by a brand accent bar and a brand title, with its action
+				// (`.listingAction`) revealed only then.
+				{
+					props: { variant: "listing" },
+					style: {
+						display: "flex",
+						flexDirection: "column",
+						gap: "1rem",
+						position: "relative",
+						minHeight: "11.314rem",
+						padding: "1.5rem",
+						cursor: "pointer",
+						border: 0,
+						borderBottom: `1px solid ${gray200}`,
+						borderRadius: 0,
+						boxShadow: "none",
+						backgroundColor: "transparent",
+						"& .listingTitle": {
+							color: gray700
+						},
+						"& .listingDescription": {
+							color: gray500,
+							display: "-webkit-box",
+							WebkitBoxOrient: "vertical",
+							WebkitLineClamp: 2,
+							overflow: "hidden",
+							textOverflow: "ellipsis"
+						},
+						"& .listingAction": {
+							opacity: 0,
+							visibility: "hidden",
+							transition: "opacity 0.3s ease-in-out"
+						},
+						"&:hover": {
+							backgroundColor: "transparent",
+							"&:before": {
+								position: "absolute",
+								top: "1.8rem",
+								left: 0,
+								content: '""',
+								height: "1.5rem",
+								width: "2px",
+								borderRadius: "3px",
+								background: brand600
+							},
+							"& .listingTitle": {
+								color: brand600
+							},
+							"& .greenChip": {
+								border: `1px solid ${brand200}`,
+								background: brand50
+							},
+							"& .listingAction": {
+								opacity: 1,
+								visibility: "visible"
+							}
+						}
+					}
+				}
+			]
 		},
 		MuiCardContent: {
 			styleOverrides: {

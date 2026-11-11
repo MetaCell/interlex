@@ -4,7 +4,7 @@ import {vars} from "../../theme/variables";
 
 const {gray300, gray700, gray50} = vars;
 
-const CustomButton = ({sx = {}, onClick, children}) => {
+const CustomButton = ({sx = {}, className, disabled, onClick, children}) => {
     return (
         <IconButton
             sx={{
@@ -18,6 +18,8 @@ const CustomButton = ({sx = {}, onClick, children}) => {
                 '&:hover': { background: gray50 },
                 ...sx
             }}
+            className={className}
+            disabled={disabled}
             onClick={onClick}
         >
             {children}
@@ -27,6 +29,8 @@ const CustomButton = ({sx = {}, onClick, children}) => {
 
 CustomButton.propTypes = {
     sx: PropTypes.object,
+    className: PropTypes.string,
+    disabled: PropTypes.bool,
     onClick: PropTypes.func,
     children: PropTypes.node
 }

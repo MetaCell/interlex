@@ -7,8 +7,7 @@ import {
 	Route,
 	Navigate,
 	useLocation,
-	useNavigate,
-	useParams
+	useNavigate
 } from "react-router-dom";
 import theme from "./theme";
 import PropTypes from "prop-types";
@@ -25,14 +24,11 @@ import Organizations from "./components/organizations";
 import SingleTermView from "./components/SingleTermView";
 import PullRequestView from "./components/PullRequest";
 import OntologyPage from "./components/CellCards/OntologyPage";
-import OntologyGridPage from "./components/CellCards/OntologyGridPage";
-import OntologyBrowsePage from "./components/CellCards/OntologyBrowsePage";
-import OntologySpecPage from "./components/CellCards/OntologySpecPage";
-import { SPECIFICATION_TAB, URL_ONTOLOGY_SEGMENT } from "./components/CellCards/config/gridConfig";
+import { SPECIFICATION_TAB } from "./components/CellCards/config/gridConfig";
 import { GlobalDataProvider } from "./contexts/DataContext";
 import ResetPassword from "./components/Auth/ResetPassword";
 import ForgotPassword from "./components/Auth/ForgotPassword";
-import SingleOrganization from "./components/SingleOrganization";
+import GroupPage from "./components/GroupPage";
 import TermActivity from "./components/term_activity/TermActivity";
 import Documentation from "./components/documentation/Documentation";
 import OrganizationsCurieEditor from "./components/CurieEditor/OrganizationCurieEditor";
@@ -51,21 +47,13 @@ const PageContainer = ({ children }) => {
 	);
 };
 
-// The address InterLex gives an ontology a group keeps (uri.interlex.org/{group}/ontologies/uris/
-// {name}), so a copied identity URL resolves here too. It redirects rather than rendering in place:
-// everything below it (.jsonld, /spec, /version/…) is the backend's, proxied, and no tab of the
-// page could ever live there.
-const OntologyIdentityRedirect = () => {
-	const { group, name } = useParams();
-	const { search } = useLocation();
-	return <Navigate to={`/${group}/ontology/${name}${search}`} replace />;
-};
-
+// OntologyPage renders the tab itself. These routes carry no element: they exist so a tab segment
+// outranks the term route below, which would otherwise read /:org/ontology/:slug/browse as a term.
 const ontologyTabRoutes = (
 	<>
-		<Route index element={<OntologyGridPage />} />
-		<Route path="browse" element={<OntologyBrowsePage />} />
-		<Route path={SPECIFICATION_TAB} element={<OntologySpecPage />} />
+		<Route index />
+		<Route path="browse" />
+		<Route path={SPECIFICATION_TAB} />
 	</>
 );
 
@@ -222,20 +210,18 @@ function MainContent() {
 					>
 						{ontologyTabRoutes}
 					</Route>
-					{/* Any ontology InterLex serves, named by its URL (?url=…): one with no route of its
-					    own, such as an external ontology or a group's ontology kept under a nested path.
-					    Takes the same tabs. */}
+					{/* Any ontology InterLex serves, at the backend's own address for it:
+					    /{group}/ontologies/dns/{host}/{path} for an external ontology, /{group}/ontologies/
+					    uris/{name}(…) for a group's own, so a copied identity URL resolves here too. One with
+					    a route of its own redirects there. */}
 					<Route
-						path={URL_ONTOLOGY_SEGMENT}
+						path="/:group/ontologies/*"
 						element={
 							<PageContainer>
 								<OntologyPage />
 							</PageContainer>
 						}
-					>
-						{ontologyTabRoutes}
-					</Route>
-					<Route path="/:group/ontologies/uris/:name" element={<OntologyIdentityRedirect />} />
+					/>
 					{/* A term read inside an ontology: the same page as the plain term route below, with
 					    the context ontology named by the path. A sibling of the ontology route rather than a
 					    child of it — the term page brings its own header, and the layout route above would
@@ -268,7 +254,7 @@ function MainContent() {
 						element={
 							<ProtectedRoute>
 								<PageContainer>
-									<SingleOrganization />
+									<GroupPage />
 								</PageContainer>
 							</ProtectedRoute>
 						}
