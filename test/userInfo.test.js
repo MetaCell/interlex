@@ -1,5 +1,5 @@
 const { launchBrowser } = require("./helpers/browser");
-const { login, logout, AVATAR, AVATAR_BUTTON } = require("./helpers/auth");
+const { login, logout, AVATAR_BUTTON } = require("./helpers/auth");
 const { getTexts } = require("./helpers/dom");
 const { BASE_URL, USERNAME, PASSWORD, TIMEOUT } = require("./helpers/constants");
 
