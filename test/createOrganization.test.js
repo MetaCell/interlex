@@ -1,160 +1,74 @@
-//IMPORTS:
-const puppeteer = require("puppeteer");
-
-// INFO
-const USERNAME = process.env.TEST_USERNAME 
-const PASSWORD = process.env.TEST_PASSWORD 
-const baseURL = process.env.DOMAIN || 'https://interlex.dev.metacell.us/'
+const { launchBrowser } = require("./helpers/browser");
+const { login } = require("./helpers/auth");
+const { clickByText, getTexts } = require("./helpers/dom");
+const { BASE_URL, USERNAME, PASSWORD, TIMEOUT } = require("./helpers/constants");
 
 const ORGANIZATION_TEXT = [`If you would like to create a new organization please contact support@interlex.org with "new organization request" as the subject. Please include the name of the organization that you would like to create, a brief explaination of what it will be used for, and the interlex username associated with the email you are sending from which will become the owner of the new organization.`]
 
-//TESTS:
+// The header's icon-only nav button has no visible text/label, so it can't use clickByText —
+// this is the one selector in this file still matched by class. The class list here is
+// deduplicated from the original, which repeated the same compound selector twice back to back.
+const NAV_MENU_BUTTON = '.MuiButtonBase-root.MuiButton-outlined.MuiButton-outlinedPrimary.MuiButton-sizeMedium.MuiButton-outlinedSizeMedium.MuiButton-colorPrimary.MuiButton-disableElevation';
+const CREATE_ORG_BUTTON = 'button.MuiButtonBase-root.MuiButton-root.MuiButton-text.MuiButton-textPrimary.MuiButton-sizeMedium.MuiButton-textSizeMedium.MuiButton-colorPrimary.MuiButton-disableElevation';
 
 jest.setTimeout(60000);
+// CI hits a real deployment over the network; retrying absorbs a single transient blip
+// (a slow backend response, a dropped request) without masking a genuine, repeatable failure.
+if (typeof jest.retryTimes === "function") {
+    jest.retryTimes(2, { logErrorsBeforeRetry: true });
+}
+
 let page;
 let browser;
-
 
 describe('Smoke Tests', () => {
 
     beforeAll(async () => {
-
-        browser = await puppeteer.launch({
-            args: [
-                '--no-sandbox', '--disable-setuid-sandbox', '--bail',
-            ],
-            headless: 'new',
-            // headless: false,
-            defaultViewport: {
-                width: 1600,
-                height: 1000,
-            },
-            // slowMo: 30
-        });
-
-
+        browser = await launchBrowser();
         page = await browser.newPage();
-        await console.log(
-            "Checking page",
-            baseURL
-        );
-        await console.log('Starting tests ...')
 
-        await page.goto(baseURL, { waitUntil: 'domcontentloaded' });
+        await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
         const pageTitle = await page.title();
-        console.log(pageTitle);
         expect(pageTitle).toBe('Interlex')
     });
 
     afterAll(async () => {
-
         await browser.close()
     })
 
     describe('Login', () => {
 
         it('Home Page check', async () => {
-            console.log('Going to the homepage ...')
-            await page.waitForSelector('a[href="/"]', { timeout: 1000 });
-            await page.waitForSelector('.MuiAutocomplete-root', { timeout: 1000 });
-            console.log('Homepage found')
-
+            await page.waitForSelector('a[href="/"]', { timeout: TIMEOUT.medium });
+            await page.waitForSelector('.MuiAutocomplete-root', { timeout: TIMEOUT.medium });
         });
 
-        it('Login using ORCid', async () => {
-            console.log('Logging in ...');
-            console.log('Testing user: ' + USERNAME)
-            await page.evaluate(() => {
-                const buttons = Array.from(document.querySelectorAll('button'));
-                const loginButton = buttons.find(btn => btn.innerText === 'Log in');
-                if (loginButton) loginButton.click();
-                else throw new Error("Log In button not found");
-            });
-
-            await page.waitForSelector('h4.MuiTypography-root.MuiTypography-h4', { timeout: 1000 });
-            await page.waitForSelector('div:has(input[name="username"])', { timeout: 1000 });
-
-
-            // Store the pages before clicking
-            const pagesBefore = await browser.pages();
-
-            // Click the "Sign in with ORCID" button
-            await page.evaluate(() => {
-                const btns = Array.from(document.querySelectorAll('button'));
-                const orcidloginbtn = btns.find(btn => btn.innerText === 'Sign in with ORCID');
-                if (orcidloginbtn) orcidloginbtn.click();
-                else throw new Error("Sign in with ORCID button not found");
-            });
-
-            // Wait for the new page to open
-            let orcidPage;
-            await browser.waitForTarget(
-                target => target.url().includes('orcid.org'),
-                { timeout: 5000 }
-            );
-            const pagesAfter = await browser.pages();
-            orcidPage = pagesAfter.find(p => !pagesBefore.includes(p));
-
-            // Wait for the ORCID page to load
-            await orcidPage.bringToFront();
-            await orcidPage.waitForNavigation({ waitUntil: 'domcontentloaded' });
-
-            // Now interact with the ORCID page
-            await orcidPage.waitForSelector('#onetrust-accept-btn-handler', { timeout: 1000 });
-            await orcidPage.click('#onetrust-accept-btn-handler');
-            await orcidPage.waitForSelector('#username-input', { timeout: 1000 });
-            await orcidPage.type('#username-input', USERNAME);
-            await orcidPage.waitForSelector('#password', { timeout: 1000 });
-            await orcidPage.type('#password', PASSWORD);
-            await orcidPage.waitForSelector('#signin-button');
-            await orcidPage.click('#signin-button');
-
-            await new Promise(resolve => orcidPage.once('close', resolve));
-            await page.waitForSelector('.MuiAvatar-root.MuiAvatar-circular.MuiAvatar-colorDefault', { timeout: 1000 });
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            console.log('Logged In');
+        it('Login', async () => {
+            await login(page, { username: USERNAME, password: PASSWORD });
         });
     })
 
     describe('Create Organization', () => {
 
         it('Organizations page', async () => {
-            console.log('Checking organizations page ...')
+            await page.waitForSelector(NAV_MENU_BUTTON, { timeout: TIMEOUT.medium });
+            await page.click(NAV_MENU_BUTTON);
+            await page.waitForSelector('.MuiPaper-elevation ul.MuiList-padding li', { timeout: TIMEOUT.medium });
 
-            await page.waitForSelector('.MuiButtonBase-root.MuiButton-root.MuiButton-outlined.MuiButton-outlinedPrimary.MuiButton-sizeMedium.MuiButton-outlinedSizeMedium.MuiButton-colorPrimary.MuiButton-disableElevation.MuiButton-root.MuiButton-outlined.MuiButton-outlinedPrimary.MuiButton-sizeMedium.MuiButton-outlinedSizeMedium.MuiButton-colorPrimary.MuiButton-disableElevation', { timeout: 1000 });
-            await page.click('.MuiButtonBase-root.MuiButton-root.MuiButton-outlined.MuiButton-outlinedPrimary.MuiButton-sizeMedium.MuiButton-outlinedSizeMedium.MuiButton-colorPrimary.MuiButton-disableElevation.MuiButton-root.MuiButton-outlined.MuiButton-outlinedPrimary.MuiButton-sizeMedium.MuiButton-outlinedSizeMedium.MuiButton-colorPrimary.MuiButton-disableElevation');
-            await page.waitForSelector('.MuiPaper-elevation ul.MuiList-padding', { timeout: 1000 });
-            await page.waitForSelector('.MuiPaper-elevation ul.MuiList-padding li', { timeout: 1000 });
-            
-            await page.evaluate(() => {
-                const listbtns = Array.from(document.querySelectorAll('.MuiPaper-elevation ul.MuiList-padding li div'));
-                const orgbtn = listbtns.find(listbtn => listbtn.innerText === 'Organizations');
-                if (orgbtn) orgbtn.click();
-                else throw new Error("Organizations button not found");
-            });
-            // await page.waitForSelector('span[role="progressbar"]', { timeout: 2000, hidden: false });
-            // await page.waitForSelector('span[role="progressbar"]', { timeout: 2000, hidden: true });
+            await clickByText(page, '.MuiPaper-elevation ul.MuiList-padding li div', 'Organizations');
 
-            await page.waitForSelector('button.MuiButtonBase-root.MuiButton-root.MuiButton-text.MuiButton-textPrimary.MuiButton-sizeMedium.MuiButton-textSizeMedium.MuiButton-colorPrimary.MuiButton-disableElevation', { timeout: 2000 });
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Wait directly for the organizations list UI rather than racing a loading
+            // spinner's appear-then-disappear: that intermediate state is incidental (it can
+            // be too brief to observe) and was a source of flakiness unrelated to what this
+            // test actually verifies.
+            await page.waitForSelector(CREATE_ORG_BUTTON, { timeout: TIMEOUT.long });
         })
+
         it('Create org', async () => {
-            await page.waitForSelector('button.MuiButtonBase-root.MuiButton-root.MuiButton-text.MuiButton-textPrimary.MuiButton-sizeMedium.MuiButton-textSizeMedium.MuiButton-colorPrimary.MuiButton-disableElevation', { timeout: 2000 });
-            await page.evaluate(() => {
-                const btn = Array.from(document.querySelectorAll('button.MuiButtonBase-root.MuiButton-root.MuiButton-text.MuiButton-textPrimary.MuiButton-sizeMedium.MuiButton-textSizeMedium.MuiButton-colorPrimary.MuiButton-disableElevation'))
-                    .find(btn => btn.innerText.trim() === 'Create a new organization');
-                if (btn) btn.click();
-                else throw new Error('Create new organization button not found');
-            });
-            await page.waitForSelector('div[aria-describedby="alert-dialog-description"]', { timeout: 3000 });
-            await page.waitForSelector('div[aria-describedby="alert-dialog-description"] > div', { timeout: 2000 });
+            await clickByText(page, CREATE_ORG_BUTTON, 'Create a new organization');
+            await page.waitForSelector('div[aria-describedby="alert-dialog-description"] > div', { timeout: TIMEOUT.medium });
 
-            const popupText = await page.evaluate(() => {
-                return Array.from(
-                    document.querySelectorAll('div[aria-describedby="alert-dialog-description"] > div')
-                ).map(el => el.innerText.trim());
-            });
-
+            const popupText = await getTexts(page, 'div[aria-describedby="alert-dialog-description"] > div');
             ORGANIZATION_TEXT.forEach(txt => {
                 expect(popupText.some(text => text.includes(txt))).toBe(true);
             });
