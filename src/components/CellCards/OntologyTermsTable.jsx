@@ -5,7 +5,6 @@ import { Box, IconButton, Link, Stack, Tooltip, Typography } from "@mui/material
 import { DataGrid } from "@mui/x-data-grid";
 import ArrowOutwardOutlinedIcon from "@mui/icons-material/ArrowOutwardOutlined";
 import GridSearchBar from "./GridSearchBar";
-import { ontologyTermHref } from "./services/ontologyGridService";
 
 // Most of these terms describe themselves in far more than the two lines the design's row
 // allows, so the text is capped at two and the cell's title carries the whole thing.
@@ -30,7 +29,8 @@ const definitionTitle = (row) =>
 // The term's name is the primary action, and it opens the term *without* naming a tab: which view
 // a term opens on is the term page's decision, and only it knows whether there is a Cell Card to
 // show (SingleTermView defaults a cell to the Cell Card and anything else to Overview). The action
-// column is the same destination in a new tab, for reading a term without losing the browse.
+// column is the same destination in a new tab, for reading a term without losing the browse. A
+// term no page of the app addresses (a readable predicate IRI, say) has neither, and reads as text.
 const columns = [
   {
     field: "label",
@@ -40,19 +40,24 @@ const columns = [
     // The grid gives each *cell* a roving tabIndex but does not manage focusable children, so an
     // interactive cell has to take it or every row becomes a permanent tab stop — 100 rows a page,
     // two links each.
-    renderCell: ({ row, tabIndex }) => (
-      <Link
-        component={RouterLink}
-        to={row.href}
-        tabIndex={tabIndex}
-        variant="body2"
-        color="text.primary"
-        underline="hover"
-        title={row.label}
-      >
-        {row.label}
-      </Link>
-    ),
+    renderCell: ({ row, tabIndex }) =>
+      row.href ? (
+        <Link
+          component={RouterLink}
+          to={row.href}
+          tabIndex={tabIndex}
+          variant="body2"
+          color="text.primary"
+          underline="hover"
+          title={row.label}
+        >
+          {row.label}
+        </Link>
+      ) : (
+        <Typography variant="body2" noWrap title={row.label}>
+          {row.label}
+        </Typography>
+      ),
   },
   { field: "curie", headerName: "ID", flex: 176, minWidth: 130 },
   { field: "rdfType", headerName: "rdf:type", flex: 176, minWidth: 130 },
@@ -74,21 +79,22 @@ const columns = [
     width: 72,
     sortable: false,
     align: "center",
-    renderCell: ({ row, tabIndex }) => (
-      <Tooltip title="Open term in new tab">
-        <IconButton
-          size="small"
-          component="a"
-          href={row.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          tabIndex={tabIndex}
-          aria-label={`Open ${row.label} in a new tab`}
-        >
-          <ArrowOutwardOutlinedIcon fontSize="inherit" />
-        </IconButton>
-      </Tooltip>
-    ),
+    renderCell: ({ row, tabIndex }) =>
+      row.href && (
+        <Tooltip title="Open term in new tab">
+          <IconButton
+            size="small"
+            component="a"
+            href={row.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            tabIndex={tabIndex}
+            aria-label={`Open ${row.label} in a new tab`}
+          >
+            <ArrowOutwardOutlinedIcon fontSize="inherit" />
+          </IconButton>
+        </Tooltip>
+      ),
   },
 ];
 
@@ -102,21 +108,21 @@ const matches = (row, query) =>
 
 // The "Terms" widget: the terms the hierarchy beside it has scoped to, named by `scopeDescription`
 // so the table says why these rows and not others. The word filter narrows that further.
-const OntologyTermsTable = ({ cells, entry, scopeDescription, emptyMessage }) => {
+const OntologyTermsTable = ({ terms, hrefFor, scopeDescription, scopeControl, emptyMessage }) => {
   const [word, setWord] = useState("");
 
   const rows = useMemo(
     () =>
-      cells.map((cell) => ({
-        id: cell.id,
-        label: cell.label,
-        curie: cell.curie,
-        href: ontologyTermHref(entry, cell),
-        rdfType: cell.rdfTypes.join(", "),
-        definition: cell.definition || "",
-        definitionCurated: cell.definitionCurated ?? true,
+      terms.map((term) => ({
+        id: term.id,
+        label: term.label,
+        curie: term.curie,
+        href: hrefFor(term),
+        rdfType: term.rdfTypes.join(", "),
+        definition: term.definition || "",
+        definitionCurated: term.definitionCurated ?? true,
       })),
-    [cells, entry]
+    [terms, hrefFor]
   );
 
   const filteredRows = useMemo(() => {
@@ -132,7 +138,10 @@ const OntologyTermsTable = ({ cells, entry, scopeDescription, emptyMessage }) =>
           {scopeDescription}
         </Typography>
       </Stack>
-      <GridSearchBar value={word} onSubmit={setWord} />
+      <Stack direction="row" alignItems="center" justifyContent="space-between" gap={2} flexWrap="wrap">
+        <GridSearchBar value={word} onSubmit={setWord} />
+        {scopeControl}
+      </Stack>
       <Box sx={{ flex: 1, minHeight: 0 }}>
         {filteredRows.length ? (
           <DataGrid
@@ -171,11 +180,13 @@ const OntologyTermsTable = ({ cells, entry, scopeDescription, emptyMessage }) =>
 };
 
 OntologyTermsTable.propTypes = {
-  cells: PropTypes.array.isRequired,
-  // The ontology every row's term page hangs off — /[org]/ontology/[slug]/[term].
-  entry: PropTypes.shape({ org: PropTypes.string, slug: PropTypes.string }).isRequired,
+  terms: PropTypes.array.isRequired,
+  // Where a row's term opens; undefined for a term with no page to open.
+  hrefFor: PropTypes.func.isRequired,
   // What the rows are, in the hierarchy's own words ("sub class of X").
   scopeDescription: PropTypes.string.isRequired,
+  // Whatever chooses the scope, shown beside the word filter.
+  scopeControl: PropTypes.node,
   // Shown when the scope holds no term at all, as opposed to the filter matching none of them.
   emptyMessage: PropTypes.string.isRequired,
 };

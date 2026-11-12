@@ -5,7 +5,8 @@ import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import BreadcrumbBar from "../common/BreadcrumbBar";
 import CommunityHubLink from "../common/CommunityHubLink";
 import CustomTabs from "../common/CustomTabs";
-import { ONTOLOGY_TABS, ontologyPath } from "./config/gridConfig";
+import { GRID_TAB, ONTOLOGY_TABS, ontologyPath } from "./config/gridConfig";
+import { hasCells } from "./services/ontologyGridService";
 import { vars } from "../../theme/variables";
 
 const { gray200, gray500, gray600 } = vars;
@@ -14,7 +15,8 @@ const { gray200, gray500, gray600 } = vars;
 // tabs changes only the body below it.
 const OntologyHeader = ({ data, tab }) => {
   const navigate = useNavigate();
-  const tabIndex = Math.max(0, ONTOLOGY_TABS.findIndex((t) => t.path === tab));
+  const tabs = hasCells(data) ? ONTOLOGY_TABS : ONTOLOGY_TABS.filter((t) => t.path !== GRID_TAB);
+  const tabIndex = Math.max(0, tabs.findIndex((t) => t.path === tab));
 
   return (
     <>
@@ -33,7 +35,7 @@ const OntologyHeader = ({ data, tab }) => {
 
       {/* Header: title + curation status -> description -> version -> tags -> tabs.
           Title / description / version are read from the file's owl:Ontology node;
-          the curie is the real root class the grid is scoped to. */}
+          the curie is the root class the grid is restricted to. */}
       <Container variant="header" sx={{ borderBottom: `1px solid ${gray200}`, display: "flex", flexDirection: "column", gap: 1 }}>
         <Stack direction="row" alignItems="center" gap={1.5} flexWrap="wrap">
           <Typography variant="h5">{data.meta.title}</Typography>
@@ -57,14 +59,16 @@ const OntologyHeader = ({ data, tab }) => {
           </Typography>
           {data.entry.type && <Chip label={data.entry.type} color="secondary" />}
           <Chip label={data.entry.community} color="success" />
-          {data.entry.rootClass && <Chip label={data.entry.rootClass} variant="outlined" />}
+          {data.rootClasses.map((root) => (
+            <Chip key={root.id} label={root.curie} variant="outlined" />
+          ))}
         </Stack>
 
         <CustomTabs
-          tabs={ONTOLOGY_TABS.map((t) => ({ label: t.label, disabled: t.path === undefined }))}
+          tabs={tabs.map((t) => ({ label: t.label, disabled: t.path === undefined }))}
           tabValue={tabIndex}
           handleChange={(_e, i) => {
-            const next = ONTOLOGY_TABS[i]?.path;
+            const next = tabs[i]?.path;
             if (next !== undefined) navigate(ontologyPath(data.entry, next));
           }}
           parentBoxStyles={{ mt: 1, borderBottom: 0 }}

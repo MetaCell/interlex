@@ -65,14 +65,17 @@ Supporting changes outside that directory:
 ```
 useCellTerm(termSlug, entry)               entry = ontologyEntry(group, ontologySlug)
   └─ loadOntology(entry)                    memoised: graphs (fetch, per dataUrl) + parsedCache (parse)
-       └─ parseNeurdf(graph, rootClass)     -> { cells, hierarchy, predicateDisplay, meta }
+       └─ parseNeurdf(graph, rootClass)     -> { terms, cells, hierarchy, rootClasses, predicateDisplay, meta }
   └─ findCell(data, termSlug)               "npokb_998" -> "npokb:998"
 ```
 
 `ontologyEntry` answers the catalogued entry for a known slug (`precision`, read from the neurdf
 file) and otherwise an ontology the group keeps in InterLex: `/{group}/ontology/{name}` reads
-`/{group}/ontologies/uris/{name}.jsonld`, with no root class, so every neuron in the document is a
-cell and the document itself roots the hierarchy. The backend's own address for it,
+`/{group}/ontologies/uris/{name}`. `terms` is every term the document declares, whatever its type,
+and is what the Browse tab lists. `cells` is the subset the grid and the Cell Card render: the
+classes descending from the root class the ontology's header names (or the catalogue configures)
+or, with no root class, the records typed `neurdf:Neuron` / `neurdf:Cell`. A cell with that typing
+is read from its flat neurdf predicates; any other falls back to its OWL class expressions. The backend's own address for it,
 `/{group}/ontologies/uris/{name}`, redirects to that route.
 
 Both memos are module-level, so arriving from a grid tile costs **no network and no reparse**;

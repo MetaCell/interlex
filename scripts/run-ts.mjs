@@ -40,6 +40,9 @@ try {
     // Only our own sources need bundling; node builtins and anything from node_modules stay
     // external so this does not try to bundle the whole dependency tree.
     packages: "external",
+    // src/config.js reads a VITE_* variable and the page origin at load. Vite and the browser
+    // provide both; plain Node provides neither, and would throw before any check ran.
+    define: { "import.meta.env": "{}", "window.location.origin": '"http://localhost"' },
     logLevel: "warning",
   });
 } catch {

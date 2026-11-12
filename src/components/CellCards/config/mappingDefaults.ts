@@ -95,22 +95,31 @@ export const DEFAULT_FIELD_SOURCES: FieldSources = {
   // Most-human-readable first, machine id last (spec §1.1: "if no localLabel, then rdfs:label").
   // `ilxtr:genLabel` is deliberately absent — it is the verbose machine-generated phenotype
   // string, usable as a description but never as a title.
-  title: exact("ilxtr:localLabel", "rdfs:label", "dc:title", "dcterms:title"),
-  // The first four are prose written by a curator; the last two are fallbacks so a term with none
-  // of those is still described.
+  // `ilxtr:origLocalLabel` is what the next Precision release names its cells with; the files
+  // before it carry `ilxtr:localLabel` only.
+  title: exact("ilxtr:origLocalLabel", "ilxtr:localLabel", "rdfs:label", "dc:title", "dcterms:title"),
+  // The first six are prose written by a curator; the last two are fallbacks so a term with none
+  // of those is still described. IAO:0000115 is the OBO definition, under the two prefixes a file
+  // may compact it with when its @context does not alias it to `definition`.
   description: exact(
     "definition",
+    "IAO:0000115",
+    "obo:IAO_0000115",
     "skos:definition",
     "NIFRID:definition",
     "rdfs:comment",
     "ilxtr:genLabel",
     "ilxtr:curatorNote"
   ),
-  curatedDescriptionSources: 4,
+  curatedDescriptionSources: 6,
 
   // Spelled out: an ontology InterLex serialises for a group may declare no `neurdf` prefix at all.
-  cellType: exact("http://uri.interlex.org/tgbugs/uris/readable/neurdf/Neuron"),
+  cellType: exact(
+    "http://uri.interlex.org/tgbugs/uris/readable/neurdf/Neuron",
+    "http://uri.interlex.org/tgbugs/uris/readable/neurdf/Cell"
+  ),
   parent: exact("rdfs:subClassOf"),
+  propertyParent: exact("rdfs:subPropertyOf"),
 
   literatureCitation: exact("ilxtr:literatureCitation"),
   // What Tom puts on every DOI (#187): the short citation exactly as it should read, and the
@@ -147,6 +156,10 @@ export const DEFAULT_FIELD_SOURCES: FieldSources = {
   ontologyTitle: exact("dc:title", "dcterms:title", "rdfs:label", "skos:prefLabel"),
   ontologyDescription: exact("dc:description", "dcterms:description", "rdfs:comment"),
   ontologyVersion: exact("owl:versionInfo"),
+  // TODO: confirm with the backend which header annotation names the root class. No served
+  // ontology carries one yet, so both spellings are guesses: an InterLex-style `rootClass`, and
+  // OBO's "has ontology root term" (IAO:0000700), which is what OLS reads for the same purpose.
+  ontologyRootClass: anyPrefix("ilxtr:rootClass", "IAO:0000700", "obo:IAO_0000700"),
   // TODO: confirm with the curators which annotation actually carries the Community hub link, and
   // whether it also carries the badge's display name (§4.1 wants "PRECISION Community Hub", not a
   // bare URL). Both spellings below are guesses: the spec names `ilxtr:developmentCommunity`, the
@@ -268,6 +281,12 @@ export const DEFAULT_MAPPINGS: OntologyMappings = {
           },
           {
             localName: "hasNucleicAcidExpressionPhenotype",
+            kind: "expresses",
+            label: "expresses",
+            direction: "right",
+          },
+          {
+            localName: "hasExpressionPhenotype",
             kind: "expresses",
             label: "expresses",
             direction: "right",

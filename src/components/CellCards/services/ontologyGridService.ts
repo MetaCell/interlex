@@ -1,9 +1,16 @@
-// Service seam for the CellCards grid: fetches the neurdf JSON-LD once, parses it
-// generically, and exposes cells + data-driven facets. Swap the fetch for a real
-// API later without touching the components (they depend only on this contract).
+// Service seam for the ontology views: fetches an ontology's JSON-LD once, parses it
+// generically, and exposes its terms, its cells and their data-driven facets. Swap the fetch for
+// a real API later without touching the components (they depend only on this contract).
 
-import { parseNeurdf, buildFacets } from "../../../parsers/neurdfParser";
-import { PREFER_LOCAL_NEURDF, termLink, termPath } from "../config/gridConfig";
+import { parseNeurdf, buildFacets, buildHierarchy } from "../../../parsers/neurdfParser";
+import {
+  BROWSE_TAB,
+  PREFER_LOCAL_NEURDF,
+  SPECIFICATION_TAB,
+  ontologyRouteSlug,
+  termLink,
+  termPath,
+} from "../config/gridConfig";
 import { loadMappings } from "../config/mappingsService";
 import { DEFAULT_MAPPINGS } from "../config/mappingDefaults";
 import { publishMappings } from "../config/mappingsAtom";
@@ -19,6 +26,8 @@ import type {
   Facet,
   CellTerm,
   HierarchyNode,
+  HierarchyRelation,
+  OntologyTerm,
   ResolvedRef,
 } from "../model/types";
 import type { FieldSources, OntologyMappings } from "../model/mappings";
@@ -29,6 +38,8 @@ export interface LoadedOntology {
   entry: OntologyEntry;
   meta: ParsedOntology["meta"];
   spec: ParsedOntology["spec"];
+  terms: OntologyTerm[];
+  rootClasses: ResolvedRef[];
   cells: CellTerm[];
   hierarchy: HierarchyNode[];
   predicateDisplay: ParsedOntology["predicateDisplay"];
@@ -165,6 +176,8 @@ export const loadOntology = async (entry: OntologyEntry): Promise<LoadedOntology
     // (title/description/version) — no hardcoded overrides.
     meta: parsed.meta,
     spec: parsed.spec,
+    terms: parsed.terms,
+    rootClasses: parsed.rootClasses,
     cells: parsed.cells,
     hierarchy: parsed.hierarchy,
     predicateDisplay: parsed.predicateDisplay,
@@ -200,9 +213,9 @@ export const slugToCurie = (slug: string): string => {
 
 export const curieToSlug = (curie: string): string => (curie || "").replace(":", "_");
 
-// Where a term listed by an ontology opens. A term of a routed ontology stays under that
-// ontology's path; one of an ontology addressed by its served path has no such path, and opens wherever its IRI
-// leads — its InterLex page, or InterLex's record of an external term.
+// Where a cell listed by an ontology opens. A cell of a routed ontology stays under that
+// ontology's path; one of an ontology addressed by its served path has no such path, and opens
+// wherever its IRI leads — its InterLex page, or InterLex's record of an external term.
 export const ontologyTermHref = (
   entry: OntologyEntry,
   cell: Pick<CellTerm, "curie" | "iri">,
@@ -211,6 +224,37 @@ export const ontologyTermHref = (
   entry.servedPath
     ? termLink(cell, { group: entry.org, ontologySlug: null })
     : termPath(entry.org, entry.slug, curieToSlug(cell.curie), tab);
+
+// Where any term of the ontology opens from the Browse tab. Only a cell has a page the ontology
+// itself can fill; every other term opens wherever its IRI leads, kept inside the ontology's
+// context when it has a route. Undefined for an IRI no page of this app addresses.
+export const browseTermHref = (
+  data: Pick<LoadedOntology, "entry" | "cells">,
+  term: Pick<OntologyTerm, "id" | "curie" | "iri">
+): string | undefined => {
+  const { entry } = data;
+  if (cellIds(data.cells).has(term.id)) return ontologyTermHref(entry, term);
+  return termLink(term, { group: entry.org, ontologySlug: ontologyRouteSlug(entry) });
+};
+
+const cellIdsByList = new WeakMap<CellTerm[], Set<string>>();
+const cellIds = (cells: CellTerm[]): Set<string> => {
+  let ids = cellIdsByList.get(cells);
+  if (!ids) {
+    ids = new Set(cells.map((cell) => cell.id));
+    cellIdsByList.set(cells, ids);
+  }
+  return ids;
+};
+
+// The grid is a view of cells, so an ontology without any has no Grid tab, and opens on its terms
+// or, while it has none of those either, on its header.
+export const hasCells = (data: Pick<LoadedOntology, "cells">): boolean => data.cells.length > 0;
+
+export const landingTab = (data: Pick<LoadedOntology, "cells" | "terms">): string => {
+  if (hasCells(data)) return "";
+  return data.terms.length ? BROWSE_TAB : SPECIFICATION_TAB;
+};
 
 // Find one cell by any of the identifiers a link might carry: the URL slug, the CURIE, or the
 // full IRI. Matching is case-insensitive on the prefix only ("NPOKB:998" is the same record),
@@ -309,10 +353,46 @@ export const hierarchyNeighbours = (
   return { parents, children };
 };
 
-// --- hierarchy scopes (Browse) ------------------------------------------------
+// --- Browse: every term, by type and by hierarchy ------------------------------
 
-// The two directions the Browse tab reads the subClassOf hierarchy in, around the class selected
-// in its tree: the terms below that class, or the terms above it.
+export interface TermTypeCount {
+  type: string;
+  count: number;
+}
+
+// Every distinct rdf:type the ontology's terms carry, the most used first.
+export const termTypeCounts = (terms: OntologyTerm[]): TermTypeCount[] => {
+  const counts = new Map<string, number>();
+  for (const term of terms) {
+    for (const type of term.rdfTypes) counts.set(type, (counts.get(type) || 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([type, count]) => ({ type, count }))
+    .sort((a, b) => b.count - a.count || a.type.localeCompare(b.type));
+};
+
+export const termsOfType = (terms: OntologyTerm[], type?: string): OntologyTerm[] =>
+  type ? terms.filter((term) => term.rdfTypes.includes(type)) : terms;
+
+// One hierarchy per relation, never merged: a property is placed by rdfs:subPropertyOf, everything
+// else by rdfs:subClassOf.
+export const HIERARCHY_RELATIONS: HierarchyRelation[] = ["subClassOf", "subPropertyOf"];
+
+export const relationsIn = (terms: OntologyTerm[]): HierarchyRelation[] =>
+  HIERARCHY_RELATIONS.filter((relation) => terms.some((term) => term.relation === relation));
+
+// The forest of the given terms that one relation places. A term whose parents are all outside
+// the list — in another ontology, or filtered out with their type — sits at the top level.
+export const relationHierarchy = (
+  terms: OntologyTerm[],
+  relation: HierarchyRelation
+): { terms: OntologyTerm[]; roots: HierarchyNode[] } => {
+  const placed = terms.filter((term) => term.relation === relation);
+  return { terms: placed, roots: buildHierarchy(placed) };
+};
+
+// The two directions the Browse tab reads a hierarchy in, around the term selected in its tree:
+// the terms below it, or the terms above it.
 export const SUBCLASSES = "subclasses" as const;
 export const SUPERCLASSES = "superclasses" as const;
 export type HierarchyScope = typeof SUBCLASSES | typeof SUPERCLASSES;
@@ -346,7 +426,7 @@ const adjacency = (roots: HierarchyNode[]) => {
 // This is a union over *every* path, which the Cell Card widget's superclass tree is not: that one
 // reaches each direct parent by its primary chain only, so a parent's own further parents are not
 // rows there, while a term list is a set and so takes them all. `start` is never in the result;
-// whether the caller wants it back is its own decision (see `scopedCells`).
+// whether the caller wants it back is its own decision (see `scopedTerms`).
 const closure = (start: string, edges: Map<string, Set<string>>): Set<string> => {
   const out = new Set<string>();
   const stack = [...(edges.get(start) || [])];
@@ -356,34 +436,31 @@ const closure = (start: string, edges: Map<string, Set<string>>): Set<string> =>
     out.add(id);
     stack.push(...(edges.get(id) || []));
   }
-  out.delete(start); // a subClassOf cycle can walk back to it
+  out.delete(start); // a cycle can walk back to it
   return out;
 };
 
-// The ontology's terms that sit under (or over) `termId`, in the parse's alphabetical order.
+// The terms of a hierarchy that sit under (or over) `termId`, in the order they were given.
 //
 // The two directions are deliberately not symmetric, and the labels the Browse tab puts on them say
-// so. Downwards is "<term> and its sub classes" — it includes the class itself, because 126 of the
-// 161 Precision terms are leaves and a scope that dropped the very term you clicked would answer
-// most of the tree with an empty table. Upwards is "super class of <term>", a question about other
-// terms, which the term itself is not an answer to.
-//
-// Only terms are returned either way, so the ontology's root class — `ilxtr:NeuronPrecision`, what
-// the set is defined *against* rather than a member of it — never appears as a row. Reading upwards
-// from a top-level cell therefore lands on the empty list, which is the honest answer: no term in
-// this ontology is a superclass of it.
-export const scopedCells = (
-  data: LoadedOntology,
+// so. Downwards is "<term> and its sub classes" — it includes the term itself, because most terms
+// are leaves and a scope that dropped the very term you clicked would answer most of the tree with
+// an empty table. Upwards is "super class of <term>", a question about other terms, which the term
+// itself is not an answer to. Reading upwards from a top-level term therefore lands on the empty
+// list, which is the honest answer: no term in this ontology is above it.
+export const scopedTerms = <T extends { id: string }>(
+  terms: T[],
+  roots: HierarchyNode[],
   termId: string,
   scope: HierarchyScope
-): CellTerm[] => {
-  const { children, parents } = adjacency(data.hierarchy);
+): T[] => {
+  const { children, parents } = adjacency(roots);
   if (scope === SUPERCLASSES) {
     const above = closure(termId, parents);
-    return data.cells.filter((c) => above.has(c.id));
+    return terms.filter((term) => above.has(term.id));
   }
   const below = closure(termId, children);
-  return data.cells.filter((c) => c.id === termId || below.has(c.id));
+  return terms.filter((term) => term.id === termId || below.has(term.id));
 };
 
 // Which predicates are present across the cells (+ "source" from literatureCitation).

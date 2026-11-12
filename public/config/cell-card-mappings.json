@@ -4,21 +4,28 @@
 
   "default": {
     "fields": {
-      "$comment": "Model fields and where they read from. `title` and `description` are ordered fallback chains — spec §1.1: 'ilxtr:localLabel (if no localLabel, then rdfs:label)'. Source keys are matched against the graph exactly as written, because `definition`, `skos:definition` and `NIFRID:definition` are three different sources sharing one local name. Where the prefix is not yet settled, `{ \"sources\": [...], \"matchLocalName\": true }` matches the predicate's local name under any prefix.",
+      "$comment": "Model fields and where they read from. `title` and `description` are ordered fallback chains — spec §1.1: 'ilxtr:localLabel (if no localLabel, then rdfs:label)', with the newer ilxtr:origLocalLabel ahead of it. Source keys are matched against the graph exactly as written, because `definition`, `skos:definition` and `NIFRID:definition` are three different sources sharing one local name. Where the prefix is not yet settled, `{ \"sources\": [...], \"matchLocalName\": true }` matches the predicate's local name under any prefix.",
 
-      "title": ["ilxtr:localLabel", "rdfs:label", "dc:title", "dcterms:title"],
+      "title": ["ilxtr:origLocalLabel", "ilxtr:localLabel", "rdfs:label", "dc:title", "dcterms:title"],
       "description": [
         "definition",
+        "IAO:0000115",
+        "obo:IAO_0000115",
         "skos:definition",
         "NIFRID:definition",
         "rdfs:comment",
         "ilxtr:genLabel",
         "ilxtr:curatorNote"
       ],
-      "curatedDescriptionSources": 4,
+      "curatedDescriptionSources": 6,
 
-      "cellType": ["http://uri.interlex.org/tgbugs/uris/readable/neurdf/Neuron"],
+      "$cellTypeComment": "The types marking a record as carrying the flat neurdf phenotypes its Cell Card reads; any other cell's card falls back to its OWL class expressions. When the ontology names no root class they are also what makes a record a cell.",
+      "cellType": [
+        "http://uri.interlex.org/tgbugs/uris/readable/neurdf/Neuron",
+        "http://uri.interlex.org/tgbugs/uris/readable/neurdf/Cell"
+      ],
       "parent": ["rdfs:subClassOf"],
+      "propertyParent": ["rdfs:subPropertyOf"],
 
       "literatureCitation": ["ilxtr:literatureCitation"],
       "$citationComment": "Read off the cited work's own node, not the cell's (#187). `citationLabel` is the short citation exactly as the views show it (\"Bhuiyan et al., 2024\"); a citation without one shows its DOI (doi:10.1126/…). `citationTitle` is the paper title, shown in the Source Publication widget only.",
@@ -53,6 +60,11 @@
       "ontologyTitle": ["dc:title", "dcterms:title", "rdfs:label", "skos:prefLabel"],
       "ontologyDescription": ["dc:description", "dcterms:description", "rdfs:comment"],
       "ontologyVersion": ["owl:versionInfo"],
+      "$ontologyRootClassComment": "TODO: which header annotation names the root class is not settled with the backend. The grid shows only the subclasses of the class(es) it names; an ontology naming none shows every neurdf-typed record.",
+      "ontologyRootClass": {
+        "sources": ["ilxtr:rootClass", "IAO:0000700", "obo:IAO_0000700"],
+        "matchLocalName": true
+      },
       "ontologyCommunityLink": {
         "sources": ["ilxtr:developmentCommunity", "MIRO:development_community"],
         "matchLocalName": true

@@ -56,9 +56,13 @@ export interface FieldSources {
   // shown, but reported as uncurated so the UI can say where the text came from instead of passing
   // generated output off as a definition.
   curatedDescriptionSources: number;
-  // The class marking a record as a cell (matched on @type), and the relation the hierarchy walks.
+  // The classes marking a record as carrying the flat neurdf phenotypes (matched on @type). Such a
+  // record's card reads those; any other cell's falls back to its OWL class expressions. With no
+  // root class to restrict the grid, they are also the only thing that tells a cell from any class.
   cellType: FieldSource;
+  // The relations the hierarchies walk: a class's, and a property's.
   parent: FieldSource;
+  propertyParent: FieldSource;
 
   // Annotations that are not phenotypes. One model field each; see CellAnnotations.
   literatureCitation: FieldSource;
@@ -93,6 +97,8 @@ export interface FieldSources {
   ontologyTitle: FieldSource;
   ontologyDescription: FieldSource;
   ontologyVersion: FieldSource;
+  // IRI-valued: the class(es) the grid is restricted to the subclasses of.
+  ontologyRootClass: FieldSource;
   // IRI-valued, unlike the three above: it names the community that develops the ontology, which
   // is where the header's "Community hub" link points.
   ontologyCommunityLink: FieldSource;

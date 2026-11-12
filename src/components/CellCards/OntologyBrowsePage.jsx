@@ -1,92 +1,124 @@
 import { useCallback, useMemo, useState } from "react";
 import { useOntologyData } from "./OntologyDataContext";
-import { Container, Grid } from "@mui/material";
+import { Container, Grid, Stack, Typography } from "@mui/material";
 import OntologyHierarchyPanel from "./OntologyHierarchyPanel";
 import OntologyTermsTable from "./OntologyTermsTable";
-import { SUBCLASSES, SUPERCLASSES, scopedCells } from "./services/ontologyGridService";
+import CustomSingleSelect from "../common/CustomSingleSelect";
+import {
+  SUBCLASSES,
+  SUPERCLASSES,
+  browseTermHref,
+  relationHierarchy,
+  relationsIn,
+  scopedTerms,
+  termTypeCounts,
+  termsOfType,
+} from "./services/ontologyGridService";
 
-// Local name of a curie or IRI: "ilxtr:NeuronPrecision" -> "NeuronPrecision".
-const localName = (id) => String(id).split(/[:/#]/).filter(Boolean).pop() || id;
+// Not "": CustomSingleSelect reads an empty value as nothing chosen and shows its placeholder.
+const ALL_TYPES = "all-types";
 
-// The opening view, with no class picked: every term. Named after the ontology rather than as
-// anything's sub classes — without a root class there is no class above the top-level terms, and
-// the document that scopes them is not one.
-const wholeOntology = (title) => `all terms in ${title}`;
+// How each hierarchy names itself: the relation that draws it, and what a term above or below
+// another is called in it.
+const RELATION_WORDING = {
+  subClassOf: { predicate: "rdfs:subClassOf", sub: "sub classes", sup: "super classes", one: "super class" },
+  subPropertyOf: {
+    predicate: "rdfs:subPropertyOf",
+    sub: "sub properties",
+    sup: "super properties",
+    one: "super property",
+  },
+};
 
-// The "Type:" select names the direction *first*. These labels carry a term name that runs to 75
-// characters, and the select is one control in a row that also holds a label, a divider and two
-// buttons inside a one-third panel — so it ellipsises, and whatever trails the term name is the
-// part the user loses. The one word that distinguishes the two options has to come before it.
-const scopeOption = (scope, termLabel) =>
-  `${scope === SUPERCLASSES ? "super" : "sub"} classes of ${termLabel}`;
+const capitalized = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
-// The caption over the table has a line to itself, so there it can be exact: reading down includes
-// the selected class (see `scopedCells`), unless that class is the ontology's root, which is not
-// one of its terms and so is never a row.
-const scopeCaption = (scope, termLabel, anchorIsTerm) =>
-  scope === SUBCLASSES && anchorIsTerm
-    ? `${termLabel} and its sub classes`
-    : scopeOption(scope, termLabel);
+// The opening view, with no term picked: every term, of the chosen type when there is one. Named
+// after the ontology rather than as anything's sub classes — the document that scopes its terms is
+// not a class above them.
+const wholeOntology = (title, type) =>
+  type ? `all ${type} terms in ${title}` : `all terms in ${title}`;
 
-// The "Browse" tab: the ontology's subClassOf hierarchy next to the terms it places.
-// One third / two thirds, matching the design's 576 / 1152 split of a 1760px container.
+// Reading down includes the selected term (see `scopedTerms`); reading up does not.
+const scopeCaption = (scope, termLabel, wording) =>
+  scope === SUBCLASSES ? `${termLabel} and its ${wording.sub}` : `${wording.sup} of ${termLabel}`;
+
+// The "Browse" tab: every term the ontology declares, whatever its type, next to the hierarchy
+// that places them. One third / two thirds, matching the design's 576 / 1152 split of a 1760px
+// container.
 //
-// The two panels are one view, not two: the class selected in the tree is what the table lists,
-// read in the direction the tree's "Type:" select names. (The MVP shipped them independent —
-// `figma-grid-skeleton.md` §"do not interact" — which this supersedes.) Both halves therefore hang
-// off state owned here, their common parent.
+// The root class that restricts the grid never applies here. What narrows the view is the reader's
+// own choice: one rdf:type out of those the ontology uses, and which hierarchy the tree draws —
+// properties hang off rdfs:subPropertyOf, everything else off rdfs:subClassOf, and the two are
+// never merged into one tree.
+//
+// The two panels are one view, not two: the term selected in the tree is what the table lists,
+// read in the direction the table's "Show:" select names. Both halves therefore hang off state
+// owned here, their common parent.
 const OntologyBrowsePage = () => {
   const data = useOntologyData();
-  const { entry, meta, hierarchy, cells } = data;
-  // Only a configured root class is a row of the tree; otherwise the tree is a forest.
-  const rootTermId = entry.rootClass ? hierarchy[0]?.termId : undefined;
+  const { meta, terms } = data;
 
-  // The table opens on the full list, as it always has: the root class when there is one (the
-  // starting selection the design calls for), the whole ontology otherwise. `selected` holds only
-  // an explicit choice; null is that default.
+  const [type, setType] = useState(ALL_TYPES);
+  const [chosenRelation, setChosenRelation] = useState(null);
+  // `selected` holds only an explicit choice; null is the opening view, the full list.
   const [selected, setSelected] = useState(null);
   const [scope, setScope] = useState(SUBCLASSES);
 
-  const anchor = useMemo(() => {
-    if (selected) return selected;
-    return rootTermId ? { termId: rootTermId, label: localName(rootTermId) } : null;
-  }, [selected, rootTermId]);
-
-  // Choosing the root again is choosing the default: the root node's own label is its bare curie
-  // (it carries no rdfs:label), and letting that reach the select would rename the scope the user
-  // is already looking at.
-  const selectTerm = useCallback(
-    (node) =>
-      setSelected(
-        node.termId === rootTermId ? null : { termId: node.termId, label: node.label }
-      ),
-    [rootTermId]
+  const typeFilter = type === ALL_TYPES ? undefined : type;
+  const typeOptions = useMemo(
+    () => [
+      { value: ALL_TYPES, label: `All types (${terms.length})` },
+      ...termTypeCounts(terms).map((entry) => ({
+        value: entry.type,
+        label: `${entry.type} (${entry.count})`,
+      })),
+    ],
+    [terms]
   );
 
-  // Back to the opening view. Reading *up* from the root is the one scope that is empty by
-  // definition — the root has nothing above it — so returning the anchor there returns the
-  // direction too, rather than landing the user on a guaranteed-empty table.
-  const selectRoot = useCallback(() => {
+  const typedTerms = useMemo(() => termsOfType(terms, typeFilter), [terms, typeFilter]);
+  const relations = useMemo(() => relationsIn(typedTerms), [typedTerms]);
+  // A type's terms may all sit in the other hierarchy than the one last chosen.
+  const relation = relations.includes(chosenRelation) ? chosenRelation : relations[0];
+  const wording = RELATION_WORDING[relation] || RELATION_WORDING.subClassOf;
+  const hierarchy = useMemo(
+    () => (relation ? relationHierarchy(typedTerms, relation) : { terms: [], roots: [] }),
+    [typedTerms, relation]
+  );
+
+  const clearSelection = useCallback(() => {
     setSelected(null);
     setScope(SUBCLASSES);
   }, []);
 
-  // With nothing to read around, there is no direction to choose: the one option is every term.
-  const scopeOptions = useMemo(
-    () =>
-      anchor
-        ? [SUBCLASSES, SUPERCLASSES].map((value) => ({
-            value,
-            label: scopeOption(value, anchor.label),
-          }))
-        : [{ value: SUBCLASSES, label: wholeOntology(meta.title) }],
-    [anchor, meta.title]
+  // A term picked in one tree is not a row of the next one.
+  const changeType = useCallback(
+    (next) => {
+      setType(next);
+      clearSelection();
+    },
+    [clearSelection]
+  );
+  const changeRelation = useCallback(
+    (next) => {
+      setChosenRelation(next);
+      clearSelection();
+    },
+    [clearSelection]
   );
 
-  const terms = useMemo(
-    () => (anchor ? scopedCells(data, anchor.termId, scope) : cells),
-    [data, cells, anchor, scope]
+  const selectTerm = useCallback(
+    (node) => setSelected({ termId: node.termId, label: node.label }),
+    []
   );
+
+  const listed = useMemo(
+    () =>
+      selected ? scopedTerms(hierarchy.terms, hierarchy.roots, selected.termId, scope) : typedTerms,
+    [selected, hierarchy, scope, typedTerms]
+  );
+
+  const hrefFor = useCallback((term) => browseTermHref(data, term), [data]);
 
   // Side by side the two panels each own the full height and scroll internally. Once they
   // stack (below md) a full-height panel would push the other off-screen, so there they take
@@ -98,29 +130,54 @@ const OntologyBrowsePage = () => {
       <Grid container spacing={4} sx={{ height: { md: 1 }, minHeight: 0 }}>
         <Grid item xs={12} md={4} sx={{ height: panelHeight, minHeight: 0 }}>
           <OntologyHierarchyPanel
-            hierarchy={hierarchy}
-            anchorTermId={anchor?.termId}
-            scope={scope}
-            scopeOptions={scopeOptions}
-            onScopeChange={setScope}
+            // Remounted per tree: the expansion of one hierarchy means nothing in another.
+            key={`${relation}|${type}`}
+            hierarchy={hierarchy.roots}
+            anchorTermId={selected?.termId}
+            type={type}
+            typeOptions={typeOptions}
+            onTypeChange={changeType}
+            relation={relation}
+            relationOptions={relations.map((value) => ({
+              value,
+              label: RELATION_WORDING[value].predicate,
+            }))}
+            onRelationChange={changeRelation}
             onSelectTerm={selectTerm}
-            onSelectRoot={selectRoot}
+            onClearSelection={clearSelection}
           />
         </Grid>
         <Grid item xs={12} md={8} sx={{ height: panelHeight, minHeight: 0 }}>
           <OntologyTermsTable
-            cells={terms}
-            entry={entry}
+            terms={listed}
+            hrefFor={hrefFor}
             scopeDescription={
-              anchor
-                ? scopeCaption(scope, anchor.label, selected !== null)
-                : wholeOntology(meta.title)
+              selected
+                ? scopeCaption(scope, selected.label, wording)
+                : wholeOntology(meta.title, typeFilter)
+            }
+            scopeControl={
+              selected && (
+                <Stack direction="row" alignItems="center" gap={1}>
+                  <Typography variant="body2" color="text.secondary">
+                    Show:
+                  </Typography>
+                  <CustomSingleSelect
+                    value={scope}
+                    onChange={setScope}
+                    options={[
+                      { value: SUBCLASSES, label: capitalized(wording.sub) },
+                      { value: SUPERCLASSES, label: capitalized(wording.sup) },
+                    ]}
+                  />
+                </Stack>
+              )
             }
             // The table only ever runs out of rows reading upwards: reading down always holds at
             // least the selected term, so the other case left is an ontology with no terms at all.
             emptyMessage={
-              cells.length
-                ? `No term in this ontology is a super class of ${anchor?.label}.`
+              selected
+                ? `No term in this ontology is a ${wording.one} of ${selected.label}.`
                 : "This ontology has no terms."
             }
           />

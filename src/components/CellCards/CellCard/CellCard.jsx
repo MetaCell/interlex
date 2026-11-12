@@ -99,7 +99,7 @@ const CellCard = ({ cell, data, group, termSlug, discussionHref, onNavigateToCel
       key="hierarchy"
       cell={cell}
       hierarchy={data.hierarchy}
-      rootLabel={data.entry?.rootClass?.split(":").pop()}
+      rootLabel={data.rootClasses?.[0]?.curie.split(":").pop()}
       ontologyTitle={data.meta?.title}
       // Same resolver the graph uses: a cell stays in the card, anything else opens its own page.
       onNavigate={onNavigateToRef}
