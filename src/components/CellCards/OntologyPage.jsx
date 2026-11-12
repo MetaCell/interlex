@@ -9,13 +9,15 @@ import OntologySpecPage from "./OntologySpecPage";
 import { OntologyDataContext } from "./OntologyDataContext";
 import CollapsingHeaderLayout from "../common/CollapsingHeaderLayout";
 import {
+  BROWSE_TAB,
+  GRID_TAB,
   SPECIFICATION_TAB,
   ontologyAtServedLocation,
   ontologyEntry,
   ontologyPath,
   splitOntologyTab,
 } from "./config/gridConfig";
-import { loadOntology } from "./services/ontologyGridService";
+import { hasCells, landingTab, loadOntology } from "./services/ontologyGridService";
 import { usePublishContextOntology } from "../../hooks/useContextOntology";
 import { vars } from "../../theme/variables";
 
@@ -42,8 +44,8 @@ CenteredMessage.propTypes = {
 };
 
 const TAB_PAGES = {
-  "": OntologyGridPage,
-  browse: OntologyBrowsePage,
+  [GRID_TAB]: OntologyGridPage,
+  [BROWSE_TAB]: OntologyBrowsePage,
   [SPECIFICATION_TAB]: OntologySpecPage,
 };
 
@@ -100,7 +102,8 @@ const OntologyPage = () => {
     return <CenteredMessage title="This address does not name an ontology." />;
   }
 
-  if (loading) {
+  // `data` still holding the previous ontology says nothing about this one's tabs.
+  if (loading || (!error && data?.entry !== entry)) {
     return (
       <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
         <CircularProgress />
@@ -120,6 +123,10 @@ const OntologyPage = () => {
         }
       />
     );
+  }
+
+  if (tab === GRID_TAB && !hasCells(data)) {
+    return <Navigate to={ontologyPath(entry, landingTab(data), search)} replace />;
   }
 
   const TabPage = TAB_PAGES[tab];

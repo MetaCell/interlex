@@ -1,5 +1,5 @@
-// Data model for the CellCards ontology grid view.
-// Kept generic so the parser works for any neurdf-lowered ontology, not just Precision.
+// Data model for the ontology views: every term for the Browse tab, the cells among them for the
+// grid and the Cell Card.
 
 export interface JsonLdRef {
   "@id": string;
@@ -107,15 +107,27 @@ export interface CellAnnotations {
   nervoSensusLinks: ResolvedRef[]; // hasNervoSensusLink — the Interactive Cell Grouping tile
 }
 
-// A single cell record rendered as a grid tile.
-export interface CellTerm {
+// The relation that places a term in a hierarchy: rdfs:subPropertyOf for a property,
+// rdfs:subClassOf for a class and for anything else (an individual simply asserts none).
+export type HierarchyRelation = "subClassOf" | "subPropertyOf";
+
+// Any term the ontology declares, whatever its type: what the Browse tab lists.
+export interface OntologyTerm {
   id: string; // @id, e.g. "npokb:1067"
   curie: string; // display id, e.g. "npokb:1067"
   iri: string; // full IRI
-  label: string; // ilxtr:localLabel -> rdfs:label -> curie
-  rdfTypes: string[]; // rdf:type as curies, owl:* preferred (e.g. ["owl:Class"])
+  label: string; // ilxtr:origLocalLabel -> ilxtr:localLabel -> rdfs:label -> curie
+  rdfTypes: string[]; // every rdf:type, compacted (e.g. ["owl:Class", "neurdf:Neuron"])
   definition?: string; // best available description (see DEFINITION_KEYS)
   definitionCurated?: boolean; // false when it is generated text rather than curated prose
+  relation: HierarchyRelation;
+  // The named terms it asserts through `relation`, as the file spells them. Some live outside
+  // this ontology, which is what leaves a term at the top level of its hierarchy.
+  parents: string[];
+}
+
+// A term the grid renders as a tile and the term page as a Cell Card.
+export interface CellTerm extends OntologyTerm {
   // Positive phenotypes keyed by local name (eqv ∪ ent, deduped).
   properties: Record<string, CellProperty>;
   // Negated phenotypes (neurdf.*.neg) keyed by local name — rendered with a "not" modifier.
@@ -170,8 +182,13 @@ export interface OntologySpec {
 export interface ParsedOntology {
   meta: OntologyMeta;
   spec: OntologySpec;
+  // Every term the ontology declares. Never narrowed by the root restriction below.
+  terms: OntologyTerm[];
+  // The classes the grid is restricted to the subclasses of: the ones the ontology's header names
+  // or, failing that, the one configured for it. Empty when neither names any.
+  rootClasses: ResolvedRef[];
   cells: CellTerm[];
-  hierarchy: HierarchyNode[]; // roots of the subClassOf tree (the root class, when there is one)
+  hierarchy: HierarchyNode[]; // the cells' subClassOf tree, under the root classes when there are any
   // Row labels / tooltips read from the ontology's own ilxtr:displayLabel + shortDefinition,
   // keyed by predicate local name. See parsePredicateDisplay.
   predicateDisplay: Record<string, PredicateDisplay>;

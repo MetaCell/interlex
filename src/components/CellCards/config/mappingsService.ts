@@ -89,6 +89,7 @@ const FIELD_KEYS = [
   "description",
   "cellType",
   "parent",
+  "propertyParent",
   "literatureCitation",
   "citationLabel",
   "citationTitle",
@@ -108,6 +109,7 @@ const FIELD_KEYS = [
   "ontologyTitle",
   "ontologyDescription",
   "ontologyVersion",
+  "ontologyRootClass",
   "ontologyCommunityLink",
 ] as const;
 

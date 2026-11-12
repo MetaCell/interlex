@@ -46,8 +46,8 @@ export interface OntologyEntry {
   community: string; // owning community/organization, shown as the org breadcrumb crumb + tag
   curationStatus?: string; // e.g. "Curated" — badge shown next to the title
   description?: string;
-  // neurdf root: cells are (transitively) subClassOf this; also shown as the header's curie tag.
-  // Absent when the document itself is the scope: every neuron in it is a cell.
+  // The class the grid is restricted to the subclasses of, for an ontology whose own header names
+  // none (a header that does takes precedence). Absent, every neurdf-typed record is a cell.
   rootClass?: string;
   // The JSON-LD behind the ontology, and a same-origin copy tried first when there is one.
   dataUrl: string;
@@ -314,14 +314,16 @@ export interface OntologyTab {
   path?: string; // route segment under /:org/ontology/:slug; absent = no view behind it yet
 }
 
-// The tabs from the design. Only the two carrying a `path` are built; the rest are rendered
+// The tabs from the design. Only the ones carrying a `path` are built; the rest are rendered
 // disabled so the bar matches the design without offering dead links.
+export const GRID_TAB = "";
+export const BROWSE_TAB = "browse";
 // A just-created ontology lands here: it has no terms yet, so its header is all there is to see.
 export const SPECIFICATION_TAB = "specification";
 
 export const ONTOLOGY_TABS: OntologyTab[] = [
-  { label: "Grid View", path: "" },
-  { label: "Browse", path: "browse" },
+  { label: "Grid View", path: GRID_TAB },
+  { label: "Browse", path: BROWSE_TAB },
   { label: "Specification", path: SPECIFICATION_TAB },
   { label: "Overview" },
   { label: "Variants" },

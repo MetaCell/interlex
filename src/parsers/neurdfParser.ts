@@ -1,8 +1,9 @@
-// Generic parser for the neurdf (reasoned-lowered) representation of an NPO-style ontology.
-// Turns the raw JSON-LD @graph into a flat, label-resolved list of cell records + facets.
-// Design goals: dependency-free, generic to any neurdf ontology (root class is a parameter),
-// and driven entirely by the flat `neurdf.*` predicates — the OWL class expressions
-// (owl:Restriction / blank nodes) are intentionally ignored, which is the point of neurdf.
+// Generic parser for an ontology's JSON-LD: every term it declares, the hierarchies that place
+// them, and the cells among them with their phenotypes and facets. Dependency-free.
+//
+// A cell's phenotypes are read from the flat `neurdf.*` predicates wherever the record is typed as
+// carrying them, which is the point of neurdf: no OWL class expression has to be walked. Only a
+// cell without that typing has its owl:Restriction blank nodes read instead.
 
 import type {
   OntologyGraph,
@@ -13,10 +14,12 @@ import type {
   CellProperty,
   CellAnnotations,
   CellMapping,
+  HierarchyRelation,
   MappingEvidence,
   ValueCombinator,
   OntologyMeta,
   OntologySpec,
+  OntologyTerm,
   ParsedOntology,
   HierarchyNode,
   Facet,
@@ -159,6 +162,9 @@ export const toIri = (id: string, prefixes: Prefixes): string => {
   return base ? base + rest.join(":") : "";
 };
 
+// One spelling to compare two ids by. An id whose prefix the file does not declare stays as written.
+const expandId = (id: string, prefixes: Prefixes): string => toIri(id, prefixes) || id;
+
 // --- graph index + reference resolution ------------------------------------
 
 type Index = Map<string, GraphNode>;
@@ -195,6 +201,8 @@ interface ParseContext {
   idx: Index;
   prefixes: Prefixes;
   fields: FieldSources;
+  // `fields.cellType` as IRIs, since the same class is a curie in one file and spelled out in another.
+  neurdfTypes: Set<string>;
   // Exact key -> target, and (for fields declaring `matchLocalName`) local name -> target.
   exact: Map<string, FieldTarget>;
   local: Map<string, FieldTarget>;
@@ -244,6 +252,7 @@ const buildContext = (
     idx,
     prefixes,
     fields,
+    neurdfTypes: new Set(fields.cellType.sources.map((type) => expandId(type, prefixes))),
     exact,
     local,
     missing: fields.missingValuePrefixes.map((p) => p.toUpperCase()),
@@ -433,30 +442,87 @@ const asType = (t: unknown): string[] =>
 
 const isOntologyNode = (n: GraphNode): boolean => asType(n["@type"]).includes("owl:Ontology");
 
-// The parents a node asserts, through whichever relation `fields.parent` binds (rdfs:subClassOf).
-const subClassRefs = (node: GraphNode | undefined, ctx: ParseContext): string[] => {
-  if (!node) return [];
-  return ctx.fields.parent.sources.flatMap((key) => {
-    const s = node[key];
-    const arr = Array.isArray(s) ? s : [s];
-    return arr
-      .map((x) => (x && typeof x === "object" ? String((x as JsonLdRefish)["@id"] ?? "") : ""))
-      .filter(Boolean);
-  });
+const asArray = (value: unknown): unknown[] =>
+  Array.isArray(value) ? value : value == null ? [] : [value];
+
+const refId = (item: unknown): string =>
+  item && typeof item === "object" ? String((item as JsonLdRefish)["@id"] ?? "") : "";
+
+const OWL = "http://www.w3.org/2002/07/owl#";
+const RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+
+// Each name under its namespace IRI and under the conventional prefix, which is how a type stays
+// spelled when the file declares no such prefix.
+const vocabulary = (namespace: string, prefix: string, names: string[]): string[] =>
+  names.flatMap((name) => [`${namespace}${name}`, `${prefix}:${name}`]);
+
+const PROPERTY_TYPES = new Set([
+  ...vocabulary(OWL, "owl", [
+    "ObjectProperty",
+    "DatatypeProperty",
+    "AnnotationProperty",
+    "OntologyProperty",
+    "TransitiveProperty",
+    "SymmetricProperty",
+    "AsymmetricProperty",
+    "ReflexiveProperty",
+    "IrreflexiveProperty",
+    "FunctionalProperty",
+    "InverseFunctionalProperty",
+  ]),
+  ...vocabulary(RDF, "rdf", ["Property"]),
+]);
+
+const hasTypeIn = (node: GraphNode, types: Set<string>, prefixes: Prefixes): boolean =>
+  asType(node["@type"]).some((type) => types.has(expandId(type, prefixes)));
+
+const hasNeurdfType = (node: GraphNode, ctx: ParseContext): boolean =>
+  hasTypeIn(node, ctx.neurdfTypes, ctx.prefixes);
+
+const relationOf = (node: GraphNode, prefixes: Prefixes): HierarchyRelation =>
+  hasTypeIn(node, PROPERTY_TYPES, prefixes) ? "subPropertyOf" : "subClassOf";
+
+// A node the graph only mentions (a label for a referenced value, a parent that lives in another
+// ontology) carries no rdf:type, and is not one of this ontology's terms.
+const isDeclaredTerm = (node: GraphNode): boolean => {
+  const id = node["@id"];
+  return (
+    typeof id === "string" &&
+    !isBlankNode(id) &&
+    asType(node["@type"]).length > 0 &&
+    !isOntologyNode(node)
+  );
 };
 
-// Does `startId` reach `targetId` through the transitive parent chain?
-const reaches = (startId: string, targetId: string, ctx: ParseContext): boolean => {
-  const seen = new Set<string>();
-  const stack = subClassRefs(ctx.idx.get(startId), ctx);
-  while (stack.length) {
-    const cur = stack.pop() as string;
-    if (cur === targetId) return true;
-    if (seen.has(cur)) continue;
-    seen.add(cur);
-    stack.push(...subClassRefs(ctx.idx.get(cur), ctx));
+// The named terms a node points at through a relation. A blank node there is a class expression
+// (an owl:Restriction), not a parent.
+const namedRefs = (node: GraphNode | undefined, field: FieldSource): string[] => {
+  if (!node) return [];
+  return field.sources.flatMap((key) =>
+    asArray(node[key])
+      .map(refId)
+      .filter((id) => id && !isBlankNode(id))
+  );
+};
+
+// The ids a header annotation names, as written: a reference or, as curators write most link
+// predicates, a literal holding the id.
+const fieldRefs = (node: GraphNode | undefined, field: FieldSource, ctx: ParseContext): string[] => {
+  if (!node) return [];
+  const wanted = new Set(field.sources);
+  const wantedLocal = new Set(
+    field.matchLocalName ? field.sources.map((key) => localNameOf(key, ctx.prefixes)) : []
+  );
+  const out: string[] = [];
+  for (const [key, value] of Object.entries(node)) {
+    if (key.startsWith("@")) continue;
+    if (!wanted.has(key) && !wantedLocal.has(localNameOf(key, ctx.prefixes))) continue;
+    for (const item of asArray(value)) {
+      const id = refId(item) || firstString(item);
+      if (id && !isBlankNode(id)) out.push(id);
+    }
   }
-  return false;
+  return [...new Set(out)];
 };
 
 // --- public API -------------------------------------------------------------
@@ -467,9 +533,172 @@ const mergeValues = (existing: ResolvedRef[], incoming: ResolvedRef[]): Resolved
   return [...byId.values()];
 };
 
-const buildCell = (node: GraphNode, ctx: ParseContext): CellTerm => {
+// Two readings of one predicate on one cell, folded into a single property.
+const mergeProperty = (prev: CellProperty | undefined, next: CellProperty): CellProperty => {
+  if (!prev) return next;
+  return {
+    localName: next.localName,
+    // prefer eqv over ent; always union the values
+    family: prev.family === "eqv" ? "eqv" : next.family,
+    negated: next.negated,
+    // Only keep the combinator when both readings agree — a union merged with a plain
+    // assertion has no single "or"/"and" reading, so it is better left unstated.
+    combinator: prev.combinator === next.combinator ? prev.combinator : undefined,
+    values: mergeValues(prev.values, next.values),
+  };
+};
+
+// --- OWL class expressions (the non-neurdf fallback) -------------------------
+
+// A cell not typed as neurdf has no flat phenotype predicates: its phenotypes are the
+// owl:Restriction blank nodes under owl:equivalentClass (what defines it) and rdfs:subClassOf
+// (what it entails). They are read into the same `CellProperty` shape neurdf yields, and whatever
+// has no flat reading — alternatives across different properties, nesting past the limit — is
+// left out rather than misreported.
+const OWL_EXPRESSION_DEPTH = 8;
+
+const owlValue = (node: GraphNode, name: string): unknown => node[`owl:${name}`] ?? node[`${OWL}${name}`];
+
+const listMembers = (value: unknown): unknown[] =>
+  asArray(value).flatMap((item) => {
+    const list = item && typeof item === "object" ? (item as { "@list"?: unknown })["@list"] : undefined;
+    return Array.isArray(list) ? list : [item];
+  });
+
+// The anonymous class expression a value holds: a blank node of the graph, or one embedded in
+// place. A named class is not an expression.
+const expressionOf = (item: unknown, ctx: ParseContext): GraphNode | undefined => {
+  if (!item || typeof item !== "object" || "@value" in item || "@list" in item) return undefined;
+  const id = (item as JsonLdRefish)["@id"];
+  if (typeof id !== "string") return item as GraphNode;
+  return isBlankNode(id) ? ctx.idx.get(id) || (item as GraphNode) : undefined;
+};
+
+const restrictionFiller = (restriction: GraphNode): unknown =>
+  owlValue(restriction, "someValuesFrom") ??
+  owlValue(restriction, "allValuesFrom") ??
+  owlValue(restriction, "hasValue");
+
+// The named classes a restriction's filler comes down to. A nested restriction ("soma located in
+// some *part of* X") is cut down to the entity it ends in, which is how neurdf flattens it too.
+const fillerOf = (
+  value: unknown,
+  ctx: ParseContext,
+  depth: number
+): { ids: string[]; combinator?: ValueCombinator } => {
+  const ids: string[] = [];
+  let combinator: ValueCombinator | undefined;
+  if (depth > OWL_EXPRESSION_DEPTH) return { ids };
+  for (const item of asArray(value)) {
+    const id = refId(item);
+    if (id && !isBlankNode(id)) {
+      ids.push(id);
+      continue;
+    }
+    const expression = expressionOf(item, ctx);
+    if (!expression) continue;
+    const union = owlValue(expression, "unionOf");
+    const members = union ?? owlValue(expression, "intersectionOf");
+    if (members) {
+      ids.push(...listMembers(members).flatMap((member) => fillerOf(member, ctx, depth + 1).ids));
+      combinator = union ? "or" : "and";
+    } else if (owlValue(expression, "onProperty")) {
+      ids.push(...fillerOf(restrictionFiller(expression), ctx, depth + 1).ids);
+    }
+  }
+  return { ids, combinator };
+};
+
+const readOwlPhenotypes = (
+  node: GraphNode,
+  ctx: ParseContext,
+  properties: Record<string, CellProperty>,
+  negated: Record<string, CellProperty>
+) => {
+  const add = (
+    predicate: string,
+    family: CellProperty["family"],
+    isNegated: boolean,
+    ids: string[],
+    combinator?: ValueCombinator
+  ) => {
+    const localName = localNameOf(predicate, ctx.prefixes);
+    const values = resolveValue(ids.map((id) => ({ "@id": id })), ctx);
+    if (!localName || !values.length) return;
+    const bucket = isNegated ? negated : properties;
+    bucket[localName] = mergeProperty(bucket[localName], {
+      localName,
+      family,
+      negated: isNegated,
+      combinator,
+      values,
+    });
+  };
+
+  const walk = (value: unknown, family: CellProperty["family"], isNegated: boolean, depth: number) => {
+    if (depth > OWL_EXPRESSION_DEPTH) return;
+    for (const item of asArray(value)) {
+      const expression = expressionOf(item, ctx);
+      if (!expression) continue;
+      const property = refId(owlValue(expression, "onProperty"));
+      if (property) {
+        const { ids, combinator } = fillerOf(restrictionFiller(expression), ctx, depth + 1);
+        add(property, family, isNegated, ids, combinator);
+        continue;
+      }
+      const intersection = owlValue(expression, "intersectionOf");
+      if (intersection) {
+        walk(listMembers(intersection), family, isNegated, depth + 1);
+        continue;
+      }
+      const complement = owlValue(expression, "complementOf");
+      if (complement) {
+        walk(complement, family, !isNegated, depth + 1);
+        continue;
+      }
+      // A union reads as one property's alternatives ("soma in A or B") only when every member
+      // restricts that same property.
+      const alternatives = listMembers(owlValue(expression, "unionOf")).map((member) =>
+        expressionOf(member, ctx)
+      );
+      const restricted = new Set(
+        alternatives.map((member) => (member ? refId(owlValue(member, "onProperty")) : ""))
+      );
+      const [only] = [...restricted];
+      if (restricted.size !== 1 || !only) continue;
+      add(
+        only,
+        family,
+        isNegated,
+        alternatives.flatMap((member) => fillerOf(restrictionFiller(member as GraphNode), ctx, depth + 1).ids),
+        "or"
+      );
+    }
+  };
+
+  walk(owlValue(node, "equivalentClass"), "eqv", false, 0);
+  walk(ctx.fields.parent.sources.flatMap((key) => asArray(node[key])), "ent", false, 0);
+};
+
+const buildTerm = (node: GraphNode, ctx: ParseContext): OntologyTerm => {
   const id = String(node["@id"]);
-  const { curie } = classify(id, ctx.prefixes);
+  const relation = relationOf(node, ctx.prefixes);
+  const definition = definitionOf(node, ctx);
+  const parentField = relation === "subPropertyOf" ? ctx.fields.propertyParent : ctx.fields.parent;
+  return {
+    id,
+    curie: classify(id, ctx.prefixes).curie,
+    iri: toIri(id, ctx.prefixes),
+    label: labelFor(id, ctx),
+    rdfTypes: asType(node["@type"]).map((type) => toCompactId(type, ctx.prefixes)),
+    definition: definition?.text,
+    definitionCurated: definition?.curated,
+    relation,
+    parents: [...new Set(namedRefs(node, parentField))].filter((parent) => parent !== id),
+  };
+};
+
+const buildCell = (node: GraphNode, term: OntologyTerm, ctx: ParseContext): CellTerm => {
   const properties: Record<string, CellProperty> = {};
   const negated: Record<string, CellProperty> = {};
   const annotations = emptyAnnotations();
@@ -547,48 +776,19 @@ const buildCell = (node: GraphNode, ctx: ParseContext): CellTerm => {
     const values = resolveValue(raw, ctx);
     if (!values.length) continue;
     const bucket = parsed.negated ? negated : properties;
-    const prev = bucket[parsed.localName];
-    if (!prev) {
-      bucket[parsed.localName] = { ...parsed, values };
-    } else {
-      // prefer eqv over ent; always union the values
-      bucket[parsed.localName] = {
-        localName: parsed.localName,
-        family: prev.family === "eqv" ? "eqv" : parsed.family,
-        negated: parsed.negated,
-        // Only keep the combinator when both keys agree — a union merged with a plain
-        // assertion has no single "or"/"and" reading, so it is better left unstated.
-        combinator: prev.combinator === parsed.combinator ? prev.combinator : undefined,
-        values: mergeValues(prev.values, values),
-      };
-    }
+    bucket[parsed.localName] = mergeProperty(bucket[parsed.localName], { ...parsed, values });
   }
 
-  const definition = definitionOf(node, ctx);
+  if (!hasNeurdfType(node, ctx)) readOwlPhenotypes(node, ctx, properties, negated);
 
   return {
-    id,
-    curie,
-    iri: toIri(id, ctx.prefixes),
-    label: labelFor(id, ctx),
-    rdfTypes: rdfTypesOf(node, ctx.prefixes),
-    definition: definition?.text,
-    definitionCurated: definition?.curated,
+    ...term,
     properties,
     negated,
     sources,
     mappings,
     annotations,
   };
-};
-
-// rdf:type for the Terms table. The design asks for the OWL type of the record
-// (owl:Class / owl:ObjectProperty), so the neurdf marker types are dropped — but a record
-// carrying no owl:* type shows every type it has rather than nothing.
-const rdfTypesOf = (node: GraphNode, prefixes: Prefixes): string[] => {
-  const all = asType(node["@type"]).map((t) => classify(t, prefixes).curie);
-  const owl = all.filter((t) => t.startsWith("owl:"));
-  return owl.length ? owl : all;
 };
 
 // Everything past `curatedDescriptionSources` is reported as uncurated, so the UI can say where
@@ -603,34 +803,40 @@ const definitionOf = (
     : undefined;
 };
 
-// Build the subClassOf hierarchy over the in-scope terms.
+// What the hierarchy needs to know of a term to place it.
+export type HierarchyItem = Pick<OntologyTerm, "id" | "label" | "curie" | "iri" | "parents">;
+
+// Build the hierarchy of `items` over the parent links they assert: a forest or, given `roots`,
+// the tree(s) hanging from them.
 //
-// The neurdf file is *reasoned*, so each term asserts a direct rdfs:subClassOf link to the root
-// class **as well as** to its real parent(s) — taken literally that yields a flat list of 161
-// children. A transitive reduction drops every parent that another parent already implies,
-// which recovers the curated shape (here 4 levels deep under the root).
+// A reasoned file has each term assert a direct link to the root class **as well as** to its real
+// parent(s) — taken literally that yields a flat list of children. A transitive reduction drops
+// every parent that another parent already implies, which recovers the curated shape.
 //
 // The reduced links are still a DAG, not a tree: several dozen terms of the merged NPO file keep
 // more than one direct parent. Drawing a term's whole subtree under each of them left every view
 // to pick its own "main" path — the Cell Card's widget took the first one a depth-first walk met,
 // the relationship graph took them all — so they disagreed. Instead each term is filed under one
-// *primary* parent, the one closest to the root (Filippo's rule), and its subtree hangs there;
+// *primary* parent, the one closest to the top (Filippo's rule), and its subtree hangs there;
 // under every other parent it is a `secondary` leaf, drawn with an asterisk.
 //
-// Without a root class the result is a forest: the terms no in-scope term is a superclass of are
-// its roots. The ontology document scopes those terms but is not a class they are a subclass of,
-// so it is no row of the tree (Filippo).
-const buildHierarchy = (
-  rootClass: string,
-  cells: CellTerm[],
-  ctx: ParseContext
-): HierarchyNode[] => {
-  const inScope = new Set(cells.map((c) => c.id));
+// Without roots the result is a forest: the items none of the others is a parent of are its top
+// level, whether they assert no parent or only ones that live outside `items`. The ontology
+// document scopes those terms but is not a class they are a subclass of, so it is no row of the
+// tree (Filippo).
+export const buildHierarchy = (items: HierarchyItem[], roots: HierarchyItem[] = []): HierarchyNode[] => {
+  const rootIds = new Set(roots.map((root) => root.id));
+  const placeable = items.filter((item) => !rootIds.has(item.id));
+  const inScope = new Set(placeable.map((item) => item.id));
+  // Where a term with no parent in scope is filed: under the first root or, in a forest, under
+  // the empty key its top level is read from.
+  const top = roots[0]?.id ?? "";
+
   const parentsOf = new Map<string, string[]>();
-  for (const cell of cells) {
+  for (const item of placeable) {
     parentsOf.set(
-      cell.id,
-      subClassRefs(ctx.idx.get(cell.id), ctx).filter((p) => p === rootClass || inScope.has(p))
+      item.id,
+      item.parents.filter((p) => p !== item.id && (rootIds.has(p) || inScope.has(p)))
     );
   }
 
@@ -651,49 +857,57 @@ const buildHierarchy = (
   };
 
   const childrenOf = new Map<string, string[]>();
-  for (const cell of cells) {
-    const parents = parentsOf.get(cell.id) || [];
+  const fileUnder = (parent: string, id: string) => {
+    const siblings = childrenOf.get(parent);
+    if (siblings) siblings.push(id);
+    else childrenOf.set(parent, [id]);
+  };
+  for (const item of placeable) {
+    const parents = parentsOf.get(item.id) || [];
     // Keep a parent only when no *other* parent already reaches it: that other parent is the
     // more specific one, and this link is the entailed shortcut.
     const direct = parents.filter((p) => !parents.some((q) => q !== p && ancestorsOf(q).has(p)));
-    // No parent in scope: a top-level term, filed under the root class or, without one, under the
-    // empty key the forest's roots are read from.
-    for (const parent of direct.length ? direct : parents.length ? parents : [rootClass]) {
-      const siblings = childrenOf.get(parent);
-      if (siblings) siblings.push(cell.id);
-      else childrenOf.set(parent, [cell.id]);
+    for (const parent of direct.length ? direct : parents.length ? parents : [top]) {
+      fileUnder(parent, item.id);
     }
   }
 
-  const byId = new Map(cells.map((c) => [c.id, c]));
+  const byId = new Map([...roots, ...placeable].map((item) => [item.id, item]));
   const termFields = (termId: string) => {
-    const cell = byId.get(termId);
-    return {
-      termId,
-      label: cell ? cell.label : labelFor(termId, ctx),
-      curie: cell ? cell.curie : classify(termId, ctx.prefixes).curie,
-      iri: cell ? cell.iri : toIri(termId, ctx.prefixes),
-    };
+    const { label, curie, iri } = byId.get(termId) as HierarchyItem;
+    return { termId, label, curie, iri };
   };
-  const labelOf = (termId: string) => termFields(termId).label;
-  for (const kids of childrenOf.values()) kids.sort((a, b) => labelOf(a).localeCompare(labelOf(b)));
+  const labelOf = (termId: string) => byId.get(termId)?.label ?? termId;
+  const byLabel = (a: string, b: string) => labelOf(a).localeCompare(labelOf(b));
+  for (const kids of childrenOf.values()) kids.sort(byLabel);
 
   // Breadth-first over the label-ordered rows, so the parent that first reaches a term is the
-  // closest to the root, and among equally close ones the one drawn first: a reader scanning the
-  // tree meets a term's own position before any asterisked one at the same depth. A term the root
-  // reaches through no chain of links is never placed, as before.
+  // closest to the top, and among equally close ones the one drawn first: a reader scanning the
+  // tree meets a term's own position before any asterisked one at the same depth.
   const primaryParentOf = new Map<string, string>();
-  const queue = [rootClass];
-  for (let i = 0; i < queue.length; i++) {
-    for (const kid of childrenOf.get(queue[i]) || []) {
-      if (kid === rootClass || primaryParentOf.has(kid)) continue;
-      primaryParentOf.set(kid, queue[i]);
-      queue.push(kid);
+  const place = (queue: string[]) => {
+    for (let i = 0; i < queue.length; i++) {
+      for (const kid of childrenOf.get(queue[i]) || []) {
+        if (rootIds.has(kid) || primaryParentOf.has(kid)) continue;
+        primaryParentOf.set(kid, queue[i]);
+        queue.push(kid);
+      }
     }
+  };
+  place(roots.length ? [...rootIds] : [top]);
+
+  // Classes that are each other's subclass (how a reasoner states an equivalence) have no way in
+  // from the top: every one of them has a parent in scope. The first by label opens the loop.
+  for (const item of [...placeable].sort((a, b) => byLabel(a.id, b.id))) {
+    if (primaryParentOf.has(item.id)) continue;
+    fileUnder(top, item.id);
+    (childrenOf.get(top) as string[]).sort(byLabel);
+    primaryParentOf.set(item.id, top);
+    place([item.id]);
   }
 
-  // Recursion follows primary links only, which get one step further from the root each time, so a
-  // subClassOf cycle closes on a secondary leaf instead of recursing forever.
+  // Recursion follows primary links only, which get one step further from the top each time, so a
+  // cycle closes on a secondary leaf instead of recursing forever.
   const childrenAt = (termId: string, path: string): HierarchyNode[] =>
     (childrenOf.get(termId) || []).map((kid) => {
       const kidPath = path ? `${path}/${kid}` : kid;
@@ -706,13 +920,13 @@ const buildHierarchy = (
         ...termFields(kid),
         children: [],
         secondary: true,
-        primaryParentLabel: primaryParent && labelOf(primaryParent),
+        primaryParentLabel: primaryParent ? labelOf(primaryParent) : undefined,
       };
     });
 
-  return rootClass
-    ? [{ id: rootClass, ...termFields(rootClass), children: childrenAt(rootClass, rootClass) }]
-    : childrenAt(rootClass, "");
+  return roots.length
+    ? roots.map((root) => ({ id: root.id, ...termFields(root.id), children: childrenAt(root.id, root.id) }))
+    : childrenAt(top, "");
 };
 
 // The ontology header. Title, description, version and community link are fixed fields of the
@@ -792,9 +1006,77 @@ const parseOntologySpec = (graph: GraphNode[], ctx: ParseContext): OntologySpec 
   return { header, hasTerms };
 };
 
+// The ids of the root classes the grid is restricted to, in the graph's own spelling: the ones the
+// ontology's header names or, when it names none, the one configured for the ontology.
+const rootClassIds = (graph: GraphNode[], configuredRoot: string, ctx: ParseContext): string[] => {
+  const named = fieldRefs(graph.find(isOntologyNode), ctx.fields.ontologyRootClass, ctx);
+  const roots = named.length ? named : configuredRoot ? [configuredRoot] : [];
+  if (!roots.length) return roots;
+  // The header may spell a class out where the links to it use its curie, or the reverse.
+  const spelling = new Map<string, string>();
+  const note = (id: string) => {
+    const key = expandId(id, ctx.prefixes);
+    if (!spelling.has(key)) spelling.set(key, id);
+  };
+  for (const node of graph) {
+    const id = node["@id"];
+    if (typeof id !== "string" || isBlankNode(id)) continue;
+    note(id);
+    namedRefs(node, ctx.fields.parent).forEach(note);
+  }
+  return [...new Set(roots.map((id) => spelling.get(expandId(id, ctx.prefixes)) ?? id))];
+};
+
+// Every node filed under one of `roots`, however many links down. Walked over the whole graph
+// rather than the declared terms: the chain up to a root may run through a class the file only
+// mentions.
+const descendantsOf = (roots: string[], graph: GraphNode[], ctx: ParseContext): Set<string> => {
+  const childrenOf = new Map<string, string[]>();
+  for (const node of graph) {
+    const id = node["@id"];
+    if (typeof id !== "string" || isBlankNode(id)) continue;
+    for (const parent of namedRefs(node, ctx.fields.parent)) {
+      const key = expandId(parent, ctx.prefixes);
+      const children = childrenOf.get(key);
+      if (children) children.push(id);
+      else childrenOf.set(key, [id]);
+    }
+  }
+  const rootKeys = new Set(roots.map((id) => expandId(id, ctx.prefixes)));
+  const found = new Set<string>();
+  const queue = [...rootKeys];
+  for (let i = 0; i < queue.length; i++) {
+    for (const child of childrenOf.get(queue[i]) || []) {
+      const key = expandId(child, ctx.prefixes);
+      if (rootKeys.has(key) || found.has(child)) continue;
+      found.add(child);
+      queue.push(key);
+    }
+  }
+  return found;
+};
+
+// Which of the declared terms the grid shows as cells.
+//
+// With a root class, the classes that descend from it: the restriction is the ontology's own, and
+// holds whether or not a class carries the neurdf typing. Without one nothing narrows the set, and
+// that typing is the only thing left that tells a cell from any other class of the file.
+const isCellIn = (
+  roots: string[],
+  graph: GraphNode[],
+  ctx: ParseContext
+): ((node: GraphNode, term: OntologyTerm) => boolean) => {
+  if (!roots.length) return (node) => hasNeurdfType(node, ctx);
+  const descendants = descendantsOf(roots, graph, ctx);
+  return (_node, term) => term.relation === "subClassOf" && descendants.has(term.id);
+};
+
+const byLabel = (a: OntologyTerm, b: OntologyTerm) => a.label.localeCompare(b.label);
+
+// `configuredRoot` restricts the grid for an ontology whose header names no root class of its own.
 export const parseNeurdf = (
   data: OntologyGraph,
-  rootClass: string,
+  configuredRoot: string,
   fields: FieldSources = DEFAULT_FIELD_SOURCES
 ): ParsedOntology => {
   const graph = data["@graph"] || [];
@@ -802,21 +1084,28 @@ export const parseNeurdf = (
   const prefixes = contextPrefixes(data["@context"]);
   const idx = indexGraph(graph);
   const ctx = buildContext(idx, prefixes, fields);
-  // Compared as IRIs, since the same class can be a curie in one file and spelled out in another.
-  const expand = (id: string) => toIri(id, prefixes) || id;
-  const cellTypes = new Set(fields.cellType.sources.map(expand));
-  const neurons = graph.filter((n) => asType(n["@type"]).some((t) => cellTypes.has(expand(t))));
-  const inScope = rootClass
-    ? neurons.filter((n) => reaches(String(n["@id"] ?? ""), rootClass, ctx))
-    : neurons;
-  const cells = inScope.map((n) => buildCell(n, ctx));
-  cells.sort((a, b) => a.label.localeCompare(b.label));
-  const meta = parseOntologyMeta(graph, fields, prefixes);
+
+  const roots = rootClassIds(graph, configuredRoot, ctx);
+  const isCell = isCellIn(roots, graph, ctx);
+  const terms: OntologyTerm[] = [];
+  const cells: CellTerm[] = [];
+  for (const node of graph) {
+    if (!isDeclaredTerm(node)) continue;
+    const term = buildTerm(node, ctx);
+    terms.push(term);
+    if (isCell(node, term)) cells.push(buildCell(node, term, ctx));
+  }
+  terms.sort(byLabel);
+  cells.sort(byLabel);
+
+  const rootClasses = resolveValue(roots.map((id) => ({ "@id": id })), ctx);
   return {
-    meta,
+    meta: parseOntologyMeta(graph, fields, prefixes),
     spec: parseOntologySpec(graph, ctx),
+    terms,
+    rootClasses,
     cells,
-    hierarchy: buildHierarchy(rootClass, cells, ctx),
+    hierarchy: buildHierarchy(cells, rootClasses.map((root) => ({ ...root, parents: [] }))),
     predicateDisplay: parsePredicateDisplay(graph, prefixes, fields),
   };
 };

@@ -9,13 +9,24 @@ import {
   parseNeurdf,
   parsePredicateDisplay,
   buildFacets,
+  buildHierarchy,
   contextPrefixes,
   toCompactId,
 } from "../neurdfParser";
 import { hasTranscriptomicProfile } from "../../components/CellCards/CellCard/widgetVisibility";
 import { buildNervoSensusLink, atlasCellKey } from "../../components/CellCards/CellCard/nervoSensusLink";
 import { buildRelationGraph } from "../../components/CellCards/CellCard/buildRelationGraph";
-import { hierarchyNeighbours } from "../../components/CellCards/services/ontologyGridService";
+import {
+  SUBCLASSES,
+  SUPERCLASSES,
+  hierarchyNeighbours,
+  landingTab,
+  relationHierarchy,
+  relationsIn,
+  scopedTerms,
+  termTypeCounts,
+  termsOfType,
+} from "../../components/CellCards/services/ontologyGridService";
 import { primaryPath, superclassTree } from "../../components/CellCards/model/hierarchy";
 import { ontologyHierarchy } from "../ontologyTermAdapter";
 import { resolveMappings } from "../../components/CellCards/config/mappingsService";
@@ -295,10 +306,19 @@ const reprefixed = {
   ),
 };
 check("the fixture declares neurdf predicate families to relabel", relabel.size > 0, true);
+const reparsed = parseNeurdf(reprefixed, "ilxtr:NeuronPrecision");
+// The types are the one thing that reads differently: with no `neurdf` prefix, the neurdf type
+// compacts under the next prefix that covers it.
+const withoutTypes = (list) => list.map(({ rdfTypes, ...rest }) => rest);
 check(
   "the same cells, properties and hierarchy come out",
-  (({ cells: c, hierarchy: h }) => ({ c, h }))(parseNeurdf(reprefixed, "ilxtr:NeuronPrecision")),
-  { c: cells, h: parseNeurdf(data, "ilxtr:NeuronPrecision").hierarchy }
+  { c: withoutTypes(reparsed.cells), h: reparsed.hierarchy },
+  { c: withoutTypes(cells), h: parseNeurdf(data, "ilxtr:NeuronPrecision").hierarchy }
+);
+check(
+  "the neurdf type is still listed, under the prefix the file does declare",
+  reparsed.cells[0].rdfTypes.slice().sort(),
+  ["ilxtr:neurdf/Neuron", "owl:Class"]
 );
 
 console.log("\nno root class (a group's own ontology)");
@@ -408,6 +428,225 @@ check(
   hierarchyNeighbours(rooted, topLevel).parents.map((l) => [l.term.id, l.secondary]),
   [["ilxtr:NeuronPrecision", false]]
 );
+
+// --- every term, whatever its type (Browse) -------------------------------------
+// The root restriction and the neurdf typing decide what the grid shows, never what the ontology
+// is said to contain.
+console.log("\nevery declared term is listed");
+const declared = data["@graph"].filter(
+  (n) => n["@type"] && !String(n["@id"]).startsWith("_:") && ![n["@type"]].flat().includes("owl:Ontology")
+);
+check("one term per typed, named node", unrooted.terms.length, declared.length);
+check("the root restriction does not narrow them", rooted.terms.length, unrooted.terms.length);
+check(
+  "every rdf:type is kept, the neurdf marker included",
+  rooted.terms.find((t) => t.id === "npokb:1067").rdfTypes.slice().sort(),
+  ["neurdf:Neuron", "owl:Class"]
+);
+const declaredTypeCounts = declared.reduce((counts, n) => {
+  for (const type of [n["@type"]].flat()) counts[type] = (counts[type] || 0) + 1;
+  return counts;
+}, {});
+check(
+  "the type list counts each distinct type",
+  termTypeCounts(unrooted.terms).map(({ type, count }) => [type, count]).sort(),
+  Object.entries(declaredTypeCounts).sort()
+);
+check(
+  "…the most used first",
+  termTypeCounts(unrooted.terms)[0].type,
+  "owl:ObjectProperty"
+);
+check(
+  "picking a type keeps only its terms",
+  termsOfType(unrooted.terms, "owl:ObjectProperty").every((t) => t.rdfTypes.includes("owl:ObjectProperty")),
+  true
+);
+check(
+  "a property is placed by subPropertyOf, anything else by subClassOf",
+  [...new Set(unrooted.terms.map((t) => `${t.rdfTypes.some((x) => /Property$/.test(x))}:${t.relation}`))].sort(),
+  ["false:subClassOf", "true:subPropertyOf"]
+);
+check("both hierarchies are offered", relationsIn(unrooted.terms), ["subClassOf", "subPropertyOf"]);
+check(
+  "one type's terms offer only the hierarchy that places them",
+  relationsIn(termsOfType(unrooted.terms, "owl:ObjectProperty")),
+  ["subPropertyOf"]
+);
+
+// Two hierarchies over one synthetic ontology: classes whose parent lives elsewhere, a pair of
+// classes a reasoner made each other's subclass, an individual, and a property chain.
+console.log("\nhierarchies per relation (synthetic graph)");
+const mixed = parseNeurdf(
+  {
+    "@context": { owl: "http://www.w3.org/2002/07/owl#", ex: "https://example.org/" },
+    "@graph": [
+      { "@id": "ex:onto", "@type": "owl:Ontology" },
+      { "@id": "ex:Organ", "@type": "owl:Class", "rdfs:label": "organ", "rdfs:subClassOf": { "@id": "ex:Elsewhere" } },
+      { "@id": "ex:Heart", "@type": "owl:Class", "rdfs:label": "heart", "rdfs:subClassOf": [{ "@id": "ex:Organ" }, { "@id": "_:b0" }] },
+      { "@id": "ex:Same1", "@type": "owl:Class", "rdfs:label": "alias one", "rdfs:subClassOf": { "@id": "ex:Same2" } },
+      { "@id": "ex:Same2", "@type": "owl:Class", "rdfs:label": "alias two", "rdfs:subClassOf": { "@id": "ex:Same1" } },
+      { "@id": "ex:thisHeart", "@type": ["owl:NamedIndividual", "ex:Heart"], "rdfs:label": "this heart" },
+      { "@id": "ex:partOf", "@type": ["owl:ObjectProperty", "owl:TransitiveProperty"], "rdfs:label": "part of" },
+      { "@id": "ex:properPartOf", "@type": "owl:ObjectProperty", "rdfs:label": "proper part of", "rdfs:subPropertyOf": { "@id": "ex:partOf" } },
+      { "@id": "ex:note", "@type": "owl:AnnotationProperty", "rdfs:subPropertyOf": { "@id": "rdfs:comment" } },
+      { "@id": "ex:Elsewhere", "rdfs:label": "only mentioned" },
+      { "@id": "_:b0", "@type": "owl:Restriction" },
+    ],
+  },
+  ""
+);
+const outline = (nodes) => nodes.map((n) => [n.termId, ...(n.secondary ? ["*"] : []), outline(n.children)]);
+check(
+  "the ontology document, blank nodes and merely mentioned nodes are not terms",
+  mixed.terms.map((t) => t.id).sort(),
+  ["ex:Heart", "ex:Organ", "ex:Same1", "ex:Same2", "ex:note", "ex:partOf", "ex:properPartOf", "ex:thisHeart"]
+);
+check("an ontology with no neurdf-typed record and no root class has no cells", mixed.cells.length, 0);
+check("…and opens on its terms instead of the grid", landingTab(mixed), "browse");
+check("an ontology with no terms opens on its header", landingTab({ cells: [], terms: [] }), "specification");
+check("an ontology with cells opens on the grid", landingTab(unrooted), "");
+const classTree = relationHierarchy(mixed.terms, "subClassOf");
+check(
+  "classes and individuals hang off subClassOf; a parent outside the ontology leaves a top-level term",
+  outline(classTree.roots),
+  [
+    ["ex:Same1", [["ex:Same2", [["ex:Same1", "*", []]]]]],
+    ["ex:Organ", [["ex:Heart", []]]],
+    ["ex:thisHeart", []],
+  ]
+);
+check(
+  "properties hang off subPropertyOf, in a hierarchy of their own",
+  outline(relationHierarchy(mixed.terms, "subPropertyOf").roots),
+  [["ex:note", []], ["ex:partOf", [["ex:properPartOf", []]]]]
+);
+check(
+  "narrowing to a type re-roots the terms whose parents it filtered out",
+  outline(buildHierarchy(mixed.terms.filter((t) => t.id === "ex:Heart" || t.id === "ex:thisHeart"))),
+  [["ex:Heart", []], ["ex:thisHeart", []]]
+);
+check(
+  "reading down from a term lists it and what is under it",
+  scopedTerms(classTree.terms, classTree.roots, "ex:Organ", SUBCLASSES).map((t) => t.id).sort(),
+  ["ex:Heart", "ex:Organ"]
+);
+check(
+  "reading up lists only what is above it",
+  scopedTerms(classTree.terms, classTree.roots, "ex:Heart", SUPERCLASSES).map((t) => t.id),
+  ["ex:Organ"]
+);
+
+// --- the root class named by the ontology's header --------------------------------
+// No served ontology names one yet, hence a synthetic graph. The header spells the class out while
+// the links to it use its curie, and nothing here is typed neurdf: descending from the root is
+// what makes a class a cell.
+console.log("\nroot class named by the header (synthetic graph)");
+const headerRooted = (extraHeader = {}, configuredRoot = "") =>
+  parseNeurdf(
+    {
+      "@context": { ex: "https://example.org/", ilxtr: "http://uri.interlex.org/tgbugs/uris/readable/" },
+      "@graph": [
+        { "@id": "ex:onto", "@type": "owl:Ontology", ...extraHeader },
+        { "@id": "ex:Cell", "@type": "owl:Class", "rdfs:label": "cell" },
+        { "@id": "ex:Neuron", "@type": "owl:Class", "rdfs:label": "neuron", "rdfs:subClassOf": { "@id": "ex:Cell" } },
+        { "@id": "ex:Purkinje", "@type": "owl:Class", "rdfs:label": "Purkinje cell", "rdfs:subClassOf": { "@id": "ex:Neuron" } },
+        { "@id": "ex:Liver", "@type": "owl:Class", "rdfs:label": "liver" },
+        { "@id": "ex:hasPart", "@type": "owl:ObjectProperty", "rdfs:subPropertyOf": { "@id": "ex:Cell" } },
+      ],
+    },
+    configuredRoot
+  );
+const byHeader = headerRooted({ "ilxtr:rootClass": { "@id": "https://example.org/Cell" } });
+check("the root is read off the header, in the graph's own spelling", byHeader.rootClasses.map((r) => r.id), ["ex:Cell"]);
+check(
+  "the cells are the classes that descend from it, however far down",
+  byHeader.cells.map((c) => c.id).sort(),
+  ["ex:Neuron", "ex:Purkinje"]
+);
+check("every term is still listed", byHeader.terms.length, 5);
+check("the root heads the cells' hierarchy", outline(byHeader.hierarchy), [["ex:Cell", [["ex:Neuron", [["ex:Purkinje", []]]]]]]);
+check(
+  "OBO's root-term annotation is read the same way",
+  headerRooted({ "IAO:0000700": { "@id": "ex:Neuron" } }).cells.map((c) => c.id),
+  ["ex:Purkinje"]
+);
+check(
+  "the header outranks the root configured for the ontology",
+  headerRooted({ "ilxtr:rootClass": { "@id": "ex:Neuron" } }, "ex:Cell").cells.map((c) => c.id),
+  ["ex:Purkinje"]
+);
+check(
+  "a configured root still applies to a header naming none",
+  headerRooted({}, "ex:Neuron").cells.map((c) => c.id),
+  ["ex:Purkinje"]
+);
+check("with neither, a file without neurdf typing has no cells", headerRooted().cells.length, 0);
+
+// --- the Cell Card's fallback for a cell without neurdf ---------------------------
+// The fixture is trimmed of its blank nodes, so the OWL expansion is synthetic, in the shapes the
+// full file writes: a plain restriction, a filler wrapped in "part of", a union of restrictions on
+// one property, a complement, and an entailed restriction under rdfs:subClassOf.
+console.log("\nOWL class expressions for a cell without neurdf (synthetic graph)");
+const restriction = (id, property, filler) => ({
+  "@id": id,
+  "@type": "owl:Restriction",
+  "owl:onProperty": { "@id": property },
+  "owl:someValuesFrom": { "@id": filler },
+});
+const owlCell = parseNeurdf(
+  {
+    "@context": { ilxtr: "http://uri.interlex.org/tgbugs/uris/readable/", ex: "https://example.org/" },
+    "@graph": [
+      { "@id": "ex:onto", "@type": "owl:Ontology", "ilxtr:rootClass": { "@id": "ex:Neuron" } },
+      {
+        "@id": "ex:N1",
+        "@type": "owl:Class",
+        "ilxtr:origLocalLabel": "release label",
+        "ilxtr:localLabel": "local label",
+        "rdfs:label": "generated label",
+        "owl:equivalentClass": { "@id": "_:eq" },
+        "rdfs:subClassOf": [{ "@id": "ex:Neuron" }, { "@id": "_:taxon" }],
+      },
+      { "@id": "ex:N2", "@type": "owl:Class", "ilxtr:localLabel": "local label", "rdfs:label": "generated label", "rdfs:subClassOf": { "@id": "ex:Neuron" } },
+      {
+        "@id": "_:eq",
+        "@type": "owl:Class",
+        "owl:intersectionOf": { "@list": [{ "@id": "ex:Neuron" }, { "@id": "_:axon" }, { "@id": "_:soma" }, { "@id": "_:not" }] },
+      },
+      restriction("_:axon", "ilxtr:hasAxonPhenotype", "ex:TypeC"),
+      { "@id": "_:soma", "@type": "owl:Class", "owl:unionOf": { "@list": [{ "@id": "_:somaA" }, { "@id": "_:somaB" }] } },
+      restriction("_:somaA", "ilxtr:hasSomaLocatedIn", "_:partA"),
+      restriction("_:somaB", "ilxtr:hasSomaLocatedIn", "_:partB"),
+      restriction("_:partA", "ex:partOf", "ex:DRG"),
+      restriction("_:partB", "ex:partOf", "ex:TG"),
+      { "@id": "_:not", "@type": "owl:Class", "owl:complementOf": { "@id": "_:spiny" } },
+      restriction("_:spiny", "ilxtr:hasMorphologicalPhenotype", "ex:Spiny"),
+      restriction("_:taxon", "ilxtr:hasInstanceInTaxon", "ex:Mouse"),
+      { "@id": "ex:DRG", "rdfs:label": "dorsal root ganglion" },
+    ],
+  },
+  ""
+);
+const n1 = owlCell.cells.find((c) => c.id === "ex:N1");
+const flat = (prop) => prop && [prop.family, prop.combinator ?? null, prop.values.map((v) => v.id)];
+check("a restriction reads as the property's value", flat(n1.properties.hasAxonPhenotype), ["eqv", null, ["ex:TypeC"]]);
+check(
+  "a union on one property keeps 'or', each filler cut down to the entity it ends in",
+  flat(n1.properties.hasSomaLocatedIn),
+  ["eqv", "or", ["ex:DRG", "ex:TG"]]
+);
+check("values resolve their labels from the graph", n1.properties.hasSomaLocatedIn.values[0].label, "dorsal root ganglion");
+check("a complement lands on the negated phenotypes", flat(n1.negated.hasMorphologicalPhenotype), ["eqv", null, ["ex:Spiny"]]);
+check("a restriction under subClassOf is entailed", flat(n1.properties.hasInstanceInTaxon), ["ent", null, ["ex:Mouse"]]);
+check("the named superclass is not a phenotype", Object.keys(n1.properties).sort(), ["hasAxonPhenotype", "hasInstanceInTaxon", "hasSomaLocatedIn"]);
+// The fixture's cells are typed neurdf and carry no blank nodes at all, so nothing but the flat
+// predicates can have filled them: the fallback stays off wherever neurdf is available.
+check("a neurdf-typed cell is read from its neurdf predicates", Boolean(byId["npokb:934"].properties.hasSomaLocatedIn), true);
+
+console.log("\nterm labels");
+check("ilxtr:origLocalLabel outranks ilxtr:localLabel", n1.label, "release label");
+check("ilxtr:localLabel is still the fallback", owlCell.cells.find((c) => c.id === "ex:N2").label, "local label");
 
 // The community link the spec names, `ilxtr:developmentCommunity`, has zero occurrences today, so
 // how a curator will write it is unknown — and every *other* link predicate in this ontology is an
