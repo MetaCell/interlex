@@ -4,6 +4,7 @@ import ArrowOutwardOutlinedIcon from "@mui/icons-material/ArrowOutwardOutlined";
 import { CheckboxDefault, CheckboxSelected } from "../../Icons";
 import { vars } from "../../theme/variables";
 import { termLink } from "./config/gridConfig";
+import { refText } from "./model/refText";
 import { predicateLabel } from "./config/mappingDefaults";
 import { useMappings } from "./config/mappingsAtom";
 import { useTermLinkContext } from "../../hooks/useContextOntology";
@@ -25,12 +26,12 @@ const PropertyRow = ({ label, prop, render }) => {
           variant="body2"
           sx={{ color: brand700, fontWeight: 500, textAlign: "right" }}
         >
-          {prop.values.map((v) => v.label).join(", ")}
+          {prop.values.map(refText).join(", ")}
         </Typography>
       ) : (
         <Box display="flex" flexWrap="wrap" justifyContent="flex-end" gap={0.5} minWidth={0}>
           {prop.values.map((v) => (
-            <Chip key={v.id} label={v.label} title={v.label} variant="outlined" />
+            <Chip key={v.id} label={refText(v)} title={refText(v)} variant="outlined" />
           ))}
         </Box>
       )}

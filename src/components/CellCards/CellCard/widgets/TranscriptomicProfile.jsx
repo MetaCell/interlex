@@ -3,6 +3,7 @@ import { Typography, Chip, Divider, Box, Alert, Link } from "@mui/material";
 import ArrowOutwardOutlinedIcon from "@mui/icons-material/ArrowOutwardOutlined";
 import CellCardWidget from "../CellCardWidget";
 import { useMappings } from "../../config/mappingsAtom";
+import { refText } from "../../model/refText";
 
 export const TITLE = "Transcriptomic profile";
 
@@ -62,8 +63,8 @@ const TranscriptomicProfile = ({ cell, actions }) => {
           {genes.map((g) => (
             <Chip
               key={g.id}
-              label={g.label || g.curie}
-              title={g.label || g.curie}
+              label={refText(g)}
+              title={refText(g)}
               variant="outlined"
             />
           ))}

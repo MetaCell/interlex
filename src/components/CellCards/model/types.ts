@@ -35,6 +35,9 @@ export interface ResolvedRef {
   label: string; // human label (resolved from the graph) or the literal / curie fallback
   iri: string; // full IRI to link out to ("" for literals)
   kind: RefKind;
+  // Set when the graph states the value inside an intersection with an InterLex term, as
+  // `[ilxtr:HigherExpression, NCBIGene:4916]` does: the value is the gene, the qualifier says how.
+  qualifier?: ResolvedRef;
 }
 
 // A literature citation, described by the cited work's own node rather than a publisher API

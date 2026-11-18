@@ -1,4 +1,5 @@
 import { DEFAULT_MAPPINGS } from "../config/mappingDefaults";
+import { refText } from "../model/refText";
 
 // A label (with its provenance parenthetical, e.g. "DRG PEP3.2 (Krauter2025)") is never split
 // across the title and subtitle lines — Filippo asked that a label always stay intact on its own
@@ -146,7 +147,7 @@ export const buildRelationGraph = (cell, neighbours = {}, mappings = DEFAULT_MAP
       const target = box.values.length === 1 ? box.values[0] : undefined;
       nodes.push({
         id,
-        label: box.values.map((v) => v.label || v.curie).join(" or "),
+        label: box.values.map(refText).join(" or "),
         subtitle: target?.label ? target.curie : undefined,
         isCurrent: false,
         ref: target,

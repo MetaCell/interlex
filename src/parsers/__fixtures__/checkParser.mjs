@@ -629,5 +629,61 @@ check(
 );
 check("while the rest of the model is untouched", rebuilt.cells.length, cells.length);
 
+// --- qualified genes (#200) ----------------------------------------------------
+// npokb:1011 states its genes only as intersections of a modifier and a gene — one @list per pair —
+// under neurdf.eqv.io:hasExpressionPhenotype. Flattened, "Higher" and the gene were two unrelated
+// values, and nothing was a marker gene. npokb:44-style plain genes sit under the same predicate
+// beside non-gene receptor classes; negated assertions must stay out of the marker genes.
+const modifierData = structuredClone(data);
+const ref = (id) => ({ "@id": id });
+modifierData["@graph"].push(
+  {
+    "@id": "npokb:9001",
+    "@type": ["neurdf:Neuron", "owl:Class"],
+    "rdfs:label": "Qualified genes",
+    "rdfs:subClassOf": [ref("ilxtr:NeuronPrecision")],
+    "neurdf.eqv.io:hasExpressionPhenotype": [
+      { "@list": [ref("ilxtr:HigherExpression"), ref("NCBIGene:4916")] },
+      { "@list": [ref("ilxtr:LowerExpression"), ref("NCBIGene:4915")] },
+    ],
+    "neurdf.eqv:hasExpressionPhenotype": [ref("NCBIGene:22784"), ref("ilxtr:GABAReceptor")],
+    "neurdf.eqv.neg:hasExpressionPhenotype": ref("NCBIGene:4917"),
+  },
+  { "@id": "ilxtr:HigherExpression", "rdfs:label": "Higher" },
+  { "@id": "ilxtr:LowerExpression", "rdfs:label": "Lower" },
+  { "@id": "NCBIGene:4916", "rdfs:label": "NTRK2" },
+  { "@id": "NCBIGene:4915", "rdfs:label": "NTRK1" }
+);
+const qualifiedCell = parseNeurdf(modifierData, "ilxtr:NeuronPrecision").cells.find(
+  (c) => c.id === "npokb:9001"
+);
+console.log("\nqualified genes (npokb:9001)");
+const expressed = qualifiedCell.properties.hasExpressionPhenotype.values;
+check(
+  "each modifier travels with its gene instead of standing as a value",
+  expressed.filter((v) => v.qualifier).map((v) => [v.label, v.qualifier.label]),
+  [
+    ["NTRK2", "Higher"],
+    ["NTRK1", "Lower"],
+  ]
+);
+check(
+  "no modifier is a value of its own",
+  expressed.map((v) => v.id),
+  ["NCBIGene:4916", "NCBIGene:4915", "NCBIGene:22784", "ilxtr:GABAReceptor"]
+);
+check(
+  "the genes are the cell's marker genes, a plain gene included, a receptor class and a negated gene not",
+  qualifiedCell.properties.hasNucleicAcidExpressionPhenotype.values.map((v) => v.id),
+  ["NCBIGene:4916", "NCBIGene:4915", "NCBIGene:22784"]
+);
+check(
+  "the graph draws each gene once, worded with its modifier",
+  buildRelationGraph(qualifiedCell, {}, resolveMappings(shipped, "precision"))
+    .nodes.filter((n) => n.id.includes("::expresses::"))
+    .map((n) => n.label),
+  ["NTRK2 (Higher)", "NTRK1 (Lower)", "NCBIGene:22784", "ilxtr:GABAReceptor"]
+);
+
 console.log(failed ? `\n${failed} check(s) failed` : "\nall checks passed");
 process.exit(failed ? 1 : 0);

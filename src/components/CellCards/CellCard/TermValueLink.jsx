@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import { Link, Typography } from "@mui/material";
 import { termLink } from "../config/gridConfig";
+import { refText } from "../model/refText";
 import { useTermLinkContext } from "../../../hooks/useContextOntology";
 
 /**
@@ -22,7 +23,7 @@ const TermValueLink = ({ value, variant = "body2" }) => {
   const href = termLink(value, linkContext);
   // A gene with no rdfs:label in the graph (26% of NCBIGene nodes) resolves to its CURIE —
   // show it, per Tom: render the compacted form rather than dropping the value.
-  const text = value.label || value.curie;
+  const text = refText(value);
 
   if (!href) {
     return (

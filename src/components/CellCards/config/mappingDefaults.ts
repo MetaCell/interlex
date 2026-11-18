@@ -133,6 +133,10 @@ export const DEFAULT_FIELD_SOURCES: FieldSources = {
 
   literalProperties: exact("ilxtr:neurondmBaseClass"),
 
+  // The ontology declares the first a sub-property of the second, and curators write genes under
+  // either: npokb:1011 states its genes only as qualified `hasExpressionPhenotype` pairs.
+  markerGene: exact("ilxtr:hasNucleicAcidExpressionPhenotype", "ilxtr:hasExpressionPhenotype"),
+
   // Evidence is derived from the relation: an explicit description outranks an inferred mapping.
   // `proposed` waits on a curator "don't add" flag, which the shipped graph does not carry.
   crossNomenclature: {

@@ -82,6 +82,11 @@ export interface FieldSources {
   // whatever they are.)
   literalProperties: FieldSource;
 
+  // Where a cell's marker genes are stated. The first source is the property they are read from
+  // everywhere (the tile row, the banner, the graph); the genes the others assert are gathered
+  // onto it. Hence the order, unlike most fields, is not a fallback chain.
+  markerGene: FieldSource;
+
   crossNomenclature: MappingEvidenceSources;
 
   // The annotations that carry a predicate's own display metadata, which is what lets an ontology

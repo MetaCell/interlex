@@ -41,6 +41,8 @@
 
       "literalProperties": ["ilxtr:neurondmBaseClass"],
 
+      "markerGene": ["ilxtr:hasNucleicAcidExpressionPhenotype", "ilxtr:hasExpressionPhenotype"],
+
       "crossNomenclature": {
         "described": ["TEMP:assertedSubClassOf", "TEMP:subClassOf"],
         "inferred": ["TEMP:mapsTo"],

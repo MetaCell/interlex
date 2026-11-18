@@ -103,6 +103,7 @@ const FIELD_KEYS = [
   "sparcMap",
   "nervoSensusLink",
   "literalProperties",
+  "markerGene",
   "predicateLabel",
   "predicateDescription",
   "ontologyTitle",

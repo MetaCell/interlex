@@ -332,12 +332,19 @@ const labelFor = (id: string, ctx: ParseContext): string =>
 // ({"@list":[{...},{...}]}), and `neurdf.eqv.uo:hasSomaLocatedIn` is the *only* soma-location
 // predicate on 61 of the 161 Precision cells. Treating a list object as an unrecognised value
 // silently dropped the property for all of them.
-const resolveValue = (raw: unknown, ctx: ParseContext): ResolvedRef[] => {
+//
+// With `intersection`, a list that mixes InterLex terms with outside ones is one claim, not
+// several: `[ilxtr:HigherExpression, NCBIGene:4916]` is the gene *and* its being higher, so the
+// InterLex term travels with the gene as its qualifier instead of becoming a value of its own.
+const resolveValue = (raw: unknown, ctx: ParseContext, intersection = false): ResolvedRef[] => {
   const out: ResolvedRef[] = [];
   const push = (item: unknown) => {
     if (item && typeof item === "object" && "@list" in (item as object)) {
       const list = (item as { "@list"?: unknown })["@list"];
-      if (Array.isArray(list)) list.forEach(push);
+      if (Array.isArray(list)) {
+        const members = resolveValue(list, ctx);
+        out.push(...(intersection ? qualified(members) : members));
+      }
       return;
     }
     if (item && typeof item === "object" && "@id" in (item as object)) {
@@ -365,6 +372,12 @@ const resolveValue = (raw: unknown, ctx: ParseContext): ResolvedRef[] => {
   if (Array.isArray(raw)) raw.forEach(push);
   else push(raw);
   return out;
+};
+
+const qualified = (members: ResolvedRef[]): ResolvedRef[] => {
+  const qualifier = members.find((m) => m.kind === "interlex");
+  const subjects = members.filter((m) => m.kind !== "interlex");
+  return qualifier && subjects.length ? subjects.map((s) => ({ ...s, qualifier })) : members;
 };
 
 type JsonLdRefish = { "@id"?: unknown };
@@ -467,6 +480,27 @@ const mergeValues = (existing: ResolvedRef[], incoming: ResolvedRef[]): Resolved
   return [...byId.values()];
 };
 
+// A gene a cell expresses is a marker gene wherever the graph states it: the narrow predicate
+// (`hasNucleicAcidExpressionPhenotype`) is the first of `fields.markerGene`, and the genes the
+// broader ones name are gathered onto it, so every view reads one place. The broader predicates
+// also hold proteins and classes of receptor, which are not marker genes — only values that are
+// genes, or that say how a gene is expressed, move over. Their own property stays as it was.
+const gatherMarkerGenes = (properties: Record<string, CellProperty>, ctx: ParseContext): void => {
+  const [primary, ...broader] = ctx.fields.markerGene.sources.map((key) =>
+    localNameOf(key, ctx.prefixes)
+  );
+  if (!primary) return;
+  const genes = broader.flatMap((name) =>
+    (properties[name]?.values || []).filter((v) => v.kind === "ncbigene" || v.qualifier)
+  );
+  if (!genes.length) return;
+  const prev = properties[primary];
+  const from = properties[broader.find((name) => properties[name]) as string];
+  properties[primary] = prev
+    ? { ...prev, values: mergeValues(prev.values, genes) }
+    : { localName: primary, family: from.family, negated: false, values: mergeValues([], genes) };
+};
+
 const buildCell = (node: GraphNode, ctx: ParseContext): CellTerm => {
   const id = String(node["@id"]);
   const { curie } = classify(id, ctx.prefixes);
@@ -544,7 +578,7 @@ const buildCell = (node: GraphNode, ctx: ParseContext): CellTerm => {
     }
     const parsed = parseNeurdfKey(key, ctx.prefixes);
     if (!parsed) continue; // skip @id/@type/owl:*/rdfs:*/etc.
-    const values = resolveValue(raw, ctx);
+    const values = resolveValue(raw, ctx, parsed.combinator === "and");
     if (!values.length) continue;
     const bucket = parsed.negated ? negated : properties;
     const prev = bucket[parsed.localName];
@@ -563,6 +597,8 @@ const buildCell = (node: GraphNode, ctx: ParseContext): CellTerm => {
       };
     }
   }
+
+  gatherMarkerGenes(properties, ctx);
 
   const definition = definitionOf(node, ctx);
 

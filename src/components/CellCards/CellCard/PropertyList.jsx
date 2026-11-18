@@ -5,6 +5,7 @@ import { Link as RouterLink } from "react-router-dom";
 import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
 import TermValueLink from "./TermValueLink";
 import { NOT_SPECIFIED } from "../config/cellCardConfig";
+import { refText } from "../model/refText";
 
 // How several values on one predicate read. neurdf distinguishes an owl:unionOf (the soma is in
 // one of these) from independent assertions, and rendering both as "A, B" would state something
@@ -132,7 +133,7 @@ export const PropertyRow = ({
           <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "flex-end", gap: 0.5, minWidth: 0 }}>
             {values.map((v) => (
               // The theme caps chip labels at 20ch, so a long gene symbol needs its own title.
-              <Chip key={v.id} label={v.label || v.curie} title={v.label || v.curie} variant="outlined" />
+              <Chip key={v.id} label={refText(v)} title={refText(v)} variant="outlined" />
             ))}
           </Box>
         ) : (
